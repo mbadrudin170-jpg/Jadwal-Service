@@ -1,7 +1,7 @@
 # **Aturan**
 
 1. Tolong selalu menggunakan bahasa indonesia.
-2. 
+2. Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md
 
 # **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
 
@@ -837,5 +837,3 @@ Saat diminta untuk Firebase, tambahkan konfigurasi server berikut ke .idx/mcp.js
         }
     }
 }
-
-
