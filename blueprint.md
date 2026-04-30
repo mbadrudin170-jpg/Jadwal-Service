@@ -54,6 +54,8 @@ Dokumen ini memberikan gambaran umum tentang semua file dalam proyek, beserta tu
 
 *   **Fungsi**: Direktori ini berisi kode sumber Dart untuk aplikasi Flutter.
     *   `main.dart`: Titik masuk utama untuk aplikasi Flutter.
+    *   `common/`: Direktori untuk widget atau utilitas umum yang dapat digunakan kembali.
+        *   `text_input_field.dart`: Berisi widget `CustomTextInputField` yang dapat digunakan kembali untuk membuat kolom input teks.
 
 ### `test/`
 
