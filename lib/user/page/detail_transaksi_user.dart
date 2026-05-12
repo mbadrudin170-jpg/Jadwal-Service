@@ -1,8 +1,10 @@
-// path: lib/user/page/detail_transaksi.dart
+// path: lib/user/page/detail_transaksi_user.dart
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
-import 'package:wifi/user/core/utils/format_tanggal.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class DetailTransaksiPage extends StatelessWidget {
   final TransaksiModel transaksi;
@@ -11,6 +13,7 @@ class DetailTransaksiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Log.info('Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
@@ -20,11 +23,9 @@ class DetailTransaksiPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('ID Transaksi:', transaksi.id),
-            _buildInfoRow('Tanggal:', formatDate(transaksi.tanggal)),
+            _buildInfoRow('Tanggal:', FormatTanggal.formatTanggalDanJam(transaksi.tanggal)),
             _buildInfoRow('Keterangan:', transaksi.keterangan),
-            _buildInfoRow(
-                'Jumlah:', 'Rp \${transaksi.jumlah.toStringAsFixed(2)}'),
+            _buildInfoRow('Jumlah:', FormatUang.formatMataUang(transaksi.jumlah)),
             _buildInfoRow('Tipe:', transaksi.tipe.name),
             if (transaksi.idPaket != null)
               _buildInfoRow(
@@ -34,12 +35,12 @@ class DetailTransaksiPage extends StatelessWidget {
             if (transaksi.tanggalMulai != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                formatDate(transaksi.tanggalMulai!),
+                FormatTanggal.formatTanggalBasic(transaksi.tanggalMulai!),
               ),
             if (transaksi.tanggalBerakhir != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                formatDate(transaksi.tanggalBerakhir!),
+                FormatTanggal.formatTanggalBasic(transaksi.tanggalBerakhir!),
               ),
             _buildInfoRow(
                 'Poin didapat:', transaksi.poinYangDihasilkan.toString()),

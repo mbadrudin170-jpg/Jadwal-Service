@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 
 /// Kelas ini mengelola satu flag tunggal di database: apakah ada
 /// data yang perlu diunggah ke server atau tidak.

@@ -1,5 +1,5 @@
 // path: lib/data/operasi/dompet_operasi.dart
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';

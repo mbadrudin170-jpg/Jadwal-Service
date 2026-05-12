@@ -1,12 +1,36 @@
 # **Aturan**
 
+
 1. Tolong selalu menggunakan bahasa indonesia.
-2. Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md
-3. Sebelum memulai tugas baru, selalu baca file `README.md` terlebih dahulu untuk memahami konteks dan status proyek.
-3. tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
+4. jangan sampai liar. 
+7. kalau ingin menggunakan tools harap gunakan {
+  "roots": [
+    {
+      "root": "file:///home/user/myapp"
+    }
+  ]
+}
+
+## Dokumen
+- Sebelum memulai tugas baru, selalu baca file `docs/user/README.md,docs/shared/README.md atau docs/admin/README.md` terlebih dahulu untuk memahami konteks dan status proyek.
+- Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md dan catat error dan solusinya, lalu jangan pernah hapus dokumen mengenai error dan solusi itu soalnya untuk pedoman saya.
+- setelah melakukan pekerjaan buatkan dokumen nya ke docs/user/README.md,docs/shared/README.md atau docs/admin/README.md dan satukan jangan hapus dokumen yang ada.
+- 
+
+
+## Kode 
+-  selalu jaga konsistensi proyek dan kerapian proyek.
+-  tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
+- jaga agar kode tidak ada yang error dengan menjalankan flutter analyze atau analyze project.
+- kalau perbaiki kode harus tulis semua jangan sepotong sepotong.
+- jangan menyimpang dari prompt user.
+- untuk import selalu gunakan import 'package:wifi/contooh_file.dart';
+
+
 
 ## Log
 1. Setiap file disemua titik kode baik itu logika ataupun UI harus disisipkan log jangan ada yang terlewat // path: lib/shared/debug/log.dart.
+
 
 ## Build Apk
 1. Untuk Build harus mengikuti langkah langkah berikut

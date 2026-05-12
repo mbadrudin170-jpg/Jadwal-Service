@@ -5,7 +5,7 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'main_page.dart';
 import '../services/storage/local_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../core/app_colors.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
 
 typedef MainPageBuilder = Widget Function(
     String userId, LocalStorageService localStorageService);
@@ -122,7 +122,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                           TextButton(
                             child: const Text(
                               'Hapus & Keluar',
-                              style: TextStyle(color: AppColors.error),
+                              style: TextStyle(color: AppColors.primaryColor),
                             ),
                             onPressed: () async {
                               // 1. Ambil navigator SEBELUM await
@@ -178,8 +178,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               navigator.pushNamedAndRemoveUntil('/login', (route) => false);
             },
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.error.withValues(alpha: 0.1),
-              foregroundColor: AppColors.error,
+              backgroundColor: AppColors.primaryColor.withAlpha(25),
+              foregroundColor: AppColors.primaryColor,
             ),
             child: const Text(
               'Keluar/Hapus Akun',
@@ -187,8 +187,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           ),
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.error.withValues(alpha: 0.1),
-              foregroundColor: AppColors.error,
+              backgroundColor: AppColors.primaryColor.withAlpha(25),
+              foregroundColor: AppColors.primaryColor,
             ),
             onPressed: () async {
               final navigator = Navigator.of(dialogContext);
@@ -265,8 +265,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 child: ElevatedButton(
                   onPressed: () => _tampilkanDialogKeluar(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.1),
-                    foregroundColor: AppColors.error,
+                    backgroundColor: AppColors.primaryColor.withAlpha(25),
+                    foregroundColor: AppColors.primaryColor,
                     elevation: 0,
                   ),
                   child: const Text('Keluar'),

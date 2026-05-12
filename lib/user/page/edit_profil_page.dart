@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/services/firestore_service.dart';
-import 'package:wifi/user/core/app_colors.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
 
 class EditProfilPage extends StatefulWidget {
   final PelangganModel pelanggan;
@@ -149,7 +149,7 @@ class _EditPageState extends State<EditProfilPage> {
               ElevatedButton(
                 onPressed: _simpanPerubahan,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text(

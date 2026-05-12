@@ -4,7 +4,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
 

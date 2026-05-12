@@ -1,6 +1,4 @@
-
-// path: lib/shared/data/sqlite.dart// diubah: Menaikkan versi database ke 45 untuk memicu migrasi.
-// diubah: Mengubah strategi migrasi tabel 'pengaturan' menjadi lebih aman dengan menghapus data duplikat, bukan drop table.
+// path: lib/admin/data/sqlite.dart
 
 import 'dart:io';
 import 'package:path/path.dart';
@@ -19,16 +17,21 @@ class DatabaseHelper {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
 
-  Future<void> _addColumnIfNotExists(Database db, String tableName, String columnName, String columnType) async {
+  Future<void> _addColumnIfNotExists(Database db, String tableName,
+      String columnName, String columnType) async {
     final dbClient = db;
-    final List<Map<String, dynamic>> tableInfo = await dbClient.rawQuery('PRAGMA table_info($tableName)');
+    final List<Map<String, dynamic>> tableInfo =
+        await dbClient.rawQuery('PRAGMA table_info($tableName)');
     bool columnExists = tableInfo.any((column) => column['name'] == columnName);
 
     if (!columnExists) {
-      await dbClient.execute('ALTER TABLE $tableName ADD COLUMN $columnName $columnType');
-      Log.info('[MIGRASI SUKSES] Berhasil menambahkan kolom `$columnName` ke tabel `$tableName`.');
+      await dbClient
+          .execute('ALTER TABLE $tableName ADD COLUMN $columnName $columnType');
+      Log.info(
+          '[MIGRASI SUKSES] Berhasil menambahkan kolom `$columnName` ke tabel `$tableName`.');
     } else {
-      Log.info('[MIGRASI DILEWATI] Kolom `$columnName` sudah ada di tabel `$tableName`.');
+      Log.info(
+          '[MIGRASI DILEWATI] Kolom `$columnName` sudah ada di tabel `$tableName`.');
     }
   }
 
@@ -42,14 +45,15 @@ class DatabaseHelper {
       Log.info('Instance database sudah ada di memori, mengembalikan...');
       return _database!;
     }
-    
+
     Log.info('Instance database belum ada, memanggil _initDB().');
     try {
       _database = await _initDB();
       Log.info('Database berhasil diinisialisasi dan di-cache.');
       return _database!;
     } catch (e, st) {
-      Log.error('Gagal total mendapatkan instance database.', error: e, stackTrace: st);
+      Log.error('Gagal total mendapatkan instance database.',
+          error: e, stackTrace: st);
       rethrow;
     }
   }
@@ -63,7 +67,10 @@ class DatabaseHelper {
         databaseFactory = databaseFactoryFfi;
         return await databaseFactory.openDatabase(
           inMemoryDatabasePath,
-          options: OpenDatabaseOptions(version: _databaseVersion, onCreate: createTables, onUpgrade: _onUpgrade),
+          options: OpenDatabaseOptions(
+              version: _databaseVersion,
+              onCreate: createTables,
+              onUpgrade: _onUpgrade),
         );
       }
 
@@ -71,11 +78,15 @@ class DatabaseHelper {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
       String path = join(documentsDirectory.path, 'mydatabase.db');
       Log.info('Path database: $path');
-      
+
       Log.info('Membuka database dengan versi $_databaseVersion...');
-      return await openDatabase(path, version: _databaseVersion, onCreate: createTables, onUpgrade: _onUpgrade);
+      return await openDatabase(path,
+          version: _databaseVersion,
+          onCreate: createTables,
+          onUpgrade: _onUpgrade);
     } catch (e, st) {
-      Log.error('Gagal membuka atau membuat database.', error: e, stackTrace: st);
+      Log.error('Gagal membuka atau membuat database.',
+          error: e, stackTrace: st);
       rethrow;
     }
   }
@@ -92,10 +103,11 @@ class DatabaseHelper {
       // Daripada DROP TABLE, kita buat ulang tabel dengan nama sementara,
       // lalu ganti nama. Ini menjamin skema yang benar dan bersih.
       if (oldVersion < 45) {
-          Log.info('[MIGRASI DIMULAI] Menangani tabel \'pengaturan\' untuk memastikan PRIMARY KEY dan data tunggal.');
-          
-          // 1. Buat tabel baru dengan skema yang benar
-          await db.execute('''
+        Log.info(
+            '[MIGRASI DIMULAI] Menangani tabel \'pengaturan\' untuk memastikan PRIMARY KEY dan data tunggal.');
+
+        // 1. Buat tabel baru dengan skema yang benar
+        await db.execute('''
             CREATE TABLE pengaturan_baru(
               id TEXT PRIMARY KEY,
               interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
@@ -105,30 +117,34 @@ class DatabaseHelper {
               info_pemeliharaan TEXT
             )
           ''');
-          Log.info('[MIGRASI] Tabel `pengaturan_baru` berhasil dibuat.');
+        Log.info('[MIGRASI] Tabel `pengaturan_baru` berhasil dibuat.');
 
-          // 2. Hapus tabel lama
-          await db.execute('DROP TABLE IF EXISTS pengaturan');
-          Log.info('[MIGRASI] Tabel `pengaturan` lama berhasil dihapus.');
-          
-          // 3. Ganti nama tabel baru menjadi nama tabel asli
-          await db.execute('ALTER TABLE pengaturan_baru RENAME TO pengaturan');
-          Log.info('[MIGRASI SUKSES] Tabel `pengaturan` berhasil dibuat ulang dengan skema yang benar dan data bersih.');
+        // 2. Hapus tabel lama
+        await db.execute('DROP TABLE IF EXISTS pengaturan');
+        Log.info('[MIGRASI] Tabel `pengaturan` lama berhasil dihapus.');
+
+        // 3. Ganti nama tabel baru menjadi nama tabel asli
+        await db.execute('ALTER TABLE pengaturan_baru RENAME TO pengaturan');
+        Log.info(
+            '[MIGRASI SUKSES] Tabel `pengaturan` berhasil dibuat ulang dengan skema yang benar dan data bersih.');
       }
 
       // Migrasi idempoten lainnya
-      await _addColumnIfNotExists(db, 'pelanggan_aktif', 'tanggal_berakhir', 'TEXT');
-      await _addColumnIfNotExists(db, 'pelanggan_aktif', 'tanggal_mulai', 'TEXT');
-      
+      await _addColumnIfNotExists(
+          db, 'pelanggan_aktif', 'tanggal_berakhir', 'TEXT');
+      await _addColumnIfNotExists(
+          db, 'pelanggan_aktif', 'tanggal_mulai', 'TEXT');
+
       Log.info('========================================');
       Log.info('PROSES UPGRADE DATABASE SELESAI');
-      Log.info('Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
+      Log.info(
+          'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
       Log.info('========================================');
     } catch (e, st) {
       Log.error(
-        'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
-        error: e, stackTrace: st
-      );
+          'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
+          error: e,
+          stackTrace: st);
       rethrow;
     }
   }
@@ -136,9 +152,10 @@ class DatabaseHelper {
   Future<void> createTables(Database db, int version) async {
     // ... (Fungsi createTables tidak berubah)
     Log.info('========================================');
-    Log.info('MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
+    Log.info(
+        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
-    
+
     try {
       await db.execute(_tabelKategori);
       await db.execute(_tabelSubKategori);
@@ -157,16 +174,20 @@ class DatabaseHelper {
       Log.info('Semua 14 tabel utama berhasil dibuat.');
 
       Log.info('Memulai pembuatan index...');
-      await db.execute('CREATE INDEX idx_transaksi_dompet ON transaksi(id_dompet)');
-      await db.execute('CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
-      await db.execute('CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)');
+      await db
+          .execute('CREATE INDEX idx_transaksi_dompet ON transaksi(id_dompet)');
+      await db.execute(
+          'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
+      await db.execute(
+          'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)');
       Log.info('Semua 3 index berhasil dibuat.');
 
       Log.info('========================================');
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
       Log.info('========================================');
     } catch (e, st) {
-      Log.error('Gagal total saat membuat tabel atau index.', error: e, stackTrace: st);
+      Log.error('Gagal total saat membuat tabel atau index.',
+          error: e, stackTrace: st);
       rethrow;
     }
   }
@@ -248,7 +269,6 @@ class DatabaseHelper {
       status TEXT NOT NULL
     )
   ''';
-
 
   static const String _tabelPengaturan = '''
     CREATE TABLE pengaturan(

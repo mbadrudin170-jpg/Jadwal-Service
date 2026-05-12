@@ -1,7 +1,7 @@
 // path: lib/shared/operasi/pembersihan_data_operasi.dart
 
 import 'package:flutter/foundation.dart';
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class PembersihanDataOperasi {

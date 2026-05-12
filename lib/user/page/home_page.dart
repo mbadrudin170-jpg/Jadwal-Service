@@ -1,16 +1,15 @@
 // path: lib/user/page/home_page.dart
-// diubah: Memperbaiki impor, menghapus yang tidak perlu, dan menambahkan instance FirestoreService.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/user/services/firestore_service.dart'; // diubah: Path impor diperbaiki
+import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
-import 'package:wifi/user/core/app_colors.dart';
-import 'package:wifi/user/core/utils/format_tanggal.dart';
-import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
-import 'package:wifi/user/page/detail_transaksi.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/user/page/detail_transaksi_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
@@ -82,7 +81,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.primaryColor,
         title: const Text('Beranda'),
       ),
       body: StreamBuilder<PelangganModel?>(
@@ -167,7 +166,8 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       );
                     }
 
-                    final riwayat = snapshotRiwayat.data! as List<TransaksiModel>;
+                    final riwayat =
+                        snapshotRiwayat.data! as List<TransaksiModel>;
                     Log.info('Data riwayat berhasil didapatkan.', {
                       'jumlah_item': riwayat.length,
                     });
@@ -176,11 +176,19 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       itemCount: riwayat.length,
                       itemBuilder: (context, index) {
                         final tx = riwayat[index];
-                        final statusMasaAktif = tx.tanggalBerakhir != null
-                            ? hitungStatusMasaAktif(tx.tanggalBerakhir!)
-                            : {'teks': 'N/A', 'warna': Colors.grey};
-                        final String teksMasaAktif = statusMasaAktif['teks'];
-                        final Color warnaMasaAktif = statusMasaAktif['warna'];
+                        final String teksMasaAktif;
+                        final Color warnaMasaAktif;
+
+                        if (tx.tanggalBerakhir != null) {
+                          teksMasaAktif = PerhitunganUtil.getTeksSisaMasaAktif(
+                              tx.tanggalBerakhir!);
+                          warnaMasaAktif =
+                              PerhitunganUtil.getWarnaSisaMasaAktif(
+                                  tx.tanggalBerakhir!);
+                        } else {
+                          teksMasaAktif = 'N/A';
+                          warnaMasaAktif = Colors.grey;
+                        }
 
                         Log.info('Membangun item riwayat.', {
                           'index': index,
@@ -202,16 +210,16 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                               children: [
                                 if (tx.tanggalBerakhir != null)
                                   Text(
-                                      "Berakhir - ${formatDateTimeWithMonthName(tx.tanggalBerakhir!)}"),
+                                      "Berakhir - ${FormatTanggal.formatTanggalDanJam(tx.tanggalBerakhir!)}"),
                                 const SizedBox(height: 4),
                                 Text(
                                   "Status: ${tx.statusPembayaran.name}",
                                   style: TextStyle(
                                     color: tx.statusPembayaran.name
-                                            .toLowerCase() ==
-                                        'lunas'
-                                        ? AppColors.success
-                                        : AppColors.error,
+                                                .toLowerCase() ==
+                                            'lunas'
+                                        ? AppColors.primaryColor
+                                        : AppColors.primaryColor,
                                   ),
                                 ),
                                 Text(
@@ -244,7 +252,8 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
               ),
               Container(
                 alignment: Alignment.center,
-                child: const BannerAdWidget(adUnitId: 'ca-app-pub-3940256099942544/6300978111'), // diubah: adUnitId ditambahkan
+                child: const BannerAdWidget(
+                    adUnitId: 'ca-app-pub-3940256099942544/6300978111'),
               ),
             ],
           );

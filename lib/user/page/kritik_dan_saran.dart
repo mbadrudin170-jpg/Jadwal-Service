@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
-import 'package:wifi/user/core/app_colors.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran.dart';
 
 class RiwayatKritikDanSaranPage extends StatelessWidget {
@@ -76,7 +75,7 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
             TextButton(
               child: const Text(
                 'Ya, Hapus',
-                style: TextStyle(color: AppColors.error),
+                style: TextStyle(color: Colors.red),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -100,7 +99,7 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Masukan berhasil dihapus.'),
-            backgroundColor: AppColors.success,
+            backgroundColor: Colors.green,
           ),
         );
       }
@@ -109,7 +108,7 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Gagal menghapus masukan: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: Colors.red,
           ),
         );
       }

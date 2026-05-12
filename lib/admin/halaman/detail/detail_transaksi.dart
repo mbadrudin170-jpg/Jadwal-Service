@@ -34,12 +34,14 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
   final PaketOperasi _paketOperasi = PaketOperasi();
   final SubKategoriOperasi _subKategoriOperasi = SubKategoriOperasi();
 
-  late TransaksiModel _transaksiSaatIni; // ditambah: Variabel state untuk menampung data transaksi
+  late TransaksiModel
+      _transaksiSaatIni; // ditambah: Variabel state untuk menampung data transaksi
 
   @override
   void initState() {
     super.initState();
-    _transaksiSaatIni = widget.transaksi; // ditambah: Inisialisasi dengan data awal
+    _transaksiSaatIni =
+        widget.transaksi; // ditambah: Inisialisasi dengan data awal
     Log.info('Membuka halaman Detail Transaksi ID: ${_transaksiSaatIni.id}');
     Log.info(
       'Ringkasan transaksi - Tipe: ${_transaksiSaatIni.tipe.name}, Jumlah: ${_transaksiSaatIni.jumlah}, Tanggal: ${_transaksiSaatIni.tanggal.toIso8601String()}, Status: ${_transaksiSaatIni.statusPembayaran.name}',
@@ -113,7 +115,8 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
         builder: (context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
       ),
     ).then((transaksiYangDiperbarui) {
-      if (transaksiYangDiperbarui != null && transaksiYangDiperbarui is TransaksiModel) {
+      if (transaksiYangDiperbarui != null &&
+          transaksiYangDiperbarui is TransaksiModel) {
         Log.info('Kembali dari form edit, data telah berubah. Memperbarui UI.');
         setState(() {
           _transaksiSaatIni = transaksiYangDiperbarui;
@@ -126,7 +129,8 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
 
   @override
   Widget build(BuildContext context) {
-    final TransaksiModel transaksi = _transaksiSaatIni; // diubah: Menggunakan data dari state
+    final TransaksiModel transaksi =
+        _transaksiSaatIni; // diubah: Menggunakan data dari state
     Log.info('Membangun UI Detail Transaksi ID: ${transaksi.id}');
 
     return Scaffold(
@@ -168,7 +172,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               ).format(transaksi.jumlah),
             ),
             _buildDetailRow('Tipe', transaksi.tipe.name.toUpperCase()),
-
             _buildFutureDetailRow(
               'Dompet',
               _getNama(
@@ -177,7 +180,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                 'Dompet',
               ),
             ),
-
             if (transaksi.idDompetTujuan != null &&
                 transaksi.idDompetTujuan!.isNotEmpty)
               _buildFutureDetailRow(
@@ -188,7 +190,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                   'Dompet Tujuan',
                 ),
               ),
-
             _buildFutureDetailRow(
               'Kategori',
               _getNama(
@@ -197,7 +198,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                 'Kategori',
               ),
             ),
-
             if (transaksi.idSubKategori != null &&
                 transaksi.idSubKategori!.isNotEmpty)
               _buildFutureDetailRow(
@@ -208,7 +208,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                   'Sub-Kategori',
                 ),
               ),
-
             if (transaksi.idPelanggan != null &&
                 transaksi.idPelanggan!.isNotEmpty)
               _buildFutureDetailRow(
@@ -219,7 +218,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                   'Pelanggan',
                 ),
               ),
-
             if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty)
               _buildFutureDetailRow(
                 'Paket',
@@ -229,7 +227,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
                   'Paket',
                 ),
               ),
-
             _buildDetailRow(
               'Status Pembayaran',
               transaksi.statusPembayaran.name.toUpperCase(),
@@ -242,7 +239,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               'Poin Digunakan',
               transaksi.poinYangDigunakan.toString(),
             ),
-
             if (transaksi.tanggalMulai != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',

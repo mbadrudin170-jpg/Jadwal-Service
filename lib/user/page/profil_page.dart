@@ -1,5 +1,4 @@
 // path: lib/user/page/profil_page.dart
-// diubah: Memperbaiki semua eror analisis, impor, dan referensi.
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -11,8 +10,8 @@ import 'package:wifi/user/page/edit_profil_page.dart';
 import 'package:wifi/user/page/pengaturan_user.dart';
 import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/core/utils/format_tanggal.dart';
-import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 
 class ProfilPage extends StatefulWidget {
   final String userId;
@@ -400,7 +399,10 @@ class _ProfilPageState extends State<ProfilPage> {
                           );
                         }
 
-                        final statusMasaAktif = hitungStatusMasaAktif(
+                        final String teksMasaAktif = PerhitunganUtil.getTeksSisaMasaAktif(
+                          langgananTerakhir.tanggalBerakhir!,
+                        );
+                        final Color warnaMasaAktif = PerhitunganUtil.getWarnaSisaMasaAktif(
                           langgananTerakhir.tanggalBerakhir!,
                         );
 
@@ -454,22 +456,22 @@ class _ProfilPageState extends State<ProfilPage> {
                               _bangunInfoItem(
                                 Icons.date_range_outlined,
                                 'Aktif Sejak',
-                                formatDateTimeWithMonthName(
+                                FormatTanggal.formatTanggalDanJam(
                                   langgananTerakhir.tanggalMulai!,
                                 ),
                               ),
                             _bangunInfoItem(
                               Icons.date_range_outlined,
                               'Berakhir Pada',
-                              formatDateTimeWithMonthName(
+                              FormatTanggal.formatTanggalDanJam(
                                 langgananTerakhir.tanggalBerakhir!,
                               ),
                             ),
                             _bangunInfoItem(
                               Icons.hourglass_bottom,
                               'Masa Aktif',
-                              statusMasaAktif['teks'] as String,
-                              valueColor: statusMasaAktif['warna'] as Color,
+                              teksMasaAktif,
+                              valueColor: warnaMasaAktif,
                             ),
                             _bangunInfoItem(
                               Icons.check_circle_outline,

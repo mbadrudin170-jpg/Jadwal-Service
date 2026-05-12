@@ -1,36 +1,24 @@
 // path: lib/admin/halaman/tab/pelanggan_aktif.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/shared/data/sync/unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/pelanggan_aktif_sorter.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/shared/widget/nama_pelanggan.dart';
 
 enum OpsiHapusPilihan { hapusSemua, arsipkanKadaluarsa, batal }
-
-enum OpsiUrutkan {
-  tanggalBerakhir,
-  tanggalMulai,
-  diPerbarui,
-  namaAZ,
-  namaZA,
-  lunas,
-  belumLunas,
-  paketAktif,
-  paketTidakAktif,
-}
 
 class PelangganAktifPage extends StatefulWidget {
   const PelangganAktifPage({super.key});
@@ -124,8 +112,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
       final pelangganList = await _pelangganOperasi.getPelanggan();
       _mapNamaPelanggan = {for (var p in pelangganList) p.id: p.nama};
 
-      final pelangganAktifList = await _pelangganAktifOperasi
-          .ambilSemuaPelangganAktif();
+      final pelangganAktifList =
+          await _pelangganAktifOperasi.ambilSemuaPelangganAktif();
       _semuaPelanggan = pelangganAktifList;
 
       Log.info(
@@ -169,62 +157,13 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
       tempResult = List.of(_semuaPelanggan);
     }
 
-    int Function(PelangganAktifModel, PelangganAktifModel) comparator;
-
-    switch (_urutanAktif) {
-      case OpsiUrutkan.tanggalBerakhir:
-        comparator = (a, b) => a.tanggalBerakhir.compareTo(b.tanggalBerakhir);
-        break;
-      case OpsiUrutkan.tanggalMulai:
-        comparator = (a, b) => a.tanggalMulai.compareTo(b.tanggalMulai);
-        break;
-      case OpsiUrutkan.diPerbarui:
-        comparator = (a, b) {
-          final dateA = a.diperbarui ?? a.tanggalMulai;
-          final dateB = b.diperbarui ?? b.tanggalMulai;
-          return dateB.compareTo(dateA);
-        };
-        break;
-      case OpsiUrutkan.namaAZ:
-      case OpsiUrutkan.namaZA:
-        comparator = (a, b) {
-          final namaA = _mapNamaPelanggan[a.idPelanggan] ?? '';
-          final namaB = _mapNamaPelanggan[b.idPelanggan] ?? '';
-          return _urutanAktif == OpsiUrutkan.namaAZ
-              ? namaA.compareTo(namaB)
-              : namaB.compareTo(namaA);
-        };
-        break;
-      case OpsiUrutkan.lunas:
-      case OpsiUrutkan.belumLunas:
-        comparator = (a, b) {
-          final isLunasA = a.status == StatusPembayaranEnum.lunas;
-          final isLunasB = b.status == StatusPembayaranEnum.lunas;
-          if (isLunasA == isLunasB) return 0;
-          return (_urutanAktif == OpsiUrutkan.lunas)
-              ? (isLunasA ? -1 : 1)
-              : (isLunasA ? 1 : -1);
-        };
-        break;
-      case OpsiUrutkan.paketAktif:
-      case OpsiUrutkan.paketTidakAktif:
-        comparator = (a, b) {
-          final isAktifA = PerhitunganUtil.sisaHari(a.tanggalBerakhir) >= 0;
-          final isAktifB = PerhitunganUtil.sisaHari(b.tanggalBerakhir) >= 0;
-          if (isAktifA == isAktifB) return 0;
-          return (_urutanAktif == OpsiUrutkan.paketAktif)
-              ? (isAktifA ? -1 : 1)
-              : (isAktifA ? 1 : -1);
-        };
-        break;
-    }
-
-    tempResult.sort(comparator);
+    final sortedResult =
+        PelangganAktifSorter.sort(tempResult, _urutanAktif, _mapNamaPelanggan);
     Log.info('Data diurutkan berdasarkan: ${_urutanAktif.name}.');
 
     if (mounted) {
       setState(() {
-        _hasilFilter = tempResult;
+        _hasilFilter = sortedResult;
       });
     }
   }
@@ -440,8 +379,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
         Log.info(
           'Memulai proses pengarsipan pelanggan aktif yang sudah kadaluarsa.',
         );
-        final int jumlahDiarsipkan = await _pelangganAktifOperasi
-            .arsipkanPelangganKadaluarsa();
+        final int jumlahDiarsipkan =
+            await _pelangganAktifOperasi.arsipkanPelangganKadaluarsa();
         Log.info(
           'Berhasil mengarsipkan $jumlahDiarsipkan pelanggan aktif yang sudah kadaluarsa.',
         );
@@ -549,81 +488,84 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                       child: Text('Tidak ada pelanggan aktif ditemukan.'),
                     )
                   : _hasilFilter.isEmpty && _searchController.text.isNotEmpty
-                  ? const Center(child: Text('Pelanggan tidak ditemukan.'))
-                  : ListView.builder(
-                      itemCount: _hasilFilter.length,
-                      itemBuilder: (context, index) {
-                        final pelanggan = _hasilFilter[index];
-                        final statusPembayaran = pelanggan.status;
+                      ? const Center(child: Text('Pelanggan tidak ditemukan.'))
+                      : ListView.builder(
+                          itemCount: _hasilFilter.length,
+                          itemBuilder: (context, index) {
+                            final pelanggan = _hasilFilter[index];
+                            final statusPembayaran = pelanggan.status;
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 7,
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: InkWell(
-                            onLongPress: () => _arsipkanPelanggan(pelanggan),
-                            onTap: () async {
-                              Log.info(
-                                'Navigasi ke halaman detail pelanggan aktif dengan ID: ${pelanggan.id}.',
-                              );
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailPelangganAktif(
-                                    pelanggan: pelanggan,
-                                  ),
-                                ),
-                              );
-                              _loadData(forceRefresh: true);
-                            },
-                            child: ListTile(
-                              title: NamaPelangganWidget(
-                                idPelanggan: pelanggan.idPelanggan,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 7,
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  NamaPaketWidget(idPaket: pelanggan.idPaket),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Pembayaran: ${statusPembayaran.displayName}',
-                                    style: TextStyle(
-                                      color:
-                                          statusPembayaran ==
-                                              StatusPembayaranEnum.lunas
-                                          ? Colors.green
-                                          : Colors.red,
+                              clipBehavior: Clip.antiAlias,
+                              child: InkWell(
+                                onLongPress: () =>
+                                    _arsipkanPelanggan(pelanggan),
+                                onTap: () async {
+                                  Log.info(
+                                    'Navigasi ke halaman detail pelanggan aktif dengan ID: ${pelanggan.id}.',
+                                  );
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailPelangganAktif(
+                                        pelanggan: pelanggan,
+                                      ),
+                                    ),
+                                  );
+                                  _loadData(forceRefresh: true);
+                                },
+                                child: ListTile(
+                                  title: NamaPelangganWidget(
+                                    idPelanggan: pelanggan.idPelanggan,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Status: ${PerhitunganUtil.getTeksSisaMasaAktif(pelanggan.tanggalBerakhir)}',
-                                    style: TextStyle(
-                                      color:
-                                          PerhitunganUtil.getWarnaSisaMasaAktif(
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      NamaPaketWidget(
+                                          idPaket: pelanggan.idPaket),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Pembayaran: ${statusPembayaran.displayName}',
+                                        style: TextStyle(
+                                          color: statusPembayaran ==
+                                                  StatusPembayaranEnum.lunas
+                                              ? Colors.green
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Status: ${PerhitunganUtil.getTeksSisaMasaAktif(pelanggan.tanggalBerakhir)}',
+                                        style: TextStyle(
+                                          color: PerhitunganUtil
+                                              .getWarnaSisaMasaAktif(
                                             pelanggan.tanggalBerakhir,
                                           ),
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Berakhir: ${FormatTanggal.formatTanggalBasic(pelanggan.tanggalBerakhir)} ${FormatJam.formatJamMenit(pelanggan.tanggalBerakhir)}',
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Berakhir: ${FormatTanggal.formatTanggalBasic(pelanggan.tanggalBerakhir)} ${FormatJam.formatJamMenit(pelanggan.tanggalBerakhir)}',
-                                  ),
-                                ],
+                                  trailing: const Icon(Icons.chevron_right),
+                                ),
                               ),
-                              trailing: const Icon(Icons.chevron_right),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                            );
+                          },
+                        ),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _tambahPelangganAktif,

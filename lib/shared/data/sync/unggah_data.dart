@@ -1,6 +1,6 @@
 // path: lib/shared/data/sync/unggah_data.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';

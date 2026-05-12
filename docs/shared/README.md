@@ -2,6 +2,20 @@
 
 Direktori `shared` berisi kode yang digunakan bersama oleh aplikasi admin dan aplikasi pengguna untuk memastikan konsistensi dan mengurangi duplikasi kode.
 
+## `export/`
+
+Direktori ini berisi file "barrel" yang mengekspor beberapa file lain dari satu lokasi. Ini menyederhanakan pernyataan impor di seluruh aplikasi.
+
+### `operasi.dart`
+
+File ini berfungsi sebagai titik ekspor tunggal untuk semua kelas "operasi" yang berada di `lib/shared/operasi/`. Kelas-kelas ini kemungkinan menangani logika bisnis atau operasi data untuk berbagai model dalam aplikasi (misalnya, `Dompet`, `Pelanggan`, `Transaksi`).
+
+**Perbaikan (Struktur Impor):**
+
+- **Masalah**: Sebelumnya, file ini menggunakan ekspor relatif (misalnya, `export 'dompet_operasi.dart';`). Pendekatan ini rapuh dan menyebabkan kesalahan analisis `uri_does_not_exist` karena resolver URI tidak dapat secara konsisten menemukan file yang benar dari konteks yang berbeda.
+- **Solusi**: Semua pernyataan ekspor telah diperbarui untuk menggunakan sintaks `package:` absolut (misalnya, `export 'package:wifi/shared/operasi/dompet_operasi.dart';`).
+- **Manfaat**: Penggunaan path `package:` memastikan bahwa file selalu dapat ditemukan secara andal oleh alat analisis dan build Dart, terlepas dari di mana file `operasi.dart` diimpor. Ini membuat basis kode lebih kuat dan mudah dipelihara.
+
 ## `theme/`
 
 Direktori ini berisi semua yang terkait dengan tema dan gaya visual aplikasi.

@@ -36,8 +36,8 @@ class SplashScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               loadingMessage, // diubah: Menampilkan pesan yang diterima
-              style: appTextTheme.bodyMedium
-                  ?.copyWith(color: AppColors.textColor),
+              style:
+                  appTextTheme.bodyMedium?.copyWith(color: AppColors.textColor),
             ),
           ],
         ),

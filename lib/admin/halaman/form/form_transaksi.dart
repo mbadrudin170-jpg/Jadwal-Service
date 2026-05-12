@@ -373,6 +373,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                     ),
                     // Dropdown Dompet
                     DropdownButtonFormField<DompetModel>(
+                      key: ValueKey<DompetModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
                       decoration: const InputDecoration(labelText: 'Dompet'),
                       items: _dompetList.map((dompet) {
@@ -392,6 +393,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                     ),
                     if (_tipe == TipeTransaksi.transfer)
                       DropdownButtonFormField<DompetModel>(
+                        key: ValueKey<DompetModel?>(_selectedDompetTujuan),
                         initialValue: _selectedDompetTujuan,
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
@@ -418,6 +420,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       ),
                     if (_kategoriFiltered.isNotEmpty)
                       DropdownButtonFormField<KategoriModel>(
+                        key: ValueKey<KategoriModel?>(_selectedKategori),
                         initialValue: _selectedKategori,
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
@@ -443,6 +446,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                     if (_selectedKategori != null &&
                         _selectedKategori!.subKategori.isNotEmpty)
                       DropdownButtonFormField<SubKategoriModel>(
+                        key: ValueKey<SubKategoriModel?>(_selectedSubKategori),
                         initialValue: _selectedSubKategori,
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',

@@ -2,7 +2,7 @@
 
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:wifi/user/core/app_colors.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/user/page/daftar_akun_page.dart';
 import 'package:wifi/user/page/info_apk_page.dart';
 import 'package:wifi/user/page/kritik_dan_saran.dart';
@@ -25,7 +25,7 @@ class PengaturanPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.primaryColor,
         title: const Text(
           'Pengaturan',
           style: TextStyle(color: Colors.white),

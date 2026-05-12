@@ -1,6 +1,6 @@
 // path: lib/shared/operasi/pelanggan_operasi.dart
 
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';

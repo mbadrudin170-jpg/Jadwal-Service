@@ -2,7 +2,7 @@
 
 import 'package:sqflite/sqflite.dart';
 
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/export/model.dart';

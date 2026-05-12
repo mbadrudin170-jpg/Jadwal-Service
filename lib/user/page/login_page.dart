@@ -9,7 +9,7 @@ import 'package:wifi/user/page/daftar_akun_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/core/app_colors.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
   final FirebaseFirestore? firestore;
@@ -267,7 +267,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
               ElevatedButton(
                 onPressed: _prosesLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

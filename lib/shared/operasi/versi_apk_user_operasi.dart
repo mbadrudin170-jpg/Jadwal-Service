@@ -1,7 +1,7 @@
 // path: lib/data/operasi/versi_apk_user_operasi.dart
 
 
-import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
