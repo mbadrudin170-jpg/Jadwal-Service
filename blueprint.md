@@ -2,70 +2,54 @@
 
 Dokumen ini memberikan gambaran umum tentang semua file dalam proyek, beserta tujuan dan fungsinya masing-masing.
 
+## Struktur & Fitur Utama
+
+- **Flavors (User & Admin)**: Proyek ini dikonfigurasi untuk membangun dua versi aplikasi (`user` dan `admin`) dari satu basis kode. Masing-masing memiliki Application ID dan file entri yang terpisah.
+- **Pemisahan Kode**: Kode untuk setiap flavor dipisahkan ke dalam direktorinya sendiri (`lib/admin` dan `lib/user`) untuk meningkatkan keterbacaan dan pengelolaan.
+- **Integrasi Firebase (Flavor-specific)**: Kedua aplikasi terdaftar dalam satu proyek Firebase. Konfigurasi Firebase untuk setiap flavor dipisahkan ke dalam file `firebase_option` masing-masing (`..._user_dev.dart` dan `..._admin_dev.dart`) untuk memastikan inisialisasi yang benar.
+
 ## File Proyek
 
-### `GEMINI.md`
+### Direktori Root
 
-*   **Fungsi**: Berisi aturan dan panduan untuk asisten AI (Gemini) yang digunakan dalam proyek ini. File ini mendefinisikan bagaimana AI harus berinteraksi dengan kode, mengelola dependensi, dan menangani kesalahan.
+- **`GEMINI.md`**: Aturan dan panduan untuk asisten AI (Gemini).
+- **`README.md`**: Informasi umum dan cara menjalankan proyek.
+- **`analysis_options.yaml`**: Konfigurasi alat analisis statis Dart (linting).
+- **`blueprint.md`**: Dokumen ini. Cetak biru arsitektur dan file proyek.
+- **`pubspec.lock`**: Mengunci versi pasti dari setiap dependensi proyek.
+- **`pubspec.yaml`**: Mendefinisikan metadata, dependensi, dan aset (gambar, font) untuk proyek.
 
-### `README.md`
+### Direktori Konfigurasi (`.idx`, `.vscode`)
 
-*   **Fungsi**: Memberikan gambaran umum tentang proyek. Biasanya berisi informasi tentang cara menjalankan proyek, dependensi yang diperlukan, dan tujuan umum aplikasi.
+- **`.idx/dev.nix`**: Konfigurasi lingkungan pengembangan (alat sistem, ekstensi, dll.).
+- **`.idx/mcp.json`**: Konfigurasi untuk server Firebase MCP.
+- **`.vscode/settings.json`**: Pengaturan khusus untuk editor VS Code.
 
-### `analysis_options.yaml`
+### Platform-Specific (`android`, `web`, `test`)
 
-*   **Fungsi**: Mengkonfigurasi alat analisis statis untuk kode Dart. File ini memungkinkan Anda untuk menyesuaikan aturan linting, menentukan tingkat keparahan untuk berbagai masalah, dan memastikan gaya kode yang konsisten di seluruh proyek.
+- **`android/`**: Berisi semua file yang terkait dengan platform Android.
+    - `app/build.gradle.kts`: Skrip build Gradle yang telah dimodifikasi untuk mendukung *flavors* `user` dan `admin`.
+    - `app/google-services.json`: File konfigurasi Firebase yang berisi informasi untuk semua aplikasi Android dalam proyek.
+- **`web/`**: Berisi file untuk platform web.
+- **`test/`**: Berisi file pengujian untuk aplikasi.
 
-### `blueprint.md`
+### Direktori Kode Aplikasi (`lib`)
 
-*   **Fungsi**: File ini! Dokumen ini berisi cetak biru proyek, termasuk deskripsi semua file dan direktori dalam proyek.
+- **`lib/main_user.dart`**: **File entri untuk flavor `user`**. Menginisialisasi Firebase menggunakan `firebase_option_user_dev.dart` dan menjalankan aplikasi `UserApp`.
+- **`lib/main_admin.dart`**: **File entri untuk flavor `admin`**. Menginisialisasi Firebase menggunakan `firebase_option_admin_dev.dart` dan menjalankan aplikasi `AdminApp`.
 
-### `pubspec.lock`
+- **`lib/common/`**: Direktori untuk widget atau utilitas yang dapat digunakan kembali di kedua aplikasi.
+    - `text_input_field.dart`: Widget `CustomTextInputField` untuk input teks yang konsisten.
 
-*   **Fungsi**: File yang dibuat secara otomatis oleh manajer paket Dart (pub). File ini mengunci versi dependensi yang digunakan dalam proyek, memastikan bahwa setiap orang yang mengerjakan proyek menggunakan versi dependensi yang sama.
+- **`lib/user/`**: Direktori untuk semua kode yang khusus untuk aplikasi **User**.
+    - **`firebase_option/`**: **(BARU)** Direktori untuk konfigurasi Firebase.
+        - `firebase_option_user_dev.dart`: **(BARU)** File konfigurasi Firebase khusus untuk *flavor* **user**.
+    - `halaman/`: Berisi file-file halaman (layar) untuk aplikasi user.
+        - `login_page.dart`: Halaman login untuk pengguna dengan navigasi ke halaman tambah data.
+        - `tambah_data_page.dart`: Halaman untuk menambahkan catatan baru ke Firestore.
 
-### `pubspec.yaml`
-
-*   **Fungsi**: File konfigurasi utama untuk proyek Flutter. File ini mendefinisikan metadata proyek (nama, deskripsi, versi), dependensi, dan aset (gambar, font, dll.) yang digunakan oleh aplikasi.
-
-### `.idx/dev.nix`
-
-*   **Fungsi**: File konfigurasi Nix untuk lingkungan pengembangan. File ini mendefinisikan alat sistem, ekstensi IDE, variabel lingkungan, dan perintah startup yang diperlukan untuk proyek.
-
-### `.idx/mcp.json`
-
-*   **Fungsi**: Berisi konfigurasi untuk server Firebase MCP (Multi-platform Command-line Interface).
-
-### `.vscode/settings.json`
-
-*   **Fungsi**: Berisi pengaturan khusus untuk editor Visual Studio Code. Ini dapat mencakup pengaturan untuk pemformatan kode, analisis statis, dan fitur editor lainnya.
-
-### `android/`
-
-*   **Fungsi**: Direktori ini berisi semua file yang terkait dengan platform Android.
-    *   `build.gradle.kts`: Skrip build utama untuk proyek Android.
-    *   `gradle.properties`: Berisi properti untuk proses build Gradle.
-    *   `settings.gradle.kts`: Skrip pengaturan untuk proyek Android.
-    *   `app/`: Direktori ini berisi kode sumber dan sumber daya untuk aplikasi Android.
-        *   `build.gradle.kts`: Skrip build untuk modul aplikasi.
-        *   `src/`: Direktori ini berisi kode sumber Java/Kotlin dan file manifes Android.
-
-### `lib/`
-
-*   **Fungsi**: Direktori ini berisi kode sumber Dart untuk aplikasi Flutter.
-    *   `main.dart`: Titik masuk utama untuk aplikasi Flutter.
-    *   `common/`: Direktori untuk widget atau utilitas umum yang dapat digunakan kembali.
-        *   `text_input_field.dart`: Berisi widget `CustomTextInputField` yang dapat digunakan kembali untuk membuat kolom input teks.
-
-### `test/`
-
-*   **Fungsi**: Direktori ini berisi file pengujian untuk aplikasi.
-    *   `widget_test.dart`: Contoh pengujian widget.
-
-### `web/`
-
-*   **Fungsi**: Direktori ini berisi semua file yang terkait dengan platform web.
-    *   `favicon.png`: Ikon yang ditampilkan di tab browser.
-    *   `index.html`: File HTML utama untuk aplikasi web.
-    *   `manifest.json`: File manifes aplikasi web.
-    *   `icons/`: Direktori ini berisi ikon untuk aplikasi web.
+- **`lib/admin/`**: Direktori untuk semua kode yang khusus untuk aplikasi **Admin**.
+    - **`firebase_option/`**: **(BARU)** Direktori untuk konfigurasi Firebase.
+        - `firebase_option_admin_dev.dart`: **(BARU)** File konfigurasi Firebase khusus untuk *flavor* **admin**.
+    - `halaman/`: Berisi file-file halaman (layar) untuk aplikasi admin.
+        - `dashboard_page.dart`: Halaman dashboard utama untuk admin.

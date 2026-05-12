@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CustomTextInputField extends StatelessWidget {
@@ -9,6 +8,7 @@ class CustomTextInputField extends StatelessWidget {
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
+  final TextInputType? keyboardType; // Added this line
 
   const CustomTextInputField({
     super.key,
@@ -19,6 +19,7 @@ class CustomTextInputField extends StatelessWidget {
     this.controller,
     this.validator,
     this.onChanged,
+    this.keyboardType, // Added this line
   });
 
   @override
@@ -28,6 +29,7 @@ class CustomTextInputField extends StatelessWidget {
       obscureText: obscureText,
       validator: validator,
       onChanged: onChanged,
+      keyboardType: keyboardType, // Added this line
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,

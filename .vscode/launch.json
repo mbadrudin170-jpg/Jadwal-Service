@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run User App",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_user.dart",
+            "args": [
+                "--flavor",
+                "user"
+            ]
+        },
+        {
+            "name": "Run Admin App",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_admin.dart",
+            "args": [
+                "--flavor",
+                "admin"
+            ]
+        }
+    ]
+}
