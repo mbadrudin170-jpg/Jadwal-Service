@@ -5,7 +5,6 @@ import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:wifi/shared/enum/enum.dart';
 
 class FormPaket extends StatefulWidget {
   final PaketModel? paket;

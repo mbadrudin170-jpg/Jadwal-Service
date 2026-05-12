@@ -1,3 +1,4 @@
+// path: lib/shared/common/text_input_field.dart
 import 'package:flutter/material.dart';
 
 class CustomTextInputField extends StatelessWidget {

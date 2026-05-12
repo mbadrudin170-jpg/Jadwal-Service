@@ -1,10 +1,11 @@
 // path: lib/data/operasi/versi_apk_user_operasi.dart
 
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/model/versi_apk_user_model.dart';
-import 'package:admin_wifi/enum/enum.dart';
+
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
+import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 class VersiApkUserOperasi {
   final _dbHelper = DatabaseHelper.instance;

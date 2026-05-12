@@ -1,9 +1,11 @@
+// path: lib/user/page/daftar_akun_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/user/core/app_colors.dart';
-import 'package:wifi/user/page/main_page.dart';
+import 'main_page.dart';
+import '../services/storage/local_storage_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../core/app_colors.dart';
 
 typedef MainPageBuilder = Widget Function(
     String userId, LocalStorageService localStorageService);

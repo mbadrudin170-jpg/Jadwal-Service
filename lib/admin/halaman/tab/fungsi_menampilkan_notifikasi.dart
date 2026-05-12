@@ -1,9 +1,9 @@
-// Path: lib/halaman/tab/fungsi_menampilkan_notifikasi.dart
+// path: lib/admin/halaman/tab/fungsi_menampilkan_notifikasi.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 @pragma('vm:entry-point')
 void onDidReceiveNotificationResponse(
@@ -61,9 +61,9 @@ class NotifikasiServis {
       );
       const InitializationSettings initializationSettings =
           InitializationSettings(
-            android: androidInitializationSettings,
-            iOS: darwinInitializationSettings,
-          );
+        android: androidInitializationSettings,
+        iOS: darwinInitializationSettings,
+      );
 
       Log.info(
         'Memanggil plugin.initialize() dengan konfigurasi yang telah dibuat. '
@@ -264,7 +264,7 @@ class NotifikasiServis {
     }
   }
 
-  Future<void> batalNotifikasi(int id) async {
+  Future<void> batalNotifikasi({required int id}) async {
     Log.info(
       'Mencoba membatalkan notifikasi yang telah dijadwalkan. '
       'ID Notifikasi yang akan dibatalkan: $id.',

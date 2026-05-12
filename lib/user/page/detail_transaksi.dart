@@ -2,7 +2,6 @@
 // diubah: Mengimpor dan menggunakan fungsi hitungStatusMasaAktif yang telah diperbarui.
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/user/core/utils/format_tanggal.dart';
 import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
 

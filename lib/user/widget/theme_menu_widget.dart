@@ -2,7 +2,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pelanggan_wifi/providers/theme_provider.dart';
+import 'package:wifi/user/provider/theme_provider.dart';
 
 class ThemeMenuWidget extends StatelessWidget {
   const ThemeMenuWidget({super.key});

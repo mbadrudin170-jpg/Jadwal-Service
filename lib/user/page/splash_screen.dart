@@ -1,10 +1,10 @@
-// path : lib/page/splash_screen.dart
+// path: lib/user/page/splash_screen.dart
+
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:pelanggan_wifi/page/login_page.dart';
-import 'package:pelanggan_wifi/page/main_page.dart';
-import 'package:pelanggan_wifi/services/storage/local_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/user/page/login_page.dart';
+import 'package:wifi/user/page/main_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

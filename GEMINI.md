@@ -2,8 +2,9 @@
 
 1. Tolong selalu menggunakan bahasa indonesia.
 2. Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md
-3. Sebelum memulai tugas baru, selalu baca file `blueprint.md` terlebih dahulu untuk memahami konteks dan status proyek.
-3. tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart
+3. Sebelum memulai tugas baru, selalu baca file `README.md` terlebih dahulu untuk memahami konteks dan status proyek.
+3. tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
+4. 
 
 # **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
 

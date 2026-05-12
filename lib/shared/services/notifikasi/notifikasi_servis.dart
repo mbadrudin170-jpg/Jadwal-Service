@@ -1,9 +1,9 @@
-// path: lib/services/notifikasi_servis.dart
+// path: lib/shared/services/notifikasi/notifikasi_servis.dart
 // diubah: Memperbaiki semua pemanggilan metode ke plugin untuk menggunakan argumen bernama yang benar.
-import 'package:admin_wifi/debug/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:wifi/shared/debug/log.dart';
 
 class NotifikasiServis {
   final FlutterLocalNotificationsPlugin plugin;
@@ -22,7 +22,7 @@ class NotifikasiServis {
 
     try {
       await plugin.initialize(
-        settings: settings, // diubah: menggunakan argumen bernama
+        settings: settings,
         onDidReceiveNotificationResponse: (response) {
           Log.info(
             'Notifikasi diklik oleh pengguna. Payload: ${response.payload}',
@@ -72,7 +72,7 @@ class NotifikasiServis {
 
     try {
       await plugin.show(
-        id: id, // diubah: menggunakan argumen bernama
+        id: id,
         title: title,
         body: body,
         notificationDetails: notificationDetails,
@@ -108,14 +108,13 @@ class NotifikasiServis {
 
     try {
       await plugin.zonedSchedule(
-        id: id, // diubah: menggunakan argumen bernama
+        id: id,
         title: title,
         body: body,
         scheduledDate: tz.TZDateTime.from(jadwal, tz.local),
         notificationDetails: notificationDetails,
         payload: payload,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        // dihapus: uiLocalNotificationDateInterpretation karena tidak ada di signature utama
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
     } catch (e, s) {
@@ -151,7 +150,7 @@ class NotifikasiServis {
   Future<void> batalNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
-      await plugin.cancel(id: id); // diubah: menggunakan argumen bernama
+      await plugin.cancel(id: id);
       Log.info('Notifikasi ID: $id telah dihapus.');
     } catch (e, s) {
       Log.error(

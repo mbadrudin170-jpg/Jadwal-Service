@@ -1,9 +1,14 @@
-
-import 'dart:math' as developer;
+// path: lib/user/page/login_page.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/core/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
   final FirebaseFirestore? firestore;
@@ -13,14 +18,15 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Log.info('Membangun LoginPage, meneruskan ke _TampilanLogin.', {
+      'hasFirestore': firestore != null,
+      'hasLocalStorage': localStorageService != null,
+    });
     return _TampilanLogin(
       firestore: firestore,
       localStorageService: localStorageService,
     );
   }
-}
-
-class StatelessWidget {
 }
 
 class _TampilanLogin extends StatefulWidget {
@@ -46,26 +52,35 @@ class _TampilanLoginState extends State<_TampilanLogin> {
   @override
   void initState() {
     super.initState();
+    Log.info('Memulai inisialisasi state _TampilanLogin.');
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     _initializeLocalStorage();
   }
 
   Future<void> _initializeLocalStorage() async {
+    Log.info('Memulai inisialisasi LocalStorage.');
     if (widget.localStorageService != null) {
+      Log.info('LocalStorageService diterima dari widget parent.');
       _localStorageService = widget.localStorageService!;
       setState(() {
         _isLocalStorageInitialized = true;
       });
     } else {
+      Log.info(
+          'LocalStorageService tidak disediakan, membuat instance baru dari SharedPreferences.');
       final prefs = await SharedPreferences.getInstance();
       setState(() {
         _localStorageService = LocalStorageService(prefs: prefs);
         _isLocalStorageInitialized = true;
       });
     }
+    Log.info('Inisialisasi LocalStorage selesai.', {
+      'isInitialized': _isLocalStorageInitialized,
+    });
   }
 
   void _tampilkanAlertError(String pesan) {
+    Log.warning('Menampilkan alert error.', {'pesan': pesan});
     if (!mounted) return;
     showDialog(
       context: context,
@@ -83,13 +98,19 @@ class _TampilanLoginState extends State<_TampilanLogin> {
   }
 
   void _ubahVisibilitasPassword() {
+    Log.info('Mengubah visibilitas password.', {
+      'sekarangTerlihat': !_apakahPasswordTerlihat,
+    });
     setState(() {
       _apakahPasswordTerlihat = !_apakahPasswordTerlihat;
     });
   }
 
   Future<void> _prosesLogin() async {
+    Log.info('Memulai proses login.');
+
     if (!_isLocalStorageInitialized) {
+      Log.warning('LocalStorage belum siap saat mencoba login.');
       _tampilkanAlertError("Layanan penyimpanan lokal belum siap. Coba lagi.");
       return;
     }
@@ -98,15 +119,24 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     final telepon = _teleponController.text.trim();
     final password = _passwordController.text.trim();
 
+    Log.info('Input login diterima.', {
+      'telepon': telepon,
+      'passwordLength': password.length,
+    });
+
     if (telepon.isEmpty || password.isEmpty) {
+      Log.warning('Validasi gagal: input kosong.', {
+        'teleponKosong': telepon.isEmpty,
+        'passwordKosong': password.isEmpty,
+      });
       _tampilkanAlertError("Nomor telepon dan password tidak boleh kosong.");
       return;
     }
 
     try {
-      developer.log(
-          "Mencoba login dengan telepon: '$telepon' dan password: '$password'",
-          name: 'auth.attempt');
+      Log.info('Melakukan query ke Firestore.', {
+        'telepon': telepon,
+      });
 
       final querySnapshot = await _firestore
           .collection('pelanggan')
@@ -115,29 +145,37 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           .limit(1)
           .get();
 
-      developer.log(
-          "Query selesai. Ditemukan ${querySnapshot.docs.length} dokumen yang cocok.",
-          name: 'auth.result');
+      Log.info('Query Firestore selesai.', {
+        'dokumenDitemukan': querySnapshot.docs.length,
+      });
 
       if (querySnapshot.docs.isNotEmpty) {
         final userDoc = querySnapshot.docs.first;
         final uid = userDoc.id;
 
-        final pelanggan = PelangganModel.fromFirestore(userDoc);
+        Log.info('Dokumen pelanggan ditemukan, memproses data.', {
+          'userId': uid,
+        });
 
+        final pelanggan = PelangganModel.fromFirestore(userDoc, uid);
+
+        Log.info('Menyimpan akun ke LocalStorage.', {
+          'nama': pelanggan.nama,
+          'id': pelanggan.id,
+        });
         await _localStorageService.simpanAkun(pelanggan);
 
-        developer.log("Login Berhasil! ID User: $uid", name: 'auth.login');
-        developer.log("Akun disimpan ke penyimpanan lokal.",
-            name: 'auth.local_storage');
+        Log.info('Menyimpan userId ke SharedPreferences.', {
+          'userId': uid,
+        });
+        await _localStorageService.prefs.setString('userId', uid);
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', uid);
-        developer.log("ID Pengguna disimpan di SharedPreferences.",
-            name: 'auth.session');
-
+        Log.info('Memulai penyimpanan FCM Token.');
         await _pushNotificationService.simpanTokenPenggunaSaatIni();
-        developer.log("Memulai penyimpanan FCM Token.", name: 'auth.fcm');
+
+        Log.info('Login berhasil, navigasi ke MainPage.', {
+          'userId': uid,
+        });
 
         navigator.pushReplacement(
           MaterialPageRoute(
@@ -145,15 +183,20 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                   userId: uid, localStorageService: _localStorageService)),
         );
       } else {
+        Log.warning('Login gagal: kredensial tidak cocok.', {
+          'telepon': telepon,
+        });
         _tampilkanAlertError(
             "Nomor telepon atau password yang Anda masukkan salah.");
       }
     } catch (e, s) {
-      developer.log(
-        "Terjadi kesalahan saat login.",
-        name: 'auth.error',
+      Log.error(
+        'Terjadi kesalahan saat login.',
         error: e,
         stackTrace: s,
+        data: {
+          'telepon': telepon,
+        },
       );
       _tampilkanAlertError(
           "Terjadi kesalahan koneksi ke server. Silakan coba lagi.");
@@ -162,6 +205,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
 
   @override
   void dispose() {
+    Log.info('Membersihkan state _TampilanLogin.');
     _teleponController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -169,6 +213,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
 
   @override
   Widget build(BuildContext context) {
+    Log.info('Membangun UI _TampilanLogin.');
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -235,8 +280,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  developer.log("Tombol 'Lupa Sandi?' ditekan.",
-                      name: 'ui.interaction');
+                  Log.info("Tombol 'Lupa Sandi?' ditekan.");
                   showDialog(
                     context: context,
                     builder: (ctx) => AlertDialog(

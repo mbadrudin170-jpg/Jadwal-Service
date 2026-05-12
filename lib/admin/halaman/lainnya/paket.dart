@@ -1,7 +1,7 @@
 // path: lib/halaman/lainnya/paket.dart
 
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/debug/log.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/model/paket_model.dart';

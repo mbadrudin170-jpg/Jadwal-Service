@@ -1,3 +1,4 @@
+// path: lib/admin/halaman/widget/box_info.dart
 import 'package:flutter/material.dart';
 
 class BoxInfo extends StatelessWidget {
@@ -19,7 +20,7 @@ class BoxInfo extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(25),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(

@@ -1,6 +1,7 @@
+// path: lib/main_user.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wifi/user/halaman/login_page.dart';
+import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/firebase_option/firebase_option_user_dev.dart';
 
 // This is the entry point for the User version of the app.
@@ -22,7 +23,7 @@ class UserApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const UserLoginPage(),
+      home: const LoginPage(),
     );
   }
 }

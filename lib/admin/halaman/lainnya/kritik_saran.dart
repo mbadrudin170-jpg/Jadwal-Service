@@ -1,12 +1,11 @@
-// path: lib/halaman/lainnya/kritik_saran_page.dart
-
-import 'package:wifi/debug/log.dart';
+// path: lib/admin/halaman/lainnya/kritik_saran.dart
 import 'package:wifi/admin/halaman/detail/detail_kritik_saran.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
-import 'package:wifi/admin/halaman/widget/nama_dari_id.dart';
+import 'package:wifi/shared/widget/nama_dari_id.dart';
 
 class KritikSaranPage extends StatefulWidget {
   const KritikSaranPage({super.key});

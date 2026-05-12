@@ -2,15 +2,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pelanggan_wifi/hooks/hitung_masa_aktif.dart';
-import 'package:pelanggan_wifi/page/edit_profil_page.dart';
-import 'package:pelanggan_wifi/models/enum/status_pembayaran.dart';
-import 'package:pelanggan_wifi/models/pelanggan_model.dart';
-import 'package:pelanggan_wifi/models/paket_aktif_model.dart';
-import 'package:pelanggan_wifi/page/pengaturan_page.dart';
-import 'package:pelanggan_wifi/services/firebase/firestore_service.dart';
-import 'package:pelanggan_wifi/core/utils/format_tanggal.dart';
-import 'package:pelanggan_wifi/services/storage/local_storage_service.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/user/page/pengaturan_page.dart';
 
 class ProfilPage extends StatefulWidget {
   final String userId;

@@ -1,3 +1,4 @@
+library;
 // path: lib/shared/operasi/operasi_dasar.dart
 //// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
 

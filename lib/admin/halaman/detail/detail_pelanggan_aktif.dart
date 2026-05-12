@@ -1,4 +1,5 @@
-// path: lib/halaman/detail/detail_pelanggan_aktif.dart
+
+// path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
 // diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah`.
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
@@ -10,7 +11,6 @@ import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
-import 'package:wifi/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';

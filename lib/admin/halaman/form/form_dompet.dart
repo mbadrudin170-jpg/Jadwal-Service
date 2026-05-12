@@ -1,10 +1,8 @@
-// path: lib/halaman/form/form_dompet.dart
-// Halaman ini menyediakan formulir untuk menambah atau mengedit dompet.
-// diubah: Menghapus input saldo manual untuk konsistensi arsitektur baru.
+// path: lib/admin/halaman/form/form_dompet.dart
 
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 

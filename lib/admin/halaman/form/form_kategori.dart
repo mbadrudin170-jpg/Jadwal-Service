@@ -1,14 +1,13 @@
 // path: lib/admin/halaman/form/form_kategori.dart
 
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
-import 'package:wifi/shared/sync/unggah_data.dart';
+import 'package:wifi/shared/data/sync/unggah_data.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/enum/enum.dart';
 
 class FormKategoriPage extends StatefulWidget {
   final KategoriModel? kategori;

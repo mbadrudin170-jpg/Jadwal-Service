@@ -1,7 +1,7 @@
-// path: lib/halaman/lainnya/pengaturan.dart
+// path: lib/admin/halaman/lainnya/pengaturan.dart
 
-import 'package:wifi/debug/log.dart';
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 import 'package:wifi/admin/halaman/form/form_pengaturan.dart';

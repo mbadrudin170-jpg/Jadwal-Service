@@ -1,16 +1,16 @@
-// path: lib/halaman/tab/dompet.dart
+// path: lib/admin/halaman/tab/dompet.dart
 // File ini menampilkan halaman dompet yang berisi ringkasan keuangan (pemasukan, pengeluaran, total)
 // dan daftar semua dompet yang tersedia. Pengguna dapat menambahkan dompet baru melalui
 // tombol floating action.
 
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/widget/info_ringkasan_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:admin_wifi/data/operasi/dompet_operasi.dart';
-import 'package:admin_wifi/halaman/detail/detail_dompet.dart';
-import 'package:admin_wifi/halaman/form/form_dompet.dart';
-import 'package:admin_wifi/model/dompet_model.dart';
+import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
+import 'package:wifi/admin/halaman/form/form_dompet.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
 class DompetPage extends StatefulWidget {
   const DompetPage({super.key});

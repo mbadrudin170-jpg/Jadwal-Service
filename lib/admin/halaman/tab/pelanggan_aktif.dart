@@ -1,22 +1,22 @@
-// path: lib/halaman/tab/pelanggan_aktif.dart
+// path: lib/admin/halaman/tab/pelanggan_aktif.dart
 
-import 'dart:async';
-import 'package:admin_wifi/data/sync/unggah_data.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/enum/status_pembayaran_enum.dart';
-import 'package:admin_wifi/utils/format_util.dart';
-import 'package:admin_wifi/utils/perhitungan_util.dart';
-import 'package:admin_wifi/utils/sync_manager.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_aktif_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/halaman/detail/detail_pelanggan_aktif.dart';
-import 'package:admin_wifi/halaman/form/form_pelanggan_aktif.dart';
-import 'package:admin_wifi/shared/model.dart';
-import 'package:admin_wifi/widget/nama_paket.dart';
-import 'package:admin_wifi/widget/nama_pelanggan.dart';
-import 'package:admin_wifi/services/cek_koneksi_internet.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/shared/data/sync/unggah_data.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/services/cek_koneksi_internet.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/shared/widget/nama_paket.dart';
+import 'package:wifi/shared/widget/nama_pelanggan.dart';
 
 enum OpsiHapusPilihan { hapusSemua, arsipkanKadaluarsa, batal }
 

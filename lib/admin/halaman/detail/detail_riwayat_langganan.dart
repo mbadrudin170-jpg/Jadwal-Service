@@ -1,9 +1,4 @@
-
-
 // path: lib/admin/halaman/detail/detail_riwayat_langganan.dart
-//// diubah: File ini sekarang menampilkan detail transaksi langganan dari TransaksiModel.
-// ditambahkan: Widget untuk menampilkan informasi poin yang dihasilkan dan digunakan.
-
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
