@@ -124,7 +124,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
       Log.error(
         'Terjadi kesalahan saat memuat data pelanggan aktif.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       if (mounted) {
         ScaffoldMessenger.of(
@@ -226,7 +226,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
         Log.error(
           'Gagal mengarsipkan pelanggan aktif dengan ID: ${pelangganAktif.id}.',
           error: e,
-          stackTrace: s,
+          st: s,
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

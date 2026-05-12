@@ -46,7 +46,7 @@ class KontrolAplikasiService {
       Log.error(
         'Gagal mengambil status maintenance dari database',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       // Mengembalikan false sebagai fallback jika terjadi error.
       return false;
@@ -72,7 +72,7 @@ class KontrolAplikasiService {
       Log.error(
         'Gagal mengatur status maintenance ke database: $status',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       // Melempar kembali error agar bisa ditangani di UI jika perlu.
       rethrow;

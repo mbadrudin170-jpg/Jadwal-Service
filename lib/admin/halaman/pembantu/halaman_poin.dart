@@ -99,8 +99,8 @@ class _HalamanPoinState extends State<HalamanPoin> {
       if (_menuPilihan == MenuPoin.riwayat) {
         await _loadRiwayatTransaksi();
       }
-    } catch (e, stackTrace) {
-      Log.error('Gagal memuat data poin: $e', error: e, stackTrace: stackTrace);
+    } catch (e, st) {
+      Log.error('Gagal memuat data poin: $e', error: e, st: st);
 
       if (!mounted) return;
 
@@ -144,11 +144,11 @@ class _HalamanPoinState extends State<HalamanPoin> {
           'Berhasil memuat ${transaksiPoin.length} riwayat transaksi poin.',
         );
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal memuat riwayat transaksi: $e',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
 
       if (!mounted) return;

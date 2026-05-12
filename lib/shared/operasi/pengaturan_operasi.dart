@@ -42,11 +42,11 @@ class PengaturanOperasi {
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
       }
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil data pengaturan: $e',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       Log.warning('Mengembalikan PengaturanModel default sebagai fallback.');
       return PengaturanModel(id: idPengaturanGlobal);
@@ -69,11 +69,11 @@ class PengaturanOperasi {
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menyimpan atau memperbarui data pengaturan: $e',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -92,11 +92,11 @@ class PengaturanOperasi {
         dataPengaturan,
       ]);
       Log.info('Batch operation untuk pengaturan berhasil.');
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menyimpan pengaturan dengan batch: $e',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }

@@ -173,7 +173,7 @@
 //       } catch (e, s) {
 //         final message =
 //             'Error saat menganalisis migrasi isDeleted untuk $collectionName: $e';
-//         Log.error(message, error: e, stackTrace: s);
+//         Log.error(message, error: e, st: s);
 //         onProgress(message);
 //         throw Exception(
 //           'Migrasi dihentikan karena error pada koleksi $collectionName.',
@@ -195,7 +195,7 @@
 //       }
 //     } catch (e, s) {
 //       final message = 'Error saat menganalisis migrasi versi_apk_user: $e';
-//       Log.error(message, error: e, stackTrace: s);
+//       Log.error(message, error: e, st: s);
 //       onProgress(message);
 //       throw Exception(
 //         'Migrasi dihentikan karena error pada koleksi versi_apk_user.',
@@ -215,7 +215,7 @@
 //         Log.error(
 //           message,
 //           error: e,
-//           stackTrace: s,
+//           st: s,
 //         );
 //         onProgress(message);
 //         throw Exception('Gagal menyimpan perubahan ke Firestore.');

@@ -47,11 +47,11 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       );
 
       return value;
-    }).catchError((error, stackTrace) {
+    }).catchError((error, st) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
         error: error,
-        stackTrace: stackTrace,
+        st: st,
       );
 
       throw error;
@@ -175,11 +175,11 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
 
           Navigator.of(context).pop(true);
         }
-      } catch (e, stackTrace) {
+      } catch (e, st) {
         Log.error(
           'Terjadi kesalahan saat menghapus kritik dan saran.',
           error: e,
-          stackTrace: stackTrace,
+          st: st,
         );
 
         if (mounted) {

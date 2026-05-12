@@ -1,90 +1,70 @@
+
 // path: lib/user/page/splash_screen_user.dart
-import 'dart:developer';
+// diubah: Menerjemahkan semua pesan log ke dalam Bahasa Indonesia.
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_text_style.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-class SplashScreen extends StatefulWidget {
-  // ditambah: Parameter opsional untuk menampilkan pesan dari luar.
-  final String? loadingMessage;
-
-  const SplashScreen({super.key, this.loadingMessage});
+class SplashScreenUser extends StatefulWidget {
+  const SplashScreenUser({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreenUser> createState() => _SplashScreenUserState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenUserState extends State<SplashScreenUser> {
   @override
   void initState() {
     super.initState();
-    log('[State] 🚀 Inisialisasi SplashScreen.', name: 'splash_screen.dart');
-
-    // ditambah: Hanya jalankan navigasi otomatis jika tidak ada pesan eksternal.
-    if (widget.loadingMessage == null) {
-      _navigateToNextScreen();
-    }
+    Log.info('SplashScreen: initState dipanggil.');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkSession();
+    });
   }
 
-  Future<void> _navigateToNextScreen() async {
-    log('[Navigasi] ⚙️ Memulai proses navigasi otomatis.',
-        name: 'splash_screen.dart');
+  Future<void> _checkSession() async {
+    Log.info('SplashScreen: Memeriksa sesi pengguna...');
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (!mounted) return;
+
     try {
-      log('[Navigasi] ⚙️ Inisialisasi SharedPreferences.',
-          name: 'splash_screen.dart');
       final prefs = await SharedPreferences.getInstance();
-      final localStorageService = LocalStorageService(prefs: prefs);
-
-      // Mengambil ID pengguna dari penyimpanan lokal untuk memeriksa status login
       final userId = prefs.getString('userId');
-      log('[Navigasi] 🕵️‍♂️ Memeriksa status login pengguna...',
-          name: 'splash_screen.dart');
+      final isLoggedIn = userId != null;
 
-      log('[Navigasi] ⏳ Penundaan tampilan selama 3 detik.',
-          name: 'splash_screen.dart');
-      await Future.delayed(const Duration(seconds: 3));
-      log('[Navigasi] ✅ Penundaan selesai.', name: 'splash_screen.dart');
+      if (!mounted) return;
 
-      if (!mounted) {
-        log('[Navigasi] ⚠️ Widget tidak terpasang, navigasi dibatalkan.',
-            name: 'splash_screen.dart');
-        return;
-      }
-
-      log('[Navigasi] ✅ Widget terpasang, melanjutkan navigasi.',
-          name: 'splash_screen.dart');
-
-      // Memutuskan halaman tujuan berdasarkan status login
-      if (userId != null && userId.isNotEmpty) {
-        log('[Navigasi] ✅ Pengguna sudah login (ID: $userId). Mengarahkan ke MainPage.',
-            name: 'splash_screen.dart');
+      if (isLoggedIn) {
+        Log.info('Pengguna sudah login. Navigasi ke MainPage.', {'userId': userId});
+        final localStorageService = LocalStorageService(prefs: prefs);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) {
-            return MainPage(
-              userId: userId,
-              localStorageService: localStorageService,
-            );
-          }),
+          MaterialPageRoute(
+              builder: (context) => MainPage(
+                  userId: userId,
+                  localStorageService: localStorageService)),
         );
       } else {
-        log('[Navigasi] 🤷‍♀️ Pengguna belum login. Mengarahkan ke LoginPage.',
-            name: 'splash_screen.dart');
+        Log.warning('Pengguna belum login. Navigasi ke LoginPage.');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
       }
-      log('[Navigasi] ✅ Proses navigasi selesai.', name: 'splash_screen.dart');
-    } catch (e, st) {
-      log('[Navigasi] ❌ Gagal melakukan navigasi otomatis.',
-          name: 'splash_screen.dart', error: e, stackTrace: st);
+    } catch (e, s) {
+      Log.error(
+        'Gagal memeriksa sesi pengguna.',
+        error: e,
+        stackTrace: s,
+      );
       if (!mounted) return;
-      // Jika terjadi error, fallback ke halaman login untuk keamanan
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -93,10 +73,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    Log.info('SplashScreen: dispose dipanggil.');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    log('[UI] 🎨 Membangun UI SplashScreen.', name: 'splash_screen.dart');
-    // diubah: Gunakan pesan eksternal jika ada, jika tidak, gunakan default.
-    final message = widget.loadingMessage ?? 'Memeriksa sesi...';
+    Log.info('SplashScreen: Membangun UI.');
+    const message = 'Memeriksa sesi pengguna...';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
@@ -105,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/logo/ikon/ikon_apk.png',
+              'assets/image/ikon_apk.png',
               width: 150,
             ),
             const SizedBox(height: 24),
@@ -115,25 +100,16 @@ class _SplashScreenState extends State<SplashScreen> {
                   ?.copyWith(color: AppColors.textColor),
             ),
             const SizedBox(height: 40),
-            CircularProgressIndicator(
-              color: AppColors.primaryColor,
-            ),
+            const CircularProgressIndicator(),
             const SizedBox(height: 20),
             Text(
               message,
               style:
-                  appTextTheme.bodyMedium?.copyWith(color: AppColors.textColor),
+                  appTextTheme.bodyLarge?.copyWith(color: AppColors.textColor),
             ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    log('[State] 🗑️ Membersihkan state SplashScreen (dispose).',
-        name: 'splash_screen.dart');
-    super.dispose();
   }
 }

@@ -36,11 +36,11 @@ class VersiApkUserOperasi {
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menambah versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -63,11 +63,11 @@ class VersiApkUserOperasi {
       Log.info(
         'Versi APK user berhasil diperbarui di tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -106,11 +106,11 @@ class VersiApkUserOperasi {
           'Data versi APK user ID: $id tidak ditemukan di tabel $_tableName, tidak dapat mengarsipkan',
         );
       }
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan versi APK user - ID: $id',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -136,11 +136,11 @@ class VersiApkUserOperasi {
       Log.info(
         'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_tableName',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal melakukan operasi batch - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -184,11 +184,11 @@ class VersiApkUserOperasi {
         'Berhasil mengambil ${result.length} data versi APK - Aktif: $jumlahAktif, Diarsipkan: $jumlahDiarsipkan',
       );
       return result;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_tableName, mengembalikan list kosong',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -227,11 +227,11 @@ class VersiApkUserOperasi {
       }
 
       return result;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK aktif dari tabel $_tableName, mengembalikan list kosong',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -263,11 +263,11 @@ class VersiApkUserOperasi {
 
       Log.info('Tidak ada versi APK aktif yang ditemukan di tabel $_tableName');
       return null;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK terbaru dari tabel $_tableName, mengembalikan null',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return null;
     }
@@ -300,11 +300,11 @@ class VersiApkUserOperasi {
         'Versi APK dengan ID: $id tidak ditemukan (mungkin sudah diarsipkan atau tidak ada)',
       );
       return null;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_tableName, mengembalikan null',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return null;
     }

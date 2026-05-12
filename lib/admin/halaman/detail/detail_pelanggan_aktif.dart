@@ -81,13 +81,13 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
 
     if (formattedNumber.startsWith('0')) {
       Log.info(
-        'Nomor diawali dengan "0". Mengkonversi ke format internasional (62).',
+        'Nomor diawali dengan \"0\". Mengkonversi ke format internasional (62).',
       );
       formattedNumber = '62${formattedNumber.substring(1)}';
       Log.info('Nomor setelah konversi dari awalan 0: $formattedNumber');
     } else if (!formattedNumber.startsWith('62')) {
       Log.info(
-        'Nomor tidak diawali dengan "62". Menambahkan kode negara Indonesia (62).',
+        'Nomor tidak diawali dengan \"62\". Menambahkan kode negara Indonesia (62).',
       );
       formattedNumber = '62$formattedNumber';
       Log.info('Nomor setelah penambahan kode negara: $formattedNumber');
@@ -116,11 +116,12 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         );
         throw 'Could not launch $whatsappUri';
       }
-    } catch (e) {
+    } catch (e, s) {
       Log.error(
         'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. '
         'Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
-        error: e,
+        e: e,
+	st: s,
       );
       if (mounted) {
         Log.info(
@@ -239,8 +240,8 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         'Proses _loadDetails() mengalami kegagalan. '
         'Kemungkinan penyebab: koneksi database gagal, data pelanggan tidak ditemukan, '
         'data paket tidak ditemukan, atau terjadi error saat menggabungkan hasil query.',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       if (mounted) {
         Log.info(

@@ -27,11 +27,11 @@ class KoneksiInternetService {
       }
 
       return isOnline;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Terjadi kesalahan fatal saat memeriksa koneksi',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       // Mengembalikan false sebagai fallback aman jika terjadi error pada plugin
       return false;

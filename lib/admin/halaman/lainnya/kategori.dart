@@ -47,11 +47,11 @@ class _KategoriPageState extends State<KategoriPage> {
             }
             return data;
           })
-          .catchError((error, stackTrace) {
+          .catchError((error, st) {
             Log.error(
               'Gagal memuat data kategori dari database',
               error: error,
-              stackTrace: stackTrace,
+              st: st,
             );
             throw error;
           });
@@ -137,11 +137,11 @@ class _KategoriPageState extends State<KategoriPage> {
         const SnackBar(content: Text('Kategori berhasil diarsipkan.')),
       );
       _loadKategori();
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.nama}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -193,11 +193,11 @@ class _KategoriPageState extends State<KategoriPage> {
         const SnackBar(content: Text('Sub-kategori berhasil diarsipkan.')),
       );
       _loadKategori();
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.nama}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -288,7 +288,7 @@ class _KategoriPageState extends State<KategoriPage> {
                   Log.error(
                     'Terjadi error saat memuat data kategori di FutureBuilder',
                     error: snapshot.error,
-                    stackTrace: snapshot.stackTrace,
+                    st: snapshot.st,
                   );
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

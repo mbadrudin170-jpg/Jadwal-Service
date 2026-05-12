@@ -74,7 +74,7 @@ class PesanInfoPaket {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }
@@ -164,7 +164,7 @@ Semoga harimu menyenangkan!
       Log.error(
         'Gagal total saat mencoba meluncurkan URL WhatsApp.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }

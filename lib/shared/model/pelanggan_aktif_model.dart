@@ -98,7 +98,7 @@ class PelangganAktifModel {
       Log.info('Data dimuat dari SQLite');
       return model;
     } catch (e, stack) {
-      Log.error('Gagal parsing SQLite: $map', error: e, stackTrace: stack);
+      Log.error('Gagal parsing SQLite: $map', error: e, st: stack);
       rethrow;
     }
   }
@@ -138,7 +138,7 @@ class PelangganAktifModel {
       Log.info('Data ditarik dari Firebase');
       return model;
     } catch (e, stack) {
-      Log.error('Gagal parsing Firebase: $data', error: e, stackTrace: stack);
+      Log.error('Gagal parsing Firebase: $data', error: e, st: stack);
       rethrow;
     }
   }

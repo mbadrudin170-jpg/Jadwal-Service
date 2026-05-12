@@ -37,11 +37,11 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
             }
             return data;
           })
-          .catchError((error, stackTrace) {
+          .catchError((error, st) {
             Log.error(
               'Gagal memuat data kritik dan saran dari database',
               error: error,
-              stackTrace: stackTrace,
+              st: st,
             );
             throw error;
           });
@@ -94,11 +94,11 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           );
         }
         _loadKritikSaran();
-      } catch (e, stackTrace) {
+      } catch (e, st) {
         Log.error(
           'Gagal menghapus kritik/saran ID: ${item.id} dari database',
           error: e,
-          stackTrace: stackTrace,
+          st: st,
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +126,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
             Log.error(
               'Terjadi error saat memuat data kritik dan saran di FutureBuilder',
               error: snapshot.error,
-              stackTrace: snapshot.stackTrace,
+              st: snapshot.st,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

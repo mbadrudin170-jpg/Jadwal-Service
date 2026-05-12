@@ -70,11 +70,11 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
       });
       
       Log.info('Proses inisialisasi informasi aplikasi selesai');
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil informasi aplikasi atau perangkat',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
     }
   }

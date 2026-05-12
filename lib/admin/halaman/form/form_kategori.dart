@@ -373,7 +373,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           'Kemungkinan penyebab: koneksi database gagal, constraint violation, '
           'data tidak valid, atau terjadi error saat operasi database.',
           error: e,
-          stackTrace: s,
+          st: s,
         );
         
         if (!mounted) {

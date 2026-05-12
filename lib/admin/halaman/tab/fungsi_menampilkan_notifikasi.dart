@@ -104,7 +104,7 @@ class NotifikasiServis {
         'konfigurasi platform tidak valid, atau zona waktu gagal diinisialisasi. '
         'Notifikasi tidak akan berfungsi sampai masalah ini diperbaiki.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }
@@ -180,7 +180,7 @@ class NotifikasiServis {
         'terjadi error saat berkomunikasi dengan sistem operasi, '
         'atau pengguna telah menolak izin secara permanen.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       return false;
     }
@@ -259,7 +259,7 @@ class NotifikasiServis {
         'Kemungkinan penyebab: ID duplikat, waktu yang sudah lewat, '
         'plugin belum diinisialisasi, atau izin notifikasi belum diberikan.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }
@@ -285,7 +285,7 @@ class NotifikasiServis {
         'Kemungkinan penyebab: notifikasi dengan ID tersebut tidak ditemukan, '
         'plugin belum diinisialisasi, atau terjadi error sistem.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }
@@ -352,7 +352,7 @@ class NotifikasiServis {
         'Kemungkinan penyebab: plugin belum diinisialisasi, '
         'izin notifikasi belum diberikan, atau channel belum terdaftar.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }

@@ -23,7 +23,7 @@ class PelangganOperasi {
         'Pelanggan (ID: ${pelangganUntukDisimpan.id}) berhasil dibuat di database lokal.',
       );
     } catch (e, s) {
-      Log.error('Gagal membuat pelanggan.', error: e, stackTrace: s);
+      Log.error('Gagal membuat pelanggan.', error: e, st: s);
       rethrow;
     }
   }
@@ -45,7 +45,7 @@ class PelangganOperasi {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil pelanggan aktif.', error: e, stackTrace: s);
+      Log.error('Gagal mengambil pelanggan aktif.', error: e, st: s);
       rethrow;
     }
   }
@@ -64,7 +64,7 @@ class PelangganOperasi {
       Log.error(
         'Gagal mengambil semua data pelanggan.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -90,7 +90,7 @@ class PelangganOperasi {
       Log.error(
         'Gagal mencari pelanggan berdasarkan ID.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -105,7 +105,7 @@ class PelangganOperasi {
 
       Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
     } catch (e, s) {
-      Log.error('Gagal memperbarui pelanggan.', error: e, stackTrace: s);
+      Log.error('Gagal memperbarui pelanggan.', error: e, st: s);
       rethrow;
     }
   }
@@ -128,7 +128,7 @@ class PelangganOperasi {
         );
       }
     } catch (e, s) {
-      Log.error('Gagal menghapus pelanggan.', error: e, stackTrace: s);
+      Log.error('Gagal menghapus pelanggan.', error: e, st: s);
       rethrow;
     }
   }
@@ -153,7 +153,7 @@ class PelangganOperasi {
       Log.error(
         'Gagal mengambil perubahan pelanggan.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -170,7 +170,7 @@ class PelangganOperasi {
       }, id);
       Log.info('Berhasil mengarsipkan pelanggan ID: $id.');
     } catch (e, s) {
-      Log.error('Gagal mengarsipkan pelanggan.', error: e, stackTrace: s);
+      Log.error('Gagal mengarsipkan pelanggan.', error: e, st: s);
       rethrow;
     }
   }
@@ -192,7 +192,7 @@ class PelangganOperasi {
         'Berhasil menyelesaikan operasi batch untuk ${items.length} pelanggan.',
       );
     } catch (e, s) {
-      Log.error('Gagal menjalankan operasi batch.', error: e, stackTrace: s);
+      Log.error('Gagal menjalankan operasi batch.', error: e, st: s);
       rethrow;
     }
   }
@@ -221,7 +221,7 @@ class PelangganOperasi {
       Log.error(
         'Gagal mengambil pelanggan berdasarkan list ID.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }

@@ -1,8 +1,8 @@
 // path: lib/user/page/profil_page.dart
 
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
@@ -39,84 +39,45 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
-    log(
-      '[Inisialisasi State] ✅ Memulai inisialisasi state untuk ProfilPage.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Memulai inisialisasi state untuk ProfilPage.');
     _inisialisasiData();
   }
 
   Future<void> _inisialisasiData() async {
-    log(
-      '[Inisialisasi Data] ✅ Memulai pengambilan data profil untuk userId: ${widget.userId}.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Memulai pengambilan data profil untuk userId: ${widget.userId}.');
+    setState(() {
+      _futurePelanggan = _firestoreService.ambilPelangganSekali(widget.userId);
+    });
+
     try {
-      final pelanggan = await _firestoreService.ambilPelangganSekali(
-        widget.userId,
-      );
-      if (!mounted) return;
+      final pelanggan = await _futurePelanggan;
       if (pelanggan != null) {
-        log(
-          '[Inisialisasi Data] ✅ Data pelanggan berhasil diambil.',
-          name: 'profil_page.dart',
-        );
+        Log.info(
+            'Data pelanggan berhasil diambil, mengambil riwayat langganan.');
         setState(() {
-          _futurePelanggan = Future.value(pelanggan);
-          _riwayatLanggananFuture = _firestoreService.ambilRiwayatLangganan(
-            pelanggan.id,
-          );
-          log(
-            '[Pembaruan State] ✅ State diperbarui dengan future untuk data pelanggan dan riwayat.',
-            name: 'profil_page.dart',
-          );
-        });
-      } else {
-        log(
-          '[Inisialisasi Data] ❌ Gagal mengambil data pelanggan, data null.',
-          name: 'profil_page.dart',
-        );
-        setState(() {
-          _futurePelanggan = Future.value(null);
+          _riwayatLanggananFuture =
+              _firestoreService.ambilRiwayatLangganan(pelanggan.id);
         });
       }
     } catch (e, st) {
-      log(
-        '[Inisialisasi Data] ❌ Terjadi error saat mengambil data pelanggan.',
-        name: 'profil_page.dart',
-        error: e,
-        stackTrace: st,
-      );
-      if (!mounted) return;
-      setState(() {
-        _futurePelanggan = Future.error(e, st);
-      });
+      Log.error('Gagal memuat data awal profil.', e: e, st: st);
     }
   }
 
   void _muatUlangData() {
-    log(
-      '[Muat Ulang Data] ✅ Memuat ulang semua data profil.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Memuat ulang semua data profil.');
     setState(() {
       _futurePelanggan = null;
       _riwayatLanggananFuture = null;
       _futureNamaPaket = null;
       _cacheIdPaket = null;
       _inisialisasiData();
-      log(
-        '[Pembaruan State] ✅ State di-reset untuk memuat ulang data.',
-        name: 'profil_page.dart',
-      );
+      Log.info('State di-reset untuk memuat ulang data.');
     });
   }
 
   Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
-    log(
-      '[Aksi Navigasi] ✅ Menavigasi ke EditProfilPage.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Menavigasi ke EditProfilPage.');
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -125,24 +86,16 @@ class _ProfilPageState extends State<ProfilPage> {
       ),
     );
     if (hasil == true) {
-      log(
-        '[Aksi Navigasi] ✅ Kembali dari EditProfilPage dengan perubahan, memuat ulang data.',
-        name: 'profil_page.dart',
-      );
+      Log.info(
+          'Kembali dari EditProfilPage dengan perubahan, memuat ulang data.');
       _muatUlangData();
     } else {
-      log(
-        '[Aksi Navigasi] ✅ Kembali dari EditProfilPage tanpa perubahan.',
-        name: 'profil_page.dart',
-      );
+      Log.info('Kembali dari EditProfilPage tanpa perubahan.');
     }
   }
 
   void _navigasiKePengaturan() {
-    log(
-      '[Aksi Navigasi] ✅ Menavigasi ke PengaturanPage.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Menavigasi ke PengaturanPage.');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -156,15 +109,10 @@ class _ProfilPageState extends State<ProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    log(
-      '[Pembangunan UI] ✅ Membangun UI untuk ProfilPage.',
-      name: 'profil_page.dart',
-    );
+    Log.info('Membangun UI untuk ProfilPage.');
     if (_futurePelanggan == null) {
-      log(
-        '[Pembangunan UI] ✅ Future pelanggan masih null, menampilkan indikator loading awal.',
-        name: 'profil_page.dart',
-      );
+      Log.info(
+          'Future pelanggan masih null, menampilkan indikator loading awal.');
       return Scaffold(
         appBar: AppBar(title: const Text('Memuat Profil...')),
         body: const Center(child: CircularProgressIndicator()),
@@ -174,10 +122,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return FutureBuilder<PelangganModel?>(
       future: _futurePelanggan,
       builder: (context, snapshot) {
-        log(
-          '[FutureBuilder Pelanggan] ✅ Menerima update status koneksi: ${snapshot.connectionState}.',
-          name: 'profil_page.dart',
-        );
+        Log.info(
+            'Menerima update status koneksi: ${snapshot.connectionState}.');
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Memuat Profil...')),
@@ -185,11 +131,10 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
         if (snapshot.hasError) {
-          log(
-            '[FutureBuilder Pelanggan] ❌ Terjadi error: ${snapshot.error}.',
-            name: 'profil_page.dart',
-            error: snapshot.error,
-            stackTrace: snapshot.stackTrace,
+          Log.error(
+            'Terjadi error: ${snapshot.error}.',
+            e: snapshot.error,
+            st: snapshot.stackTrace,
           );
           return Scaffold(
             appBar: AppBar(title: const Text('Error')),
@@ -197,10 +142,8 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          log(
-            '[FutureBuilder Pelanggan] ✅ Data pelanggan tidak ditemukan untuk ID: ${widget.userId}.',
-            name: 'profil_page.dart',
-          );
+          Log.info(
+              'Data pelanggan tidak ditemukan untuk ID: ${widget.userId}.');
           return Scaffold(
             appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
             body: Center(
@@ -210,10 +153,7 @@ class _ProfilPageState extends State<ProfilPage> {
         }
 
         final pelanggan = snapshot.data!;
-        log(
-          '[FutureBuilder Pelanggan] ✅ Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}.',
-          name: 'profil_page.dart',
-        );
+        Log.info('Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}.');
 
         return Scaffold(
           appBar: AppBar(
@@ -259,10 +199,7 @@ class _ProfilPageState extends State<ProfilPage> {
                           icon: const Icon(Icons.content_copy, size: 20),
                           tooltip: 'Salin Nomor HP',
                           onPressed: () {
-                            log(
-                              '[Aksi Salin] ✅ Menyalin nomor HP ke clipboard.',
-                              name: 'profil_page.dart',
-                            );
+                            Log.info('Menyalin nomor HP ke clipboard.');
                             Clipboard.setData(
                               ClipboardData(text: pelanggan.telepon),
                             );
@@ -297,10 +234,7 @@ class _ProfilPageState extends State<ProfilPage> {
                               ? 'Sembunyikan'
                               : 'Tampilkan',
                           onPressed: () {
-                            log(
-                              '[Aksi UI] ✅ Mengubah visibilitas password.',
-                              name: 'profil_page.dart',
-                            );
+                            Log.info('Mengubah visibilitas password.');
                             setState(() {
                               _apakahPasswordTerlihat =
                                   !_apakahPasswordTerlihat;
@@ -320,9 +254,8 @@ class _ProfilPageState extends State<ProfilPage> {
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (context, snapshotRiwayat) {
-                        log(
-                          '[FutureBuilder Paket] ✅ Status koneksi riwayat: ${snapshotRiwayat.connectionState}.',
-                          name: 'profil_page.dart',
+                        Log.info(
+                          'Status koneksi riwayat: ${snapshotRiwayat.connectionState}.',
                         );
                         if (snapshotRiwayat.connectionState ==
                             ConnectionState.waiting) {
@@ -335,11 +268,10 @@ class _ProfilPageState extends State<ProfilPage> {
                         }
 
                         if (snapshotRiwayat.hasError) {
-                          log(
-                            '[FutureBuilder Paket] ❌ Gagal memuat riwayat langganan.',
-                            name: 'profil_page.dart',
-                            error: snapshotRiwayat.error,
-                            stackTrace: snapshotRiwayat.stackTrace,
+                          Log.error(
+                            'Gagal memuat riwayat langganan.',
+                            e: snapshotRiwayat.error,
+                            st: snapshotRiwayat.stackTrace,
                           );
                           return _bangunInfoItem(
                             Icons.error_outline,
@@ -350,9 +282,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
                         if (!snapshotRiwayat.hasData ||
                             snapshotRiwayat.data!.isEmpty) {
-                          log(
-                            '[FutureBuilder Paket] ✅ Tidak ada data riwayat langganan ditemukan.',
-                            name: 'profil_page.dart',
+                          Log.info(
+                            'Tidak ada data riwayat langganan ditemukan.',
                           );
                           return _bangunInfoItem(
                             Icons.wifi_off,
@@ -378,15 +309,13 @@ class _ProfilPageState extends State<ProfilPage> {
                                     ? a
                                     : b,
                           );
-                          log(
-                            '[Proses Data] ✅ Langganan aktif terakhir ditemukan, berakhir pada: ${langgananTerakhir.tanggalBerakhir}.',
-                            name: 'profil_page.dart',
+                          Log.info(
+                            'Langganan aktif terakhir ditemukan, berakhir pada: ${langgananTerakhir.tanggalBerakhir}.',
                           );
                         } else {
                           langgananTerakhir = null;
-                          log(
-                            '[Proses Data] ✅ Tidak ada langganan aktif yang ditemukan.',
-                            name: 'profil_page.dart',
+                          Log.info(
+                            'Tidak ada langganan aktif yang ditemukan.',
                           );
                         }
 
@@ -399,10 +328,12 @@ class _ProfilPageState extends State<ProfilPage> {
                           );
                         }
 
-                        final String teksMasaAktif = PerhitunganUtil.getTeksSisaMasaAktif(
+                        final String teksMasaAktif =
+                            PerhitunganUtil.getTeksSisaMasaAktif(
                           langgananTerakhir.tanggalBerakhir!,
                         );
-                        final Color warnaMasaAktif = PerhitunganUtil.getWarnaSisaMasaAktif(
+                        final Color warnaMasaAktif =
+                            PerhitunganUtil.getWarnaSisaMasaAktif(
                           langgananTerakhir.tanggalBerakhir!,
                         );
 
@@ -414,9 +345,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
                         if (langgananTerakhir.idPaket != null &&
                             _cacheIdPaket != langgananTerakhir.idPaket) {
-                          log(
-                            '[Cache] ✅ Paket baru terdeteksi. Mengambil nama paket untuk ID: ${langgananTerakhir.idPaket!}.',
-                            name: 'profil_page.dart',
+                          Log.info(
+                            'Paket baru terdeteksi. Mengambil nama paket untuk ID: ${langgananTerakhir.idPaket!}.',
                           );
                           _futureNamaPaket = _firestoreService.ambilNamaPaket(
                             langgananTerakhir.idPaket!,
@@ -435,9 +365,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                   namaPaket = 'Memuat...';
                                 } else if (snapshotPaket.hasError) {
                                   namaPaket = 'Gagal memuat';
-                                  log(
-                                    '[FutureBuilder NamaPaket] ❌ Gagal mengambil nama paket: ${snapshotPaket.error}',
-                                    name: 'profil_page.dart',
+                                  Log.error(
+                                    'Gagal mengambil nama paket: ${snapshotPaket.error}',
                                     error: snapshotPaket.error,
                                     stackTrace: snapshotPaket.stackTrace,
                                   );

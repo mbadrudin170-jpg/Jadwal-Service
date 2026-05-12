@@ -1,3 +1,4 @@
+// path: lib/user/maintenance_page.dart
 import 'package:flutter/material.dart';
 
 class MaintenancePage extends StatelessWidget {

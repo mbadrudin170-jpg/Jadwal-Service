@@ -35,11 +35,11 @@ class _PengaturanPageState extends State<PengaturanPage> {
           'Detail pengaturan - Interval sinkronisasi: ${data.intervalSinkronisasiOtomatis} jam, Hapus arsip: ${data.hapusOtomatisDataArsip} hari, Mode pemeliharaan: ${data.modePemeliharaan ? "Aktif" : "Nonaktif"}, Info pemeliharaan: ${data.infoPemeliharaan.isNotEmpty ? data.infoPemeliharaan : "(kosong)"}',
         );
         return data;
-      }).catchError((error, stackTrace) {
+      }).catchError((error, st) {
         Log.error(
           'Gagal memuat data pengaturan dari database lokal',
           error: error,
-          stackTrace: stackTrace,
+          st: st,
         );
         throw error;
       });
@@ -100,7 +100,7 @@ class _PengaturanPageState extends State<PengaturanPage> {
             Log.error(
               'FutureBuilder mendeteksi error saat memuat data pengaturan',
               error: snapshot.error,
-              stackTrace: snapshot.stackTrace,
+              st: snapshot.st,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {

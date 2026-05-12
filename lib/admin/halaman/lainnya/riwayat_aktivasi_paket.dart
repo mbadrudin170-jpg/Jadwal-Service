@@ -74,11 +74,11 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
             _urutkanList(list, _urutanAktif);
             return list;
           })
-          .catchError((error, stackTrace) {
+          .catchError((error, st) {
             Log.error(
               'Gagal memuat data transaksi aktivasi paket dari database',
               error: error,
-              stackTrace: stackTrace,
+              st: st,
             );
             throw error;
           });
@@ -283,7 +283,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
             Log.error(
               'FutureBuilder mendeteksi error saat menampilkan data transaksi',
               error: snapshot.error,
-              stackTrace: snapshot.stackTrace,
+              st: snapshot.st,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

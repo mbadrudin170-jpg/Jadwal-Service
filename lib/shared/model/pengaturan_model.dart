@@ -1,4 +1,4 @@
-// path: lib/model/pengaturan_model.dart
+// path: lib/shared/model/pengaturan_model.dart
 // diubah: Menambahkan metode `copyWith` untuk memungkinkan pembaruan properti secara immutable.
 // Ini memperbaiki error `undefined_method` yang terjadi di `PengaturanOperasi`.
 // diubah: Menggunakan konstanta `idPengaturanGlobal` secara konsisten di semua factory constructor.
@@ -96,7 +96,8 @@ class PengaturanModel {
 
   factory PengaturanModel.fromFirebase(Map<String, dynamic> data) {
     return PengaturanModel(
-      id: data['id'] as String? ?? idPengaturanGlobal, // diubah: karena untuk konsistensi, menggunakan konstanta global.
+      id: data['id'] as String? ??
+          idPengaturanGlobal, // diubah: karena untuk konsistensi, menggunakan konstanta global.
       intervalSinkronisasiOtomatis:
           data['interval_sinkronisasi_otomatis'] as int? ?? 24,
       hapusOtomatisDataArsip: data['hapus_otomatis_data_arsip'] as int? ?? 30,

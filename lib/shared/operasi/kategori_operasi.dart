@@ -18,7 +18,7 @@ class KategoriOperasi {
       Log.info('Berhasil membuat kategori baru dengan ID: ${kategoriBaru.id}');
       return kategoriBaru;
     } catch (e, st) {
-      Log.error('Gagal saat createKategori', error: e, stackTrace: st);
+      Log.error('Gagal saat createKategori', error: e, st: st);
       rethrow;
     }
   }
@@ -40,7 +40,7 @@ class KategoriOperasi {
       Log.info('Berhasil mengambil ${listKategori.length} data kategori.');
       return listKategori;
     } catch (e, st) {
-      Log.error('Gagal saat getKategori', error: e, stackTrace: st);
+      Log.error('Gagal saat getKategori', error: e, st: st);
       rethrow;
     }
   }
@@ -68,7 +68,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat getKategoriById untuk ID: $id',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -95,7 +95,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat getKategoriByTipe untuk tipe: ${tipe.name}',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -111,7 +111,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat update kategori ID: ${kategori.id}',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -125,7 +125,7 @@ class KategoriOperasi {
       await _operasiDasar.hapus('kategori', id);
       Log.info('Berhasil delete kategori ID: $id.');
     } catch (e, st) {
-      Log.error('Gagal saat delete kategori ID: $id', error: e, stackTrace: st);
+      Log.error('Gagal saat delete kategori ID: $id', error: e, st: st);
       rethrow;
     }
   }
@@ -147,7 +147,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat arsipkanSatuKategori untuk ID: $id',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -177,7 +177,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat menjalankan bersihkanDanSisipkanSemua',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -203,7 +203,7 @@ class KategoriOperasi {
       );
       return listKategori;
     } catch (e, st) {
-      Log.error('Gagal saat getPerubahan kategori', error: e, stackTrace: st);
+      Log.error('Gagal saat getPerubahan kategori', error: e, st: st);
       rethrow;
     }
   }
@@ -228,7 +228,7 @@ class KategoriOperasi {
       Log.error(
         'Gagal saat menjalankan sisipkanAtauPerbaruiBatch kategori',
         error: e,
-        stackTrace: st,
+        st: st,
       );
       rethrow;
     }
@@ -259,7 +259,7 @@ class KategoriOperasi {
       );
       return listKategori;
     } catch (e, st) {
-      Log.error('Gagal saat getKategoriByIds', error: e, stackTrace: st);
+      Log.error('Gagal saat getKategoriByIds', error: e, st: st);
       rethrow;
     }
   }

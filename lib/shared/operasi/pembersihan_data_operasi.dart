@@ -54,7 +54,7 @@ class PembersihanDataOperasi {
 
         totalTerhapus += hasil;
       } catch (e, s) {
-        Log.error('Gagal membersihkan tabel $tabel.', error: e, stackTrace: s);
+        Log.error('Gagal membersihkan tabel $tabel.', error: e, st: s);
         // Lanjutkan ke tabel berikutnya meskipun ada error di satu tabel
         continue;
       }

@@ -91,7 +91,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         'Kemungkinan penyebab: koneksi database gagal, tabel pesanan tidak ditemukan, '
         'atau terjadi error saat query data.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       Log.info('Mengatur _isLoading menjadi false meskipun terjadi error.');
       setState(() => _isLoading = false);
@@ -146,7 +146,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
         'atau nilai status baru tidak valid.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       if (mounted) {
         Log.info('Menampilkan SnackBar error ke pengguna.');
@@ -237,7 +237,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
           'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
           'atau terjadi constraint violation.',
           error: e,
-          stackTrace: s,
+          st: s,
         );
         if (mounted) {
           Log.info('Menampilkan SnackBar error ke pengguna.');

@@ -89,7 +89,7 @@ class PengecekanWaktuSyncService {
       Log.error(
         'Kegagalan Operasional: Terjadi kesalahan fatal selama fase pengecekan atau pengunggahan data lokal ke server. Proses sinkronisasi keluar dihentikan secara paksa untuk mencegah korupsi data.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       return false; // diubah: Kembalikan false jika terjadi error.
     }
@@ -108,7 +108,7 @@ class PengecekanWaktuSyncService {
       Log.error(
         'Gagal memperbarui dokumen status/global di Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }
@@ -151,7 +151,7 @@ class PengecekanWaktuSyncService {
       Log.error(
         'Kegagalan Operasional: Terjadi error saat mencoba mengambil atau memproses data baru dari server cloud ke penyimpanan lokal.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }

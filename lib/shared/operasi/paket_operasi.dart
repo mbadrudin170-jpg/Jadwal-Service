@@ -24,7 +24,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mendelegasikan pembuatan paket, method: createPaket, id: ${paket.id}, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -60,7 +60,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mengambil semua data paket, method: getPaket, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -101,7 +101,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mengambil semua data paket aktif, method: getPaketAktif, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -142,7 +142,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mengambil semua data paket publik, method: getPaketByIsPublic, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -173,7 +173,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mencari paket berdasarkan ID, method: getPaketById, id: $id, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -194,7 +194,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mendelegasikan pembaruan paket, method: updatePaket, id: ${paket.id}, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -213,7 +213,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mendelegasikan penghapusan paket, method: hapusPaket, id: $id, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -235,7 +235,7 @@ class PaketOperasi {
       Log.error(
         'Gagal menghapus semua data paket, method: hapusSemuaPaket, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -266,7 +266,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mengambil perubahan paket, method: getPerubahan, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -286,7 +286,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mendelegasikan proses batch, method: sisipkanAtauPerbaruiBatch, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -320,7 +320,7 @@ class PaketOperasi {
       Log.error(
         'Gagal mengambil paket berdasarkan list ID, method: getPaketByIds, error: $e',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }

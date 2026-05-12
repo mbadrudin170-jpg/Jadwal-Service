@@ -94,11 +94,11 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
 
       Log.warning('Data $konteks dengan ID: $id tidak ditemukan di database');
       return 'Data tidak ditemukan';
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil data $konteks dengan ID: $id',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return 'Error Memuat';
     }
@@ -158,7 +158,6 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildDetailRow('ID', transaksi.id),
             _buildDetailRow('Keterangan', transaksi.keterangan),
             _buildDetailRow(
               'Tanggal',
@@ -284,7 +283,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
           Log.error(
             'FutureBuilder $label: error',
             error: snapshot.error,
-            stackTrace: snapshot.stackTrace,
+            st: snapshot.st,
           );
           return _buildDetailRow(label, 'Error Data');
         }

@@ -46,7 +46,7 @@ class PengecekanDataBaruService {
       Log.error(
         'Gagal melakukan pengecekan status perlu_unggah pada SQLite. Terjadi kesalahan pada query database atau akses file database lokal terhambat.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       return false;
     }
@@ -120,7 +120,7 @@ class PengecekanDataBaruService {
       Log.error(
         'Terjadi kegagalan saat proses pembandingan waktu server dan lokal. Masalah mungkin terletak pada koneksi jaringan atau hak akses (Security Rules) Firebase Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       return false;
     }

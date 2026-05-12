@@ -179,7 +179,7 @@ class _PelangganPageState extends State<PelangganPage> {
       Log.error(
         'Gagal total saat memuat daftar pelanggan.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       if (mounted) {
         setState(() => _isLoading = false);
@@ -335,7 +335,7 @@ class _PelangganPageState extends State<PelangganPage> {
       Log.error(
         'Gagal mengarsipkan pelanggan dengan ID: $id.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

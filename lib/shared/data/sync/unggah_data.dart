@@ -85,7 +85,7 @@ class LayananUnggahData {
         'Proses unggah tidak dapat diselesaikan sepenuhnya. '
         'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -117,7 +117,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -147,7 +147,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -177,7 +177,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -207,7 +207,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -237,7 +237,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -267,7 +267,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -297,7 +297,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -327,7 +327,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -357,7 +357,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -387,7 +387,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -417,7 +417,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }
@@ -529,13 +529,13 @@ class LayananUnggahData {
           );
         } catch (e, s) {
           counterError++;
-          // diubah: Menggunakan Log.error yang menerima parameter error dan stackTrace.
+          // diubah: Menggunakan Log.error yang menerima parameter error dan st.
           Log.error(
             'Gagal memproses data ke-${i + 1} dari tabel $namaTabel. '
             'Data ini akan dilewati dan tidak dimasukkan ke batch. '
             'Data SQLite: $map',
             error: e,
-            stackTrace: s,
+            st: s,
           );
         }
       }
@@ -577,7 +577,7 @@ class LayananUnggahData {
         'koneksi Firestore gagal, data corrupt, atau format data tidak sesuai. '
         'Error ini akan dilempar ulang ke fungsi pemanggil.',
         error: e,
-        stackTrace: s,
+        st: s,
       );
       rethrow;
     }

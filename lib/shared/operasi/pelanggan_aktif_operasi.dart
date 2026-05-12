@@ -58,11 +58,11 @@ class PelangganAktifOperasi {
         'Pelanggan aktif ID: $idBaru berhasil dibuat dan notifikasi dijadwalkan.',
       );
       return pelangganUntukDisimpan;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal membuat pelanggan aktif - ID Pelanggan: ${pelangganAktif.idPelanggan}, ID Paket: ${pelangganAktif.idPaket}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -108,11 +108,11 @@ class PelangganAktifOperasi {
         maps.length,
         (i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil semua pelanggan aktif dari database lokal',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -139,11 +139,11 @@ class PelangganAktifOperasi {
 
       Log.info('Pelanggan aktif ID: $id tidak ditemukan di database');
       return null;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil pelanggan aktif ID: $id',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -182,11 +182,11 @@ class PelangganAktifOperasi {
         'Pelanggan aktif ID: ${pelangganUntukDisimpan.id} berhasil diperbarui',
       );
       return pelangganUntukDisimpan;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal memperbarui pelanggan aktif ID: ${pelangganAktif.id}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -277,11 +277,11 @@ class PelangganAktifOperasi {
       Log.info(
         'Penjadwalan notifikasi selesai untuk pelanggan aktif ID: ${pelangganAktif.id}',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menjadwalkan notifikasi untuk pelanggan aktif ID: ${pelangganAktif.id}',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
     }
   }
@@ -298,11 +298,11 @@ class PelangganAktifOperasi {
       await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data);
 
       Log.info('Batch ${items.length} pelanggan aktif berhasil diproses');
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal memproses batch ${items.length} pelanggan aktif',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -349,11 +349,11 @@ class PelangganAktifOperasi {
       Log.info(
         'Pelanggan aktif ID: $id berhasil diarsipkan dengan notifikasi dibatalkan',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan pelanggan aktif ID: $id',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -402,11 +402,11 @@ class PelangganAktifOperasi {
           '$count pelanggan aktif diarsipkan lebih dari 30 hari telah dihapus permanen',
         );
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menghapus permanen pelanggan diarsipkan',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -422,11 +422,11 @@ class PelangganAktifOperasi {
       });
 
       Log.info('Operasi hapus semua pelanggan aktif selesai');
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menghapus semua pelanggan aktif',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -486,11 +486,11 @@ class PelangganAktifOperasi {
 
       Log.info('${idsToArchive.length} pelanggan kadaluarsa telah diarsipkan');
       return idsToArchive.length;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan pelanggan kadaluarsa',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -536,11 +536,11 @@ class PelangganAktifOperasi {
 
       Log.info('${idsToArchive.length} pelanggan aktif telah diarsipkan');
       return idsToArchive.length;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan semua pelanggan aktif',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -574,11 +574,11 @@ class PelangganAktifOperasi {
       return List.generate(maps.length, (i) {
         return PelangganAktifModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil pelanggan aktif berdasarkan IDs (${ids.length} ID)',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }

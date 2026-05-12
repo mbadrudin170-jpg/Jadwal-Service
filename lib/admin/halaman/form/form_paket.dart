@@ -261,7 +261,7 @@ class _FormPaketState extends State<FormPaket> {
             'Kemungkinan penyebab: constraint violation lain, database corrupt, '
             'atau kesalahan struktur tabel.',
             error: e,
-            stackTrace: s,
+            st: s,
           );
         }
 
@@ -287,7 +287,7 @@ class _FormPaketState extends State<FormPaket> {
           'Kemungkinan penyebab: koneksi database gagal, memory overflow, '
           'atau exception dari sistem yang tidak tertangani.',
           error: e,
-          stackTrace: s,
+          st: s,
         );
 
         if (!mounted) {

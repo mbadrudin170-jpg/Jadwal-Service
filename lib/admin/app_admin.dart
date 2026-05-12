@@ -96,7 +96,7 @@ class _AppInitializerState extends State<AppInitializer> {
 
       return isOnline;
     } catch (e, s) {
-      Log.error('Error kritis selama inisialisasi.', error: e, stackTrace: s);
+      Log.error('Error kritis selama inisialisasi.', e: e, st: s);
       _updateMessage("Terjadi error: ${e.toString()}");
       return false;
     }

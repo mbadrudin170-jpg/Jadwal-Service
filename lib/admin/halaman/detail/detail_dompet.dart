@@ -199,8 +199,8 @@ class _DetailDompetState extends State<DetailDompet> {
         'Kemungkinan penyebab: koneksi database gagal, data dompet tidak ditemukan, '
         'query transaksi gagal, atau terjadi error saat perhitungan total. '
         'Error ini akan dilempar ulang dan ditangkap oleh FutureBuilder untuk ditampilkan ke UI.',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       rethrow;
     }
@@ -371,8 +371,8 @@ class _DetailDompetState extends State<DetailDompet> {
           if (snapshot.hasError) {
             Log.error(
               'FutureBuilder: Status ERROR. Terjadi kesalahan saat memuat data detail dompet.',
-              error: snapshot.error,
-              stackTrace: snapshot.stackTrace,
+              e: snapshot.error,
+              st: snapshot.stackTrace,
             );
             Log.info('Menampilkan pesan error ke UI: ${snapshot.error}');
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -383,7 +383,7 @@ class _DetailDompetState extends State<DetailDompet> {
               'FutureBuilder: Status NO DATA. Snapshot berhasil tetapi tidak mengandung data. '
               'Ini mungkin terjadi jika data dompet bernilai null atau query mengembalikan hasil kosong.',
             );
-            Log.info('Menampilkan pesan "Data Kosong" ke UI.');
+            Log.info('Menampilkan pesan \"Data Kosong\" ke UI.');
             return const Center(child: Text('Data Kosong'));
           }
 

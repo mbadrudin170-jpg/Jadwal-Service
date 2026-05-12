@@ -40,7 +40,7 @@ class CekLanggananKadaluarsaService {
       Log.error(
         'Terjadi kesalahan fatal selama proses pengolahan data kedaluwarsa!',
         error: e,
-        stackTrace: s,
+        st: s,
       );
     }
   }

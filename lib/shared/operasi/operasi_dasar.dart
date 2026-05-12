@@ -66,20 +66,20 @@ class OperasiDasar {
             '[TRANSAKSI COMMIT] Transaksi akan di-commit karena semua langkah berhasil.',
           );
           return result;
-        } catch (e, stackTrace) {
+        } catch (e, st) {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Terjadi error saat menjalankan aksi di dalam blok transaksi.',
             error: e,
-            stackTrace: stackTrace,
+            st: st,
           );
           rethrow;
         }
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         '[TRANSAKSI GAGAL DI LUAR] Gagal saat memulai atau menyelesaikan transaksi.',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -110,7 +110,7 @@ class OperasiDasar {
       Log.error(
         'Gagal menyisipkan data ke tabel: $tabel',
         error: e,
-        stackTrace: s,
+        st: s,
         data: data,
       );
       rethrow;
@@ -149,7 +149,7 @@ class OperasiDasar {
       Log.error(
         'Gagal memperbarui data di tabel: $tabel',
         error: e,
-        stackTrace: s,
+        st: s,
         data: {'id': id, 'payload': data},
       );
       rethrow;
@@ -180,7 +180,7 @@ class OperasiDasar {
       Log.error(
         'Gagal menghapus data di tabel: $tabel',
         error: e,
-        stackTrace: s,
+        st: s,
         data: {'id': id},
       );
       rethrow;
@@ -230,7 +230,7 @@ class OperasiDasar {
       Log.error(
         'Gagal melakukan batch operation di tabel: $tabel',
         error: e,
-        stackTrace: s,
+        st: s,
         data: {'totalItem': daftarData.length},
       );
       rethrow;

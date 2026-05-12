@@ -69,7 +69,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
       Log.error(
         'Gagal mendapatkan arsitektur perangkat.',
         error: e,
-        stackTrace: st,
+        st: st,
       );
     }
   }
@@ -101,7 +101,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
             Log.error(
               'Terjadi error saat mengambil data pelanggan.',
               error: snapshotPelanggan.error,
-              stackTrace: snapshotPelanggan.stackTrace,
+              st: snapshotPelanggan.st,
             );
             return Center(child: Text('Error: ${snapshotPelanggan.error}'));
           }
@@ -144,7 +144,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       Log.error(
                         'Gagal memuat riwayat langganan.',
                         error: snapshotRiwayat.error,
-                        stackTrace: snapshotRiwayat.stackTrace,
+                        st: snapshotRiwayat.st,
                       );
                       return Center(
                           child: Text(

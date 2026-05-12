@@ -47,8 +47,8 @@ class Log {
   /// ❌ Log Error
   static void error(
     String message, {
-    Object? error,
-    StackTrace? stackTrace,
+    Object? e,
+    st? st,
     Object? data,
   }) {
     _logCustom(
@@ -56,8 +56,8 @@ class Log {
       name: '❌',
       color: _red,
       level: 1000,
-      error: error,
-      st: stackTrace,
+      e: e,
+      st: st,
     );
   }
 
@@ -81,12 +81,12 @@ class Log {
     required String name,
     required String color,
     required int level,
-    Object? error,
-    StackTrace? st,
+    Object? e,
+    st? st,
   }) {
     if (!kDebugMode) return;
 
-    final trace = StackTrace.current.toString().split('\n');
+    final trace = st.current.toString().split('\n');
     final String callerRow = trace.length > 2 ? trace[2] : 'Unknown';
     final match = RegExp(r'#2\s+(.+)\s+\((.+)\)').firstMatch(callerRow);
 
@@ -102,8 +102,8 @@ class Log {
       name: name,
       level: level,
       time: DateTime.now(),
-      error: error,
-      stackTrace: st,
+      error: e,
+      st: st,
     );
   }
 }

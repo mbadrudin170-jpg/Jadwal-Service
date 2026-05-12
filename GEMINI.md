@@ -1,40 +1,3 @@
-# **Aturan**
-
-
-1. Tolong selalu menggunakan bahasa indonesia.
-4. jangan sampai liar. 
-7. kalau ingin menggunakan tools harap gunakan {
-  "roots": [
-    {
-      "root": "file:///home/user/myapp"
-    }
-  ]
-}
-
-## Dokumen
-- Sebelum memulai tugas baru, selalu baca file `docs/user/README.md,docs/shared/README.md atau docs/admin/README.md` terlebih dahulu untuk memahami konteks dan status proyek.
-- Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md dan catat error dan solusinya, lalu jangan pernah hapus dokumen mengenai error dan solusi itu soalnya untuk pedoman saya.
-- setelah melakukan pekerjaan buatkan dokumen nya ke docs/user/README.md,docs/shared/README.md atau docs/admin/README.md dan satukan jangan hapus dokumen yang ada.
-- 
-
-
-## Kode 
--  selalu jaga konsistensi proyek dan kerapian proyek.
--  tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
-- jaga agar kode tidak ada yang error dengan menjalankan flutter analyze atau analyze project.
-- kalau perbaiki kode harus tulis semua jangan sepotong sepotong.
-- jangan menyimpang dari prompt user.
-- untuk import selalu gunakan import 'package:wifi/contooh_file.dart';
-
-
-
-## Log
-1. Setiap file disemua titik kode baik itu logika ataupun UI harus disisipkan log jangan ada yang terlewat // path: lib/shared/debug/log.dart.
-
-
-## Build Apk
-1. Untuk Build harus mengikuti langkah langkah berikut
-2. 
 
 # **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
 
@@ -340,7 +303,7 @@ Image.network(
       ),
     );
   },
-  errorBuilder: (context, error, stackTrace) {
+  errorBuilder: (context, error, st) {
     return const Icon(Icons.error, color: Colors.red, size: 50);
   },
 )
@@ -616,7 +579,7 @@ developer.log('This is a simple log message.');
   * `name`: Sebuah `String` untuk mengkategorikan pesan log (misalnya, 'my_app.network').
   * `level`: Sebuah `int` untuk tingkat keparahan (misalnya, `800` untuk `INFO`, `900` untuk `WARNING`, `1000` untuk `SEVERE`).
   * `error`: Sebuah `Object` untuk mencatat pengecualian.
-  * `stackTrace`: Sebuah objek `StackTrace`.
+  * `st`: Sebuah objek `st`.
 
 
   *Contoh:*
@@ -632,7 +595,7 @@ try {
     name: 'my_app.network',
     level: 900, // WARNING
     error: e,
-    stackTrace: s,
+    st: s,
   );
 }
 ```
@@ -870,3 +833,208 @@ Saat diminta untuk Firebase, tambahkan konfigurasi server berikut ke .idx/mcp.js
         }
     }
 }
+
+
+
+-------------------
+
+# **Aturan lainnya untuk AI**
+
+1. Tolong selalu menggunakan bahasa indonesia.
+4. jangan sampai liar. 
+2. jangan melawan perintah saya.
+
+## performa
+- selalu gunakan  if (!mounted) return; dan dispos(),
+## Dokumen
+- Sebelum memulai tugas baru, selalu baca file `docs/user/README.md,docs/shared/README.md atau docs/admin/README.md` terlebih dahulu untuk memahami konteks dan status proyek.
+- Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md dan catat error dan solusinya, lalu jangan pernah hapus dokumen mengenai error dan solusi itu soalnya untuk pedoman saya.
+- setelah melakukan pekerjaan buatkan dokumen nya ke docs/user/README.md,docs/shared/README.md atau docs/admin/README.md dan satukan jangan hapus dokumen yang ada.
+- 
+
+
+## Kode 
+-  selalu jaga konsistensi proyek dan kerapian proyek.
+-  tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
+- jaga agar kode tidak ada yang error dengan menjalankan flutter analyze atau analyze project.
+- kalau perbaiki kode harus tulis semua jangan sepotong sepotong.
+- jangan menyimpang dari prompt user.
+- untuk import selalu gunakan import 'package:wifi/contooh_file.dart';
+
+
+
+## Log
+1. Setiap file disemua titik kode baik itu logika ataupun UI harus disisipkan log jangan ada yang terlewat // path: lib/shared/debug/log.dart.
+2. antara lain Log.info, Log.warning dan Log.error.
+3. Log ini harus sangat rinci sekali kalau bisa perbanyak pesan $...
+
+## Build Apk
+1. Untuk Build harus mengikuti langkah langkah berikut
+2. 
+
+# **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
+
+Panduan ini mendefinisikan prinsip-prinsip operasional dan kemampuan agen AI (misalnya, Gemini) yang berinteraksi dengan proyek Flutter di dalam lingkungan Firebase Studio. Tujuannya adalah untuk memungkinkan alur kerja desain dan pengembangan aplikasi yang efisien, otomatis, dan tahan terhadap kesalahan.
+
+data yang disimpan ke firebase tipe nya harus , diarsipkan : Timestamp, diPerbarui: Timestamp, isDeleted : boolean, id : String, saldo : int, tipe : String, poinYangDihasilkan : int,poinYangDigunakan: int, statusPembayaran : String, tanggal :Timestam, jumlah : int, keterangan: String, isPublic: boolean, poinHadiah : int, poinPenukaran: int, wajibUpdate: boolean, tautanUnduhan : map, nomorBuildTerbaru: map, youtubeTutorial : string, 
+AI jangan ubah nama atau deskripsi test yang boleh ubah hanya user saja.
+AI harus buatkan pengujian yang sama persis dengan apa yang dekskripsi mau aatau inginkan.
+AI dilarang menghapus test yang ada.
+kelompokkan test berdasarkan groupnya dalam file tersebut.
+dan jika ada kode yang masih bisa di test kasih tahu saya.
+untuk logika AI wajib memberitahukan saya bahwa harus membuatkan kode testnya.
+selalu gunakan bahasa indonesia untuk penamaan baik itu nama fungsi, variabel, parameter, nama file dan saat berbincang dengan saya.
+selalu tambahkan path file nya dengan berupa komentar di bagian paling atas pada isi sebuah file.
+sebelum mengerjakan proyek AI di harapkan selalu baca file blueprint.md untuk mengetahui alur kerja proyek saya.
+ketika AI selesai mengerjakan tugas pada file yang di kerjakan tolong tambah atau edit keterangan fungsi dan fitur apa yang ada di file yang AI kerjakan tadi dan tulis keterangan itu per file agar mudah saya ketahui.
+
+selalu jaga konsistensi dan kejelasan dalam proyek saya.
+harus menambahkan komentar di paling atas pada sebuah isi file dengan berikut // path : lib/main.dart.
+setelah melakukan pekerjaan tolong kode yang kamu kerjakan pada sebuah file beri keterangan komentar di samping atau di atasnya dengan struktur begini dihapus: karena apa diubah/ditambah : karena apa juga.
+setelah melakukan pekerjaan tolong jalankan analyze_files agar kode sudah benar jangan takutnya ada yang masih error atau warning.
+sebelum melakukan pekerjaan tolong berikan saya penjelasan kenapa AI akan melakukan pekerjaan ini agar saya bisa konfirmasi agar sesuai dengan saya inginkan contoh setelah kamu menjelaskan apa yang akan AI kerjakan saya akan konfirmasi misal setuju,oke,ok,ya,yes itu tandanya AI boleh mengerjakannya dan jika saya tulis jangan, tidak, nggk,nggak berarti AI jangan mengerjakan nya.
+dan tambahkan keterangan di setiap fungsi agar saya tahu kenapa kode itu dibuat dan taruh di atas sebuah fungsi contoh // untuk menavigasi ke halaman A.
+kalau bisa sedikit tambahkan komentar pada isi file di  beberapa kode di dalamnya agar saya tidak terlalu bingung kenapa kode itu dibuat
+jika pengguna perintahkan clean maka AI harus jalankan flutter clean && flutter pub get diterminal.
+diharapkan AI jangan berasumsi liar agar semua file saling sinkron.
+"Setiap kali membuat fungsi yang melibatkan I/O, network request, atau database, selalu gunakan pola Asynchronous (async/await) dan bungkus hasilnya dalam objek Future. Hindari penggunaan .then() berantai."
+Format Pembaruan blueprint.md: Setelah pengerjaan file selesai, edit bagian dokumentasi file di blueprint.md dan kelompokkan berdasarkan foldernya dengan format berikut: untuk rules harus lebih rinci agar rekan kerja paham dengan rules ini dan tidak kebingungan. 
+File: lib/path/nama_file.dart
+Fitur: [Nama Fitur]
+tujuan file ini dibuat: [untuk meniniasliasi data]
+Kode A :[untuk memanggil fungsi B]
+kode B : [untuk menampilkan data C]
+kode c dan seterusnya semua yang ada di file ini.
+konfirmasi.
+gunakan `if (!mounted) return;` agar jika gagal nggak error.
+jaga agar apliaksi saya hemat ram atau setidaknya kita usahakan agar tidak terlalu memakan ram perangkat user.
+simpan semua isi file ini ke memori AI.
+jangan ubah file GEMINI.md tanpa ada perintah langsung dari saya.
+kode `DropdownButtonFormField` agar jangan menggunakan `value` melainkan initialvalue.
+untuk info console gunakan `developer.log`.
+setelah selesai melakukan pekerjaan tolong buatkan dokumen mengenai file yang AI kerjakan, dan tulis dengan sangat detail kalau bisa semua nya kode harus diterangkan jangan ada yang terlewat.
+jaga agar data tidak kebenayakan null usahakan agar selalu mengidentifikasi datanya harus ada.
+untuk pemberian id wajib harus ada jangan null, saya ingin menggunakan dari UUID.
+selalu utamakan performa tapi jangan korbankan fungsi.
+
+sebisa mungkin data kasih data default nya jangan nullable terutama di file model.
+kalau mau memperbarui fil blueprint.md tolong jalankan perintah `ls -R lib/` dan tulis strukturnya ke file blueprint.md.
+Gunakan get() untuk data statis.
+Gunakan snapshots() hanya jika benar-benar membutuhkan realtime update.
+Aktifkan Persistence: Gunakan persistenceEnabled: true.
+tambahkan catatan mengenai pekerjaan kita di file blueprint.md jangan hapus catatan ini biar saya saja soalnya untuk kebutuhan analysa dan kelompokkan catatan ini berdasarkan versi di pubscl.yml tulisnya harus per file.
+demi menjaga performa ui harus menggunakan const sebanyak mungkin.
+berhubungan dengan firebase soalnya suka repot.
+Hindari late yang Tidak Perlu.
+untuk test yang bergantung ke sqlite gunakan Kelas palsu (mock) untuk DatabaseHelper yang menggunakan database di memori.
+ls -R test/ lin/ untuk mengetahui file mana yang belum di buatkan file testnya.
+gunakan mcp yang sudah ada untuk mempermudah pekerjaan seperti :   "enabledTools": {
+    "dart": [
+      "read_package_uris",
+      "launch_app",
+      "stop_app",
+      "list_devices",
+      "get_app_logs",
+      "list_running_apps",
+      "connect_dart_tooling_daemon",
+      "get_runtime_errors",
+      "get_active_location",
+      "hot_restart",
+      "hot_reload",
+      "get_widget_tree",
+      "get_selected_widget",
+      "set_widget_selection_mode",
+      "flutter_driver",
+      "pub_dev_search",
+      "remove_roots",
+      "add_roots",
+      "dart_fix",
+      "dart_format",
+      "run_tests",
+      "create_project",
+      "pub",
+      "resolve_workspace_symbol",
+      "signature_help",
+      "hover",
+      "analyze_files"
+    ],
+    "firebase": []
+  }
+
+
+untuk cek error gunakan `analyze_files`.
+bautkan alur kerja nya diurutkan sesuai aturannya.
+# ATURAN LOGGING VERSI BERDASARKAN PUBSPEC
+
+## SUMBER VERSI
+- AI WAJIB mengambil versi dari file pubspec.yaml
+- Field yang digunakan: version
+- Contoh: version: 1.0.3+4
+
+## FORMAT VERSI LOG
+- Gunakan hanya bagian sebelum tanda +
+- Contoh:
+  - pubspec: 1.0.3+4
+  - log: v1.0.3
+
+## LARANGAN
+- Dilarang membuat versi sendiri
+- Dilarang menebak versi
+- Dilarang menggunakan versi yang tidak sesuai pubspec.yaml
+
+---
+
+## PROSES WAJIB SEBELUM LOG
+
+1. AI harus membaca pubspec.yaml
+2. Ambil nilai version
+3. Ekstrak versi utama (sebelum +)
+4. Gunakan sebagai versi log
+
+---
+
+## FORMAT WAJIB LOG
+
+# Versi: v<versi_dari_pubspec>
+Sumber: pubspec.yaml (version: <full_version>)
+Tanggal: <tanggal>
+
+## Tujuan:
+## Perubahan:
+## Bug:
+## Solusi:
+## Dampak:
+## Catatan:
+## Analisa:
+
+---
+
+## ATURAN TAMBAHAN
+
+- Jika versi pubspec belum berubah:
+  → tetap gunakan versi yang sama (log boleh lebih dari 1 dalam 1 versi)
+
+- Jika versi berubah:
+  → anggap sebagai fase baru (analisa lebih detail)
+
+
+- Setiap perubahan tetap WAJIB memiliki log.
+{
+  "roots": [
+    {
+      "paths": [
+        
+      ],
+      "root": "file:///home/user/myapp"
+    }
+  ]
+}
+di file operasi kelompokkan fugnsi berdaasarkan kategori, crate, read, update, delete, diarsipkan, sisipkan data.
+untuk file test hasil test harus sangat sesuai dengan deskripsi atau nama testnya wajib.
+untuk kode usahakan pakai kode RadioGroup.
+file test harus lengkap dan semua file harus diuji.AI wajib mengikuti apa yang user perintahkan.
+AI dilarang berasumsi tanyakan kepada user kalau datanya samar samar.
+AI jangan biarkan ada error yang tidak di ketahui.
+AI diharapkan jaga konsistensi proyek user.
+AI jangan melawan perintah dari saya.
+AI harus membuat file salinan untuk mencoba fitur baru atau kode baru sebelum kdoe nya berjalan dan tidak ada bug baru boleh pindahkan ke file aslinya.

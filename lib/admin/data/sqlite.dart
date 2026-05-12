@@ -52,8 +52,7 @@ class DatabaseHelper {
       Log.info('Database berhasil diinisialisasi dan di-cache.');
       return _database!;
     } catch (e, st) {
-      Log.error('Gagal total mendapatkan instance database.',
-          error: e, stackTrace: st);
+      Log.error('Gagal total mendapatkan instance database.', e: e, st: st);
       rethrow;
     }
   }
@@ -85,8 +84,7 @@ class DatabaseHelper {
           onCreate: createTables,
           onUpgrade: _onUpgrade);
     } catch (e, st) {
-      Log.error('Gagal membuka atau membuat database.',
-          error: e, stackTrace: st);
+      Log.error('Gagal membuka atau membuat database.', e: e, st: st);
       rethrow;
     }
   }
@@ -143,8 +141,8 @@ class DatabaseHelper {
     } catch (e, st) {
       Log.error(
           'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
-          error: e,
-          stackTrace: st);
+          e: e,
+          st: st);
       rethrow;
     }
   }
@@ -186,8 +184,7 @@ class DatabaseHelper {
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
       Log.info('========================================');
     } catch (e, st) {
-      Log.error('Gagal total saat membuat tabel atau index.',
-          error: e, stackTrace: st);
+      Log.error('Gagal total saat membuat tabel atau index.', e: e, st: st);
       rethrow;
     }
   }

@@ -79,11 +79,11 @@ class TransaksiOperasi {
       Log.info(
         'Berhasil update saldo Dompet ID: $idDompet menjadi $totalSaldo - method: _recalculateAndUpdateDompetSaldo',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal hitung ulang saldo Dompet ID: $idDompet. Error: $e - method: _recalculateAndUpdateDompetSaldo',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -120,11 +120,11 @@ class TransaksiOperasi {
         'Seluruh proses tambah transaksi ID: ${transaksi.id} berhasil diselesaikan - method: tambahTransaksi',
       );
       return id;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menambah transaksi ID: ${transaksi.id}. Error: $e - method: tambahTransaksi',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -149,11 +149,11 @@ class TransaksiOperasi {
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil semua transaksi. Error: $e - method: ambilSemuaTransaksi',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -181,11 +181,11 @@ class TransaksiOperasi {
 
       Log.info('Transaksi ID: $id ditemukan - method: getTransaksiById');
       return TransaksiModel.fromSqlite(maps.first);
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengambil transaksi ID: $id. Error: $e - method: getTransaksiById',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return null;
     }
@@ -211,11 +211,11 @@ class TransaksiOperasi {
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error ambil transaksi pelanggan: $e - method: ambilTransaksiByPelangganId',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -240,11 +240,11 @@ class TransaksiOperasi {
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error ambil transaksi dompet: $e - method: ambilTransaksiByDompetId',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -268,11 +268,11 @@ class TransaksiOperasi {
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error saat mengambil transaksi aktivasi_paket: $e - method: getTransaksiByAktivasiPaket',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }
@@ -330,11 +330,11 @@ class TransaksiOperasi {
       Log.info(
         'Proses updateTransaksi ID: $id selesai - method: updateTransaksi',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal update transaksi ID: $id. Error: $e - method: updateTransaksi',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -382,11 +382,11 @@ class TransaksiOperasi {
       Log.info(
         'Transaksi ID: $id berhasil diarsipkan - method: arsipkanTransaksi',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan transaksi ID: $id. Error: $e - method: arsipkanTransaksi',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -407,11 +407,11 @@ class TransaksiOperasi {
       }
       Log.info('Total pemasukan: $total - method: getTotalPemasukan');
       return total;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error hitung total pemasukan: $e - method: getTotalPemasukan',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return 0.0;
     }
@@ -432,11 +432,11 @@ class TransaksiOperasi {
       }
       Log.info('Total pengeluaran: $total - method: getTotalPengeluaran');
       return total;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error hitung total pengeluaran: $e - method: getTotalPengeluaran',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return 0.0;
     }
@@ -466,11 +466,11 @@ class TransaksiOperasi {
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total - method: getPoinYangDihasilkan');
       return total;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error hitung poin dihasilkan: $e - method: getPoinYangDihasilkan',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return 0;
     }
@@ -489,11 +489,11 @@ class TransaksiOperasi {
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total - method: getPoinYangDigunakan');
       return total;
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error hitung poin digunakan: $e - method: getPoinYangDigunakan',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return 0;
     }
@@ -542,11 +542,11 @@ class TransaksiOperasi {
       Log.info(
         'Proses Batch transaksi berhasil sepenuhnya - method: sisipkanAtauPerbaruiBatch',
       );
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Gagal menjalankan Batch transaksi. Error: $e - method: sisipkanAtauPerbaruiBatch',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       rethrow;
     }
@@ -576,11 +576,11 @@ class TransaksiOperasi {
       return List.generate(maps.length, (i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-    } catch (e, stackTrace) {
+    } catch (e, st) {
       Log.error(
         'Error saat ambil transaksi by IDs: $e - method: getTransaksiByIds',
         error: e,
-        stackTrace: stackTrace,
+        st: st,
       );
       return [];
     }

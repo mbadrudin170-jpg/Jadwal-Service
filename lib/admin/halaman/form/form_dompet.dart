@@ -237,7 +237,7 @@ class _FormDompetState extends State<FormDompet> {
           'Kemungkinan penyebab: koneksi database gagal, constraint violation, '
           'data tidak valid, atau terjadi error saat operasi database.',
           error: e,
-          stackTrace: s,
+          st: s,
         );
 
         if (!mounted) {
