@@ -1,6 +1,7 @@
-// path: lib/utils/snackbar_util.dart
-import 'package:admin_wifi/debug/log.dart';
+// path: lib/shared/utils/snackbar_util.dart
+
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 // enum untuk mendefinisikan tipe-tipe snackbar yang tersedia
 enum SnackBarType { success, error, warning, info }

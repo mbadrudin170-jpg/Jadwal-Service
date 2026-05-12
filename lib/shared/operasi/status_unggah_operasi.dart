@@ -1,9 +1,8 @@
-// path: lib/data/operasi/status_unggah_operasi.dart
-// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
+// path: lib/shared/operasi/status_unggah_operasi.dart// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
 
-import 'package:admin_wifi/data/sqlite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/data/sqlite.dart';
 
 /// Kelas ini mengelola satu flag tunggal di database: apakah ada
 /// data yang perlu diunggah ke server atau tidak.

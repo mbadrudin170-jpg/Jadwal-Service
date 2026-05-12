@@ -1,9 +1,9 @@
-// path: lib/halaman/form/form_pelanggan.dart
+// path: lib/admin/halaman/form/form_pelanggan.dart
 
-import 'package:admin_wifi/debug/log.dart'; // diubah: Menggunakan Log kustom
+import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:uuid/uuid.dart';
 
 class FormPelanggan extends StatefulWidget {

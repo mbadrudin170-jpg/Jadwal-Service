@@ -1,8 +1,8 @@
 // path: lib/data/operasi/kategori_operasi.dart
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 class KategoriOperasi {
   final dbHelper = DatabaseHelper.instance;

@@ -1,11 +1,11 @@
 // path: lib/halaman/lainnya/kategori.dart
 
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/debug/log.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/halaman/form/form_kategori.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
-import 'package:admin_wifi/model/sub_kategori_model.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/admin/halaman/form/form_kategori.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/sub_kategori_model.dart';
 
 class KategoriPage extends StatefulWidget {
   const KategoriPage({super.key});

@@ -1,14 +1,11 @@
-// lib/halaman/form/form_paket.dart
-// Halaman ini menyediakan formulir untuk menambah atau mengedit paket internet.
-// diperbaiki: Menambahkan SingleChildScrollView untuk mengatasi RenderFlex overflow.
-// diubah: Menerapkan Dependency Injection untuk PaketOperasi agar mudah diuji.
-// ditambah: Implementasi FocusNode untuk perpindahan input dengan tombol Enter.
+// path: lib/admin/halaman/form/form_paket.dart
 
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/enum/enum.dart';
 
 class FormPaket extends StatefulWidget {
   final PaketModel? paket;

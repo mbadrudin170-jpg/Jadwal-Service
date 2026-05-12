@@ -1,7 +1,7 @@
-// path: lib/widget/nama_pelanggan.dart
-import 'package:flutter/material.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
+// path: lib/shared/widget/nama_pelanggan.dart
+ import 'package:flutter/material.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 
 class NamaPelangganWidget extends StatelessWidget {
   final String idPelanggan;

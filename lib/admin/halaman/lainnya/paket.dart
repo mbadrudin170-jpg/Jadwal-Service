@@ -1,10 +1,10 @@
 // path: lib/halaman/lainnya/paket.dart
 
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/halaman/detail/detail_paket.dart';
-import 'package:admin_wifi/halaman/form/form_paket.dart';
-import 'package:admin_wifi/model/paket_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/debug/log.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
+import 'package:wifi/shared/model/paket_model.dart';
 import 'package:flutter/material.dart';
 
 class PaketPage extends StatefulWidget {

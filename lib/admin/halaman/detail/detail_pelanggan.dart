@@ -1,13 +1,13 @@
-// path: lib/halaman/detail/detail_pelanggan.dart
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
-import 'package:admin_wifi/halaman/form/form_pelanggan.dart';
-import 'package:admin_wifi/halaman/pembantu/halaman_poin.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
+// path: lib/admin/halaman/detail/detail_pelanggan.dart
+
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
+import 'package:wifi/admin/halaman/pembantu/halaman_poin.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// Mengganti developer log standar dengan log custom
-import 'package:admin_wifi/debug/log.dart';
 
 class DetailPelangganPage extends StatefulWidget {
   final String idPelanggan;

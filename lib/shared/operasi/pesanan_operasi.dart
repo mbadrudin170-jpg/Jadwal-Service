@@ -1,8 +1,7 @@
-// lib/data/operasi/pesanan_operasi.dart
-// diubah: Menghapus fungsi yang tidak valid (totalPendapatanHariIni, hitungPesananHariIni)
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/pesanan_model.dart';
+// path: lib/shared/operasi/pesanan_operasi.dart// diubah: Menghapus fungsi yang tidak valid (totalPendapatanHariIni, hitungPesananHariIni)
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/model/pesanan_model.dart';
 
 class PesananOperasi {
   final dbHelper = DatabaseHelper.instance;

@@ -2,8 +2,8 @@
 // diubah: Penamaan metode diseragamkan dan logika Firebase disesuaikan.
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:admin_wifi/enum/arsitektur_apk_enum.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/enum/enum.dart';
 
 class VersiApkUserModel {
   final String id;
@@ -38,8 +38,10 @@ class VersiApkUserModel {
     return {
       'id': id,
       'catatanRilis': catatanRilis,
-      'nomorBuildTerbaru': nomorBuildTerbaru.map((key, value) => MapEntry(key.name, value)),
-      'tautanUnduhan': tautanUnduhan.map((key, value) => MapEntry(key.name, value)),
+      'nomorBuildTerbaru':
+          nomorBuildTerbaru.map((key, value) => MapEntry(key.name, value)),
+      'tautanUnduhan':
+          tautanUnduhan.map((key, value) => MapEntry(key.name, value)),
       'versiTerbaru': versiTerbaru,
       'wajibUpdate': wajibUpdate,
       'youtubeTutorial': youtubeTutorial,
@@ -176,9 +178,8 @@ class VersiApkUserModel {
       for (final item in mapData.entries) {
         final arsitektur = _arsitekturDariString(item.key.toString());
         if (arsitektur != null) {
-          hasil[arsitektur] = item.value is num
-              ? (item.value as num).toInt()
-              : 0;
+          hasil[arsitektur] =
+              item.value is num ? (item.value as num).toInt() : 0;
         }
       }
     }

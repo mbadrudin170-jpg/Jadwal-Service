@@ -1,8 +1,6 @@
-// path: lib/services/cek_langganan_kadaluarsa_service.dart
-// diubah: Menyederhanakan logika dengan memanggil fungsi arsipkan yang sudah ada.
-import 'package:admin_wifi/debug/log.dart';
-
-import 'package:admin_wifi/data/operasi/pelanggan_aktif_operasi.dart';
+// path: lib/shared/services/cek_langganan_kadaluarsa_service.dart// diubah: Menyederhanakan logika dengan memanggil fungsi arsipkan yang sudah ada.
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 
 /// Service ini bertanggung jawab untuk memeriksa dan mengarsipkan
 /// langganan pelanggan aktif yang telah kedaluwarsa secara berkala.

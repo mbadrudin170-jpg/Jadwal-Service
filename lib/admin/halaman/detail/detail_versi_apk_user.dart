@@ -1,9 +1,8 @@
-// path: lib/halaman/detail/detail_versi_apk_user.dart
-
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/halaman/form/form_versi_apk_user.dart';
-import 'package:admin_wifi/model/versi_apk_user_model.dart';
+// path: lib/admin/halaman/detail/detail_versi_apk_user.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/versi_apk_user_model.dart';
 
 // untuk menampilkan detail dari sebuah versi apk
 class DetailVersiApkUser extends StatelessWidget {

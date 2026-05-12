@@ -3,12 +3,12 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/services/notifikasi/notifikasi_servis.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 const uuid = Uuid();
 

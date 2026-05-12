@@ -1,18 +1,9 @@
-// path: lib/halaman/tab/lainnya.dart
-import 'package:admin_wifi/data/operasi/kritik_saran_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
+
 import 'package:flutter/material.dart';
-// import '../../data/services/notifikasi_servis.dart';
-import '../lainnya/kategori.dart';
-import '../lainnya/kritik_saran.dart';
-import '../lainnya/paket.dart';
-import '../lainnya/pelanggan.dart';
-import '../lainnya/riwayat_aktivasi_paket.dart';
-import '../lainnya/tentang_aplikasi.dart';
-import '../lainnya/versi_apk_user.dart';
-import 'pesanan.dart';
-import '../lainnya/pengaturan.dart';
-import '../../migrasi/halaman_migrasi.dart'; // ditambahkan: Import halaman migrasi
+import 'package:wifi/admin/halaman/lainnya/kategori.dart';
+import 'package:wifi/admin/halaman/tab/pesanan.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 
 class LainnyaPage extends StatefulWidget {
   const LainnyaPage({super.key});

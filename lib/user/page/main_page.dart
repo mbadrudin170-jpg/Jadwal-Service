@@ -1,0 +1,99 @@
+// path : lib/page/main_page.dart
+import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:pelanggan_wifi/page/home_page.dart';
+import 'package:pelanggan_wifi/page/pesan_page.dart';
+import 'package:pelanggan_wifi/page/profil_page.dart';
+import 'package:pelanggan_wifi/services/storage/local_storage_service.dart';
+
+class MainPage extends StatefulWidget {
+  final String userId;
+  final LocalStorageService localStorageService;
+
+  const MainPage(
+      {super.key, required this.userId, required this.localStorageService});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  int _selectedIndex = 0;
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    log(
+      '[Inisialisasi State] ✅ Memulai inisialisasi state untuk MainPage dengan userId: ${widget.userId}.',
+      name: 'main_page.dart',
+    );
+    _pages = [
+      HomePage(
+        userId: widget.userId,
+        localStorageService: widget.localStorageService,
+      ),
+      const PesanPage(),
+      ProfilPage(
+          userId: widget.userId,
+          localStorageService: widget.localStorageService),
+    ];
+    log(
+      '[Inisialisasi Halaman] ✅ Daftar halaman (pages) telah berhasil dibuat. Memulai pada tab index ke-$_selectedIndex.',
+      name: 'main_page.dart',
+    );
+  }
+
+  void _onItemTapped(int index) {
+    log(
+      '[Aksi Navigasi] ✅ Pengguna menekan item navigasi. Index baru: $index, Index sebelumnya: $_selectedIndex.',
+      name: 'main_page.dart',
+    );
+    setState(() {
+      _selectedIndex = index;
+      log(
+        '[Pembaruan State] ✅ State _selectedIndex berhasil diperbarui menjadi $index. UI akan di-rebuild.',
+        name: 'main_page.dart',
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    log(
+      '[Pembangunan UI] ✅ Membangun UI untuk MainPage. Halaman yang ditampilkan saat ini adalah index: $_selectedIndex.',
+      name: 'main_page.dart',
+    );
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Pesan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    log(
+      '[Pembersihan State] ✅ Membersihkan state MainPage saat widget dihancurkan.',
+      name: 'main_page.dart',
+    );
+    super.dispose();
+  }
+}

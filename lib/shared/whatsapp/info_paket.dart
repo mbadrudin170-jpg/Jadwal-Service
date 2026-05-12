@@ -1,11 +1,12 @@
-// Path: lib/whatsapp/info_paket.dart
-import 'package:admin_wifi/debug/log.dart'; // diubah: Menggunakan Log kustom
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/model/pelanggan_aktif_model.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
+// path: lib/shared/whatsapp/info_paket.dart
+
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/utils/format_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Kelas utilitas untuk membuat dan mengirim pesan informasi paket.

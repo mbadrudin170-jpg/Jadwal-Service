@@ -1,8 +1,8 @@
 // path: lib/model/transaksi_model.dart
 // diubah: Model digabungkan dengan RiwayatLanggananModel dan denormalisasi data dihapus.
-import 'package:admin_wifi/enum/status_pembayaran_enum.dart';
-import 'package:admin_wifi/enum/tipe_transaksi_enum.dart';
-import 'package:admin_wifi/model/paket_model.dart'; // Impor untuk TipeDurasi
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/paket_model.dart'; // Impor untuk TipeDurasi
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ditambahkan: tipe 'langganan' untuk mencatat aktivasi/penukaran paket.

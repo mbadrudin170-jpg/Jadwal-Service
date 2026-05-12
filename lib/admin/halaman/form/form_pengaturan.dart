@@ -1,10 +1,10 @@
 // path: lib/halaman/form/form_pengaturan.dart
 
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:admin_wifi/model/pengaturan_model.dart';
-import 'package:admin_wifi/data/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/model/pengaturan_model.dart';
+import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 
 // Halaman formulir untuk mengedit dan menyimpan pengaturan aplikasi.
 class FormPengaturan extends StatefulWidget {

@@ -1,9 +1,8 @@
-// path: lib/halaman/detail/detail_paket.dart
-
-import 'package:admin_wifi/debug/log.dart';
+// path: lib/admin/halaman/detail/detail_paket.dart
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/halaman/form/form_paket.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 
 class DetailPaketPage extends StatefulWidget {
   final PaketModel paket;

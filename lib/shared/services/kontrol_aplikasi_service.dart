@@ -1,6 +1,7 @@
-// path: lib/services/kontrol_aplikasi_service.dart
-import 'package:admin_wifi/debug/log.dart';
+// path: lib/shared/services/kontrol_aplikasi_service.dart
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 // untuk mengontrol status aplikasi pengguna dari jarak jauh
 class KontrolAplikasiService {

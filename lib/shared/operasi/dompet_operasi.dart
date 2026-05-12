@@ -1,8 +1,8 @@
 // path: lib/data/operasi/dompet_operasi.dart
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/dompet_model.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 class DompetOperasi {
   final dbHelper = DatabaseHelper.instance;
@@ -21,7 +21,8 @@ class DompetOperasi {
   }
 
   // diubah: Menambahkan parameter untuk memfilter dompet yang diarsipkan
-  Future<List<DompetModel>> getDompet({bool tampilkanDiarsipkan = false}) async {
+  Future<List<DompetModel>> getDompet(
+      {bool tampilkanDiarsipkan = false}) async {
     Log.info(
       'Memulai getDompet (tampilkanDiarsipkan: $tampilkanDiarsipkan).',
     );
@@ -91,7 +92,7 @@ class DompetOperasi {
       rethrow;
     }
   }
-  
+
   // ditambah: Fungsi baru untuk mengarsipkan semua dompet
   /// Mengarsipkan semua dompet yang belum diarsipkan.
   Future<void> arsipSemuaDompet() async {
@@ -99,14 +100,15 @@ class DompetOperasi {
     try {
       // 1. Ambil semua dompet yang aktif (belum diarsipkan)
       final daftarDompetAktif = await getDompet(tampilkanDiarsipkan: false);
-      Log.info('Ditemukan ${daftarDompetAktif.length} dompet aktif untuk diarsipkan.');
+      Log.info(
+          'Ditemukan ${daftarDompetAktif.length} dompet aktif untuk diarsipkan.');
 
       // 2. Loop melalui setiap dompet dan arsipkan
       for (final dompet in daftarDompetAktif) {
         // 3. Panggil `updateDompet` untuk mengarsipkan satu per satu
         await updateDompet(dompet.copyWith(diarsipkan: DateTime.now()));
       }
-      
+
       Log.info('Proses pengarsipan semua dompet telah selesai.');
     } catch (e, st) {
       Log.error(

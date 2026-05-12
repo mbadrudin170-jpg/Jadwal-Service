@@ -1,11 +1,10 @@
-// path: lib/halaman/tab/pesanan.dart
-
+// path: lib/admin/halaman/tab/pesanan.dart
 // diubah: Mengganti path import, memperbaiki instansiasi, dan memperbaiki logika status
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:admin_wifi/data/operasi/pesanan_operasi.dart';
-import 'package:admin_wifi/model/pesanan_model.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/pesanan_model.dart';
+import 'package:wifi/shared/operasi/pesanan_operasi.dart';
 
 class HalamanPesan extends StatefulWidget {
   const HalamanPesan({super.key});

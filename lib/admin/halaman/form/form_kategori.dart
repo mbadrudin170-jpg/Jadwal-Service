@@ -1,14 +1,14 @@
-// path: lib/halaman/form/form_kategori.dart
-// Halaman ini menyediakan formulir untuk menambah atau mengedit kategori dan sub-kategori.
+// path: lib/admin/halaman/form/form_kategori.dart
 
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/data/sync/unggah_data.dart';
-import 'package:admin_wifi/model/sub_kategori_model.dart';
-import 'package:admin_wifi/services/cek_koneksi_internet.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/sync/unggah_data.dart';
+import 'package:wifi/shared/model/sub_kategori_model.dart';
+import 'package:wifi/shared/services/cek_koneksi_internet.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/enum/enum.dart';
 
 class FormKategoriPage extends StatefulWidget {
   final KategoriModel? kategori;

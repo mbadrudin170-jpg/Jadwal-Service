@@ -1,9 +1,9 @@
-// path: lib/widget/nama_paket.dart
+// path: lib/shared/widget/nama_paket.dart
 // Widget ini berfungsi untuk menampilkan nama paket berdasarkan ID.
 
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/model/paket_model.dart';
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
 
 class NamaPaketWidget extends StatelessWidget {
   final String idPaket;

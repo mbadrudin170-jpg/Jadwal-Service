@@ -1,15 +1,15 @@
-// path: lib/halaman/form/form_transaksi.dart
+// path: lib/admin/halaman/form/form_transaksi.dart
 
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/data/operasi/dompet_operasi.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
-import 'package:admin_wifi/enum/tipe_transaksi_enum.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
-import 'package:admin_wifi/model/sub_kategori_model.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
+import '../../../shared/debug/log.dart';
+import '../../../shared/operasi/kategori_operasi.dart';
+import '../../../shared/operasi/dompet_operasi.dart';
+import '../../../shared/operasi/transaksi_operasi.dart';
+import '../../../shared/enum/tipe_transaksi_enum.dart';
+import '../../../shared/model/kategori_model.dart';
+import '../../../shared/model/sub_kategori_model.dart';
+import '../../../shared/model/transaksi_model.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/dompet_model.dart';
+import '../../../shared/model/dompet_model.dart';
 import 'package:uuid/uuid.dart';
 
 class FormTransaksiPage extends StatefulWidget {

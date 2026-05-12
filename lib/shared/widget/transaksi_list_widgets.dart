@@ -1,15 +1,14 @@
-// path: lib/widget/transaksi_list_widgets.dart
-// diubah: Menghapus operator null-aware yang tidak perlu dan memperbaiki penanganan error.
+// path: lib/shared/widget/transaksi_list_widgets.dart// diubah: Menghapus operator null-aware yang tidak perlu dan memperbaiki penanganan error.
 
-import 'package:admin_wifi/data/operasi/dompet_operasi.dart';
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/enum/tipe_transaksi_enum.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
-import 'package:admin_wifi/halaman/detail/detail_transaksi.dart';
-import 'package:admin_wifi/halaman/form/form_transaksi.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
+import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/utils/format_utils.dart';
 
 Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
   List<TransaksiModel> transaksi,

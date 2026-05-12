@@ -1,6 +1,7 @@
-// path: lib/utils/sync_manager.dart
-import 'package:admin_wifi/data/services/preferensi_service.dart';
-import 'package:admin_wifi/debug/log.dart';
+// path: lib/shared/utils/sync_manager.dart
+
+import 'package:wifi/shared/data/services/preferensi_service.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class SyncManager {
   Future<DateTime> getTerakhirUnduh() async {

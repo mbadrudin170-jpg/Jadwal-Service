@@ -1,7 +1,7 @@
 // path: lib/model/pelanggan_aktif_model.dart
 
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 

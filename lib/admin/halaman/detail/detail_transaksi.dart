@@ -1,23 +1,22 @@
-// path: lib/halaman/detail/detail_transaksi.dart
-// Halaman ini menampilkan detail dari satu transaksi.
+// path: lib/admin/halaman/detail/detail_transaksi.dart// Halaman ini menampilkan detail dari satu transaksi.
 
-import 'package:admin_wifi/data/operasi/dompet_operasi.dart';
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/data/operasi/sub_kategori_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
 // ditambah: Navigasi ke form edit
-import 'package:admin_wifi/halaman/form/form_transaksi.dart';
-import 'package:admin_wifi/model/dompet_model.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
-import 'package:admin_wifi/model/sub_kategori_model.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 class DetailTransaksiPage extends StatefulWidget {
   final TransaksiModel transaksi;

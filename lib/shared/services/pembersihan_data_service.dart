@@ -1,11 +1,9 @@
 // path: lib/services/pembersihan_data_service.dart
 
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:admin_wifi/data/operasi/pembersihan_data_operasi.dart';
-// ditambahkan: Import untuk mengakses operasi dan model pengaturan.
-import 'package:admin_wifi/data/operasi/pengaturan_operasi.dart';
-import 'package:admin_wifi/model/pengaturan_model.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/pengaturan_model.dart';
+import 'package:wifi/shared/operasi/pembersihan_data_operasi.dart';
+import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 
 class PembersihanDataService {
   static const String _keyLastCleanup = 'last_cleanup_timestamp';

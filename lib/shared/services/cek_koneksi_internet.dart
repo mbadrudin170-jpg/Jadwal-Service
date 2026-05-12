@@ -1,8 +1,7 @@
-// path: lib/services/cek_koneksi_internet.dart
-// File ini menyediakan layanan terpusat untuk memeriksa status koneksi internet.
+// path: lib/shared/services/cek_koneksi_internet.dart// File ini menyediakan layanan terpusat untuk memeriksa status koneksi internet.
 
-import 'package:admin_wifi/debug/log.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class KoneksiInternetService {
   // Fungsi untuk memeriksa apakah perangkat terhubung ke internet (WiFi atau Mobile).

@@ -3,7 +3,7 @@
 // File ini bertanggung jawab untuk menampilkan informasi tentang aplikasi,
 // seperti versi, nama, dan deskripsi singkat.
 
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';

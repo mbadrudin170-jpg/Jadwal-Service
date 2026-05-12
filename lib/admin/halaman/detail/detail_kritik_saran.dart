@@ -1,10 +1,10 @@
 // path: lib/halaman/detail/detail_kritik_saran.dart
 
-import 'package:admin_wifi/data/operasi/kritik_saran_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/model/kritik_saran_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
-import 'package:admin_wifi/widget/nama_dari_id.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
+import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/nama_dari_id.dart';
 import 'package:flutter/material.dart';
 
 class DetailKritikSaranPage extends StatefulWidget {
@@ -16,14 +16,11 @@ class DetailKritikSaranPage extends StatefulWidget {
   });
 
   @override
-  State<DetailKritikSaranPage> createState() =>
-      _DetailKritikSaranPageState();
+  State<DetailKritikSaranPage> createState() => _DetailKritikSaranPageState();
 }
 
-class _DetailKritikSaranPageState
-    extends State<DetailKritikSaranPage> {
-  final KritikSaranOperasi _kritikSaranOperasi =
-      KritikSaranOperasi();
+class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
+  final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
 
   late Future<KritikSaranModel> _kritikSaranFuture;
 
@@ -43,9 +40,8 @@ class _DetailKritikSaranPageState
       'Memulai proses pengambilan data kritik dan saran dari database.',
     );
 
-    _kritikSaranFuture = _kritikSaranOperasi
-        .getKritikSaranById(widget.id)
-        .then((value) {
+    _kritikSaranFuture =
+        _kritikSaranOperasi.getKritikSaranById(widget.id).then((value) {
       Log.info(
         'Data kritik dan saran berhasil dimuat dari database.',
       );
@@ -242,8 +238,7 @@ class _DetailKritikSaranPageState
             'FutureBuilder dijalankan dengan connection state: ${snapshot.connectionState}.',
           );
 
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             Log.info(
               'Data masih dalam proses loading.',
             );
@@ -278,23 +273,18 @@ class _DetailKritikSaranPageState
               child: Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           Icon(
                             Icons.person_pin,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 24,
                           ),
                           const SizedBox(
@@ -302,12 +292,9 @@ class _DetailKritikSaranPageState
                           ),
                           Expanded(
                             child: NamaDariIdWidget(
-                              userId:
-                                  kritikSaran.userId,
-                              style:
-                                  const TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,
+                              userId: kritikSaran.userId,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
@@ -320,8 +307,7 @@ class _DetailKritikSaranPageState
                       const Text(
                         'Pesan:',
                         style: TextStyle(
-                          fontWeight:
-                              FontWeight.w600,
+                          fontWeight: FontWeight.w600,
                           color: Colors.grey,
                         ),
                       ),
@@ -330,8 +316,7 @@ class _DetailKritikSaranPageState
                       ),
                       Text(
                         kritikSaran.isi,
-                        style:
-                            const TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           height: 1.5,
                         ),
@@ -340,11 +325,9 @@ class _DetailKritikSaranPageState
                         height: 40,
                       ),
                       Align(
-                        alignment:
-                            Alignment.centerRight,
+                        alignment: Alignment.centerRight,
                         child: Text(
-                          FormatTanggal
-                              .formatTanggalDanJam(
+                          FormatTanggal.formatTanggalDanJam(
                             kritikSaran.tanggal,
                           ),
                           style: TextStyle(

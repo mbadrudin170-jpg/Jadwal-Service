@@ -1,12 +1,11 @@
-// path: lib/data/operasi/pengaturan_operasi.dart
-// diubah: Memperbaiki bug logika UPSERT dengan memaksakan penggunaan ID statis.
+// path: lib/shared/operasi/pengaturan_operasi.dart// diubah: Memperbaiki bug logika UPSERT dengan memaksakan penggunaan ID statis.
 // diubah: Menghapus konstanta ID duplikat dan mengimpornya dari model untuk Single Source of Truth.
 
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/pengaturan_model.dart'; // ditambah: Mengimpor model untuk mengakses konstanta idPengaturanGlobal.
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/pengaturan_model.dart'; // ditambah: Mengimpor model untuk mengakses konstanta idPengaturanGlobal.
 import 'package:flutter/foundation.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 // dihapus: ID statis tidak lagi didefinisikan di sini untuk menghindari duplikasi.
 // 'idPengaturanGlobal' sekarang diimpor dari 'pengaturan_model.dart'.

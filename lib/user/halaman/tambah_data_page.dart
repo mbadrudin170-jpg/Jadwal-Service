@@ -31,6 +31,8 @@ class _TambahDataPageState extends State<TambahDataPage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      if (!mounted) return;
+
       // Kembali ke halaman sebelumnya setelah berhasil menyimpan
       Navigator.of(context).pop();
 
@@ -39,6 +41,7 @@ class _TambahDataPageState extends State<TambahDataPage> {
       );
 
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

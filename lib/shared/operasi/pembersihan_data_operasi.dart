@@ -1,9 +1,8 @@
-// path: lib/data/operasi/pembersihan_data_operasi.dart
-// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
+// path: lib/shared/operasi/pembersihan_data_operasi.dart
 
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/debug/log.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class PembersihanDataOperasi {
   // diubah: dbHelper sekarang final dan diinisialisasi di konstruktor.

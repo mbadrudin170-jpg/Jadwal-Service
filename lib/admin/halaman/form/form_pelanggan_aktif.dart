@@ -1,43 +1,28 @@
-// path: lib/halaman/form/form_pelanggan_aktif.dart
-// Halaman ini menyediakan formulir untuk mengaktifkan pelanggan dengan paket tertentu.
-// diubah: Melakukan refactoring untuk menerapkan Dependency Injection.
-// diubah: Memisahkan logika penyimpanan dan navigasi untuk memastikan SnackBar sempat ditampilkan dalam pengujian.
-// diubah: Memperbaiki bug dimana Dompet dan Kategori tidak diinisialisasi dalam mode edit.
-// diubah: Mengganti `value` dengan `initialValue` pada DropdownButtonFormField.
-// diubah: Memfilter daftar kategori agar hanya menampilkan tipe pemasukan dan yang tidak dihapus.
-// ditambahkan: filter untuk hanya menampilkan dompet yang isDeleted-nya false.
-// diubah: Transaksi sekarang dibuat tanpa pengecekan status pembayaran.
-// diubah: poinYangDihasilkan sekarang mengambil nilai dari paket yang dipilih.
-// diubah: Memperbaiki bug tampilan poin.
-// ditambahkan: Logika `_hitungTanggalBerakhir` diekstrak menjadi fungsi top-level `hitungTanggalBerakhir` untuk kemudahan pengujian.
-// diperbaiki: Kesalahan sintaks pada string multi-baris di SnackBar.
-// diperbaiki: Memperbaiki bug dimana edit pelanggan aktif tidak mengupdate transaksi yang ada.
-// diubah: Memindahkan logika pengiriman WhatsApp ke UI dan menambahkan penanganan error.
-// diubah: Menggunakan SnackBarUtil untuk menampilkan notifikasi.
+// path: lib/admin/halaman/form/form_pelanggan_aktif.dart
 
-import 'package:admin_wifi/data/operasi/kategori_operasi.dart';
-import 'package:admin_wifi/data/operasi/dompet_operasi.dart';
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_aktif_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
-import 'package:admin_wifi/enum/tipe_transaksi_enum.dart';
-import 'package:admin_wifi/model/hasil_simpan_model.dart';
-import 'package:admin_wifi/model/kategori_model.dart';
-import 'package:admin_wifi/model/dompet_model.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/model/pelanggan_aktif_model.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
-import 'package:admin_wifi/enum/status_pembayaran_enum.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/utils/snackbar_util.dart';
-import 'package:admin_wifi/whatsapp/info_paket.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/hasil_simpan_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/whatsapp/info_paket.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
-import 'package:admin_wifi/enum/enum.dart';
+import 'package:wifi/shared/enum/enum.dart';
 
 DateTime hitungTanggalBerakhir(DateTime startDate, PaketModel paket) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');

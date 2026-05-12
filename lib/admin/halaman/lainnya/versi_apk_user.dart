@@ -1,12 +1,12 @@
 // path: lib/halaman/lainnya/versi_apk_user.dart
 
-import 'package:admin_wifi/halaman/detail/detail_versi_apk_user.dart';
-import 'package:admin_wifi/enum/arsitektur_apk_enum.dart';
+import 'package:wifi/admin/halaman/detail/detail_versi_apk_user.dart';
+import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/data/operasi/versi_apk_user_operasi.dart';
-import 'package:admin_wifi/model/versi_apk_user_model.dart';
-import 'package:admin_wifi/halaman/form/form_versi_apk_user.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
+import 'package:wifi/debug/log.dart';
 
 enum Urutan { buildZA, buildAZ, versiZA, versiAZ }
 

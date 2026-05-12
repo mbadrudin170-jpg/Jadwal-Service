@@ -1,6 +1,6 @@
 // path: lib/widget/info_ringkasan_widget.dart
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/utils/format_util.dart';
+import 'package:wifi/shared/utils/format_utils.dart';
 
 // diubah: Menambahkan parameter `textKey` opsional.
 Widget bangunInfoRingkasan({

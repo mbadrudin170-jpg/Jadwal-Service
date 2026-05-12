@@ -1,9 +1,9 @@
 // path: lib/data/operasi/kritik_saran_operasi.dart
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/kritik_saran_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 class KritikSaranOperasi {
   final dbHelper = DatabaseHelper.instance;

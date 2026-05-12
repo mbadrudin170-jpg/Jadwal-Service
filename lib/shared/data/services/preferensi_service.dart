@@ -1,0 +1,63 @@
+// path: lib/data/services/preferensi_service.dart
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+class PreferensiService {
+  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  static const String _keyTerakhirUnduh = 'terakhir_unduh';
+  static const String _keyTerakhirUnggah = 'terakhir_unggah';
+
+  static Future<DateTime?> getTerakhirUnduh() async {
+    Log.info('Mengambil timestamp terakhir unduh dengan key: $_keyTerakhirUnduh');
+    final result = await _getTimestamp(_keyTerakhirUnduh, 'Unduh');
+    Log.info('Timestamp terakhir unduh: ${result ?? "null"}');
+    return result;
+  }
+
+  static Future<void> setTerakhirUnduh(DateTime waktu) async {
+    Log.info('Menyiapkan penyimpanan timestamp terakhir unduh: $waktu $_keyTerakhirUnduh');
+    await _setTimestamp(_keyTerakhirUnduh, waktu, 'Unduh');
+    Log.info('Timestamp terakhir unduh berhasil disimpan');
+  }
+
+  static Future<DateTime?> getTerakhirUnggah() async {
+    Log.info('Mengambil timestamp terakhir unggah dengan key: $_keyTerakhirUnggah');
+    final result = await _getTimestamp(_keyTerakhirUnggah, 'Unggah');
+    Log.info('Timestamp terakhir unggah: ${result ?? "null"}');
+    return result;
+  }
+
+  static Future<void> setTerakhirUnggah(DateTime waktu) async {
+    Log.info('Menyiapkan penyimpanan timestamp terakhir unggah: $waktu $_keyTerakhirUnggah');
+    await _setTimestamp(_keyTerakhirUnggah, waktu, 'Unggah');
+    Log.info('Timestamp terakhir unggah berhasil disimpan');
+  }
+
+  static Future<DateTime?> _getTimestamp(String key, String label) async {
+    Log.info('Membaca timestamp $label dari SharedPreferences | Key: $key');
+    final prefs = await _prefs;
+    final timestamp = prefs.getInt(key);
+
+    if (timestamp == null || timestamp == 0) {
+      Log.info('Timestamp $label kosong atau belum di-set. Mengembalikan null.');
+      return null; // diubah: mengembalikan null jika tidak ada data
+    }
+
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp, isUtc: true);
+    Log.info('Timestamp $label berhasil dibaca: $date');
+    return date;
+  }
+
+  static Future<void> _setTimestamp(String key, DateTime time, String label) async {
+    Log.info('Menyimpan timestamp $label ke SharedPreferences | Value: $time | Key: $key');
+    try {
+      final prefs = await _prefs;
+      final int millis = time.toUtc().millisecondsSinceEpoch;
+      await prefs.setInt(key, millis);
+      Log.info('✨ Timestamp $label berhasil disimpan | UTC: $time');
+    } catch (e, s) {
+      Log.error('Error saat menyimpan timestamp $label: $e', error: e, stackTrace: s);
+    }
+  }
+}

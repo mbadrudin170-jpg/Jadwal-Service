@@ -3,12 +3,12 @@
 // Ini menghilangkan peringatan deprecation dan menyederhanakan kode.
 // ditambah: Menambahkan `const` pada konstruktor untuk optimasi performa.
 
-import 'package:admin_wifi/halaman/form/form_pelanggan.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/halaman/detail/detail_pelanggan.dart';
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/debug/log.dart';
 
 // ditambah: Enum untuk opsi pengurutan
 enum OpsiUrut { namaAZ, namaZA }

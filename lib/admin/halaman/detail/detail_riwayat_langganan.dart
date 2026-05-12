@@ -1,15 +1,17 @@
-// path: lib/halaman/detail/detail_riwayat_langganan.dart
-// diubah: File ini sekarang menampilkan detail transaksi langganan dari TransaksiModel.
+
+
+// path: lib/admin/halaman/detail/detail_riwayat_langganan.dart
+//// diubah: File ini sekarang menampilkan detail transaksi langganan dari TransaksiModel.
 // ditambahkan: Widget untuk menampilkan informasi poin yang dihasilkan dan digunakan.
 
-import 'package:admin_wifi/data/operasi/paket_operasi.dart';
-import 'package:admin_wifi/data/operasi/pelanggan_operasi.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/model/paket_model.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
-import 'package:admin_wifi/utils/format_util.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:flutter/material.dart';
 
 class DetailLanggananTransaksiPage extends StatefulWidget {

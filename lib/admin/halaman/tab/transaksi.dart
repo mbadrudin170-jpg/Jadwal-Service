@@ -1,12 +1,13 @@
-// path: lib/halaman/tab/transaksi.dart
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/enum/tipe_transaksi_enum.dart';
-import 'package:admin_wifi/widget/info_ringkasan_widget.dart';
+
+// path: lib/admin/halaman/tab/transaksi.dart
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/data/operasi/transaksi_operasi.dart';
-import 'package:admin_wifi/halaman/form/form_transaksi.dart';
-import 'package:admin_wifi/model/transaksi_model.dart';
-import 'package:admin_wifi/widget/transaksi_list_widgets.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
+import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
 
 // diubah: RingkasanTransaksi sekarang menjadi StatelessWidget yang hanya menerima data.
 class RingkasanTransaksi extends StatelessWidget {

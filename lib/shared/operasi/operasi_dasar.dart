@@ -1,11 +1,11 @@
-// path: lib/data/operasi/operasi_dasar.dart
-// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
+// path: lib/shared/operasi/operasi_dasar.dart
+//// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
 
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/status_unggah_operasi.dart';
-import 'package:admin_wifi/data/sqlite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
 class OperasiDasar {

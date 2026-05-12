@@ -1,10 +1,10 @@
 // path: lib/halaman/lainnya/pengaturan.dart
 
-import 'package:admin_wifi/debug/log.dart';
+import 'package:wifi/debug/log.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_wifi/model/pengaturan_model.dart';
-import 'package:admin_wifi/data/operasi/pengaturan_operasi.dart';
-import '../form/form_pengaturan.dart';
+import 'package:wifi/shared/model/pengaturan_model.dart';
+import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
 
 // Halaman untuk menampilkan konfigurasi pengaturan aplikasi.
 class PengaturanPage extends StatefulWidget {

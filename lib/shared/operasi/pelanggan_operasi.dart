@@ -1,8 +1,9 @@
-// path: lib/data/operasi/pelanggan_operasi.dart
-import 'package:admin_wifi/debug/log.dart';
-import 'package:admin_wifi/data/operasi/operasi_dasar.dart';
-import 'package:admin_wifi/data/sqlite.dart';
-import 'package:admin_wifi/model/pelanggan_model.dart';
+// path: lib/shared/operasi/pelanggan_operasi.dart
+
+import 'package:wifi/shared/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 class PelangganOperasi {
   final dbHelper = DatabaseHelper.instance;

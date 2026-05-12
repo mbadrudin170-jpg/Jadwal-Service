@@ -1,6 +1,6 @@
 // path: lib/enum/status_pembayaran_enum.dart
 
-import 'package:wifiname/debug/log.dart'; // diubah: Menggunakan Log kustom
+import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
 
 // Enum untuk status pembayaran
 enum StatusPembayaranEnum {
