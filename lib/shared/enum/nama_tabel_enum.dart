@@ -1,5 +1,4 @@
-// TODO: Tinjau kembali lokasi file ini. Disarankan untuk memindahkannya ke lib/common/enums/
-
+// path: lib/enum/nama_tabel_enum.dart
 enum NamaTabel {
   dompet,
   kategori,
