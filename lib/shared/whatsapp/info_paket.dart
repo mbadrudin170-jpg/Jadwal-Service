@@ -6,7 +6,7 @@ import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/utils/format_utils.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Kelas utilitas untuk membuat dan mengirim pesan informasi paket.

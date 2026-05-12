@@ -1,6 +1,6 @@
 // path: lib/user/app_user.dart
 import 'package:flutter/material.dart';
-import 'package:wifi/user/page/splash_screen.dart';
+import 'package:wifi/user/page/splash_screen_user.dart';
 
 class UserApp extends StatelessWidget {
   const UserApp({super.key});

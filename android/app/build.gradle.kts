@@ -7,11 +7,11 @@ plugins {
 
 android {
     namespace = "com.example.myapp"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = Integer.parseInt(findProperty("android.compileSdkVersion").toString())
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        isCoreLibraryDesugaringEnabled = true  // ✅ Gunakan "isCoreLibraryDesugaringEnabled" (dengan prefix "is")
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -24,8 +24,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.myapp"
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = Integer.parseInt(findProperty("android.minSdkVersion").toString())
+        targetSdk = Integer.parseInt(findProperty("android.targetSdkVersion").toString())
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true

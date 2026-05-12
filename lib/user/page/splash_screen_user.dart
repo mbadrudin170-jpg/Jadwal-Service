@@ -1,4 +1,4 @@
-// path: lib/user/page/splash_screen.dart
+// path: lib/user/page/splash_screen_user.dart
 // diubah: Dibuat lebih fleksibel untuk menerima pesan loading eksternal.
 
 import 'dart:developer';

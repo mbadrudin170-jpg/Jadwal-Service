@@ -8,7 +8,7 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
-import 'package:wifi/shared/utils/format_utils.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
   List<TransaksiModel> transaksi,

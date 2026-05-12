@@ -3,12 +3,14 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal.dart';
@@ -17,7 +19,6 @@ import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/pembersihan_data_service.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
-import 'package:wifi/user/page/splash_screen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -29,6 +30,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late Future<bool> _initialization;
   String _loadingMessage = "Memulai aplikasi...";
+  double _loadingProgress = 0.0;
   final KoneksiInternetService _koneksiService = KoneksiInternetService();
 
   @override
@@ -40,9 +42,10 @@ class _MyAppState extends State<MyApp> {
 
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi aplikasi.');
+    const double totalSteps = 6.0;
     try {
       // Langkah 1: Inisialisasi Firebase
-      _updateLoading("Menginisialisasi layanan Google...");
+      _updateProgress(1 / totalSteps, "Menginisialisasi layanan Google...");
       Log.info('Memeriksa instance Firebase yang ada...');
       if (Firebase.apps.isEmpty) {
         Log.info('Tidak ada instance Firebase, memulai inisialisasi baru.');
@@ -54,37 +57,37 @@ class _MyAppState extends State<MyApp> {
       }
 
       // Langkah 2: Pengaturan Lokal
-      _updateLoading("Mengonfigurasi pengaturan lokal...");
+      _updateProgress(2 / totalSteps, "Mengonfigurasi pengaturan lokal...");
       tz.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
       await initializeDateFormatting('id_ID', null);
       Log.info('Konfigurasi zona waktu dan format tanggal selesai.');
 
       // Langkah 3: Layanan Notifikasi
-      _updateLoading("Mempersiapkan layanan notifikasi...");
+      _updateProgress(3 / totalSteps, "Mempersiapkan layanan notifikasi...");
       final notifikasiServis = NotifikasiServis();
       await notifikasiServis.inisialisasi();
       await notifikasiServis.requestPermissions();
       Log.info('Layanan notifikasi siap.');
 
       // Langkah 4: Database Lokal
-      _updateLoading("Mempersiapkan database lokal...");
+      _updateProgress(4 / totalSteps, "Mempersiapkan database lokal...");
       await DatabaseHelper.instance.database;
       Log.info('Database lokal siap.');
 
       // Langkah 5: Data Awal & Pembersihan
-      _updateLoading("Memeriksa data awal...");
+      _updateProgress(5 / totalSteps, "Memeriksa data awal...");
       await UnduhanAwalService().jalankanUnduhanAwal();
       await PembersihanDataService().jalankanJikaPerlu();
       Log.info('Pemeriksaan data awal dan pembersihan selesai.');
 
       // Langkah 6: Cek Koneksi Internet
-      _updateLoading("Mengecek koneksi internet...");
+      _updateProgress(6 / totalSteps, "Mengecek koneksi internet...");
       final isOnline = await _koneksiService.cekKoneksi();
       Log.info('Pengecekan koneksi selesai. Status online: $isOnline');
 
       // Selesai
-      _updateLoading("Selesai, membuka aplikasi...");
+      _updateProgress(1.0, "Selesai, membuka aplikasi...");
       await Future.delayed(const Duration(milliseconds: 500));
 
       return isOnline;
@@ -94,14 +97,15 @@ class _MyAppState extends State<MyApp> {
         error: e,
         stackTrace: s,
       );
-      _updateLoading("Terjadi error: ${e.toString()}");
+      _updateProgress(_loadingProgress, "Terjadi error: ${e.toString()}");
       return false;
     }
   }
 
-  void _updateLoading(String message) {
+  void _updateProgress(double progress, String message) {
     if (!mounted) return;
     setState(() {
+      _loadingProgress = progress;
       _loadingMessage = message;
     });
   }
@@ -120,10 +124,11 @@ class _MyAppState extends State<MyApp> {
         }
 
         Log.info('Inisialisasi sedang berjalan, menampilkan SplashScreen.');
-        // diubah: Meneruskan _loadingMessage ke SplashScreen.
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: SplashScreen(loadingMessage: _loadingMessage),
+          home: SplashScreen(
+            loadingMessage: _loadingMessage,
+          ),
         );
       },
     );
@@ -171,18 +176,10 @@ class AppMaterial extends StatelessWidget {
       'Menetapkan warna dasar (seed color) untuk tema: $primarySeedColor.',
     );
 
-    final TextTheme appTextTheme = const TextTheme(
-      displayLarge: TextStyle(
-        fontFamily: 'Oswald',
-        fontSize: 57,
-        fontWeight: FontWeight.bold,
-      ),
-      titleLarge: TextStyle(
-        fontFamily: 'Roboto',
-        fontSize: 22,
-        fontWeight: FontWeight.w500,
-      ),
-      bodyMedium: TextStyle(fontFamily: 'Open Sans', fontSize: 14),
+    final TextTheme appTextTheme = TextTheme(
+      displayLarge: GoogleFonts.poppins(fontSize: 57, fontWeight: FontWeight.bold),
+      titleLarge: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
+      bodyMedium: GoogleFonts.openSans(fontSize: 14),
     );
     Log.info('Membuat definisi TextTheme kustom.');
 
@@ -193,14 +190,10 @@ class AppMaterial extends StatelessWidget {
         brightness: Brightness.light,
       ),
       textTheme: appTextTheme,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: primarySeedColor,
         foregroundColor: Colors.white,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Oswald',
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
+        titleTextStyle: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -208,11 +201,7 @@ class AppMaterial extends StatelessWidget {
           backgroundColor: primarySeedColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          textStyle: const TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
+          textStyle: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
         ),
       ),
     );
