@@ -39,7 +39,7 @@ class CekLanggananKadaluarsaService {
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal selama proses pengolahan data kedaluwarsa!',
-        error: e,
+        e: e,
         st: s,
       );
     }

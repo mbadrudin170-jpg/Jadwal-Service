@@ -130,7 +130,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     } catch (e, s) {
       Log.error(
         'Gagal memuat data versi APK dari database',
-        error: e,
+        e: e,
         st: s,
       );
       if (!mounted) {
@@ -440,7 +440,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
         Log.info('SnackBar sukses ditampilkan');
       }
     } catch (e, s) {
-      Log.error('Gagal mengarsipkan data ID: $id', error: e, st: s);
+      Log.error('Gagal mengarsipkan data ID: $id', e: e, st: s);
       if (!mounted) {
         Log.warning('Widget tidak mounted setelah error arsip');
         return;

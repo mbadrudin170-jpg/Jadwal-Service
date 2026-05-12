@@ -90,7 +90,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         'Filter yang digunakan: "$_filterStatus". '
         'Kemungkinan penyebab: koneksi database gagal, tabel pesanan tidak ditemukan, '
         'atau terjadi error saat query data.',
-        error: e,
+        e: e,
         st: s,
       );
       Log.info('Mengatur _isLoading menjadi false meskipun terjadi error.');
@@ -145,7 +145,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         'Gagal mengubah status pesanan #${pesanan.id} dari "${pesanan.status}" menjadi "$statusBaru". '
         'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
         'atau nilai status baru tidak valid.',
-        error: e,
+        e: e,
         st: s,
       );
       if (mounted) {
@@ -236,7 +236,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
           'Gagal menghapus pesanan #${pesanan.id}. '
           'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
           'atau terjadi constraint violation.',
-          error: e,
+          e: e,
           st: s,
         );
         if (mounted) {

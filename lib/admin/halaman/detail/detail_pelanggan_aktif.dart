@@ -1,4 +1,3 @@
-
 // path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
 // diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah`.
 import 'package:wifi/shared/debug/log.dart';
@@ -81,13 +80,13 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
 
     if (formattedNumber.startsWith('0')) {
       Log.info(
-        'Nomor diawali dengan \"0\". Mengkonversi ke format internasional (62).',
+        'Nomor diawali dengan "0". Mengkonversi ke format internasional (62).',
       );
       formattedNumber = '62${formattedNumber.substring(1)}';
       Log.info('Nomor setelah konversi dari awalan 0: $formattedNumber');
     } else if (!formattedNumber.startsWith('62')) {
       Log.info(
-        'Nomor tidak diawali dengan \"62\". Menambahkan kode negara Indonesia (62).',
+        'Nomor tidak diawali dengan "62". Menambahkan kode negara Indonesia (62).',
       );
       formattedNumber = '62$formattedNumber';
       Log.info('Nomor setelah penambahan kode negara: $formattedNumber');
@@ -121,7 +120,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. '
         'Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
         e: e,
-	st: s,
+        st: s,
       );
       if (mounted) {
         Log.info(
@@ -426,8 +425,8 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             DetailPelangganPage(
-                                              idPelanggan: _pelanggan!.id,
-                                            ),
+                                          idPelanggan: _pelanggan!.id,
+                                        ),
                                       ),
                                     );
                                   } else {
@@ -503,12 +502,14 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                               PerhitunganUtil.getTeksSisaMasaAktif(
                                 _pelangganAktif.tanggalBerakhir,
                               ),
-                              style: Theme.of(context).textTheme.titleLarge
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
                                   ?.copyWith(
                                     color:
                                         PerhitunganUtil.getWarnaSisaMasaAktif(
-                                          _pelangganAktif.tanggalBerakhir,
-                                        ),
+                                      _pelangganAktif.tanggalBerakhir,
+                                    ),
                                     fontWeight: FontWeight.bold,
                                   ),
                               textAlign: TextAlign.center,
@@ -585,9 +586,9 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
               value,
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: isLink ? Colors.blue : null,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: isLink ? Colors.blue : null,
+                  ),
             ),
           ),
         ],
@@ -620,10 +621,10 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
                   ),
                   const SizedBox(width: 8),
                   FaIcon(

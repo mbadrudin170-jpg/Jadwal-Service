@@ -24,16 +24,14 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
 
   @override
   Future<void> muatTema() async {
-    log(
+    Log.info(
       '[Muat Tema] ✅ Memulai memuat tema dari SharedPreferences.',
-      name: 'theme_provider.dart',
     );
     try {
       final prefs = await SharedPreferences.getInstance();
       final temaString = prefs.getString(_keyTema) ?? 'system';
-      log(
+      Log.info(
         '[Muat Tema] ✅ Tema yang tersimpan adalah: `$temaString`.',
-        name: 'theme_provider.dart',
       );
 
       ThemeMode mode;
@@ -50,22 +48,19 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
 
       if (_tema != mode) {
         _tema = mode;
-        log(
+        Log.info(
           '[Pembaruan State] ✅ Tema berhasil dimuat dan diatur ke: $mode.',
-          name: 'theme_provider.dart',
         );
         notifyListeners();
       } else {
-        log(
+        Log.info(
           '[Muat Tema] ✅ Tema yang dimuat sama dengan state saat ini, tidak ada perubahan.',
-          name: 'theme_provider.dart',
         );
       }
     } catch (e, st) {
-      log(
+      Log.error(
         '[Muat Tema] ❌ Gagal memuat tema dari SharedPreferences.',
-        name: 'theme_provider.dart',
-        error: e,
+        e: e,
         st: st,
       );
     }
@@ -74,17 +69,15 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
   @override
   Future<void> aturTema(ThemeMode mode) async {
     if (_tema == mode) {
-      log(
+      Log.info(
         '[Atur Tema] ✅ Mode tema sudah sama ($mode), tidak ada aksi.',
-        name: 'theme_provider.dart',
       );
       return;
     }
 
     _tema = mode;
-    log(
+    Log.info(
       '[Pembaruan State] ✅ Mengatur tema baru ke: $mode dan memberitahu listener.',
-      name: 'theme_provider.dart',
     );
     notifyListeners();
 
@@ -102,15 +95,13 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
           value = 'system';
       }
       await prefs.setString(_keyTema, value);
-      log(
+      Log.info(
         '[Simpan Tema] ✅ Tema ($value) berhasil disimpan ke SharedPreferences.',
-        name: 'theme_provider.dart',
       );
     } catch (e, st) {
-      log(
+      Log.error(
         '[Simpan Tema] ❌ Gagal menyimpan tema ke SharedPreferences.',
-        name: 'theme_provider.dart',
-        error: e,
+        e: e,
         st: st,
       );
     }

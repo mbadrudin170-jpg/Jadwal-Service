@@ -1,6 +1,7 @@
 // path: lib/widget/theme_menu_widget.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/provider/theme_provider.dart';
 
 class ThemeMenuWidget extends StatelessWidget {
@@ -8,52 +9,49 @@ class ThemeMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('[Build UI] ✅ Membangun widget ThemeMenuWidget.', name: 'theme_menu_widget.dart');
+    Log.info('[Build UI] ✅ Membangun widget ThemeMenuWidget.');
     
-    log('[State Management] ✅ Mendapatkan instance dari ThemeProvider.', name: 'theme_menu_widget.dart');
+    Log.info('[State Management] ✅ Mendapatkan instance dari ThemeProvider.');
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    log('[Fungsi Lokal] ✅ Mendefinisikan fungsi lokal getCurrentIcon untuk mendapatkan ikon tema saat ini.', name: 'theme_menu_widget.dart');
+    Log.info('[Fungsi Lokal] ✅ Mendefinisikan fungsi lokal getCurrentIcon untuk mendapatkan ikon tema saat ini.');
     IconData getCurrentIcon() {
-      log('[Eksekusi Fungsi] ✅ Menjalankan getCurrentIcon untuk menentukan ikon berdasarkan tema: ${themeProvider.tema}.', name: 'theme_menu_widget.dart');
+      Log.info('[Eksekusi Fungsi] ✅ Menjalankan getCurrentIcon untuk menentukan ikon berdasarkan tema: ${themeProvider.tema}.');
       switch (themeProvider.tema) {
         case ThemeMode.light:
-          log('[Pilihan Tema] ✅ Tema saat ini adalah Terang (light), mengembalikan ikon light_mode.', name: 'theme_menu_widget.dart');
+          Log.info('[Pilihan Tema] ✅ Tema saat ini adalah Terang (light), mengembalikan ikon light_mode.');
           return Icons.light_mode;
         case ThemeMode.dark:
-          log('[Pilihan Tema] ✅ Tema saat ini adalah Gelap (dark), mengembalikan ikon dark_mode.', name: 'theme_menu_widget.dart');
+          Log.info('[Pilihan Tema] ✅ Tema saat ini adalah Gelap (dark), mengembalikan ikon dark_mode.');
           return Icons.dark_mode;
         case ThemeMode.system:
-          log('[Pilihan Tema] ✅ Tema saat ini adalah Otomatis (system), mengembalikan ikon brightness_auto.', name: 'theme_menu_widget.dart');
+          Log.info('[Pilihan Tema] ✅ Tema saat ini adalah Otomatis (system), mengembalikan ikon brightness_auto.');
           return Icons.brightness_auto;
       }
     }
 
-    log('[Build UI] ✅ Mengembalikan widget PopupMenuButton untuk pilihan tema.', name: 'theme_menu_widget.dart');
+    Log.info('[Build UI] ✅ Mengembalikan widget PopupMenuButton untuk pilihan tema.');
     return PopupMenuButton<ThemeMode>(
       icon: Icon(getCurrentIcon()),
       onSelected: (ThemeMode mode) async {
-        log(
+        Log.info(
           '[Aksi Pengguna] ✅ Pengguna memilih tema baru: $mode.',
-          name: 'theme_menu_widget.dart',
         );
         try {
           await themeProvider.aturTema(mode);
-          log(
+          Log.info(
             '[State Management] ✅ Berhasil menerapkan tema: $mode.',
-            name: 'theme_menu_widget.dart',
           );
         } catch (e, st) {
-          log(
+          Log.error(
             '[State Management] ❌ Gagal menerapkan tema: $mode.',
-            name: 'theme_menu_widget.dart',
             e: e,
             st: st,
           );
         }
       },
       itemBuilder: (BuildContext context) {
-        log('[Build UI] ✅ Membangun item-item untuk PopupMenuButton.', name: 'theme_menu_widget.dart');
+        Log.info('[Build UI] ✅ Membangun item-item untuk PopupMenuButton.');
         return <PopupMenuEntry<ThemeMode>>[
         const PopupMenuItem<ThemeMode>(
           value: ThemeMode.system,

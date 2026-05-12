@@ -30,7 +30,7 @@ class KoneksiInternetService {
     } catch (e, st) {
       Log.error(
         'Terjadi kesalahan fatal saat memeriksa koneksi',
-        error: e,
+        e: e,
         st: st,
       );
       // Mengembalikan false sebagai fallback aman jika terjadi error pada plugin

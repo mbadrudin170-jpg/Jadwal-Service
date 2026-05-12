@@ -100,7 +100,7 @@ class _HalamanPoinState extends State<HalamanPoin> {
         await _loadRiwayatTransaksi();
       }
     } catch (e, st) {
-      Log.error('Gagal memuat data poin: $e', error: e, st: st);
+      Log.error('Gagal memuat data poin: $e', e: e, st: st);
 
       if (!mounted) return;
 
@@ -147,7 +147,7 @@ class _HalamanPoinState extends State<HalamanPoin> {
     } catch (e, st) {
       Log.error(
         'Gagal memuat riwayat transaksi: $e',
-        error: e,
+        e: e,
         st: st,
       );
 

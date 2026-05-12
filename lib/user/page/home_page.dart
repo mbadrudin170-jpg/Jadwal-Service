@@ -144,7 +144,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       Log.error(
                         'Gagal memuat riwayat langganan.',
                         e: snapshotRiwayat.error,
-                        st: snapshotRiwayat.st,
+                        st: snapshotRiwayat.stackTrace,
                       );
                       return Center(
                           child: Text(
