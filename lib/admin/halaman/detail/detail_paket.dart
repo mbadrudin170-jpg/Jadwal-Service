@@ -118,18 +118,6 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
           },
         ),
         actions: [
-          // Ditambahkan: Tombol baru untuk aksi 'short' atau 'share'
-          IconButton(
-            onPressed: () {
-              Log.info(
-                  'Tombol bagikan paket ditekan untuk paket: ${_paket.nama}');
-              // TODO: Tambahkan fungsi untuk membagikan detail paket di sini
-            },
-            icon: const Icon(
-              Icons.share,
-            ),
-            tooltip: 'Bagikan Paket',
-          ),
           IconButton(
             onPressed: _editPaket,
             icon: const Icon(

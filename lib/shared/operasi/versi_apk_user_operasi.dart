@@ -1,5 +1,5 @@
 // path: lib/data/operasi/versi_apk_user_operasi.dart
-
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -13,7 +13,7 @@ class VersiApkUserOperasi {
   final OperasiDasar _operasi;
 
   VersiApkUserOperasi({OperasiDasar? operasi})
-    : _operasi = operasi ?? OperasiDasar() {
+      : _operasi = operasi ?? OperasiDasar() {
     Log.info(
       'VersiApkUserOperasi diinisialisasi - Tabel: $_tableName, OperasiDasar: ${operasi != null ? "dari parameter" : "instance baru"}',
     );
@@ -23,16 +23,14 @@ class VersiApkUserOperasi {
   // OPERASI TULIS (WRITE)
   // ==========================
 
-  Future<void> tambahVersiApkUser(VersiApkUserModel versiApkUser) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> tambahVersiApkUser(VersiApkUserModel versiApkUser, {bool dariServer = false}) async {
     Log.info(
       'Menambah versi APK user baru - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
     );
-    Log.info(
-      'Detail data - Build Universal: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}, Build ARM64: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.arm64] ?? 0}, Build X86_64: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.x86_64] ?? 0}, Catatan: ${versiApkUser.catatanRilis.length > 50 ? "${versiApkUser.catatanRilis.substring(0, 50)}..." : versiApkUser.catatanRilis}',
-    );
 
     try {
-      await _operasi.sisipkan(_tableName, versiApkUser.toSqlite());
+      await _operasi.sisipkan(_tableName, versiApkUser.toSqlite(), dariServer: dariServer);
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${versiApkUser.id}',
       );
@@ -46,12 +44,10 @@ class VersiApkUserOperasi {
     }
   }
 
-  Future<void> perbaruiVersiApkUser(VersiApkUserModel versiApkUser) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> perbaruiVersiApkUser(VersiApkUserModel versiApkUser, {bool dariServer = false}) async {
     Log.info(
       'Memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
-    );
-    Log.info(
-      'Data baru - Build Universal: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}, Build ARM64: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.arm64] ?? 0}, Build X86_64: ${versiApkUser.nomorBuildTerbaru[ArsitekturApkEnum.x86_64] ?? 0}',
     );
 
     try {
@@ -59,6 +55,7 @@ class VersiApkUserOperasi {
         _tableName,
         versiApkUser.toSqlite(),
         versiApkUser.id,
+        dariServer: dariServer,
       );
       Log.info(
         'Versi APK user berhasil diperbarui di tabel $_tableName - ID: ${versiApkUser.id}',
@@ -73,7 +70,8 @@ class VersiApkUserOperasi {
     }
   }
 
-  Future<void> arsipkanVersiApkUser(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> arsipkanVersiApkUser(String id, {bool dariServer = false}) async {
     Log.info('Mengarsipkan versi APK user - ID: $id');
 
     try {
@@ -85,7 +83,7 @@ class VersiApkUserOperasi {
       if (data.isNotEmpty) {
         final model = VersiApkUserModel.fromSqlite(data.first);
         Log.info(
-          'Data ditemukan - Versi: ${model.versiTerbaru}, Build Universal: ${model.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}, isDeleted: ${model.isDeleted}',
+          'Data ditemukan - Versi: ${model.versiTerbaru}, isDeleted: ${model.isDeleted}',
         );
 
         final modelDiarsipkan = model.copyWith(
@@ -93,13 +91,10 @@ class VersiApkUserOperasi {
           diarsipkan: DateTime.now(),
         );
 
-        Log.info(
-          'Menandai isDeleted=true, diarsipkan=${modelDiarsipkan.diarsipkan?.toIso8601String()}',
-        );
-        await _operasi.perbarui(_tableName, modelDiarsipkan.toSqlite(), id);
+        await perbaruiVersiApkUser(modelDiarsipkan, dariServer: dariServer);
 
         Log.info(
-          'Versi APK user berhasil diarsipkan - ID: $id, Waktu arsip: ${modelDiarsipkan.diarsipkan?.toIso8601String()}',
+          'Versi APK user berhasil diarsipkan - ID: $id',
         );
       } else {
         Log.info(
@@ -116,8 +111,9 @@ class VersiApkUserOperasi {
     }
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<VersiApkUserModel> daftarModel,
+    List<VersiApkUserModel> daftarModel, {bool dariServer = false}
   ) async {
     Log.info(
       'Memulai operasi batch sisipkan/perbarui - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
@@ -130,9 +126,7 @@ class VersiApkUserOperasi {
 
     try {
       final daftarMap = daftarModel.map((model) => model.toSqlite()).toList();
-      Log.info('${daftarModel.length} model berhasil dikonversi ke Map SQLite');
-
-      await _operasi.sisipkanAtauPerbaruiBatch(_tableName, daftarMap);
+      await _operasi.sisipkanAtauPerbaruiBatch(_tableName, daftarMap, dariServer: dariServer);
       Log.info(
         'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_tableName',
       );
@@ -145,7 +139,8 @@ class VersiApkUserOperasi {
       rethrow;
     }
   }
-
+  // ... sisa file tidak berubah ...
+  
   // ==========================
   // OPERASI BACA (READ)
   // ==========================

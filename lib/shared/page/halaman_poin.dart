@@ -1,5 +1,4 @@
-// path: lib/halaman/pembantu/halaman_poin.dart
-
+// path: lib/shared/page/halaman_poin.dart
 // Enum untuk mengontrol tab yang aktif
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -8,6 +7,7 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/card/point_card.dart';
 import 'package:wifi/shared/widget/nama_pelanggan.dart';
 
 enum MenuPoin { penukaran, riwayat }
@@ -200,30 +200,47 @@ class _HalamanPoinState extends State<HalamanPoin> {
     );
   }
 
-  // Widget untuk menampilkan informasi total poin
+// Widget untuk menampilkan informasi total poin
   Widget _buildInfoPoinHeader() {
     Log.info('Membangun header informasi total poin. Total: $_totalPoin');
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      color: Theme.of(context).primaryColor.withAlpha(26),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text(
-            'Total Poin Anda',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '$_totalPoin',
-            style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      // Background halus di belakang kartu
+      color: Theme.of(context).primaryColor.withAlpha(15),
+      child: Center(
+        child: TotalPointCard(
+          points: _totalPoin,
+          icon: Icons.stars_rounded,
+        ),
       ),
     );
   }
+  // // Widget untuk menampilkan informasi total poin
+  // Widget _buildInfoPoinHeader() {
+  //   Log.info('Membangun header informasi total poin. Total: $_totalPoin');
+
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.all(24),
+  //     color: Theme.of(context).primaryColor.withAlpha(26),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children: [
+  //         const Text(
+  //           'Total Poin Anda',
+  //           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           '$_totalPoin',
+  //           style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // Widget untuk tombol segment (Penukaran/Riwayat)
   Widget _buildSegmentedControl() {

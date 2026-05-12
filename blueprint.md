@@ -15,7 +15,52 @@ Aplikasi ini dibagi menjadi dua bagian utama:
 - **Aplikasi Pengguna:** Untuk pelanggan melihat informasi akun, masa aktif paket, dan memberikan masukan.
 
 ## 2. Struktur Proyek
-*(Akan ditambahkan pada pembaruan berikutnya)*
+
+```
+lib/
+├── admin
+│   ├── app_admin.dart
+│   ├── data
+│   │   └── sqlite.dart
+│   ├── firebase_option
+│   │   └── firebase_option_admin_dev.dart
+│   ├── halaman
+│   │   ├── dashboard_page.dart
+│   │   ├── detail
+│   │   ├── form
+│   │   ├── lainnya
+│   │   ├── pembantu
+│   │   ├── tab
+│   │   ├── tes
+│   │   └── widget
+│   ├── halaman_utama.dart
+│   └── splash_screen_admin.dart
+├── main_admin.dart
+├── main_user.dart
+├── shared
+│   ├── common
+│   ├── data
+│   ├── debug
+│   ├── enum
+│   ├── export
+│   ├── model
+│   ├── operasi
+│   ├── services
+│   ├── theme
+│   ├── utils
+│   ├── whatsapp
+│   └── widget
+└── user
+    ├── app_user.dart
+    ├── data
+    ├── firebase_option
+    ├── hooks
+    ├── maintenance_page.dart
+    ├── page
+    ├── provider
+    ├── services
+    └── widget
+```
 
 ## 3. Fitur & Fungsi
 
@@ -38,6 +83,11 @@ Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau di
      - Properti `modePemeliharaan` (boolean) untuk mengontrol status pemeliharaan aplikasi.
      - Properti `infoPemeliharaan` (string) untuk menyimpan pesan yang akan ditampilkan kepada pengguna saat mode pemeliharaan aktif.
      - Konstruktor `fromFirebase` untuk mem-parsing data dari snapshot Firestore menjadi objek `PengaturanModel`.
+- **`lib/shared/widget/card/point_card.dart`**
+    - **Tujuan**: Menampilkan kartu (card) yang berisi informasi total poin pengguna dengan gaya visual yang menarik.
+    - **Fitur**:
+        - Menampilkan jumlah poin, ikon, dan menggunakan warna tema yang dapat disesuaikan.
+        - Memiliki efek `boxShadow` dan latar belakang ikon yang warnanya disesuaikan dengan `themeColor` untuk memberikan tampilan yang premium.
 
 ### Folder: `lib/user/`
 - **`lib/user/app_user.dart`**
@@ -87,7 +137,70 @@ Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau di
 ---
 ## 4. Catatan Pengembangan & Log Perubahan
 
-### # Versi: v1.0.1
+### # Versi: v1.0.0
+Sumber: pubspec.yaml (version: 1.0.0+1)
+Tanggal: 25 Juli 2024
+
+#### Tujuan:
+Memperbaiki peringatan `deprecated_member_use` untuk meningkatkan kualitas kode dan menghilangkan masalah dari `flutter analyze`.
+
+#### Perubahan:
+- **`lib/shared/widget/card/point_card.dart`**:
+  - **diubah:** Mengganti `themeColor.withOpacity(0.1)` menjadi `themeColor.withAlpha(26)` pada dua tempat (untuk `boxShadow` dan `Container` ikon).
+
+#### Bug:
+- `deprecated_member_use`: `flutter analyze` melaporkan bahwa `'withOpacity'` sudah usang dan menyarankan penggunaan metode lain untuk menghindari kehilangan presisi warna.
+
+#### Solusi:
+- Mengadopsi `.withAlpha()` sebagai pengganti `.withOpacity()`. Nilai `withAlpha(26)` setara dengan `withOpacity(0.1)` (karena 0.1 * 255 ≈ 25.5, dibulatkan menjadi 26), sehingga tampilan visual tetap sama sementara kode diperbarui sesuai praktik terbaik.
+
+#### Dampak:
+- Kode menjadi lebih bersih, modern, dan sesuai dengan rekomendasi linter Flutter terbaru.
+- Menghilangkan semua *issue* dari `flutter analyze`, menghasilkan basis kode yang "bersih".
+
+#### Analisa:
+- Menjaga basis kode bebas dari peringatan linter adalah praktik yang baik. Dengan proaktif memperbaiki anggota yang usang, kita memastikan aplikasi lebih mudah dipelihara, lebih stabil, dan siap untuk pembaruan Flutter di masa mendatang. Perbaikan ini, meskipun kecil, menunjukkan komitmen terhadap kualitas kode.
+
+### # Versi: v1.0.0
+Sumber: `pubspec.yaml` (version: 1.0.0+1)
+Tanggal: 25 Juli 2024
+
+#### Tujuan:
+- Memastikan konsistensi data antara operasi lokal dan server dengan menambahkan parameter `dariServer` pada semua metode tulis di lapisan operasi data (`lib/shared/operasi/`).
+
+#### Perubahan:
+- **`lib/shared/operasi/operasi_dasar.dart`**:
+  - **diubah:** Menambahkan parameter opsional `{bool dariServer = false}` ke semua metode tulis (`sisipkan`, `perbarui`, `hapus`, `jalankanOperasiKompleks`, `sisipkanAtauPerbaruiBatch`).
+  - **diubah:** Logika internal diubah untuk melewati pemicu sinkronisasi (`setWaktuUpdateTerbaru()`) jika `dariServer` bernilai `true`, mencegah loop sinkronisasi.
+- **`lib/shared/operasi/dompet_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createDompet`, `updateDompet`, `deleteDompet`, `arsipkanDompet`, `sisipkanAtauPerbaruiBatch`) diperbarui untuk menerima dan meneruskan parameter `dariServer` ke `OperasiDasar`.
+- **`lib/shared/operasi/kategori_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createKategori`, `update`, `delete`, `arsipkanSatuKategori`, `bersihkanDanSisipkanSemua`, `sisipkanAtauPerbaruiBatch`) diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/paket_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createPaket`, `updatePaket`, `hapusPaket`, `hapusSemuaPaket`, `sisipkanAtauPerbaruiBatch`) diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/pelanggan_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createPelanggan`, `updatePelanggan`, `deletePelanggan`, `arsipkanPelanggan`, `sisipkanAtauPerbaruiBatch`) diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/pelanggan_aktif_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createPelangganAktif`, `updatePelangganAktif`, `sisipkanAtauPerbaruiBatch`, `arsipkanPelangganAktif`, `hapusPermanenPelangganYangDiArsipkan`, `hapusSemuaPelangganAktif`, `arsipkanPelangganKadaluarsa`, `arsipkanSemuaPelangganAktif`) diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/transaksi_operasi.dart`**:
+  - **diubah:** Metode `tambahTransaksi`, `updateTransaksi`, `arsipkanTransaksi`, dan `sisipkanAtauPerbaruiBatch` diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/kritik_saran_operasi.dart`**:
+  - **diubah:** Semua metode tulis (`createKritikSaran`, `sisipkanAtauPerbaruiBatch`, `hapusKritikSaran`, `hapusSemuaKritikSaran`, `hapusByUserId`) diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/pengaturan_operasi.dart`**:
+  - **diubah:** Metode `simpanAtauPerbaruiPengaturan` dan `simpanAtauPerbaruiPengaturanDenganBatch` diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/pesanan_operasi.dart`**:
+  - **diubah:** Metode `simpanPesanan`, `updateStatusPesanan`, `hapusPesanan`, dan `sisipkanAtauPerbaruiBatch` diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+- **`lib/shared/operasi/versi_apk_user_operasi.dart`**:
+  - **diubah:** Metode `tambahVersiApkUser`, `perbaruiVersiApkUser`, `arsipkanVersiApkUser`, dan `sisipkanAtauPerbaruiBatch` diperbarui untuk menerima dan meneruskan parameter `dariServer`.
+
+#### Bug yang Diatasi:
+- **Potensi Loop Sinkronisasi:** Operasi yang berasal dari server (misalnya, saat mengunduh data) dapat memicu sinkronisasi balik (unggahan), menciptakan siklus yang tidak perlu.
+- **Inkonsistensi Logika:** Kurangnya pembeda antara operasi yang diinisiasi oleh pengguna lokal dan operasi yang berasal dari sinkronisasi server.
+
+#### Solusi & Analisa:
+- Dengan menambahkan flag `dariServer`, kita sekarang dapat secara eksplisit mengontrol perilaku lapisan data. Ketika sebuah operasi ditandai sebagai berasal dari server, lapisan `OperasiDasar` tidak akan memperbarui waktu sinkronisasi terakhir. Ini secara efektif memutus loop unggah-unduh, membuat proses sinkronisasi lebih efisien, dapat diprediksi, dan lebih mudah di-debug. Perubahan ini memperkuat arsitektur sinkronisasi data aplikasi.
+
+### # Versi: v1.0.0
 Sumber: `pubspec.yaml` (version: 1.0.0+1)
 Tanggal: 25 Juli 2024
 
@@ -169,4 +282,4 @@ Tanggal: 24 Juli 2024
 ---
 
 ## 5. Rencana & Langkah Saat Ini
-Proyek sekarang dalam keadaan stabil. Langkah selanjutnya adalah memperbaiki 6 isu analisis statis yang tersisa.
+Proyek sekarang dalam keadaan stabil dan bersih dari peringatan analisis. Langkah selanjutnya adalah melanjutkan pengembangan fitur-fitur lain yang dibutuhkan.

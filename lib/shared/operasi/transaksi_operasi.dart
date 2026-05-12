@@ -1,4 +1,5 @@
 // path: lib/shared/operasi/transaksi_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis yang kompleks.
 
 import 'package:sqflite/sqflite.dart';
 
@@ -89,7 +90,8 @@ class TransaksiOperasi {
     }
   }
 
-  Future<int> tambahTransaksi(TransaksiModel transaksi) async {
+  // diubah: Menambahkan `dariServer`
+  Future<int> tambahTransaksi(TransaksiModel transaksi, {bool dariServer = false}) async {
     try {
       final id = await _operasiDasar.jalankanOperasiKompleks<int>((txn) async {
         Log.info(
@@ -115,7 +117,7 @@ class TransaksiOperasi {
           await _recalculateAndUpdateDompetSaldo(data.idDompetTujuan!, txn);
         }
         return newId;
-      });
+      }, dariServer: dariServer);
       Log.info(
         'Seluruh proses tambah transaksi ID: ${transaksi.id} berhasil diselesaikan - method: tambahTransaksi',
       );
@@ -278,7 +280,8 @@ class TransaksiOperasi {
     }
   }
 
-  Future<void> updateTransaksi(String id, TransaksiModel transaksiBaru) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> updateTransaksi(String id, TransaksiModel transaksiBaru, {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         Log.info(
@@ -326,7 +329,7 @@ class TransaksiOperasi {
             'Update gagal: Transaksi ID $id tidak ditemukan di DB - method: updateTransaksi',
           );
         }
-      });
+      }, dariServer: dariServer);
       Log.info(
         'Proses updateTransaksi ID: $id selesai - method: updateTransaksi',
       );
@@ -340,7 +343,8 @@ class TransaksiOperasi {
     }
   }
 
-  Future<void> arsipkanTransaksi(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> arsipkanTransaksi(String id, {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         Log.info(
@@ -378,7 +382,7 @@ class TransaksiOperasi {
             'Arsip gagal: Transaksi ID $id tidak ditemukan - method: arsipkanTransaksi',
           );
         }
-      });
+      }, dariServer: dariServer);
       Log.info(
         'Transaksi ID: $id berhasil diarsipkan - method: arsipkanTransaksi',
       );
@@ -510,7 +514,8 @@ class TransaksiOperasi {
     return total;
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items, {bool dariServer = false}) async {
     Set<String> affectedWallets = {};
 
     try {
@@ -538,7 +543,7 @@ class TransaksiOperasi {
         for (String dompetId in affectedWallets) {
           await _recalculateAndUpdateDompetSaldo(dompetId, txn);
         }
-      });
+      }, dariServer: dariServer);
       Log.info(
         'Proses Batch transaksi berhasil sepenuhnya - method: sisipkanAtauPerbaruiBatch',
       );

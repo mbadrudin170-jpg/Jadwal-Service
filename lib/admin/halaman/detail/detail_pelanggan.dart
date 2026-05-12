@@ -4,10 +4,11 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
-import 'package:wifi/admin/halaman/pembantu/halaman_poin.dart';
+import 'package:wifi/shared/page/halaman_poin.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/shared/widget/card/point_card.dart';
 
 class DetailPelangganPage extends StatefulWidget {
   final String idPelanggan;
@@ -100,7 +101,8 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
   // ditambahkan: fungsi untuk navigasi ke halaman edit
   void _editPelanggan() async {
     if (pelanggan == null) return;
-    Log.info('Menavigasi ke FormPelanggan untuk mode edit dengan ID: ${pelanggan!.id}');
+    Log.info(
+        'Menavigasi ke FormPelanggan untuk mode edit dengan ID: ${pelanggan!.id}');
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -109,7 +111,8 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     );
 
     if (result == true && mounted) {
-      Log.info('Kembali dari FormPelanggan dengan hasil true. Memuat ulang data pelanggan.');
+      Log.info(
+          'Kembali dari FormPelanggan dengan hasil true. Memuat ulang data pelanggan.');
       _loadData(); // Muat ulang data untuk menampilkan perubahan
     } else {
       Log.info('Kembali dari FormPelanggan tanpa menyimpan perubahan.');
@@ -122,15 +125,14 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
       'User memicu aksi _salinSemuaInfo(). Mempersiapkan penggabungan string untuk Nama: ${pelanggan.nama}, Telepon: ${pelanggan.telepon}, Alamat: ${pelanggan.alamat}, Password: ${pelanggan.password}, dan MAC: ${pelanggan.macAddress}.',
     );
 
-    final info =
-        '''
+    final info = '''
 Nama : ${pelanggan.nama}
 No HP : ${pelanggan.telepon}
 Alamat : ${pelanggan.alamat}
 Password : ${pelanggan.password}
 MAC : ${pelanggan.macAddress}
 '''
-            .trim();
+        .trim();
 
     Clipboard.setData(ClipboardData(text: info)).then((_) {
       Log.info(
@@ -170,7 +172,9 @@ MAC : ${pelanggan.macAddress}
         'Merender tampilan CircularProgressIndicator karena status isLoading masih true.',
       );
       return Scaffold(
-        appBar: AppBar(title: const Text('Memuat Detail...')), // diubah: judul appbar saat loading
+        appBar: AppBar(
+            title: const Text(
+                'Memuat Detail...')), // diubah: judul appbar saat loading
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -202,55 +206,23 @@ MAC : ${pelanggan.macAddress}
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
-                  Log.info(
-                    'Interaksi pengguna: Mengetuk kartu Poin. Melakukan navigasi push ke HalamanPoin untuk pelanggan: ${pelanggan!.nama}',
-                  );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          HalamanPoin(idPelanggan: widget.idPelanggan),
-                    ),
-                  ).then((_) {
-                    Log.info(
-                      'Kembali dari HalamanPoin ke DetailPelangganPage.',
-                    );
-                    _loadData(); // ditambahkan: muat ulang data poin jika ada perubahan
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Total Poin',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$totalPoin',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
-                        ),
-                      ),
-                      const Text(
-                        'Klik untuk detail riwayat poin',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
+            TotalPointCard(
+              points: totalPoin,
+              onTap: () {
+                Log.info(
+                  'Interaksi pengguna: Mengetuk TotalPointCard. Navigasi ke HalamanPoin untuk: ${pelanggan!.nama}',
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        HalamanPoin(idPelanggan: widget.idPelanggan),
                   ),
-                ),
-              ),
+                ).then((_) {
+                  Log.info('Kembali dari HalamanPoin. Memuat ulang data.');
+                  _loadData();
+                });
+              },
             ),
             const SizedBox(height: 24),
             _buildDetailRow(context, 'Nama', pelanggan!.nama, () {

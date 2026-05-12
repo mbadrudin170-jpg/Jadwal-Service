@@ -1,4 +1,5 @@
-// path: lib/halaman/lainnya/paket.dart
+
+// path: lib/admin/halaman/lainnya/paket.dart
 
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
@@ -6,6 +7,16 @@ import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:flutter/material.dart';
+
+// ditambah: Enum untuk menentukan kriteria pengurutan daftar paket.
+enum UrutanPaket {
+  namaAZ,
+  namaZA,
+  hargaTertinggi,
+  hargaTerendah,
+  poinTertinggi,
+  poinTerendah,
+}
 
 class PaketPage extends StatefulWidget {
   const PaketPage({super.key});
@@ -17,6 +28,8 @@ class PaketPage extends StatefulWidget {
 class _PaketPageState extends State<PaketPage> {
   final PaketOperasi _paketOperasi = PaketOperasi();
   late Future<List<PaketModel>> _paketFuture;
+  // ditambah: Variabel untuk menyimpan status pengurutan saat ini, defaultnya A-Z.
+  UrutanPaket _urutanSaatIni = UrutanPaket.namaAZ;
 
   @override
   void initState() {
@@ -30,6 +43,69 @@ class _PaketPageState extends State<PaketPage> {
     setState(() {
       _paketFuture = _paketOperasi.getPaket();
     });
+  }
+
+  // ditambah: Fungsi untuk menampilkan dialog pilihan pengurutan.
+  void _tampilkanDialogUrutkan() {
+    Log.info('Menampilkan dialog urutkan');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Urutkan Berdasarkan'),
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.namaAZ);
+                Log.info('Mengurutkan berdasarkan: Nama (A-Z)');
+              },
+              child: const Text('Nama (A-Z)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.namaZA);
+                Log.info('Mengurutkan berdasarkan: Nama (Z-A)');
+              },
+              child: const Text('Nama (Z-A)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.hargaTertinggi);
+                 Log.info('Mengurutkan berdasarkan: Harga (Tertinggi)');
+              },
+              child: const Text('Harga (Tertinggi)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.hargaTerendah);
+                Log.info('Mengurutkan berdasarkan: Harga (Terendah)');
+              },
+              child: const Text('Harga (Terendah)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.poinTertinggi);
+                Log.info('Mengurutkan berdasarkan: Poin (Tertinggi)');
+              },
+              child: const Text('Poin (Tertinggi)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() => _urutanSaatIni = UrutanPaket.poinTerendah);
+                Log.info('Mengurutkan berdasarkan: Poin (Terendah)');
+              },
+              child: const Text('Poin (Terendah)'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showEditDeleteDialog(PaketModel paket) {
@@ -206,6 +282,12 @@ class _PaketPageState extends State<PaketPage> {
       appBar: AppBar(
         title: const Text('Daftar Paket'),
         actions: [
+          // diubah: IconButton untuk menampilkan dialog pengurutan.
+          IconButton(
+            onPressed: _tampilkanDialogUrutkan,
+            icon: const Icon(Icons.sort),
+            tooltip: 'Urutkan',
+          ),
           IconButton(
             onPressed: _hapusSemuaPaket,
             icon: const Icon(Icons.delete_sweep),
@@ -231,8 +313,33 @@ class _PaketPageState extends State<PaketPage> {
             Log.info('Data paket kosong, tidak ada paket yang tersedia');
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
+          
           final paketList = snapshot.data!;
-          Log.info('Menampilkan ${paketList.length} paket dalam daftar');
+
+          // ditambah: Logika untuk mengurutkan daftar paket berdasarkan _urutanSaatIni
+          switch (_urutanSaatIni) {
+            case UrutanPaket.namaAZ:
+              paketList.sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+              break;
+            case UrutanPaket.namaZA:
+              paketList.sort((a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
+              break;
+            case UrutanPaket.hargaTertinggi:
+              paketList.sort((a, b) => b.harga.compareTo(a.harga));
+              break;
+            case UrutanPaket.hargaTerendah:
+              paketList.sort((a, b) => a.harga.compareTo(b.harga));
+              break;
+            // diubah: Menggunakan poinHadiah untuk pengurutan
+            case UrutanPaket.poinTertinggi:
+              paketList.sort((a, b) => b.poinHadiah.compareTo(a.poinHadiah));
+              break;
+            case UrutanPaket.poinTerendah:
+              paketList.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
+              break;
+          }
+          
+          Log.info('Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni');
 
           return ListView.builder(
             itemCount: paketList.length,
@@ -274,6 +381,8 @@ class _PaketPageState extends State<PaketPage> {
                     subtitle: Text(
                       'Rp ${paket.harga} / ${paket.durasi} ${paket.tipe.name}',
                     ),
+                    // diubah: Menampilkan poinHadiah di trailing
+                    trailing: Text('Poin: ${paket.poinHadiah}'),
                   ),
                 ),
               );

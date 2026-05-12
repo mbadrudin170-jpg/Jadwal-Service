@@ -2,6 +2,20 @@
 
 Direktori `shared` berisi kode yang digunakan bersama oleh aplikasi admin dan aplikasi pengguna untuk memastikan konsistensi dan mengurangi duplikasi kode.
 
+## `operasi/` (Lapisan Operasi Data)
+
+Direktori ini adalah jantung dari manajemen data lokal aplikasi. Ini berisi kelas-kelas "operasi" yang bertanggung jawab untuk semua interaksi CRUD (Create, Read, Update, Delete) dengan database SQLite lokal. Setiap kelas operasi dikhususkan untuk satu model data (misalnya, `dompet_operasi.dart` untuk `DompetModel`).
+
+### Arsitektur Sinkronisasi & Peran `operasi_dasar.dart`
+
+- **Pusat Logika**: `lib/shared/operasi/operasi_dasar.dart` adalah kelas dasar abstrak yang menjadi fondasi bagi semua kelas operasi lainnya. Tujuannya adalah untuk memusatkan logika umum, terutama yang berkaitan dengan sinkronisasi data.
+
+- **Pembedaan Operasi (Lokal vs. Server)**: Perubahan paling signifikan dalam arsitektur ini adalah penambahan parameter opsional `dariServer` pada semua metode yang melakukan operasi tulis (seperti `sisipkan`, `perbarui`, `hapus`, dll.).
+    - **`dariServer: false` (default)**: Menandakan bahwa operasi diinisiasi oleh tindakan pengguna lokal (misalnya, pengguna menekan tombol "Simpan"). Ketika ini terjadi, `operasi_dasar.dart` akan secara otomatis memanggil `setWaktuUpdateTerbaru()` setelah operasi berhasil. Ini mencatat waktu perubahan, yang kemudian digunakan oleh layanan sinkronisasi untuk mengetahui bahwa ada data baru yang perlu diunggah ke server.
+    - **`dariServer: true`**: Menandakan bahwa operasi berasal dari proses sinkronisasi data dari server (misalnya, saat mengunduh pembaruan dari Firestore). Dengan menyetel flag ini ke `true`, `operasi_dasar.dart` akan **melewatkan** pemanggilan `setWaktuUpdateTerbaru()`. Ini adalah mekanisme krusial untuk **mencegah loop sinkronisasi** (di mana data yang baru diunduh akan segera ditandai untuk diunggah kembali).
+
+- **Manfaat**: Arsitektur ini menciptakan alur data yang jelas dan terkontrol, memisahkan logika bisnis dari pemicu sinkronisasi, dan membuat sistem lebih efisien dan dapat diandalkan.
+
 ## `export/`
 
 Direktori ini berisi file "barrel" yang mengekspor beberapa file lain dari satu lokasi. Ini menyederhanakan pernyataan impor di seluruh aplikasi.
@@ -88,3 +102,16 @@ File ini berisi `ThemeProvider`, sebuah kelas yang mengelola status tema aplikas
     ```dart
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
     ```
+
+## `widget/`
+
+Direktori ini berisi widget-widget umum yang dapat digunakan kembali di berbagai bagian aplikasi, baik di sisi admin maupun pengguna.
+
+### `card/point_card.dart`
+
+- **Tujuan**: Menyediakan widget kartu (card) yang dirancang untuk menampilkan total poin pengguna secara visual dan menarik.
+- **Fitur**:
+    - **Kustomisasi**: Memungkinkan penyesuaian ikon (`icon`), warna tema (`themeColor`), dan tentu saja jumlah poin (`points`) yang ditampilkan.
+    - **Desain Modern**: Menggunakan `BoxDecoration` dengan `borderRadius` dan `boxShadow` untuk memberikan efek kartu yang "terangkat" (elevated).
+    - **Praktik Terbaik**: Kode telah diperbarui untuk menggunakan `withAlpha()` daripada `withOpacity()` yang sudah usang, memastikan kualitas kode dan performa rendering yang lebih baik.
+    - **Struktur Jelas**: Tata letak diatur dengan `Row` dan `Column` untuk menyajikan ikon dan teks poin secara berdampingan dengan rapi.

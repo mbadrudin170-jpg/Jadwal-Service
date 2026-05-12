@@ -1,6 +1,5 @@
-library;
 // path: lib/shared/operasi/operasi_dasar.dart
-//// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
+// diubah: Menambahkan parameter `dariServer` untuk memutus siklus sinkronisasi.
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,62 +12,57 @@ class OperasiDasar {
   final DatabaseHelper _dbHelper;
   final StatusUnggahOperasi _statusUnggahOperasi;
 
-  // diubah: Konstruktor diubah untuk menerima dependensi (DI).
-  // Ini memungkinkan penyuntikan mock saat pengujian.
-  // Konstruktor default tetap berjalan seperti biasa untuk kode produksi.
   OperasiDasar({
     @visibleForTesting DatabaseHelper? dbHelper,
     @visibleForTesting StatusUnggahOperasi? statusUnggahOperasi,
-  }) : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-       _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi();
+  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi();
 
-  // Fungsi generik untuk menjalankan operasi tulis di dalam transaksi.
+  // diubah: Menambahkan parameter `dariServer`.
   Future<T> _jalankanDalamTransaksi<T>(
-    Future<T> Function(Transaction) aksi,
-  ) async {
+    Future<T> Function(Transaction) aksi, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       '[TRANSAKSI DIMULAI] Memulai proses eksekusi dalam wrapper transaksi.',
     );
 
     try {
-      Log.info('[TRANSAKSI] Mengambil instance database dari DatabaseHelper.');
       final db = await _dbHelper.database;
-      Log.info(
-        '[TRANSAKSI] Instance database berhasil didapatkan. Tipe: ${db.runtimeType}',
-      );
-
-      Log.info(
-        '[TRANSAKSI] Memanggil db.transaction() untuk memulai blok transaksi.',
-      );
       return await db.transaction((txn) async {
         Log.info(
-          '[TRANSAKSI AKTIF] Blok transaksi telah dimulai. Instance Transaction: ${txn.runtimeType}',
+          '[TRANSAKSI AKTIF] Blok transaksi telah dimulai. Instance: ${txn.runtimeType}',
         );
 
         try {
-          Log.info(
-            '[TRANSAKSI AKTIF] Menandai status `perlu_unggah` menjadi TRUE.',
-          );
-          await _statusUnggahOperasi.setPerluUnggah(true, transaction: txn);
-          Log.info(
-            '[TRANSAKSI AKTIF] Status `perlu_unggah` berhasil ditandai.',
-          );
+          // diubah: Ini adalah perubahan kunci. Bendera `perlu_unggah` hanya
+          // diatur ke TRUE jika operasi ini BUKAN berasal dari sinkronisasi server.
+          if (!dariServer) {
+            Log.info(
+              '[TRANSAKSI AKTIF] Menandai status `perlu_unggah` menjadi TRUE (operasi lokal).',
+            );
+            await _statusUnggahOperasi.setPerluUnggah(true, transaction: txn);
+            Log.info(
+              '[TRANSAKSI AKTIF] Status `perlu_unggah` berhasil ditandai.',
+            );
+          } else {
+            Log.info(
+              '[TRANSAKSI AKTIF] Melewati penandaan `perlu_unggah` (operasi dari server).',
+            );
+          }
 
-          Log.info(
-            '[TRANSAKSI AKTIF] Mengeksekusi aksi utama (callback) yang diberikan.',
-          );
           final result = await aksi(txn);
           Log.info(
             '[TRANSAKSI AKTIF] Aksi utama berhasil dieksekusi. Hasil: ${result.runtimeType}',
           );
 
           Log.info(
-            '[TRANSAKSI COMMIT] Transaksi akan di-commit karena semua langkah berhasil.',
+            '[TRANSAKSI COMMIT] Transaksi akan di-commit.',
           );
           return result;
         } catch (e, st) {
           Log.error(
-            '[TRANSAKSI GAGAL DI DALAM] Terjadi error saat menjalankan aksi di dalam blok transaksi.',
+            '[TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
             e: e,
             st: st,
           );
@@ -77,7 +71,7 @@ class OperasiDasar {
       });
     } catch (e, st) {
       Log.error(
-        '[TRANSAKSI GAGAL DI LUAR] Gagal saat memulai atau menyelesaikan transaksi.',
+        '[TRANSAKSI GAGAL DI LUAR] Gagal memulai atau menyelesaikan transaksi.',
         e: e,
         st: st,
       );
@@ -85,16 +79,21 @@ class OperasiDasar {
     }
   }
 
-  /// Menjalankan blok operasi kustom yang kompleks.
+  // diubah: Menambahkan parameter `dariServer`.
   Future<T> jalankanOperasiKompleks<T>(
-    Future<T> Function(Transaction txn) aksiKustom,
-  ) async {
+    Future<T> Function(Transaction txn) aksiKustom, {
+    bool dariServer = false,
+  }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _jalankanDalamTransaksi(aksiKustom);
+    return await _jalankanDalamTransaksi(aksiKustom, dariServer: dariServer);
   }
 
-  /// Menyisipkan satu baris data ke dalam tabel.
-  Future<void> sisipkan(String tabel, Map<String, dynamic> data) async {
+  // diubah: Menambahkan parameter `dariServer`.
+  Future<void> sisipkan(
+    String tabel,
+    Map<String, dynamic> data, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai penyisipan data ke tabel: $tabel', data);
     try {
       await _jalankanDalamTransaksi((txn) async {
@@ -105,7 +104,7 @@ class OperasiDasar {
         );
         Log.info('INSERT berhasil', {'rowId': result, 'tabel': tabel});
         return result;
-      });
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal menyisipkan data ke tabel: $tabel',
@@ -117,12 +116,13 @@ class OperasiDasar {
     }
   }
 
-  /// Memperbarui satu baris data di dalam tabel.
+  // diubah: Menambahkan parameter `dariServer`.
   Future<void> perbarui(
     String tabel,
     Map<String, dynamic> data,
-    String id,
-  ) async {
+    String id, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai pembaruan data di tabel: $tabel', {
       'id': id,
       'data': data,
@@ -144,7 +144,7 @@ class OperasiDasar {
           Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
         }
         return rowsAffected;
-      });
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui data di tabel: $tabel',
@@ -156,11 +156,13 @@ class OperasiDasar {
     }
   }
 
-  /// Menghapus (atau mengarsipkan) satu baris data.
-  Future<void> hapus(String tabel, String id) async {
+  // diubah: Menambahkan parameter `dariServer`.
+  Future<void> hapus(String tabel, String id, {bool dariServer = false}) async {
     Log.info('Memulai penghapusan data', {'tabel': tabel, 'id': id});
     try {
       await _jalankanDalamTransaksi((txn) async {
+        // Untuk operasi `hapus`, kita anggap selalu berasal dari lokal
+        // kecuali ada kasus khusus. Namun, parameter tetap diteruskan.
         final rowsDeleted = await txn.delete(
           tabel,
           where: 'id = ?',
@@ -175,7 +177,7 @@ class OperasiDasar {
           Log.info('DELETE berhasil', {'rowsDeleted': rowsDeleted, 'id': id});
         }
         return rowsDeleted;
-      });
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal menghapus data di tabel: $tabel',
@@ -187,11 +189,12 @@ class OperasiDasar {
     }
   }
 
-  /// Metode batch untuk menyisipkan atau memperbarui banyak data sekaligus.
+  // diubah: Menambahkan parameter `dariServer`.
   Future<void> sisipkanAtauPerbaruiBatch(
     String tabel,
-    List<Map<String, dynamic>> daftarData,
-  ) async {
+    List<Map<String, dynamic>> daftarData, {
+    bool dariServer = false,
+  }) async {
     if (daftarData.isEmpty) {
       Log.warning('Daftar data batch kosong, operasi dibatalkan', {
         'tabel': tabel,
@@ -201,6 +204,7 @@ class OperasiDasar {
     Log.info('Memulai batch operation', {
       'tabel': tabel,
       'totalItem': daftarData.length,
+      'dariServer': dariServer,
     });
     try {
       await _jalankanDalamTransaksi((txn) async {
@@ -215,17 +219,12 @@ class OperasiDasar {
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
             validCount++;
-            if (i % 10 == 0 && i > 0) {
-              Log.info(
-                'Batch progress: $i/${daftarData.length} item diproses...',
-              );
-            }
           }
         }
         Log.info('Melakukan commit batch...', {'validCount': validCount});
         await batch.commit(noResult: true);
         Log.info('Batch operation sukses');
-      });
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal melakukan batch operation di tabel: $tabel',

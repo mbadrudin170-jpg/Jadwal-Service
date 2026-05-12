@@ -1,4 +1,5 @@
 // path: lib/shared/operasi/paket_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9,14 +10,15 @@ class PaketOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  Future<void> createPaket(PaketModel paket) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> createPaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembuatan paket ke OperasiDasar, method: createPaket, id: ${paket.id}',
     );
     try {
       final now = DateTime.now();
       final data = paket.copyWith(diperbarui: now).toSqlite();
-      await _operasiDasar.sisipkan('paket', data);
+      await _operasiDasar.sisipkan('paket', data, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan pembuatan paket, method: createPaket, id: ${paket.id}',
       );
@@ -179,14 +181,15 @@ class PaketOperasi {
     }
   }
 
-  Future<void> updatePaket(PaketModel paket) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> updatePaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembaruan paket ke OperasiDasar, method: updatePaket, id: ${paket.id}',
     );
     try {
       final now = DateTime.now();
       final data = paket.copyWith(diperbarui: now).toSqlite();
-      await _operasiDasar.perbarui('paket', data, paket.id);
+      await _operasiDasar.perbarui('paket', data, paket.id, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan pembaruan paket, method: updatePaket, id: ${paket.id}',
       );
@@ -200,12 +203,13 @@ class PaketOperasi {
     }
   }
 
-  Future<void> hapusPaket(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusPaket(String id, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan penghapusan paket ke OperasiDasar, method: hapusPaket, id: $id',
     );
     try {
-      await _operasiDasar.hapus('paket', id);
+      await _operasiDasar.hapus('paket', id, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan penghapusan paket, method: hapusPaket, id: $id',
       );
@@ -219,7 +223,8 @@ class PaketOperasi {
     }
   }
 
-  Future<void> hapusSemuaPaket() async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusSemuaPaket({bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan semua data paket, method: hapusSemuaPaket',
     );
@@ -230,7 +235,7 @@ class PaketOperasi {
           'Berhasil menghapus semua data paket. Total terhapus: $count, method: hapusSemuaPaket',
         );
         return count;
-      });
+      }, dariServer: dariServer);
     } catch (e, s) {
       Log.error(
         'Gagal menghapus semua data paket, method: hapusSemuaPaket, error: $e',
@@ -272,13 +277,14 @@ class PaketOperasi {
     }
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan proses batch ke OperasiDasar untuk ${items.length} item paket, method: sisipkanAtauPerbaruiBatch',
     );
     try {
       final dataList = items.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('paket', dataList);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('paket', dataList, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan proses batch untuk ${items.length} item, method: sisipkanAtauPerbaruiBatch',
       );

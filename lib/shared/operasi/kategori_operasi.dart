@@ -1,4 +1,6 @@
 // path: lib/data/operasi/kategori_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
@@ -8,13 +10,14 @@ class KategoriOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  Future<KategoriModel> createKategori(KategoriModel kategori) async {
+  // diubah: Menambahkan `dariServer`
+  Future<KategoriModel> createKategori(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai createKategori untuk kategori: ${kategori.toSqlite()}');
     try {
       final kategoriBaru = kategori.copyWith(diperbarui: DateTime.now());
       final data = kategoriBaru.toSqlite();
 
-      await _operasiDasar.sisipkan('kategori', data);
+      await _operasiDasar.sisipkan('kategori', data, dariServer: dariServer);
       Log.info('Berhasil membuat kategori baru dengan ID: ${kategoriBaru.id}');
       return kategoriBaru;
     } catch (e, st) {
@@ -101,11 +104,12 @@ class KategoriOperasi {
     }
   }
 
-  Future<void> update(KategoriModel kategori) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> update(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai update untuk kategori: ${kategori.toSqlite()}');
     try {
       final data = kategori.copyWith(diperbarui: DateTime.now()).toSqlite();
-      await _operasiDasar.perbarui('kategori', data, kategori.id);
+      await _operasiDasar.perbarui('kategori', data, kategori.id, dariServer: dariServer);
       Log.info('Berhasil update kategori untuk ID: ${kategori.id}.');
     } catch (e, st) {
       Log.error(
@@ -117,12 +121,13 @@ class KategoriOperasi {
     }
   }
 
-  Future<void> delete(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> delete(String id, {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai operasi delete (hard delete) untuk kategori ID: $id',
     );
     try {
-      await _operasiDasar.hapus('kategori', id);
+      await _operasiDasar.hapus('kategori', id, dariServer: dariServer);
       Log.info('Berhasil delete kategori ID: $id.');
     } catch (e, st) {
       Log.error('Gagal saat delete kategori ID: $id', e: e, st: st);
@@ -130,7 +135,8 @@ class KategoriOperasi {
     }
   }
 
-  Future<void> arsipkanSatuKategori(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> arsipkanSatuKategori(String id, {bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuKategori (soft delete) untuk ID: $id');
     try {
       final now = DateTime.now();
@@ -140,7 +146,7 @@ class KategoriOperasi {
         'isDeleted': 1,
       };
 
-      await _operasiDasar.perbarui('kategori', dataToUpdate, id);
+      await _operasiDasar.perbarui('kategori', dataToUpdate, id, dariServer: dariServer);
 
       Log.info('Berhasil arsipkanSatuKategori untuk ID: $id.');
     } catch (e, st) {
@@ -153,7 +159,8 @@ class KategoriOperasi {
     }
   }
 
-  Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items, {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai bersihkanDanSisipkanSemua. Ini akan menghapus semua kategori dan menggantinya dengan ${items.length} item baru.',
     );
@@ -172,7 +179,7 @@ class KategoriOperasi {
         Log.info(
           'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.',
         );
-      });
+      }, dariServer: dariServer);
     } catch (e, st) {
       Log.error(
         'Gagal saat menjalankan bersihkanDanSisipkanSemua',
@@ -208,7 +215,8 @@ class KategoriOperasi {
     }
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items, {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
     );
@@ -220,7 +228,7 @@ class KategoriOperasi {
     }
     try {
       final data = items.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data, dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
       );

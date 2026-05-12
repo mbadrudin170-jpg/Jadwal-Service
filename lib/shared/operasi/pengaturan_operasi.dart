@@ -1,21 +1,18 @@
-// path: lib/shared/operasi/pengaturan_operasi.dart// diubah: Memperbaiki bug logika UPSERT dengan memaksakan penggunaan ID statis.
-// diubah: Menghapus konstanta ID duplikat dan mengimpornya dari model untuk Single Source of Truth.
+// path: lib/shared/operasi/pengaturan_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pengaturan_model.dart'; // ditambah: Mengimpor model untuk mengakses konstanta idPengaturanGlobal.
+import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
-
-// dihapus: ID statis tidak lagi didefinisikan di sini untuk menghindari duplikasi.
-// 'idPengaturanGlobal' sekarang diimpor dari 'pengaturan_model.dart'.
 
 class PengaturanOperasi {
   final _namaTabel = 'pengaturan';
   final OperasiDasar _operasiDasar;
 
   PengaturanOperasi({@visibleForTesting OperasiDasar? operasiDasar})
-    : _operasiDasar = operasiDasar ?? OperasiDasar();
+      : _operasiDasar = operasiDasar ?? OperasiDasar();
 
   Future<PengaturanModel> getPengaturan() async {
     try {
@@ -27,7 +24,7 @@ class PengaturanOperasi {
       final hasil = await db.query(
         _namaTabel,
         where: 'id = ?',
-        whereArgs: [idPengaturanGlobal], // sekarang menggunakan konstanta dari model
+        whereArgs: [idPengaturanGlobal],
       );
 
       if (hasil.isNotEmpty) {
@@ -38,7 +35,8 @@ class PengaturanOperasi {
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
         final pengaturanDefault = PengaturanModel(id: idPengaturanGlobal);
-        await simpanAtauPerbaruiPengaturan(pengaturanDefault);
+        // Saat membuat default, itu adalah operasi lokal, jadi `dariServer` adalah false
+        await simpanAtauPerbaruiPengaturan(pengaturanDefault, dariServer: false);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
       }
@@ -53,10 +51,11 @@ class PengaturanOperasi {
     }
   }
 
-  Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan, {bool dariServer = false}) async {
     try {
       final pengaturanUntukDisimpan = pengaturan.copyWith(
-        id: idPengaturanGlobal, // sekarang menggunakan konstanta dari model
+        id: idPengaturanGlobal,
       );
 
       Log.info(
@@ -65,6 +64,7 @@ class PengaturanOperasi {
       await _operasiDasar.sisipkan(
         _namaTabel,
         pengaturanUntukDisimpan.toSqlite(),
+        dariServer: dariServer, // diteruskan ke operasi dasar
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
@@ -79,18 +79,20 @@ class PengaturanOperasi {
     }
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<void> simpanAtauPerbaruiPengaturanDenganBatch(
     PengaturanModel pengaturan,
+     {bool dariServer = false}
   ) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final pengaturanUntukDisimpan = pengaturan.copyWith(
-        id: idPengaturanGlobal, // sekarang menggunakan konstanta dari model
+        id: idPengaturanGlobal,
       );
       final dataPengaturan = pengaturanUntukDisimpan.toSqlite();
       await _operasiDasar.sisipkanAtauPerbaruiBatch(_namaTabel, [
         dataPengaturan,
-      ]);
+      ], dariServer: dariServer); // diteruskan ke operasi dasar
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error(

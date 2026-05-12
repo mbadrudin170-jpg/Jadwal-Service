@@ -1,9 +1,9 @@
 // path: lib/user/page/main_page.dart
-// diubah: Memperbaiki semua path impor yang salah.
+// diubah: Memperbaiki semua path impor yang salah dan menambahkan tab pengaturan.
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:wifi/user/page/home_page.dart';
-import 'package:wifi/user/page/pesan_page.dart';
+import 'package:wifi/user/page/pengaturan_user.dart';
 import 'package:wifi/user/page/profil_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
@@ -31,14 +31,17 @@ class _MainPageState extends State<MainPage> {
       name: 'main_page.dart',
     );
     _pages = [
+      ProfilPage(
+          userId: widget.userId,
+          localStorageService: widget.localStorageService),
       HomePage(
         userId: widget.userId,
         localStorageService: widget.localStorageService,
       ),
-      const PesanPage(),
-      ProfilPage(
-          userId: widget.userId,
-          localStorageService: widget.localStorageService),
+      PengaturanPage(
+        userId: widget.userId,
+        localStorageService: widget.localStorageService,
+      ),
     ];
     log(
       '[Inisialisasi Halaman] ✅ Daftar halaman (pages) telah berhasil dibuat. Memulai pada tab index ke-$_selectedIndex.',
@@ -71,16 +74,16 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'Pesan',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_rounded),
+            label: 'Transaksi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Pengaturan',
           ),
         ],
         currentIndex: _selectedIndex,

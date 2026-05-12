@@ -1,4 +1,6 @@
 // path: lib/data/operasi/kritik_saran_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9,14 +11,15 @@ class KritikSaranOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  Future<void> createKritikSaran(KritikSaranModel kritikSaran) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> createKritikSaran(KritikSaranModel kritikSaran, {bool dariServer = false}) async {
     Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
     try {
       final now = DateTime.now();
       final data = kritikSaran.toSqlite()
         ..['diperbarui'] = now.toIso8601String();
 
-      await _operasiDasar.sisipkan('kritik_saran', data);
+      await _operasiDasar.sisipkan('kritik_saran', data, dariServer: dariServer);
       Log.info('Berhasil membuat kritik_saran dengan ID: ${kritikSaran.id}');
     } catch (e, st) {
       Log.error('Gagal saat createKritikSaran', e: e, st: st);
@@ -105,8 +108,9 @@ class KritikSaranOperasi {
     }
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<KritikSaranModel> daftarKritikSaran,
+    List<KritikSaranModel> daftarKritikSaran, {bool dariServer = false}
   ) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item kritik_saran.',
@@ -119,7 +123,7 @@ class KritikSaranOperasi {
     }
     try {
       final data = daftarKritikSaran.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data, dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item.',
       );
@@ -133,12 +137,13 @@ class KritikSaranOperasi {
     }
   }
 
-  Future<void> hapusKritikSaran(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusKritikSaran(String id, {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusKritikSaran (hard delete) untuk ID: $id',
     );
     try {
-      await _operasiDasar.hapus('kritik_saran', id);
+      await _operasiDasar.hapus('kritik_saran', id, dariServer: dariServer);
       Log.info('Berhasil menghapus permanen kritik_saran dengan ID: $id.');
     } catch (e, st) {
       Log.error(
@@ -150,27 +155,29 @@ class KritikSaranOperasi {
     }
   }
 
-  Future<void> hapusSemuaKritikSaran() async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusSemuaKritikSaran({bool dariServer = false}) async {
     Log.warning(
-      'PERINGATAN: Memulai hapusSemuaKritikSaran. Ini adalah operasi destruktif yang akan menghapus semua kritik & saran secara permanen.',
+      'PERINGATAN: Memulai hapusSemuaKritikSaran. Ini adalah operasi destruktif.',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         int count = await txn.delete('kritik_saran');
         Log.info(
-          'Berhasil hapusSemuaKritikSaran. Total baris yang dihapus permanen: $count',
+          'Berhasil hapusSemuaKritikSaran. Total baris yang dihapus: $count',
         );
         return count;
-      });
+      }, dariServer: dariServer);
     } catch (e, st) {
       Log.error('Gagal saat hapusSemuaKritikSaran', e: e, st: st);
       rethrow;
     }
   }
 
-  Future<void> hapusByUserId(String userId) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusByUserId(String userId, {bool dariServer = false}) async {
     Log.warning(
-      'PERINGATAN: Memulai hapusByUserId (hard delete) untuk semua kritik & saran dari userId: $userId',
+      'PERINGATAN: Memulai hapusByUserId (hard delete) untuk userId: $userId',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
@@ -183,7 +190,7 @@ class KritikSaranOperasi {
           'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
         );
         return deletedCount;
-      });
+      }, dariServer: dariServer);
     } catch (e, st) {
       Log.error(
         'Gagal saat hapusByUserId untuk userId: $userId',

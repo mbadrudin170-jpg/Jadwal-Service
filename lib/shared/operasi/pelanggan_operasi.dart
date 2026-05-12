@@ -1,4 +1,5 @@
 // path: lib/shared/operasi/pelanggan_operasi.dart
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9,7 +10,8 @@ class PelangganOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  Future<void> createPelanggan(PelangganModel pelanggan) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> createPelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
     Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
     try {
       final pelangganUntukDisimpan = pelanggan.copyWith(
@@ -17,7 +19,7 @@ class PelangganOperasi {
       );
       final data = pelangganUntukDisimpan.toSqlite();
 
-      await _operasiDasar.sisipkan('pelanggan', data);
+      await _operasiDasar.sisipkan('pelanggan', data, dariServer: dariServer);
 
       Log.info(
         'Pelanggan (ID: ${pelangganUntukDisimpan.id}) berhasil dibuat di database lokal.',
@@ -96,12 +98,13 @@ class PelangganOperasi {
     }
   }
 
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> updatePelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
     Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
     try {
       final data = pelanggan.copyWith(diperbarui: DateTime.now()).toSqlite();
 
-      await _operasiDasar.perbarui('pelanggan', data, pelanggan.id);
+      await _operasiDasar.perbarui('pelanggan', data, pelanggan.id, dariServer: dariServer);
 
       Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
     } catch (e, s) {
@@ -110,19 +113,23 @@ class PelangganOperasi {
     }
   }
 
-  Future<void> deletePelanggan(String id, {bool softDelete = true}) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> deletePelanggan(String id, {bool softDelete = true, bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
     );
     try {
       if (softDelete) {
-        await _operasiDasar.perbarui('pelanggan', {
-          'isDeleted': 1,
-          'diperbarui': DateTime.now().toIso8601String(),
-        }, id);
+        await _operasiDasar.perbarui(
+            'pelanggan',
+            {
+              'isDeleted': 1,
+              'diperbarui': DateTime.now().toIso8601String(),
+            },
+            id, dariServer: dariServer);
         Log.info('Berhasil melakukan soft delete pada pelanggan ID: $id.');
       } else {
-        await _operasiDasar.hapus('pelanggan', id);
+        await _operasiDasar.hapus('pelanggan', id, dariServer: dariServer);
         Log.warning(
           'Berhasil melakukan hard delete (penghapusan permanen) pada pelanggan ID: $id.',
         );
@@ -159,15 +166,19 @@ class PelangganOperasi {
     }
   }
 
-  Future<void> arsipkanPelanggan(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> arsipkanPelanggan(String id, {bool dariServer = false}) async {
     Log.info('Mengarsipkan pelanggan ID: $id');
     try {
       final now = DateTime.now();
-      await _operasiDasar.perbarui('pelanggan', {
-        'isDeleted': 1,
-        'diarsipkan': now.toIso8601String(),
-        'diperbarui': now.toIso8601String(),
-      }, id);
+      await _operasiDasar.perbarui(
+          'pelanggan',
+          {
+            'isDeleted': 1,
+            'diarsipkan': now.toIso8601String(),
+            'diperbarui': now.toIso8601String(),
+          },
+          id, dariServer: dariServer);
       Log.info('Berhasil mengarsipkan pelanggan ID: $id.');
     } catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan.', e: e, st: s);
@@ -175,7 +186,8 @@ class PelangganOperasi {
     }
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items, {bool dariServer = false}) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
       return;
@@ -183,11 +195,11 @@ class PelangganOperasi {
     Log.info('Memulai batch insert/update untuk ${items.length} pelanggan.');
     try {
       final data = items.map((item) {
-        final itemToSave = item.copyWith(diperbarui: DateTime.now());
-        return itemToSave.toSqlite();
+        // Kita tidak perlu mengatur `diperbarui` di sini karena OperasiDasar akan menanganinya jika perlu.
+        return item.toSqlite();
       }).toList();
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data, dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan operasi batch untuk ${items.length} pelanggan.',
       );

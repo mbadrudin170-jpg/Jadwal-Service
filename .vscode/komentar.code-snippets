@@ -21,5 +21,13 @@
 			"// path: ${RELATIVE_FILEPATH}"
 		],
 		"description": "Menambahkan komentar untuk path file"
-	}
+	},
+		"Komentar TODO": {
+			"prefix": "ftodo",
+			"body": [
+				"// TODO: $1"
+			],
+			"description": "Menambahkan komentar untuk TODO"
+		},
+
 }

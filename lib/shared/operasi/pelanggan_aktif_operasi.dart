@@ -1,5 +1,6 @@
 // path: lib/data/operasi/pelanggan_aktif_operasi.dart
-// diubah: Menggunakan UTC untuk perbandingan waktu di arsipkanPelangganKadaluarsa dan hapusPermanenPelangganYangDiArsipkan untuk mencegah bug zona waktu.
+// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,8 +26,9 @@ class PelangganAktifOperasi {
     );
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<PelangganAktifModel> createPelangganAktif(
-    PelangganAktifModel pelangganAktif,
+    PelangganAktifModel pelangganAktif, {bool dariServer = false}
   ) async {
     try {
       final idBaru = pelangganAktif.id.isEmpty ? uuid.v4() : pelangganAktif.id;
@@ -48,7 +50,7 @@ class PelangganAktifOperasi {
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
-      });
+      }, dariServer: dariServer);
 
       Log.info('Transaksi database berhasil. Menjadwalkan notifikasi...');
 
@@ -149,8 +151,9 @@ class PelangganAktifOperasi {
     }
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<PelangganAktifModel> updatePelangganAktif(
-    PelangganAktifModel pelangganAktif,
+    PelangganAktifModel pelangganAktif, {bool dariServer = false}
   ) async {
     try {
       final pelangganUntukDisimpan = pelangganAktif.copyWith(
@@ -173,7 +176,7 @@ class PelangganAktifOperasi {
           where: 'id = ?',
           whereArgs: [pelangganUntukDisimpan.id],
         );
-      });
+      }, dariServer: dariServer);
 
       Log.info('Update database berhasil. Menjadwalkan ulang notifikasi...');
       await _jadwalkanNotifikasi(pelangganUntukDisimpan);
@@ -286,8 +289,9 @@ class PelangganAktifOperasi {
     }
   }
 
+  // diubah: Menambahkan `dariServer`
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PelangganAktifModel> items,
+    List<PelangganAktifModel> items, {bool dariServer = false}
   ) async {
     try {
       Log.info('Memproses batch ${items.length} pelanggan aktif');
@@ -295,7 +299,7 @@ class PelangganAktifOperasi {
       final data = items.map((item) => item.toSqlite()).toList();
       Log.info('Mengonversi ${data.length} item ke format SQLite');
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data, dariServer: dariServer);
 
       Log.info('Batch ${items.length} pelanggan aktif berhasil diproses');
     } catch (e, st) {
@@ -308,7 +312,8 @@ class PelangganAktifOperasi {
     }
   }
 
-  Future<void> arsipkanPelangganAktif(String id) async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> arsipkanPelangganAktif(String id, {bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan pelanggan aktif ID: $id');
 
@@ -344,7 +349,7 @@ class PelangganAktifOperasi {
         await notifikasiServis.batalNotifikasi(id.hashCode);
         await notifikasiServis.batalNotifikasi((id.hashCode + 1));
         await notifikasiServis.batalNotifikasi((id.hashCode + 2));
-      });
+      }, dariServer: dariServer);
 
       Log.info(
         'Pelanggan aktif ID: $id berhasil diarsipkan dengan notifikasi dibatalkan',
@@ -359,7 +364,8 @@ class PelangganAktifOperasi {
     }
   }
 
-  Future<void> hapusPermanenPelangganYangDiArsipkan() async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusPermanenPelangganYangDiArsipkan({bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         // diubah: Menggunakan UTC untuk konsistensi
@@ -401,7 +407,7 @@ class PelangganAktifOperasi {
         Log.info(
           '$count pelanggan aktif diarsipkan lebih dari 30 hari telah dihapus permanen',
         );
-      });
+      }, dariServer: dariServer);
     } catch (e, st) {
       Log.error(
         'Gagal menghapus permanen pelanggan diarsipkan',
@@ -412,14 +418,15 @@ class PelangganAktifOperasi {
     }
   }
 
-  Future<void> hapusSemuaPelangganAktif() async {
+  // diubah: Menambahkan `dariServer`
+  Future<void> hapusSemuaPelangganAktif({bool dariServer = false}) async {
     try {
       Log.info('PERINGATAN: Menghapus SEMUA pelanggan aktif secara permanen');
 
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         await txn.delete('pelanggan_aktif');
         Log.info('Semua data di tabel pelanggan_aktif telah dihapus permanen');
-      });
+      }, dariServer: dariServer);
 
       Log.info('Operasi hapus semua pelanggan aktif selesai');
     } catch (e, st) {
@@ -432,7 +439,8 @@ class PelangganAktifOperasi {
     }
   }
 
-  Future<int> arsipkanPelangganKadaluarsa() async {
+  // diubah: Menambahkan `dariServer`
+  Future<int> arsipkanPelangganKadaluarsa({bool dariServer = false}) async {
     try {
       Log.info('Memeriksa pelanggan kadaluarsa untuk diarsipkan');
       final db = await dbHelper.database;
@@ -482,7 +490,7 @@ class PelangganAktifOperasi {
           await notifikasiServis.batalNotifikasi((id.hashCode + 1));
           await notifikasiServis.batalNotifikasi((id.hashCode + 2));
         }
-      });
+      }, dariServer: dariServer);
 
       Log.info('${idsToArchive.length} pelanggan kadaluarsa telah diarsipkan');
       return idsToArchive.length;
@@ -496,7 +504,8 @@ class PelangganAktifOperasi {
     }
   }
 
-  Future<int> arsipkanSemuaPelangganAktif() async {
+  // diubah: Menambahkan `dariServer`
+  Future<int> arsipkanSemuaPelangganAktif({bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA pelanggan aktif');
       final semuaPelanggan = await ambilSemuaPelangganAktif();
@@ -532,7 +541,7 @@ class PelangganAktifOperasi {
           await notifikasiServis.batalNotifikasi((id.hashCode + 1));
           await notifikasiServis.batalNotifikasi((id.hashCode + 2));
         }
-      });
+      }, dariServer: dariServer);
 
       Log.info('${idsToArchive.length} pelanggan aktif telah diarsipkan');
       return idsToArchive.length;

@@ -1,3 +1,6 @@
+# PERINGATAN : Penting diingat AI dilarang keras untuk merubah isi file GEMINI.md yang berhak merubah file ini adalah user sendiri
+- AI di wajibkan mengikuti semua aturan dalam file ini
+
 
 # **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
 

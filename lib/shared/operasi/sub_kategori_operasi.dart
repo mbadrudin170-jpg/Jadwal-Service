@@ -1,28 +1,27 @@
 // path: lib/data/operasi/sub_kategori_operasi.dart
-// diubah: Menyesuaikan pemanggilan metode model menjadi fromSqlite dan toSqlite.
+// diubah: Refaktorisasi untuk menggunakan OperasiDasar dan menambahkan parameter `dariServer`.
+// dihapus: Impor sqflite yang tidak digunakan.
+
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class SubKategoriOperasi {
   final dbHelper = DatabaseHelper.instance;
+  final OperasiDasar _operasiDasar = OperasiDasar();
 
-  Future<void> createSubKategori(SubKategoriModel subKategori) async {
-    final db = await dbHelper.database;
-    final data = subKategori
-        .copyWith(diperbarui: DateTime.now())
-        // diubah: dari toMapForSqlite ke toSqlite
-        .toSqlite();
-    await db.insert(
-      'sub_kategori',
-      data,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
+  Future<void> createSubKategori(SubKategoriModel subKategori, {bool dariServer = false}) async {
+    Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
+    final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
+    await _operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
   }
 
   Future<List<SubKategoriModel>> getSubKategoriByKategoriId(
     String idKategori,
   ) async {
+    Log.info('Mengambil sub-kategori untuk kategori ID: $idKategori');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'sub_kategori',
@@ -30,12 +29,12 @@ class SubKategoriOperasi {
       whereArgs: [idKategori, 0],
     );
     return List.generate(maps.length, (i) {
-      // diubah: dari fromMap ke fromSqlite
       return SubKategoriModel.fromSqlite(maps[i]);
     });
   }
 
   Future<SubKategoriModel?> getSubKategoriById(String id) async {
+    Log.info('Mengambil sub-kategori dengan ID: $id');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'sub_kategori',
@@ -44,58 +43,48 @@ class SubKategoriOperasi {
     );
 
     if (maps.isNotEmpty) {
-      // diubah: dari fromMap ke fromSqlite
       return SubKategoriModel.fromSqlite(maps.first);
     }
     return null;
   }
 
-  Future<void> updateSubKategori(SubKategoriModel subKategori) async {
-    final db = await dbHelper.database;
-    final data = subKategori
-        .copyWith(diperbarui: DateTime.now())
-        // diubah: dari toMapForSqlite ke toSqlite
-        .toSqlite();
-    await db.update(
-      'sub_kategori',
-      data,
-      where: 'id = ?',
-      whereArgs: [subKategori.id],
-    );
+  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
+  Future<void> updateSubKategori(SubKategoriModel subKategori, {bool dariServer = false}) async {
+    Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
+    final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
+    await _operasiDasar.perbarui('sub_kategori', data, subKategori.id, dariServer: dariServer);
   }
 
-  Future<void> deleteSubKategori(String id, {bool softDelete = true}) async {
-    final db = await dbHelper.database;
+  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
+  Future<void> deleteSubKategori(String id, {bool softDelete = true, bool dariServer = false}) async {
+    Log.info('Menghapus sub-kategori ID: $id (softDelete: $softDelete)');
     if (softDelete) {
-      await db.update(
-        'sub_kategori',
-        {'isDeleted': 1, 'diperbarui': DateTime.now().toIso8601String()},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+       final dataToUpdate = {
+        'isDeleted': 1,
+        'diperbarui': DateTime.now().toIso8601String()
+      };
+      await _operasiDasar.perbarui('sub_kategori', dataToUpdate, id, dariServer: dariServer);
     } else {
-      await db.delete('sub_kategori', where: 'id = ?', whereArgs: [id]);
+      await _operasiDasar.hapus('sub_kategori', id, dariServer: dariServer);
     }
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<SubKategoriModel> items) async {
-    final db = await dbHelper.database;
-    final batch = db.batch();
-    for (var item in items) {
-      final itemToSave = item.copyWith(diperbarui: DateTime.now());
-      batch.insert(
-        'sub_kategori',
-        // diubah: dari toMapForSqlite ke toSqlite
-        itemToSave.toSqlite(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    }
-    await batch.commit(noResult: true);
+  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
+  Future<void> sisipkanAtauPerbaruiBatch(List<SubKategoriModel> items, {bool dariServer = false}) async {
+    Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
+    if (items.isEmpty) return;
+    final data = items
+        .map((item) => item.copyWith(diperbarui: DateTime.now()).toSqlite())
+        .toList();
+    await _operasiDasar.sisipkanAtauPerbaruiBatch('sub_kategori', data, dariServer: dariServer);
+     Log.info('Batch sub-kategori selesai.');
   }
+
   Future<List<SubKategoriModel>> getSubKategoriByIds(List<String> ids) async {
     if (ids.isEmpty) {
       return [];
     }
+    Log.info('Mengambil sub-kategori untuk ${ids.length} ID.');
     final db = await dbHelper.database;
     final placeholders = List.filled(ids.length, '?').join(',');
     final List<Map<String, dynamic>> maps = await db.query(
@@ -104,7 +93,6 @@ class SubKategoriOperasi {
       whereArgs: ids,
     );
     return List.generate(maps.length, (i) {
-      // diubah: dari fromMap ke fromSqlite
       return SubKategoriModel.fromSqlite(maps[i]);
     });
   }
