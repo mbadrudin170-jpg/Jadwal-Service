@@ -1,9 +1,9 @@
 // path: lib/user/page/splash_screen_user.dart
-// diubah: Dibuat lebih fleksibel untuk menerima pesan loading eksternal.
-
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_text_style.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -99,13 +99,31 @@ class _SplashScreenState extends State<SplashScreen> {
     final message = widget.loadingMessage ?? 'Memeriksa sesi...';
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(),
+            Image.asset(
+              'assets/logo/ikon/ikon_apk.png',
+              width: 150,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'WiFi Client',
+              style: appTextTheme.headlineMedium
+                  ?.copyWith(color: AppColors.textColor),
+            ),
+            const SizedBox(height: 40),
+            CircularProgressIndicator(
+              color: AppColors.primaryColor,
+            ),
             const SizedBox(height: 20),
-            Text(message),
+            Text(
+              message,
+              style:
+                  appTextTheme.bodyMedium?.copyWith(color: AppColors.textColor),
+            ),
           ],
         ),
       ),
