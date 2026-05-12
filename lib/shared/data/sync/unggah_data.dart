@@ -84,7 +84,7 @@ class LayananUnggahData {
         'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
         'Proses unggah tidak dapat diselesaikan sepenuhnya. '
         'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -116,7 +116,7 @@ class LayananUnggahData {
         'Gagal mengunggah data dompet. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -146,7 +146,7 @@ class LayananUnggahData {
         'Gagal mengunggah data kategori. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -176,7 +176,7 @@ class LayananUnggahData {
         'Gagal mengunggah data kritik_saran. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -206,7 +206,7 @@ class LayananUnggahData {
         'Gagal mengunggah data paket. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -236,7 +236,7 @@ class LayananUnggahData {
         'Gagal mengunggah data pelanggan_aktif. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -266,7 +266,7 @@ class LayananUnggahData {
         'Gagal mengunggah data pelanggan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -296,7 +296,7 @@ class LayananUnggahData {
         'Gagal mengunggah data pesanan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -326,7 +326,7 @@ class LayananUnggahData {
         'Gagal mengunggah data transaksi. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -356,7 +356,7 @@ class LayananUnggahData {
         'Gagal mengunggah data sub_kategori. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -386,7 +386,7 @@ class LayananUnggahData {
         'Gagal mengunggah data pengaturan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -416,7 +416,7 @@ class LayananUnggahData {
         'Gagal mengunggah data versi_apk_user. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -529,12 +529,12 @@ class LayananUnggahData {
           );
         } catch (e, s) {
           counterError++;
-          // diubah: Menggunakan Log.error yang menerima parameter error dan st.
+          // diubah: Menggunakan Log.error yang menerima parameter e dan st.
           Log.error(
             'Gagal memproses data ke-${i + 1} dari tabel $namaTabel. '
             'Data ini akan dilewati dan tidak dimasukkan ke batch. '
             'Data SQLite: $map',
-            error: e,
+            e: e,
             st: s,
           );
         }
@@ -576,7 +576,7 @@ class LayananUnggahData {
         'Kemungkinan penyebab: koneksi database SQLite terputus, '
         'koneksi Firestore gagal, data corrupt, atau format data tidak sesuai. '
         'Error ini akan dilempar ulang ke fungsi pemanggil.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;

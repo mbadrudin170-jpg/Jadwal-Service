@@ -155,7 +155,7 @@ class _DompetPageState extends State<DompetPage> {
       if (!mounted) return;
       Log.error(
         'Gagal mengarsipkan dompet: "${dompet.namaDompet}".',
-        error: e,
+        e: e,
         st: s,
       );
       ScaffoldMessenger.of(
@@ -177,7 +177,7 @@ class _DompetPageState extends State<DompetPage> {
       );
     } catch (e, s) {
       if (!mounted) return;
-      Log.error('Gagal menghapus semua dompet.', error: e, st: s);
+      Log.error('Gagal menghapus semua dompet.', e: e, st: s);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal menghapus dompet: $e')));
@@ -211,8 +211,8 @@ class _DompetPageState extends State<DompetPage> {
                 } else if (snapshot.hasError) {
                   Log.error(
                     'Error saat memuat data dompet.',
-                    error: snapshot.error,
-                    st: snapshot.st,
+                    e: snapshot.error,
+                    st: snapshot.stackTrace,
                   );
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -323,8 +323,8 @@ class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
         } else if (snapshot.hasError) {
           Log.error(
             'Gagal memuat ringkasan keuangan',
-            error: snapshot.error,
-            st: snapshot.st,
+            e: snapshot.error,
+            st: snapshot.stackTrace,
           );
         }
 

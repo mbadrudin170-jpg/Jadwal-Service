@@ -63,7 +63,7 @@ class _DetailLanggananTransaksiPageState
           if (snapshot.hasError) {
             Log.error(
               'Terjadi kesalahan saat mengambil data transaksi.',
-              error: snapshot.error,
+              e: snapshot.error,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -250,7 +250,7 @@ class _DetailLanggananTransaksiPageState
         }
 
         if (snapshot.hasError) {
-          Log.error('Gagal memuat data $tag.', error: snapshot.error);
+          Log.error('Gagal memuat data $tag.', e: snapshot.error);
           return _buildInfoCard(title, [const Text('Gagal memuat data')]);
         }
 

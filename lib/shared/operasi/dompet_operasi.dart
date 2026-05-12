@@ -15,7 +15,7 @@ class DompetOperasi {
       await _operasiDasar.sisipkan('dompet', data);
       Log.info('Berhasil membuat dompet dengan ID data: ${dompet.id}');
     } catch (e, st) {
-      Log.error('Gagal saat createDompet', error: e, st: st);
+      Log.error('Gagal saat createDompet', e: e, st: st);
       rethrow;
     }
   }
@@ -44,7 +44,7 @@ class DompetOperasi {
       Log.info('Berhasil mengambil ${listDompet.length} data dompet.');
       return listDompet;
     } catch (e, st) {
-      Log.error('Gagal saat getDompet', error: e, st: st);
+      Log.error('Gagal saat getDompet', e: e, st: st);
       rethrow;
     }
   }
@@ -70,7 +70,7 @@ class DompetOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat getDompetById untuk ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -86,7 +86,7 @@ class DompetOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat updateDompet untuk ID: ${dompet.id}',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -113,7 +113,7 @@ class DompetOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat proses pengarsipan massal dompet.',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -132,7 +132,7 @@ class DompetOperasi {
         );
       });
     } catch (e, st) {
-      Log.error('Gagal saat hapusSemuaDompet', error: e, st: st);
+      Log.error('Gagal saat hapusSemuaDompet', e: e, st: st);
       rethrow;
     }
   }
@@ -153,7 +153,7 @@ class DompetOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat arsipkanSatuDompet untuk ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -178,7 +178,7 @@ class DompetOperasi {
       Log.info('Berhasil menghitung total saldo: $total');
       return total;
     } catch (e, st) {
-      Log.error('Gagal saat getTotalSaldo', error: e, st: st);
+      Log.error('Gagal saat getTotalSaldo', e: e, st: st);
       rethrow;
     }
   }
@@ -201,7 +201,7 @@ class DompetOperasi {
       Log.info('Berhasil menghitung total saldo positif: $total');
       return total;
     } catch (e, st) {
-      Log.error('Gagal saat getTotalSaldoPositif', error: e, st: st);
+      Log.error('Gagal saat getTotalSaldoPositif', e: e, st: st);
       rethrow;
     }
   }
@@ -224,7 +224,7 @@ class DompetOperasi {
       Log.info('Berhasil menghitung total saldo negatif: $total');
       return total;
     } catch (e, st) {
-      Log.error('Gagal saat getTotalSaldoNegatif', error: e, st: st);
+      Log.error('Gagal saat getTotalSaldoNegatif', e: e, st: st);
       rethrow;
     }
   }
@@ -248,7 +248,7 @@ class DompetOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat menjalankan sisipkanAtauPerbaruiBatch',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -281,7 +281,7 @@ class DompetOperasi {
       );
       return listDompet;
     } catch (e, st) {
-      Log.error('Gagal saat getDompetByIds', error: e, st: st);
+      Log.error('Gagal saat getDompetByIds', e: e, st: st);
       rethrow;
     }
   }

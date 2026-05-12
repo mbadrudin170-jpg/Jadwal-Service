@@ -45,7 +45,7 @@ class PengaturanOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil data pengaturan: $e',
-        error: e,
+        e: e,
         st: st,
       );
       Log.warning('Mengembalikan PengaturanModel default sebagai fallback.');
@@ -72,7 +72,7 @@ class PengaturanOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menyimpan atau memperbarui data pengaturan: $e',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -95,7 +95,7 @@ class PengaturanOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menyimpan pengaturan dengan batch: $e',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;

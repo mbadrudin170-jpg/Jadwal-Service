@@ -68,7 +68,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
     } catch (e, st) {
       Log.error(
         'Gagal mendapatkan arsitektur perangkat.',
-        error: e,
+        e: e,
         st: st,
       );
     }
@@ -100,8 +100,8 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
           if (snapshotPelanggan.hasError) {
             Log.error(
               'Terjadi error saat mengambil data pelanggan.',
-              error: snapshotPelanggan.error,
-              st: snapshotPelanggan.st,
+              e: snapshotPelanggan.error,
+              st: snapshotPelanggan.stackTrace,
             );
             return Center(child: Text('Error: ${snapshotPelanggan.error}'));
           }
@@ -143,7 +143,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                     if (snapshotRiwayat.hasError) {
                       Log.error(
                         'Gagal memuat riwayat langganan.',
-                        error: snapshotRiwayat.error,
+                        e: snapshotRiwayat.error,
                         st: snapshotRiwayat.st,
                       );
                       return Center(

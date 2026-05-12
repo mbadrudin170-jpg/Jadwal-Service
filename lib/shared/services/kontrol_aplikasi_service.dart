@@ -45,7 +45,7 @@ class KontrolAplikasiService {
       // Mencatat error jika gagal mengambil data.
       Log.error(
         'Gagal mengambil status maintenance dari database',
-        error: e,
+        e: e,
         st: s,
       );
       // Mengembalikan false sebagai fallback jika terjadi error.
@@ -71,7 +71,7 @@ class KontrolAplikasiService {
       // Mencatat error jika gagal menyimpan data.
       Log.error(
         'Gagal mengatur status maintenance ke database: $status',
-        error: e,
+        e: e,
         st: s,
       );
       // Melempar kembali error agar bisa ditangani di UI jika perlu.

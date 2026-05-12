@@ -19,7 +19,7 @@ class KritikSaranOperasi {
       await _operasiDasar.sisipkan('kritik_saran', data);
       Log.info('Berhasil membuat kritik_saran dengan ID: ${kritikSaran.id}');
     } catch (e, st) {
-      Log.error('Gagal saat createKritikSaran', error: e, st: st);
+      Log.error('Gagal saat createKritikSaran', e: e, st: st);
       rethrow;
     }
   }
@@ -41,7 +41,7 @@ class KritikSaranOperasi {
       Log.info('Berhasil mengambil ${listKritik.length} data kritik_saran.');
       return listKritik;
     } catch (e, st) {
-      Log.error('Gagal saat getKritikSaran', error: e, st: st);
+      Log.error('Gagal saat getKritikSaran', e: e, st: st);
       rethrow;
     }
   }
@@ -69,7 +69,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat getKritikSaranById untuk ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -98,7 +98,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat getPerubahan kritik_saran',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -126,7 +126,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat sisipkanAtauPerbaruiBatch kritik_saran',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -143,7 +143,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat hapusKritikSaran untuk ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -163,7 +163,7 @@ class KritikSaranOperasi {
         return count;
       });
     } catch (e, st) {
-      Log.error('Gagal saat hapusSemuaKritikSaran', error: e, st: st);
+      Log.error('Gagal saat hapusSemuaKritikSaran', e: e, st: st);
       rethrow;
     }
   }
@@ -187,7 +187,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal saat hapusByUserId untuk userId: $userId',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -216,7 +216,7 @@ class KritikSaranOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengunduh data kritik dan saran dari Firebase',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -248,7 +248,7 @@ class KritikSaranOperasi {
       );
       return listKritik;
     } catch (e, st) {
-      Log.error('Gagal saat getKritikSaranByIds', error: e, st: st);
+      Log.error('Gagal saat getKritikSaranByIds', e: e, st: st);
       rethrow;
     }
   }

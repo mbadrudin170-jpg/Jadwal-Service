@@ -121,7 +121,7 @@ class _PaketPageState extends State<PaketPage> {
                 } catch (e, s) {
                   Log.error(
                     'Gagal menghapus paket ID: ${paket.id}, nama: ${paket.nama}',
-                    error: e,
+                    e: e,
                     st: s,
                   );
                   messenger.showSnackBar(
@@ -181,7 +181,7 @@ class _PaketPageState extends State<PaketPage> {
                 } catch (e, s) {
                   Log.error(
                     'Gagal menghapus semua paket dari database',
-                    error: e,
+                    e: e,
                     st: s,
                   );
                   messenger.showSnackBar(
@@ -222,8 +222,8 @@ class _PaketPageState extends State<PaketPage> {
           if (snapshot.hasError) {
             Log.error(
               'Terjadi error saat memuat data paket',
-              error: snapshot.error,
-              st: snapshot.st,
+              e: snapshot.error,
+              st: snapshot.stackTrace,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           }

@@ -61,8 +61,8 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     } catch (e, s) {
       Log.error(
         'Gagal memeriksa sesi pengguna.',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       if (!mounted) return;
       Navigator.pushReplacement(

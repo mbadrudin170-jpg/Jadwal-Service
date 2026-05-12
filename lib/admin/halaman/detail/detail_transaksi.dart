@@ -97,7 +97,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil data $konteks dengan ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       return 'Error Memuat';
@@ -282,8 +282,8 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
         if (snapshot.hasError) {
           Log.error(
             'FutureBuilder $label: error',
-            error: snapshot.error,
-            st: snapshot.st,
+            e: snapshot.error,
+            st: snapshot.stackTrace,
           );
           return _buildDetailRow(label, 'Error Data');
         }

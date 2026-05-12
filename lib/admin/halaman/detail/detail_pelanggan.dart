@@ -82,11 +82,11 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
           'Pemuatan data selesai tetapi mengembalikan nilai null. Pelanggan dengan ID: ${widget.idPelanggan} tidak ditemukan dalam koleksi database. UI akan menampilkan pesan data tidak ditemukan.',
         );
       }
-    } catch (e, st) {
+    } catch (e, s) {
       Log.error(
         'Terjadi kegagalan fatal saat proses pengambilan data di fungsi _loadData(). Hal ini bisa disebabkan oleh masalah koneksi database atau ketidakcocokan skema model.',
-        error: e,
-        st: st,
+        e: e,
+        st: s,
       );
       if (mounted) {
         setState(() => isLoading = false);

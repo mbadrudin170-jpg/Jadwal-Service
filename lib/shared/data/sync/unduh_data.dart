@@ -79,7 +79,7 @@ class LayananUnduhData {
     } catch (e, s) {
       Log.error(
         'Kegagalan kritis terdeteksi selama prosedur unduh massal. Salah satu atau lebih permintaan paralel gagal diselesaikan.',
-        error: e,
+        e: e,
         st: s,
       );
       rethrow;
@@ -142,7 +142,7 @@ class LayananUnduhData {
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat sinkronisasi data Pengaturan.',
-        error: e,
+        e: e,
         st: s,
       );
     }
@@ -288,13 +288,13 @@ class LayananUnduhData {
             if (e.toString().contains('_CastError') || e is TypeError) {
               Log.error(
                 'KESALAHAN KONVERSI: Field "diperbarui" pada dokumen ${doc.id} bukan tipe Timestamp. Mohon jalankan MigrasiTimestamp untuk koleksi ini.',
-                error: 'Data RAW: ${doc.data()}',
+                e: 'Data RAW: ${doc.data()}',
                 st: s,
               );
             } else {
               Log.error(
                 'Gagal memproses dokumen individual dengan ID: ${doc.id}',
-                error: e,
+                e: e,
                 st: s,
               );
             }
@@ -322,7 +322,7 @@ class LayananUnduhData {
     } catch (e, s) {
       Log.error(
         'Kegagalan pada prosedur sinkronisasi koleksi: $namaKoleksi',
-        error: e,
+        e: e,
         st: s,
       );
     }

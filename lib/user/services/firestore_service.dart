@@ -31,8 +31,8 @@ class FirestoreService {
     } catch (e, s) {
       Log.error(
         'Error saat mengambil pengaturan dari Firestore.',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       return {
         'modePemeliharaan': false,
@@ -97,8 +97,8 @@ class FirestoreService {
     } catch (e, s) {
       Log.error(
         'Error mengambil pelanggan sekali: $e',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       return null;
     }
@@ -120,8 +120,8 @@ class FirestoreService {
     } catch (e, s) {
       Log.error(
         'Error mengambil riwayat langganan: $e',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
       return [];
     }
@@ -140,7 +140,7 @@ class FirestoreService {
       Log.warning('Paket dengan ID $paketId tidak ditemukan atau tidak memiliki nama.');
       return 'Paket Tidak Ditemukan';
     } catch (e, s) {
-      Log.error('Error mengambil nama paket: $e', error: e, stackTrace: s);
+      Log.error('Error mengambil nama paket: $e', e: e, st: s);
       return 'Error Memuat Paket';
     }
   }

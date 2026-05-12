@@ -13,12 +13,10 @@ class DetailPaketPage extends StatefulWidget {
   });
 
   @override
-  State<DetailPaketPage> createState() =>
-      _DetailPaketPageState();
+  State<DetailPaketPage> createState() => _DetailPaketPageState();
 }
 
-class _DetailPaketPageState
-    extends State<DetailPaketPage> {
+class _DetailPaketPageState extends State<DetailPaketPage> {
   late PaketModel _paket;
 
   @override
@@ -123,7 +121,8 @@ class _DetailPaketPageState
           // Ditambahkan: Tombol baru untuk aksi 'short' atau 'share'
           IconButton(
             onPressed: () {
-              Log.info('Tombol bagikan paket ditekan untuk paket: ${_paket.nama}');
+              Log.info(
+                  'Tombol bagikan paket ditekan untuk paket: ${_paket.nama}');
               // TODO: Tambahkan fungsi untuk membagikan detail paket di sini
             },
             icon: const Icon(
@@ -147,8 +146,7 @@ class _DetailPaketPageState
         child: Card(
           elevation: 4,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
+            borderRadius: BorderRadius.circular(
               12,
             ),
           ),
@@ -157,10 +155,8 @@ class _DetailPaketPageState
               20.0,
             ),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              mainAxisSize:
-                  MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
@@ -175,12 +171,8 @@ class _DetailPaketPageState
                       'Informasi Layanan',
                       style: Theme.of(
                         context,
-                      )
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(
-                            fontWeight:
-                                FontWeight.bold,
+                      ).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                   ],
@@ -201,8 +193,7 @@ class _DetailPaketPageState
                   '${_paket.durasi} ${_paket.tipe.name}',
                 ),
                 const Padding(
-                  padding:
-                      EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     vertical: 8.0,
                   ),
                   child: Divider(
@@ -222,12 +213,8 @@ class _DetailPaketPageState
                       'Sistem Poin',
                       style: Theme.of(
                         context,
-                      )
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(
-                            fontWeight:
-                                FontWeight.bold,
+                      ).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                     ),
                   ],
@@ -238,18 +225,15 @@ class _DetailPaketPageState
                 _buildDetailRow(
                   'Poin Hadiah',
                   '${_paket.poinHadiah} Poin',
-                  subTitle:
-                      'Didapat saat beli paket',
+                  subTitle: 'Didapat saat beli paket',
                 ),
                 _buildDetailRow(
                   'Poin Penukaran',
                   '${_paket.poinPenukaran} Poin',
-                  subTitle:
-                      'Syarat tukar gratis',
+                  subTitle: 'Syarat tukar gratis',
                 ),
                 const Padding(
-                  padding:
-                      EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     vertical: 8.0,
                   ),
                   child: Divider(
@@ -258,13 +242,8 @@ class _DetailPaketPageState
                 ),
                 _buildDetailRow(
                   'Status Publik',
-                  _paket.isPublic
-                      ? 'Tersedia di Aplikasi'
-                      : 'Hanya Admin',
-                  customValueColor:
-                      _paket.isPublic
-                          ? Colors.green
-                          : Colors.red,
+                  _paket.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
+                  customValueColor: _paket.isPublic ? Colors.green : Colors.red,
                 ),
               ],
             ),
@@ -289,19 +268,16 @@ class _DetailPaketPageState
         vertical: 10.0,
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             flex: 2,
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 13,
                   ),
@@ -309,12 +285,10 @@ class _DetailPaketPageState
                 if (subTitle != null)
                   Text(
                     subTitle,
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       color: Colors.black38,
                       fontSize: 11,
-                      fontStyle:
-                          FontStyle.italic,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
               ],
@@ -324,15 +298,11 @@ class _DetailPaketPageState
             flex: 3,
             child: Text(
               value,
-              textAlign:
-                  TextAlign.end,
+              textAlign: TextAlign.end,
               style: TextStyle(
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
                 fontSize: 15,
-                color:
-                    customValueColor ??
-                        Colors.black87,
+                color: customValueColor ?? Colors.black87,
               ),
             ),
           ),

@@ -57,7 +57,7 @@ class PreferensiService {
       await prefs.setInt(key, millis);
       Log.info('✨ Timestamp $label berhasil disimpan | UTC: $time');
     } catch (e, s) {
-      Log.error('Error saat menyimpan timestamp $label: $e', error: e, stackTrace: s);
+      Log.error('Error saat menyimpan timestamp $label: $e', e: e, st: s);
     }
   }
 }

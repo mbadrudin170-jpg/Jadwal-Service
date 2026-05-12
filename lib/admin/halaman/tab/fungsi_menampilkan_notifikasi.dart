@@ -103,7 +103,7 @@ class NotifikasiServis {
         'Kemungkinan penyebab: plugin tidak terpasang dengan benar, '
         'konfigurasi platform tidak valid, atau zona waktu gagal diinisialisasi. '
         'Notifikasi tidak akan berfungsi sampai masalah ini diperbaiki.',
-        error: e,
+        e: e,
         st: s,
       );
     }
@@ -179,7 +179,7 @@ class NotifikasiServis {
         'Kemungkinan penyebab: plugin tidak mendukung platform saat ini, '
         'terjadi error saat berkomunikasi dengan sistem operasi, '
         'atau pengguna telah menolak izin secara permanen.',
-        error: e,
+        e: e,
         st: s,
       );
       return false;
@@ -258,7 +258,7 @@ class NotifikasiServis {
         'Proses penjadwalan notifikasi mengalami kegagalan. '
         'Kemungkinan penyebab: ID duplikat, waktu yang sudah lewat, '
         'plugin belum diinisialisasi, atau izin notifikasi belum diberikan.',
-        error: e,
+        e: e,
         st: s,
       );
     }
@@ -284,7 +284,7 @@ class NotifikasiServis {
         'Proses pembatalan notifikasi mengalami kegagalan. '
         'Kemungkinan penyebab: notifikasi dengan ID tersebut tidak ditemukan, '
         'plugin belum diinisialisasi, atau terjadi error sistem.',
-        error: e,
+        e: e,
         st: s,
       );
     }
@@ -351,7 +351,7 @@ class NotifikasiServis {
         'Proses menampilkan notifikasi secara langsung mengalami kegagalan. '
         'Kemungkinan penyebab: plugin belum diinisialisasi, '
         'izin notifikasi belum diberikan, atau channel belum terdaftar.',
-        error: e,
+        e: e,
         st: s,
       );
     }

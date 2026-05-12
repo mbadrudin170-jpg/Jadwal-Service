@@ -47,13 +47,13 @@ class _KategoriPageState extends State<KategoriPage> {
             }
             return data;
           })
-          .catchError((error, st) {
+          .catchError((e, st) {
             Log.error(
               'Gagal memuat data kategori dari database',
-              error: error,
+              e: e,
               st: st,
             );
-            throw error;
+            throw e;
           });
     });
   }
@@ -140,7 +140,7 @@ class _KategoriPageState extends State<KategoriPage> {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.nama}',
-        error: e,
+        e: e,
         st: st,
       );
       if (!mounted) return;
@@ -196,7 +196,7 @@ class _KategoriPageState extends State<KategoriPage> {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.nama}',
-        error: e,
+        e: e,
         st: st,
       );
       if (!mounted) return;
@@ -287,8 +287,8 @@ class _KategoriPageState extends State<KategoriPage> {
                 } else if (snapshot.hasError) {
                   Log.error(
                     'Terjadi error saat memuat data kategori di FutureBuilder',
-                    error: snapshot.error,
-                    st: snapshot.st,
+                    e: snapshot.error,
+                    st: snapshot.stackTrace,
                   );
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

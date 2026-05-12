@@ -61,7 +61,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal membuat pelanggan aktif - ID Pelanggan: ${pelangganAktif.idPelanggan}, ID Paket: ${pelangganAktif.idPaket}',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -111,7 +111,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil semua pelanggan aktif dari database lokal',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -142,7 +142,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil pelanggan aktif ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -185,7 +185,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal memperbarui pelanggan aktif ID: ${pelangganAktif.id}',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -280,7 +280,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menjadwalkan notifikasi untuk pelanggan aktif ID: ${pelangganAktif.id}',
-        error: e,
+        e: e,
         st: st,
       );
     }
@@ -301,7 +301,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal memproses batch ${items.length} pelanggan aktif',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -352,7 +352,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan pelanggan aktif ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -405,7 +405,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menghapus permanen pelanggan diarsipkan',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -425,7 +425,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menghapus semua pelanggan aktif',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -489,7 +489,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan pelanggan kadaluarsa',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -539,7 +539,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan semua pelanggan aktif',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -577,7 +577,7 @@ class PelangganAktifOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil pelanggan aktif berdasarkan IDs (${ids.length} ID)',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;

@@ -84,8 +84,8 @@ class PembersihanDataService {
     } catch (e, s) {
       Log.error(
         'Terjadi error fatal saat mencoba membersihkan data otomatis!',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     } finally {
       _sedangBerjalan = false;

@@ -103,7 +103,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
         'total': results[3] as double,
       };
     } catch (e, s) {
-      Log.error('Gagal total saat menjalankan _getData. Kesalahan terjadi di level Future.wait.', error: e, st: s);
+      Log.error('Gagal total saat menjalankan _getData. Kesalahan terjadi di level Future.wait.', e: e, st: s);
       // Re-throw the error to be caught by the FutureBuilder
       rethrow;
     }
@@ -159,7 +159,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            Log.error('FutureBuilder: Menangkap error saat membangun UI.', error: snapshot.error, st: snapshot.st);
+            Log.error('FutureBuilder: Menangkap error saat membangun UI.', e: snapshot.error, st: snapshot.stackTrace);
             return Center(child: Text('Terjadi Kesalahan: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data == null) {

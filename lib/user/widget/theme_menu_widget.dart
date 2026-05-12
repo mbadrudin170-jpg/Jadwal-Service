@@ -1,5 +1,4 @@
 // path: lib/widget/theme_menu_widget.dart
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/user/provider/theme_provider.dart';
@@ -48,8 +47,8 @@ class ThemeMenuWidget extends StatelessWidget {
           log(
             '[State Management] ❌ Gagal menerapkan tema: $mode.',
             name: 'theme_menu_widget.dart',
-            error: e,
-            stackTrace: st,
+            e: e,
+            st: st,
           );
         }
       },

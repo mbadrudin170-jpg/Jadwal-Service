@@ -178,7 +178,7 @@ class _PelangganPageState extends State<PelangganPage> {
     } catch (e, s) {
       Log.error(
         'Gagal total saat memuat daftar pelanggan.',
-        error: e,
+        e: e,
         st: s,
       );
       if (mounted) {
@@ -334,7 +334,7 @@ class _PelangganPageState extends State<PelangganPage> {
     } catch (e, s) {
       Log.error(
         'Gagal mengarsipkan pelanggan dengan ID: $id.',
-        error: e,
+        e: e,
         st: s,
       );
       if (mounted) {

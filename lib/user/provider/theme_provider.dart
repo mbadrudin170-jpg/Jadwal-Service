@@ -1,7 +1,7 @@
 // path: lib/providers/theme_provider.dart
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 // Kelas abstrak untuk ThemeProvider agar bisa di-mock dalam pengujian
 abstract class ThemeProvider extends ChangeNotifier {
@@ -15,10 +15,7 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
   static const String _keyTema = 'theme_mode'; // Key untuk SharedPreferences
 
   ThemeProviderImpl() {
-    log(
-      '[Inisialisasi Provider] ✅ ThemeProviderImpl dibuat.',
-      name: 'theme_provider.dart',
-    );
+    Log.info('[Inisialisasi Provider] ✅ ThemeProviderImpl dibuat.');
     // muatTema() akan dipanggil secara eksplisit dari luar setelah inisialisasi
   }
 
@@ -69,7 +66,7 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
         '[Muat Tema] ❌ Gagal memuat tema dari SharedPreferences.',
         name: 'theme_provider.dart',
         error: e,
-        stackTrace: st,
+        st: st,
       );
     }
   }
@@ -114,7 +111,7 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
         '[Simpan Tema] ❌ Gagal menyimpan tema ke SharedPreferences.',
         name: 'theme_provider.dart',
         error: e,
-        stackTrace: st,
+        st: st,
       );
     }
   }

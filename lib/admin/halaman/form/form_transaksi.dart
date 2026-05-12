@@ -137,7 +137,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         _filterKategoriInternal();
       }
     } catch (e, s) {
-      Log.error('Gagal total saat memuat data awal.', error: e, stackTrace: s);
+      Log.error('Gagal total saat memuat data awal.', e: e, st: s);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -270,8 +270,8 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
       } catch (e, s) {
         Log.error(
           'Gagal menyimpan transaksi ke database.',
-          error: e,
-          stackTrace: s,
+          e: e,
+          st: s,
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

@@ -50,7 +50,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
     }).catchError((error, st) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
-        error: error,
+        e: error,
         st: st,
       );
 
@@ -178,7 +178,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       } catch (e, st) {
         Log.error(
           'Terjadi kesalahan saat menghapus kritik dan saran.',
-          error: e,
+          e: e,
           st: st,
         );
 
@@ -249,7 +249,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
           } else if (snapshot.hasError) {
             Log.error(
               'FutureBuilder menerima error saat memuat data.',
-              error: snapshot.error,
+              e: snapshot.error,
             );
 
             return Center(

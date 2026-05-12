@@ -48,7 +48,7 @@ class UnduhanAwalService {
     } catch (e) {
       Log.error(
         "Gagal mengecek tabel '$namaTabel'.",
-        error: e,
+        e: e,
       );
       return false;
     }
@@ -70,8 +70,8 @@ class UnduhanAwalService {
     } catch (e, s) {
       Log.error(
         "ERROR saat mengunduh '$namaTabel'",
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }

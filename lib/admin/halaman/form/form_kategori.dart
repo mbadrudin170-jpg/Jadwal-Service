@@ -372,7 +372,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           'Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. '
           'Kemungkinan penyebab: koneksi database gagal, constraint violation, '
           'data tidak valid, atau terjadi error saat operasi database.',
-          error: e,
+          e: e,
           st: s,
         );
         

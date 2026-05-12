@@ -48,7 +48,7 @@ class Log {
   static void error(
     String message, {
     Object? e,
-    st? st,
+    StackTrace? st,
     Object? data,
   }) {
     _logCustom(
@@ -82,11 +82,11 @@ class Log {
     required String color,
     required int level,
     Object? e,
-    st? st,
+    StackTrace? st,
   }) {
     if (!kDebugMode) return;
 
-    final trace = st.current.toString().split('\n');
+    final trace = StackTrace.current.toString().split('\n');
     final String callerRow = trace.length > 2 ? trace[2] : 'Unknown';
     final match = RegExp(r'#2\s+(.+)\s+\((.+)\)').firstMatch(callerRow);
 
@@ -103,7 +103,7 @@ class Log {
       level: level,
       time: DateTime.now(),
       error: e,
-      st: st,
+      stackTrace: st,
     );
   }
 }

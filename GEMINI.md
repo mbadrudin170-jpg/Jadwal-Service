@@ -578,7 +578,7 @@ developer.log('This is a simple log message.');
 
   * `name`: Sebuah `String` untuk mengkategorikan pesan log (misalnya, 'my_app.network').
   * `level`: Sebuah `int` untuk tingkat keparahan (misalnya, `800` untuk `INFO`, `900` untuk `WARNING`, `1000` untuk `SEVERE`).
-  * `error`: Sebuah `Object` untuk mencatat pengecualian.
+  * `e`: Sebuah `Object` untuk mencatat pengecualian.
   * `st`: Sebuah objek `st`.
 
 

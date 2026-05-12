@@ -100,7 +100,7 @@ class _FormPelangganState extends State<FormPelanggan> {
           );
         }
       } catch (e, s) {
-        Log.error('Gagal menyimpan data pelanggan ke database.', error: e, stackTrace: s);
+        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Gagal menyimpan data: $e')),

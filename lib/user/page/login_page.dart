@@ -191,8 +191,8 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat login.',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
         data: {
           'telepon': telepon,
         },

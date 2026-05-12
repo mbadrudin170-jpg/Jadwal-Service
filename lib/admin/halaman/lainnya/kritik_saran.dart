@@ -37,13 +37,13 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
             }
             return data;
           })
-          .catchError((error, st) {
+          .catchError((e, st) {
             Log.error(
               'Gagal memuat data kritik dan saran dari database',
-              error: error,
+              e: e,
               st: st,
             );
-            throw error;
+            throw e;
           });
     });
   }
@@ -97,7 +97,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
       } catch (e, st) {
         Log.error(
           'Gagal menghapus kritik/saran ID: ${item.id} dari database',
-          error: e,
+          e: e,
           st: st,
         );
         if (mounted) {
@@ -125,8 +125,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           } else if (snapshot.hasError) {
             Log.error(
               'Terjadi error saat memuat data kritik dan saran di FutureBuilder',
-              error: snapshot.error,
-              st: snapshot.st,
+              e: snapshot.error,
+              st: snapshot.stackTrace,
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

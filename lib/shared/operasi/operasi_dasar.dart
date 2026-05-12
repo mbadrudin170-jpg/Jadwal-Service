@@ -69,7 +69,7 @@ class OperasiDasar {
         } catch (e, st) {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Terjadi error saat menjalankan aksi di dalam blok transaksi.',
-            error: e,
+            e: e,
             st: st,
           );
           rethrow;
@@ -78,7 +78,7 @@ class OperasiDasar {
     } catch (e, st) {
       Log.error(
         '[TRANSAKSI GAGAL DI LUAR] Gagal saat memulai atau menyelesaikan transaksi.',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -109,7 +109,7 @@ class OperasiDasar {
     } catch (e, s) {
       Log.error(
         'Gagal menyisipkan data ke tabel: $tabel',
-        error: e,
+        e: e,
         st: s,
         data: data,
       );
@@ -148,7 +148,7 @@ class OperasiDasar {
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui data di tabel: $tabel',
-        error: e,
+        e: e,
         st: s,
         data: {'id': id, 'payload': data},
       );
@@ -179,7 +179,7 @@ class OperasiDasar {
     } catch (e, s) {
       Log.error(
         'Gagal menghapus data di tabel: $tabel',
-        error: e,
+        e: e,
         st: s,
         data: {'id': id},
       );
@@ -229,7 +229,7 @@ class OperasiDasar {
     } catch (e, s) {
       Log.error(
         'Gagal melakukan batch operation di tabel: $tabel',
-        error: e,
+        e: e,
         st: s,
         data: {'totalItem': daftarData.length},
       );

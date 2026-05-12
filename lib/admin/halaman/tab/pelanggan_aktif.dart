@@ -123,7 +123,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat memuat data pelanggan aktif.',
-        error: e,
+        e: e,
         st: s,
       );
       if (mounted) {
@@ -225,7 +225,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
       } catch (e, s) {
         Log.error(
           'Gagal mengarsipkan pelanggan aktif dengan ID: ${pelangganAktif.id}.',
-          error: e,
+          e: e,
           st: s,
         );
         if (!mounted) return;

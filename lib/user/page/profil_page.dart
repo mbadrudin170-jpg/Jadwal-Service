@@ -367,8 +367,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                   namaPaket = 'Gagal memuat';
                                   Log.error(
                                     'Gagal mengambil nama paket: ${snapshotPaket.error}',
-                                    error: snapshotPaket.error,
-                                    stackTrace: snapshotPaket.stackTrace,
+                                    e: snapshotPaket.error,
+                                    st: snapshotPaket.stackTrace,
                                   );
                                 } else {
                                   namaPaket =

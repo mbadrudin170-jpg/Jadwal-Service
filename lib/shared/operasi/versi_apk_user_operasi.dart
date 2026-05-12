@@ -39,7 +39,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menambah versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -66,7 +66,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -109,7 +109,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan versi APK user - ID: $id',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -139,7 +139,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal melakukan operasi batch - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -187,7 +187,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_tableName, mengembalikan list kosong',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -230,7 +230,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK aktif dari tabel $_tableName, mengembalikan list kosong',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -266,7 +266,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK terbaru dari tabel $_tableName, mengembalikan null',
-        error: e,
+        e: e,
         st: st,
       );
       return null;
@@ -303,7 +303,7 @@ class VersiApkUserOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_tableName, mengembalikan null',
-        error: e,
+        e: e,
         st: st,
       );
       return null;

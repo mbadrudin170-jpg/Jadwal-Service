@@ -2,7 +2,7 @@
 // diubah: menghapus logika pembaruan pada koleksi pelanggan
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:developer' as developer;
+import 'package:wifi/shared/debug/log.dart';
 
 class FormKritikDanSaran extends StatefulWidget {
   final String userId;
@@ -67,11 +67,10 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
           Navigator.of(context).pop();
         }
       } catch (e, s) {
-        developer.log(
+        Log.error(
           'Gagal mengirim kritik dan saran',
-          name: 'KritikDanSaranForm',
-          error: e,
-          stackTrace: s,
+          e: e,
+          st: s,
         );
 
         if (mounted) {

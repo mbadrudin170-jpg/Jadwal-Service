@@ -73,7 +73,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
         Log.info('Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya');
       }
     } catch (e, s) {
-      Log.error('Gagal memuat data versi terakhir', error: e, st: s);
+      Log.error('Gagal memuat data versi terakhir', e: e, st: s);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -208,7 +208,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
         );
         Navigator.of(context).pop(dataToSave);
       } catch (e, s) {
-        Log.error('Terjadi kesalahan saat menyimpan data', error: e, st: s);
+        Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

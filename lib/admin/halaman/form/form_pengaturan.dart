@@ -72,7 +72,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
           Navigator.pop(context, true); // Kembali dengan hasil true
         }
       } catch (e, st) {
-        Log.error('Gagal menyimpan pengaturan.', error: e, stackTrace: st);
+        Log.error('Gagal menyimpan pengaturan.', e: e, st: st);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Gagal menyimpan: $e')),

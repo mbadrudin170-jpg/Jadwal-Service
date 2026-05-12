@@ -33,8 +33,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Gagal melakukan inisialisasi layanan notifikasi',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }
@@ -60,8 +60,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Gagal meminta izin notifikasi',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }
@@ -110,8 +110,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Gagal menampilkan notifikasi langsung',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }
@@ -148,8 +148,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Gagal mendaftarkan jadwal notifikasi',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }
@@ -183,8 +183,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Gagal membatalkan notifikasi ID: $id',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }
@@ -197,8 +197,8 @@ class NotifikasiServis {
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat membersihkan semua notifikasi',
-        error: e,
-        stackTrace: s,
+        e: e,
+        st: s,
       );
     }
   }

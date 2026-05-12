@@ -236,7 +236,7 @@ class _FormDompetState extends State<FormDompet> {
           'Proses ${_isEditMode ? "update" : "create"} dompet mengalami kegagalan. '
           'Kemungkinan penyebab: koneksi database gagal, constraint violation, '
           'data tidak valid, atau terjadi error saat operasi database.',
-          error: e,
+          e: e,
           st: s,
         );
 

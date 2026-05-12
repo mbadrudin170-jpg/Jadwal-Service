@@ -383,7 +383,7 @@ class _DetailDompetState extends State<DetailDompet> {
               'FutureBuilder: Status NO DATA. Snapshot berhasil tetapi tidak mengandung data. '
               'Ini mungkin terjadi jika data dompet bernilai null atau query mengembalikan hasil kosong.',
             );
-            Log.info('Menampilkan pesan \"Data Kosong\" ke UI.');
+            Log.info('Menampilkan pesan "Data Kosong" ke UI.');
             return const Center(child: Text('Data Kosong'));
           }
 

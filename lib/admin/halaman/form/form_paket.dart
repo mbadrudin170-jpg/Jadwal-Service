@@ -260,7 +260,7 @@ class _FormPaketState extends State<FormPaket> {
             'DatabaseException tidak dikenal saat menyimpan paket. '
             'Kemungkinan penyebab: constraint violation lain, database corrupt, '
             'atau kesalahan struktur tabel.',
-            error: e,
+            e: e,
             st: s,
           );
         }
@@ -286,7 +286,7 @@ class _FormPaketState extends State<FormPaket> {
           'Terjadi kesalahan yang tidak terduga saat operasi ${_isEditMode ? "update" : "create"} paket. '
           'Kemungkinan penyebab: koneksi database gagal, memory overflow, '
           'atau exception dari sistem yang tidak tertangani.',
-          error: e,
+          e: e,
           st: s,
         );
 

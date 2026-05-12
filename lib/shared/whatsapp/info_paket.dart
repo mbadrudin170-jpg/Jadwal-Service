@@ -73,7 +73,7 @@ class PesanInfoPaket {
     } catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
-        error: e,
+        e: e,
         st: s,
       );
     }
@@ -163,7 +163,7 @@ Semoga harimu menyenangkan!
     } catch (e, s) {
       Log.error(
         'Gagal total saat mencoba meluncurkan URL WhatsApp.',
-        error: e,
+        e: e,
         st: s,
       );
     }

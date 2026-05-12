@@ -169,7 +169,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         _isLoading = false;
       });
     } catch (e, s) {
-      Log.error('Gagal memuat data referensi', error: e, st: s);
+      Log.error('Gagal memuat data referensi', e: e, st: s);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memuat data: $e');
         setState(() {
@@ -357,7 +357,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     } catch (e, s) {
       Log.error(
         'Gagal menyimpan data pelanggan aktif.',
-        error: e,
+        e: e,
         st: s,
       );
       return HasilSimpanModel(sukses: false, pesan: 'Gagal menyimpan: $e');

@@ -82,7 +82,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal hitung ulang saldo Dompet ID: $idDompet. Error: $e - method: _recalculateAndUpdateDompetSaldo',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -123,7 +123,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menambah transaksi ID: ${transaksi.id}. Error: $e - method: tambahTransaksi',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -152,7 +152,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil semua transaksi. Error: $e - method: ambilSemuaTransaksi',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -184,7 +184,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengambil transaksi ID: $id. Error: $e - method: getTransaksiById',
-        error: e,
+        e: e,
         st: st,
       );
       return null;
@@ -214,7 +214,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error ambil transaksi pelanggan: $e - method: ambilTransaksiByPelangganId',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -243,7 +243,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error ambil transaksi dompet: $e - method: ambilTransaksiByDompetId',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -271,7 +271,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error saat mengambil transaksi aktivasi_paket: $e - method: getTransaksiByAktivasiPaket',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
@@ -333,7 +333,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal update transaksi ID: $id. Error: $e - method: updateTransaksi',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -385,7 +385,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal mengarsipkan transaksi ID: $id. Error: $e - method: arsipkanTransaksi',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -410,7 +410,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error hitung total pemasukan: $e - method: getTotalPemasukan',
-        error: e,
+        e: e,
         st: st,
       );
       return 0.0;
@@ -435,7 +435,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error hitung total pengeluaran: $e - method: getTotalPengeluaran',
-        error: e,
+        e: e,
         st: st,
       );
       return 0.0;
@@ -469,7 +469,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error hitung poin dihasilkan: $e - method: getPoinYangDihasilkan',
-        error: e,
+        e: e,
         st: st,
       );
       return 0;
@@ -492,7 +492,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error hitung poin digunakan: $e - method: getPoinYangDigunakan',
-        error: e,
+        e: e,
         st: st,
       );
       return 0;
@@ -545,7 +545,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Gagal menjalankan Batch transaksi. Error: $e - method: sisipkanAtauPerbaruiBatch',
-        error: e,
+        e: e,
         st: st,
       );
       rethrow;
@@ -579,7 +579,7 @@ class TransaksiOperasi {
     } catch (e, st) {
       Log.error(
         'Error saat ambil transaksi by IDs: $e - method: getTransaksiByIds',
-        error: e,
+        e: e,
         st: st,
       );
       return [];
