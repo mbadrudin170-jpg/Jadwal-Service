@@ -1,5 +1,5 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-// diubah: Memperbaiki semua pemanggilan metode ke plugin untuk menggunakan argumen bernama yang benar.
+// diubah: Menghapus kode spesifik iOS yang tidak diperlukan.
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -38,6 +38,34 @@ class NotifikasiServis {
       );
     }
   }
+
+  Future<void> requestPermissions() async {
+    Log.info('Meminta izin notifikasi dari pengguna...');
+    try {
+      if (kIsWeb) {
+        Log.warning('Permintaan izin tidak berlaku untuk platform web.');
+        return;
+      }
+
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
+          plugin.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin != null) {
+        await androidPlugin.requestNotificationsPermission();
+        Log.info('Permintaan izin notifikasi Android telah diproses.');
+      }
+
+      // diubah: Menghapus blok iOS karena tidak ditargetkan.
+
+    } catch (e, s) {
+      Log.error(
+        'Gagal meminta izin notifikasi',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
 
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
@@ -100,7 +128,7 @@ class NotifikasiServis {
     const androidDetails = AndroidNotificationDetails(
       'notifikasi_terjadwal',
       'Notifikasi Terjadwal',
-      channelDescription: 'Channel untuk notifikasi yang dijadwalkan.',
+      channelDescription: 'Channel untuk notifikasi yang dijadwalkalan.',
       importance: Importance.max,
       priority: Priority.high,
     );

@@ -1,8 +1,7 @@
 // path: lib/main_admin.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:wifi/admin/halaman/dashboard_page.dart';
-// Mengubah import untuk menggunakan file konfigurasi khusus admin
+import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 
 // This is the entry point for the Admin version of the app.
@@ -27,7 +26,7 @@ class AdminApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const AdminDashboardPage(),
+      home: const MyApp(),
     );
   }
 }

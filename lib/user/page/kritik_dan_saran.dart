@@ -155,7 +155,7 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
           }
 
           final kritiks = snapshot.data!.docs
-              .map((doc) => KritikSaranModel.fromFirebase(doc))
+              .map((doc) => KritikSaranModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
               .toList();
 
           return ListView.builder(

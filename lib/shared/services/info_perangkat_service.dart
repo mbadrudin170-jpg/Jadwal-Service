@@ -1,0 +1,31 @@
+// path: lib/shared/services/info_perangkat_service.dart
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
+
+class InfoPerangkatService {
+  final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
+
+  Future<Map<String, dynamic>> dapatkanArsitekturPerangkat() async {
+    if (kIsWeb) {
+      return {'error': 'Tidak dapat mendeteksi arsitektur di web.'};
+    }
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
+        return {
+          'supportedAbis': androidInfo.supportedAbis,
+          'isPhysicalDevice': androidInfo.isPhysicalDevice,
+        };
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        final IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
+        return {
+          'utsname.machine': iosInfo.utsname.machine,
+          'isPhysicalDevice': iosInfo.isPhysicalDevice,
+        };
+      }
+    } catch (e) {
+      return {'error': 'Gagal mendapatkan info perangkat: $e'};
+    }
+    return {'error': 'Platform tidak didukung'};
+  }
+}

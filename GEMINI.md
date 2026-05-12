@@ -4,7 +4,13 @@
 2. Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md
 3. Sebelum memulai tugas baru, selalu baca file `README.md` terlebih dahulu untuk memahami konteks dan status proyek.
 3. tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
-4. 
+
+## Log
+1. Setiap file disemua titik kode baik itu logika ataupun UI harus disisipkan log jangan ada yang terlewat // path: lib/shared/debug/log.dart.
+
+## Build Apk
+1. Untuk Build harus mengikuti langkah langkah berikut
+2. 
 
 # **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
 

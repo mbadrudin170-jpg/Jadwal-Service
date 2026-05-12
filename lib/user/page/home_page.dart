@@ -1,12 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/services/firestore_service.dart';
+import 'package:wifi/shared/services/info_perangkat_service.dart';
+import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/user/core/app_colors.dart';
 import 'package:wifi/user/core/utils/format_tanggal.dart';
 import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
 import 'package:wifi/user/page/detail_transaksi.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -170,15 +175,16 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       itemCount: riwayat.length,
                       itemBuilder: (context, index) {
                         final tx = riwayat[index];
-                        final statusMasaAktif =
-                            hitungStatusMasaAktif(tx.tanggalBerakhir);
+                        final statusMasaAktif = tx.tanggalBerakhir != null
+                            ? hitungStatusMasaAktif(tx.tanggalBerakhir!)
+                            : {'teks': 'N/A', 'warna': Colors.grey};
                         final String teksMasaAktif = statusMasaAktif['teks'];
                         final Color warnaMasaAktif = statusMasaAktif['warna'];
 
                         Log.info('Membangun item riwayat.', {
                           'index': index,
-                          'paket': tx.namaPaket,
-                          'status': tx.status.name,
+                          'idPaket': tx.idPaket,
+                          'status': tx.statusPembayaran.name,
                           'masa_aktif': teksMasaAktif,
                         });
 
@@ -187,20 +193,24 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                               horizontal: 16.0, vertical: 4.0),
                           child: ListTile(
                             leading: const Icon(Icons.receipt_long),
-                            title: Text('Paket: ${tx.namaPaket}'),
+                            title: tx.idPaket != null
+                                ? NamaPaket(idPaket: tx.idPaket!)
+                                : const Text('-'),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                    "Berakhir - ${formatDateTimeWithMonthName(tx.tanggalBerakhir)}"),
+                                if (tx.tanggalBerakhir != null)
+                                  Text(
+                                      "Berakhir - ${formatDateTimeWithMonthName(tx.tanggalBerakhir!)}"),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Status: ${tx.status.name}",
+                                  "Status: ${tx.statusPembayaran.name}",
                                   style: TextStyle(
-                                    color:
-                                        tx.status.name.toLowerCase() == 'lunas'
-                                            ? AppColors.success
-                                            : AppColors.error,
+                                    color: tx.statusPembayaran.name
+                                            .toLowerCase() ==
+                                        'lunas'
+                                        ? AppColors.success
+                                        : AppColors.error,
                                   ),
                                 ),
                                 Text(
@@ -213,14 +223,13 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                             onTap: () {
                               Log.info('Navigasi ke DetailTransaksiPage.', {
                                 'index': index,
-                                'paket': tx.namaPaket,
+                                'idPaket': tx.idPaket,
                               });
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DetailTransaksiPage(
-                                    riwayat: tx,
-                                    pelanggan: pelanggan,
+                                    transaksi: tx,
                                   ),
                                 ),
                               );
@@ -234,9 +243,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
               ),
               Container(
                 alignment: Alignment.center,
-                child: BannerAdWidget(
-                  adUnitId: AdHelper.bannerAdUnitId,
-                ),
+                child: const BannerAdWidget(),
               ),
             ],
           );
