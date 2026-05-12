@@ -1,3 +1,5 @@
+// path: lib/admin/halaman/tab/lainnya.dart
+// diubah: Memperbaiki impor agar mengarah ke halaman pengaturan admin yang benar.
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/lainnya/kategori.dart';
 import 'package:wifi/admin/halaman/lainnya/kritik_saran.dart';
@@ -9,7 +11,8 @@ import 'package:wifi/admin/halaman/lainnya/versi_apk_user.dart';
 import 'package:wifi/admin/halaman/tab/pesanan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
-import 'package:wifi/user/page/pengaturan_page.dart';
+import 'package:wifi/admin/halaman/lainnya/pengaturan_admin.dart'; // diubah: Path impor diperbaiki
+import 'package:wifi/admin/halaman/lainnya/halaman_migrasi.dart';
 
 class LainnyaPage extends StatefulWidget {
   const LainnyaPage({super.key});
@@ -121,10 +124,7 @@ class _LainnyaTabState extends State<LainnyaPage> {
             icon: Icons.settings,
             onTap: () => _handleNavigation(
               'Pengaturan Aplikasi',
-              const PengaturanPage(
-                userId: '',
-                localStorageService: null,
-              ),
+              const PengaturanPage(),
             ),
           ),
           _buildNavigationButton(
@@ -140,15 +140,11 @@ class _LainnyaTabState extends State<LainnyaPage> {
           _buildNavigationButton(
             title: '[DEBUG] Alat Migrasi Data',
             icon: Icons.construction,
-            onTap: () => _handleNavigation(
-                'Alat Migrasi Data', const HalamanMigrasi() as Widget),
+            onTap: () =>
+                _handleNavigation('Alat Migrasi Data', const HalamanMigrasi()),
           ),
         ],
       ),
     );
   }
-}
-
-class HalamanMigrasi {
-  const HalamanMigrasi();
 }

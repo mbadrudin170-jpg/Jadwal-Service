@@ -23,11 +23,14 @@ class DetailTransaksiPage extends StatelessWidget {
             _buildInfoRow('ID Transaksi:', transaksi.id),
             _buildInfoRow('Tanggal:', formatDate(transaksi.tanggal)),
             _buildInfoRow('Keterangan:', transaksi.keterangan),
-            _buildInfoRow('Jumlah:', 'Rp \${transaksi.jumlah.toStringAsFixed(2)}'),
+            _buildInfoRow(
+                'Jumlah:', 'Rp \${transaksi.jumlah.toStringAsFixed(2)}'),
             _buildInfoRow('Tipe:', transaksi.tipe.name),
             if (transaksi.idPaket != null)
-              _buildInfoRow('Paket:', NamaPaket(idPaket: transaksi.idPaket!)),
-            _buildInfoRow('Status Pembayaran:', transaksi.statusPembayaran.name),
+              _buildInfoRow(
+                  'Paket:', NamaPaketWidget(idPaket: transaksi.idPaket!)),
+            _buildInfoRow(
+                'Status Pembayaran:', transaksi.statusPembayaran.name),
             if (transaksi.tanggalMulai != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
@@ -38,8 +41,10 @@ class DetailTransaksiPage extends StatelessWidget {
                 'Tanggal Berakhir:',
                 formatDate(transaksi.tanggalBerakhir!),
               ),
-            _buildInfoRow('Poin didapat:', transaksi.poinYangDihasilkan.toString()),
-            _buildInfoRow('Poin digunakan:', transaksi.poinYangDigunakan.toString()),
+            _buildInfoRow(
+                'Poin didapat:', transaksi.poinYangDihasilkan.toString()),
+            _buildInfoRow(
+                'Poin digunakan:', transaksi.poinYangDigunakan.toString()),
           ],
         ),
       ),

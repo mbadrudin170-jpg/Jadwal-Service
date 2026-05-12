@@ -1,9 +1,18 @@
-// path: lib/page/profil_page.dart
+// path: lib/user/page/profil_page.dart
+// diubah: Memperbaiki semua eror analisis, impor, dan referensi.
+
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/user/page/pengaturan_page.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/user/page/edit_profil_page.dart';
+import 'package:wifi/user/page/pengaturan_user.dart';
+import 'package:wifi/user/services/firestore_service.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/core/utils/format_tanggal.dart';
+import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
 
 class ProfilPage extends StatefulWidget {
   final String userId;
@@ -23,7 +32,7 @@ class _ProfilPageState extends State<ProfilPage> {
   bool _apakahPasswordTerlihat = false;
 
   Future<PelangganModel?>? _futurePelanggan;
-  Future<List<PaketAktif>>? _riwayatLanggananFuture;
+  Future<List<TransaksiModel>>? _riwayatLanggananFuture;
 
   Future<String>? _futureNamaPaket;
   String? _cacheIdPaket;
@@ -309,7 +318,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   title: 'Informasi Paket Aktif',
                   icon: Icons.wifi,
                   children: [
-                    FutureBuilder<List<PaketAktif>>(
+                    FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (context, snapshotRiwayat) {
                         log(
@@ -357,17 +366,18 @@ class _ProfilPageState extends State<ProfilPage> {
                         final langgananAktif = snapshotRiwayat.data!
                             .where(
                               (langganan) =>
-                                  langganan.tanggalBerakhir.isAfter(now),
+                                  langganan.tanggalBerakhir != null &&
+                                  langganan.tanggalBerakhir!.isAfter(now),
                             )
                             .toList();
 
-                        final PaketAktif? langgananTerakhir;
+                        final TransaksiModel? langgananTerakhir;
                         if (langgananAktif.isNotEmpty) {
                           langgananTerakhir = langgananAktif.reduce(
                             (a, b) =>
-                                a.tanggalBerakhir.isAfter(b.tanggalBerakhir)
-                                ? a
-                                : b,
+                                a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!)
+                                    ? a
+                                    : b,
                           );
                           log(
                             '[Proses Data] ✅ Langganan aktif terakhir ditemukan, berakhir pada: ${langgananTerakhir.tanggalBerakhir}.',
@@ -381,7 +391,8 @@ class _ProfilPageState extends State<ProfilPage> {
                           );
                         }
 
-                        if (langgananTerakhir == null) {
+                        if (langgananTerakhir == null ||
+                            langgananTerakhir.tanggalBerakhir == null) {
                           return _bangunInfoItem(
                             Icons.wifi_off,
                             'Paket Aktif',
@@ -390,21 +401,23 @@ class _ProfilPageState extends State<ProfilPage> {
                         }
 
                         final statusMasaAktif = hitungStatusMasaAktif(
-                          langgananTerakhir.tanggalBerakhir,
+                          langgananTerakhir.tanggalBerakhir!,
                         );
 
                         final Color statusPembayaranColor =
-                            langgananTerakhir.status == StatusPembayaran.lunas
-                            ? Colors.green
-                            : Colors.red;
+                            langgananTerakhir.statusPembayaran ==
+                                    StatusPembayaranEnum.lunas
+                                ? Colors.green
+                                : Colors.red;
 
-                        if (_cacheIdPaket != langgananTerakhir.idPaket) {
+                        if (langgananTerakhir.idPaket != null &&
+                            _cacheIdPaket != langgananTerakhir.idPaket) {
                           log(
-                            '[Cache] ✅ Paket baru terdeteksi. Mengambil nama paket untuk ID: ${langgananTerakhir.idPaket}.',
+                            '[Cache] ✅ Paket baru terdeteksi. Mengambil nama paket untuk ID: ${langgananTerakhir.idPaket!}.',
                             name: 'profil_page.dart',
                           );
                           _futureNamaPaket = _firestoreService.ambilNamaPaket(
-                            langgananTerakhir.idPaket,
+                            langgananTerakhir.idPaket!,
                           );
                           _cacheIdPaket = langgananTerakhir.idPaket;
                         }
@@ -437,18 +450,19 @@ class _ProfilPageState extends State<ProfilPage> {
                                 );
                               },
                             ),
-                            _bangunInfoItem(
-                              Icons.date_range_outlined,
-                              'Aktif Sejak',
-                              formatDateTimeWithMonthName(
-                                langgananTerakhir.tanggalMulai,
+                            if (langgananTerakhir.tanggalMulai != null)
+                              _bangunInfoItem(
+                                Icons.date_range_outlined,
+                                'Aktif Sejak',
+                                formatDateTimeWithMonthName(
+                                  langgananTerakhir.tanggalMulai!,
+                                ),
                               ),
-                            ),
                             _bangunInfoItem(
                               Icons.date_range_outlined,
                               'Berakhir Pada',
                               formatDateTimeWithMonthName(
-                                langgananTerakhir.tanggalBerakhir,
+                                langgananTerakhir.tanggalBerakhir!,
                               ),
                             ),
                             _bangunInfoItem(
@@ -460,7 +474,7 @@ class _ProfilPageState extends State<ProfilPage> {
                             _bangunInfoItem(
                               Icons.check_circle_outline,
                               'Status Pembayaran',
-                              langgananTerakhir.status.name
+                              langgananTerakhir.statusPembayaran.name
                                   .replaceAll('_', ' ')
                                   .toUpperCase(),
                               valueColor: statusPembayaranColor,

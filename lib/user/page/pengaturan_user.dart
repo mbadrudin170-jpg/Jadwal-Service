@@ -1,6 +1,14 @@
-// path: lib/page/pengaturan_page.dart
+// path: lib/user/page/pengaturan_user.dart
+
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:wifi/user/core/app_colors.dart';
+import 'package:wifi/user/page/daftar_akun_page.dart';
+import 'package:wifi/user/page/info_apk_page.dart';
+import 'package:wifi/user/page/kritik_dan_saran.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/theme_menu_widget.dart';
+
 class PengaturanPage extends StatelessWidget {
   final String userId;
   final LocalStorageService localStorageService;
@@ -10,7 +18,8 @@ class PengaturanPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('[Build UI] ✅ Membangun halaman PengaturanPage.', name: 'pengaturan_page.dart');
+    log('[Build UI] ✅ Membangun halaman PengaturanPage.',
+        name: 'pengaturan_page.dart');
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -42,7 +51,8 @@ class PengaturanPage extends StatelessWidget {
             leading: const Icon(Icons.feedback_outlined),
             title: const Text('Kritik dan Saran'),
             onTap: () {
-              log('[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.', name: 'pengaturan_page.dart');
+              log('[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.',
+                  name: 'pengaturan_page.dart');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -57,7 +67,8 @@ class PengaturanPage extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: const Text('Info Aplikasi & Perangkat'),
             onTap: () {
-              log('[Navigasi] 🚀 Menavigasi ke halaman InfoApkPage.', name: 'pengaturan_page.dart');
+              log('[Navigasi] 🚀 Menavigasi ke halaman InfoApkPage.',
+                  name: 'pengaturan_page.dart');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -77,7 +88,8 @@ class PengaturanPage extends StatelessWidget {
               style: TextStyle(color: colorScheme.error),
             ),
             onTap: () {
-              log('[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).', name: 'pengaturan_page.dart');
+              log('[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).',
+                  name: 'pengaturan_page.dart');
               Navigator.push(
                 context,
                 MaterialPageRoute(

@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/pengaturan.dart
+// path: lib/admin/halaman/lainnya/pengaturan_admin.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -29,23 +29,20 @@ class _PengaturanPageState extends State<PengaturanPage> {
   void _loadPengaturan() {
     Log.info('Memuat data pengaturan dari database lokal');
     setState(() {
-      _futurePengaturan = _pengaturanOperasi
-          .getPengaturan()
-          .then((data) {
-            Log.info('Data pengaturan berhasil dimuat dari database');
-            Log.info(
-              'Detail pengaturan - Interval sinkronisasi: ${data.intervalSinkronisasiOtomatis} jam, Hapus arsip: ${data.hapusOtomatisDataArsip} hari, Mode pemeliharaan: ${data.modePemeliharaan ? "Aktif" : "Nonaktif"}, Info pemeliharaan: ${data.infoPemeliharaan.isNotEmpty ? data.infoPemeliharaan : "(kosong)"}',
-            );
-            return data;
-          })
-          .catchError((error, stackTrace) {
-            Log.error(
-              'Gagal memuat data pengaturan dari database lokal',
-              error: error,
-              stackTrace: stackTrace,
-            );
-            throw error;
-          });
+      _futurePengaturan = _pengaturanOperasi.getPengaturan().then((data) {
+        Log.info('Data pengaturan berhasil dimuat dari database');
+        Log.info(
+          'Detail pengaturan - Interval sinkronisasi: ${data.intervalSinkronisasiOtomatis} jam, Hapus arsip: ${data.hapusOtomatisDataArsip} hari, Mode pemeliharaan: ${data.modePemeliharaan ? "Aktif" : "Nonaktif"}, Info pemeliharaan: ${data.infoPemeliharaan.isNotEmpty ? data.infoPemeliharaan : "(kosong)"}',
+        );
+        return data;
+      }).catchError((error, stackTrace) {
+        Log.error(
+          'Gagal memuat data pengaturan dari database lokal',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        throw error;
+      });
     });
   }
 

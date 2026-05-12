@@ -1,5 +1,4 @@
 // path: lib/admin/app_admin.dart
-//// diubah: Meneruskan pesan loading ke SplashScreen yang sudah fleksibel.
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';

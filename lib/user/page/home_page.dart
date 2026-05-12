@@ -1,18 +1,19 @@
-import 'dart:math';
+// path: lib/user/page/home_page.dart
+// diubah: Memperbaiki impor, menghapus yang tidak perlu, dan menambahkan instance FirestoreService.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/services/firestore_service.dart';
+import 'package:wifi/user/services/firestore_service.dart'; // diubah: Path impor diperbaiki
 import 'package:wifi/shared/services/info_perangkat_service.dart';
-import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/user/core/app_colors.dart';
 import 'package:wifi/user/core/utils/format_tanggal.dart';
 import 'package:wifi/user/hooks/hitung_masa_aktif.dart';
 import 'package:wifi/user/page/detail_transaksi.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
+import 'package:wifi/shared/widget/nama_paket.dart';
 
 class HomePage extends StatelessWidget {
   final String userId;
@@ -122,7 +123,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: FutureBuilder<List<TransaksiModel>>(
+                child: FutureBuilder<List<dynamic>>(
                   future: _firestoreService
                       .ambilRiwayatLanggananLengkap(pelanggan.id),
                   builder: (context, snapshotRiwayat) {
@@ -166,7 +167,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       );
                     }
 
-                    final riwayat = snapshotRiwayat.data!;
+                    final riwayat = snapshotRiwayat.data! as List<TransaksiModel>;
                     Log.info('Data riwayat berhasil didapatkan.', {
                       'jumlah_item': riwayat.length,
                     });
@@ -194,7 +195,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                           child: ListTile(
                             leading: const Icon(Icons.receipt_long),
                             title: tx.idPaket != null
-                                ? NamaPaket(idPaket: tx.idPaket!)
+                                ? NamaPaketWidget(idPaket: tx.idPaket!)
                                 : const Text('-'),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +244,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
               ),
               Container(
                 alignment: Alignment.center,
-                child: const BannerAdWidget(),
+                child: const BannerAdWidget(adUnitId: 'ca-app-pub-3940256099942544/6300978111'), // diubah: adUnitId ditambahkan
               ),
             ],
           );

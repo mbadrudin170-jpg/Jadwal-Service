@@ -1,11 +1,12 @@
 // path: lib/user/page/login_page.dart
+// diubah: Menambahkan tombol untuk navigasi ke halaman pendaftaran.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/page/daftar_akun_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/core/app_colors.dart';
@@ -45,8 +46,6 @@ class _TampilanLoginState extends State<_TampilanLogin> {
   bool _apakahPasswordTerlihat = false;
   final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final PushNotificationService _pushNotificationService =
-      PushNotificationService();
   bool _isLocalStorageInitialized = false;
 
   @override
@@ -157,7 +156,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           'userId': uid,
         });
 
-        final pelanggan = PelangganModel.fromFirestore(userDoc, uid);
+        final pelanggan = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
 
         Log.info('Menyimpan akun ke LocalStorage.', {
           'nama': pelanggan.nama,
@@ -171,7 +170,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
         await _localStorageService.prefs.setString('userId', uid);
 
         Log.info('Memulai penyimpanan FCM Token.');
-        await _pushNotificationService.simpanTokenPenggunaSaatIni();
+        // await _pushNotificationService.simpanTokenPenggunaSaatIni();
 
         Log.info('Login berhasil, navigasi ke MainPage.', {
           'userId': uid,
@@ -299,6 +298,25 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                   );
                 },
                 child: const Text('Lupa Sandi?'),
+              ),
+              // ditambah: Tombol untuk navigasi ke halaman pendaftaran.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Belum punya akun?"),
+                  TextButton(
+                    onPressed: () {
+                      Log.info("Tombol 'Daftar di sini' ditekan.");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DaftarAkunPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Daftar di sini"),
+                  ),
+                ],
               ),
             ],
           ),

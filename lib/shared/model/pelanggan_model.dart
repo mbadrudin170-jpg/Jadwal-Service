@@ -1,5 +1,6 @@
-// path: lib/model/pelanggan_model.dart
-// diubah: Logika Firebase disesuaikan dengan standar Timestamp.
+// path: lib/shared/model/pelanggan_model.dart
+// diubah: Mengembalikan factory constructor ke fromFirebase sesuai permintaan.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,9 +28,6 @@ class PelangganModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
-  // =========================
-  // COPY WITH
-  // =========================
   PelangganModel copyWith({
     String? id,
     String? nama,
@@ -54,17 +52,13 @@ class PelangganModel {
     );
   }
 
-  // =========================
-  // JSON SERIALIZATION (FOR LOGGING)
-  // ditambahkan: karena butuh serialisasi untuk logging
-  // =========================
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'nama': nama,
       'telepon': telepon,
       'alamat': alamat,
-      'password': '[TERSEMBUNYI]', // Keamanan: Jangan log password
+      'password': '[TERSEMBUNYI]',
       'macAddress': macAddress,
       'isDeleted': isDeleted,
       'diperbarui': diperbarui?.toIso8601String(),
@@ -72,18 +66,11 @@ class PelangganModel {
     };
   }
 
-  // =========================
-  // PARSER UTIL
-  // =========================
-
-  // diubah: Menambahkan penanganan untuk tipe data Timestamp dari Firebase.
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
-    if (value is String) {
-      return DateTime.tryParse(value);
-    }
+    if (value is String) return DateTime.tryParse(value);
     return null;
   }
 
@@ -93,10 +80,6 @@ class PelangganModel {
     if (value is String) return value.toLowerCase() == 'true';
     return false;
   }
-
-  // =========================
-  // SQLITE
-  // =========================
 
   factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
     return PelangganModel(
@@ -126,10 +109,6 @@ class PelangganModel {
     };
   }
 
-  // =========================
-  // FIREBASE
-  // =========================
-
   factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
     return PelangganModel(
       id: id,
@@ -144,7 +123,6 @@ class PelangganModel {
     );
   }
 
-  // diubah: Menggunakan FieldValue.serverTimestamp() dan menyertakan ID.
   Map<String, dynamic> toFirebase() {
     final Map<String, dynamic> data = {
       'id': id,

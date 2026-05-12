@@ -1,3 +1,5 @@
+// path: lib/user/page/kritik_dan_saran.dart
+// diubah: Memperbaiki urutan argumen saat memanggil KritikSaranModel.fromFirebase.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -120,8 +122,6 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Riwayat Masukan'),
         centerTitle: true,
-        // backgroundColor: AppColors.primary,
-        // foregroundColor: Colors.white,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -155,7 +155,8 @@ class RiwayatKritikDanSaranPage extends StatelessWidget {
           }
 
           final kritiks = snapshot.data!.docs
-              .map((doc) => KritikSaranModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+              .map((doc) => KritikSaranModel.fromFirebase(
+                  doc.id, doc.data() as Map<String, dynamic>))
               .toList();
 
           return ListView.builder(

@@ -1,10 +1,11 @@
-// path : lib/page/main_page.dart
+// path: lib/user/page/main_page.dart
+// diubah: Memperbaiki semua path impor yang salah.
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:pelanggan_wifi/page/home_page.dart';
-import 'package:pelanggan_wifi/page/pesan_page.dart';
-import 'package:pelanggan_wifi/page/profil_page.dart';
-import 'package:pelanggan_wifi/services/storage/local_storage_service.dart';
+import 'package:wifi/user/page/home_page.dart';
+import 'package:wifi/user/page/pesan_page.dart';
+import 'package:wifi/user/page/profil_page.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 class MainPage extends StatefulWidget {
   final String userId;
