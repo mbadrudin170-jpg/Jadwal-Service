@@ -184,12 +184,10 @@ class TransaksiModel {
       'isDeleted': isDeleted,
       'durasiPaket': durasiPaket,
       'tipeDurasiPaket': tipeDurasiPaket?.name,
-      'tanggalMulai': tanggalMulai != null
-          ? Timestamp.fromDate(tanggalMulai!)
-          : null,
-      'tanggalBerakhir': tanggalBerakhir != null
-          ? Timestamp.fromDate(tanggalBerakhir!)
-          : null,
+      'tanggalMulai':
+          tanggalMulai != null ? Timestamp.fromDate(tanggalMulai!) : null,
+      'tanggalBerakhir':
+          tanggalBerakhir != null ? Timestamp.fromDate(tanggalBerakhir!) : null,
       'aktivasiPaket': aktivasiPaket,
     };
   }

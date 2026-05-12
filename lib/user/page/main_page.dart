@@ -1,8 +1,8 @@
 // path: lib/user/page/main_page.dart
-// diubah: Memperbaiki semua path impor yang salah dan menambahkan tab pengaturan.
+// diubah: Memindahkan inisialisasi _pages ke dalam method build untuk mengatasi RangeError.
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:wifi/user/page/home_page.dart';
+import 'package:wifi/user/page/riwayat_langganan_user.dart';
 import 'package:wifi/user/page/pengaturan_user.dart';
 import 'package:wifi/user/page/profil_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -21,30 +21,11 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _pages;
-
   @override
   void initState() {
     super.initState();
     log(
       '[Inisialisasi State] ✅ Memulai inisialisasi state untuk MainPage dengan userId: ${widget.userId}.',
-      name: 'main_page.dart',
-    );
-    _pages = [
-      ProfilPage(
-          userId: widget.userId,
-          localStorageService: widget.localStorageService),
-      HomePage(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-      PengaturanPage(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-    ];
-    log(
-      '[Inisialisasi Halaman] ✅ Daftar halaman (pages) telah berhasil dibuat. Memulai pada tab index ke-$_selectedIndex.',
       name: 'main_page.dart',
     );
   }
@@ -69,8 +50,23 @@ class _MainPageState extends State<MainPage> {
       '[Pembangunan UI] ✅ Membangun UI untuk MainPage. Halaman yang ditampilkan saat ini adalah index: $_selectedIndex.',
       name: 'main_page.dart',
     );
+
+    final List<Widget> pages = [
+      ProfilPage(
+          userId: widget.userId,
+          localStorageService: widget.localStorageService),
+      RiwayatLanggananPage(
+        userId: widget.userId,
+        localStorageService: widget.localStorageService,
+      ),
+      PengaturanPage(
+        userId: widget.userId,
+        localStorageService: widget.localStorageService,
+      ),
+    ];
+
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -79,7 +75,7 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history_rounded),
-            label: 'Transaksi',
+            label: 'Riwayat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

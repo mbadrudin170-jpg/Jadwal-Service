@@ -43,7 +43,8 @@ class FirestoreService {
 
   void sinkronkanJadwalNotifikasi(String userId) {
     Log.info('Memulai sinkronisasi jadwal notifikasi untuk userId: $userId');
-    final collectionRef = _db.collection('notifikasi').where('id_pelanggan', isEqualTo: userId);
+    final collectionRef =
+        _db.collection('notifikasi').where('id_pelanggan', isEqualTo: userId);
 
     _notificationSubscription = collectionRef.snapshots().listen((snapshot) {
       for (var docChange in snapshot.docChanges) {
@@ -64,7 +65,6 @@ class FirestoreService {
     _notificationSubscription?.cancel();
   }
 
-
   Stream<PelangganModel?> ambilPelangganStream(String userId) {
     Log.info('Streaming data pelanggan untuk: $userId');
     return _db.collection('pelanggan').doc(userId).snapshots().map((snapshot) {
@@ -77,7 +77,6 @@ class FirestoreService {
       }
     });
   }
-
 
   Future<List<TransaksiModel>> ambilRiwayatLanggananLengkap(
       String pelangganId) async {
@@ -127,7 +126,6 @@ class FirestoreService {
     }
   }
 
-
   Future<String> ambilNamaPaket(String paketId) async {
     try {
       Log.info('Mengambil nama paket untuk ID: $paketId');
@@ -137,7 +135,8 @@ class FirestoreService {
         Log.info('Nama paket ditemukan: $namaPaket');
         return namaPaket;
       }
-      Log.warning('Paket dengan ID $paketId tidak ditemukan atau tidak memiliki nama.');
+      Log.warning(
+          'Paket dengan ID $paketId tidak ditemukan atau tidak memiliki nama.');
       return 'Paket Tidak Ditemukan';
     } catch (e, s) {
       Log.error('Error mengambil nama paket: $e', e: e, st: s);

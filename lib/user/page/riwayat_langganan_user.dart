@@ -1,4 +1,7 @@
-// path: lib/user/page/home_page.dart
+// path: lib/user/page/riwayat_langganan_user.dart
+// ditambah: Menambahkan enum SortMode dan fungsionalitas pengurutan.
+// diubah: Mengganti IconButton dengan PopupMenuButton untuk sorting.
+// diubah: Memperbaiki pewarnaan status pembayaran.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -6,7 +9,6 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/user/page/detail_transaksi_user.dart';
@@ -14,36 +16,47 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
 
-class HomePage extends StatelessWidget {
+// ditambah: Enum untuk mode pengurutan.
+enum SortMode {
+  tanggalBerakhirTerbaru,
+  tanggalBerakhirTerlama,
+  statusLunas,
+  statusBelumLunas,
+}
+
+class RiwayatLanggananPage extends StatelessWidget {
   final String userId;
   final LocalStorageService localStorageService;
-  const HomePage(
+  const RiwayatLanggananPage(
       {super.key, required this.userId, required this.localStorageService});
 
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun HomePage, meneruskan userId dan localStorageService ke _TampilanBeranda.');
-    return _TampilanBeranda(userId: userId);
+        'Membangun RiwayatLanggananPage, meneruskan userId dan localStorageService ke _TampilanRiwayatLangganan.');
+    return _TampilanRiwayatLangganan(userId: userId);
   }
 }
 
-class _TampilanBeranda extends StatefulWidget {
+class _TampilanRiwayatLangganan extends StatefulWidget {
   final String userId;
-  const _TampilanBeranda({required this.userId});
+  const _TampilanRiwayatLangganan({required this.userId});
 
   @override
-  State<_TampilanBeranda> createState() => _TampilanBerandaState();
+  State<_TampilanRiwayatLangganan> createState() =>
+      _TampilanRiwayatLanggananState();
 }
 
-class _TampilanBerandaState extends State<_TampilanBeranda> {
+class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   final FirestoreService _firestoreService = FirestoreService();
   final InfoPerangkatService _infoPerangkatService = InfoPerangkatService();
+  // ditambah: State untuk menyimpan mode pengurutan saat ini.
+  SortMode _sortMode = SortMode.tanggalBerakhirTerbaru;
 
   @override
   void initState() {
     super.initState();
-    Log.info('Memulai inisialisasi state untuk _TampilanBeranda.');
+    Log.info('Memulai inisialisasi state untuk _TampilanRiwayatLangganan.');
     _cekArsitekturPerangkat();
     Log.info('Memulai proses sinkronisasi jadwal notifikasi.', {
       'userId': widget.userId,
@@ -54,7 +67,7 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
   @override
   void dispose() {
     Log.info(
-        'Membersihkan state _TampilanBeranda dan menghentikan sinkronisasi jadwal.');
+        'Membersihkan state _TampilanRiwayatLangganan dan menghentikan sinkronisasi jadwal.');
     _firestoreService.hentikanSinkronisasiJadwal();
     super.dispose();
   }
@@ -74,15 +87,83 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
     }
   }
 
+  // ditambah: Fungsi untuk mengurutkan daftar riwayat.
+  List<TransaksiModel> _urutkanRiwayat(List<TransaksiModel> riwayat) {
+    switch (_sortMode) {
+      case SortMode.tanggalBerakhirTerbaru:
+        riwayat.sort((a, b) {
+          if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
+          if (a.tanggalBerakhir == null) return 1;
+          if (b.tanggalBerakhir == null) return -1;
+          return b.tanggalBerakhir!.compareTo(a.tanggalBerakhir!);
+        });
+        break;
+      case SortMode.tanggalBerakhirTerlama:
+        riwayat.sort((a, b) {
+          if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
+          if (a.tanggalBerakhir == null) return 1;
+          if (b.tanggalBerakhir == null) return -1;
+          return a.tanggalBerakhir!.compareTo(b.tanggalBerakhir!);
+        });
+        break;
+      case SortMode.statusLunas:
+        riwayat.sort((a, b) {
+          final statusA =
+              a.statusPembayaran.name.toLowerCase() == 'lunas' ? 0 : 1;
+          final statusB =
+              b.statusPembayaran.name.toLowerCase() == 'lunas' ? 0 : 1;
+          return statusA.compareTo(statusB);
+        });
+        break;
+      case SortMode.statusBelumLunas:
+        riwayat.sort((a, b) {
+          final statusA =
+              a.statusPembayaran.name.toLowerCase() == 'belum lunas' ? 0 : 1;
+          final statusB =
+              b.statusPembayaran.name.toLowerCase() == 'belum lunas' ? 0 : 1;
+          return statusA.compareTo(statusB);
+        });
+        break;
+    }
+    return riwayat;
+  }
+
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun UI _TampilanBeranda dengan Scaffold dan StreamBuilder.');
+        'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.');
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: AppColors.primaryColor,
-        title: const Text('Beranda'),
+        title: const Text('Riwayat Langganan'),
+        actions: [
+          // diubah: Menggunakan PopupMenuButton untuk opsi pengurutan.
+          PopupMenuButton<SortMode>(
+            onSelected: (SortMode result) {
+              setState(() {
+                _sortMode = result;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<SortMode>>[
+              const PopupMenuItem<SortMode>(
+                value: SortMode.tanggalBerakhirTerbaru,
+                child: Text('Tanggal Berakhir (Terbaru)'),
+              ),
+              const PopupMenuItem<SortMode>(
+                value: SortMode.tanggalBerakhirTerlama,
+                child: Text('Tanggal Berakhir (Terlama)'),
+              ),
+              const PopupMenuItem<SortMode>(
+                value: SortMode.statusLunas,
+                child: Text('Status: Lunas'),
+              ),
+              const PopupMenuItem<SortMode>(
+                value: SortMode.statusBelumLunas,
+                child: Text('Status: Belum Lunas'),
+              ),
+            ],
+            icon: const Icon(Icons.sort),
+          ),
+        ],
       ),
       body: StreamBuilder<PelangganModel?>(
         stream: _firestoreService.ambilPelangganStream(widget.userId),
@@ -172,10 +253,13 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                       'jumlah_item': riwayat.length,
                     });
 
+                    // ditambah: Menerapkan logika pengurutan.
+                    final riwayatUrut = _urutkanRiwayat(List.from(riwayat));
+
                     return ListView.builder(
-                      itemCount: riwayat.length,
+                      itemCount: riwayatUrut.length,
                       itemBuilder: (context, index) {
-                        final tx = riwayat[index];
+                        final tx = riwayatUrut[index];
                         final String teksMasaAktif;
                         final Color warnaMasaAktif;
 
@@ -215,11 +299,12 @@ class _TampilanBerandaState extends State<_TampilanBeranda> {
                                 Text(
                                   "Status: ${tx.statusPembayaran.name}",
                                   style: TextStyle(
+                                    // diubah: Pewarnaan status yang lebih baik.
                                     color: tx.statusPembayaran.name
                                                 .toLowerCase() ==
                                             'lunas'
-                                        ? AppColors.primaryColor
-                                        : AppColors.primaryColor,
+                                        ? Colors.green
+                                        : Colors.red,
                                   ),
                                 ),
                                 Text(

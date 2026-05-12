@@ -1,4 +1,4 @@
-// path: lib/utils/format_util.dart
+// path: lib/shared/utils/format_util.dart
 
 // File ini berisi kumpulan kelas utilitas untuk pemformatan data.
 // Setiap kelas bertanggung jawab atas satu jenis format (Tanggal, Jam, Uang)

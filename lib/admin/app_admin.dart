@@ -1,4 +1,6 @@
 // path: lib/admin/app_admin.dart
+// diubah: Menghapus definisi tema lokal dan mengimpor dari AppTheme terpusat.
+
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -17,12 +19,10 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/pembersihan_data_service.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_text_style.dart';
+import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-// diubah: Dibungkus dengan ChangeNotifierProvider untuk menyediakan ThemeProvider
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -35,7 +35,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// baru: Widget untuk menangani logika inisialisasi
 class AppInitializer extends StatefulWidget {
   const AppInitializer({super.key});
 
@@ -58,7 +57,6 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi aplikasi.');
     try {
-      // Langkah 1: Inisialisasi Firebase
       _updateMessage("Menginisialisasi layanan Google...");
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
@@ -66,28 +64,23 @@ class _AppInitializerState extends State<AppInitializer> {
         );
       }
 
-      // Langkah 2: Pengaturan Lokal
       _updateMessage("Mengonfigurasi pengaturan lokal...");
       tz.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
       await initializeDateFormatting('id_ID', null);
 
-      // Langkah 3: Layanan Notifikasi
       _updateMessage("Mempersiapkan layanan notifikasi...");
       final notifikasiServis = NotifikasiServis();
       await notifikasiServis.inisialisasi();
       await notifikasiServis.requestPermissions();
 
-      // Langkah 4: Database Lokal
       _updateMessage("Mempersiapkan database lokal...");
       await DatabaseHelper.instance.database;
 
-      // Langkah 5: Data Awal & Pembersihan
       _updateMessage("Memeriksa data awal...");
       await UnduhanAwalService().jalankanUnduhanAwal();
       await PembersihanDataService().jalankanJikaPerlu();
 
-      // Langkah 6: Cek Koneksi Internet
       _updateMessage("Mengecek koneksi internet...");
       final isOnline = await _koneksiService.cekKoneksi();
 
@@ -144,58 +137,20 @@ class AppProviders extends StatelessWidget {
   }
 }
 
-// diubah: Menggunakan Consumer untuk mendapatkan status tema
 class AppMaterial extends StatelessWidget {
   final bool isOffline;
   const AppMaterial({super.key, required this.isOffline});
 
   @override
   Widget build(BuildContext context) {
-    // Tema Terang
-    final ThemeData lightTheme = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryColor, brightness: Brightness.light),
-      textTheme: appTextTheme,
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.primaryColor,
-        foregroundColor: AppColors.secondaryColor,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: AppColors.secondaryColor,
-          backgroundColor: AppColors.primaryColor,
-        ),
-      ),
-    );
-
-    // baru: Tema Gelap
-    final ThemeData darkTheme = ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryColor, brightness: Brightness.dark),
-      textTheme: appTextTheme,
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.grey[900],
-        foregroundColor: Colors.white,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black,
-          backgroundColor: AppColors.primaryColor.shade200,
-        ),
-      ),
-    );
-
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
           title: 'Admin Wifi',
           debugShowCheckedModeBanner: false,
-          theme: lightTheme,
-          darkTheme: darkTheme,
+          theme: AppTheme.lightTheme, // diubah: Menggunakan tema dari AppTheme
+          darkTheme:
+              AppTheme.darkTheme, // diubah: Menggunakan tema dari AppTheme
           themeMode: themeProvider.themeMode,
           home: HalamanUtama(isOffline: isOffline),
           navigatorKey: NavigasiServis.navigatorKey,
@@ -204,3 +159,4 @@ class AppMaterial extends StatelessWidget {
     );
   }
 }
+  

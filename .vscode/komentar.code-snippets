@@ -29,5 +29,13 @@
 			],
 			"description": "Menambahkan komentar untuk TODO"
 		},
+        "Komentar Perintah": {
+          "prefix": "fperintah",
+          "body": [
+            "// kerjakan perintah di bawah ini",
+            "// Perintah: $1"
+          ],
+          "description": "Menambahkan komentar untuk perintah"
+        },
 
 }

@@ -1,12 +1,10 @@
-
 // path: lib/user/page/splash_screen_user.dart
-// diubah: Menerjemahkan semua pesan log ke dalam Bahasa Indonesia.
+// diubah: Memperbaiki kesalahan sintaks pada pemanggilan initializeDateFormatting.
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_text_style.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -30,11 +28,16 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
 
   Future<void> _checkSession() async {
     Log.info('SplashScreen: Memeriksa sesi pengguna...');
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (!mounted) return;
 
     try {
+      // diubah: Membungkus 'id_ID' dengan tanda kutip.
+      await initializeDateFormatting('id_ID', null);
+      Log.info("Inisialisasi format tanggal 'id_ID' berhasil.");
+
+      await Future.delayed(const Duration(seconds: 1)); // Mengurangi delay
+
+      if (!mounted) return;
+
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
       final isLoggedIn = userId != null;
@@ -60,7 +63,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       }
     } catch (e, s) {
       Log.error(
-        'Gagal memeriksa sesi pengguna.',
+        'Gagal memeriksa sesi pengguna atau inisialisasi.',
         e: e,
         st: s,
       );
@@ -82,9 +85,10 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   Widget build(BuildContext context) {
     Log.info('SplashScreen: Membangun UI.');
     const message = 'Memeriksa sesi pengguna...';
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,16 +100,20 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
             const SizedBox(height: 24),
             Text(
               'WiFi Client',
-              style: appTextTheme.headlineMedium
-                  ?.copyWith(color: AppColors.textColor),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 40),
-            const CircularProgressIndicator(),
+            CircularProgressIndicator(
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(height: 20),
             Text(
               message,
-              style:
-                  appTextTheme.bodyLarge?.copyWith(color: AppColors.textColor),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ],
         ),

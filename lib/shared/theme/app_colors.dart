@@ -1,13 +1,24 @@
 // path: lib/shared/theme/app_colors.dart
+// diubah: Menambahkan definisi warna yang hilang untuk tema terang dan gelap.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class AppColors {
+  // Warna Inti
   static const MaterialColor primaryColor = Colors.deepPurple;
   static const Color secondaryColor = Colors.white;
-  static const Color accentColor = Colors.blue;
-  static const Color textColor = Colors.black;
-  static const Color backgroundColor = Color(0xFFF8F9FA);
+  static const Color accentColor = Colors.blueAccent;
+  static const MaterialColor errorColor = Colors.red;
+
+  // Warna Latar & Permukaan
+  static const Color lightBackground = Color(0xFFF8F9FA);
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+
+  // Warna Teks (opsional, bisa di-override oleh TextTheme)
+  static const Color textOnLight = Colors.black;
+  static const Color textOnDark = Colors.white;
 
   // --- Tambahan Warna Poin ---
 

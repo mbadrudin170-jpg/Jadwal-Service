@@ -1,5 +1,6 @@
 // path: lib/user/app_user.dart
-// diubah: Menerjemahkan semua pesan log ke dalam Bahasa Indonesia.
+// diubah: Mengimplementasikan tema terpusat dari AppTheme.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
+import 'package:wifi/shared/theme/app_theme.dart'; // diubah: Impor AppTheme
 import 'package:wifi/user/maintenance_page.dart';
-import 'package:wifi/user/page/home_page.dart';
-import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
 import 'package:wifi/user/provider/theme_provider.dart';
 import 'package:wifi/user/services/firestore_service.dart';
@@ -100,8 +100,8 @@ class _AppUserState extends State<AppUser> {
           return MaterialApp(
             title: 'Aplikasi dalam Perbaikan',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: AppTheme.lightTheme, // diubah: Menggunakan AppTheme
+            darkTheme: AppTheme.darkTheme, // diubah: Menggunakan AppTheme
             home: MaintenancePage(maintenanceInfo: pengaturan.infoPemeliharaan),
           );
         } else {
@@ -129,17 +129,10 @@ class _AppUserState extends State<AppUser> {
           return MaterialApp(
             title: 'Aplikasi User',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: AppTheme.lightTheme, // diubah: Menggunakan AppTheme
+            darkTheme: AppTheme.darkTheme, // diubah: Menggunakan AppTheme
             themeMode: themeProvider.tema,
             home: const SplashScreenUser(),
-            routes: {
-              '/home': (context) => HomePage(
-                    userId: userId ?? '',
-                    localStorageService: localStorageService,
-                  ),
-              '/login': (context) => const LoginPage(),
-            },
           );
         },
       ),

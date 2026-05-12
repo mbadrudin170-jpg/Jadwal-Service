@@ -1,17 +1,17 @@
 // path: lib/user/page/profil_page.dart
+// diubah: Menghapus impor yang tidak perlu.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/user/page/edit_profil_page.dart';
-import 'package:wifi/user/page/pengaturan_user.dart';
+import 'package:wifi/user/page/detail_pelanggan_user.dart';
 import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 class ProfilPage extends StatefulWidget {
   final String userId;
@@ -28,7 +28,6 @@ class ProfilPage extends StatefulWidget {
 
 class _ProfilPageState extends State<ProfilPage> {
   final FirestoreService _firestoreService = FirestoreService();
-  bool _apakahPasswordTerlihat = false;
 
   Future<PelangganModel?>? _futurePelanggan;
   Future<List<TransaksiModel>>? _riwayatLanggananFuture;
@@ -39,12 +38,14 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
-    Log.info('Memulai inisialisasi state untuk ProfilPage.');
+    Log.info('Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}');
     _inisialisasiData();
   }
 
   Future<void> _inisialisasiData() async {
-    Log.info('Memulai pengambilan data profil untuk userId: ${widget.userId}.');
+    Log.info('Memulai pengambilan data awal untuk userId: ${widget.userId}.');
+    if (!mounted) return;
+
     setState(() {
       _futurePelanggan = _firestoreService.ambilPelangganSekali(widget.userId);
     });
@@ -53,66 +54,76 @@ class _ProfilPageState extends State<ProfilPage> {
       final pelanggan = await _futurePelanggan;
       if (pelanggan != null) {
         Log.info(
-            'Data pelanggan berhasil diambil, mengambil riwayat langganan.');
+            'Data pelanggan berhasil diambil: ${pelanggan.nama}. Mengambil riwayat langganan...');
+        if (!mounted) return;
         setState(() {
           _riwayatLanggananFuture =
               _firestoreService.ambilRiwayatLangganan(pelanggan.id);
         });
+      } else {
+        Log.warning('Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.');
       }
     } catch (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.showError(context, 'Gagal memuat data profil: $e');
+      }
     }
   }
 
-  void _muatUlangData() {
-    Log.info('Memuat ulang semua data profil.');
+  Future<void> _muatUlangData() async {
+    Log.info('Memuat ulang semua data profil via onRefresh.');
+    SnackBarUtil.showInfo(context, 'Memperbarui data...');
+
+    // Inisialisasi ulang semua future untuk memicu state loading di FutureBuilder
     setState(() {
-      _futurePelanggan = null;
-      _riwayatLanggananFuture = null;
-      _futureNamaPaket = null;
-      _cacheIdPaket = null;
-      _inisialisasiData();
-      Log.info('State di-reset untuk memuat ulang data.');
+      _futurePelanggan = _firestoreService.ambilPelangganSekali(widget.userId);
     });
-  }
 
-  Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
-    Log.info('Menavigasi ke EditProfilPage.');
-    final bool? hasil = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            EditProfilPage(pelanggan: pelanggan, userId: widget.userId),
-      ),
-    );
-    if (hasil == true) {
-      Log.info(
-          'Kembali dari EditProfilPage dengan perubahan, memuat ulang data.');
-      _muatUlangData();
-    } else {
-      Log.info('Kembali dari EditProfilPage tanpa perubahan.');
+    try {
+      final pelanggan = await _futurePelanggan;
+      if (pelanggan != null) {
+        setState(() {
+          // Reset juga future-future dependen
+          _riwayatLanggananFuture =
+              _firestoreService.ambilRiwayatLangganan(pelanggan.id);
+          _futureNamaPaket = null;
+          _cacheIdPaket = null;
+        });
+        // Tunggu hingga data dependen juga selesai dimuat
+        await _riwayatLanggananFuture;
+      }
+
+      if (mounted) {
+        Log.info('Data profil berhasil diperbarui.');
+        SnackBarUtil.showSuccess(context, 'Data berhasil diperbarui.');
+      }
+    } catch (e, st) {
+      Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.showError(context, 'Gagal memperbarui data: $e');
+      }
     }
   }
 
-  void _navigasiKePengaturan() {
-    Log.info('Menavigasi ke PengaturanPage.');
+  void _navigasiKeDetail(String userId) {
+    Log.info('Menavigasi ke DetailPelangganUserPage untuk userId: $userId');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PengaturanPage(
-          userId: widget.userId,
-          localStorageService: widget.localStorageService,
-        ),
+        builder: (context) => DetailPelangganUserPage(userId: userId),
       ),
-    );
+    ).then((_) {
+      Log.info('Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.');
+      _muatUlangData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun UI untuk ProfilPage.');
     if (_futurePelanggan == null) {
-      Log.info(
-          'Future pelanggan masih null, menampilkan indikator loading awal.');
+      Log.info('Future pelanggan masih null, menampilkan indikator loading awal.');
       return Scaffold(
         appBar: AppBar(title: const Text('Memuat Profil...')),
         body: const Center(child: CircularProgressIndicator()),
@@ -122,8 +133,7 @@ class _ProfilPageState extends State<ProfilPage> {
     return FutureBuilder<PelangganModel?>(
       future: _futurePelanggan,
       builder: (context, snapshot) {
-        Log.info(
-            'Menerima update status koneksi: ${snapshot.connectionState}.');
+        Log.info('FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.');
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Memuat Profil...')),
@@ -132,7 +142,7 @@ class _ProfilPageState extends State<ProfilPage> {
         }
         if (snapshot.hasError) {
           Log.error(
-            'Terjadi error: ${snapshot.error}.',
+            'FutureBuilder<Pelanggan> mendeteksi error: ${snapshot.error}.',
             e: snapshot.error,
             st: snapshot.stackTrace,
           );
@@ -142,8 +152,7 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          Log.info(
-              'Data pelanggan tidak ditemukan untuk ID: ${widget.userId}.');
+          Log.warning('FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.');
           return Scaffold(
             appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
             body: Center(
@@ -153,26 +162,14 @@ class _ProfilPageState extends State<ProfilPage> {
         }
 
         final pelanggan = snapshot.data!;
-        Log.info('Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}.');
+        Log.info('Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.');
 
         return Scaffold(
           appBar: AppBar(
             title: const Text('Profil Pelanggan'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => _navigasiKeEdit(pelanggan),
-                tooltip: 'Edit Profil',
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: _navigasiKePengaturan,
-                tooltip: 'Pengaturan',
-              ),
-            ],
           ),
           body: RefreshIndicator(
-            onRefresh: () async => _muatUlangData(),
+            onRefresh: _muatUlangData,
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
@@ -185,63 +182,61 @@ class _ProfilPageState extends State<ProfilPage> {
                       Icons.person_outline,
                       'Nama Lengkap',
                       pelanggan.nama,
+                      trailingIcon: Icons.chevron_right,
+                      onTap: () => _navigasiKeDetail(pelanggan.id),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _bangunInfoItem(
-                            Icons.phone_outlined,
-                            'No. HP',
-                            pelanggan.telepon,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.content_copy, size: 20),
-                          tooltip: 'Salin Nomor HP',
-                          onPressed: () {
-                            Log.info('Menyalin nomor HP ke clipboard.');
-                            Clipboard.setData(
-                              ClipboardData(text: pelanggan.telepon),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Nomor HP disalin ke clipboard'),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _bangunInfoItem(
-                            Icons.lock,
-                            'Password',
-                            _apakahPasswordTerlihat
-                                ? pelanggan.password
-                                : '••••••••••',
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            _apakahPasswordTerlihat
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          tooltip: _apakahPasswordTerlihat
-                              ? 'Sembunyikan'
-                              : 'Tampilkan',
-                          onPressed: () {
-                            Log.info('Mengubah visibilitas password.');
-                            setState(() {
-                              _apakahPasswordTerlihat =
-                                  !_apakahPasswordTerlihat;
-                            });
-                          },
-                        ),
-                      ],
+                    FutureBuilder<List<TransaksiModel>>(
+                      future: _riwayatLanggananFuture,
+                      builder: (context, snapshotRiwayat) {
+                        Log.info('FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.');
+                        if (snapshotRiwayat.connectionState ==
+                            ConnectionState.waiting) {
+                          return _bangunInfoItem(
+                            Icons.point_of_sale,
+                            'Poin',
+                            'Menghitung...',
+                          );
+                        }
+
+                        if (snapshotRiwayat.hasError) {
+                          Log.error(
+                            'FutureBuilder<Riwayat>: Gagal menghitung poin.',
+                            e: snapshotRiwayat.error,
+                            st: snapshotRiwayat.stackTrace,
+                          );
+                          return _bangunInfoItem(
+                            Icons.point_of_sale,
+                            'Poin',
+                            'Gagal memuat',
+                          );
+                        }
+
+                        if (!snapshotRiwayat.hasData ||
+                            snapshotRiwayat.data!.isEmpty) {
+                          Log.warning('FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.');
+                          return _bangunInfoItem(
+                            Icons.point_of_sale,
+                            'Poin',
+                            '0',
+                          );
+                        }
+
+                        final riwayat = snapshotRiwayat.data!;
+                        Log.info('Menghitung total poin dari ${riwayat.length} transaksi.');
+                        int poinDihasilkan = riwayat.fold(
+                            0, (sum, item) => sum + item.poinYangDihasilkan);
+                        int poinDigunakan = riwayat.fold(
+                            0, (sum, item) => sum + item.poinYangDigunakan);
+
+                        final int totalPoin = poinDihasilkan - poinDigunakan;
+                        Log.info('Total poin dihitung: $totalPoin.');
+
+                        return _bangunInfoItem(
+                          Icons.point_of_sale,
+                          'Poin',
+                          totalPoin.toString(),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -254,9 +249,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (context, snapshotRiwayat) {
-                        Log.info(
-                          'Status koneksi riwayat: ${snapshotRiwayat.connectionState}.',
-                        );
+                        // Log sudah ada di FutureBuilder sebelumnya, tidak perlu diulang
                         if (snapshotRiwayat.connectionState ==
                             ConnectionState.waiting) {
                           return const SizedBox(
@@ -268,11 +261,6 @@ class _ProfilPageState extends State<ProfilPage> {
                         }
 
                         if (snapshotRiwayat.hasError) {
-                          Log.error(
-                            'Gagal memuat riwayat langganan.',
-                            e: snapshotRiwayat.error,
-                            st: snapshotRiwayat.stackTrace,
-                          );
                           return _bangunInfoItem(
                             Icons.error_outline,
                             'Error',
@@ -282,9 +270,6 @@ class _ProfilPageState extends State<ProfilPage> {
 
                         if (!snapshotRiwayat.hasData ||
                             snapshotRiwayat.data!.isEmpty) {
-                          Log.info(
-                            'Tidak ada data riwayat langganan ditemukan.',
-                          );
                           return _bangunInfoItem(
                             Icons.wifi_off,
                             'Paket Aktif',
@@ -310,7 +295,7 @@ class _ProfilPageState extends State<ProfilPage> {
                                     : b,
                           );
                           Log.info(
-                            'Langganan aktif terakhir ditemukan, berakhir pada: ${langgananTerakhir.tanggalBerakhir}.',
+                            'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatTanggal.formatTanggalDanJam(langgananTerakhir.tanggalBerakhir!)}.',
                           );
                         } else {
                           langgananTerakhir = null;
@@ -346,7 +331,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         if (langgananTerakhir.idPaket != null &&
                             _cacheIdPaket != langgananTerakhir.idPaket) {
                           Log.info(
-                            'Paket baru terdeteksi. Mengambil nama paket untuk ID: ${langgananTerakhir.idPaket!}.',
+                            'ID Paket berubah. Mengambil nama paket baru untuk ID: ${langgananTerakhir.idPaket!}.',
                           );
                           _futureNamaPaket = _firestoreService.ambilNamaPaket(
                             langgananTerakhir.idPaket!,
@@ -366,13 +351,14 @@ class _ProfilPageState extends State<ProfilPage> {
                                 } else if (snapshotPaket.hasError) {
                                   namaPaket = 'Gagal memuat';
                                   Log.error(
-                                    'Gagal mengambil nama paket: ${snapshotPaket.error}',
+                                    'FutureBuilder<NamaPaket>: Gagal mengambil nama paket: ${snapshotPaket.error}',
                                     e: snapshotPaket.error,
                                     st: snapshotPaket.stackTrace,
                                   );
                                 } else {
                                   namaPaket =
                                       snapshotPaket.data ?? 'Tidak tersedia';
+                                  Log.info('Nama paket berhasil dimuat: $namaPaket');
                                 }
                                 return _bangunInfoItem(
                                   Icons.wifi,
@@ -463,8 +449,10 @@ class _ProfilPageState extends State<ProfilPage> {
     String label,
     String value, {
     Color? valueColor,
+    IconData? trailingIcon,
+    VoidCallback? onTap,
   }) {
-    return Padding(
+    Widget content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,8 +479,19 @@ class _ProfilPageState extends State<ProfilPage> {
               ],
             ),
           ),
+          if (trailingIcon != null)
+            Icon(trailingIcon, color: Colors.grey.shade600, size: 20),
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        child: content,
+      );
+    }
+
+    return content;
   }
 }
