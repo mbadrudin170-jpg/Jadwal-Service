@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/tab/pelanggan_aktif.dart
+// diubah: Menyesuaikan pemanggilan NamaPaketWidget dengan konstruktor baru.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:wifi/shared/data/sync/unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
@@ -31,6 +33,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
   final PelangganAktifOperasi _pelangganAktifOperasi = PelangganAktifOperasi();
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
+  // ditambah: Instansiasi PaketOperasi untuk digunakan nanti.
+  final PaketOperasi _paketOperasi = PaketOperasi();
   final now = DateTime.now();
   List<PelangganAktifModel> _semuaPelanggan = [];
   List<PelangganAktifModel> _hasilFilter = [];
@@ -494,6 +498,9 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                           itemBuilder: (context, index) {
                             final pelanggan = _hasilFilter[index];
                             final statusPembayaran = pelanggan.status;
+                            // diubah: Membuat future untuk paket dari PaketOperasi.
+                            final paketFuture =
+                                _paketOperasi.getPaketById(pelanggan.idPaket);
 
                             return Card(
                               margin: const EdgeInsets.symmetric(
@@ -530,8 +537,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      NamaPaketWidget(
-                                          idPaket: pelanggan.idPaket),
+                                      // diubah: Menggunakan paketFuture untuk NamaPaketWidget.
+                                      NamaPaketWidget(paketFuture: paketFuture),
                                       const SizedBox(height: 4),
                                       Text(
                                         'Pembayaran: ${statusPembayaran.displayName}',

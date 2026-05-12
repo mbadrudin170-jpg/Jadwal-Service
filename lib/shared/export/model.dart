@@ -1,4 +1,4 @@
-// path: lib/shared/model.dart
+// path: lib/shared/export/model.dart
 
 export '../model/dompet_model.dart';
 export '../model/hasil_simpan_model.dart';

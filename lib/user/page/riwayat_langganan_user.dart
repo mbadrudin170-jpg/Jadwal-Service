@@ -1,12 +1,9 @@
 // path: lib/user/page/riwayat_langganan_user.dart
-// ditambah: Menambahkan enum SortMode dan fungsionalitas pengurutan.
-// diubah: Mengganti IconButton dengan PopupMenuButton untuk sorting.
-// diubah: Memperbaiki pewarnaan status pembayaran.
+// diubah: Memperbaiki penggunaan NamaPaketWidget dan navigasi ke DetailTransaksiPage.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -16,7 +13,6 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
 
-// ditambah: Enum untuk mode pengurutan.
 enum SortMode {
   tanggalBerakhirTerbaru,
   tanggalBerakhirTerlama,
@@ -50,7 +46,6 @@ class _TampilanRiwayatLangganan extends StatefulWidget {
 class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   final FirestoreService _firestoreService = FirestoreService();
   final InfoPerangkatService _infoPerangkatService = InfoPerangkatService();
-  // ditambah: State untuk menyimpan mode pengurutan saat ini.
   SortMode _sortMode = SortMode.tanggalBerakhirTerbaru;
 
   @override
@@ -87,7 +82,6 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
     }
   }
 
-  // ditambah: Fungsi untuk mengurutkan daftar riwayat.
   List<TransaksiModel> _urutkanRiwayat(List<TransaksiModel> riwayat) {
     switch (_sortMode) {
       case SortMode.tanggalBerakhirTerbaru:
@@ -136,7 +130,6 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [
-          // diubah: Menggunakan PopupMenuButton untuk opsi pengurutan.
           PopupMenuButton<SortMode>(
             onSelected: (SortMode result) {
               setState(() {
@@ -203,7 +196,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: FutureBuilder<List<dynamic>>(
+                child: FutureBuilder<List<TransaksiModel>>(
                   future: _firestoreService
                       .ambilRiwayatLanggananLengkap(pelanggan.id),
                   builder: (context, snapshotRiwayat) {
@@ -247,13 +240,11 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                       );
                     }
 
-                    final riwayat =
-                        snapshotRiwayat.data! as List<TransaksiModel>;
+                    final riwayat = snapshotRiwayat.data!;
                     Log.info('Data riwayat berhasil didapatkan.', {
                       'jumlah_item': riwayat.length,
                     });
 
-                    // ditambah: Menerapkan logika pengurutan.
                     final riwayatUrut = _urutkanRiwayat(List.from(riwayat));
 
                     return ListView.builder(
@@ -262,6 +253,10 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                         final tx = riwayatUrut[index];
                         final String teksMasaAktif;
                         final Color warnaMasaAktif;
+
+                        final paketFuture = tx.idPaket != null
+                            ? _firestoreService.ambilPaketModelById(tx.idPaket!)
+                            : Future.value(null);
 
                         if (tx.tanggalBerakhir != null) {
                           teksMasaAktif = PerhitunganUtil.getTeksSisaMasaAktif(
@@ -286,9 +281,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                               horizontal: 16.0, vertical: 4.0),
                           child: ListTile(
                             leading: const Icon(Icons.receipt_long),
-                            title: tx.idPaket != null
-                                ? NamaPaketWidget(idPaket: tx.idPaket!)
-                                : const Text('-'),
+                            title: NamaPaketWidget(paketFuture: paketFuture),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -299,7 +292,6 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                                 Text(
                                   "Status: ${tx.statusPembayaran.name}",
                                   style: TextStyle(
-                                    // diubah: Pewarnaan status yang lebih baik.
                                     color: tx.statusPembayaran.name
                                                 .toLowerCase() ==
                                             'lunas'
@@ -314,19 +306,23 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                               ],
                             ),
                             trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
+                            onTap: () async {
                               Log.info('Navigasi ke DetailTransaksiPage.', {
                                 'index': index,
                                 'idPaket': tx.idPaket,
                               });
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailTransaksiPage(
-                                    transaksi: tx,
+                              final paket = await paketFuture;
+                              if (context.mounted) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailTransaksiPage(
+                                      transaksi: tx,
+                                      paket: paket,
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
+                              }
                             },
                           ),
                         );

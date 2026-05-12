@@ -1,9 +1,11 @@
 // path: lib/user/services/firestore_service.dart
+// ditambah: Menambahkan fungsi ambilPaketModelById untuk mengambil data paket lengkap.
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 
@@ -141,6 +143,24 @@ class FirestoreService {
     } catch (e, s) {
       Log.error('Error mengambil nama paket: $e', e: e, st: s);
       return 'Error Memuat Paket';
+    }
+  }
+
+  // ditambah: Fungsi untuk mengambil data paket lengkap.
+  Future<PaketModel?> ambilPaketModelById(String paketId) async {
+    try {
+      Log.info('Mengambil model paket untuk ID: $paketId');
+      final doc = await _db.collection('paket').doc(paketId).get();
+      if (doc.exists) {
+        final paket = PaketModel.fromFirebase(doc.id, doc.data()!);
+        Log.info('Model paket ditemukan', paket.toFirebase());
+        return paket;
+      }
+      Log.warning('Paket dengan ID $paketId tidak ditemukan untuk model.');
+      return null;
+    } catch (e, s) {
+      Log.error('Error mengambil model paket: $e', e: e, st: s);
+      return null;
     }
   }
 }

@@ -1,7 +1,7 @@
 // path: lib/widget/ads/banner_ad_widget.dart
-import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class BannerAdWidget extends StatefulWidget {
   final String adUnitId;
@@ -30,20 +30,14 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.adUnitId != widget.adUnitId) {
-      developer.log(
-        '[ banner_ad_widget.dart ] [didUpdateWidget] : Ad unit ID changed. Reloading banner.',
-        name: 'BannerAd',
-      );
+      Log.info('Ad unit ID changed. Reloading banner.');
       _disposeBanner();
       _loadBanner();
     }
   }
 
   void _loadBanner() {
-    developer.log(
-      '[ banner_ad_widget.dart ] [_loadBanner] : Loading banner ad with ID: ${widget.adUnitId}',
-      name: 'BannerAd',
-    );
+    Log.api('/banner_ad', {'adUnitId': widget.adUnitId}, method: 'LOAD');
     _isLoaded = false;
 
     _bannerAd = BannerAd(
@@ -53,19 +47,20 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (!mounted) return;
-          developer.log(
-            '[ banner_ad_widget.dart ] [onAdLoaded] : Banner ad loaded successfully.',
-            name: 'BannerAd',
-          );
+          Log.info('Banner ad loaded successfully.');
           setState(() {
             _isLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
-          developer.log(
-            '[ banner_ad_widget.dart ] [onAdFailedToLoad] : Banner ad failed to load: $error',
-            name: 'BannerAd',
-            error: error,
+          Log.error(
+            'Banner ad failed to load',
+            e: error,
+            data: {
+              'adUnitId': widget.adUnitId,
+              'errorCode': error.code,
+              'errorMessage': error.message,
+            },
           );
           ad.dispose();
           _bannerAd = null;
@@ -82,10 +77,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   void _disposeBanner() {
-    developer.log(
-      '[ banner_ad_widget.dart ] [_disposeBanner] : Disposing banner ad.',
-      name: 'BannerAd',
-    );
+    Log.info('Disposing banner ad.');
     _bannerAd?.dispose();
     _bannerAd = null;
     _isLoaded = false;

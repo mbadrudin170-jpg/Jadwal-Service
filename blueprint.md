@@ -66,6 +66,12 @@ lib/
 
 Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau dimodifikasi:
 
+### Folder: `lib/admin/`
+- **`lib/admin/halaman/tab/pelanggan_aktif.dart`**
+  - **Tujuan:** Menampilkan daftar semua pelanggan yang memiliki paket aktif.
+  - **Fitur (Setelah Refactor):**
+    - **Tampilan Nama Paket:** Untuk menampilkan nama paket, widget ini sekarang memanggil `_paketOperasi.getPaketById()` untuk mendapatkan `Future<PaketModel?>` dari database SQLite lokal. `Future` ini kemudian diteruskan ke `NamaPaketWidget` yang baru, memastikan tidak ada lagi error kompilasi dan data ditampilkan dengan benar dari sumber data yang sesuai untuk admin.
+
 ### Folder: `lib/shared/`
 - **`lib/shared/utils/perhitungan_util.dart`**
   - **Tujuan:** Menyediakan fungsi-fungsi utilitas untuk kalkulasi terkait status aplikasi.
@@ -86,8 +92,14 @@ Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau di
 - **`lib/shared/widget/card/point_card.dart`**
     - **Tujuan**: Menampilkan kartu (card) yang berisi informasi total poin pengguna dengan gaya visual yang menarik.
     - **Fitur**:
-        - Menampilkan jumlah poin, ikon, dan menggunakan warna tema yang dapat disesuaikan.
-        - Memiliki efek `boxShadow` dan latar belakang ikon yang warnanya disesuaikan dengan `themeColor` untuk memberikan tampilan yang premium.
+- Menampilkan jumlah poin, ikon, dan menggunakan warna tema yang dapat disesuaikan.
+- Memiliki efek `boxShadow` dan latar belakang ikon yang warnanya disesuaikan dengan `themeColor` untuk memberikan tampilan yang premium.
+- **`lib/shared/widget/nama_paket.dart` (Refactored)**
+  - **Tujuan:** Menampilkan nama sebuah paket data. Awalnya terikat pada sumber data lokal (SQLite), sekarang di-refactor menjadi komponen UI murni yang bisa menampilkan data dari sumber manapun (baik SQLite maupun Firestore).
+  - **Fitur:**
+    - **Konstruktor Baru:** Menerima satu parameter wajib: `Future<PaketModel?> paketFuture`.
+    - **Pemisahan Logika:** Tidak lagi berisi logika untuk mengambil data. Tanggung jawabnya murni hanya untuk menampilkan data yang diberikan kepadanya.
+    - **`FutureBuilder`:** Menggunakan `FutureBuilder` untuk menangani status dari `paketFuture`: menampilkan `CircularProgressIndicator` saat memuat, pesan error jika gagal, atau nama paket jika berhasil.
 
 ### Folder: `lib/user/`
 - **`lib/user/app_user.dart`**
@@ -97,14 +109,21 @@ Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau di
     - **Penanganan Status:**
       - Jika pemeliharaan aktif, aplikasi akan menampilkan `MaintenancePage`.
       - Jika pemeliharaan nonaktif atau perangkat offline, aplikasi akan melanjutkan ke alur normal (menampilkan `SplashScreenUser`).
-- **`lib/user/page/home_page.dart`**
-  - **Tujuan:** Bertindak sebagai halaman beranda bagi pengguna setelah login.
-  - **Fitur:**
-    - Menampilkan daftar riwayat transaksi atau langganan pengguna.
-    - Menggunakan `StreamBuilder` untuk mendapatkan data pelanggan secara *real-time*.
-    - Menggunakan `FutureBuilder` untuk memuat riwayat langganan lengkap.
-    - Menampilkan status masa aktif setiap item riwayat menggunakan utilitas dari `perhitungan_util.dart`.
-    - Memiliki `BannerAdWidget` untuk menampilkan iklan.
+- **`lib/user/page/riwayat_langganan_user.dart`**
+  - **Tujuan:** Menampilkan daftar riwayat transaksi atau langganan pengguna.
+  - **Fitur (Setelah Refactor):**
+    - **Pengambilan Data Paket:** Di dalam `ListView.builder`, kode ini sekarang memanggil `_firestoreService.ambilPaketModelById(tx.idPaket!)` untuk setiap item transaksi. Ini menghasilkan `Future<PaketModel?>` yang diperlukan oleh `NamaPaketWidget`.
+    - **Penerusan Data:** `Future` tersebut diteruskan ke `NamaPaketWidget` untuk menampilkan nama paket.
+    - **Navigasi Cerdas:** Saat pengguna mengetuk item, aplikasi menunggu `Future` dari paket selesai (`await paketFuture`), lalu meneruskan objek `PaketModel` yang sudah lengkap ke halaman `DetailTransaksiPage`, memastikan halaman detail memiliki semua data yang dibutuhkan tanpa perlu melakukan query ulang.
+- **`lib/user/page/detail_transaksi_user.dart`**
+  - **Tujuan:** Menampilkan detail lengkap dari satu item transaksi.
+  - **Fitur (Setelah Refactor):**
+    - **Konstruktor Baru:** Konstruktor sekarang menerima `PaketModel? paket` (nullable) selain `TransaksiModel transaksi`.
+    - **Tampilan Data Langsung:** Halaman ini tidak lagi melakukan *lookup* atau menggunakan `NamaPaketWidget`. Ia langsung menampilkan nama paket dari properti `paket.nama` yang telah diterima dari halaman sebelumnya (`riwayat_langganan_user.dart`).
+- **`lib/user/services/firestore_service.dart`**
+  - **Tujuan:** Menyediakan layanan untuk semua interaksi dengan database Firestore untuk aplikasi pengguna.
+  - **Fungsi Baru:**
+    - `ambilPaketModelById(String paketId)`: Fungsi asinkron yang mengambil satu dokumen dari koleksi `paket` di Firestore berdasarkan `paketId`. Mengembalikan `Future<PaketModel?>`, yang akan menjadi `null` jika dokumen tidak ditemukan. Ini adalah metode kunci yang memungkinkan UI untuk mendapatkan data paket lengkap.
 - **`lib/user/page/profil_page.dart`**
   - **Tujuan:** Menampilkan detail informasi profil pengguna.
   - **Fitur:**
@@ -136,6 +155,38 @@ Berikut adalah rincian fungsionalitas dari setiap file yang telah dibuat atau di
 
 ---
 ## 4. Catatan Pengembangan & Log Perubahan
+
+### # Versi: v1.0.0
+Sumber: pubspec.yaml (version: 1.0.0+1)
+Tanggal: 25 Juli 2024
+
+#### Tujuan:
+Memperbaiki bug `Paket tidak ditemukan` di log aplikasi pengguna dengan melakukan refaktor pada `NamaPaketWidget` agar tidak terikat pada satu sumber data (data-source agnostic) dan memperbaiki alur pengambilan data paket di aplikasi admin dan pengguna.
+
+#### Perubahan:
+- **`lib/shared/widget/nama_paket.dart` (Refactored):**
+  - **diubah:** Konstruktor diubah total. Parameter `idPaket` dihapus dan diganti dengan parameter wajib `Future<PaketModel?> paketFuture`.
+  - **diubah:** Logika internal diubah dari melakukan query langsung ke `PaketOperasi` (SQLite) menjadi menggunakan `FutureBuilder` untuk menangani `Future` yang diterima dari luar.
+- **`lib/user/services/firestore_service.dart`:**
+  - **ditambah:** Fungsi baru `ambilPaketModelById(String paketId)` untuk mengambil data `PaketModel` lengkap dari Firestore.
+- **`lib/user/page/riwayat_langganan_user.dart`:**
+  - **diubah:** Di dalam `ListView.builder`, pemanggilan `NamaPaketWidget` diubah untuk menyediakan `paketFuture` dengan memanggil `_firestoreService.ambilPaketModelById()`.
+  - **diubah:** Logika `onTap` diubah menjadi `async` untuk `await` data paket dari `Future`, lalu meneruskan objek `PaketModel` yang sudah jadi ke `DetailTransaksiPage`.
+- **`lib/user/page/detail_transaksi_user.dart`:**
+  - **diubah:** Konstruktor diubah untuk menerima `PaketModel? paket`.
+  - **diubah:** Tampilan nama paket diubah dari menggunakan `NamaPaketWidget` menjadi menampilkan `paket.nama` secara langsung.
+- **`lib/admin/halaman/tab/pelanggan_aktif.dart`:**
+  - **ditambah:** Instansiasi `PaketOperasi` ditambahkan di *state*.
+  - **diubah:** Di dalam `ListView.builder`, pemanggilan `NamaPaketWidget` diperbaiki dengan menyediakan `paketFuture` dari `_paketOperasi.getPaketById()`.
+
+#### Bug yang Diatasi:
+- **Peringatan Log:** `Paket dengan ID [xyz] tidak ditemukan` yang muncul di aplikasi pengguna karena `NamaPaketWidget` salah mencoba mencari ID Firestore di database SQLite.
+- **Error Kompilasi:** `Missing parameter 'paketFuture'` dan `Undefined parameter 'idPaket'` di `pelanggan_aktif.dart` setelah `NamaPaketWidget` di-refactor.
+- **Arsitektur Rapuh:** Keterikatan erat antara komponen UI (`NamaPaketWidget`) dengan lapisan data spesifik (`PaketOperasi`).
+
+#### Solusi & Analisa:
+- **Pemisahan Tanggung Jawab (Decoupling):** `NamaPaketWidget` berhasil di-refactor menjadi komponen UI murni. Ia tidak lagi tahu-menahu tentang sumber data, yang membuatnya lebih fleksibel dan dapat digunakan kembali. Tanggung jawab untuk menyediakan data (dalam bentuk `Future`) kini berada di tangan pemanggil widget (`riwayat_langganan_user.dart` untuk pengguna dan `pelanggan_aktif.dart` untuk admin).
+- **Alur Data yang Benar:** Dengan perubahan ini, aplikasi pengguna sekarang dengan benar mengambil data paket dari Firestore, dan aplikasi admin mengambilnya dari SQLite. Ini menyelesaikan akar masalah dari bug log dan error kompilasi. Arsitektur aplikasi menjadi lebih kuat, dapat dipelihara, dan sesuai dengan prinsip desain yang baik.
 
 ### # Versi: v1.0.0
 Sumber: pubspec.yaml (version: 1.0.0+1)
@@ -201,7 +252,7 @@ Tanggal: 25 Juli 2024
 - Dengan menambahkan flag `dariServer`, kita sekarang dapat secara eksplisit mengontrol perilaku lapisan data. Ketika sebuah operasi ditandai sebagai berasal dari server, lapisan `OperasiDasar` tidak akan memperbarui waktu sinkronisasi terakhir. Ini secara efektif memutus loop unggah-unduh, membuat proses sinkronisasi lebih efisien, dapat diprediksi, dan lebih mudah di-debug. Perubahan ini memperkuat arsitektur sinkronisasi data aplikasi.
 
 ### # Versi: v1.0.0
-Sumber: `pubspec.yaml` (version: 1.0.0+1)
+Sumber: pubspec.yaml (version: 1.0.0+1)
 Tanggal: 25 Juli 2024
 
 #### Tujuan:
@@ -253,7 +304,7 @@ Tanggal: 24 Juli 2024
 
 #### Solusi:
 - Memperbaiki path impor yang salah.
-- Melakukan refaktorisasi dengan mengganti pemanggilan fungsi lama ke metode baru dari kelas `PerhitunganUtil`.
+- Melakukan refaktorisasi dengan mengganti pemanggilan fungsi lama ke metode baru dari kelas `PerenggunaanUtil`.
 - Menghapus semua impor yang tidak terpakai untuk membersihkan kode.
 
 #### Analisa:

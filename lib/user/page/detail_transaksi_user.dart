@@ -1,15 +1,19 @@
 // path: lib/user/page/detail_transaksi_user.dart
+// diubah: Konstruktor diubah untuk menerima objek PaketModel.
+// diubah: Menampilkan nama paket langsung dari model, bukan dari widget.
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class DetailTransaksiPage extends StatelessWidget {
   final TransaksiModel transaksi;
+  // diubah: Menerima PaketModel yang bisa null.
+  final PaketModel? paket;
 
-  const DetailTransaksiPage({super.key, required this.transaksi});
+  const DetailTransaksiPage({super.key, required this.transaksi, this.paket});
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +31,11 @@ class DetailTransaksiPage extends StatelessWidget {
             _buildInfoRow('Keterangan:', transaksi.keterangan),
             _buildInfoRow('Jumlah:', FormatUang.formatMataUang(transaksi.jumlah)),
             _buildInfoRow('Tipe:', transaksi.tipe.name),
-            if (transaksi.idPaket != null)
-              _buildInfoRow(
-                  'Paket:', NamaPaketWidget(idPaket: transaksi.idPaket!)),
+            // diubah: Menampilkan nama paket dari objek yang diterima.
+            if (paket != null)
+              _buildInfoRow('Paket:', paket!.nama)
+            else if (transaksi.idPaket != null)
+              _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
                 'Status Pembayaran:', transaksi.statusPembayaran.name),
             if (transaksi.tanggalMulai != null)

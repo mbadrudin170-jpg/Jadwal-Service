@@ -1,27 +1,24 @@
 // path: lib/shared/widget/nama_paket.dart
-// Widget ini berfungsi untuk menampilkan nama paket berdasarkan ID.
+// diubah: Widget didekopling dari sumber data. Sekarang hanya menerima Future.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
 
 class NamaPaketWidget extends StatelessWidget {
-  final String idPaket;
+  // diubah: Tidak lagi menerima idPaket, tapi langsung sebuah Future.
+  final Future<PaketModel?> paketFuture;
   final TextStyle? style;
 
-  const NamaPaketWidget({super.key, required this.idPaket, this.style});
+  const NamaPaketWidget({super.key, required this.paketFuture, this.style});
 
   @override
   Widget build(BuildContext context) {
-    final PaketOperasi paketOperasi = PaketOperasi();
-
-    // diubah: karena nama class yang benar adalah PaketModel
+    // diubah: Tidak ada lagi logika pengambilan data di sini.
     return FutureBuilder<PaketModel?>(
-      // diubah: Menggunakan fungsi baru getPaketById untuk efisiensi
-      future: paketOperasi.getPaketById(idPaket),
+      // diubah: Menggunakan future yang diberikan dari luar.
+      future: paketFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // diubah: Menampilkan indikator loading yang lebih halus.
           return const SizedBox(
             width: 12,
             height: 12,

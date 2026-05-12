@@ -1,17 +1,16 @@
 // path: lib/user/services/storage/local_storage_service.dart
 // diubah: Menggunakan toSqlite dan fromSqlite untuk konsistensi data.
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/debug/log.dart'; // diubah: menggunakan Log.dart untuk konsistensi
 
 class LocalStorageService {
   final SharedPreferences prefs;
 
   LocalStorageService({required this.prefs}) {
-    log('[Inisialisasi Service] ✅ LocalStorageService dibuat.',
-        name: 'local_storage_service.dart');
+    Log.info('[Inisialisasi Service] LocalStorageService dibuat.');
   }
 
   static const _kunciDaftarAkun = 'daftar_akun';
@@ -19,47 +18,43 @@ class LocalStorageService {
   static const _kunciUserId = 'userId';
 
   Future<void> simpanModeTema(ThemeMode mode) async {
-    log('[Simpan Tema] ⚙️ Menyimpan mode tema: $mode.',
-        name: 'local_storage_service.dart');
+    Log.info('[Simpan Tema] Menyimpan mode tema: $mode.');
     final userId = prefs.getString(_kunciUserId);
     if (userId == null) {
-      log('[Simpan Tema] 🤷 Pengguna belum login, penyimpanan mode tema dibatalkan.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Simpan Tema] Pengguna belum login, penyimpanan mode tema dibatalkan.');
       return;
     }
     await prefs.setString('$_kunciPrefixModeTema$userId', mode.toString());
-    log('[Simpan Tema] ✅ Mode tema berhasil disimpan untuk user ID: $userId.',
-        name: 'local_storage_service.dart');
+    Log.info(
+        '[Simpan Tema] Mode tema berhasil disimpan untuk user ID: $userId.');
   }
 
   Future<ThemeMode> ambilModeTema() async {
-    log('[Ambil Tema] ⚙️ Mengambil mode tema.',
-        name: 'local_storage_service.dart');
+    Log.info('[Ambil Tema] Mengambil mode tema.');
     final userId = prefs.getString(_kunciUserId);
     if (userId == null) {
-      log('[Ambil Tema] 🤷 Pengguna belum login, menggunakan ThemeMode.system.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Ambil Tema] Pengguna belum login, menggunakan ThemeMode.system.');
       return ThemeMode.system;
     }
 
     final modeString = prefs.getString('$_kunciPrefixModeTema$userId');
     if (modeString == null) {
-      log('[Ambil Tema] 🤷 Mode tema tidak ditemukan untuk user ID: $userId, menggunakan ThemeMode.system.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Ambil Tema] Mode tema tidak ditemukan untuk user ID: $userId, menggunakan ThemeMode.system.');
       return ThemeMode.system;
     }
 
     final themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == modeString,
         orElse: () => ThemeMode.system);
-    log('[Ambil Tema] ✅ Mode tema ($themeMode) berhasil diambil.',
-        name: 'local_storage_service.dart');
+    Log.info('[Ambil Tema] Mode tema ($themeMode) berhasil diambil.');
     return themeMode;
   }
 
   Future<void> simpanAkun(PelangganModel pelanggan) async {
-    log('[Simpan Akun] ⚙️ Menyimpan akun: ${pelanggan.nama}.',
-        name: 'local_storage_service.dart');
+    Log.info('[Simpan Akun] Menyimpan akun: ${pelanggan.nama}.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     List<dynamic> daftar = daftarJson != null ? jsonDecode(daftarJson) : [];
 
@@ -67,21 +62,18 @@ class LocalStorageService {
       // diubah: Menggunakan toSqlite() untuk konsistensi
       daftar.add(pelanggan.toSqlite());
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftar));
-      log('[Simpan Akun] ✅ Akun ${pelanggan.nama} berhasil disimpan.',
-          name: 'local_storage_service.dart');
+      Log.info('[Simpan Akun] Akun ${pelanggan.nama} berhasil disimpan.');
     } else {
-      log('[Simpan Akun] 🤷 Akun ${pelanggan.nama} sudah ada, tidak disimpan ulang.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Simpan Akun] Akun ${pelanggan.nama} sudah ada, tidak disimpan ulang.');
     }
   }
 
   Future<List<PelangganModel>> ambilDaftarAkun() async {
-    log('[Ambil Daftar Akun] ⚙️ Mengambil semua akun dari local storage.',
-        name: 'local_storage_service.dart');
+    Log.info('[Ambil Daftar Akun] Mengambil semua akun dari local storage.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     if (daftarJson == null) {
-      log('[Ambil Daftar Akun] 🤷 Tidak ada daftar akun ditemukan.',
-          name: 'local_storage_service.dart');
+      Log.warning('[Ambil Daftar Akun] Tidak ada daftar akun ditemukan.');
       return [];
     }
 
@@ -89,18 +81,16 @@ class LocalStorageService {
     // diubah: Menggunakan fromSqlite() untuk deserialisasi
     final listAkun =
         daftar.map((json) => PelangganModel.fromSqlite(json)).toList();
-    log('[Ambil Daftar Akun] ✅ Berhasil mengambil ${listAkun.length} akun.',
-        name: 'local_storage_service.dart');
+    Log.info('[Ambil Daftar Akun] Berhasil mengambil ${listAkun.length} akun.');
     return listAkun;
   }
 
   Future<void> hapusAkun(String userId) async {
-    log('[Hapus Akun] 🗑️ Menghapus akun dengan ID: $userId.',
-        name: 'local_storage_service.dart');
+    Log.info('[Hapus Akun] Menghapus akun dengan ID: $userId.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     if (daftarJson == null) {
-      log('[Hapus Akun] 🤷 Daftar akun tidak ditemukan, proses dibatalkan.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Hapus Akun] Daftar akun tidak ditemukan, proses dibatalkan.');
       return;
     }
 
@@ -111,50 +101,42 @@ class LocalStorageService {
 
     if (jumlahSebelum > jumlahSesudah) {
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftar));
-      log('[Hapus Akun] ✅ Akun dengan ID $userId berhasil dihapus.',
-          name: 'local_storage_service.dart');
+      Log.info('[Hapus Akun] Akun dengan ID $userId berhasil dihapus.');
     } else {
-      log('[Hapus Akun] 🤷 Akun dengan ID $userId tidak ditemukan untuk dihapus.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Hapus Akun] Akun dengan ID $userId tidak ditemukan untuk dihapus.');
     }
   }
 
   Future<void> hapusAkunSaatIni() async {
-    log('[Hapus Akun Saat Ini] 🗑️ Menghapus akun yang sedang login.',
-        name: 'local_storage_service.dart');
+    Log.info('[Hapus Akun Saat Ini] Menghapus akun yang sedang login.');
     final userId = prefs.getString(_kunciUserId);
     if (userId == null) {
-      log('[Hapus Akun Saat Ini] 🤷 Tidak ada pengguna yang login.',
-          name: 'local_storage_service.dart');
+      Log.warning('[Hapus Akun Saat Ini] Tidak ada pengguna yang login.');
       return;
     }
     await hapusAkun(userId);
     await prefs.remove(_kunciUserId); // Juga hapus userId yang menandakan login
-    log('[Hapus Akun Saat Ini] ✅ Akun yang login berhasil dihapus.',
-        name: 'local_storage_service.dart');
+    Log.info('[Hapus Akun Saat Ini] Akun yang login berhasil dihapus.');
   }
 
   Future<void> hapusTokenLogin() async {
-    log('[Logout] 🔑 Menghapus token login (userId).',
-        name: 'local_storage_service.dart');
+    Log.info('[Logout] Menghapus token login (userId).');
     await prefs.remove(_kunciUserId);
-    log('[Logout] ✅ Berhasil logout.', name: 'local_storage_service.dart');
+    Log.info('[Logout] Berhasil logout.');
   }
 
   Future<PelangganModel?> ambilAkunSaatIni() async {
-    log('[Ambil Akun Saat Ini] ⚙️ Mengambil akun yang sedang login.',
-        name: 'local_storage_service.dart');
+    Log.info('[Ambil Akun Saat Ini] Mengambil akun yang sedang login.');
     final userId = prefs.getString(_kunciUserId);
     if (userId == null) {
-      log('[Ambil Akun Saat Ini] 🤷 Tidak ada pengguna yang login.',
-          name: 'local_storage_service.dart');
+      Log.warning('[Ambil Akun Saat Ini] Tidak ada pengguna yang login.');
       return null;
     }
 
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     if (daftarJson == null) {
-      log('[Ambil Akun Saat Ini] 🤷 Daftar akun kosong.',
-          name: 'local_storage_service.dart');
+      Log.warning('[Ambil Akun Saat Ini] Daftar akun kosong.');
       return null;
     }
 
@@ -165,12 +147,12 @@ class LocalStorageService {
           .firstWhere((p) => p['id'] == userId);
       // diubah: Menggunakan fromSqlite() untuk deserialisasi
       final pelanggan = PelangganModel.fromSqlite(akunJson);
-      log('[Ambil Akun Saat Ini] ✅ Akun ${pelanggan.nama} berhasil diambil.',
-          name: 'local_storage_service.dart');
+      Log.info(
+          '[Ambil Akun Saat Ini] Akun ${pelanggan.nama} berhasil diambil.');
       return pelanggan;
     } catch (e) {
-      log('[Ambil Akun Saat Ini] 🤷 Akun dengan ID $userId tidak ditemukan dalam daftar.',
-          name: 'local_storage_service.dart');
+      Log.warning(
+          '[Ambil Akun Saat Ini] Akun dengan ID $userId tidak ditemukan dalam daftar.');
       return null;
     }
   }

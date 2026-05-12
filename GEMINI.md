@@ -574,7 +574,6 @@ Untuk debugging dan pemantauan yang efektif, AI akan menggunakan pustaka `dart:d
 ```
 import 'dart:developer' as developer;
 
-developer.log('This is a simple log message.');
 ```
 
 * **Pencatatan Terstruktur**: Untuk log yang lebih detail, fungsi `log` menerima beberapa parameter opsional:
@@ -593,11 +592,10 @@ import 'dart:developer' as developer;
 try {
   throw 'Something went wrong!';
 } catch (e, s) {
-  developer.log(
+  Log.error(
     'An error occurred',
-    name: 'my_app.network',
-    level: 900, // WARNING
-    error: e,
+    name: 'sync data',
+    e: e,
     st: s,
   );
 }
@@ -914,7 +912,6 @@ jaga agar apliaksi saya hemat ram atau setidaknya kita usahakan agar tidak terla
 simpan semua isi file ini ke memori AI.
 jangan ubah file GEMINI.md tanpa ada perintah langsung dari saya.
 kode `DropdownButtonFormField` agar jangan menggunakan `value` melainkan initialvalue.
-untuk info console gunakan `developer.log`.
 setelah selesai melakukan pekerjaan tolong buatkan dokumen mengenai file yang AI kerjakan, dan tulis dengan sangat detail kalau bisa semua nya kode harus diterangkan jangan ada yang terlewat.
 jaga agar data tidak kebenayakan null usahakan agar selalu mengidentifikasi datanya harus ada.
 untuk pemberian id wajib harus ada jangan null, saya ingin menggunakan dari UUID.
