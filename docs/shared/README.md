@@ -2,6 +2,23 @@
 
 Direktori `shared` berisi kode yang digunakan bersama oleh aplikasi admin dan aplikasi pengguna untuk memastikan konsistensi dan mengurangi duplikasi kode.
 
+## **Peningkatan Kualitas Kode & Logging (27 Juli 2024)**
+
+Fokus pada peningkatan keandalan dan visibilitas kode yang dibagikan.
+
+### `services/cek_koneksi_internet.dart`
+
+- **Peningkatan Logging**: Log yang sangat rinci ditambahkan untuk melacak setiap langkah dalam proses pemeriksaan koneksi internet. Ini mencakup log sebelum memanggil plugin `connectivity_plus`, hasil mentah yang diterima, dan logika percabangan untuk menentukan status online/offline. Tujuannya adalah untuk memudahkan diagnosis masalah konektivitas.
+- **Perbaikan Stabilitas**: Memperbaiki serangkaian error sintaks pada pemanggilan `Log.error`. Kesalahan ini menyebabkan aplikasi gagal kompilasi dan menyoroti kesalahpahaman tentang cara kerja fungsi log. Perbaikan ini memastikan bahwa error dan stack trace ditangani dengan benar, sesuai dengan definisi fungsi.
+
+### `debug/log.dart`
+
+- **Klarifikasi Penggunaan**: Proses perbaikan error di atas memberikan pemahaman yang lebih jelas tentang penggunaan `Log.warning` vs. `Log.error`:
+    - `Log.error`: Digunakan secara khusus untuk `try-catch` dan **memiliki** parameter bernama `e:` dan `st:` untuk menangani objek exception dan stack trace.
+    - `Log.warning`: Digunakan untuk kondisi tak terduga yang bukan merupakan exception (misalnya, data tidak ditemukan, status tidak valid). Fungsi ini **tidak** memiliki parameter `e:` atau `st:`; informasi tambahan harus dimasukkan ke dalam pesan string utama.
+
+---
+
 ## `operasi/` (Lapisan Operasi Data)
 
 Direktori ini adalah jantung dari manajemen data lokal aplikasi. Ini berisi kelas-kelas "operasi" yang bertanggung jawab untuk semua interaksi CRUD (Create, Read, Update, Delete) dengan database SQLite lokal. Setiap kelas operasi dikhususkan untuk satu model data (misalnya, `dompet_operasi.dart` untuk `DompetModel`).

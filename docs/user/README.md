@@ -1,5 +1,38 @@
 # Dokumentasi APK User
 
+## **Peningkatan Sistem Logging & Perbaikan Error (27 Juli 2024)**
+
+Melakukan pembaruan signifikan pada sistem logging di seluruh aplikasi pengguna dan memperbaiki serangkaian error sintaks yang muncul selama proses tersebut. Pekerjaan ini sangat penting untuk meningkatkan visibilitas alur kerja aplikasi dan mempermudah proses debugging di masa depan, sejalan dengan aturan ketat yang ditetapkan dalam `GEMINI.md`.
+
+### **Perubahan Utama**
+
+1.  **Penambahan Log Rinci pada Alur Startup**
+    *   **File yang Diperkaya**: `lib/user/app_user.dart`
+    *   **Detail**: Log yang sangat terperinci ditambahkan pada setiap langkah krusial saat aplikasi dimulai:
+        *   Proses `initState` dan pemanggilan `Future` untuk mengambil data pengaturan.
+        *   Setiap status koneksi dari `FutureBuilder` (`waiting`, `error`, `hasData`).
+        *   Analisis data pengaturan dari Firestore, termasuk pengecekan mode pemeliharaan.
+        *   Pembangunan UI utama aplikasi, termasuk inisialisasi `Provider`.
+    *   **Tujuan**: Memberikan jejak (trace) yang jelas jika terjadi kegagalan saat aplikasi pertama kali dibuka.
+
+2.  **Penambahan Log pada Interaksi Pengguna**
+    *   **File yang Diperkaya**: `lib/user/maintenance_page.dart`
+    *   **Detail**: Log ditambahkan untuk mencatat kapan halaman pemeliharaan ditampilkan dan ketika pengguna berinteraksi dengan tombol "Coba Lagi" atau "Keluar".
+    *   **Tujuan**: Memahami tindakan pengguna ketika mereka menghadapi halaman pemeliharaan.
+
+3.  **Perbaikan Error Sintaks pada Pemanggilan Log**
+    *   **File yang Diperbaiki**: `lib/user/app_user.dart`
+    *   **Masalah**: Terdeteksi error `undefined_named_parameter` karena pemanggilan `Log.warning` yang salah. Parameter `e:` untuk error coba dilewatkan, padahal `Log.warning` tidak mendukungnya.
+    *   **Solusi**: Memperbaiki pemanggilan dengan memasukkan detail error langsung ke dalam pesan string utama dari `Log.warning`, sesuai dengan definisi fungsinya.
+
+### **Manfaat & Hasil**
+
+*   **Debugging Lebih Mudah**: Dengan log yang detail di setiap titik kritis, melacak sumber masalah menjadi jauh lebih cepat dan efisien.
+*   **Kepatuhan Aturan**: Pembaruan ini memastikan aplikasi mematuhi aturan logging yang ketat seperti yang diamanatkan dalam dokumen `GEMINI.md`.
+*   **Stabilitas Kode**: Perbaikan pada sintaks pemanggilan `Log` menghilangkan error analisis dan menjadikan kode lebih stabil.
+
+---
+
 ## **Refactoring & Perbaikan Fitur Kritik dan Saran (26 Juli 2024)**
 
 Melakukan refactoring signifikan pada fitur "Kritik dan Saran" untuk meningkatkan kualitas kode, memisahkan logika dari tampilan, dan memperbaiki serangkaian error dan peringatan yang terdeteksi oleh `flutter analyze`.
