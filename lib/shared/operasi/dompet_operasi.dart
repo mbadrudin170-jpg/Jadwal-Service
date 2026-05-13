@@ -1,5 +1,5 @@
-// path: lib/data/operasi/dompet_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// path: lib/shared/operasi/dompet_operasi.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,11 +10,11 @@ class DompetOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> createDompet(DompetModel dompet, {bool dariServer = false}) async {
     Log.info('Memulai createDompet untuk dompet: ${dompet.toSqlite()}');
     try {
-      final data = dompet.copyWith(diperbarui: DateTime.now()).toSqlite();
+      final data = dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.sisipkan('dompet', data, dariServer: dariServer);
       Log.info('Berhasil membuat dompet dengan ID data: ${dompet.id}');
     } catch (e, st) {
@@ -78,11 +78,11 @@ class DompetOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> updateDompet(DompetModel dompet, {bool dariServer = false}) async {
     Log.info('Memulai updateDompet untuk dompet: ${dompet.toSqlite()}');
     try {
-      final data = dompet.copyWith(diperbarui: DateTime.now()).toSqlite();
+      final data = dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.perbarui('dompet', data, dompet.id, dariServer: dariServer);
       Log.info('Berhasil updateDompet untuk ID: ${dompet.id}.');
     } catch (e, st) {
@@ -95,7 +95,7 @@ class DompetOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diarsipkan`
   Future<void> arsipSemuaDompet({bool dariServer = false}) async {
     Log.info('Memulai proses pengarsipan untuk semua dompet.');
     try {
@@ -104,7 +104,7 @@ class DompetOperasi {
           'Ditemukan ${daftarDompetAktif.length} dompet aktif untuk diarsipkan.');
 
       for (final dompet in daftarDompetAktif) {
-        await updateDompet(dompet.copyWith(diarsipkan: DateTime.now()), dariServer: dariServer);
+        await updateDompet(dompet.copyWith(diarsipkan: DateTime.now().toUtc()), dariServer: dariServer);
       }
 
       Log.info('Proses pengarsipan semua dompet telah selesai.');
@@ -118,7 +118,6 @@ class DompetOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
   Future<void> hapusSemuaDompet({bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusSemuaDompet. Ini adalah operasi destruktif.',
@@ -136,11 +135,11 @@ class DompetOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
   Future<void> arsipkanSatuDompet(String id, {bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuDompet (soft delete) untuk ID: $id');
     try {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       final Map<String, dynamic> dataToUpdate = {
         'diarsipkan': now.toIso8601String(),
         'diperbarui': now.toIso8601String(),
@@ -229,7 +228,6 @@ class DompetOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
   Future<void> sisipkanAtauPerbaruiBatch(List<DompetModel> items, {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item dompet.',

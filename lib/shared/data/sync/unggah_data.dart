@@ -24,9 +24,9 @@ class LayananUnggahData {
     DatabaseHelper? dbHelper,
     FirebaseFirestore? firestore,
     SyncManager? syncManager,
-  }) : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-       _firestore = firestore ?? FirebaseFirestore.instance,
-       _syncManager = syncManager ?? SyncManager() {
+  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance,
+        _syncManager = syncManager ?? SyncManager() {
     Log.info(
       'LayananUnggahData instance dibuat. '
       'Menggunakan DatabaseHelper: ${_dbHelper.hashCode}, '

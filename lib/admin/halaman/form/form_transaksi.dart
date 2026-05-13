@@ -105,7 +105,8 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         _filterKategoriInternal();
 
         if (trx.idKategori.isNotEmpty) {
-          _selectedKategori = _kategoriFiltered.cast<KategoriModel?>().firstWhere(
+          _selectedKategori =
+              _kategoriFiltered.cast<KategoriModel?>().firstWhere(
             (k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
@@ -119,14 +120,14 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
             _selectedSubKategori = _selectedKategori!.subKategori
                 .cast<SubKategoriModel?>()
                 .firstWhere(
-                  (sk) => sk?.id == trx.idSubKategori,
-                  orElse: () {
-                    Log.warning(
-                      'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
-                    );
-                    return null;
-                  },
+              (sk) => sk?.id == trx.idSubKategori,
+              orElse: () {
+                Log.warning(
+                  'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
                 );
+                return null;
+              },
+            );
           }
         }
         Log.info('Selesai mempopulasikan form untuk mode Edit.');
@@ -156,9 +157,8 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         ? TipeKategori.pemasukan
         : TipeKategori.pengeluaran;
 
-    _kategoriFiltered = _kategoriList
-        .where((k) => k.tipe == tipeKategoriTarget)
-        .toList();
+    _kategoriFiltered =
+        _kategoriList.where((k) => k.tipe == tipeKategoriTarget).toList();
     Log.info(
       'Kategori difilter untuk tipe: ${_tipe.name}. Jumlah: $tipeSebelum -> ${_kategoriFiltered.length}.',
     );
@@ -238,12 +238,11 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         tanggal: _tanggal,
         tipe: _tipe,
         idDompet: _selectedDompet!.id,
-        idDompetTujuan: _tipe == TipeTransaksi.transfer
-            ? _selectedDompetTujuan?.id
-            : null,
+        idDompetTujuan:
+            _tipe == TipeTransaksi.transfer ? _selectedDompetTujuan?.id : null,
         idKategori: _selectedKategori?.id ?? '',
         idSubKategori: _selectedSubKategori?.id,
-        diperbarui: DateTime.now(),
+        // diperbarui: DateTime.now().toUtc(),
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');

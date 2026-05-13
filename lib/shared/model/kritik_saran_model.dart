@@ -42,25 +42,23 @@ class KritikSaranModel {
     return null;
   }
 
-  // diubah: Nama metode dari fromMap menjadi fromSqlite
   factory KritikSaranModel.fromSqlite(Map<String, dynamic> map) {
     return KritikSaranModel(
       id: map['id'] as String?,
       isi: map['isi'] ?? '',
       userId: map['userId'] ?? '',
-      tanggal: _parseDateTime(map['tanggal']) ?? DateTime.now(),
-      diperbarui: _parseDateTime(map['diperbarui']),
+      tanggal: _parseDateTime(map['tanggal']), // ← Pakai _parseDateTime
+      diperbarui: _parseDateTime(map['diperbarui']), // ← Pakai _parseDateTime
     );
   }
-
-  // diubah: Nama metode dari toMapForSqlite menjadi toSqlite
+  
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
       'isi': isi,
-      'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : null,
+      'tanggal': tanggal?.millisecondsSinceEpoch, // ← Konversi ke int
       'userId': userId,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // ← Konversi ke int
     };
   }
 

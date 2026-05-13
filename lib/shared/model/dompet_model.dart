@@ -90,12 +90,13 @@ class DompetModel {
   Map<String, dynamic> toFirebase() {
     // saya ubah ke toFirebase
     return {
+      'id': id,
       'namaDompet': namaDompet,
       'saldo': saldo,
       'diperbarui':
           FieldValue.serverTimestamp(), // Praktik terbaik untuk Firestore
       'isDeleted': isDeleted,
-      if (diarsipkan != null) 'diarsipkan': Timestamp.fromDate(diarsipkan!),
+      'diarsipkan': Timestamp.fromDate(diarsipkan!),
     };
   }
 }

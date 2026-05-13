@@ -12,14 +12,15 @@ class KritikSaranOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menambahkan `dariServer`
-  Future<void> createKritikSaran(KritikSaranModel kritikSaran, {bool dariServer = false}) async {
+  Future<void> createKritikSaran(KritikSaranModel kritikSaran,
+      {bool dariServer = false}) async {
     Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
     try {
-      final now = DateTime.now();
       final data = kritikSaran.toSqlite()
-        ..['diperbarui'] = now.toIso8601String();
+        ..['diperbarui'] = DateTime.now().toUtc();
 
-      await _operasiDasar.sisipkan('kritik_saran', data, dariServer: dariServer);
+      await _operasiDasar.sisipkan('kritik_saran', data,
+          dariServer: dariServer);
       Log.info('Berhasil membuat kritik_saran dengan ID: ${kritikSaran.id}');
     } catch (e, st) {
       Log.error('Gagal saat createKritikSaran', e: e, st: st);
@@ -110,8 +111,8 @@ class KritikSaranOperasi {
 
   // diubah: Menambahkan `dariServer`
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<KritikSaranModel> daftarKritikSaran, {bool dariServer = false}
-  ) async {
+      List<KritikSaranModel> daftarKritikSaran,
+      {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item kritik_saran.',
     );
@@ -123,7 +124,8 @@ class KritikSaranOperasi {
     }
     try {
       final data = daftarKritikSaran.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data, dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data,
+          dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item.',
       );
@@ -204,9 +206,8 @@ class KritikSaranOperasi {
   static Future<List<KritikSaranModel>> unduhDataDariFirebase() async {
     Log.info('Memulai pengunduhan data dari Firestore koleksi: kritik_saran.');
     try {
-      final QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('kritik_saran')
-          .get();
+      final QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('kritik_saran').get();
       final List<KritikSaranModel> data = snapshot.docs
           .map(
             (doc) => KritikSaranModel.fromFirebase(

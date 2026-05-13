@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/transaksi_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis yang kompleks.
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 
 import 'package:sqflite/sqflite.dart';
 
@@ -72,7 +72,7 @@ class TransaksiOperasi {
 
       await txn.update(
         'dompet',
-        {'saldo': totalSaldo},
+        {'saldo': totalSaldo, 'diperbarui': DateTime.now().toUtc().toIso8601String()},
         where: 'id = ?',
         whereArgs: [idDompet],
       );
@@ -90,14 +90,14 @@ class TransaksiOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<int> tambahTransaksi(TransaksiModel transaksi, {bool dariServer = false}) async {
     try {
       final id = await _operasiDasar.jalankanOperasiKompleks<int>((txn) async {
         Log.info(
           'Memulai transaksi database untuk tambahTransaksi - method: tambahTransaksi',
         );
-        final data = transaksi.copyWith(diperbarui: DateTime.now());
+        final data = transaksi.copyWith(diperbarui: DateTime.now().toUtc());
 
         final newId = await txn.insert(
           'transaksi',
@@ -280,7 +280,7 @@ class TransaksiOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> updateTransaksi(String id, TransaksiModel transaksiBaru, {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
@@ -295,7 +295,7 @@ class TransaksiOperasi {
 
         if (maps.isNotEmpty) {
           final transaksiLama = TransaksiModel.fromSqlite(maps.first);
-          final dataUpdate = transaksiBaru.copyWith(diperbarui: DateTime.now());
+          final dataUpdate = transaksiBaru.copyWith(diperbarui: DateTime.now().toUtc());
 
           await txn.update(
             'transaksi',
@@ -343,7 +343,7 @@ class TransaksiOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> arsipkanTransaksi(String id, {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
@@ -361,7 +361,7 @@ class TransaksiOperasi {
 
           await txn.update(
             'transaksi',
-            {'isDeleted': 1, 'diperbarui': DateTime.now().toIso8601String()},
+            {'isDeleted': 1, 'diperbarui': DateTime.now().toUtc().toIso8601String()},
             where: 'id = ?',
             whereArgs: [id],
           );
@@ -514,7 +514,7 @@ class TransaksiOperasi {
     return total;
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items, {bool dariServer = false}) async {
     Set<String> affectedWallets = {};
 
@@ -527,7 +527,7 @@ class TransaksiOperasi {
         for (var item in items) {
           batch.insert(
             'transaksi',
-            item.copyWith(diperbarui: DateTime.now()).toSqlite(),
+            item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
           affectedWallets.add(item.idDompet);

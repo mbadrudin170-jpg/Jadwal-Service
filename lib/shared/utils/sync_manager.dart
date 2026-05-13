@@ -33,4 +33,11 @@ class SyncManager {
     await PreferensiService.setTerakhirUnggah(time);
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
+
+  // ditambah: Fungsi untuk mereset timestamp sinkronisasi
+  Future<void> resetWaktuSinkronisasi() async {
+    Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
+    await PreferensiService.resetWaktuSinkronisasi();
+    Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
+  }
 }

@@ -5,6 +5,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
+import 'package:wifi/shared/utils/sync_manager.dart'; // ditambah: import SyncManager
 
 // Halaman untuk menampilkan konfigurasi pengaturan aplikasi.
 class PengaturanPage extends StatefulWidget {
@@ -69,6 +70,55 @@ class _PengaturanPageState extends State<PengaturanPage> {
       Log.info('Kembali dari Form Edit Pengaturan tanpa melakukan perubahan');
     } else {
       Log.info('Kembali dari Form Edit Pengaturan (hasil: $hasil)');
+    }
+  }
+
+  // ditambah: Fungsi untuk mereset waktu sinkronisasi
+  void _resetWaktuSinkronisasi() async {
+    Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
+    final bool? konfirmasi = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Reset'),
+        content: const Text(
+            'Anda yakin ingin mereset waktu sinkronisasi? Tindakan ini akan memaksa aplikasi untuk mengunggah semua data yang dimodifikasi dan mengunduh semua data dari server pada siklus sinkronisasi berikutnya.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (konfirmasi == true) {
+      Log.info('Pengguna mengonfirmasi reset. Memanggil SyncManager().resetWaktuSinkronisasi().');
+      try {
+        await SyncManager().resetWaktuSinkronisasi();
+        Log.info('Reset waktu sinkronisasi berhasil.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Waktu sinkronisasi berhasil di-reset.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e, st) {
+        Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal mereset waktu sinkronisasi: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -177,9 +227,21 @@ class _PengaturanPageState extends State<PengaturanPage> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        // ditambah: Tombol Reset Waktu Sinkronisasi
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.sync_problem),
+                          label: const Text('Reset Waktu Sinkronisasi'),
+                          onPressed: _resetWaktuSinkronisasi,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.edit),
                     label: const Text('Edit Pengaturan'),

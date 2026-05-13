@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/pelanggan_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,12 +10,12 @@ class PelangganOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> createPelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
     Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
     try {
       final pelangganUntukDisimpan = pelanggan.copyWith(
-        diperbarui: DateTime.now(),
+        diperbarui: DateTime.now().toUtc(),
       );
       final data = pelangganUntukDisimpan.toSqlite();
 
@@ -98,11 +98,11 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> updatePelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
     Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
     try {
-      final data = pelanggan.copyWith(diperbarui: DateTime.now()).toSqlite();
+      final data = pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
       await _operasiDasar.perbarui('pelanggan', data, pelanggan.id, dariServer: dariServer);
 
@@ -113,7 +113,7 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> deletePelanggan(String id, {bool softDelete = true, bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
@@ -124,7 +124,7 @@ class PelangganOperasi {
             'pelanggan',
             {
               'isDeleted': 1,
-              'diperbarui': DateTime.now().toIso8601String(),
+              'diperbarui': DateTime.now().toUtc().toIso8601String(),
             },
             id, dariServer: dariServer);
         Log.info('Berhasil melakukan soft delete pada pelanggan ID: $id.');
@@ -166,11 +166,11 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
   Future<void> arsipkanPelanggan(String id, {bool dariServer = false}) async {
     Log.info('Mengarsipkan pelanggan ID: $id');
     try {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       await _operasiDasar.perbarui(
           'pelanggan',
           {
@@ -186,7 +186,7 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items, {bool dariServer = false}) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
@@ -195,8 +195,7 @@ class PelangganOperasi {
     Log.info('Memulai batch insert/update untuk ${items.length} pelanggan.');
     try {
       final data = items.map((item) {
-        // Kita tidak perlu mengatur `diperbarui` di sini karena OperasiDasar akan menanganinya jika perlu.
-        return item.toSqlite();
+        return item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
       await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data, dariServer: dariServer);
