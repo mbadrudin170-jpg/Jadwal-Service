@@ -115,3 +115,16 @@ Direktori ini berisi widget-widget umum yang dapat digunakan kembali di berbagai
     - **Desain Modern**: Menggunakan `BoxDecoration` dengan `borderRadius` dan `boxShadow` untuk memberikan efek kartu yang "terangkat" (elevated).
     - **Praktik Terbaik**: Kode telah diperbarui untuk menggunakan `withAlpha()` daripada `withOpacity()` yang sudah usang, memastikan kualitas kode dan performa rendering yang lebih baik.
     - **Struktur Jelas**: Tata letak diatur dengan `Row` dan `Column` untuk menyajikan ikon dan teks poin secara berdampingan dengan rapi.
+
+### `nama_paket.dart` (Refactored)
+
+- **Tujuan**: Sebagai komponen UI yang bertanggung jawab untuk menampilkan nama sebuah paket langganan. Widget ini telah di-refactor secara signifikan untuk menjadi **data-source agnostic**, artinya ia tidak lagi peduli dari mana data paket berasal (apakah dari database SQLite lokal atau dari Firestore).
+
+- **Arsitektur Lama vs. Baru**:
+    - **Lama**: Widget ini menerima `idPaket` dan secara internal memanggil `PaketOperasi().getPaketById()` untuk mengambil data dari SQLite. Ini menciptakan keterikatan yang erat antara UI dan lapisan data lokal (admin).
+    - **Baru**: Widget ini sekarang menerima satu parameter `Future<PaketModel?> paketFuture`. Tanggung jawab untuk menyediakan `Future` ini (yaitu, melakukan query ke database) telah dipindahkan ke pemanggil widget.
+
+- **Fitur & Manfaat**:
+    - **Decoupling (Pemisahan Tanggung Jawab)**: UI (`NamaPaketWidget`) sekarang sepenuhnya terpisah dari logika pengambilan data. Ini adalah praktik arsitektur perangkat lunak yang baik, membuat kode lebih bersih, modular, dan mudah diuji.
+    - **Fleksibilitas**: Karena hanya mengharapkan `Future`, widget ini dapat digunakan di mana saja. Di aplikasi admin, kita bisa memberinya `Future` dari `PaketOperasi` (SQLite). Di aplikasi pengguna, kita bisa memberinya `Future` dari `FirestoreService` (Firestore). Ini menyelesaikan bug inti di mana widget mencoba mencari ID Firestore di database SQLite.
+    - **UI Asinkron yang Baik**: Menggunakan `FutureBuilder` secara internal untuk menangani siklus hidup `Future`: ia akan menampilkan `CircularProgressIndicator` saat data sedang dimuat, pesan error jika terjadi kegagalan, dan nama paket (`paket.nama`) jika berhasil.

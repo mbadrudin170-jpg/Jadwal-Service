@@ -1,5 +1,19 @@
 # Dokumentasi APK Admin
 
+## Perbaikan Tampilan Nama Paket di Daftar Pelanggan Aktif (25 Juli 2024)
+
+- **File**: `lib/admin/halaman/tab/pelanggan_aktif.dart`
+- **Masalah**: Setelah `NamaPaketWidget` di-refactor secara global untuk menerima `Future<PaketModel?>` (lihat dokumentasi `shared`), halaman "Pelanggan Aktif" di aplikasi admin mengalami error kompilasi karena masih memanggil widget tersebut dengan cara lama (menggunakan `idPaket`).
+
+- **Solusi**: Kode di dalam `ListView.builder` pada file ini telah diperbaiki untuk beradaptasi dengan `NamaPaketWidget` yang baru.
+    1.  **Instansiasi `PaketOperasi`**: Sebuah instance dari `PaketOperasi` (yang berinteraksi dengan database SQLite lokal) dibuat di dalam *state* widget.
+    2.  **Membuat `Future`**: Untuk setiap item pelanggan dalam daftar, sebuah `Future` dibuat dengan memanggil `_paketOperasi.getPaketById(pelanggan.idPaket)`.
+    3.  **Meneruskan `Future`**: `Future` yang baru dibuat ini kemudian diteruskan ke parameter `paketFuture` dari `NamaPaketWidget`.
+
+- **Hasil**: Error kompilasi teratasi. Halaman Pelanggan Aktif sekarang berfungsi kembali dengan benar, menampilkan nama paket dengan mengambil data dari sumber yang sesuai untuk lingkungan admin (database SQLite), sambil tetap menggunakan komponen UI `NamaPaketWidget` yang sama dengan aplikasi pengguna. Ini menunjukkan keberhasilan dari arsitektur komponen yang fleksibel dan dapat digunakan kembali.
+
+---
+
 ## Perbaikan Form Transaksi (Mode Edit)
 
 - **File**: `lib/admin/halaman/form/form_transaksi.dart`

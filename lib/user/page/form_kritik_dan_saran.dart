@@ -1,15 +1,14 @@
-// path: lib/form_kritik_dan_saran.dart
-// diubah: menghapus logika pembaruan pada koleksi pelanggan
+// path: lib/user/page/form_kritik_dan_saran.dart
+// diubah: Mengintegrasikan kelas KritikSaranOperasiUser untuk memisahkan logika UI dan data.
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart'; // diubah: path import diperbarui
 
 class FormKritikDanSaran extends StatefulWidget {
   final String userId;
-  final String?
-      kritikId; // ditambah: untuk menampung id kritik yang akan di-edit
-  final String?
-      initialValue; // ditambah: untuk menampung isi kritik yang akan di-edit
+  final String? kritikId;
+  final String? initialValue;
 
   const FormKritikDanSaran(
       {super.key, required this.userId, this.kritikId, this.initialValue});
@@ -22,6 +21,9 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
   final _kritikController = TextEditingController();
   bool _isLoading = false;
+
+  // ditambah: Membuat instance dari kelas operasi data.
+  final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser(); // diubah: nama kelas diperbarui
 
   @override
   void initState() {
@@ -39,22 +41,16 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
 
       try {
         if (widget.kritikId != null) {
-          // diubah: logika untuk edit kritik
-          // diubah: menggunakan `di_perbarui` untuk mencatat waktu update, bukan `tanggal`
-          await FirebaseFirestore.instance
-              .collection('kritik_saran')
-              .doc(widget.kritikId)
-              .update({
-            'isi': _kritikController.text,
-            'di_perbarui': FieldValue.serverTimestamp(),
-          });
+          await _operasi.perbaruiKritikSaran(
+            widget.kritikId!,
+            _kritikController.text,
+          );
         } else {
-          // Logika untuk menambah kritik baru
-          await FirebaseFirestore.instance.collection('kritik_saran').add({
-            'isi': _kritikController.text,
-            'tanggal': FieldValue.serverTimestamp(),
-            'userId': widget.userId,
-          });
+          final kritikBaru = KritikSaranModel(
+            isi: _kritikController.text,
+            userId: widget.userId,
+          );
+          await _operasi.buatKritikSaranBaru(kritikBaru);
         }
 
         if (mounted) {
@@ -72,7 +68,6 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
           e: e,
           st: s,
         );
-
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -101,9 +96,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.kritikId != null
-            ? 'Edit Masukan'
-            : 'Beri Masukan'), // diubah: judul appbar dinamis
+        title: Text(widget.kritikId != null ? 'Edit Masukan' : 'Beri Masukan'),
         centerTitle: true,
       ),
       body: Padding(
@@ -117,7 +110,6 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
                 controller: _kritikController,
                 decoration: const InputDecoration(
                   labelText: 'Tulis masukan Anda di sini',
-                  hintText: 'Contoh: Aplikasinya perlu fitur X...',
                   border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
@@ -132,21 +124,9 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isLoading ? null : _kirimKritik,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
                 child: _isLoading
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                    : Text(widget.kritikId != null
-                        ? 'Simpan Perubahan'
-                        : 'Kirim Masukan'), // diubah: teks tombol dinamis
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(widget.kritikId != null ? 'Simpan Perubahan' : 'Kirim Masukan'),
               ),
             ],
           ),

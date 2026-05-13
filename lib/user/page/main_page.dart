@@ -1,7 +1,7 @@
 // path: lib/user/page/main_page.dart
-// diubah: Memindahkan inisialisasi _pages ke dalam method build untuk mengatasi RangeError.
-import 'dart:developer';
+// diubah: Mengganti penggunaan log dari dart:developer menjadi Log.info dari shared/debug/log.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/page/riwayat_langganan_user.dart';
 import 'package:wifi/user/page/pengaturan_user.dart';
 import 'package:wifi/user/page/profil_page.dart';
@@ -24,31 +24,27 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    log(
+    Log.info(
       '[Inisialisasi State] ✅ Memulai inisialisasi state untuk MainPage dengan userId: ${widget.userId}.',
-      name: 'main_page.dart',
     );
   }
 
   void _onItemTapped(int index) {
-    log(
+    Log.info(
       '[Aksi Navigasi] ✅ Pengguna menekan item navigasi. Index baru: $index, Index sebelumnya: $_selectedIndex.',
-      name: 'main_page.dart',
     );
     setState(() {
       _selectedIndex = index;
-      log(
+      Log.info(
         '[Pembaruan State] ✅ State _selectedIndex berhasil diperbarui menjadi $index. UI akan di-rebuild.',
-        name: 'main_page.dart',
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    log(
+    Log.info(
       '[Pembangunan UI] ✅ Membangun UI untuk MainPage. Halaman yang ditampilkan saat ini adalah index: $_selectedIndex.',
-      name: 'main_page.dart',
     );
 
     final List<Widget> pages = [
@@ -59,7 +55,7 @@ class _MainPageState extends State<MainPage> {
         userId: widget.userId,
         localStorageService: widget.localStorageService,
       ),
-      PengaturanPage(
+      PengaturanPageUser(
         userId: widget.userId,
         localStorageService: widget.localStorageService,
       ),
@@ -90,9 +86,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void dispose() {
-    log(
+    Log.info(
       '[Pembersihan State] ✅ Membersihkan state MainPage saat widget dihancurkan.',
-      name: 'main_page.dart',
     );
     super.dispose();
   }

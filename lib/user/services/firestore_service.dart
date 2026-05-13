@@ -1,5 +1,5 @@
 // path: lib/user/services/firestore_service.dart
-// ditambah: Menambahkan fungsi ambilPaketModelById untuk mengambil data paket lengkap.
+// ditambah: Menambahkan fungsi simpanTokenFCM untuk menyimpan token notifikasi pengguna.
 
 import 'dart:async';
 
@@ -146,7 +146,6 @@ class FirestoreService {
     }
   }
 
-  // ditambah: Fungsi untuk mengambil data paket lengkap.
   Future<PaketModel?> ambilPaketModelById(String paketId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $paketId');
@@ -161,6 +160,27 @@ class FirestoreService {
     } catch (e, s) {
       Log.error('Error mengambil model paket: $e', e: e, st: s);
       return null;
+    }
+  }
+
+  // ditambah: Fungsi untuk menyimpan atau memperbarui FCM token pengguna.
+  Future<void> simpanTokenFCM(String userId, String? token) async {
+    if (token == null || token.isEmpty) {
+      Log.warning('Token FCM null atau kosong, proses penyimpanan dibatalkan.');
+      return;
+    }
+
+    Log.info('Menyimpan token FCM untuk pengguna: $userId');
+    try {
+      final docRef = _db.collection('pelanggan').doc(userId);
+      await docRef.update({'fcmToken': token});
+      Log.info('Token FCM berhasil disimpan ke Firestore.');
+    } catch (e, s) {
+      Log.error(
+        'Gagal menyimpan token FCM ke Firestore untuk pengguna $userId',
+        e: e,
+        st: s,
+      );
     }
   }
 }

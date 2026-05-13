@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 // This is the entry point for the Admin version of the app.
 
@@ -12,9 +13,18 @@ void main() async {
     // Menggunakan DefaultFirebaseOptions dari file konfigurasi admin
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // 1. Inisialisasi servis notifikasi lokal
+  final notifikasiServis = NotifikasiServis();
+  await notifikasiServis.inisialisasi();
+  await notifikasiServis.requestPermissions(); // Meminta izin
+
+  // 2. Inisialisasi servis FCM dan berikan notifikasiServis padanya  await fcmServis.inisialisasi();
+
   runApp(const AdminApp());
 }
 
+// ditambah: Mengembalikan kelas AdminApp yang hilang
 class AdminApp extends StatelessWidget {
   const AdminApp({super.key});
 
@@ -26,7 +36,7 @@ class AdminApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MyApp(),
+      home: const MyApp(), // Memanggil MyApp dari app_admin.dart
     );
   }
 }

@@ -32,9 +32,6 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           .getKritikSaran()
           .then((data) {
             Log.info('Berhasil memuat ${data.length} data kritik dan saran');
-            for (var item in data) {
-              Log.info('Data kritik/saran - ID: ${item.id}, User ID: ${item.userId}, Tanggal: ${item.tanggal}, Isi: ${item.isi.length > 50 ? '${item.isi.substring(0, 50)}...' : item.isi}');
-            }
             return data;
           })
           .catchError((e, st) {
@@ -49,8 +46,6 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
   }
 
   Future<void> _hapusKritikSaran(KritikSaranModel item) async {
-    Log.info('Menampilkan konfirmasi hapus untuk kritik/saran ID: ${item.id}, User ID: ${item.userId}');
-
     final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -60,17 +55,11 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              Log.info('Dialog hapus kritik/saran ID: ${item.id} - User memilih Batal');
-              Navigator.of(context).pop(false);
-            },
+            onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Batal'),
           ),
           TextButton(
-            onPressed: () {
-              Log.info('Dialog hapus kritik/saran ID: ${item.id} - User memilih Hapus');
-              Navigator.of(context).pop(true);
-            },
+            onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Hapus'),
           ),
@@ -80,10 +69,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
 
     if (konfirmasi == true && mounted) {
       try {
-        Log.info('Menjalankan operasi hapus kritik/saran ID: ${item.id} dari database');
         await _kritikSaranOperasi.hapusKritikSaran(item.id);
-
-        Log.info('Kritik/saran ID: ${item.id} berhasil dihapus dari database');
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -96,7 +82,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
         _loadKritikSaran();
       } catch (e, st) {
         Log.error(
-          'Gagal menghapus kritik/saran ID: ${item.id} dari database',
+          'Gagal menghapus kritik/saran ID: ${item.id}',
           e: e,
           st: st,
         );
@@ -114,7 +100,6 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun UI halaman Kritik & Saran');
     return Scaffold(
       appBar: AppBar(title: const Text('Kritik & Saran')),
       body: FutureBuilder<List<KritikSaranModel>>(
@@ -123,18 +108,11 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            Log.error(
-              'Terjadi error saat memuat data kritik dan saran di FutureBuilder',
-              e: snapshot.error,
-              st: snapshot.stackTrace,
-            );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            Log.info('Data kritik dan saran kosong, belum ada kritik dan saran');
             return const Center(child: Text('Belum ada kritik dan saran.'));
           } else {
             final listKritikSaran = snapshot.data!;
-            Log.info('Menampilkan ${listKritikSaran.length} item kritik dan saran dalam daftar');
             return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: listKritikSaran.length,
@@ -142,14 +120,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                 final item = listKritikSaran[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
                     onTap: () async {
-                      Log.info('Navigasi ke halaman Detail Kritik/Saran ID: ${item.id}');
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -157,50 +129,27 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                               DetailKritikSaranPage(id: item.id),
                         ),
                       );
-
                       if (result == true) {
-                        Log.info('Kembali dari halaman Detail Kritik/Saran dengan perubahan data, menyegarkan daftar');
                         _loadKritikSaran();
-                      } else {
-                        Log.info('Kembali dari halaman Detail Kritik/Saran tanpa perubahan data');
                       }
                     },
-                    onLongPress: () {
-                      Log.info('Long press pada kritik/saran ID: ${item.id}, menampilkan menu hapus');
-                      _hapusKritikSaran(item);
-                    },
+                    onLongPress: () => _hapusKritikSaran(item),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.person_pin,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              NamaDariIdWidget(
-                                userId: item.userId,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
+                          NamaDariIdWidget(userId: item.userId),
                           const SizedBox(height: 12),
-                          Text(
-                            item.isi,
-                            style: const TextStyle(fontSize: 15, height: 1.4),
-                          ),
+                          Text(item.isi),
                           const Divider(height: 24),
                           Align(
                             alignment: Alignment.centerRight,
+                            // diubah: Menambahkan null check untuk properti tanggal
                             child: Text(
-                              FormatTanggal.formatTanggalDanJam(item.tanggal),
+                              item.tanggal != null
+                                  ? FormatTanggal.formatTanggalDanJam(item.tanggal!)
+                                  : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],

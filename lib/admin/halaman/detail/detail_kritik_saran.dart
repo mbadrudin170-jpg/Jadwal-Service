@@ -1,4 +1,4 @@
-// path: lib/halaman/detail/detail_kritik_saran.dart
+// path: lib/admin/halaman/detail/detail_kritik_saran.dart
 
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
@@ -58,7 +58,6 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
     });
   }
 
-  /// Fungsi untuk menghapus kritik saran
   Future<void> _hapusKritikSaran() async {
     Log.info(
       'Menampilkan dialog konfirmasi penghapusan kritik dan saran.',
@@ -326,10 +325,13 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
+                        // diubah: Menambahkan null check untuk properti tanggal
                         child: Text(
-                          FormatTanggal.formatTanggalDanJam(
-                            kritikSaran.tanggal,
-                          ),
+                          kritikSaran.tanggal != null
+                              ? FormatTanggal.formatTanggalDanJam(
+                                  kritikSaran.tanggal!,
+                                )
+                              : 'Tanggal tidak tersedia',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],

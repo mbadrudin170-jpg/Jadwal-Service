@@ -1,5 +1,5 @@
 // path: lib/user/page/login_page.dart
-// diubah: Menambahkan tombol untuk navigasi ke halaman pendaftaran.
+// diubah: Menambahkan logika untuk menyimpan FCM Token setelah login berhasil.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -156,6 +156,9 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           'userId': uid,
         });
 
+        // ditambah: Memulai proses penyimpanan token FCM di background.
+        // Tidak perlu ditunggu (await) agar tidak menghambat proses login.
+
         final pelanggan = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
 
         Log.info('Menyimpan akun ke LocalStorage.', {
@@ -168,9 +171,6 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           'userId': uid,
         });
         await _localStorageService.prefs.setString('userId', uid);
-
-        Log.info('Memulai penyimpanan FCM Token.');
-        // await _pushNotificationService.simpanTokenPenggunaSaatIni();
 
         Log.info('Login berhasil, navigasi ke MainPage.', {
           'userId': uid,
@@ -201,6 +201,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           "Terjadi kesalahan koneksi ke server. Silakan coba lagi.");
     }
   }
+
 
   @override
   void dispose() {

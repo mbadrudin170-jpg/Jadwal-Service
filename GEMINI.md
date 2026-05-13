@@ -792,13 +792,6 @@ Ketika diminta, AI akan memfasilitasi pembuatan dan pelaksanaan tes, memastikan 
 
 Alur kerja AI bersifat berulang, transparan, dan responsif terhadap masukan pengguna.
 
-* **Pembuatan Rencana & Manajemen Cetak Biru:** Setiap kali pengguna meminta perubahan, AI pertama-tama akan membuat gambaran umum rencana yang jelas dan daftar langkah-langkah yang dapat ditindaklanjuti. Rencana ini kemudian akan digunakan untuk **membuat atau memperbarui file blueprint.md** di direktori root proyek (atau folder docs yang ditunjuk jika ditentukan).
-  * File blueprint.md akan berfungsi sebagai satu-satunya sumber kebenaran, yang berisi:
-    * Bagian dengan gambaran ringkas tentang tujuan dan kemampuan.
-    * Bagian dengan garis besar terperinci yang mendokumentasikan proyek, termasuk semua *gaya, desain, dan fitur* yang diterapkan dalam aplikasi dari versi awal hingga versi saat ini.
-    * Bagian dengan bagian terperinci yang menguraikan rencana dan langkah-langkah untuk perubahan yang diminta *saat ini*.
-    *
-  * Sebelum memulai perubahan baru atau di awal sesi obrolan baru, AI akan merujuk ke blueprint.md untuk memastikan konteks dan pemahaman penuh tentang status aplikasi saat ini dan fitur yang ada. Ini memastikan konsistensi dan menghindari modifikasi yang berlebihan atau bertentangan.
 * **Pemahaman Perintah:** AI akan menafsirkan perintah pengguna untuk memahami perubahan yang diinginkan, fitur baru, perbaikan bug, atau pertanyaan. Ini akan mengajukan pertanyaan klarifikasi jika perintahnya ambigu.
 * **Respons Kontekstual:** AI akan memberikan respons percakapan dan kontekstual, menjelaskan tindakan, kemajuan, dan masalah apa pun yang dihadapi. Ini akan merangkum perubahan yang dibuat.
 * **Alur Pemeriksaan Kesalahan:**
@@ -839,162 +832,727 @@ Saat diminta untuk Firebase, tambahkan konfigurasi server berikut ke .idx/mcp.js
 
 -------------------
 
-# **Aturan lainnya untuk AI**
+# Cara Menggunakan WidgetsBinding di Proyek Flutter
 
-1. Tolong selalu menggunakan bahasa indonesia.
-4. jangan sampai liar. 
-2. jangan melawan perintah saya.
+Baik, saya akan menjelaskan cara menggunakan `WidgetsBinding` dan `WidgetsFlutterBinding` di proyek Flutter Anda dengan bahasa yang sederhana dan praktis.
 
-## performa
-- selalu gunakan  if (!mounted) return; dan dispos(),
-## Dokumen
-- Sebelum memulai tugas baru, selalu baca file `docs/user/README.md,docs/shared/README.md atau docs/admin/README.md` terlebih dahulu untuk memahami konteks dan status proyek.
-- Selalu buat keterangan fitur dan fungsi yang ada kenapa semua file ini dibuat tapi tulis keterangannya per file ke dalam file blueprint.md dan catat error dan solusinya, lalu jangan pernah hapus dokumen mengenai error dan solusi itu soalnya untuk pedoman saya.
-- setelah melakukan pekerjaan buatkan dokumen nya ke docs/user/README.md,docs/shared/README.md atau docs/admin/README.md dan satukan jangan hapus dokumen yang ada.
-- 
+---
 
+## 1. Inisialisasi Binding (WAJIB di main.dart)
 
-## Kode 
--  selalu jaga konsistensi proyek dan kerapian proyek.
--  tambahkan path di setiap file yang dibungkus dengan komentar contoh // path : lib/main.dart path ini harus sesuai.
-- jaga agar kode tidak ada yang error dengan menjalankan flutter analyze atau analyze project.
-- kalau perbaiki kode harus tulis semua jangan sepotong sepotong.
-- jangan menyimpang dari prompt user.
-- untuk import selalu gunakan import 'package:wifi/contooh_file.dart';
+Sebelum menjalankan aplikasi, Anda harus memastikan binding sudah siap. Ini **WAJIB** dilakukan jika Anda menggunakan plugin atau menjalankan kode asynchronous sebelum `runApp()`.
 
+**Lokasi**: `lib/main.dart`
 
+```dart
+// path: lib/main.dart
+import 'package:flutter/material.dart';
+import 'package:wifi/app.dart';
 
-## Log
-1. Setiap file disemua titik kode baik itu logika ataupun UI harus disisipkan log jangan ada yang terlewat // path: lib/shared/debug/log.dart.
-2. antara lain Log.info, Log.warning dan Log.error.
-3. Log ini harus sangat rinci sekali kalau bisa perbanyak pesan $...
+void main() {
+  // ditambah: Memastikan semua binding Flutter sudah diinisialisasi
+  // sebelum menjalankan aplikasi. Ini diperlukan agar plugin seperti
+  // SharedPreferences, Firebase, dan Google Mobile Ads bisa bekerja.
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Setelah binding siap, baru jalankan aplikasi
+  runApp(const WifiApp());
+}
+```
 
-## Build Apk
-1. Untuk Build harus mengikuti langkah langkah berikut
-2. 
+**Kapan `ensureInitialized()` diperlukan?**
+- Saat menggunakan `SharedPreferences` sebelum `runApp()`
+- Saat menginisialisasi Firebase
+- Saat menginisialisasi Google Mobile Ads
+- Saat menjalankan kode asynchronous di `main()` sebelum `runApp()`
 
-# **Panduan Pengembangan AI untuk Flutter di Firebase Studio**
+---
 
-Panduan ini mendefinisikan prinsip-prinsip operasional dan kemampuan agen AI (misalnya, Gemini) yang berinteraksi dengan proyek Flutter di dalam lingkungan Firebase Studio. Tujuannya adalah untuk memungkinkan alur kerja desain dan pengembangan aplikasi yang efisien, otomatis, dan tahan terhadap kesalahan.
+## 2. Menggunakan WidgetsBindingObserver (Mendeteksi Lifecycle Aplikasi)
 
-data yang disimpan ke firebase tipe nya harus , diarsipkan : Timestamp, diPerbarui: Timestamp, isDeleted : boolean, id : String, saldo : int, tipe : String, poinYangDihasilkan : int,poinYangDigunakan: int, statusPembayaran : String, tanggal :Timestam, jumlah : int, keterangan: String, isPublic: boolean, poinHadiah : int, poinPenukaran: int, wajibUpdate: boolean, tautanUnduhan : map, nomorBuildTerbaru: map, youtubeTutorial : string, 
-AI jangan ubah nama atau deskripsi test yang boleh ubah hanya user saja.
-AI harus buatkan pengujian yang sama persis dengan apa yang dekskripsi mau aatau inginkan.
-AI dilarang menghapus test yang ada.
-kelompokkan test berdasarkan groupnya dalam file tersebut.
-dan jika ada kode yang masih bisa di test kasih tahu saya.
-untuk logika AI wajib memberitahukan saya bahwa harus membuatkan kode testnya.
-selalu gunakan bahasa indonesia untuk penamaan baik itu nama fungsi, variabel, parameter, nama file dan saat berbincang dengan saya.
-selalu tambahkan path file nya dengan berupa komentar di bagian paling atas pada isi sebuah file.
-sebelum mengerjakan proyek AI di harapkan selalu baca file blueprint.md untuk mengetahui alur kerja proyek saya.
-ketika AI selesai mengerjakan tugas pada file yang di kerjakan tolong tambah atau edit keterangan fungsi dan fitur apa yang ada di file yang AI kerjakan tadi dan tulis keterangan itu per file agar mudah saya ketahui.
+`WidgetsBindingObserver` berguna untuk mengetahui saat aplikasi masuk ke background, kembali ke foreground, atau saat layar berubah.
 
-selalu jaga konsistensi dan kejelasan dalam proyek saya.
-harus menambahkan komentar di paling atas pada sebuah isi file dengan berikut // path : lib/main.dart.
-setelah melakukan pekerjaan tolong kode yang kamu kerjakan pada sebuah file beri keterangan komentar di samping atau di atasnya dengan struktur begini dihapus: karena apa diubah/ditambah : karena apa juga.
-setelah melakukan pekerjaan tolong jalankan analyze_files agar kode sudah benar jangan takutnya ada yang masih error atau warning.
-sebelum melakukan pekerjaan tolong berikan saya penjelasan kenapa AI akan melakukan pekerjaan ini agar saya bisa konfirmasi agar sesuai dengan saya inginkan contoh setelah kamu menjelaskan apa yang akan AI kerjakan saya akan konfirmasi misal setuju,oke,ok,ya,yes itu tandanya AI boleh mengerjakannya dan jika saya tulis jangan, tidak, nggk,nggak berarti AI jangan mengerjakan nya.
-dan tambahkan keterangan di setiap fungsi agar saya tahu kenapa kode itu dibuat dan taruh di atas sebuah fungsi contoh // untuk menavigasi ke halaman A.
-kalau bisa sedikit tambahkan komentar pada isi file di  beberapa kode di dalamnya agar saya tidak terlalu bingung kenapa kode itu dibuat
-jika pengguna perintahkan clean maka AI harus jalankan flutter clean && flutter pub get diterminal.
-diharapkan AI jangan berasumsi liar agar semua file saling sinkron.
-"Setiap kali membuat fungsi yang melibatkan I/O, network request, atau database, selalu gunakan pola Asynchronous (async/await) dan bungkus hasilnya dalam objek Future. Hindari penggunaan .then() berantai."
-Format Pembaruan blueprint.md: Setelah pengerjaan file selesai, edit bagian dokumentasi file di blueprint.md dan kelompokkan berdasarkan foldernya dengan format berikut: untuk rules harus lebih rinci agar rekan kerja paham dengan rules ini dan tidak kebingungan. 
-File: lib/path/nama_file.dart
-Fitur: [Nama Fitur]
-tujuan file ini dibuat: [untuk meniniasliasi data]
-Kode A :[untuk memanggil fungsi B]
-kode B : [untuk menampilkan data C]
-kode c dan seterusnya semua yang ada di file ini.
-konfirmasi.
-gunakan `if (!mounted) return;` agar jika gagal nggak error.
-jaga agar apliaksi saya hemat ram atau setidaknya kita usahakan agar tidak terlalu memakan ram perangkat user.
-simpan semua isi file ini ke memori AI.
-jangan ubah file GEMINI.md tanpa ada perintah langsung dari saya.
-kode `DropdownButtonFormField` agar jangan menggunakan `value` melainkan initialvalue.
-setelah selesai melakukan pekerjaan tolong buatkan dokumen mengenai file yang AI kerjakan, dan tulis dengan sangat detail kalau bisa semua nya kode harus diterangkan jangan ada yang terlewat.
-jaga agar data tidak kebenayakan null usahakan agar selalu mengidentifikasi datanya harus ada.
-untuk pemberian id wajib harus ada jangan null, saya ingin menggunakan dari UUID.
-selalu utamakan performa tapi jangan korbankan fungsi.
+### Contoh Penerapan di Service/Widget:
 
-sebisa mungkin data kasih data default nya jangan nullable terutama di file model.
-kalau mau memperbarui fil blueprint.md tolong jalankan perintah `ls -R lib/` dan tulis strukturnya ke file blueprint.md.
-Gunakan get() untuk data statis.
-Gunakan snapshots() hanya jika benar-benar membutuhkan realtime update.
-Aktifkan Persistence: Gunakan persistenceEnabled: true.
-tambahkan catatan mengenai pekerjaan kita di file blueprint.md jangan hapus catatan ini biar saya saja soalnya untuk kebutuhan analysa dan kelompokkan catatan ini berdasarkan versi di pubscl.yml tulisnya harus per file.
-demi menjaga performa ui harus menggunakan const sebanyak mungkin.
-berhubungan dengan firebase soalnya suka repot.
-Hindari late yang Tidak Perlu.
-untuk test yang bergantung ke sqlite gunakan Kelas palsu (mock) untuk DatabaseHelper yang menggunakan database di memori.
-ls -R test/ lin/ untuk mengetahui file mana yang belum di buatkan file testnya.
-gunakan mcp yang sudah ada untuk mempermudah pekerjaan seperti :   "enabledTools": {
-    "dart": [
-      "read_package_uris",
-      "launch_app",
-      "stop_app",
-      "list_devices",
-      "get_app_logs",
-      "list_running_apps",
-      "connect_dart_tooling_daemon",
-      "get_runtime_errors",
-      "get_active_location",
-      "hot_restart",
-      "hot_reload",
-      "get_widget_tree",
-      "get_selected_widget",
-      "set_widget_selection_mode",
-      "flutter_driver",
-      "pub_dev_search",
-      "remove_roots",
-      "add_roots",
-      "dart_fix",
-      "dart_format",
-      "run_tests",
-      "create_project",
-      "pub",
-      "resolve_workspace_symbol",
-      "signature_help",
-      "hover",
-      "analyze_files"
-    ],
-    "firebase": []
+```dart
+// path: lib/user/services/storage/local_storage_service.dart
+// diubah: Menambahkan WidgetsBindingObserver untuk menangani lifecycle aplikasi
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+class LocalStorageService extends WidgetsBindingObserver {
+  final SharedPreferences prefs;
+
+  LocalStorageService({required this.prefs}) {
+    // ditambah: Mendaftarkan diri sebagai observer lifecycle
+    WidgetsBinding.instance.addObserver(this);
+    Log.info('[Inisialisasi Service] LocalStorageService dibuat dan terdaftar sebagai observer.');
   }
 
+  // ... kode lainnya ...
 
-untuk cek error gunakan `analyze_files`.
-bautkan alur kerja nya diurutkan sesuai aturannya.
-# ATURAN LOGGING VERSI BERDASARKAN PUBSPEC
+  // ditambah: Method ini dipanggil saat state aplikasi berubah
+  // (misal: resumed, paused, inactive, detached)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // Aplikasi kembali ke foreground (aktif)
+        Log.info('[Lifecycle] Aplikasi resumed - kembali aktif.');
+        break;
+      case AppLifecycleState.paused:
+        // Aplikasi masuk ke background (tidak terlihat)
+        Log.info('[Lifecycle] Aplikasi paused - masuk background.');
+        break;
+      case AppLifecycleState.inactive:
+        // Aplikasi dalam transisi (misal: ada panggilan telepon masuk)
+        Log.info('[Lifecycle] Aplikasi inactive - transisi.');
+        break;
+      case AppLifecycleState.detached:
+        // Aplikasi akan di-terminate
+        Log.info('[Lifecycle] Aplikasi detached - akan ditutup.');
+        break;
+    }
+  }
 
-## SUMBER VERSI
-- AI WAJIB mengambil versi dari file pubspec.yaml
-- Field yang digunakan: version
-- Contoh: version: 1.0.3+4
-
-## FORMAT VERSI LOG
-- Gunakan hanya bagian sebelum tanda +
-- Contoh:
-  - pubspec: 1.0.3+4
-  - log: v1.0.3
-
-## LARANGAN
-- Dilarang membuat versi sendiri
-- Dilarang menebak versi
-- Dilarang menggunakan versi yang tidak sesuai pubspec.yaml
+  // ditambah: Method untuk membersihkan observer saat service tidak digunakan
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    Log.info('[Dispose] LocalStorageService dihapus dari observer.');
+  }
+}
+```
 
 ---
 
-## PROSES WAJIB SEBELUM LOG
+## 3. Menggunakan didChangeMetrics (Mendeteksi Perubahan Ukuran Layar)
 
-1. AI harus membaca pubspec.yaml
-2. Ambil nilai version
-3. Ekstrak versi utama (sebelum +)
-4. Gunakan sebagai versi log
+Berguna saat pengguna memutar layar (rotasi) atau mengubah ukuran jendela.
+
+```dart
+// path: lib/widget/contoh_widget.dart
+class ContohWidget extends StatefulWidget {
+  const ContohWidget({super.key});
+
+  @override
+  State<ContohWidget> createState() => _ContohWidgetState();
+}
+
+class _ContohWidgetState extends State<ContohWidget> with WidgetsBindingObserver {
+  late Size ukuranLayar;
+
+  @override
+  void initState() {
+    super.initState();
+    // ditambah: Mendaftarkan observer
+    WidgetsBinding.instance.addObserver(this);
+    // Ambil ukuran layar saat ini
+    ukuranLayar = View.of(context).physicalSize;
+  }
+
+  // ditambah: Dipanggil saat ukuran layar berubah (rotasi)
+  @override
+  void didChangeMetrics() {
+    if (!mounted) return;
+    setState(() {
+      ukuranLayar = View.of(context).physicalSize;
+    });
+    Log.info('[Metrics] Ukuran layar berubah: $ukuranLayar');
+  }
+
+  @override
+  void dispose() {
+    // ditambah: Hapus observer untuk mencegah memory leak
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Ukuran layar: $ukuranLayar');
+  }
+}
+```
 
 ---
 
-## FORMAT WAJIB LOG
+## 4. Menggunakan addPostFrameCallback (Menjalankan Kode Setelah Frame Selesai)
 
+Berguna untuk menjalankan kode setelah widget selesai dibangun.
+
+```dart
+// path: lib/widget/halaman_utama.dart
+class HalamanUtama extends StatefulWidget {
+  const HalamanUtama({super.key});
+
+  @override
+  State<HalamanUtama> createState() => _HalamanUtamaState();
+}
+
+class _HalamanUtamaState extends State<HalamanUtama> {
+  @override
+  void initState() {
+    super.initState();
+    
+    // ditambah: Menjalankan kode setelah frame pertama selesai dibangun
+    // Ini berguna untuk menampilkan dialog, snackbar, atau navigasi
+    // yang memerlukan context yang sudah siap.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // Contoh: Menampilkan dialog selamat datang
+      _tampilkanDialogSelamatDatang();
+    });
+  }
+
+  // Fungsi untuk menampilkan dialog selamat datang
+  void _tampilkanDialogSelamatDatang() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Selamat Datang'),
+        content: const Text('Aplikasi WiFi siap digunakan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Halaman Utama')),
+    );
+  }
+}
+```
+
+---
+
+## 5. Menggunakan firstFrameRasterized / waitUntilFirstFrameRasterized
+
+Berguna untuk menunggu frame pertama selesai dirender (biasanya untuk splash screen).
+
+```dart
+// path: lib/main.dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Menampilkan splash screen
+  runApp(const SplashScreen());
+  
+  // ditambah: Menunggu frame pertama selesai dirender
+  // Ini memastikan splash screen terlihat sebelum kita melakukan
+  // inisialisasi berat seperti loading data dari Firebase
+  await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+  
+  // Setelah splash screen terlihat, lakukan inisialisasi
+  await inisialisasiAplikasi();
+  
+  // Ganti ke aplikasi utama
+  runApp(const WifiApp());
+}
+
+Future<void> inisialisasiAplikasi() async {
+  Log.info('[Main] Memulai inisialisasi aplikasi.');
+  // Load data dari SharedPreferences, Firebase, dll.
+  await Future.delayed(const Duration(seconds: 2));
+  Log.info('[Main] Inisialisasi selesai.');
+}
+```
+
+---
+
+## 6. Menggunakan handlePopRoute (Menangani Tombol Back)
+
+Biasanya ditangani otomatis oleh `Navigator`, tapi bisa di-override.
+
+```dart
+// path: lib/app.dart
+class WifiApp extends StatelessWidget {
+  const WifiApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WiFi App',
+      home: const HalamanUtama(),
+      // ditambah: Menangani tombol back secara manual
+      // Ini berguna jika Anda ingin konfirmasi sebelum keluar aplikasi
+      builder: (context, child) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            // Konfirmasi sebelum keluar
+            final keluar = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Konfirmasi'),
+                content: const Text('Apakah Anda yakin ingin keluar?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Tidak'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Ya'),
+                  ),
+                ],
+              ),
+            );
+            if (keluar == true && context.mounted) {
+              SystemNavigator.pop();
+            }
+          },
+          child: child!,
+        );
+      },
+    );
+  }
+}
+```
+
+---
+
+## Ringkasan
+# Cara Menggunakan WidgetsBinding di Proyek Flutter
+
+Baik, saya akan menjelaskan cara menggunakan `WidgetsBinding` dan `WidgetsFlutterBinding` di proyek Flutter Anda dengan bahasa yang sederhana dan praktis.
+
+---
+
+## 1. Inisialisasi Binding (WAJIB di main.dart)
+
+Sebelum menjalankan aplikasi, Anda harus memastikan binding sudah siap. Ini **WAJIB** dilakukan jika Anda menggunakan plugin atau menjalankan kode asynchronous sebelum `runApp()`.
+
+**Lokasi**: `lib/main.dart`
+
+```dart
+// path: lib/main.dart
+import 'package:flutter/material.dart';
+import 'package:wifi/app.dart';
+
+void main() {
+  // ditambah: Memastikan semua binding Flutter sudah diinisialisasi
+  // sebelum menjalankan aplikasi. Ini diperlukan agar plugin seperti
+  // SharedPreferences, Firebase, dan Google Mobile Ads bisa bekerja.
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Setelah binding siap, baru jalankan aplikasi
+  runApp(const WifiApp());
+}
+```
+
+**Kapan `ensureInitialized()` diperlukan?**
+- Saat menggunakan `SharedPreferences` sebelum `runApp()`
+- Saat menginisialisasi Firebase
+- Saat menginisialisasi Google Mobile Ads
+- Saat menjalankan kode asynchronous di `main()` sebelum `runApp()`
+
+---
+
+## 2. Menggunakan WidgetsBindingObserver (Mendeteksi Lifecycle Aplikasi)
+
+`WidgetsBindingObserver` berguna untuk mengetahui saat aplikasi masuk ke background, kembali ke foreground, atau saat layar berubah.
+
+### Contoh Penerapan di Service/Widget:
+
+```dart
+// path: lib/user/services/storage/local_storage_service.dart
+// diubah: Menambahkan WidgetsBindingObserver untuk menangani lifecycle aplikasi
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+
+class LocalStorageService extends WidgetsBindingObserver {
+  final SharedPreferences prefs;
+
+  LocalStorageService({required this.prefs}) {
+    // ditambah: Mendaftarkan diri sebagai observer lifecycle
+    WidgetsBinding.instance.addObserver(this);
+    Log.info('[Inisialisasi Service] LocalStorageService dibuat dan terdaftar sebagai observer.');
+  }
+
+  // ... kode lainnya ...
+
+  // ditambah: Method ini dipanggil saat state aplikasi berubah
+  // (misal: resumed, paused, inactive, detached)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // Aplikasi kembali ke foreground (aktif)
+        Log.info('[Lifecycle] Aplikasi resumed - kembali aktif.');
+        break;
+      case AppLifecycleState.paused:
+        // Aplikasi masuk ke background (tidak terlihat)
+        Log.info('[Lifecycle] Aplikasi paused - masuk background.');
+        break;
+      case AppLifecycleState.inactive:
+        // Aplikasi dalam transisi (misal: ada panggilan telepon masuk)
+        Log.info('[Lifecycle] Aplikasi inactive - transisi.');
+        break;
+      case AppLifecycleState.detached:
+        // Aplikasi akan di-terminate
+        Log.info('[Lifecycle] Aplikasi detached - akan ditutup.');
+        break;
+    }
+  }
+
+  // ditambah: Method untuk membersihkan observer saat service tidak digunakan
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    Log.info('[Dispose] LocalStorageService dihapus dari observer.');
+  }
+}
+```
+
+---
+
+## 3. Menggunakan didChangeMetrics (Mendeteksi Perubahan Ukuran Layar)
+
+Berguna saat pengguna memutar layar (rotasi) atau mengubah ukuran jendela.
+
+```dart
+// path: lib/widget/contoh_widget.dart
+class ContohWidget extends StatefulWidget {
+  const ContohWidget({super.key});
+
+  @override
+  State<ContohWidget> createState() => _ContohWidgetState();
+}
+
+class _ContohWidgetState extends State<ContohWidget> with WidgetsBindingObserver {
+  late Size ukuranLayar;
+
+  @override
+  void initState() {
+    super.initState();
+    // ditambah: Mendaftarkan observer
+    WidgetsBinding.instance.addObserver(this);
+    // Ambil ukuran layar saat ini
+    ukuranLayar = View.of(context).physicalSize;
+  }
+
+  // ditambah: Dipanggil saat ukuran layar berubah (rotasi)
+  @override
+  void didChangeMetrics() {
+    if (!mounted) return;
+    setState(() {
+      ukuranLayar = View.of(context).physicalSize;
+    });
+    Log.info('[Metrics] Ukuran layar berubah: $ukuranLayar');
+  }
+
+  @override
+  void dispose() {
+    // ditambah: Hapus observer untuk mencegah memory leak
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Ukuran layar: $ukuranLayar');
+  }
+}
+```
+
+---
+
+## 4. Menggunakan addPostFrameCallback (Menjalankan Kode Setelah Frame Selesai)
+
+Berguna untuk menjalankan kode setelah widget selesai dibangun.
+
+```dart
+// path: lib/widget/halaman_utama.dart
+class HalamanUtama extends StatefulWidget {
+  const HalamanUtama({super.key});
+
+  @override
+  State<HalamanUtama> createState() => _HalamanUtamaState();
+}
+
+class _HalamanUtamaState extends State<HalamanUtama> {
+  @override
+  void initState() {
+    super.initState();
+    
+    // ditambah: Menjalankan kode setelah frame pertama selesai dibangun
+    // Ini berguna untuk menampilkan dialog, snackbar, atau navigasi
+    // yang memerlukan context yang sudah siap.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // Contoh: Menampilkan dialog selamat datang
+      _tampilkanDialogSelamatDatang();
+    });
+  }
+
+  // Fungsi untuk menampilkan dialog selamat datang
+  void _tampilkanDialogSelamatDatang() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Selamat Datang'),
+        content: const Text('Aplikasi WiFi siap digunakan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Halaman Utama')),
+    );
+  }
+}
+```
+
+---
+
+## 5. Menggunakan firstFrameRasterized / waitUntilFirstFrameRasterized
+
+Berguna untuk menunggu frame pertama selesai dirender (biasanya untuk splash screen).
+
+```dart
+// path: lib/main.dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Menampilkan splash screen
+  runApp(const SplashScreen());
+  
+  // ditambah: Menunggu frame pertama selesai dirender
+  // Ini memastikan splash screen terlihat sebelum kita melakukan
+  // inisialisasi berat seperti loading data dari Firebase
+  await WidgetsBinding.instance.waitUntilFirstFrameRasterized;
+  
+  // Setelah splash screen terlihat, lakukan inisialisasi
+  await inisialisasiAplikasi();
+  
+  // Ganti ke aplikasi utama
+  runApp(const WifiApp());
+}
+
+Future<void> inisialisasiAplikasi() async {
+  Log.info('[Main] Memulai inisialisasi aplikasi.');
+  // Load data dari SharedPreferences, Firebase, dll.
+  await Future.delayed(const Duration(seconds: 2));
+  Log.info('[Main] Inisialisasi selesai.');
+}
+```
+
+---
+
+## 6. Menggunakan handlePopRoute (Menangani Tombol Back)
+
+Biasanya ditangani otomatis oleh `Navigator`, tapi bisa di-override.
+
+```dart
+// path: lib/app.dart
+class WifiApp extends StatelessWidget {
+  const WifiApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WiFi App',
+      home: const HalamanUtama(),
+      // ditambah: Menangani tombol back secara manual
+      // Ini berguna jika Anda ingin konfirmasi sebelum keluar aplikasi
+      builder: (context, child) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            // Konfirmasi sebelum keluar
+            final keluar = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Konfirmasi'),
+                content: const Text('Apakah Anda yakin ingin keluar?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Tidak'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Ya'),
+                  ),
+                ],
+              ),
+            );
+            if (keluar == true && context.mounted) {
+              SystemNavigator.pop();
+            }
+          },
+          child: child!,
+        );
+      },
+    );
+  }
+}
+```
+
+---
+
+## Ringkasan
+
+
+# **DOKUMEN ATURAN PENGEMBANGAN APLIKASI FLUTTER - WIFI PROJECT**
+
+Dokumen ini berisi aturan komprehensif yang harus dipatuhi oleh AI dalam membantu pengembangan aplikasi Flutter WiFi Project. Semua aturan telah dikonsolidasikan, dibersihkan dari konflik, dan disusun secara profesional berdasarkan prioritas dan relevansi.
+
+---
+
+## **BAGIAN 1: PRINSIP DASAR INTERAKSI**
+
+### 1.1 Bahasa Komunikasi
+- **WAJIB** menggunakan Bahasa Indonesia dalam semua komunikasi, penamaan fungsi, variabel, parameter, nama file, dan dokumentasi.
+- Dilarang menggunakan bahasa selain Bahasa Indonesia dalam konteks yang disebutkan di atas.
+
+### 1.2 Kepatuhan terhadap Perintah
+- AI **WAJIB** mengikuti semua perintah pengguna tanpa penyimpangan.
+- AI **TIDAK BOLEH** melawan atau mengabaikan perintah pengguna.
+- AI **DILARANG** berasumsi liar. Jika menemui data yang ambigu atau tidak jelas, AI **WAJIB** bertanya kepada pengguna untuk klarifikasi.
+- AI harus memastikan semua file dalam proyek saling sinkron.
+
+### 1.3 Alur Konfirmasi Pekerjaan
+Sebelum memulai pekerjaan, AI **WAJIB**:
+1. Menjelaskan secara rinci apa yang akan dikerjakan
+2. Menjelaskan alasan mengapa pekerjaan tersebut perlu dilakukan
+3. Menunggu konfirmasi eksplisit dari pengguna
+
+**Kata kunci persetujuan**: setuju, oke, ok, ya, yes → AI boleh mengerjakan.
+**Kata kunci penolakan**: jangan, tidak, nggak, nggak → AI tidak boleh mengerjakan.
+
+---
+
+## **BAGIAN 2: STRUKTUR DAN ORGANISASI KODE**
+
+### 2.1 Path File (WAJIB)
+Setiap file **HARUS** memiliki komentar path di bagian paling atas file:
+
+```dart
+// path: lib/nama_folder/nama_file.dart
+```
+
+### 2.2 Dokumentasi File (WAJIB)
+Setiap file **HARUS** memiliki dokumentasi lengkap di bagian atas setelah path:
+
+```dart
+// path: lib/path/nama_file.dart
+// Fitur: [Nama Fitur Utama]
+// Tujuan: [Tujuan file ini dibuat]
+// 
+// Daftar Fungsi:
+// - fungsiA(): [Penjelasan singkat]
+// - fungsiB(): [Penjelasan singkat]
+```
+
+### 2.3 Komentar pada Kode (WAJIB)
+Setiap perubahan kode **HARUS** diberi komentar dengan format:
+
+```dart
+// dihapus: [alasan penghapusan]
+// diubah: [alasan perubahan]  
+// ditambah: [alasan penambahan]
+```
+
+Setiap fungsi **HARUS** memiliki komentar di atasnya:
+
+```dart
+// Fungsi untuk menavigasi ke halaman detail pelanggan
+void navigasiKeHalamanDetail() {
+  // kode di sini
+}
+```
+
+### 2.4 Pengelompokan Fungsi dalam File
+Fungsi-fungsi dalam file **HARUS** dikelompokkan berdasarkan kategori operasi:
+- **CREATE** (Pembuatan data)
+- **READ** (Pembacaan data)
+- **UPDATE** (Pembaruan data)
+- **DELETE** (Penghapusan data)
+- **DIARSIPKAN** (Pengarsipan data)
+- **SISIPKAN DATA** (Penyisipan data)
+
+### 2.5 Import
+- **WAJIB** menggunakan format: `import 'package:wifi/nama_file.dart';`
+- **DILARANG** menggunakan relative path untuk import.
+
+---
+
+## **BAGIAN 3: PERFORMANCE DAN OPTIMASI**
+
+### 3.1 Penggunaan const
+- **WAJIB** menggunakan `const` sebanyak mungkin untuk widget statis demi performa UI.
+- Setiap widget yang tidak berubah **HARUS** dideklarasikan sebagai `const`.
+
+### 3.2 Manajemen Memori
+- **WAJIB** menggunakan `if (!mounted) return;` sebelum melakukan `setState()` atau operasi UI setelah operasi asynchronous.
+- **WAJIB** mengimplementasikan `dispose()` untuk membersihkan resource.
+- AI harus berusaha agar aplikasi hemat penggunaan RAM perangkat pengguna.
+
+### 3.3 Pola Asynchronous
+**WAJIB** menggunakan pola `async/await` untuk semua operasi:
+- I/O (Input/Output)
+- Network requests
+- Database operations
+
+**DILARANG** menggunakan `.then()` berantai.
+
+### 3.4 Penggunaan late
+- **HINDARI** penggunaan `late` yang tidak perlu.
+- Gunakan inisialisasi langsung atau nullable dengan penanganan yang tepat.
+
+### 3.5 Penanganan Null
+- **USAHAKAN** data memiliki nilai default, jangan selalu nullable.
+- **WAJIB** mengidentifikasi data dengan jelas, hindari null yang tidak perlu.
+- Pada file model, **SEBISA MUNGKIN** berikan data default, jangan nullable.
+
+---
+
+## **BAGIAN 4: SISTEM LOGGING (WAJIB)**
+
+### 4.1 Library Logging
+- **WAJIB** menggunakan file log di: `// path: lib/shared/debug/log.dart`
+- **DILARANG** menggunakan `developer.log` langsung, harus melalui kelas `Log`.
+
+### 4.2 Jenis Log
+Gunakan jenis log yang sesuai:
+
+| Jenis Log | Penggunaan | Contoh |
+|-----------|------------|--------|
+| `Log.info()` | Informasi operasi normal | `Log.info('Data berhasil disimpan.');` |
+| `Log.warning()` | Peringatan, data tidak ditemukan | `Log.warning('Data pengguna tidak ditemukan.');` |
+| `Log.error()` | Error dengan exception dan stack trace | `Log.error('Gagal menyimpan', e: error, st: stackTrace);` |
+| `Log.api()` | Operasi API/Firebase/AdMob | `Log.api('/users', data, method: 'POST');` |
+
+### 4.3 Cakupan Logging
+- **WAJIB** menyisipkan log di **SEMUA** titik kode: logika maupun UI.
+- **TIDAK BOLEH** ada kode yang terlewat tanpa log.
+- Log **HARUS** sangat rinci, perbanyak pesan dengan informasi variabel menggunakan `$variabel`.
+
+### 4.4 Format Log Versi
+Setiap perubahan **WAJIB** memiliki log dengan format:
+
+```
 # Versi: v<versi_dari_pubspec>
 Sumber: pubspec.yaml (version: <full_version>)
 Tanggal: <tanggal>
@@ -1006,35 +1564,215 @@ Tanggal: <tanggal>
 ## Dampak:
 ## Catatan:
 ## Analisa:
+```
+
+**ATURAN VERSI:**
+- AI **WAJIB** mengambil versi dari `pubspec.yaml` field `version`.
+- Format: `1.0.3+4` → log menggunakan `v1.0.3`.
+- **DILARANG** membuat versi sendiri atau menebak versi.
+- Jika versi belum berubah: tetap gunakan versi yang sama (boleh lebih dari 1 log dalam 1 versi).
+- Jika versi berubah: anggap sebagai fase baru dengan analisa lebih detail.
 
 ---
 
-## ATURAN TAMBAHAN
+## **BAGIAN 5: DATABASE DAN PENYIMPANAN DATA**
 
-- Jika versi pubspec belum berubah:
-  → tetap gunakan versi yang sama (log boleh lebih dari 1 dalam 1 versi)
+### 5.1 Firebase Firestore
+- Gunakan `get()` untuk data statis.
+- Gunakan `snapshots()` **HANYA** jika benar-benar membutuhkan realtime update.
+- **AKTIFKAN** persistence: `persistenceEnabled: true`.
 
-- Jika versi berubah:
-  → anggap sebagai fase baru (analisa lebih detail)
+### 5.2 Struktur Data (WAJIB)
+Semua data yang disimpan ke Firebase **HARUS** memiliki field:
 
+| Field | Tipe Data | Keterangan |
+|-------|-----------|------------|
+| `id` | `String` | **WAJIB**, menggunakan UUID |
+| `isDeleted` | `boolean` | Status penghapusan |
+| `diarsipkan` | `Timestamp` | Waktu pengarsipan |
+| `diPerbarui` | `Timestamp` | Waktu pembaruan |
+| `saldo` | `int` | Jumlah saldo |
+| `tipe` | `String` | Tipe data |
+| `poinYangDihasilkan` | `int` | Poin yang dihasilkan |
+| `poinYangDigunakan` | `int` | Poin yang digunakan |
+| `statusPembayaran` | `String` | Status pembayaran |
+| `tanggal` | `Timestamp` | Tanggal transaksi |
+| `jumlah` | `int` | Jumlah |
+| `keterangan` | `String` | Keterangan |
+| `isPublic` | `boolean` | Status publik |
+| `poinHadiah` | `int` | Poin hadiah |
+| `poinPenukaran` | `int` | Poin penukaran |
+| `wajibUpdate` | `boolean` | Status wajib update |
+| `tautanUnduhan` | `map` | Tautan unduhan |
+| `nomorBuildTerbaru` | `map` | Nomor build terbaru |
+| `youtubeTutorial` | `String` | URL tutorial YouTube |
 
-- Setiap perubahan tetap WAJIB memiliki log.
-{
-  "roots": [
-    {
-      "paths": [
-        
-      ],
-      "root": "file:///home/user/myapp"
-    }
-  ]
-}
-di file operasi kelompokkan fugnsi berdaasarkan kategori, crate, read, update, delete, diarsipkan, sisipkan data.
-untuk file test hasil test harus sangat sesuai dengan deskripsi atau nama testnya wajib.
-untuk kode usahakan pakai kode RadioGroup.
-file test harus lengkap dan semua file harus diuji.AI wajib mengikuti apa yang user perintahkan.
-AI dilarang berasumsi tanyakan kepada user kalau datanya samar samar.
-AI jangan biarkan ada error yang tidak di ketahui.
-AI diharapkan jaga konsistensi proyek user.
-AI jangan melawan perintah dari saya.
-AI harus membuat file salinan untuk mencoba fitur baru atau kode baru sebelum kdoe nya berjalan dan tidak ada bug baru boleh pindahkan ke file aslinya.
+### 5.3 ID Generation
+- **WAJIB** menggunakan UUID untuk pembuatan ID.
+- ID **TIDAK BOLEH** null.
+
+---
+
+## **BAGIAN 6: PENGUJIAN (TESTING)**
+
+### 6.1 Kewajiban Testing
+- AI **WAJIB** memberitahukan pengguna jika ada kode yang masih bisa di-test.
+- AI **WAJIB** membuat file test untuk setiap kode logika yang dibuat.
+
+### 6.2 Aturan File Test
+- **DILARANG** mengubah nama atau deskripsi test yang sudah ada (hanya user yang boleh).
+- **DILARANG** menghapus test yang sudah ada.
+- Test **HARUS** dikelompokkan berdasarkan group dalam file yang sama.
+- Hasil test **HARUS** sangat sesuai dengan deskripsi atau nama testnya.
+
+### 6.3 Mocking
+- Untuk test yang bergantung ke SQLite, gunakan kelas palsu (mock) untuk `DatabaseHelper` yang menggunakan database di memori.
+
+### 6.4 Identifikasi File yang Belum Di-test
+Gunakan perintah: `ls -R test/ lib/` untuk mengetahui file mana yang belum dibuatkan file testnya.
+
+---
+
+## **BAGIAN 7: PROSES BUILD DAN ANALISIS**
+
+### 7.1 Analisis Kode
+Setelah menyelesaikan pekerjaan, AI **WAJIB** menjalankan:
+```bash
+flutter analyze
+```
+atau menggunakan MCP tools: `analyze_files`
+
+**Pastikan tidak ada error atau warning yang tersisa.**
+
+### 7.2 Clean Build
+Jika diperintahkan "clean", AI **WAJIB** menjalankan:
+```bash
+flutter clean && flutter pub get
+```
+
+### 7.3 Protokol Perubahan Kode
+Saat melakukan perubahan pada file, AI harus:
+1. Menulis **SELURUH** isi file (jangan sepotong-sepotong).
+2. Membuat file salinan terlebih dahulu untuk mencoba fitur baru.
+3. Setelah dipastikan tidak ada bug, pindahkan ke file aslinya.
+
+### 7.4 MCP Tools yang Tersedia
+AI dapat menggunakan MCP tools berikut untuk mempermudah pekerjaan:
+
+**Dart Tools:**
+- `analyze_files` - Analisis file
+- `run_tests` - Menjalankan test
+- `dart_fix` - Perbaikan otomatis
+- `dart_format` - Format kode
+- `pub` - Package management
+- `hot_reload` / `hot_restart` - Reload aplikasi
+- `get_app_logs` - Melihat log aplikasi
+- `get_runtime_errors` - Melihat error runtime
+- `flutter_driver` - Integration testing
+
+**Firebase Tools:** (tersedia sesuai konfigurasi)
+
+---
+
+## **BAGIAN 8: DOKUMENTASI**
+
+### 8.1 Sebelum Memulai Tugas
+AI **WAJIB** membaca file dokumentasi yang relevan:
+- `docs/user/README.md`
+- `docs/shared/README.md`
+- `docs/admin/README.md`
+
+### 8.2 Setelah Menyelesaikan Tugas
+AI **WAJIB** membuat/memperbarui dokumentasi di:
+- `docs/user/README.md`
+- `docs/shared/README.md`
+- `docs/admin/README.md`
+
+**Catatan**: Gabungkan dengan dokumen yang sudah ada, **JANGAN HAPUS** dokumen yang sudah ada.
+
+### 8.3 Dokumentasi Per File
+Setiap file **HARUS** didokumentasikan dengan sangat detail:
+- Semua kode harus diterangkan
+- Tidak boleh ada yang terlewat
+- Format sesuai Bagian 2.2
+
+---
+
+## **BAGIAN 9: ATURAN KHUSUS WIDGET DAN UI**
+
+### 9.1 DropdownButtonFormField
+- **JANGAN** menggunakan properti `value`.
+- Gunakan `initialValue` sebagai gantinya.
+
+### 9.2 RadioGroup
+- **USAHAKAN** menggunakan widget `RadioGroup` untuk pilihan.
+
+### 9.3 Lifecycle Widget
+- **WAJIB** implementasi `dispose()` untuk membersihkan resource.
+- **WAJIB** menggunakan `if (!mounted) return;` sebelum operasi UI.
+
+---
+
+## **BAGIAN 10: ATURAN FILE GEMINI.md**
+
+- **DILARANG KERAS** mengubah file `GEMINI.md` tanpa perintah langsung dari pengguna.
+- File ini hanya boleh diubah jika pengguna secara eksplisit memerintahkan.
+
+---
+
+## **BAGIAN 11: DIAGRAM ALUR KERJA AI**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ALUR KERJA PENGEMBANGAN                   │
+└─────────────────────────────────────────────────────────────┘
+
+1. BACA DOKUMEN PROYEK
+   ├── docs/user/README.md
+   ├── docs/shared/README.md
+   └── docs/admin/README.md
+
+2. BACA pubspec.yaml UNTUK VERSI
+   └── Catat versi untuk log
+
+3. ANALISIS PERMINTAAN USER
+   ├── Jika ambigu → TANYA USER
+   └── Jika jelas → LANJUT
+
+4. JELASKAN RENCANA PEKERJAAN KE USER
+   └── TUNGGU KONFIRMASI
+
+5. JIKA DISETUJUI:
+   ├── Buat file salinan untuk uji coba
+   ├── Kerjakan perubahan pada salinan
+   ├── Validasi dengan analyze_files
+   └── Pindahkan ke file asli
+
+6. SETELAH SELESAI:
+   ├── Tambahkan path file
+   ├── Tambahkan komentar perubahan
+   ├── Tambahkan log (Log.info/warning/error)
+   ├── Jalankan flutter analyze
+   ├── Buat/update dokumentasi
+   ├── Buat file test jika diperlukan
+   └── Buat log versi
+
+7. LAPORKAN KE USER
+```
+
+---
+
+## **BAGIAN 12: RINGKASAN PRIORITAS ATURAN**
+
+**Jika terjadi bentrok antar aturan, gunakan prioritas berikut:**
+
+1. Keamanan dan stabilitas aplikasi
+2. Perintah eksplisit dari pengguna
+3. Standar logging dan dokumentasi
+4. Performa dan optimasi
+5. Konsistensi kode
+6. Testing
+
+---
+
+**Dokumen ini adalah acuan tunggal yang harus dipatuhi. Semua aturan sebelumnya yang bertentangan dengan dokumen ini dinyatakan tidak berlaku. AI wajib menyimpan dokumen ini ke dalam memori untuk referensi selama sesi pengembangan.**

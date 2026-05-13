@@ -6,14 +6,14 @@ import 'package:uuid/uuid.dart';
 class KritikSaranModel {
   final String id;
   final String isi;
-  final DateTime tanggal;
+  final DateTime? tanggal;
   final String userId;
   final DateTime? diperbarui;
 
   KritikSaranModel({
     String? id,
     required this.isi,
-    required this.tanggal,
+    this.tanggal,
     required this.userId,
     this.diperbarui,
   }) : id = id ?? const Uuid().v4();
@@ -58,12 +58,12 @@ class KritikSaranModel {
     return {
       'id': id,
       'isi': isi,
-      'tanggal': tanggal.toIso8601String(),
+      'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : null,
       'userId': userId,
       'diperbarui': diperbarui?.toIso8601String(),
     };
   }
-  
+
   // ditambahkan: Factory fromFirebase
   factory KritikSaranModel.fromFirebase(String id, Map<String, dynamic> data) {
     return KritikSaranModel(
@@ -80,7 +80,7 @@ class KritikSaranModel {
     return {
       'id': id,
       'isi': isi,
-      'tanggal': Timestamp.fromDate(tanggal),
+      'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : null,
       'userId': userId,
       'diperbarui': FieldValue.serverTimestamp(),
     };

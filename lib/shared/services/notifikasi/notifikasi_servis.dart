@@ -1,12 +1,27 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-// diubah: Menghapus kode spesifik iOS yang tidak diperlukan.
+// diperbaiki: Mengubah tampilkanNotifikasiLangsung untuk selalu menghasilkan ID unik secara internal
+// agar setiap notifikasi memicu notifikasi melayang.
+
+import 'dart:math'; // ditambah: Impor dart:math untuk menggunakan Random.
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
 
+@pragma('vm:entry-point')
+void onDidReceiveBackgroundNotificationResponse(NotificationResponse response) {
+  Log.info(
+    'Notifikasi background di-tap. Payload: ${response.payload}',
+  );
+}
+
 class NotifikasiServis {
   final FlutterLocalNotificationsPlugin plugin;
+  final Random _random =
+      Random(); // ditambah: Instance dari Random untuk ID unik.
+
+  AndroidNotificationChannel? channelNotifikasiPenting;
 
   NotifikasiServis() : plugin = FlutterLocalNotificationsPlugin();
 
@@ -15,6 +30,8 @@ class NotifikasiServis {
 
   Future<void> inisialisasi() async {
     Log.info('Memulai proses inisialisasi pengaturan notifikasi...');
+
+    await _setupAndroidChannel();
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
@@ -25,9 +42,11 @@ class NotifikasiServis {
         settings: settings,
         onDidReceiveNotificationResponse: (response) {
           Log.info(
-            'Notifikasi diklik oleh pengguna. Payload: ${response.payload}',
+            'Notifikasi foreground di-tap. Payload: ${response.payload}',
           );
         },
+        onDidReceiveBackgroundNotificationResponse:
+            onDidReceiveBackgroundNotificationResponse,
       );
       Log.info('Layanan Notifikasi berhasil diinisialisasi.');
     } catch (e, s) {
@@ -36,6 +55,26 @@ class NotifikasiServis {
         e: e,
         st: s,
       );
+    }
+  }
+
+  Future<void> _setupAndroidChannel() async {
+    channelNotifikasiPenting = const AndroidNotificationChannel(
+      'notifikasi_penting_wifi_app',
+      'Notifikasi Penting',
+      description:
+          'Channel ini digunakan untuk notifikasi penting dari aplikasi.',
+      importance: Importance.max,
+    );
+
+    final androidPlugin = plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    try {
+      await androidPlugin?.createNotificationChannel(channelNotifikasiPenting!);
+      Log.info(
+          'Android Notification Channel "Notifikasi Penting" berhasil dibuat.');
+    } catch (e, s) {
+      Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
     }
   }
 
@@ -54,9 +93,6 @@ class NotifikasiServis {
         await androidPlugin.requestNotificationsPermission();
         Log.info('Permintaan izin notifikasi Android telah diproses.');
       }
-
-      // diubah: Menghapus blok iOS karena tidak ditargetkan.
-
     } catch (e, s) {
       Log.error(
         'Gagal meminta izin notifikasi',
@@ -65,7 +101,6 @@ class NotifikasiServis {
       );
     }
   }
-
 
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
@@ -81,22 +116,32 @@ class NotifikasiServis {
     return details;
   }
 
+  // diubah: Menghapus parameter `id` dan menghasilkan ID unik secara internal.
   Future<void> tampilkanNotifikasiLangsung({
-    required int id,
     required String title,
     required String body,
     String? payload,
   }) async {
-    Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
+    if (channelNotifikasiPenting == null) {
+      Log.error(
+        'Gagal menampilkan notifikasi: Channel belum diinisialisasi.',
+      );
+      return;
+    }
 
-    const androidDetails = AndroidNotificationDetails(
-      'notifikasi_langsung',
-      'Notifikasi Langsung',
-      channelDescription: 'Channel untuk notifikasi yang ditampilkan segera.',
+    // ditambah: Hasilkan ID 32-bit integer yang unik dan acak.
+    final int id = _random.nextInt(pow(2, 31).toInt());
+
+    Log.info('Mengirim notifikasi langsung (ID Unik: $id, Judul: $title)');
+
+    final androidDetails = AndroidNotificationDetails(
+      channelNotifikasiPenting!.id,
+      channelNotifikasiPenting!.name,
+      channelDescription: channelNotifikasiPenting!.description,
       importance: Importance.max,
       priority: Priority.high,
     );
-    const notificationDetails = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
       await plugin.show(
@@ -123,16 +168,23 @@ class NotifikasiServis {
     required DateTime jadwal,
     String? payload,
   }) async {
+    if (channelNotifikasiPenting == null) {
+      Log.error(
+        'Gagal menjadwalkan notifikasi: Channel belum diinisialisasi.',
+      );
+      return;
+    }
+
     Log.info('Merencanakan notifikasi terjadwal (ID: $id) pada waktu: $jadwal');
 
-    const androidDetails = AndroidNotificationDetails(
-      'notifikasi_terjadwal',
-      'Notifikasi Terjadwal',
-      channelDescription: 'Channel untuk notifikasi yang dijadwalkalan.',
+    final androidDetails = AndroidNotificationDetails(
+      channelNotifikasiPenting!.id,
+      channelNotifikasiPenting!.name,
+      channelDescription: channelNotifikasiPenting!.description,
       importance: Importance.max,
       priority: Priority.high,
     );
-    const notificationDetails = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
 
     try {
       await plugin.zonedSchedule(
@@ -190,7 +242,8 @@ class NotifikasiServis {
   }
 
   Future<void> batalSemuaNotifikasi() async {
-    Log.info('Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...');
+    Log.info(
+        'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...');
     try {
       await plugin.cancelAll();
       Log.info('Seluruh notifikasi berhasil dibersihkan.');
