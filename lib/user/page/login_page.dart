@@ -55,6 +55,17 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     Log.info('Memulai inisialisasi state _TampilanLogin.');
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     _initializeLocalStorage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Anda telah keluar. Silakan login kembali.'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 
   Future<void> _initializeLocalStorage() async {
@@ -160,7 +171,8 @@ class _TampilanLoginState extends State<_TampilanLogin> {
         // ditambah: Memulai proses penyimpanan token FCM di background.
         // Tidak perlu ditunggu (await) agar tidak menghambat proses login.
 
-        final pelanggan = PelangganModel.fromFirebase(userDoc.id, userDoc.data());
+        final pelanggan =
+            PelangganModel.fromFirebase(userDoc.id, userDoc.data());
 
         Log.info('Menyimpan akun ke LocalStorage.', {
           'nama': pelanggan.nama,
@@ -200,7 +212,6 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     }
   }
 
-
   @override
   void dispose() {
     Log.info('Membersihkan state _TampilanLogin.');
@@ -211,7 +222,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun UI _TampilanLogin.');
+    Log.info('🔴🔴🔴 HALAMAN LOGIN DITAMPILKAN 🔴🔴🔴');
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(

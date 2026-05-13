@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/user/page/login_page.dart';
 import 'main_page.dart';
 import '../services/storage/local_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -192,14 +193,20 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               foregroundColor: AppColors.textOnDark,
             ),
             onPressed: () async {
-              final navigator = Navigator.of(dialogContext);
-              if (!_isLocalStorageInitialized) return;
-              await _localStorageService.hapusTokenLogin();
-              Log.info('Navigasi ke halaman login setelah keluar.');
+              final pageNavigator = Navigator.of(context);
+              Navigator.of(dialogContext).pop();
 
-              navigator.pushNamedAndRemoveUntil('/login', (route) => false);
-              Log.error(
-                'error tidak bisa menuju ke halaman login ',
+              if (!_isLocalStorageInitialized) return;
+
+              await _localStorageService.hapusTokenLogin();
+              Log.info('Token login berhasil dihapus');
+
+              if (!context.mounted) return;
+
+              // Ganti dengan ini untuk memastikan semua route dihapus
+              pageNavigator.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+                (route) => false,
               );
             },
             child: const Text(
