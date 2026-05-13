@@ -56,7 +56,6 @@ class DefaultFirebaseOptions {
     measurementId: 'G-3F3ZD5VBGJ',
   );
 
-  // Android options are specific to the 'com.wifi.admin' app.
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU',
     appId: '1:71302938947:android:a95ae1e817f6b1c92baff6',
@@ -64,4 +63,6 @@ class DefaultFirebaseOptions {
     projectId: 'flutter-coding-9f081',
     storageBucket: 'flutter-coding-9f081.firebasestorage.app',
   );
+
+  // Android options are specific to the 'com.wifi.admin' app.
 }
