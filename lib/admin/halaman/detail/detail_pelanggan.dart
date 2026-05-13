@@ -1,5 +1,5 @@
 // path: lib/admin/halaman/detail/detail_pelanggan.dart
-// diubah: Menggunakan PoinPageAdmin dan mengirimkan idPelanggan.
+// diubah: Menggunakan PoinPageAdmin dan mengirimkan idPelanggan, serta memperbaiki unawaited future.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,9 +12,12 @@ import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/detail_pelanggan_ui.dart';
 
+/// Halaman untuk menampilkan detail pelanggan.
 class DetailPelangganPage extends StatefulWidget {
+  /// ID pelanggan yang akan ditampilkan.
   final String idPelanggan;
 
+  /// Konstruktor untuk DetailPelangganPage.
   const DetailPelangganPage({super.key, required this.idPelanggan});
 
   @override
@@ -68,21 +71,21 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     }
   }
 
-  void _editPelanggan() async {
+  Future<void> _editPelanggan() async {
     if (pelanggan == null) return;
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<bool>(
         builder: (context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
     if (result == true && mounted) {
       Log.info('Kembali dari edit, memuat ulang data dari SQLite.');
-      _loadData();
+      await _loadData();
     }
   }
 
-  void _salinSemuaInfo(PelangganModel pelanggan) async {
+  Future<void> _salinSemuaInfo(PelangganModel pelanggan) async {
     final info = '''
 Nama : ${pelanggan.nama}
 No HP : ${pelanggan.telepon}
@@ -99,15 +102,15 @@ MAC : ${pelanggan.macAddress}
 
   void _navigateToPoin() {
     if (pelanggan == null) return;
-    Navigator.push(
+    Navigator.push<void>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         // diubah: Menggunakan PoinPageAdmin dan mengirim idPelanggan.
         builder: (context) => PoinPageAdmin(idPelanggan: pelanggan!.id),
       ),
-    ).then((_) {
+    ).then((_) async {
       Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');
-      _loadData();
+      await _loadData();
     });
   }
 

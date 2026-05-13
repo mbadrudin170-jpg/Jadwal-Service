@@ -95,8 +95,7 @@ class PesanInfoPaket {
       pelangganAktif.tanggalBerakhir,
     );
 
-    final pesanDibuat =
-        '''
+    final pesanDibuat = '''
 *-- Rincian Aktivasi Paket --*
 
 Halo, *$namaPelanggan*.

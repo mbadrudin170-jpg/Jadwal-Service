@@ -4,15 +4,38 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
-enum MenuPoin { penukaran, riwayat }
+/// Menu yang tersedia di halaman poin.
+enum MenuPoin {
+  /// Menu penukaran hadiah.
+  penukaran,
 
+  /// Menu riwayat poin.
+  riwayat,
+}
+
+/// UI halaman poin yang dapat digunakan kembali.
+///
+/// Menampilkan header total poin, kontrol tersegmentasi untuk memilih
+/// antara menu Penukaran dan Riwayat, serta [contentView] yang dinamis.
 class PoinPageUi extends StatelessWidget {
+  /// Judul yang ditampilkan di AppBar.
   final Widget appBarTitle;
+
+  /// Total poin yang dimiliki pengguna.
   final int totalPoin;
+
+  /// Menu yang sedang dipilih.
   final MenuPoin menuPilihan;
+
+  /// Callback saat pilihan menu berubah.
   final ValueChanged<Set<MenuPoin>> onSelectionChanged;
+
+  /// Konten utama yang ditampilkan di bawah kontrol tersegmentasi.
   final Widget contentView;
 
+  /// Membuat halaman [PoinPageUi].
+  ///
+  /// Semua parameter wajib diisi.
   const PoinPageUi({
     super.key,
     required this.appBarTitle,

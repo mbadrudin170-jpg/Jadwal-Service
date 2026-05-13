@@ -11,10 +11,12 @@ class KategoriOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<KategoriModel> createKategori(KategoriModel kategori, {bool dariServer = false}) async {
+  Future<KategoriModel> createKategori(KategoriModel kategori,
+      {bool dariServer = false}) async {
     Log.info('Memulai createKategori untuk kategori: ${kategori.toSqlite()}');
     try {
-      final kategoriBaru = kategori.copyWith(diperbarui: DateTime.now().toUtc());
+      final kategoriBaru =
+          kategori.copyWith(diperbarui: DateTime.now().toUtc());
       final data = kategoriBaru.toSqlite();
 
       await _operasiDasar.sisipkan('kategori', data, dariServer: dariServer);
@@ -108,8 +110,10 @@ class KategoriOperasi {
   Future<void> update(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai update untuk kategori: ${kategori.toSqlite()}');
     try {
-      final data = kategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.perbarui('kategori', data, kategori.id, dariServer: dariServer);
+      final data =
+          kategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      await _operasiDasar.perbarui('kategori', data, kategori.id,
+          dariServer: dariServer);
       Log.info('Berhasil update kategori untuk ID: ${kategori.id}.');
     } catch (e, st) {
       Log.error(
@@ -136,7 +140,8 @@ class KategoriOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
-  Future<void> arsipkanSatuKategori(String id, {bool dariServer = false}) async {
+  Future<void> arsipkanSatuKategori(String id,
+      {bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuKategori (soft delete) untuk ID: $id');
     try {
       final now = DateTime.now().toUtc();
@@ -146,7 +151,8 @@ class KategoriOperasi {
         'isDeleted': 1,
       };
 
-      await _operasiDasar.perbarui('kategori', dataToUpdate, id, dariServer: dariServer);
+      await _operasiDasar.perbarui('kategori', dataToUpdate, id,
+          dariServer: dariServer);
 
       Log.info('Berhasil arsipkanSatuKategori untuk ID: $id.');
     } catch (e, st) {
@@ -160,7 +166,8 @@ class KategoriOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items, {bool dariServer = false}) async {
+  Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items,
+      {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai bersihkanDanSisipkanSemua. Ini akan menghapus semua kategori dan menggantinya dengan ${items.length} item baru.',
     );
@@ -174,7 +181,8 @@ class KategoriOperasi {
         await txn.delete('kategori');
         Log.info('Tabel kategori berhasil dibersihkan.');
         for (var item in items) {
-          await txn.insert('kategori', item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite());
+          await txn.insert('kategori',
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite());
         }
         Log.info(
           'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.',
@@ -216,7 +224,8 @@ class KategoriOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items,
+      {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
     );
@@ -227,8 +236,12 @@ class KategoriOperasi {
       return;
     }
     try {
-      final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data, dariServer: dariServer);
+      final data = items
+          .map((item) =>
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .toList();
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data,
+          dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
       );

@@ -3,8 +3,20 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-// enum untuk mendefinisikan tipe-tipe snackbar yang tersedia
-enum SnackBarType { success, error, warning, info }
+/// Tipe SnackBar yang tersedia.
+enum SnackBarType {
+  /// SnackBar sukses dengan latar hijau.
+  success,
+
+  /// SnackBar error dengan latar merah.
+  error,
+
+  /// SnackBar peringatan dengan latar oranye.
+  warning,
+
+  /// SnackBar informasi dengan latar biru.
+  info,
+}
 
 /// Kelas utilitas untuk menampilkan SnackBar dengan gaya yang konsisten dan logging otomatis.
 class SnackBarUtil {

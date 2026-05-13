@@ -126,7 +126,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   Widget build(BuildContext context) {
     Log.info(
         'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.');
-  return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [
@@ -313,7 +313,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                               });
                               final paket = await paketFuture;
                               if (context.mounted) {
-                                Navigator.push(
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => DetailTransaksiPage(

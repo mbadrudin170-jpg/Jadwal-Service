@@ -1,4 +1,5 @@
-// path: lib/shared/widget/transaksi_list_widgets.dart// diubah: Menghapus operator null-aware yang tidak perlu dan memperbaiki penanganan error.
+// path: lib/shared/widget/transaksi_list_widgets.dart
+// diubah: Menghapus operator null-aware yang tidak perlu dan memperbaiki penanganan error.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
@@ -10,6 +11,10 @@ import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
+/// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
+///
+/// Mengembalikan [Map] dengan kunci [DateTime] (hanya tahun, bulan, hari)
+/// dan nilai berupa [List] dari [TransaksiModel] pada tanggal tersebut.
 Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
   List<TransaksiModel> transaksi,
 ) {
@@ -24,6 +29,10 @@ Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
   return grouped;
 }
 
+/// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
+///
+/// Menampilkan [tanggal] yang diformat dan [total] nominal transaksi
+/// pada tanggal tersebut.
 Widget bangunHeaderSeksi(DateTime tanggal, double total) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -46,11 +55,21 @@ Widget bangunHeaderSeksi(DateTime tanggal, double total) {
   );
 }
 
+/// Widget tile untuk menampilkan satu transaksi dalam daftar.
+///
+/// Menampilkan ikon, keterangan, kategori, dompet, jumlah, dan waktu.
+/// Mendukung tap untuk melihat detail, long-press untuk edit/hapus.
 class TransaksiTile extends StatefulWidget {
+  /// Data transaksi yang ditampilkan.
   final TransaksiModel transaksi;
+
+  /// Callback saat data berubah (setelah edit/hapus).
   final VoidCallback onDataChanged;
+
+  /// Operasi transaksi untuk aksi arsipkan.
   final TransaksiOperasi transaksiOperasi;
 
+  /// Membuat tile transaksi.
   const TransaksiTile({
     super.key,
     required this.transaksi,
@@ -110,9 +129,11 @@ class _TransaksiTileState extends State<TransaksiTile> {
       child: ListTile(
         key: ValueKey(widget.transaksi.id),
         onTap: () async {
-          final result = await Navigator.push(
+          final result = await Navigator.push<bool>(
+            // ✅ Explicit type
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<bool>(
+              // ✅ Explicit type
               builder: (context) =>
                   DetailTransaksiPage(transaksi: widget.transaksi),
             ),
@@ -122,7 +143,8 @@ class _TransaksiTileState extends State<TransaksiTile> {
           }
         },
         onLongPress: () {
-          showDialog(
+          showDialog<void>(
+            // ✅ Explicit type
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Opsi'),
@@ -133,9 +155,11 @@ class _TransaksiTileState extends State<TransaksiTile> {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    final result = await Navigator.push(
+                    final result = await Navigator.push<bool>(
+                      // ✅ Explicit type
                       context,
-                      MaterialPageRoute(
+                      MaterialPageRoute<bool>(
+                        // ✅ Explicit type
                         builder: (context) =>
                             FormTransaksiPage(transaksi: widget.transaksi),
                       ),
@@ -192,6 +216,9 @@ class _TransaksiTileState extends State<TransaksiTile> {
   }
 }
 
+/// Membangun widget [TransaksiTile] dengan parameter yang diberikan.
+///
+/// Fungsi convenience untuk membuat tile transaksi.
 Widget bangunItemTransaksi(
   BuildContext context,
   TransaksiModel transaksi,

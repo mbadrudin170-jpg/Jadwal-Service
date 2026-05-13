@@ -16,7 +16,8 @@ class KritikSaranOperasi {
       {bool dariServer = false}) async {
     Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
     try {
-      final data = kritikSaran.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      final data =
+          kritikSaran.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
       await _operasiDasar.sisipkan('kritik_saran', data,
           dariServer: dariServer);
@@ -88,7 +89,7 @@ class KritikSaranOperasi {
       final List<Map<String, dynamic>> maps = await db.query(
         'kritik_saran',
         where: 'diperbarui > ?',
-        whereArgs: [lastSync.toIso8601String()],
+        whereArgs: [lastSync.millisecondsSinceEpoch],
       );
       final listKritik = List.generate(
         maps.length,
@@ -122,7 +123,10 @@ class KritikSaranOperasi {
       return;
     }
     try {
-      final data = daftarKritikSaran.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
+      final data = daftarKritikSaran
+          .map((item) =>
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .toList();
       await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data,
           dariServer: dariServer);
       Log.info(

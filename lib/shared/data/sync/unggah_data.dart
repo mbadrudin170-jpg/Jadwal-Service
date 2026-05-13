@@ -506,7 +506,8 @@ class LayananUnggahData {
             'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${model.id}.',
           );
 
-          final docRef = _firestore.collection(namaKoleksi).doc(model.id);
+          final docRef =
+              _firestore.collection(namaKoleksi).doc(model.id as String?);
 
           Log.info(
             'Mengkonversi model menjadi Map<String, dynamic> menggunakan fungsi toFirebase.',

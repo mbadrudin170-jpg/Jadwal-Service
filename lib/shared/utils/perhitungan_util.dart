@@ -1,13 +1,19 @@
-// path: lib/utils/perhitungan_util.dart
+// path: lib/shared/utils/perhitungan_util.dart
 
 // File ini berisi fungsi utilitas untuk menghitung dan menampilkan
 // sisa masa aktif paket pengguna berdasarkan tanggal berakhir.
 
 import 'package:flutter/material.dart';
 
-// diubah: Nama kelas diubah menjadi lebih umum untuk menampung fungsi perhitungan lainnya.
+/// Kelas utilitas untuk berbagai perhitungan terkait paket pelanggan.
+///
+/// Menyediakan fungsi untuk menghitung sisa hari, status hangus,
+/// teks representasi masa aktif, dan warna indikator status.
 class PerhitunganUtil {
-  // diubah: Logika diubah untuk menghitung status 'Hangus' berdasarkan selisih 30 hari dari tanggal mulai.
+  /// Mengecek apakah poin pelanggan sudah hangus.
+  ///
+  /// Poin dianggap hangus jika selisih antara [tanggalMulai] dan sekarang
+  /// lebih dari 30 hari. [now] dapat digunakan untuk pengujian.
   static String getPoinHangus({required DateTime tanggalMulai, DateTime? now}) {
     final tanggalSekarang = now ?? DateTime.now();
     final selisihHari = tanggalSekarang.difference(tanggalMulai).inDays;
@@ -22,13 +28,8 @@ class PerhitunganUtil {
   /// Mengembalikan jumlah sisa hari dalam bentuk integer.
   /// Jika tanggal berakhir sudah lewat, hasilnya akan menjadi negatif.
   static int sisaHari(DateTime tanggalBerakhir, {DateTime? now}) {
-    // ditambah: Mengambil tanggal saat ini tanpa informasi jam, menit, atau detik.
     final tanggalSekarang = DateUtils.dateOnly(now ?? DateTime.now());
-
-    // ditambah: Mengambil tanggal berakhir tanpa informasi waktu untuk perbandingan yang akurat.
     final akhir = DateUtils.dateOnly(tanggalBerakhir);
-
-    // ditambah: Menghitung selisih hari antara tanggal berakhir dan sekarang.
     return akhir.difference(tanggalSekarang).inDays;
   }
 
@@ -39,14 +40,11 @@ class PerhitunganUtil {
     DateTime tanggalBerakhir, {
     DateTime? now,
   }) {
-    // diubah: Menghitung selisih waktu yang presisi menggunakan Duration untuk mendapatkan jam dan menit.
     final sisa = tanggalBerakhir.difference(now ?? DateTime.now());
 
-    // diubah: Jika sisa durasi negatif (sudah lewat), langsung kembalikan teks "Berakhir".
     if (sisa.isNegative) {
       return 'Berakhir';
     } else {
-      // ditambah: Logika untuk menampilkan sisa waktu dalam hari, jam, atau menit jika belum berakhir.
       if (sisa.inDays > 0) {
         return 'Sisa ${sisa.inDays} hari';
       } else if (sisa.inHours > 0) {
@@ -68,10 +66,8 @@ class PerhitunganUtil {
     DateTime tanggalBerakhir, {
     DateTime? now,
   }) {
-    // ditambah: Menghitung sisa hari sebagai dasar penentuan warna.
     final sisa = sisaHari(tanggalBerakhir, now: now);
 
-    // ditambah: Logika untuk memilih warna berdasarkan sisa hari.
     if (sisa > 7) {
       return Colors.green;
     } else if (sisa > 0) {

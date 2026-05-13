@@ -1,15 +1,19 @@
-// path: lib/widget/info_ringkasan_widget.dart
+// path: lib/shared/widget/info_ringkasan_widget.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-// diubah: Menambahkan parameter `textKey` opsional.
+/// Membangun widget ringkasan informasi dengan label dan jumlah yang diformat.
+///
+/// Menampilkan [label] di atas dan [jumlah] di bawah dengan [warna] tertentu.
+/// [alignment] mengatur perataan kolom (default: center).
+/// [textKey] dapat digunakan untuk memberikan key khusus pada teks jumlah.
 Widget bangunInfoRingkasan({
   required BuildContext context,
   required String label,
   required double jumlah,
   required Color warna,
   CrossAxisAlignment alignment = CrossAxisAlignment.center,
-  Key? textKey, // ditambahkan: Parameter `textKey` opsional.
+  Key? textKey,
 }) {
   return Column(
     crossAxisAlignment: alignment,

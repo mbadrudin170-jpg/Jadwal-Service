@@ -3,24 +3,37 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 
+/// Kartu yang menampilkan total poin pengguna.
+///
+/// Menampilkan ikon, label "Total Poin", dan jumlah poin.
+/// Mendukung [onTap] opsional untuk aksi saat kartu ditekan.
 class TotalPointCard extends StatelessWidget {
+  /// Jumlah poin yang ditampilkan.
   final int points;
-  final IconData icon;
-  final Color themeColor;
-  final VoidCallback? onTap; // Fungsi yang akan dijalankan saat diklik
 
+  /// Ikon yang ditampilkan di depan kartu.
+  final IconData icon;
+
+  /// Warna tema untuk ikon dan efek bayangan.
+  final Color themeColor;
+
+  /// Callback opsional saat kartu ditekan.
+  final VoidCallback? onTap;
+
+  /// Membuat kartu total poin.
+  ///
+  /// [points] wajib diisi. [icon], [themeColor], dan [onTap] bersifat opsional.
   const TotalPointCard({
     super.key,
     required this.points,
     this.icon = Icons.stars_rounded,
     this.themeColor = AppColors.pointColor,
-    this.onTap, // Dibuat opsional agar fleksibel
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Bungkus dengan Material agar efek InkWell terlihat
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -31,15 +44,12 @@ class TotalPointCard extends StatelessWidget {
           ),
         ],
       ),
-      // ClipRRect memastikan efek ripple tidak keluar dari border radius kartu
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
-          onTap: onTap, // Menghubungkan parameter onTap
-          splashColor: themeColor.withAlpha(20), // Warna saat ditekan
-          // highlightColor: Colors.transparent,
+          onTap: onTap,
+          splashColor: themeColor.withAlpha(20),
           child: Padding(
-            // Pindahkan padding dari Container ke sini agar seluruh area padding bisa diklik
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -59,11 +69,10 @@ class TotalPointCard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Biasanya lebih rapi rata kiri
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Total Poin",
+                      'Total Poin', // ✅ Petik satu
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 12,

@@ -45,18 +45,18 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       if (!mounted) return;
 
       if (isLoggedIn) {
-        Log.info('Pengguna sudah login. Navigasi ke MainPage.', {'userId': userId});
+        Log.info(
+            'Pengguna sudah login. Navigasi ke MainPage.', {'userId': userId});
         final localStorageService = LocalStorageService(prefs: prefs);
-        Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => MainPage(
-                  userId: userId,
-                  localStorageService: localStorageService)),
+                  userId: userId, localStorageService: localStorageService)),
         );
       } else {
         Log.warning('Pengguna belum login. Navigasi ke LoginPage.');
-        Navigator.pushReplacement(
+        await Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
@@ -68,7 +68,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         st: s,
       );
       if (!mounted) return;
-      Navigator.pushReplacement(
+      await Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

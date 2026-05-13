@@ -1,6 +1,5 @@
 // path: lib/halaman/tes/detail_pelanggan_uji.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -45,8 +44,8 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
 
   void _handleCopyAll() {
     String allInfo =
-        "Nama: ${customer['name']}\nEmail: ${customer['email']}\n"
-        "Phone: ${customer['phone']}\nAlamat: ${customer['address']}\nID: ${customer['id']}";
+        "Nama: ${customer['name'] as String}\nEmail: ${customer['email'] as String}\n"
+        "Phone: ${customer['phone'] as String}\nAlamat: ${customer['address'] as String}\nID: ${customer['id'] as String}";
     Clipboard.setData(ClipboardData(text: allInfo));
     setState(() {
       _toastMessage = 'Info telah disalin';
@@ -158,7 +157,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                           child: Column(
                             children: [
                               Text(
-                                customer['name'],
+                                customer['name'] as String,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w900,
@@ -274,24 +273,24 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                             children: [
                               _InfoRow(
                                 label: 'EMAIL',
-                                value: customer['email'],
+                                value: customer['email'] as String,
                                 icon: Icons.mail_outline,
-                                onCopy: () =>
-                                    _handleCopy(customer['email'], 'Email'),
+                                onCopy: () => _handleCopy(
+                                    customer['email'] as String, 'Email'),
                               ),
                               _InfoRow(
                                 label: 'NOMOR TELEPON',
-                                value: customer['phone'],
+                                value: customer['phone'] as String,
                                 icon: Icons.phone_outlined,
                                 onCopy: () => _handleCopy(
-                                  customer['phone'],
+                                  customer['phone'] as String,
                                   'Nomor Telepon',
                                 ),
                               ),
                               _InfoRow(
                                 label: 'PASSWORD',
                                 value: _showPassword
-                                    ? customer['password']
+                                    ? customer['password'] as String
                                     : '••••••••••••',
                                 icon: Icons.lock_outline,
                                 isPassword: true,
@@ -300,23 +299,23 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                   () => _showPassword = !_showPassword,
                                 ),
                                 onCopy: () => _handleCopy(
-                                  customer['password'],
+                                  customer['password'] as String,
                                   'Password',
                                 ),
                               ),
                               _InfoRow(
                                 label: 'ALAMAT',
-                                value: customer['address'],
+                                value: customer['address'] as String,
                                 icon: Icons.map_outlined,
-                                onCopy: () =>
-                                    _handleCopy(customer['address'], 'Alamat'),
+                                onCopy: () => _handleCopy(
+                                    customer['address'] as String, 'Alamat'),
                               ),
                               _InfoRow(
                                 label: 'MAC ADDRESS',
-                                value: customer['macAddress'],
+                                value: customer['macAddress'] as String,
                                 icon: Icons.security,
                                 onCopy: () => _handleCopy(
-                                  customer['macAddress'],
+                                  customer['macAddress'] as String,
                                   'Mac Address',
                                 ),
                                 isLast: true,

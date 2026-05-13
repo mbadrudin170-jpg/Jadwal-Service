@@ -1,12 +1,15 @@
 // path: lib/admin/halaman/detail/detail_paket.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/admin/halaman/form/form_paket.dart';
 
+/// Halaman untuk menampilkan detail dari sebuah paket.
 class DetailPaketPage extends StatefulWidget {
+  /// Model paket yang akan ditampilkan.
   final PaketModel paket;
 
+  /// Konstruktor untuk DetailPaketPage.
   const DetailPaketPage({
     super.key,
     required this.paket,
@@ -34,14 +37,14 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
     );
   }
 
-  void _editPaket() async {
+  Future<void> _editPaket() async {
     Log.info(
       'Memulai navigasi ke halaman form edit paket untuk paket: ${_paket.nama}.',
     );
 
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<bool>(
         builder: (context) {
           Log.info(
             'Membangun halaman FormPaket untuk proses edit.',

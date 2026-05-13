@@ -38,22 +38,24 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
 
   Future<void> _initInfo() async {
     Log.info('Memulai pengambilan informasi aplikasi dan perangkat');
-    
+
     try {
       Log.info('Mengambil PackageInfo dari platform');
       final packageInfo = await PackageInfo.fromPlatform();
-      
-      Log.info('PackageInfo berhasil diambil - Nama: ${packageInfo.appName}, Versi: ${packageInfo.version}, Build: ${packageInfo.buildNumber}, Package: ${packageInfo.packageName}');
-      
+
+      Log.info(
+          'PackageInfo berhasil diambil - Nama: ${packageInfo.appName}, Versi: ${packageInfo.version}, Build: ${packageInfo.buildNumber}, Package: ${packageInfo.packageName}');
+
       String deviceArch = 'Unknown';
 
       if (Platform.isAndroid) {
         Log.info('Platform terdeteksi: Android, mengambil DeviceInfo');
         final deviceInfo = DeviceInfoPlugin();
         final androidInfo = await deviceInfo.androidInfo;
-        
+
         deviceArch = androidInfo.supportedAbis.join(', ');
-        Log.info('Device info Android berhasil diambil - Arsitektur: $deviceArch, Android Version: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt}), Pabrikan: ${androidInfo.manufacturer}, Model: ${androidInfo.model}');
+        Log.info(
+            'Device info Android berhasil diambil - Arsitektur: $deviceArch, Android Version: ${androidInfo.version.release} (SDK ${androidInfo.version.sdkInt}), Pabrikan: ${androidInfo.manufacturer}, Model: ${androidInfo.model}');
       } else if (Platform.isIOS) {
         Log.info('Platform terdeteksi: iOS');
         deviceArch = 'iOS (arm64)';
@@ -66,9 +68,10 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
         _packageInfo = packageInfo;
         _deviceArch = deviceArch;
         _minSDK = 'Android 5.0 (Lollipop)';
-        Log.info('State diperbarui - MinSDK: $_minSDK, Arsitektur: $_deviceArch');
+        Log.info(
+            'State diperbarui - MinSDK: $_minSDK, Arsitektur: $_deviceArch');
       });
-      
+
       Log.info('Proses inisialisasi informasi aplikasi selesai');
     } catch (e, st) {
       Log.error(
@@ -82,8 +85,9 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun UI halaman Tentang Aplikasi');
-    Log.info('Informasi yang ditampilkan - App: ${_packageInfo.appName}, Versi: ${_packageInfo.version}, Build: ${_packageInfo.buildNumber}');
-    
+    Log.info(
+        'Informasi yang ditampilkan - App: ${_packageInfo.appName}, Versi: ${_packageInfo.version}, Build: ${_packageInfo.buildNumber}');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tentang Aplikasi'),

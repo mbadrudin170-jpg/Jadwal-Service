@@ -11,12 +11,14 @@ class PesananOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menambahkan pengaturan `diperbarui` dengan UTC sebelum menyimpan
-  Future<void> simpanPesanan(PesananModel pesanan, {bool dariServer = false}) async {
+  Future<void> simpanPesanan(PesananModel pesanan,
+      {bool dariServer = false}) async {
     Log.info('Menyimpan pesanan baru ID: ${pesanan.id}');
     final pesananUntukDisimpan = pesanan.copyWith(
       diperbarui: DateTime.now().toUtc(),
     );
-    await _operasiDasar.sisipkan('pesanan', pesananUntukDisimpan.toSqlite(), dariServer: dariServer);
+    await _operasiDasar.sisipkan('pesanan', pesananUntukDisimpan.toSqlite(),
+        dariServer: dariServer);
   }
 
   Future<List<PesananModel>> ambilSemuaPesanan() async {
@@ -43,7 +45,8 @@ class PesananOperasi {
 
   // diubah: Logika diubah untuk mengambil data, memperbarui, lalu menyimpan kembali.
   // Ini memastikan `diperbarui` selalu diatur dengan benar saat status berubah.
-  Future<void> updateStatusPesanan(String id, String status, {bool dariServer = false}) async {
+  Future<void> updateStatusPesanan(String id, String status,
+      {bool dariServer = false}) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi $status');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -58,10 +61,13 @@ class PesananOperasi {
         status: status,
         diperbarui: DateTime.now().toUtc(),
       );
-      await _operasiDasar.perbarui('pesanan', pesananBaru.toSqlite(), id, dariServer: dariServer);
-      Log.info('Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.');
+      await _operasiDasar.perbarui('pesanan', pesananBaru.toSqlite(), id,
+          dariServer: dariServer);
+      Log.info(
+          'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.');
     } else {
-      Log.warning('Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.');
+      Log.warning(
+          'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.');
     }
   }
 
@@ -72,11 +78,16 @@ class PesananOperasi {
   }
 
   // diubah: Menambahkan pengaturan `diperbarui` dengan UTC untuk setiap item batch
-  Future<void> sisipkanAtauPerbaruiBatch(List<PesananModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<PesananModel> items,
+      {bool dariServer = false}) async {
     Log.info('Memulai batch insert/update untuk ${items.length} pesanan.');
     if (items.isEmpty) return;
-    final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
-    await _operasiDasar.sisipkanAtauPerbaruiBatch('pesanan', data, dariServer: dariServer);
+    final data = items
+        .map((item) =>
+            item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+        .toList();
+    await _operasiDasar.sisipkanAtauPerbaruiBatch('pesanan', data,
+        dariServer: dariServer);
     Log.info('Batch pesanan selesai.');
   }
 

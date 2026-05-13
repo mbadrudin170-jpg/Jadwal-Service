@@ -1,4 +1,13 @@
- // path: lib/enum/tipe_transaksi_enum.dart
+// path: lib/shared/enum/tipe_transaksi_enum.dart
 
+/// Jenis tipe transaksi keuangan.
+enum TipeTransaksi {
+  /// Transaksi pemasukan uang.
+  pemasukan,
 
-enum TipeTransaksi { pemasukan, pengeluaran, transfer }
+  /// Transaksi pengeluaran uang.
+  pengeluaran,
+
+  /// Transaksi transfer antar dompet.
+  transfer,
+}

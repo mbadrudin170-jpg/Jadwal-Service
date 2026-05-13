@@ -24,13 +24,15 @@ class VersiApkUserOperasi {
   // ==========================
 
   // diubah: Menambahkan `dariServer`
-  Future<void> tambahVersiApkUser(VersiApkUserModel versiApkUser, {bool dariServer = false}) async {
+  Future<void> tambahVersiApkUser(VersiApkUserModel versiApkUser,
+      {bool dariServer = false}) async {
     Log.info(
       'Menambah versi APK user baru - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
     );
 
     try {
-      await _operasi.sisipkan(_tableName, versiApkUser.toSqlite(), dariServer: dariServer);
+      await _operasi.sisipkan(_tableName, versiApkUser.toSqlite(),
+          dariServer: dariServer);
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${versiApkUser.id}',
       );
@@ -45,7 +47,8 @@ class VersiApkUserOperasi {
   }
 
   // diubah: Menambahkan `dariServer`
-  Future<void> perbaruiVersiApkUser(VersiApkUserModel versiApkUser, {bool dariServer = false}) async {
+  Future<void> perbaruiVersiApkUser(VersiApkUserModel versiApkUser,
+      {bool dariServer = false}) async {
     Log.info(
       'Memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
     );
@@ -71,7 +74,8 @@ class VersiApkUserOperasi {
   }
 
   // diubah: Menambahkan `dariServer`
-  Future<void> arsipkanVersiApkUser(String id, {bool dariServer = false}) async {
+  Future<void> arsipkanVersiApkUser(String id,
+      {bool dariServer = false}) async {
     Log.info('Mengarsipkan versi APK user - ID: $id');
 
     try {
@@ -112,9 +116,8 @@ class VersiApkUserOperasi {
   }
 
   // diubah: Menambahkan `dariServer`
-  Future<void> sisipkanAtauPerbaruiBatch(
-    List<VersiApkUserModel> daftarModel, {bool dariServer = false}
-  ) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<VersiApkUserModel> daftarModel,
+      {bool dariServer = false}) async {
     Log.info(
       'Memulai operasi batch sisipkan/perbarui - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
     );
@@ -126,7 +129,8 @@ class VersiApkUserOperasi {
 
     try {
       final daftarMap = daftarModel.map((model) => model.toSqlite()).toList();
-      await _operasi.sisipkanAtauPerbaruiBatch(_tableName, daftarMap, dariServer: dariServer);
+      await _operasi.sisipkanAtauPerbaruiBatch(_tableName, daftarMap,
+          dariServer: dariServer);
       Log.info(
         'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_tableName',
       );
@@ -140,7 +144,7 @@ class VersiApkUserOperasi {
     }
   }
   // ... sisa file tidak berubah ...
-  
+
   // ==========================
   // OPERASI BACA (READ)
   // ==========================

@@ -22,7 +22,8 @@ class NamaPelangganWidget extends StatelessWidget {
           return const Text('Error', style: TextStyle(color: Colors.red));
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Text('Pelanggan tidak ditemukan', style: TextStyle(color: Colors.red));
+          return const Text('Pelanggan tidak ditemukan',
+              style: TextStyle(color: Colors.red));
         }
 
         final pelanggan = snapshot.data!;

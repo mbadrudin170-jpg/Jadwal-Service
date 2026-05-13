@@ -93,6 +93,7 @@ class PaketModel {
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
     if (value is String) return DateTime.tryParse(value);
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
     return null;
   }
 
@@ -116,13 +117,13 @@ class PaketModel {
 
   factory PaketModel.fromSqlite(Map<String, dynamic> map) {
     return PaketModel(
-      id: map['id'],
-      nama: map['nama'] ?? '',
-      harga: map['harga'] ?? 0,
-      durasi: map['durasi'] ?? 0,
+      id: map['id'] as String?,
+      nama: map['nama'] as String? ?? '',
+      harga: map['harga'] as int? ?? 0,
+      durasi: map['durasi'] as int? ?? 0,
       tipe: _parseTipe(map['tipe']),
-      poinHadiah: map['poin_hadiah'] ?? 0,
-      poinPenukaran: map['poin_penukaran'] ?? 0,
+      poinHadiah: map['poin_hadiah'] as int? ?? 0,
+      poinPenukaran: map['poin_penukaran'] as int? ?? 0,
       isPublic: _parseBool(map['isPublic']),
       isDeleted: _parseBool(map['isDeleted']),
       diperbarui: _parseDateTime(map['diperbarui']),
@@ -141,8 +142,8 @@ class PaketModel {
       'poin_penukaran': poinPenukaran,
       'isPublic': isPublic ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
-      'diperbarui': diperbarui?.toIso8601String(),
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch,
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
     };
   }
 
@@ -153,12 +154,12 @@ class PaketModel {
   factory PaketModel.fromFirebase(String id, Map<String, dynamic> data) {
     return PaketModel(
       id: id,
-      nama: data['nama'] ?? '',
-      harga: data['harga'] ?? 0,
-      durasi: data['durasi'] ?? 0,
+      nama: data['nama'] as String? ?? '',
+      harga: data['harga'] as int? ?? 0,
+      durasi: data['durasi'] as int? ?? 0,
       tipe: _parseTipe(data['tipe']),
-      poinHadiah: data['poin_hadiah'] ?? 0,
-      poinPenukaran: data['poin_penukaran'] ?? 0,
+      poinHadiah: data['poin_hadiah'] as int? ?? 0,
+      poinPenukaran: data['poin_penukaran'] as int? ?? 0,
       isPublic: _parseBool(data['isPublic']),
       isDeleted: _parseBool(data['isDeleted']),
       diperbarui: _parseDateTime(data['diperbarui']),

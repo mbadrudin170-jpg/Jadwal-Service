@@ -12,7 +12,8 @@ class SubKategoriOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> createSubKategori(SubKategoriModel subKategori, {bool dariServer = false}) async {
+  Future<void> createSubKategori(SubKategoriModel subKategori,
+      {bool dariServer = false}) async {
     Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
     await _operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
@@ -49,35 +50,41 @@ class SubKategoriOperasi {
   }
 
   // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> updateSubKategori(SubKategoriModel subKategori, {bool dariServer = false}) async {
+  Future<void> updateSubKategori(SubKategoriModel subKategori,
+      {bool dariServer = false}) async {
     Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
-    await _operasiDasar.perbarui('sub_kategori', data, subKategori.id, dariServer: dariServer);
+    await _operasiDasar.perbarui('sub_kategori', data, subKategori.id,
+        dariServer: dariServer);
   }
 
   // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> deleteSubKategori(String id, {bool softDelete = true, bool dariServer = false}) async {
+  Future<void> deleteSubKategori(String id,
+      {bool softDelete = true, bool dariServer = false}) async {
     Log.info('Menghapus sub-kategori ID: $id (softDelete: $softDelete)');
     if (softDelete) {
-       final dataToUpdate = {
+      final dataToUpdate = {
         'isDeleted': 1,
         'diperbarui': DateTime.now().toIso8601String()
       };
-      await _operasiDasar.perbarui('sub_kategori', dataToUpdate, id, dariServer: dariServer);
+      await _operasiDasar.perbarui('sub_kategori', dataToUpdate, id,
+          dariServer: dariServer);
     } else {
       await _operasiDasar.hapus('sub_kategori', id, dariServer: dariServer);
     }
   }
 
   // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> sisipkanAtauPerbaruiBatch(List<SubKategoriModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<SubKategoriModel> items,
+      {bool dariServer = false}) async {
     Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) return;
     final data = items
         .map((item) => item.copyWith(diperbarui: DateTime.now()).toSqlite())
         .toList();
-    await _operasiDasar.sisipkanAtauPerbaruiBatch('sub_kategori', data, dariServer: dariServer);
-     Log.info('Batch sub-kategori selesai.');
+    await _operasiDasar.sisipkanAtauPerbaruiBatch('sub_kategori', data,
+        dariServer: dariServer);
+    Log.info('Batch sub-kategori selesai.');
   }
 
   Future<List<SubKategoriModel>> getSubKategoriByIds(List<String> ids) async {

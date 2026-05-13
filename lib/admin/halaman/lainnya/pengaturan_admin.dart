@@ -36,7 +36,7 @@ class _PengaturanPageState extends State<PengaturanPage> {
           'Detail pengaturan - Interval sinkronisasi: ${data.intervalSinkronisasiOtomatis} jam, Hapus arsip: ${data.hapusOtomatisDataArsip} hari, Mode pemeliharaan: ${data.modePemeliharaan ? "Aktif" : "Nonaktif"}, Info pemeliharaan: ${data.infoPemeliharaan.isNotEmpty ? data.infoPemeliharaan : "(kosong)"}',
         );
         return data;
-      }).catchError((e, st) {
+      }).catchError((Object e, StackTrace st) {
         Log.error(
           'Gagal memuat data pengaturan dari database lokal',
           e: e,
@@ -96,7 +96,8 @@ class _PengaturanPageState extends State<PengaturanPage> {
     );
 
     if (konfirmasi == true) {
-      Log.info('Pengguna mengonfirmasi reset. Memanggil SyncManager().resetWaktuSinkronisasi().');
+      Log.info(
+          'Pengguna mengonfirmasi reset. Memanggil SyncManager().resetWaktuSinkronisasi().');
       try {
         await SyncManager().resetWaktuSinkronisasi();
         Log.info('Reset waktu sinkronisasi berhasil.');

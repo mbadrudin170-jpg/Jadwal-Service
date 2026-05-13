@@ -9,11 +9,11 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
-import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
@@ -23,7 +23,9 @@ import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
+/// Widget utama aplikasi.
 class MyApp extends StatelessWidget {
+  /// Konstruktor untuk MyApp.
   const MyApp({super.key});
 
   @override
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Widget yang melakukan inisialisasi aplikasi.
 class AppInitializer extends StatefulWidget {
+  /// Konstruktor untuk AppInitializer.
   const AppInitializer({super.key});
 
   @override
@@ -44,7 +48,7 @@ class AppInitializer extends StatefulWidget {
 
 class _AppInitializerState extends State<AppInitializer> {
   late Future<bool> _initialization;
-  String _loadingMessage = "Memulai aplikasi...";
+  String _loadingMessage = 'Memulai aplikasi...';
   final KoneksiInternetService _koneksiService = KoneksiInternetService();
 
   @override
@@ -57,40 +61,40 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi aplikasi.');
     try {
-      _updateMessage("Menginisialisasi layanan Google...");
+      _updateMessage('Menginisialisasi layanan Google...');
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         );
       }
 
-      _updateMessage("Mengonfigurasi pengaturan lokal...");
+      _updateMessage('Mengonfigurasi pengaturan lokal...');
       tz.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
       await initializeDateFormatting('id_ID', null);
 
-      _updateMessage("Mempersiapkan layanan notifikasi...");
+      _updateMessage('Mempersiapkan layanan notifikasi...');
       final notifikasiServis = NotifikasiServis();
       await notifikasiServis.inisialisasi();
       await notifikasiServis.requestPermissions();
 
-      _updateMessage("Mempersiapkan database lokal...");
+      _updateMessage('Mempersiapkan database lokal...');
       await DatabaseHelper.instance.database;
 
-      _updateMessage("Memeriksa data awal...");
+      _updateMessage('Memeriksa data awal...');
       await UnduhanAwalService().jalankanUnduhanAwal();
       await PembersihanDataService().jalankanJikaPerlu();
 
-      _updateMessage("Mengecek koneksi internet...");
+      _updateMessage('Mengecek koneksi internet...');
       final isOnline = await _koneksiService.cekKoneksi();
 
-      _updateMessage("Selesai, membuka aplikasi...");
-      await Future.delayed(const Duration(milliseconds: 500));
+      _updateMessage('Selesai, membuka aplikasi...');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
       return isOnline;
     } catch (e, s) {
       Log.error('Error kritis selama inisialisasi.', e: e, st: s);
-      _updateMessage("Terjadi error: ${e.toString()}");
+      _updateMessage('Terjadi error: ${e.toString()}');
       return false;
     }
   }
@@ -112,7 +116,6 @@ class _AppInitializerState extends State<AppInitializer> {
           return AppProviders(isOffline: !isOnline);
         }
         return MaterialApp(
-          debugShowCheckedModeBanner: false,
           home: SplashScreen(loadingMessage: _loadingMessage),
         );
       },
@@ -120,8 +123,12 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 }
 
+/// Widget yang menyediakan provider untuk aplikasi.
 class AppProviders extends StatelessWidget {
+  /// Status offline.
   final bool isOffline;
+
+  /// Konstruktor untuk AppProviders.
   const AppProviders({super.key, required this.isOffline});
 
   @override
@@ -137,8 +144,12 @@ class AppProviders extends StatelessWidget {
   }
 }
 
+/// Widget yang membangun MaterialApp.
 class AppMaterial extends StatelessWidget {
+  /// Status offline.
   final bool isOffline;
+
+  /// Konstruktor untuk AppMaterial.
   const AppMaterial({super.key, required this.isOffline});
 
   @override

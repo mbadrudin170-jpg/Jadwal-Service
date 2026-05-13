@@ -1,7 +1,8 @@
 // path: lib/admin/halaman/lainnya/versi_apk_user.dart
+// diubah: Memperbaiki impor enum yang rusak dan memperbaiki unawaited future.
 
 import 'package:wifi/admin/halaman/detail/detail_versi_apk_user.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
@@ -72,11 +73,9 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
 
     // Log 5 data teratas setelah pengurutan
     Log.info('5 data teratas setelah pengurutan:');
-    for (
-      int i = 0;
-      i < (_daftarVersiApk.length < 5 ? _daftarVersiApk.length : 5);
-      i++
-    ) {
+    for (int i = 0;
+        i < (_daftarVersiApk.length < 5 ? _daftarVersiApk.length : 5);
+        i++) {
       final v = _daftarVersiApk[i];
       Log.info(
         '  ${i + 1}. ID: ${v.id}, Versi: ${v.versiTerbaru}, Build Universal: ${v.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}',
@@ -326,7 +325,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info(
       'Menampilkan dialog opsi untuk Versi: ${versi.versiTerbaru} (ID: ${versi.id})',
     );
-    showDialog(
+    await showDialog(
       context: context,
       builder: (c) => SimpleDialog(
         title: Text('Opsi Versi ${versi.versiTerbaru}'),
@@ -343,12 +342,12 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
             ),
           ),
           SimpleDialogOption(
-            onPressed: () {
+            onPressed: () async {
               Log.info(
                 'Opsi Arsipkan dipilih untuk Versi: ${versi.versiTerbaru}',
               );
               Navigator.pop(c);
-              _tampilkanDialogArsip(versi);
+              await _tampilkanDialogArsip(versi);
             },
             child: const ListTile(
               leading: Icon(Icons.archive),
@@ -364,7 +363,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info(
       'Menampilkan dialog konfirmasi arsip untuk ID: ${versi.id}, Versi: ${versi.versiTerbaru}',
     );
-    showDialog(
+    await showDialog(
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
@@ -400,9 +399,8 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info('Memulai proses pengarsipan untuk ID: $id');
 
     // Cari data sebelum dihapus untuk logging
-    final dataSebelumArsip = _daftarVersiApk
-        .where((v) => v.id == id)
-        .firstOrNull;
+    final dataSebelumArsip =
+        _daftarVersiApk.where((v) => v.id == id).firstOrNull;
     if (dataSebelumArsip != null) {
       Log.info(
         'Data yang akan diarsipkan - Versi: ${dataSebelumArsip.versiTerbaru}, Build: ${dataSebelumArsip.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}',

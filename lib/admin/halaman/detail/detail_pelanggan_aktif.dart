@@ -1,25 +1,28 @@
 // path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
-// diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah`.
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+// diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah` dan memperbaiki unawaited future.
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/whatsapp/info_paket.dart';
-import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:wifi/shared/whatsapp/info_paket.dart';
 
+/// Halaman untuk menampilkan detail pelanggan aktif.
 class DetailPelangganAktif extends StatefulWidget {
+  /// Model pelanggan aktif yang akan ditampilkan.
   final PelangganAktifModel pelanggan;
 
+  /// Konstruktor untuk DetailPelangganAktif.
   const DetailPelangganAktif({super.key, required this.pelanggan});
 
   @override
@@ -117,8 +120,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
       }
     } catch (e, s) {
       Log.error(
-        'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. '
-        'Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
+        'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
         e: e,
         st: s,
       );
@@ -150,8 +152,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
 
     if (!mounted) {
       Log.warning(
-        'Widget sudah tidak mounted saat _loadDetails() dipanggil. '
-        'Membatalkan proses pemuatan data untuk mencegah memory leak.',
+        'Widget sudah tidak mounted saat _loadDetails() dipanggil. Membatalkan proses pemuatan data untuk mencegah memory leak.',
       );
       return;
     }
@@ -229,16 +230,12 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         Log.info('========================================');
       } else {
         Log.warning(
-          'Widget sudah tidak mounted setelah data berhasil diambil. '
-          'Data tidak akan diupdate ke state untuk mencegah error.',
+          'Widget sudah tidak mounted setelah data berhasil diambil. Data tidak akan diupdate ke state untuk mencegah error.',
         );
       }
     } catch (e, s) {
       Log.error(
-        'Gagal memuat detail pelanggan aktif. '
-        'Proses _loadDetails() mengalami kegagalan. '
-        'Kemungkinan penyebab: koneksi database gagal, data pelanggan tidak ditemukan, '
-        'data paket tidak ditemukan, atau terjadi error saat menggabungkan hasil query.',
+        'Gagal memuat detail pelanggan aktif. Proses _loadDetails() mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, data pelanggan tidak ditemukan, data paket tidak ditemukan, atau terjadi error saat menggabungkan hasil query.',
         e: e,
         st: s,
       );
@@ -255,7 +252,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     }
   }
 
-  void _navigateToEdit() async {
+  Future<void> _navigateToEdit() async {
     Log.info('========================================');
     Log.info('NAVIGASI: Menuju halaman edit pelanggan aktif');
     Log.info('Data yang akan diedit:');
@@ -266,13 +263,12 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info('========================================');
 
     Log.info(
-      'Membuka halaman FormPelangganAktif dengan Navigator.push. '
-      'Mengirim data _pelangganAktif terbaru ke form.',
+      'Membuka halaman FormPelangganAktif dengan Navigator.push. Mengirim data _pelangganAktif terbaru ke form.',
     );
 
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<bool>(
         builder: (context) =>
             FormPelangganAktif(pelangganAktif: _pelangganAktif),
       ),
@@ -315,23 +311,20 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
           _pelangganAktif = updatedPelangganAktif;
         });
         Log.info(
-          '_pelangganAktif berhasil diperbarui. '
-          'Status baru: ${updatedPelangganAktif.status.displayName}, '
-          'Tanggal Berakhir: ${updatedPelangganAktif.tanggalBerakhir}',
+          '_pelangganAktif berhasil diperbarui. Status baru: ${updatedPelangganAktif.status.displayName}, Tanggal Berakhir: ${updatedPelangganAktif.tanggalBerakhir}',
         );
 
         Log.info(
           'Memanggil _loadDetails() untuk memperbarui data pelanggan dan paket terkait.',
         );
-        _loadDetails();
+        await _loadDetails();
       } else if (!mounted) {
         Log.warning(
           'Widget sudah tidak mounted. Tidak dapat memperbarui state.',
         );
       } else if (updatedPelangganAktif == null) {
         Log.warning(
-          'Data pelanggan aktif terbaru tidak ditemukan. '
-          'Kemungkinan data telah dihapus dari database.',
+          'Data pelanggan aktif terbaru tidak ditemukan. Kemungkinan data telah dihapus dari database.',
         );
       }
     } else if (result == false) {
@@ -350,16 +343,6 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
   }
 
   @override
-  void dispose() {
-    Log.info('========================================');
-    Log.info('LIFECYCLE: dispose() - Halaman DetailPelangganAktif');
-    Log.info('ID Pelanggan Aktif: ${_pelangganAktif.id}');
-    Log.info('Membersihkan resource dan state halaman DetailPelangganAktif.');
-    Log.info('========================================');
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI DetailPelangganAktif');
@@ -375,8 +358,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Log.info(
-              'NAVIGASI: Tombol Kembali ditekan. '
-              'Kembali ke halaman sebelumnya dengan result true.',
+              'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result true.',
             );
             Navigator.pop(context, true);
           },
@@ -420,9 +402,9 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                     Log.info(
                                       'Menuju halaman DetailPelangganPage dengan ID: ${_pelanggan!.id}',
                                     );
-                                    Navigator.push(
+                                    Navigator.push<void>(
                                       context,
-                                      MaterialPageRoute(
+                                      MaterialPageRoute<void>(
                                         builder: (context) =>
                                             DetailPelangganPage(
                                           idPelanggan: _pelanggan!.id,
@@ -459,9 +441,9 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                   Log.info(
                                     'Menuju halaman DetailPaketPage dengan data paket: ${_paket!.nama}',
                                   );
-                                  Navigator.push(
+                                  Navigator.push<void>(
                                     context,
-                                    MaterialPageRoute(
+                                    MaterialPageRoute<void>(
                                       builder: (context) =>
                                           DetailPaketPage(paket: _paket!),
                                     ),

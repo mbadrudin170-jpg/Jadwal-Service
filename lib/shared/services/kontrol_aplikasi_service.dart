@@ -6,8 +6,8 @@ import 'package:wifi/shared/debug/log.dart';
 // untuk mengontrol status aplikasi pengguna dari jarak jauh
 class KontrolAplikasiService {
   // Mendapatkan referensi ke koleksi 'pengaturan' di Firestore.
-  final CollectionReference _pengaturanRef = FirebaseFirestore.instance
-      .collection('pengaturan');
+  final CollectionReference _pengaturanRef =
+      FirebaseFirestore.instance.collection('pengaturan');
 
   // untuk mendapatkan status maintenance dari firestore
   Future<bool> dapatkanStatusMaintenance() async {

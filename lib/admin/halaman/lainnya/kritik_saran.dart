@@ -28,20 +28,17 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
   void _loadKritikSaran() {
     Log.info('Memuat data kritik dan saran dari database');
     setState(() {
-      _kritikSaranFuture = _kritikSaranOperasi
-          .getKritikSaran()
-          .then((data) {
-            Log.info('Berhasil memuat ${data.length} data kritik dan saran');
-            return data;
-          })
-          .catchError((e, st) {
-            Log.error(
-              'Gagal memuat data kritik dan saran dari database',
-              e: e,
-              st: st,
-            );
-            throw e;
-          });
+      _kritikSaranFuture = _kritikSaranOperasi.getKritikSaran().then((data) {
+        Log.info('Berhasil memuat ${data.length} data kritik dan saran');
+        return data;
+      }).catchError((Object e, StackTrace st) {
+        Log.error(
+          'Gagal memuat data kritik dan saran dari database',
+          e: e,
+          st: st,
+        );
+        throw e;
+      });
     });
   }
 
@@ -148,7 +145,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                             // diubah: Menambahkan null check untuk properti tanggal
                             child: Text(
                               item.tanggal != null
-                                  ? FormatTanggal.formatTanggalDanJam(item.tanggal!)
+                                  ? FormatTanggal.formatTanggalDanJam(
+                                      item.tanggal!)
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,

@@ -19,7 +19,8 @@ class MaintenancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ditambah: Log saat halaman ini dibangun.
-    Log.info('[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"');
+    Log.info(
+        '[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"');
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +62,8 @@ class MaintenancePage extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   textStyle: Theme.of(context).textTheme.titleMedium,
                 ),
               ),

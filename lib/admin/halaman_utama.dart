@@ -119,7 +119,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
         hasil.contains(ConnectivityResult.wifi);
     if (terkoneksi) {
       Log.info(
-          'Terdeteksi perubahan koneksi: KEMBALI ONLINE. Memicu sinkronisasi.');
+          'Terdeteksi perubahan koneksi: KEMBALI ONLINE. Memicu sinkronisasi.',);
       _sinkronisasiDataSaatOnline();
     } else {
       Log.warning('Terdeteksi perubahan koneksi: OFFLINE.');

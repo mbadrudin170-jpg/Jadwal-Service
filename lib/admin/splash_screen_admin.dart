@@ -6,7 +6,7 @@ import 'package:wifi/shared/debug/log.dart';
 class SplashScreen extends StatelessWidget {
   final String loadingMessage;
 
-  const SplashScreen({super.key, this.loadingMessage = "Memuat..."});
+  const SplashScreen({super.key, this.loadingMessage = 'Memuat...'});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,8 @@ class SplashScreen extends StatelessWidget {
     Log.info('Membangun UI untuk SplashScreen dengan pesan: "$loadingMessage"');
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor, // diubah: Menggunakan warna dari tema
+      backgroundColor:
+          theme.scaffoldBackgroundColor, // diubah: Menggunakan warna dari tema
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -27,7 +28,8 @@ class SplashScreen extends StatelessWidget {
             Text(
               'Admin WiFi',
               style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.onSurface, // diubah: Menggunakan onSurface
+                color: theme
+                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
               ),
             ),
             const SizedBox(height: 40),
@@ -38,7 +40,8 @@ class SplashScreen extends StatelessWidget {
             Text(
               loadingMessage,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface, // diubah: Menggunakan onSurface
+                color: theme
+                    .colorScheme.onSurface, // diubah: Menggunakan onSurface
               ),
             ),
           ],

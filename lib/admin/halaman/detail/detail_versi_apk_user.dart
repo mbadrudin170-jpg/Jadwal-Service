@@ -4,10 +4,12 @@ import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
 
-// untuk menampilkan detail dari sebuah versi apk
+/// Halaman untuk menampilkan detail dari sebuah versi APK.
 class DetailVersiApkUser extends StatelessWidget {
+  /// Model versi APK yang akan ditampilkan.
   final VersiApkUserModel versiApk;
 
+  /// Konstruktor untuk DetailVersiApkUser.
   const DetailVersiApkUser({
     super.key,
     required this.versiApk,
@@ -35,8 +37,7 @@ class DetailVersiApkUser extends StatelessWidget {
                 'Pengguna menekan tombol edit untuk versi APK: ${versiApk.versiTerbaru}.',
               );
 
-              final result =
-                  await Navigator.push<bool>(
+              final result = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
                   builder: (context) {
@@ -45,8 +46,7 @@ class DetailVersiApkUser extends StatelessWidget {
                     );
 
                     return FormVersiApkUser(
-                      versiApkUser:
-                          versiApk,
+                      versiApkUser: versiApk,
                     );
                   },
                 ),
@@ -56,8 +56,7 @@ class DetailVersiApkUser extends StatelessWidget {
                 'Halaman form edit versi APK selesai ditutup dengan hasil: $result.',
               );
 
-              if (result == true &&
-                  context.mounted) {
+              if (result == true && context.mounted) {
                 Log.info(
                   'Berhasil edit data versi APK dan mengirim sinyal refresh ke halaman sebelumnya.',
                 );
@@ -90,9 +89,7 @@ class DetailVersiApkUser extends StatelessWidget {
           ),
           _buildInfoRow(
             'Wajib Update',
-            versiApk.wajibUpdate
-                ? 'Ya'
-                : 'Tidak',
+            versiApk.wajibUpdate ? 'Ya' : 'Tidak',
           ),
           _buildInfoRow(
             'Catatan Rilis',
@@ -104,14 +101,11 @@ class DetailVersiApkUser extends StatelessWidget {
           const Text(
             'Nomor Build Terbaru',
             style: TextStyle(
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          ...versiApk
-              .nomorBuildTerbaru.entries
-              .map(
+          ...versiApk.nomorBuildTerbaru.entries.map(
             (entry) {
               Log.info(
                 'Menampilkan nomor build untuk arsitektur: ${entry.key.name} dengan nilai: ${entry.value}.',
@@ -129,14 +123,11 @@ class DetailVersiApkUser extends StatelessWidget {
           const Text(
             'Tautan Unduhan',
             style: TextStyle(
-              fontWeight:
-                  FontWeight.bold,
+              fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          ...versiApk
-              .tautanUnduhan.entries
-              .map(
+          ...versiApk.tautanUnduhan.entries.map(
             (entry) {
               Log.info(
                 'Menampilkan tautan unduhan untuk arsitektur: ${entry.key.name}.',
@@ -170,22 +161,18 @@ class DetailVersiApkUser extends StatelessWidget {
     );
 
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 8.0,
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 120,
             child: Text(
               label,
-              style:
-                  const TextStyle(
-                fontWeight:
-                    FontWeight.bold,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

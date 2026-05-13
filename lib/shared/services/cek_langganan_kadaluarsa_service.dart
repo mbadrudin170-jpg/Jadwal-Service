@@ -20,8 +20,8 @@ class CekLanggananKadaluarsaService {
       );
 
       // Memanggil satu fungsi yang sudah menangani seluruh logika
-      final jumlahDiarsipkan = await _pelangganAktifOperasi
-          .arsipkanPelangganKadaluarsa();
+      final jumlahDiarsipkan =
+          await _pelangganAktifOperasi.arsipkanPelangganKadaluarsa();
 
       if (jumlahDiarsipkan > 0) {
         Log.info(

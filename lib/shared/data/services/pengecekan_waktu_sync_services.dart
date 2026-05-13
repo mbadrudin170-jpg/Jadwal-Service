@@ -24,8 +24,7 @@ class PengecekanWaktuSyncService {
   })  : _syncManager = syncManager ?? SyncManager(),
         _layananUnggah = layananUnggah ?? LayananUnggahData(),
         _layananUnduh = layananUnduh ?? LayananUnduhData(),
-        _pengecekanDataBaru =
-            pengecekanDataBaru ?? PengecekanDataBaruService(),
+        _pengecekanDataBaru = pengecekanDataBaru ?? PengecekanDataBaruService(),
         _firestore = firestore ?? FirebaseFirestore.instance {
     Log.info(
       'Inisialisasi PengecekanWaktuSyncService berhasil. Seluruh dependensi utama seperti SyncManager (pengelola status), LayananUnggah (pengiriman data), LayananUnduh (penerimaan data), dan PengecekanDataBaruService (detektor perubahan) telah disuntikkan ke dalam sistem dan siap digunakan.',
@@ -43,7 +42,8 @@ class PengecekanWaktuSyncService {
     // diubah: Jika ada data yang diunggah, perbarui dokumen status global.
     if (adaDataDiunggah) {
       Log.info(
-          'Pemicu sinkronisasi: Ada data baru yang diunggah. Memperbarui dokumen status/global di server.');
+        'Pemicu sinkronisasi: Ada data baru yang diunggah. Memperbarui dokumen status/global di server.',
+      );
       await _updateStatusGlobal();
     }
 
@@ -98,12 +98,12 @@ class PengecekanWaktuSyncService {
   // ditambah: Fungsi baru untuk membuat/memperbarui dokumen status global.
   Future<void> _updateStatusGlobal() async {
     try {
-      await _firestore
-          .collection('status')
-          .doc('global')
-          .set({'diperbarui': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+      await _firestore.collection('status').doc('global').set(
+          {'diperbarui': FieldValue.serverTimestamp()},
+          SetOptions(merge: true));
       Log.info(
-          'Dokumen status/global berhasil diperbarui dengan server timestamp.');
+        'Dokumen status/global berhasil diperbarui dengan server timestamp.',
+      );
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen status/global di Firestore.',

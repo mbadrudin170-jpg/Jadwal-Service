@@ -1,16 +1,31 @@
-// path: lib/model/sub_kategori_model.dart
-// diubah: Penamaan metode diseragamkan (fromSqlite, toSqlite, fromFirebase, toFirebase).
+// path: lib/shared/model/sub_kategori_model.dart
+// diubah: Penamaan metode diseragamkan, ditambahkan dokumentasi lengkap dan keamanan tipe.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
+/// Model yang merepresentasikan sebuah sub-kategori.
+///
+/// Sub-kategori selalu berada di bawah sebuah [KategoriModel] induk.
 class SubKategoriModel {
+  /// ID unik dari sub-kategori, biasanya dihasilkan oleh UUID.
   final String id;
+
+  /// Nama dari sub-kategori.
   final String nama;
-  final String idKategori; 
+
+  /// ID dari [KategoriModel] induk.
+  final String idKategori;
+
+  /// Waktu terakhir data ini diperbarui.
   final DateTime? diperbarui;
+
+  /// Penanda jika data ini telah dihapus (soft delete).
   final bool isDeleted;
+
+  /// Waktu kapan data ini diarsipkan.
   final DateTime? diarsipkan;
 
+  /// Konstruktor utama untuk membuat instance [SubKategoriModel].
   SubKategoriModel({
     String? id,
     required this.nama,
@@ -20,6 +35,7 @@ class SubKategoriModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
+  /// Membuat salinan dari instance [SubKategoriModel] dengan beberapa nilai yang diubah.
   SubKategoriModel copyWith({
     String? id,
     String? nama,
@@ -38,6 +54,7 @@ class SubKategoriModel {
     );
   }
 
+  /// Helper untuk mengubah nilai dinamis menjadi DateTime.
   static DateTime? _parseDateTime(dynamic date) {
     if (date == null) return null;
     if (date is Timestamp) return date.toDate();
@@ -45,19 +62,28 @@ class SubKategoriModel {
     return null;
   }
 
-  // diubah: Nama metode diubah dari fromMap menjadi fromSqlite
+  /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
+  static bool _parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    if (value is String) return value.toLowerCase() == 'true';
+    return false;
+  }
+
+  /// Factory constructor untuk membuat [SubKategoriModel] dari data SQLite.
   factory SubKategoriModel.fromSqlite(Map<String, dynamic> map) {
     return SubKategoriModel(
-      id: map['id'] ?? '',
-      nama: map['nama'] ?? '',
-      idKategori: map['id_kategori'] ?? '',
+      id: map['id'] as String? ?? '',
+      nama: map['nama'] as String? ?? '',
+      idKategori: map['id_kategori'] as String? ?? '',
       diperbarui: _parseDateTime(map['diperbarui']),
-      isDeleted: map['isDeleted'] == 1 || map['isDeleted'] == true,
+      isDeleted: _parseBool(map['isDeleted']),
       diarsipkan: _parseDateTime(map['diarsipkan']),
     );
   }
 
-  // diubah: Nama metode diubah dari toMapForSqlite menjadi toSqlite
+  /// Mengubah instance [SubKategoriModel] menjadi Map untuk disimpan di SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -69,27 +95,27 @@ class SubKategoriModel {
     };
   }
 
-  // ditambahkan: Factory fromFirebase
+  /// Factory constructor untuk membuat [SubKategoriModel] dari data Firebase.
   factory SubKategoriModel.fromFirebase(String id, Map<String, dynamic> data) {
     return SubKategoriModel(
       id: id,
-      nama: data['nama'] ?? '',
-      idKategori: data['id_kategori'] ?? '',
+      nama: data['nama'] as String? ?? '',
+      idKategori: data['id_kategori'] as String? ?? '',
       diperbarui: _parseDateTime(data['diperbarui']),
-      isDeleted: data['isDeleted'] ?? false,
+      isDeleted: _parseBool(data['isDeleted']),
       diarsipkan: _parseDateTime(data['diarsipkan']),
     );
   }
 
-  // diubah: Nama metode diubah dari toMapForFirebase menjadi toFirebase
+  /// Mengubah instance [SubKategoriModel] menjadi Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
     return {
       'id': id,
       'nama': nama,
       'id_kategori': idKategori,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
     };
   }
 }

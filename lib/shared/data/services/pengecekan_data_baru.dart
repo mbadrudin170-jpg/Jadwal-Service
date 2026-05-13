@@ -13,9 +13,9 @@ class PengecekanDataBaruService {
     FirebaseFirestore? firestore,
     SyncManager? syncManager,
     StatusUnggahOperasi? statusUnggahOperasi,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _syncManager = syncManager ?? SyncManager(),
-       _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi() {
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _syncManager = syncManager ?? SyncManager(),
+        _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi() {
     Log.info(
       'Inisialisasi PengecekanDataBaruService berhasil. Komponen FirebaseFirestore untuk akses cloud, SyncManager untuk manajemen waktu lokal, dan StatusUnggahOperasi untuk akses bendera SQLite telah siap digunakan.',
     );
@@ -72,9 +72,8 @@ class PengecekanDataBaruService {
       Log.info(
         'Membangun referensi dokumen Firestore dan memulai permintaan pengambilan data langsung dari server cloud (Source.server).',
       );
-      final DocumentReference docRef = _firestore
-          .collection(namaKoleksi)
-          .doc(idDokumen);
+      final DocumentReference docRef =
+          _firestore.collection(namaKoleksi).doc(idDokumen);
       final DocumentSnapshot docSnapshot = await docRef.get(
         const GetOptions(source: Source.server),
       );
@@ -89,8 +88,8 @@ class PengecekanDataBaruService {
           Log.info(
             'Field "diperbarui" ditemukan pada dokumen server. Mengonversi tipe data Timestamp Firestore ke objek DateTime Dart.',
           );
-          final DateTime waktuServer = (data['diperbarui'] as Timestamp)
-              .toDate();
+          final DateTime waktuServer =
+              (data['diperbarui'] as Timestamp).toDate();
           Log.info('Waktu pembaruan di server adalah: $waktuServer');
 
           final bool isAfter = waktuServer.isAfter(waktuLokal);

@@ -38,7 +38,8 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
   @override
   void initState() {
     super.initState();
-    Log.info('Menginisialisasi FormVersiApkUser (Mode: ${_isEdit ? 'Edit' : 'Tambah'})');
+    Log.info(
+        'Menginisialisasi FormVersiApkUser (Mode: ${_isEdit ? 'Edit' : 'Tambah'})');
 
     _catatanRilisController = TextEditingController();
     _versiTerbaruController = TextEditingController();
@@ -67,10 +68,13 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
       if (versiTerakhir != null && mounted) {
         _versiTerbaruController.text = versiTerakhir.versiTerbaru;
         final buildBerikutnya =
-            (versiTerakhir.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0) + 1;
+            (versiTerakhir.nomorBuildTerbaru[ArsitekturApkEnum.universal] ??
+                    0) +
+                1;
         _buildUniversalController.text = buildBerikutnya.toString();
 
-        Log.info('Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya');
+        Log.info(
+            'Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya');
       }
     } catch (e, s) {
       Log.error('Gagal memuat data versi terakhir', e: e, st: s);
@@ -88,12 +92,17 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
 
     _buildUniversalController.text =
         data.nomorBuildTerbaru[ArsitekturApkEnum.universal]?.toString() ?? '';
-    _build32Controller.text = data.nomorBuildTerbaru[ArsitekturApkEnum.bit_32]?.toString() ?? '';
-    _build64Controller.text = data.nomorBuildTerbaru[ArsitekturApkEnum.bit_64]?.toString() ?? '';
+    _build32Controller.text =
+        data.nomorBuildTerbaru[ArsitekturApkEnum.bit_32]?.toString() ?? '';
+    _build64Controller.text =
+        data.nomorBuildTerbaru[ArsitekturApkEnum.bit_64]?.toString() ?? '';
 
-    _tautanUniversalController.text = data.tautanUnduhan[ArsitekturApkEnum.universal] ?? '';
-    _tautan32Controller.text = data.tautanUnduhan[ArsitekturApkEnum.bit_32] ?? '';
-    _tautan64Controller.text = data.tautanUnduhan[ArsitekturApkEnum.bit_64] ?? '';
+    _tautanUniversalController.text =
+        data.tautanUnduhan[ArsitekturApkEnum.universal] ?? '';
+    _tautan32Controller.text =
+        data.tautanUnduhan[ArsitekturApkEnum.bit_32] ?? '';
+    _tautan64Controller.text =
+        data.tautanUnduhan[ArsitekturApkEnum.bit_64] ?? '';
   }
 
   @override
@@ -125,7 +134,8 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
               Text('Konfirmasi Simpan'),
             ],
           ),
-          content: const Text('Apakah data versi aplikasi yang Anda masukkan sudah benar?'),
+          content: const Text(
+              'Apakah data versi aplikasi yang Anda masukkan sudah benar?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -166,7 +176,8 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
 
       final tautanUnduhan = <ArsitekturApkEnum, String>{};
       if (_tautanUniversalController.text.isNotEmpty) {
-        tautanUnduhan[ArsitekturApkEnum.universal] = _tautanUniversalController.text;
+        tautanUnduhan[ArsitekturApkEnum.universal] =
+            _tautanUniversalController.text;
       }
       if (_tautan32Controller.text.isNotEmpty) {
         tautanUnduhan[ArsitekturApkEnum.bit_32] = _tautan32Controller.text;

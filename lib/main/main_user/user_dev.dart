@@ -33,12 +33,14 @@ void main() async {
     final doc = await FirebaseFirestore.instance
         .collection('pengaturan')
         .doc('konfigurasi_global')
-        .get(const GetOptions(source: Source.server)); // Paksa ambil dari server
+        .get(
+            const GetOptions(source: Source.server)); // Paksa ambil dari server
 
     if (doc.exists && doc.data() != null) {
       final pengaturan = PengaturanModel.fromFirebase(doc.data()!);
       if (pengaturan.modePemeliharaan) {
-        Log.warning('[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.');
+        Log.warning(
+            '[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.');
         runApp(
           MaterialApp(
             title: 'Aplikasi dalam Perbaikan',

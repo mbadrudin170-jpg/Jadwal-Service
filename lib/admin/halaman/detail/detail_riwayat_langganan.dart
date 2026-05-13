@@ -1,17 +1,20 @@
 // path: lib/admin/halaman/detail/detail_riwayat_langganan.dart
+import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:flutter/material.dart';
 
+/// Halaman untuk menampilkan detail transaksi langganan.
 class DetailLanggananTransaksiPage extends StatefulWidget {
+  /// ID transaksi yang akan ditampilkan.
   final String idTransaksi;
 
+  /// Konstruktor untuk DetailLanggananTransaksiPage.
   const DetailLanggananTransaksiPage({super.key, required this.idTransaksi});
 
   @override

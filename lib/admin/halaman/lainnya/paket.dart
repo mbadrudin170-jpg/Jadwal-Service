@@ -1,4 +1,3 @@
-
 // path: lib/admin/halaman/lainnya/paket.dart
 
 import 'package:wifi/shared/debug/log.dart';
@@ -74,7 +73,7 @@ class _PaketPageState extends State<PaketPage> {
               onPressed: () {
                 Navigator.pop(context);
                 setState(() => _urutanSaatIni = UrutanPaket.hargaTertinggi);
-                 Log.info('Mengurutkan berdasarkan: Harga (Tertinggi)');
+                Log.info('Mengurutkan berdasarkan: Harga (Tertinggi)');
               },
               child: const Text('Harga (Tertinggi)'),
             ),
@@ -313,16 +312,18 @@ class _PaketPageState extends State<PaketPage> {
             Log.info('Data paket kosong, tidak ada paket yang tersedia');
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
-          
+
           final paketList = snapshot.data!;
 
           // ditambah: Logika untuk mengurutkan daftar paket berdasarkan _urutanSaatIni
           switch (_urutanSaatIni) {
             case UrutanPaket.namaAZ:
-              paketList.sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+              paketList.sort((a, b) =>
+                  a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
               break;
             case UrutanPaket.namaZA:
-              paketList.sort((a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
+              paketList.sort((a, b) =>
+                  b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
               break;
             case UrutanPaket.hargaTertinggi:
               paketList.sort((a, b) => b.harga.compareTo(a.harga));
@@ -338,8 +339,9 @@ class _PaketPageState extends State<PaketPage> {
               paketList.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
               break;
           }
-          
-          Log.info('Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni');
+
+          Log.info(
+              'Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni');
 
           return ListView.builder(
             itemCount: paketList.length,

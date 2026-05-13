@@ -50,7 +50,8 @@ class _PoinPageUserState extends State<PoinPageUser> {
     });
 
     try {
-      final totalPoin = await _transaksiOperasi.getTotalPoin(widget.idPelanggan);
+      final totalPoin =
+          await _transaksiOperasi.getTotalPoin(widget.idPelanggan);
       final daftarHadiah = await _paketOperasi.getPaketByIsPublic();
 
       if (!mounted) return;
@@ -83,8 +84,8 @@ class _PoinPageUserState extends State<PoinPageUser> {
     });
 
     try {
-      final riwayatTransaksi =
-          await _transaksiOperasi.ambilTransaksiByPelangganId(widget.idPelanggan);
+      final riwayatTransaksi = await _transaksiOperasi
+          .ambilTransaksiByPelangganId(widget.idPelanggan);
       final transaksiPoin = riwayatTransaksi
           .where((t) => t.poinYangDihasilkan > 0 || t.poinYangDigunakan > 0)
           .toList();

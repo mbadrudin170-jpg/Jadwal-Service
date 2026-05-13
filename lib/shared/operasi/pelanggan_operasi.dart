@@ -11,7 +11,8 @@ class PelangganOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> createPelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
+  Future<void> createPelanggan(PelangganModel pelanggan,
+      {bool dariServer = false}) async {
     Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
     try {
       final pelangganUntukDisimpan = pelanggan.copyWith(
@@ -99,12 +100,15 @@ class PelangganOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> updatePelanggan(PelangganModel pelanggan, {bool dariServer = false}) async {
+  Future<void> updatePelanggan(PelangganModel pelanggan,
+      {bool dariServer = false}) async {
     Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
     try {
-      final data = pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      final data =
+          pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
-      await _operasiDasar.perbarui('pelanggan', data, pelanggan.id, dariServer: dariServer);
+      await _operasiDasar.perbarui('pelanggan', data, pelanggan.id,
+          dariServer: dariServer);
 
       Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
     } catch (e, s) {
@@ -114,7 +118,8 @@ class PelangganOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> deletePelanggan(String id, {bool softDelete = true, bool dariServer = false}) async {
+  Future<void> deletePelanggan(String id,
+      {bool softDelete = true, bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
     );
@@ -126,7 +131,8 @@ class PelangganOperasi {
               'isDeleted': 1,
               'diperbarui': DateTime.now().toUtc().toIso8601String(),
             },
-            id, dariServer: dariServer);
+            id,
+            dariServer: dariServer);
         Log.info('Berhasil melakukan soft delete pada pelanggan ID: $id.');
       } else {
         await _operasiDasar.hapus('pelanggan', id, dariServer: dariServer);
@@ -178,7 +184,8 @@ class PelangganOperasi {
             'diarsipkan': now.toIso8601String(),
             'diperbarui': now.toIso8601String(),
           },
-          id, dariServer: dariServer);
+          id,
+          dariServer: dariServer);
       Log.info('Berhasil mengarsipkan pelanggan ID: $id.');
     } catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan.', e: e, st: s);
@@ -187,7 +194,8 @@ class PelangganOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items,
+      {bool dariServer = false}) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
       return;
@@ -198,7 +206,8 @@ class PelangganOperasi {
         return item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data, dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data,
+          dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan operasi batch untuk ${items.length} pelanggan.',
       );

@@ -39,7 +39,8 @@ class PengaturanOperasi {
           id: idPengaturanGlobal,
           diperbarui: DateTime.now().toUtc(),
         );
-        await simpanAtauPerbaruiPengaturan(pengaturanDefault, dariServer: false);
+        await simpanAtauPerbaruiPengaturan(pengaturanDefault,
+            dariServer: false);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
       }
@@ -55,7 +56,8 @@ class PengaturanOperasi {
   }
 
   // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
-  Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan, {bool dariServer = false}) async {
+  Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan,
+      {bool dariServer = false}) async {
     try {
       final pengaturanUntukDisimpan = pengaturan.copyWith(
         id: idPengaturanGlobal,
@@ -85,9 +87,8 @@ class PengaturanOperasi {
 
   // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
   Future<void> simpanAtauPerbaruiPengaturanDenganBatch(
-    PengaturanModel pengaturan,
-     {bool dariServer = false}
-  ) async {
+      PengaturanModel pengaturan,
+      {bool dariServer = false}) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final pengaturanUntukDisimpan = pengaturan.copyWith(
@@ -95,9 +96,12 @@ class PengaturanOperasi {
         diperbarui: DateTime.now().toUtc(),
       );
       final dataPengaturan = pengaturanUntukDisimpan.toSqlite();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch(_namaTabel, [
-        dataPengaturan,
-      ], dariServer: dariServer); 
+      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+          _namaTabel,
+          [
+            dataPengaturan,
+          ],
+          dariServer: dariServer);
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error(

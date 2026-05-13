@@ -1,9 +1,9 @@
-// path: lib/model/versi_apk_user_model.dart
-// diubah: Penamaan metode diseragamkan dan logika Firebase disesuaikan.
+// path: lib/shared/model/versi_apk_user_model.dart
+// diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, dan impor enum diperbaiki.
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 
 class VersiApkUserModel {
   final String id;

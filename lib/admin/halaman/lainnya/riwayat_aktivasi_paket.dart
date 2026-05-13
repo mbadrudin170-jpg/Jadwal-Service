@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/lainnya/riwayat_aktivasi_paket.dart
+// diubah: Memperbaiki unawaited future.
 
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
@@ -35,53 +36,51 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
   Future<void> _loadRiwayat() async {
     Log.info('Memuat data transaksi aktivasi paket dari database');
     setState(() {
-      _listTransaksiFuture = _transaksiOperasi
-          .getTransaksiByAktivasiPaket()
-          .then((list) {
-            Log.info(
-              'Berhasil memuat ${list.length} data transaksi aktivasi paket',
-            );
+      _listTransaksiFuture =
+          _transaksiOperasi.getTransaksiByAktivasiPaket().then((list) {
+        Log.info(
+          'Berhasil memuat ${list.length} data transaksi aktivasi paket',
+        );
 
-            // Log ringkasan setiap transaksi
-            int jumlahLunas = 0;
-            int jumlahBelumLunas = 0;
-            int jumlahBerakhirHariIni = 0;
-            final sekarang = DateTime.now();
+        // Log ringkasan setiap transaksi
+        int jumlahLunas = 0;
+        int jumlahBelumLunas = 0;
+        int jumlahBerakhirHariIni = 0;
+        final sekarang = DateTime.now();
 
-            for (var transaksi in list) {
-              if (transaksi.statusPembayaran == StatusPembayaranEnum.lunas) {
-                jumlahLunas++;
-              } else {
-                jumlahBelumLunas++;
-              }
+        for (var transaksi in list) {
+          if (transaksi.statusPembayaran == StatusPembayaranEnum.lunas) {
+            jumlahLunas++;
+          } else {
+            jumlahBelumLunas++;
+          }
 
-              if (transaksi.tanggalBerakhir != null &&
-                  transaksi.tanggalBerakhir!.year == sekarang.year &&
-                  transaksi.tanggalBerakhir!.month == sekarang.month &&
-                  transaksi.tanggalBerakhir!.day == sekarang.day) {
-                jumlahBerakhirHariIni++;
-              }
+          if (transaksi.tanggalBerakhir != null &&
+              transaksi.tanggalBerakhir!.year == sekarang.year &&
+              transaksi.tanggalBerakhir!.month == sekarang.month &&
+              transaksi.tanggalBerakhir!.day == sekarang.day) {
+            jumlahBerakhirHariIni++;
+          }
 
-              Log.info(
-                'Transaksi ID: ${transaksi.id} - Pelanggan ID: ${transaksi.idPelanggan ?? "N/A"}, Paket ID: ${transaksi.idPaket ?? "N/A"}, Status: ${transaksi.statusPembayaran.name}, Mulai: ${transaksi.tanggalMulai != null ? FormatTanggal.formatTanggalBasic(transaksi.tanggalMulai!) : "N/A"}, Berakhir: ${transaksi.tanggalBerakhir != null ? FormatTanggal.formatTanggalBasic(transaksi.tanggalBerakhir!) : "N/A"}',
-              );
-            }
+          Log.info(
+            'Transaksi ID: ${transaksi.id} - Pelanggan ID: ${transaksi.idPelanggan ?? "N/A"}, Paket ID: ${transaksi.idPaket ?? "N/A"}, Status: ${transaksi.statusPembayaran.name}, Mulai: ${transaksi.tanggalMulai != null ? FormatTanggal.formatTanggalBasic(transaksi.tanggalMulai!) : "N/A"}, Berakhir: ${transaksi.tanggalBerakhir != null ? FormatTanggal.formatTanggalBasic(transaksi.tanggalBerakhir!) : "N/A"}',
+          );
+        }
 
-            Log.info(
-              'Ringkasan transaksi - Total: ${list.length}, Lunas: $jumlahLunas, Belum Lunas: $jumlahBelumLunas, Berakhir Hari Ini: $jumlahBerakhirHariIni',
-            );
+        Log.info(
+          'Ringkasan transaksi - Total: ${list.length}, Lunas: $jumlahLunas, Belum Lunas: $jumlahBelumLunas, Berakhir Hari Ini: $jumlahBerakhirHariIni',
+        );
 
-            _urutkanList(list, _urutanAktif);
-            return list;
-          })
-          .catchError((error, st) {
-            Log.error(
-              'Gagal memuat data transaksi aktivasi paket dari database',
-              e: error,
-              st: st,
-            );
-            throw error;
-          });
+        _urutkanList(list, _urutanAktif);
+        return list;
+      }).catchError((Object error, StackTrace st) {
+        Log.error(
+          'Gagal memuat data transaksi aktivasi paket dari database',
+          e: error,
+          st: st,
+        );
+        throw error;
+      });
     });
   }
 
@@ -303,8 +302,8 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                 final transaksi = snapshot.data![index];
                 final statusPembayaranColor =
                     transaksi.statusPembayaran == StatusPembayaranEnum.lunas
-                    ? Colors.green
-                    : Colors.red;
+                        ? Colors.green
+                        : Colors.red;
 
                 Log.info(
                   'Membangun item ke-${index + 1} dari $dataLength - ID: ${transaksi.id}, Pelanggan: ${transaksi.idPelanggan ?? "N/A"}, Status: ${transaksi.statusPembayaran.name}',
@@ -332,7 +331,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                         Log.info(
                           'Kembali dari Detail Transaksi ID: ${transaksi.id} dengan perubahan data, menyegarkan daftar',
                         );
-                        _loadRiwayat();
+                        await _loadRiwayat();
                       } else {
                         Log.info(
                           'Kembali dari Detail Transaksi ID: ${transaksi.id} tanpa perubahan data',

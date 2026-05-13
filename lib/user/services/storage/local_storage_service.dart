@@ -56,7 +56,8 @@ class LocalStorageService {
   Future<void> simpanAkun(PelangganModel pelanggan) async {
     Log.info('[Simpan Akun] Menyimpan akun: ${pelanggan.nama}.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
-    List<dynamic> daftar = daftarJson != null ? jsonDecode(daftarJson) : [];
+    List<dynamic> daftar =
+        daftarJson != null ? jsonDecode(daftarJson) as List<dynamic> : [];
 
     if (!daftar.any((p) => p['id'] == pelanggan.id)) {
       // diubah: Menggunakan toSqlite() untuk konsistensi
@@ -77,10 +78,12 @@ class LocalStorageService {
       return [];
     }
 
-    final List<dynamic> daftar = jsonDecode(daftarJson);
+    final List<dynamic> daftar = jsonDecode(daftarJson) as List<dynamic>;
     // diubah: Menggunakan fromSqlite() untuk deserialisasi
-    final listAkun =
-        daftar.map((json) => PelangganModel.fromSqlite(json)).toList();
+    final listAkun = daftar
+        .cast<Map<String, dynamic>>()
+        .map((json) => PelangganModel.fromSqlite(json))
+        .toList();
     Log.info('[Ambil Daftar Akun] Berhasil mengambil ${listAkun.length} akun.');
     return listAkun;
   }
@@ -94,7 +97,7 @@ class LocalStorageService {
       return;
     }
 
-    List<dynamic> daftar = jsonDecode(daftarJson);
+    List<dynamic> daftar = jsonDecode(daftarJson) as List<dynamic>;
     int jumlahSebelum = daftar.length;
     daftar.removeWhere((p) => p['id'] == userId);
     int jumlahSesudah = daftar.length;
@@ -140,7 +143,7 @@ class LocalStorageService {
       return null;
     }
 
-    final List<dynamic> daftar = jsonDecode(daftarJson);
+    final List<dynamic> daftar = jsonDecode(daftarJson) as List<dynamic>;
     try {
       final akunJson = daftar
           .cast<Map<String, dynamic>>()

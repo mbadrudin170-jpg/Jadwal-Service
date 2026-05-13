@@ -1,14 +1,17 @@
 // path: lib/admin/halaman/form/form_dompet.dart
 
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
 
+/// Halaman form untuk menambah atau mengedit dompet.
 class FormDompet extends StatefulWidget {
+  /// Model dompet yang akan diedit. Jika null, maka form akan membuat dompet baru.
   final DompetModel? dompet;
 
+  /// Konstruktor untuk FormDompet.
   const FormDompet({super.key, this.dompet});
 
   @override
@@ -87,7 +90,7 @@ class _FormDompetState extends State<FormDompet> {
     super.dispose();
   }
 
-  void _simpanForm() async {
+  Future<void> _simpanForm() async {
     Log.info('========================================');
     Log.info('AKSI: Tombol Simpan Ditekan');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');

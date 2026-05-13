@@ -17,7 +17,8 @@ class DetailTransaksiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}');
+    Log.info(
+        'Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
@@ -27,9 +28,11 @@ class DetailTransaksiPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Tanggal:', FormatTanggal.formatTanggalDanJam(transaksi.tanggal)),
+            _buildInfoRow('Tanggal:',
+                FormatTanggal.formatTanggalDanJam(transaksi.tanggal)),
             _buildInfoRow('Keterangan:', transaksi.keterangan),
-            _buildInfoRow('Jumlah:', FormatUang.formatMataUang(transaksi.jumlah)),
+            _buildInfoRow(
+                'Jumlah:', FormatUang.formatMataUang(transaksi.jumlah)),
             _buildInfoRow('Tipe:', transaksi.tipe.name),
             // diubah: Menampilkan nama paket dari objek yang diterima.
             if (paket != null)

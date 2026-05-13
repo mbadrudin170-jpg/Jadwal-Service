@@ -67,5 +67,4 @@ class DefaultFirebaseOptions {
     projectId: 'flutter-coding-9f081',
     storageBucket: 'flutter-coding-9f081.firebasestorage.app',
   );
-
 }

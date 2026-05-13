@@ -1,21 +1,41 @@
 // path: lib/shared/model/pelanggan_model.dart
-// diubah: Mengembalikan factory constructor ke fromFirebase sesuai permintaan.
+// diubah: Menambahkan dokumentasi lengkap dan perbaikan tipe data untuk keamanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
+/// Model yang merepresentasikan data seorang pelanggan.
 class PelangganModel {
+  /// ID unik dari pelanggan, biasanya dihasilkan oleh UUID.
   final String id;
+
+  /// Nama lengkap pelanggan.
   final String nama;
+
+  /// Nomor telepon pelanggan.
   final String telepon;
+
+  /// Alamat tempat tinggal pelanggan.
   final String alamat;
+
+  /// Kata sandi pelanggan untuk login.
   final String password;
+
+  /// Alamat MAC perangkat pelanggan, bersifat opsional.
   final String macAddress;
 
+  /// Penanda apakah pelanggan ini telah dihapus (soft delete).
   final bool isDeleted;
+
+  /// Waktu terakhir data pelanggan ini diperbarui.
   final DateTime? diperbarui;
+
+  /// Waktu kapan data pelanggan ini diarsipkan.
   final DateTime? diarsipkan;
 
+  /// Konstruktor untuk membuat instance [PelangganModel].
+  ///
+  /// Jika [id] tidak disediakan, ID baru akan dibuat menggunakan UUID v4.
   PelangganModel({
     String? id,
     required this.nama,
@@ -28,6 +48,7 @@ class PelangganModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
+  /// Membuat salinan dari instance [PelangganModel] dengan beberapa nilai yang diubah.
   PelangganModel copyWith({
     String? id,
     String? nama,
@@ -52,6 +73,8 @@ class PelangganModel {
     );
   }
 
+  /// Mengonversi instance [PelangganModel] menjadi Map JSON.
+  /// Kata sandi disembunyikan untuk keamanan.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -66,6 +89,7 @@ class PelangganModel {
     };
   }
 
+  /// Helper untuk mengubah nilai dinamis menjadi DateTime.
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
@@ -74,27 +98,31 @@ class PelangganModel {
     return null;
   }
 
+  /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
   static bool _parseBool(dynamic value) {
-    if (value == true || value == 1) return true;
-    if (value == false || value == 0 || value == null) return false;
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is int) return value == 1;
     if (value is String) return value.toLowerCase() == 'true';
     return false;
   }
 
+  /// Factory constructor untuk membuat [PelangganModel] dari data SQLite (Map).
   factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
     return PelangganModel(
-      id: map['id'] ?? '',
-      nama: map['nama'] ?? '',
-      telepon: map['telepon'] ?? '',
-      alamat: map['alamat'] ?? '',
-      password: map['password'] ?? '',
-      macAddress: map['mac_address'] ?? '',
+      id: map['id'] as String? ?? '',
+      nama: map['nama'] as String? ?? '',
+      telepon: map['telepon'] as String? ?? '',
+      alamat: map['alamat'] as String? ?? '',
+      password: map['password'] as String? ?? '',
+      macAddress: map['mac_address'] as String? ?? '',
       isDeleted: _parseBool(map['isDeleted']),
       diperbarui: _parseDateTime(map['diperbarui']),
       diarsipkan: _parseDateTime(map['diarsipkan']),
     );
   }
 
+  /// Mengubah instance [PelangganModel] menjadi Map untuk disimpan di SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -109,23 +137,25 @@ class PelangganModel {
     };
   }
 
+  /// Factory constructor untuk membuat [PelangganModel] dari data Firebase.
   factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
     return PelangganModel(
       id: id,
-      nama: data['nama'] ?? '',
-      telepon: data['telepon'] ?? '',
-      alamat: data['alamat'] ?? '',
-      password: data['password'] ?? '',
-      macAddress: data['mac_address'] ?? '',
+      nama: data['nama'] as String? ?? '',
+      telepon: data['telepon'] as String? ?? '',
+      alamat: data['alamat'] as String? ?? '',
+      password: data['password'] as String? ?? '',
+      macAddress: data['mac_address'] as String? ?? '',
       isDeleted: _parseBool(data['isDeleted']),
       diperbarui: _parseDateTime(data['diperbarui']),
       diarsipkan: _parseDateTime(data['diarsipkan']),
     );
   }
 
+  /// Mengubah instance [PelangganModel] menjadi Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
     final Map<String, dynamic> data = {
-      'id': id,
+      // 'id' tidak perlu disimpan karena sudah menjadi ID dokumen
       'nama': nama,
       'telepon': telepon,
       'alamat': alamat,
@@ -133,10 +163,8 @@ class PelangganModel {
       'mac_address': macAddress,
       'isDeleted': isDeleted,
       'diperbarui': FieldValue.serverTimestamp(),
+      'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
     };
-    if (diarsipkan != null) {
-      data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
-    }
     return data;
   }
 }

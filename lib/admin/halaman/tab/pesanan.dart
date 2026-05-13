@@ -290,20 +290,21 @@ class _HalamanPesanState extends State<HalamanPesan> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _daftarPesanan.isEmpty
-                ? const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.inbox, size: 80, color: Colors.grey),
-                        SizedBox(height: 16),
-                        Text(
-                          'Belum ada pesanan',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.inbox, size: 80, color: Colors.grey),
+                            SizedBox(height: 16),
+                            Text(
+                              'Belum ada pesanan',
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.grey),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-                : _buildPesananList(),
+                      )
+                    : _buildPesananList(),
           ),
         ],
       ),
@@ -538,7 +539,8 @@ class _HalamanPesanState extends State<HalamanPesan> {
                     _updateStatus(pesanan, 'diproses');
                   }),
                   const SizedBox(width: 8),
-                  _actionButton('Selesai', Icons.check_circle, Colors.green, () {
+                  _actionButton('Selesai', Icons.check_circle, Colors.green,
+                      () {
                     Log.info(
                       'AKSI: Tombol "Selesai" ditekan untuk pesanan #${pesanan.id}.',
                     );

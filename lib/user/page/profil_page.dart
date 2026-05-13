@@ -38,7 +38,8 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
-    Log.info('Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}');
+    Log.info(
+        'Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}');
     _inisialisasiData();
   }
 
@@ -61,7 +62,8 @@ class _ProfilPageState extends State<ProfilPage> {
               _firestoreService.ambilRiwayatLangganan(pelanggan.id);
         });
       } else {
-        Log.warning('Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.');
+        Log.warning(
+            'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.');
       }
     } catch (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
@@ -114,7 +116,8 @@ class _ProfilPageState extends State<ProfilPage> {
         builder: (context) => DetailPelangganUserPage(userId: userId),
       ),
     ).then((_) {
-      Log.info('Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.');
+      Log.info(
+          'Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.');
       _muatUlangData();
     });
   }
@@ -123,7 +126,8 @@ class _ProfilPageState extends State<ProfilPage> {
   Widget build(BuildContext context) {
     Log.info('Membangun UI untuk ProfilPage.');
     if (_futurePelanggan == null) {
-      Log.info('Future pelanggan masih null, menampilkan indikator loading awal.');
+      Log.info(
+          'Future pelanggan masih null, menampilkan indikator loading awal.');
       return Scaffold(
         appBar: AppBar(title: const Text('Memuat Profil...')),
         body: const Center(child: CircularProgressIndicator()),
@@ -133,7 +137,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return FutureBuilder<PelangganModel?>(
       future: _futurePelanggan,
       builder: (context, snapshot) {
-        Log.info('FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.');
+        Log.info(
+            'FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.');
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Memuat Profil...')),
@@ -152,7 +157,8 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          Log.warning('FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.');
+          Log.warning(
+              'FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.');
           return Scaffold(
             appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
             body: Center(
@@ -162,7 +168,8 @@ class _ProfilPageState extends State<ProfilPage> {
         }
 
         final pelanggan = snapshot.data!;
-        Log.info('Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.');
+        Log.info(
+            'Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.');
 
         return Scaffold(
           appBar: AppBar(
@@ -188,7 +195,8 @@ class _ProfilPageState extends State<ProfilPage> {
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (context, snapshotRiwayat) {
-                        Log.info('FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.');
+                        Log.info(
+                            'FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.');
                         if (snapshotRiwayat.connectionState ==
                             ConnectionState.waiting) {
                           return _bangunInfoItem(
@@ -213,7 +221,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
                         if (!snapshotRiwayat.hasData ||
                             snapshotRiwayat.data!.isEmpty) {
-                          Log.warning('FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.');
+                          Log.warning(
+                              'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.');
                           return _bangunInfoItem(
                             Icons.point_of_sale,
                             'Poin',
@@ -222,7 +231,8 @@ class _ProfilPageState extends State<ProfilPage> {
                         }
 
                         final riwayat = snapshotRiwayat.data!;
-                        Log.info('Menghitung total poin dari ${riwayat.length} transaksi.');
+                        Log.info(
+                            'Menghitung total poin dari ${riwayat.length} transaksi.');
                         int poinDihasilkan = riwayat.fold(
                             0, (sum, item) => sum + item.poinYangDihasilkan);
                         int poinDigunakan = riwayat.fold(
@@ -358,7 +368,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                 } else {
                                   namaPaket =
                                       snapshotPaket.data ?? 'Tidak tersedia';
-                                  Log.info('Nama paket berhasil dimuat: $namaPaket');
+                                  Log.info(
+                                      'Nama paket berhasil dimuat: $namaPaket');
                                 }
                                 return _bangunInfoItem(
                                   Icons.wifi,

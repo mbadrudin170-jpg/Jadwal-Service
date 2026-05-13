@@ -31,7 +31,8 @@ class PembersihanDataService {
     Log.info('Lock diaktifkan. Memulai evaluasi waktu pembersihan terakhir.');
 
     try {
-      Log.info('Mengakses SharedPreferences untuk mengambil timestamp pembersihan terakhir...');
+      Log.info(
+          'Mengakses SharedPreferences untuk mengambil timestamp pembersihan terakhir...');
       final prefs = await SharedPreferences.getInstance();
 
       final now = DateTime.now();
@@ -43,7 +44,8 @@ class PembersihanDataService {
         );
 
         final selisih = now.difference(lastCleanup);
-        Log.info('Terakhir dibersihkan pada $lastCleanup (Selisih: ${selisih.inHours} jam).');
+        Log.info(
+            'Terakhir dibersihkan pada $lastCleanup (Selisih: ${selisih.inHours} jam).');
 
         // 🚫 Kalau belum 24 jam → stop
         if (selisih < const Duration(hours: 24)) {
@@ -53,18 +55,22 @@ class PembersihanDataService {
           return;
         }
       } else {
-        Log.info('Data pembersihan terakhir tidak ditemukan. Ini kemungkinan eksekusi pertama kali.');
+        Log.info(
+            'Data pembersihan terakhir tidak ditemukan. Ini kemungkinan eksekusi pertama kali.');
       }
 
-      Log.info('Kondisi terpenuhi. Memulai proses pembersihan data arsip kadaluarsa...');
+      Log.info(
+          'Kondisi terpenuhi. Memulai proses pembersihan data arsip kadaluarsa...');
 
       // ditambahkan: Mengambil pengaturan untuk mendapatkan batas hari dinamis.
-      Log.info('Mengambil konfigurasi "Hapus Otomatis" dari tabel pengaturan...');
-      final PengaturanModel pengaturan = await _pengaturanOperasi
-          .getPengaturan();
+      Log.info(
+          'Mengambil konfigurasi "Hapus Otomatis" dari tabel pengaturan...');
+      final PengaturanModel pengaturan =
+          await _pengaturanOperasi.getPengaturan();
       final int batasHari = pengaturan.hapusOtomatisDataArsip;
 
-      Log.info('Konfigurasi aktif ditemukan. Batas retensi arsip adalah: $batasHari hari.');
+      Log.info(
+          'Konfigurasi aktif ditemukan. Batas retensi arsip adalah: $batasHari hari.');
 
       // ✅ Simpan dulu timestamp (anti loop kalau crash)
       Log.info('Memperbarui timestamp pembersihan terakhir ke sistem storage.');
@@ -77,9 +83,11 @@ class PembersihanDataService {
       );
 
       if (totalTerhapus > 0) {
-        Log.info('Pembersihan data selesai dengan sukses. Total item yang dihapus: $totalTerhapus data.');
+        Log.info(
+            'Pembersihan data selesai dengan sukses. Total item yang dihapus: $totalTerhapus data.');
       } else {
-        Log.info('Proses selesai. Tidak ada data yang kadaluarsa untuk dihapus pada siklus ini.');
+        Log.info(
+            'Proses selesai. Tidak ada data yang kadaluarsa untuk dihapus pada siklus ini.');
       }
     } catch (e, s) {
       Log.error(

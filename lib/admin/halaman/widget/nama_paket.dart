@@ -22,7 +22,8 @@ class NamaPaketWidget extends StatelessWidget {
           return const Text('Error', style: TextStyle(color: Colors.red));
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Text('Paket tidak ditemukan', style: TextStyle(color: Colors.red));
+          return const Text('Paket tidak ditemukan',
+              style: TextStyle(color: Colors.red));
         }
 
         final paket = snapshot.data!;

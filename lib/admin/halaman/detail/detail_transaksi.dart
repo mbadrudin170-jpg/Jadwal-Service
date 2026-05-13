@@ -1,26 +1,28 @@
 // path: lib/admin/halaman/detail/detail_transaksi.dart// Halaman ini menampilkan detail dari satu transaksi.
 
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
-// ditambah: Navigasi ke form edit
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
+/// Halaman untuk menampilkan detail dari sebuah transaksi.
 class DetailTransaksiPage extends StatefulWidget {
+  /// Model transaksi yang akan ditampilkan.
   final TransaksiModel transaksi;
 
+  /// Konstruktor untuk DetailTransaksiPage.
   const DetailTransaksiPage({super.key, required this.transaksi});
 
   @override
@@ -109,14 +111,13 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     Log.info(
       'Navigasi ke FormTransaksiPage mode edit untuk ID: ${_transaksiSaatIni.id}',
     );
-    Navigator.push(
+    Navigator.push<TransaksiModel?>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<TransaksiModel?>(
         builder: (context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
       ),
     ).then((transaksiYangDiperbarui) {
-      if (transaksiYangDiperbarui != null &&
-          transaksiYangDiperbarui is TransaksiModel) {
+      if (transaksiYangDiperbarui != null) {
         Log.info('Kembali dari form edit, data telah berubah. Memperbarui UI.');
         setState(() {
           _transaksiSaatIni = transaksiYangDiperbarui;
@@ -174,7 +175,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
             _buildFutureDetailRow(
               'Dompet',
               _getNama(
-                (id) => _dompetOperasi.getDompetById(id),
+                _dompetOperasi.getDompetById,
                 transaksi.idDompet,
                 'Dompet',
               ),
@@ -184,7 +185,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getNama(
-                  (id) => _dompetOperasi.getDompetById(id),
+                  _dompetOperasi.getDompetById,
                   transaksi.idDompetTujuan!,
                   'Dompet Tujuan',
                 ),
@@ -192,7 +193,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
             _buildFutureDetailRow(
               'Kategori',
               _getNama(
-                (id) => _kategoriOperasi.getKategoriById(id),
+                _kategoriOperasi.getKategoriById,
                 transaksi.idKategori,
                 'Kategori',
               ),
@@ -202,7 +203,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               _buildFutureDetailRow(
                 'Sub Kategori',
                 _getNama(
-                  (id) => _subKategoriOperasi.getSubKategoriById(id),
+                  _subKategoriOperasi.getSubKategoriById,
                   transaksi.idSubKategori!,
                   'Sub-Kategori',
                 ),
@@ -212,7 +213,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getNama(
-                  (id) => _pelangganOperasi.getPelangganById(id),
+                  _pelangganOperasi.getPelangganById,
                   transaksi.idPelanggan!,
                   'Pelanggan',
                 ),
@@ -221,7 +222,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               _buildFutureDetailRow(
                 'Paket',
                 _getNama(
-                  (id) => _paketOperasi.getPaketById(id),
+                  _paketOperasi.getPaketById,
                   transaksi.idPaket!,
                   'Paket',
                 ),

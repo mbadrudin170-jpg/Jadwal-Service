@@ -1,15 +1,20 @@
 // path: lib/admin/halaman/form/form_paket.dart
 
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
 
+/// Halaman form untuk menambah atau mengedit paket.
 class FormPaket extends StatefulWidget {
+  /// Model paket yang akan diedit. Jika null, maka form akan membuat paket baru.
   final PaketModel? paket;
+
+  /// Operasi paket untuk berinteraksi dengan database.
   final PaketOperasi? paketOperasi;
 
+  /// Konstruktor untuk FormPaket.
   const FormPaket({super.key, this.paket, this.paketOperasi});
 
   @override
@@ -118,7 +123,7 @@ class _FormPaketState extends State<FormPaket> {
     );
   }
 
-  void _saveForm() async {
+  Future<void> _saveForm() async {
     Log.info('========================================');
     Log.info('AKSI: Tombol Simpan Ditekan');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
@@ -219,7 +224,6 @@ class _FormPaketState extends State<FormPaket> {
         Log.info('PENYIMPANAN DATA PAKET BERHASIL');
         Log.info('========================================');
 
-        Log.info('Menampilkan SnackBar sukses ke pengguna.');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

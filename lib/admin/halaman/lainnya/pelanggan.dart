@@ -1,6 +1,6 @@
 // path: lib/admin/halaman/lainnya/pelanggan.dart// diubah: Merefaktor penggunaan RadioListTile untuk menggunakan RadioGroup,
 // Ini menghilangkan peringatan deprecation dan menyederhanakan kode.
-// ditambah: Menambahkan `const` pada konstruktor untuk optimasi performa.
+// ditambah: Menambahkan `const` pada konstruktor untuk optimasi performa dan memperbaiki unawaited future.
 
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -222,7 +222,7 @@ class _PelangganPageState extends State<PelangganPage> {
       Log.info(
         'Kembali dari FormPelanggan dengan hasil sukses (true). Memanggil _refreshPelangganList untuk memuat ulang data.',
       );
-      _refreshPelangganList();
+      await _refreshPelangganList();
     } else {
       Log.info(
         'Kembali dari FormPelanggan tanpa hasil (false atau null). Tidak ada aksi yang diambil.',
@@ -322,7 +322,7 @@ class _PelangganPageState extends State<PelangganPage> {
       Log.info(
         'Berhasil mengarsipkan pelanggan dengan ID: $id. Memuat ulang daftar dan menampilkan SnackBar.',
       );
-      _refreshPelangganList();
+      await _refreshPelangganList();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

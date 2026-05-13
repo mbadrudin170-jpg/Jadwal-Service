@@ -1,4 +1,3 @@
-
 // // path: test/user/page/daftar_akun_page_test.dart
 // // Fitur: Pengujian Halaman Daftar Akun
 // // Tujuan: Memastikan semua fungsionalitas di halaman daftar akun berjalan sesuai harapan.
@@ -27,7 +26,7 @@
 //     mockLocalStorageService = MockLocalStorageService();
 //     testPelanggan1 = PelangganModel(id: '1', nama: 'User Satu', email: 'user1@mail.com');
 //     testPelanggan2 = PelangganModel(id: '2', nama: 'User Dua', email: 'user2@mail.com');
-    
+
 //     // Atur nilai default untuk SharedPreferences
 //     SharedPreferences.setMockInitialValues({});
 //   });

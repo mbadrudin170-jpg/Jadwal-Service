@@ -11,10 +11,12 @@ class DompetOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> createDompet(DompetModel dompet, {bool dariServer = false}) async {
+  Future<void> createDompet(DompetModel dompet,
+      {bool dariServer = false}) async {
     Log.info('Memulai createDompet untuk dompet: ${dompet.toSqlite()}');
     try {
-      final data = dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      final data =
+          dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.sisipkan('dompet', data, dariServer: dariServer);
       Log.info('Berhasil membuat dompet dengan ID data: ${dompet.id}');
     } catch (e, st) {
@@ -79,11 +81,14 @@ class DompetOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> updateDompet(DompetModel dompet, {bool dariServer = false}) async {
+  Future<void> updateDompet(DompetModel dompet,
+      {bool dariServer = false}) async {
     Log.info('Memulai updateDompet untuk dompet: ${dompet.toSqlite()}');
     try {
-      final data = dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.perbarui('dompet', data, dompet.id, dariServer: dariServer);
+      final data =
+          dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      await _operasiDasar.perbarui('dompet', data, dompet.id,
+          dariServer: dariServer);
       Log.info('Berhasil updateDompet untuk ID: ${dompet.id}.');
     } catch (e, st) {
       Log.error(
@@ -104,7 +109,8 @@ class DompetOperasi {
           'Ditemukan ${daftarDompetAktif.length} dompet aktif untuk diarsipkan.');
 
       for (final dompet in daftarDompetAktif) {
-        await updateDompet(dompet.copyWith(diarsipkan: DateTime.now().toUtc()), dariServer: dariServer);
+        await updateDompet(dompet.copyWith(diarsipkan: DateTime.now().toUtc()),
+            dariServer: dariServer);
       }
 
       Log.info('Proses pengarsipan semua dompet telah selesai.');
@@ -146,7 +152,8 @@ class DompetOperasi {
         'isDeleted': 1,
       };
 
-      await _operasiDasar.perbarui('dompet', dataToUpdate, id, dariServer: dariServer);
+      await _operasiDasar.perbarui('dompet', dataToUpdate, id,
+          dariServer: dariServer);
 
       Log.info('Berhasil arsipkanSatuDompet untuk ID: $id.');
     } catch (e, st) {
@@ -228,7 +235,8 @@ class DompetOperasi {
     }
   }
 
-  Future<void> sisipkanAtauPerbaruiBatch(List<DompetModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<DompetModel> items,
+      {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item dompet.',
     );
@@ -240,7 +248,8 @@ class DompetOperasi {
     }
     try {
       final data = items.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('dompet', data, dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('dompet', data,
+          dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${items.length} item.',
       );

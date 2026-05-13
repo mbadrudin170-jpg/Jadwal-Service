@@ -35,9 +35,11 @@ class PembersihanDataOperasi {
 
     // diubah: Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.
     // Ini menghilangkan ketergantungan pada fungsi `datetime('now')` SQLite yang bisa ambigu (lokal vs UTC).
-    final batasWaktu = DateTime.now().toUtc().subtract(Duration(days: batasHari));
+    final batasWaktu =
+        DateTime.now().toUtc().subtract(Duration(days: batasHari));
     final batasWaktuString = batasWaktu.toIso8601String();
-    Log.info('Batas waktu untuk penghapusan arsip diatur ke: $batasWaktuString (UTC)');
+    Log.info(
+        'Batas waktu untuk penghapusan arsip diatur ke: $batasWaktuString (UTC)');
 
     for (final tabel in daftarTabel) {
       try {

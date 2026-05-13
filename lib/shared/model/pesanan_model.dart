@@ -49,7 +49,11 @@ class PesananModel {
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
+    if (dateValue is DateTime) return dateValue;
     if (dateValue is String) return DateTime.tryParse(dateValue);
+    if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
     return null;
   }
 
@@ -60,10 +64,10 @@ class PesananModel {
   factory PesananModel.fromSqlite(Map<String, dynamic> map) {
     return PesananModel(
       id: map['id'] as String? ?? '',
-      idPelanggan: map['id_pelanggan'] ?? '',
-      idPaket: map['id_paket'] ?? '',
+      idPelanggan: map['id_pelanggan'] as String? ?? '',
+      idPaket: map['id_paket'] as String? ?? '',
       tanggal: _parseDateTime(map['tanggal']) ?? DateTime.now(),
-      status: map['status'] ?? 'baru',
+      status: map['status'] as String? ?? 'baru',
       diperbarui: _parseDateTime(map['diperbarui']),
       isDeleted: map['isDeleted'] == 1,
       diarsipkan: _parseDateTime(map['diarsipkan']),
@@ -75,11 +79,11 @@ class PesananModel {
       'id': id,
       'id_pelanggan': idPelanggan,
       'id_paket': idPaket,
-      'tanggal': tanggal.toIso8601String(),
+      'tanggal': tanggal.millisecondsSinceEpoch,
       'status': status,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch,
       'isDeleted': isDeleted ? 1 : 0,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
     };
   }
 
@@ -90,10 +94,10 @@ class PesananModel {
   factory PesananModel.fromFirebase(String id, Map<String, dynamic> data) {
     return PesananModel(
       id: id,
-      idPelanggan: data['id_pelanggan'] ?? '',
-      idPaket: data['id_paket'] ?? '',
+      idPelanggan: data['id_pelanggan'] as String? ?? '',
+      idPaket: data['id_paket'] as String? ?? '',
       tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
-      status: data['status'] ?? 'baru',
+      status: data['status'] as String? ?? 'baru',
       diperbarui: _parseDateTime(data['diperbarui']),
       isDeleted: data['isDeleted'] == true,
       diarsipkan: _parseDateTime(data['diarsipkan']),

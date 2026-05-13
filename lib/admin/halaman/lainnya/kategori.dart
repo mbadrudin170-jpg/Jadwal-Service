@@ -1,4 +1,14 @@
 // path: lib/admin/halaman/lainnya/kategori.dart
+// Fitur: Manajemen Kategori
+// Tujuan: Menampilkan, menambah, mengedit, dan mengarsipkan kategori dan sub-kategori pemasukan/pengeluaran.
+//
+// Daftar Fungsi:
+// - _loadKategori(): Memuat daftar kategori dari database.
+// - _tambahKategori(): Navigasi ke halaman form untuk menambah kategori baru.
+// - _tampilkanDialogKonfirmasi(): Menampilkan dialog konfirmasi generik.
+// - _arsipkanKategoriUtama(): Mengarsipkan kategori utama setelah konfirmasi.
+// - _arsipkanSubKategori(): Mengarsipkan sub-kategori setelah konfirmasi.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
@@ -6,7 +16,13 @@ import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 
+/// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
+///
+/// Halaman ini memungkinkan admin untuk melihat daftar kategori,
+/// memfilter berdasarkan tipe (pemasukan/pengeluaran), serta
+/// melakukan operasi tambah, edit, dan arsip pada kategori dan sub-kategori.
 class KategoriPage extends StatefulWidget {
+  /// Konstruktor untuk membuat instance [KategoriPage].
   const KategoriPage({super.key});
 
   @override
@@ -30,39 +46,43 @@ class _KategoriPageState extends State<KategoriPage> {
   void _loadKategori() {
     Log.info('Memuat data kategori dari database');
     setState(() {
-      _listaKategoriFuture = _kategoriOperasi
-          .getKategori()
-          .then((data) {
-            int totalSubKategori = data.fold(
-              0,
-              (sum, kat) => sum + kat.subKategori.length,
-            );
-            Log.info(
-              'Berhasil memuat ${data.length} kategori utama dengan total $totalSubKategori sub-kategori',
-            );
-            for (var kat in data) {
-              Log.info(
-                'Kategori: ${kat.nama} (ID: ${kat.id}, Tipe: ${kat.tipe.name}, Sub: ${kat.subKategori.length}, Diarsipkan: ${kat.diarsipkan != null ? "Ya" : "Tidak"})',
-              );
-            }
-            return data;
-          })
-          .catchError((e, st) {
-            Log.error(
-              'Gagal memuat data kategori dari database',
-              e: e,
-              st: st,
-            );
-            throw e;
-          });
+      _listaKategoriFuture = _kategoriOperasi.getKategori().then((data) {
+        int totalSubKategori = data.fold(
+          0,
+          (sum, kat) => sum + kat.subKategori.length,
+        );
+        Log.info(
+          'Berhasil memuat ${data.length} kategori utama dengan total $totalSubKategori sub-kategori',
+        );
+        for (var kat in data) {
+          Log.info(
+            'Kategori: ${kat.nama} (ID: ${kat.id}, Tipe: ${kat.tipe.name}, Sub: ${kat.subKategori.length}, Diarsipkan: ${kat.diarsipkan != null ? "Ya" : "Tidak"})',
+          );
+        }
+        return data;
+      })
+          // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
+          // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
+          .catchError((Object e, StackTrace st) {
+        Log.error(
+          'Gagal memuat data kategori dari database',
+          e: e,
+          st: st,
+        );
+        // diubah: Melempar error dengan tipe yang benar.
+        // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
+        throw e;
+      });
     });
   }
 
   void _tambahKategori() async {
     Log.info('Navigasi ke Form Tambah Kategori');
-    final result = await Navigator.push(
+    // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
+    // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => const FormKategoriPage()),
+      MaterialPageRoute<bool>(builder: (context) => const FormKategoriPage()),
     );
     if (result == true) {
       Log.info(
@@ -323,9 +343,11 @@ class _KategoriPageState extends State<KategoriPage> {
                                     Log.info(
                                       'Navigasi ke Form Edit Kategori Utama: ${kategori.nama} (ID: ${kategori.id})',
                                     );
-                                    final result = await Navigator.push(
+                                    // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
+                                    // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
+                                    final result = await Navigator.push<bool>(
                                       context,
-                                      MaterialPageRoute(
+                                      MaterialPageRoute<bool>(
                                         builder: (context) => FormKategoriPage(
                                           kategori: kategori,
                                         ),
@@ -345,48 +367,50 @@ class _KategoriPageState extends State<KategoriPage> {
                                   icon: const Icon(Icons.edit),
                                 )
                               : _isArsipMode
-                              ? IconButton(
-                                  onPressed: () =>
-                                      _arsipkanKategoriUtama(kategori),
-                                  icon: const Icon(Icons.archive),
-                                )
-                              : null,
+                                  ? IconButton(
+                                      onPressed: () =>
+                                          _arsipkanKategoriUtama(kategori),
+                                      icon: const Icon(Icons.archive),
+                                    )
+                                  : null,
                           children: kategori.subKategori
                               .where((sub) => sub.diarsipkan == null)
                               .map((sub) {
-                                return ListTile(
-                                  title: Text(sub.nama),
-                                  trailing: _isEdit
-                                      ? IconButton(
-                                          onPressed: () async {
-                                            Log.info(
-                                              'Navigasi ke Form Edit Sub-Kategori: ${sub.nama} (ID: ${sub.id})',
-                                            );
-                                            final result = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    FormKategoriPage(
-                                                      subKategori: sub,
-                                                      idKategoriInduk:
-                                                          kategori.id,
-                                                    ),
-                                              ),
-                                            );
-                                            if (result == true) {
-                                              Log.info(
-                                                'Sub-kategori ${sub.nama} berhasil diedit, menyegarkan daftar',
-                                              );
-                                              _loadKategori();
-                                            } else {
-                                              Log.info(
-                                                'Kembali dari Form Edit Sub-Kategori tanpa perubahan',
-                                              );
-                                            }
-                                          },
-                                          icon: const Icon(Icons.edit),
-                                        )
-                                      : _isArsipMode
+                            return ListTile(
+                              title: Text(sub.nama),
+                              trailing: _isEdit
+                                  ? IconButton(
+                                      onPressed: () async {
+                                        Log.info(
+                                          'Navigasi ke Form Edit Sub-Kategori: ${sub.nama} (ID: ${sub.id})',
+                                        );
+                                        // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
+                                        // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
+                                        final result =
+                                            await Navigator.push<bool>(
+                                          context,
+                                          MaterialPageRoute<bool>(
+                                            builder: (context) =>
+                                                FormKategoriPage(
+                                              subKategori: sub,
+                                              idKategoriInduk: kategori.id,
+                                            ),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          Log.info(
+                                            'Sub-kategori ${sub.nama} berhasil diedit, menyegarkan daftar',
+                                          );
+                                          _loadKategori();
+                                        } else {
+                                          Log.info(
+                                            'Kembali dari Form Edit Sub-Kategori tanpa perubahan',
+                                          );
+                                        }
+                                      },
+                                      icon: const Icon(Icons.edit),
+                                    )
+                                  : _isArsipMode
                                       ? IconButton(
                                           onPressed: () => _arsipkanSubKategori(
                                             kategori,
@@ -395,9 +419,8 @@ class _KategoriPageState extends State<KategoriPage> {
                                           icon: const Icon(Icons.archive),
                                         )
                                       : null,
-                                );
-                              })
-                              .toList(),
+                            );
+                          }).toList(),
                         ),
                       );
                     },

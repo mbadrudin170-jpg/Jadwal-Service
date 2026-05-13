@@ -39,19 +39,20 @@ class KritikSaranModel {
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
     if (dateValue is String) return DateTime.tryParse(dateValue);
+    if (dateValue is int) return DateTime.fromMillisecondsSinceEpoch(dateValue);
     return null;
   }
 
   factory KritikSaranModel.fromSqlite(Map<String, dynamic> map) {
     return KritikSaranModel(
       id: map['id'] as String?,
-      isi: map['isi'] ?? '',
-      userId: map['userId'] ?? '',
+      isi: map['isi'] as String? ?? '',
+      userId: map['userId'] as String? ?? '',
       tanggal: _parseDateTime(map['tanggal']), // ← Pakai _parseDateTime
       diperbarui: _parseDateTime(map['diperbarui']), // ← Pakai _parseDateTime
     );
   }
-  
+
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -66,8 +67,8 @@ class KritikSaranModel {
   factory KritikSaranModel.fromFirebase(String id, Map<String, dynamic> data) {
     return KritikSaranModel(
       id: id,
-      isi: data['isi'] ?? '',
-      userId: data['userId'] ?? '',
+      isi: data['isi'] as String? ?? '',
+      userId: data['userId'] as String? ?? '',
       tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
       diperbarui: _parseDateTime(data['diperbarui']),
     );

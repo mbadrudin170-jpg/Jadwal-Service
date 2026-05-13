@@ -6,7 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// Kelas pembantu untuk mengelola database SQLite.
 class DatabaseHelper {
+  /// Instance tunggal dari DatabaseHelper.
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
@@ -22,7 +24,7 @@ class DatabaseHelper {
     final dbClient = db;
     final List<Map<String, dynamic>> tableInfo =
         await dbClient.rawQuery('PRAGMA table_info($tableName)');
-    bool columnExists = tableInfo.any((column) => column['name'] == columnName);
+    final bool columnExists = tableInfo.any((column) => column['name'] == columnName);
 
     if (!columnExists) {
       await dbClient
@@ -39,6 +41,7 @@ class DatabaseHelper {
 
   // Definisi tabel lainnya tetap sama...
 
+  /// Mendapatkan instance database.
   Future<Database> get database async {
     Log.info('Memulai proses akses properti database getter.');
     if (_database != null) {
@@ -64,25 +67,25 @@ class DatabaseHelper {
         Log.info('Mode TEST terdeteksi. Menggunakan database in-memory.');
         sqfliteFfiInit();
         databaseFactory = databaseFactoryFfi;
-        return await databaseFactory.openDatabase(
+        return databaseFactory.openDatabase(
           inMemoryDatabasePath,
           options: OpenDatabaseOptions(
               version: _databaseVersion,
               onCreate: createTables,
-              onUpgrade: _onUpgrade),
+              onUpgrade: _onUpgrade,),
         );
       }
 
       Log.info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
-      Directory documentsDirectory = await getApplicationDocumentsDirectory();
-      String path = join(documentsDirectory.path, 'mydatabase.db');
+      final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      final String path = join(documentsDirectory.path, 'mydatabase.db');
       Log.info('Path database: $path');
 
       Log.info('Membuka database dengan versi $_databaseVersion...');
-      return await openDatabase(path,
+      return openDatabase(path,
           version: _databaseVersion,
           onCreate: createTables,
-          onUpgrade: _onUpgrade);
+          onUpgrade: _onUpgrade,);
     } catch (e, st) {
       Log.error('Gagal membuka atau membuat database.', e: e, st: st);
       rethrow;
@@ -129,9 +132,9 @@ class DatabaseHelper {
 
       // Migrasi idempoten lainnya
       await _addColumnIfNotExists(
-          db, 'pelanggan_aktif', 'tanggal_berakhir', 'TEXT');
+          db, 'pelanggan_aktif', 'tanggal_berakhir', 'TEXT',);
       await _addColumnIfNotExists(
-          db, 'pelanggan_aktif', 'tanggal_mulai', 'TEXT');
+          db, 'pelanggan_aktif', 'tanggal_mulai', 'TEXT',);
 
       Log.info('========================================');
       Log.info('PROSES UPGRADE DATABASE SELESAI');
@@ -142,11 +145,12 @@ class DatabaseHelper {
       Log.error(
           'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
           e: e,
-          st: st);
+          st: st,);
       rethrow;
     }
   }
 
+  /// Membuat tabel-tabel database.
   Future<void> createTables(Database db, int version) async {
     // ... (Fungsi createTables tidak berubah)
     Log.info('========================================');
@@ -175,9 +179,9 @@ class DatabaseHelper {
       await db
           .execute('CREATE INDEX idx_transaksi_dompet ON transaksi(id_dompet)');
       await db.execute(
-          'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
+          'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)',);
       await db.execute(
-          'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)');
+          'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)',);
       Log.info('Semua 3 index berhasil dibuat.');
 
       Log.info('========================================');
@@ -189,6 +193,7 @@ class DatabaseHelper {
     }
   }
 
+  /// String SQL untuk membuat tabel versi_apk_user.
   static const String tabelVersiApkUser = '''
       CREATE TABLE versi_apk_user(
         id TEXT PRIMARY KEY,
@@ -204,6 +209,7 @@ class DatabaseHelper {
       )
     ''';
 
+  /// String SQL untuk membuat tabel dompet.
   static const String tabelDompet = '''
       CREATE TABLE dompet(
         id TEXT PRIMARY KEY,
@@ -215,6 +221,7 @@ class DatabaseHelper {
       )
     ''';
 
+  /// String SQL untuk membuat tabel transaksi.
   static const String tabelTransaksi = '''
       CREATE TABLE transaksi(
         id TEXT PRIMARY KEY,

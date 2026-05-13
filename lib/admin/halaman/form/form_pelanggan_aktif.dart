@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/form/form_pelanggan_aktif.dart
+// diubah: Memperbaiki impor enum yang rusak dan merapikan impor lainnya.
 
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
@@ -6,14 +7,12 @@ import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
-import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/hasil_simpan_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -22,7 +21,7 @@ import 'package:wifi/shared/whatsapp/info_paket.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 
 DateTime hitungTanggalBerakhir(DateTime startDate, PaketModel paket) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
@@ -71,12 +70,13 @@ class FormPelangganAktif extends StatefulWidget {
     TransaksiOperasi? transaksiOperasi,
     DompetOperasi? dompetOperasi,
     KategoriOperasi? kategoriOperasi,
-  }) : pelangganOperasi = pelangganOperasi ?? PelangganOperasi(),
-       paketOperasi = paketOperasi ?? PaketOperasi(),
-       pelangganAktifOperasi = pelangganAktifOperasi ?? PelangganAktifOperasi(),
-       transaksiOperasi = transaksiOperasi ?? TransaksiOperasi(),
-       dompetOperasi = dompetOperasi ?? DompetOperasi(),
-       kategoriOperasi = kategoriOperasi ?? KategoriOperasi();
+  })  : pelangganOperasi = pelangganOperasi ?? PelangganOperasi(),
+        paketOperasi = paketOperasi ?? PaketOperasi(),
+        pelangganAktifOperasi =
+            pelangganAktifOperasi ?? PelangganAktifOperasi(),
+        transaksiOperasi = transaksiOperasi ?? TransaksiOperasi(),
+        dompetOperasi = dompetOperasi ?? DompetOperasi(),
+        kategoriOperasi = kategoriOperasi ?? KategoriOperasi();
 
   @override
   State<FormPelangganAktif> createState() => _FormPelangganAktifState();
@@ -298,8 +298,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
       final transaksiId =
           _isEditMode && widget.pelangganAktif?.idTransaksi != null
-          ? widget.pelangganAktif!.idTransaksi!
-          : const Uuid().v4();
+              ? widget.pelangganAktif!.idTransaksi!
+              : const Uuid().v4();
 
       final pelangganAktifData = PelangganAktifModel(
         id: _isEditMode ? widget.pelangganAktif!.id : '',
@@ -317,9 +317,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         tanggal: tanggalMulai,
         keterangan: 'Aktivasi Paket: ${selectedPaket.nama}',
         jumlah: _gunakanPoin ? 0 : selectedPaket.harga.toDouble(),
-        tipe: _gunakanPoin
-            ? TipeTransaksi.pengeluaran
-            : TipeTransaksi.pemasukan,
+        tipe:
+            _gunakanPoin ? TipeTransaksi.pengeluaran : TipeTransaksi.pemasukan,
         idDompet: _selectedDompet!.id,
         idKategori: _selectedKategori!.id,
         idPelanggan: _selectedPelanggan!.id,
@@ -440,9 +439,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
               setState(() {
                 _gunakanPoin = value;
                 if (!_kategoriList.contains(_selectedKategori)) {
-                  _selectedKategori = _kategoriList.isNotEmpty
-                      ? _kategoriList.first
-                      : null;
+                  _selectedKategori =
+                      _kategoriList.isNotEmpty ? _kategoriList.first : null;
                 }
               });
             },
@@ -589,12 +587,12 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   _statusPembayaran == StatusPembayaranEnum.belumLunas
-                  ? Theme.of(context).primaryColor
-                  : Colors.grey[200],
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[200],
               foregroundColor:
                   _statusPembayaran == StatusPembayaranEnum.belumLunas
-                  ? Colors.white
-                  : Colors.black,
+                      ? Colors.white
+                      : Colors.black,
             ),
             onPressed: () => setState(
               () => _statusPembayaran = StatusPembayaranEnum.belumLunas,

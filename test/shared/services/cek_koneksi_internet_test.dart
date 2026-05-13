@@ -29,8 +29,8 @@ void main() {
     // Test 1: Harus mengembalikan true ketika terhubung ke WiFi
     test('Harus mengembalikan true ketika terhubung ke WiFi', () async {
       // Atur mock untuk mengembalikan hasil WiFi
-      when(mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.wifi]);
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.wifi]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -44,8 +44,8 @@ void main() {
     // Test 2: Harus mengembalikan true ketika terhubung ke data seluler
     test('Harus mengembalikan true ketika terhubung ke data seluler', () async {
       // Atur mock untuk mengembalikan hasil mobile
-      when(mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.mobile]);
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.mobile]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -58,8 +58,8 @@ void main() {
     // Test 3: Harus mengembalikan false ketika tidak ada koneksi
     test('Harus mengembalikan false ketika tidak ada koneksi', () async {
       // Atur mock untuk mengembalikan hasil tidak ada koneksi
-      when(mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.none]);
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.none]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -83,8 +83,9 @@ void main() {
       verify(mockConnectivity.checkConnectivity()).called(1);
     });
 
-     // Test 5: Harus mengembalikan true ketika ada beberapa hasil tetapi salah satunya adalah wifi
-    test('Harus mengembalikan true jika salah satu koneksi adalah WiFi', () async {
+    // Test 5: Harus mengembalikan true ketika ada beberapa hasil tetapi salah satunya adalah wifi
+    test('Harus mengembalikan true jika salah satu koneksi adalah WiFi',
+        () async {
       when(mockConnectivity.checkConnectivity()).thenAnswer(
           (_) async => [ConnectivityResult.bluetooth, ConnectivityResult.wifi]);
       final result = await koneksiService.cekKoneksi();

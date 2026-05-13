@@ -94,7 +94,7 @@ class OperasiDasar {
     Map<String, dynamic> data, {
     bool dariServer = false,
   }) async {
-    Log.info('Memulai penyisipan data ke tabel: $tabel', data);
+    Log.info('Memulai penyisipan data ke tabel: $tabel');
     try {
       await _jalankanDalamTransaksi((txn) async {
         final result = await txn.insert(

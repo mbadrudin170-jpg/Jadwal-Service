@@ -3,10 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 
+/// Widget yang menampilkan nama pelanggan berdasarkan ID.
+///
+/// Mengambil data pelanggan secara async menggunakan [PelangganOperasi]
+/// dan menampilkan nama pelanggan. Menampilkan indikator loading saat
+/// menunggu, atau 'User Tidak Dikenal' jika data tidak ditemukan.
 class NamaDariIdWidget extends StatelessWidget {
+  /// ID pengguna yang akan dicari namanya.
   final String userId;
+
+  /// Gaya teks untuk nama yang ditampilkan.
   final TextStyle? style;
 
+  /// Membuat widget [NamaDariIdWidget].
+  ///
+  /// [userId] wajib diisi.
   const NamaDariIdWidget({super.key, required this.userId, this.style});
 
   @override

@@ -8,13 +8,30 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
+/// Halaman UI untuk menampilkan detail profil pelanggan.
+///
+/// Menampilkan informasi lengkap pelanggan seperti nama, telepon, alamat,
+/// password, MAC address, dan total poin. Setiap informasi dapat disalin
+/// ke clipboard.
 class DetailPelangganUI extends StatefulWidget {
+  /// Data pelanggan yang akan ditampilkan.
   final PelangganModel pelanggan;
+
+  /// Total poin yang dimiliki pelanggan.
   final int totalPoin;
+
+  /// Callback saat tombol edit ditekan.
   final VoidCallback? onEdit;
+
+  /// Callback saat kartu poin ditekan untuk navigasi.
   final VoidCallback? onNavigateToPoin;
+
+  /// Callback saat tombol salin semua info ditekan.
   final VoidCallback? onCopyAll;
 
+  /// Membuat halaman [DetailPelangganUI].
+  ///
+  /// [pelanggan] dan [totalPoin] wajib diisi.
   const DetailPelangganUI({
     super.key,
     required this.pelanggan,
@@ -47,7 +64,8 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun DetailPelangganUI untuk pelanggan: ${widget.pelanggan.nama}');
+      'Membangun DetailPelangganUI untuk pelanggan: ${widget.pelanggan.nama}',
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Pelanggan'),

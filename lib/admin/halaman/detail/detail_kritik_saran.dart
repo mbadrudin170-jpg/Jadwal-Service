@@ -1,15 +1,27 @@
 // path: lib/admin/halaman/detail/detail_kritik_saran.dart
+// Fitur: Detail Kritik dan Saran
+// Tujuan: Menampilkan detail dari satu item kritik dan saran, dan menyediakan opsi untuk menghapusnya.
+//
+// Daftar Fungsi:
+// - _loadData(): Memuat data kritik dan saran berdasarkan ID dari operasi.
+// - _hapusKritikSaran(): Menangani logika untuk menghapus item kritik dan saran dengan konfirmasi.
 
+import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/nama_dari_id.dart';
-import 'package:flutter/material.dart';
 
+/// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
+///
+/// Pengguna dapat melihat isi pesan, pengirim, dan tanggal.
+/// Terdapat juga opsi untuk menghapus item ini dari database.
 class DetailKritikSaranPage extends StatefulWidget {
+  /// ID unik dari dokumen kritik dan saran di Firestore.
   final String id;
 
+  /// Konstruktor untuk membuat instance [DetailKritikSaranPage].
   const DetailKritikSaranPage({
     super.key,
     required this.id,
@@ -19,6 +31,7 @@ class DetailKritikSaranPage extends StatefulWidget {
   State<DetailKritikSaranPage> createState() => _DetailKritikSaranPageState();
 }
 
+/// State untuk [DetailKritikSaranPage].
 class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
   final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
 
@@ -47,14 +60,17 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       );
 
       return value;
-    }).catchError((error, st) {
+      // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
+      // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
+    }).catchError((Object e, StackTrace st) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
-        e: error,
+        e: e,
         st: st,
       );
-
-      throw error;
+      // diubah: Melempar error dengan tipe yang benar.
+      // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
+      throw e;
     });
   }
 
@@ -117,8 +133,9 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
         Log.info(
           'Menampilkan loading dialog selama proses penghapusan.',
         );
-
-        showDialog(
+        // diubah: Menambahkan await untuk memenuhi aturan unawaited_futures.
+        // Alasan: Meskipun tidak menunggu hasilnya, ini adalah praktik yang baik untuk kejelasan kode dan menghilangkan peringatan linter.
+        await showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (context) {
@@ -249,6 +266,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
             Log.error(
               'FutureBuilder menerima error saat memuat data.',
               e: snapshot.error,
+              st: snapshot.stackTrace,
             );
 
             return Center(
@@ -325,7 +343,6 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        // diubah: Menambahkan null check untuk properti tanggal
                         child: Text(
                           kritikSaran.tanggal != null
                               ? FormatTanggal.formatTanggalDanJam(

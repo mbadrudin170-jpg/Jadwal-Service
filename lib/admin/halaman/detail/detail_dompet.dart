@@ -11,12 +11,21 @@ import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
 
+/// Kelas data untuk detail dompet.
 class DetailDompetData {
+  /// Model dompet.
   final DompetModel dompet;
+
+  /// Daftar transaksi.
   final List<TransaksiModel> transaksi;
+
+  /// Total pemasukan.
   final double totalPemasukan;
+
+  /// Total pengeluaran.
   final double totalPengeluaran;
 
+  /// Konstruktor untuk DetailDompetData.
   DetailDompetData({
     required this.dompet,
     required this.transaksi,
@@ -25,11 +34,18 @@ class DetailDompetData {
   });
 }
 
+/// Halaman detail untuk dompet.
 class DetailDompet extends StatefulWidget {
+  /// Model dompet.
   final DompetModel dompet;
+
+  /// Operasi dompet.
   final DompetOperasi? dompetOperasi;
+
+  /// Operasi transaksi.
   final TransaksiOperasi? transaksiOperasi;
 
+  /// Konstruktor untuk DetailDompet.
   const DetailDompet({
     super.key,
     required this.dompet,
@@ -121,9 +137,7 @@ class _DetailDompetState extends State<DetailDompet> {
 
       if (dompetTerbaru == null) {
         Log.warning(
-          'Dompet dengan ID ${widget.dompet.id} tidak ditemukan di database. '
-          'Kemungkinan data telah dihapus oleh proses lain. '
-          'Akan melempar Exception untuk ditangani oleh FutureBuilder.',
+          'Dompet dengan ID ${widget.dompet.id} tidak ditemukan di database. Kemungkinan data telah dihapus oleh proses lain. Akan melempar Exception untuk ditangani oleh FutureBuilder.',
         );
         throw Exception('Dompet tidak ditemukan.');
       }
@@ -143,8 +157,7 @@ class _DetailDompetState extends State<DetailDompet> {
         );
       } else {
         Log.warning(
-          'Widget sudah tidak mounted saat ingin memperbarui _namaDompetTerbaru. '
-          'Ini bisa terjadi jika user sudah navigasi keluar dari halaman sebelum data selesai dimuat.',
+          'Widget sudah tidak mounted saat ingin memperbarui _namaDompetTerbaru. Ini bisa terjadi jika user sudah navigasi keluar dari halaman sebelum data selesai dimuat.',
         );
       }
 
@@ -155,7 +168,7 @@ class _DetailDompetState extends State<DetailDompet> {
       double pengeluaran = 0;
 
       for (int i = 0; i < daftarTransaksi.length; i++) {
-        var trx = daftarTransaksi[i];
+        final trx = daftarTransaksi[i];
         if (trx.tipe == TipeTransaksi.pemasukan) {
           pemasukan += trx.jumlah;
           Log.info(
@@ -194,11 +207,7 @@ class _DetailDompetState extends State<DetailDompet> {
       );
     } catch (e, s) {
       Log.error(
-        'Gagal memuat data detail dompet untuk ID: ${widget.dompet.id}. '
-        'Proses _loadData() mengalami kegagalan. '
-        'Kemungkinan penyebab: koneksi database gagal, data dompet tidak ditemukan, '
-        'query transaksi gagal, atau terjadi error saat perhitungan total. '
-        'Error ini akan dilempar ulang dan ditangkap oleh FutureBuilder untuk ditampilkan ke UI.',
+        'Gagal memuat data detail dompet untuk ID: ${widget.dompet.id}. Proses _loadData() mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, data dompet tidak ditemukan, query transaksi gagal, atau terjadi error saat perhitungan total. Error ini akan dilempar ulang dan ditangkap oleh FutureBuilder untuk ditampilkan ke UI.',
         e: e,
         st: s,
       );
@@ -211,8 +220,7 @@ class _DetailDompetState extends State<DetailDompet> {
     Log.info('MEMICU RELOAD DATA (REFRESH)');
     Log.info('========================================');
     Log.info(
-      'Pengguna atau sistem memicu pemuatan ulang data. '
-      'Ini biasanya terjadi setelah:',
+      'Pengguna atau sistem memicu pemuatan ulang data. Ini biasanya terjadi setelah:',
     );
     Log.info('  1. Kembali dari halaman FormDompet (edit data).');
     Log.info('  2. Ada perubahan pada transaksi (tambah/edit/hapus).');
@@ -230,8 +238,7 @@ class _DetailDompetState extends State<DetailDompet> {
     });
 
     Log.info(
-      'setState selesai dijalankan. _futureDetailData telah diganti dengan instance Future baru. '
-      'FutureBuilder akan memulai proses pembangunan ulang UI dengan data terbaru.',
+      'setState selesai dijalankan. _futureDetailData telah diganti dengan instance Future baru. FutureBuilder akan memulai proses pembangunan ulang UI dengan data terbaru.',
     );
   }
 
@@ -305,13 +312,12 @@ class _DetailDompetState extends State<DetailDompet> {
               Log.info('  - Saldo: ${dompetUntukEdit.saldo}');
 
               Log.info(
-                'Membuka halaman FormDompet dengan Navigator.push. '
-                'Menunggu hasil kembalian dari FormDompet setelah user selesai mengedit.',
+                'Membuka halaman FormDompet dengan Navigator.push. Menunggu hasil kembalian dari FormDompet setelah user selesai mengedit.',
               );
 
               final result = await Navigator.push(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<bool>(
                   builder: (context) => FormDompet(dompet: dompetUntukEdit),
                 ),
               );
@@ -334,13 +340,11 @@ class _DetailDompetState extends State<DetailDompet> {
                 _muatUlangData();
               } else if (result == false) {
                 Log.info(
-                  'Result bernilai FALSE. User tidak melakukan perubahan data di FormDompet. '
-                  'Tidak perlu me-refresh data.',
+                  'Result bernilai FALSE. User tidak melakukan perubahan data di FormDompet. Tidak perlu me-refresh data.',
                 );
               } else if (result == null) {
                 Log.info(
-                  'Result bernilai NULL. User menekan tombol back di FormDompet tanpa menyimpan perubahan. '
-                  'Tidak perlu me-refresh data.',
+                  'Result bernilai NULL. User menekan tombol back di FormDompet tanpa menyimpan perubahan. Tidak perlu me-refresh data.',
                 );
               } else {
                 Log.info(
@@ -380,8 +384,7 @@ class _DetailDompetState extends State<DetailDompet> {
 
           if (!snapshot.hasData) {
             Log.warning(
-              'FutureBuilder: Status NO DATA. Snapshot berhasil tetapi tidak mengandung data. '
-              'Ini mungkin terjadi jika data dompet bernilai null atau query mengembalikan hasil kosong.',
+              'FutureBuilder: Status NO DATA. Snapshot berhasil tetapi tidak mengandung data. Ini mungkin terjadi jika data dompet bernilai null atau query mengembalikan hasil kosong.',
             );
             Log.info('Menampilkan pesan "Data Kosong" ke UI.');
             return const Center(child: Text('Data Kosong'));
@@ -485,19 +488,24 @@ class _DetailDompetState extends State<DetailDompet> {
           children: [
             bangunHeaderSeksi(tanggal, totalHarian),
             ...transaksiPadaTanggal.map(
-              (transaksi) => bangunItemTransaksi(context, transaksi, () {
-                Log.info('========================================');
-                Log.info('TRANSAKSI: Refresh dipicu dari ItemTransaksi');
-                Log.info('ID Transaksi: ${transaksi.id}');
-                Log.info(
-                  'User melakukan aksi pada transaksi (edit/hapus) yang memerlukan refresh data.',
-                );
-                Log.info(
-                  'Memanggil _muatUlangData() untuk memperbarui seluruh data halaman.',
-                );
-                Log.info('========================================');
-                _muatUlangData();
-              }, _transaksiOperasi),
+              (transaksi) => bangunItemTransaksi(
+                context,
+                transaksi,
+                () {
+                  Log.info('========================================');
+                  Log.info('TRANSAKSI: Refresh dipicu dari ItemTransaksi');
+                  Log.info('ID Transaksi: ${transaksi.id}');
+                  Log.info(
+                    'User melakukan aksi pada transaksi (edit/hapus) yang memerlukan refresh data.',
+                  );
+                  Log.info(
+                    'Memanggil _muatUlangData() untuk memperbarui seluruh data halaman.',
+                  );
+                  Log.info('========================================');
+                  _muatUlangData();
+                },
+                _transaksiOperasi,
+              ),
             ),
           ],
         );

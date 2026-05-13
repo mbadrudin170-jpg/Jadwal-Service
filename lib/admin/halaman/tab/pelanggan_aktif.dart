@@ -1,5 +1,5 @@
 // path: lib/admin/halaman/tab/pelanggan_aktif.dart
-// diubah: Menyesuaikan pemanggilan NamaPaketWidget dengan konstruktor baru.
+// diubah: Menyesuaikan pemanggilan NamaPaketWidget dengan konstruktor baru dan memperbaiki impor enum.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +7,7 @@ import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/shared/data/sync/unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
@@ -310,7 +310,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     if (!mounted) return;
     if (result == true) {
       Log.info('Berhasil menambahkan pelanggan aktif baru.');
-      _loadData(forceRefresh: true);
+      await _loadData(forceRefresh: true);
     }
   }
 
@@ -376,7 +376,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
         if (konfirmasi == true) {
           await _pelangganAktifOperasi.arsipkanSemuaPelangganAktif();
           Log.info('Semua pelanggan aktif berhasil diarsipkan.');
-          _loadData(forceRefresh: true);
+          await _loadData(forceRefresh: true);
         }
         break;
       case OpsiHapusPilihan.arsipkanKadaluarsa:
@@ -396,7 +396,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
             ),
           ),
         );
-        _loadData(forceRefresh: true);
+        await _loadData(forceRefresh: true);
         break;
       default:
         break;
@@ -524,7 +524,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                                       ),
                                     ),
                                   );
-                                  _loadData(forceRefresh: true);
+                                  await _loadData(forceRefresh: true);
                                 },
                                 child: ListTile(
                                   title: NamaPelangganWidget(

@@ -69,7 +69,7 @@ class _DompetPageState extends State<DompetPage> {
       return;
     }
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

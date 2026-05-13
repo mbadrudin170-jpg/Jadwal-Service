@@ -14,15 +14,76 @@ linter:
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
   # included above or to enable additional rules. A list of all available lints
   # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # --- GAYA KODE (STYLE) ---
+    sort_pub_dependencies: true              # Urutkan dependencies di pubspec.yaml secara alfabetis
+    prefer_single_quotes: true               # Gunakan petik satu ('), kecuali saat mengandung karakter petik satu
+    require_trailing_commas: true            # Wajibkan koma di akhir daftar parameter/argumen agar format vertikal rapi
+
+    # --- PERFORMA (SESUAI ATURAN PROYEK) ---
+    prefer_const_constructors: true          # Gunakan 'const' pada konstruktor yang nilainya konstan
+    prefer_const_constructors_in_immutables: true # Gunakan 'const' pada konstruktor di kelas @immutable
+    prefer_const_declarations: true          # Gunakan 'const' daripada 'final' untuk deklarasi variabel konstan
+    prefer_const_literals_to_create_immutables: true # Gunakan literal 'const' untuk membuat objek immutable
+    await_only_futures: true
+ 
+    # --- FLUTTER SPECIFIC ---
+    sort_child_properties_last: true         # Letakkan properti 'child'/'children' di akhir daftar parameter widget
+    use_key_in_widget_constructors: true     # Wajibkan parameter 'Key?' di konstruktor widget publik
+    use_build_context_synchronously: true    # Cegah penggunaan BuildContext setelah operasi async
+
+    # --- PENCEGAHAN ERROR (SESUAI ATURAN PROYEK) ---
+    public_member_api_docs: true             # Wajibkan dokumentasi (///) pada semua API publik
+    unawaited_futures: true                  # Wajibkan 'await' atau 'unawaited()' pada setiap pemanggilan Future
+    avoid_slow_async_io: true                # Hindari versi sinkron dari operasi dart:io, gunakan versi async
+    no_literal_bool_comparisons: true        # Jangan bandingkan boolean dengan true/false secara literal
+    close_sinks: true                        # Tutup StreamController setelah selesai digunakan
+    discarded_futures: true                  # Tangkap Future yang dibuang di fungsi sinkron
+    depend_on_referenced_packages: true      # Wajibkan package yang di-import ada di pubspec.yaml
+    # always_require_non_null_named_parameters: true # Wajibkan parameter named non-nullable diberi anotasi @required
+
+    # --- KEBERSIHAN KODE ---
+    avoid_returning_null_for_void: true      # Jangan mengembalikan 'null' pada fungsi bertipe void
+    unnecessary_lambdas: true                # Gunakan tear-off langsung daripada membungkus dalam lambda
+    avoid_redundant_argument_values: true    # Jangan kirim argumen yang nilainya sama dengan default
+    always_use_package_imports: true
+    avoid_empty_else: true
+    camel_case_extensions: true
+
+
+    # LAINNYA
+    avoid_void_async: true
+    cascade_invocations: true
+    directives_ordering: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    prefer_if_null_operators: true
+    avoid_init_to_null: true
+
+analyzer:
+  # Kecualikan file yang di-generate otomatis dari analisis
+  exclude:
+    - "**/*.g.dart"        # File hasil generate (json_serializable, dsb.)
+    - "**/*.freezed.dart"  # File hasil generate Freezed
+  
+  # Ubah beberapa lint menjadi error untuk disiplin yang lebih ketat
+  errors:
+    unawaited_futures: error                  # Future tanpa await = ERROR (harus diperbaiki)
+    public_member_api_docs: warning           # API publik tanpa docs = WARNING (bertahap diperbaiki)
+    prefer_const_constructors: warning        # Konstruktor non-const = WARNING (bertahap diperbaiki)
+    use_key_in_widget_constructors: warning   # Widget tanpa Key = WARNING (bertahap diperbaiki)
+    use_build_context_synchronously: warning  # Context setelah await = WARNING (bertahap diperbaiki)
+    no_literal_bool_comparisons: warning      # Boolean == true/false = WARNING (bertahap diperbaiki)
+    close_sinks: warning                      # StreamController tidak ditutup = WARNING
+    avoid_redundant_argument_values: warning  # Argumen default redundan = WARNING
+    discarded_futures: error                  # Future dibuang di fungsi sinkron = ERROR
+    depend_on_referenced_packages: error      # Import tanpa dependensi di pubspec = ERROR
+
+  # Aktifkan aturan tipe yang lebih ketat
+  language:
+    strict-casts: true        # Larang implicit cast dari dynamic ke tipe lebih spesifik
+    strict-inference: true    # Larang inferensi tipe dynamic saat tipe tidak bisa disimpulkan
+    strict-raw-types: true    # Larang tipe generik tanpa parameter (contoh: List → List<String>)
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

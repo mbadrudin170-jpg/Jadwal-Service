@@ -28,8 +28,8 @@ class PelangganAktifOperasi {
 
   // diubah: Menambahkan `dariServer`
   Future<PelangganAktifModel> createPelangganAktif(
-    PelangganAktifModel pelangganAktif, {bool dariServer = false}
-  ) async {
+      PelangganAktifModel pelangganAktif,
+      {bool dariServer = false}) async {
     try {
       final idBaru = pelangganAktif.id.isEmpty ? uuid.v4() : pelangganAktif.id;
       final pelangganUntukDisimpan = pelangganAktif.copyWith(
@@ -153,8 +153,8 @@ class PelangganAktifOperasi {
 
   // diubah: Menambahkan `dariServer`
   Future<PelangganAktifModel> updatePelangganAktif(
-    PelangganAktifModel pelangganAktif, {bool dariServer = false}
-  ) async {
+      PelangganAktifModel pelangganAktif,
+      {bool dariServer = false}) async {
     try {
       final pelangganUntukDisimpan = pelangganAktif.copyWith(
         diperbarui: DateTime.now().toUtc(), // diubah: simpan dalam UTC
@@ -290,16 +290,19 @@ class PelangganAktifOperasi {
   }
 
   // diubah: Menambahkan `diperbarui` dengan UTC untuk setiap item batch
-  Future<void> sisipkanAtauPerbaruiBatch(
-    List<PelangganAktifModel> items, {bool dariServer = false}
-  ) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganAktifModel> items,
+      {bool dariServer = false}) async {
     try {
       Log.info('Memproses batch ${items.length} pelanggan aktif');
 
-      final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
+      final data = items
+          .map((item) =>
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .toList();
       Log.info('Mengonversi ${data.length} item ke format SQLite');
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data, dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data,
+          dariServer: dariServer);
 
       Log.info('Batch ${items.length} pelanggan aktif berhasil diproses');
     } catch (e, st) {
@@ -313,7 +316,8 @@ class PelangganAktifOperasi {
   }
 
   // diubah: Menambahkan `dariServer`
-  Future<void> arsipkanPelangganAktif(String id, {bool dariServer = false}) async {
+  Future<void> arsipkanPelangganAktif(String id,
+      {bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan pelanggan aktif ID: $id');
 
@@ -365,12 +369,13 @@ class PelangganAktifOperasi {
   }
 
   // diubah: Menggunakan UTC untuk perbandingan dan pembaruan
-  Future<void> hapusPermanenPelangganYangDiArsipkan({bool dariServer = false}) async {
+  Future<void> hapusPermanenPelangganYangDiArsipkan(
+      {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         final batasWaktu = DateTime.now().toUtc().subtract(
-          const Duration(days: 30),
-        );
+              const Duration(days: 30),
+            );
         Log.info(
           'Mencari pelanggan diarsipkan sebelum ${batasWaktu.toIso8601String()} (30 hari yang lalu)',
         );
@@ -388,9 +393,8 @@ class PelangganAktifOperasi {
           return;
         }
 
-        final idsUntukDihapus = pelangganKadaluarsa
-            .map((map) => map['id'] as String)
-            .toList();
+        final idsUntukDihapus =
+            pelangganKadaluarsa.map((map) => map['id'] as String).toList();
 
         Log.info(
           'Ditemukan ${idsUntukDihapus.length} pelanggan diarsipkan kadaluarsa, menghapus permanen...',
@@ -422,8 +426,7 @@ class PelangganAktifOperasi {
     try {
       Log.info('Memeriksa pelanggan kadaluarsa untuk diarsipkan');
       final db = await dbHelper.database;
-      final sekarang = DateTime.now()
-          .toUtc();
+      final sekarang = DateTime.now().toUtc();
 
       final List<Map<String, dynamic>> pelangganKadaluarsa = await db.query(
         'pelanggan_aktif',
@@ -438,17 +441,14 @@ class PelangganAktifOperasi {
         return 0;
       }
 
-      final idsToArchive = pelangganKadaluarsa
-          .map((p) => p['id'] as String)
-          .toList();
+      final idsToArchive =
+          pelangganKadaluarsa.map((p) => p['id'] as String).toList();
       Log.info(
         'Ditemukan ${idsToArchive.length} pelanggan kadaluarsa (berakhir sebelum ${sekarang.toIso8601String()})',
       );
 
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
-        final now = DateTime.now()
-            .toUtc()
-            .toIso8601String();
+        final now = DateTime.now().toUtc().toIso8601String();
         Log.info(
           'Menandai ${idsToArchive.length} pelanggan sebagai isDeleted=1, diarsipkan=$now',
         );

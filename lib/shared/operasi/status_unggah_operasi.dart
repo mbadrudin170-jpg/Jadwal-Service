@@ -14,7 +14,7 @@ class StatusUnggahOperasi {
 
   // diubah: Konstruktor untuk injeksi dependensi.
   StatusUnggahOperasi({@visibleForTesting DatabaseHelper? dbHelper})
-    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   /// Mengatur status `perlu_unggah`.
   /// true = 1, false = 0.
@@ -23,10 +23,13 @@ class StatusUnggahOperasi {
     Transaction? transaction,
   }) async {
     final db = transaction ?? await _dbHelper.database;
-    await db.insert(_tableName, {
-      'id': _key,
-      'value': perluUnggah ? '1' : '0',
-    }, conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(
+        _tableName,
+        {
+          'id': _key,
+          'value': perluUnggah ? '1' : '0',
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Membaca status `perlu_unggah`.

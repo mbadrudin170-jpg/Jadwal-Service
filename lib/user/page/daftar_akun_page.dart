@@ -1,4 +1,5 @@
 // path: lib/user/page/daftar_akun_page.dart
+// diubah: Memperbaiki unawaited future.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -108,7 +109,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                   dialogNavigator.pop(); // Tutup dialog pertama
 
                   // Tampilkan dialog konfirmasi
-                  showDialog(
+                  await showDialog(
                     context: pageContext,
                     builder: (BuildContext confirmDialogContext) {
                       return AlertDialog(
@@ -139,7 +140,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                               if (!context.mounted) return;
 
                               // 3. Eksekusi navigasi
-                              navigator.pushNamedAndRemoveUntil(
+                              await navigator.pushNamedAndRemoveUntil(
                                   '/login', (route) => false);
                             },
                           ),
@@ -177,7 +178,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 await _localStorageService.hapusAkun(akun.id);
               }
               await _localStorageService.hapusAkunSaatIni();
-              navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+              await navigator.pushNamedAndRemoveUntil(
+                  '/login', (route) => false);
             },
             style: TextButton.styleFrom(
               backgroundColor: AppColors.errorColor.withAlpha(25),
@@ -204,7 +206,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               if (!context.mounted) return;
 
               // Ganti dengan ini untuk memastikan semua route dihapus
-              pageNavigator.pushAndRemoveUntil(
+              await pageNavigator.pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginPage()),
                 (route) => false,
               );

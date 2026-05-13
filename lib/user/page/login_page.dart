@@ -189,7 +189,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
           'userId': uid,
         });
 
-        navigator.pushReplacement(
+        await navigator.pushReplacement(
           MaterialPageRoute(
               builder: (context) => MainPage(
                   userId: uid, localStorageService: _localStorageService)),

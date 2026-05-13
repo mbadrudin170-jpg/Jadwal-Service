@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
+/// Widget untuk menampilkan indikator loading dengan pesan opsional.
 class LoadingWidget extends StatelessWidget {
+  /// Pesan yang ditampilkan di bawah indikator loading.
   final String message;
 
+  /// Membuat widget [LoadingWidget] dengan [message] opsional.
+  ///
+  /// Default [message] adalah 'Memuat...'.
   const LoadingWidget({super.key, this.message = 'Memuat...'});
 
   @override
