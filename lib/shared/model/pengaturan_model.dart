@@ -1,4 +1,5 @@
 // path: lib/shared/model/pengaturan_model.dart
+// diubah: Menghapus logika timestamp dari toSqlite() untuk memindahkan tanggung jawab ke lapisan operasi.
 // diubah: Menambahkan metode `copyWith` untuk memungkinkan pembaruan properti secara immutable.
 // Ini memperbaiki error `undefined_method` yang terjadi di `PengaturanOperasi`.
 // diubah: Menggunakan konstanta `idPengaturanGlobal` secara konsisten di semua factory constructor.
@@ -24,8 +25,6 @@ class PengaturanModel {
     this.diperbarui,
   });
 
-  // ditambah: Metode copyWith untuk membuat salinan objek dengan nilai yang diperbarui.
-  // Ini adalah pola umum untuk model data dan diperlukan untuk memperbaiki error kompilasi.
   PengaturanModel copyWith({
     String? id,
     int? intervalSinkronisasiOtomatis,
@@ -59,7 +58,7 @@ class PengaturanModel {
 
   factory PengaturanModel.fromSqlite(Map<String, dynamic> map) {
     return PengaturanModel(
-      id: idPengaturanGlobal, // diubah: karena untuk konsistensi, menggunakan konstanta global.
+      id: idPengaturanGlobal,
       intervalSinkronisasiOtomatis:
           map['interval_sinkronisasi_otomatis'] as int? ?? 24,
       hapusOtomatisDataArsip: map['hapus_otomatis_data_arsip'] as int? ?? 30,
@@ -70,23 +69,14 @@ class PengaturanModel {
   }
 
   Map<String, dynamic> toSqlite() {
-    // Perhatikan: ID di sini sekarang menggunakan ID dari instance, yang akan
-    // ditimpa menjadi 'konfigurasi_global' di dalam PengaturanOperasi.
-    // Namun, skema tabel mengharapkan INTEGER, jadi kita perlu penanganan khusus.
-    // Solusi di PengaturanOperasi (menggunakan copyWith) lebih bersih karena memisahkan concern.
-    // Untuk konsistensi, kita akan tetap menggunakan ID string di model, dan membiarkan
-    // lapisan data yang menangani pemetaan ke tipe data database.
     return {
-      // 'id' tidak lagi di-hardcode di sini. Nilai yang benar akan diatur oleh PengaturanOperasi
-      // sebelum disisipkan ke database, yang mana akan menggunakan ID dari `toSqlite` jika `id` adalah int.
-      // Karena `id` adalah String, kita akan membiarkannya dan PengaturanOperasi akan menimpanya.
-      // Ini adalah perbaikan dari versi sebelumnya yang salah.
       'id': id,
       'interval_sinkronisasi_otomatis': intervalSinkronisasiOtomatis,
       'hapus_otomatis_data_arsip': hapusOtomatisDataArsip,
       'mode_pemeliharaan': modePemeliharaan ? 1 : 0,
       'info_pemeliharaan': infoPemeliharaan,
-      'diperbarui': DateTime.now().toIso8601String(),
+      // diubah: `diperbarui` sekarang diatur oleh lapisan operasi, bukan di sini.
+      'diperbarui': diperbarui?.toIso8601String(),
     };
   }
 
@@ -96,8 +86,7 @@ class PengaturanModel {
 
   factory PengaturanModel.fromFirebase(Map<String, dynamic> data) {
     return PengaturanModel(
-      id: data['id'] as String? ??
-          idPengaturanGlobal, // diubah: karena untuk konsistensi, menggunakan konstanta global.
+      id: data['id'] as String? ?? idPengaturanGlobal,
       intervalSinkronisasiOtomatis:
           data['interval_sinkronisasi_otomatis'] as int? ?? 24,
       hapusOtomatisDataArsip: data['hapus_otomatis_data_arsip'] as int? ?? 30,

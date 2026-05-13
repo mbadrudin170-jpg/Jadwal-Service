@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/pesanan_operasi.dart
-// diubah: Refaktorisasi untuk menggunakan OperasiDasar dan menambahkan parameter `dariServer`.
-// dihapus: Impor sqflite yang tidak digunakan.
+// diubah: Memastikan semua operasi tulis memperbarui timestamp `diperbarui` dengan UTC.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
@@ -11,10 +10,13 @@ class PesananOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan pengaturan `diperbarui` dengan UTC sebelum menyimpan
   Future<void> simpanPesanan(PesananModel pesanan, {bool dariServer = false}) async {
     Log.info('Menyimpan pesanan baru ID: ${pesanan.id}');
-    await _operasiDasar.sisipkan('pesanan', pesanan.toSqlite(), dariServer: dariServer);
+    final pesananUntukDisimpan = pesanan.copyWith(
+      diperbarui: DateTime.now().toUtc(),
+    );
+    await _operasiDasar.sisipkan('pesanan', pesananUntukDisimpan.toSqlite(), dariServer: dariServer);
   }
 
   Future<List<PesananModel>> ambilSemuaPesanan() async {
@@ -39,10 +41,28 @@ class PesananOperasi {
     return maps.map((map) => PesananModel.fromSqlite(map)).toList();
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Logika diubah untuk mengambil data, memperbarui, lalu menyimpan kembali.
+  // Ini memastikan `diperbarui` selalu diatur dengan benar saat status berubah.
   Future<void> updateStatusPesanan(String id, String status, {bool dariServer = false}) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi $status');
-    await _operasiDasar.perbarui('pesanan', {'status': status}, id, dariServer: dariServer);
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'pesanan',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      final pesananLama = PesananModel.fromSqlite(maps.first);
+      final pesananBaru = pesananLama.copyWith(
+        status: status,
+        diperbarui: DateTime.now().toUtc(),
+      );
+      await _operasiDasar.perbarui('pesanan', pesananBaru.toSqlite(), id, dariServer: dariServer);
+      Log.info('Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.');
+    } else {
+      Log.warning('Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.');
+    }
   }
 
   // diubah: Menambahkan `dariServer`
@@ -51,11 +71,11 @@ class PesananOperasi {
     await _operasiDasar.hapus('pesanan', id, dariServer: dariServer);
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan pengaturan `diperbarui` dengan UTC untuk setiap item batch
   Future<void> sisipkanAtauPerbaruiBatch(List<PesananModel> items, {bool dariServer = false}) async {
     Log.info('Memulai batch insert/update untuk ${items.length} pesanan.');
     if (items.isEmpty) return;
-    final data = items.map((item) => item.toSqlite()).toList();
+    final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
     await _operasiDasar.sisipkanAtauPerbaruiBatch('pesanan', data, dariServer: dariServer);
     Log.info('Batch pesanan selesai.');
   }

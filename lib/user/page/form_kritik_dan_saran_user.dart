@@ -1,4 +1,4 @@
-// path: lib/user/page/form_kritik_dan_saran.dart
+// path: lib/user/page/form_kritik_dan_saran_user.dart
 // diubah: Mengintegrasikan kelas KritikSaranOperasiUser untuk memisahkan logika UI dan data.
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -23,7 +23,8 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   bool _isLoading = false;
 
   // ditambah: Membuat instance dari kelas operasi data.
-  final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser(); // diubah: nama kelas diperbarui
+  final KritikSaranOperasiUser _operasi =
+      KritikSaranOperasiUser(); // diubah: nama kelas diperbarui
 
   @override
   void initState() {
@@ -126,7 +127,9 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
                 onPressed: _isLoading ? null : _kirimKritik,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(widget.kritikId != null ? 'Simpan Perubahan' : 'Kirim Masukan'),
+                    : Text(widget.kritikId != null
+                        ? 'Simpan Perubahan'
+                        : 'Kirim Masukan'),
               ),
             ],
           ),

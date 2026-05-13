@@ -1,14 +1,13 @@
 // path: lib/shared/operasi/pembersihan_data_operasi.dart
+// diubah: Mengganti datetime('now') SQLite dengan kalkulasi UTC di Dart untuk mencegah bug zona waktu.
 
 import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class PembersihanDataOperasi {
-  // diubah: dbHelper sekarang final dan diinisialisasi di konstruktor.
   final DatabaseHelper _dbHelper;
 
-  // diubah: Konstruktor untuk injeksi dependensi.
   PembersihanDataOperasi({@visibleForTesting DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
@@ -34,21 +33,23 @@ class PembersihanDataOperasi {
       'versi_apk_user',
     ];
 
+    // diubah: Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.
+    // Ini menghilangkan ketergantungan pada fungsi `datetime('now')` SQLite yang bisa ambigu (lokal vs UTC).
+    final batasWaktu = DateTime.now().toUtc().subtract(Duration(days: batasHari));
+    final batasWaktuString = batasWaktu.toIso8601String();
+    Log.info('Batas waktu untuk penghapusan arsip diatur ke: $batasWaktuString (UTC)');
+
     for (final tabel in daftarTabel) {
       try {
-        // Argumen `batasHari` diinterpolasi langsung ke dalam string
-        // karena `?` tidak didukung di dalam fungsi `datetime()` sqflite.
+        // diubah: Menggunakan parameterized query untuk keamanan dan kejelasan.
+        // Membandingkan data `diarsipkan` (yang disimpan sebagai UTC) dengan `batasWaktu` (yang juga UTC).
         final query =
-            '''
-          DELETE FROM $tabel
-          WHERE diarsipkan IS NOT NULL
-          AND diarsipkan <= datetime('now', '-$batasHari days')
-        ''';
-        final hasil = await db.rawDelete(query);
+            'DELETE FROM $tabel WHERE diarsipkan IS NOT NULL AND diarsipkan <= ?';
+        final hasil = await db.rawDelete(query, [batasWaktuString]);
 
         if (hasil > 0) {
           Log.info(
-            '[$tabel] Dihapus $hasil baris yang diarsipkan lebih dari $batasHari hari.',
+            '[$tabel] Dihapus $hasil baris yang diarsipkan lebih dari $batasHari hari (sebelum $batasWaktuString).',
           );
         }
 

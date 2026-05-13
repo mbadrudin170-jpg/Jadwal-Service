@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/paket_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,14 +10,14 @@ class PaketOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> createPaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembuatan paket ke OperasiDasar, method: createPaket, id: ${paket.id}',
     );
     try {
-      final now = DateTime.now();
-      final data = paket.copyWith(diperbarui: now).toSqlite();
+      final data =
+          paket.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.sisipkan('paket', data, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan pembuatan paket, method: createPaket, id: ${paket.id}',
@@ -181,15 +181,16 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> updatePaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembaruan paket ke OperasiDasar, method: updatePaket, id: ${paket.id}',
     );
     try {
-      final now = DateTime.now();
-      final data = paket.copyWith(diperbarui: now).toSqlite();
-      await _operasiDasar.perbarui('paket', data, paket.id, dariServer: dariServer);
+      final data =
+          paket.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      await _operasiDasar.perbarui('paket', data, paket.id,
+          dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan pembaruan paket, method: updatePaket, id: ${paket.id}',
       );
@@ -277,14 +278,19 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items, {bool dariServer = false}) async {
+  // diubah: Menggunakan UTC untuk `diperbarui`
+  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items,
+      {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan proses batch ke OperasiDasar untuk ${items.length} item paket, method: sisipkanAtauPerbaruiBatch',
     );
     try {
-      final dataList = items.map((item) => item.toSqlite()).toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('paket', dataList, dariServer: dariServer);
+      final dataList = items
+          .map((item) =>
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .toList();
+      await _operasiDasar.sisipkanAtauPerbaruiBatch('paket', dataList,
+          dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan proses batch untuk ${items.length} item, method: sisipkanAtauPerbaruiBatch',
       );

@@ -1,5 +1,5 @@
-// path: lib/data/operasi/pelanggan_aktif_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// path: lib/shared/operasi/pelanggan_aktif_operasi.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu dan memperbaiki path.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
@@ -289,14 +289,14 @@ class PelangganAktifOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan `diperbarui` dengan UTC untuk setiap item batch
   Future<void> sisipkanAtauPerbaruiBatch(
     List<PelangganAktifModel> items, {bool dariServer = false}
   ) async {
     try {
       Log.info('Memproses batch ${items.length} pelanggan aktif');
 
-      final data = items.map((item) => item.toSqlite()).toList();
+      final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
       Log.info('Mengonversi ${data.length} item ke format SQLite');
 
       await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan_aktif', data, dariServer: dariServer);
@@ -364,11 +364,10 @@ class PelangganAktifOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk perbandingan dan pembaruan
   Future<void> hapusPermanenPelangganYangDiArsipkan({bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
-        // diubah: Menggunakan UTC untuk konsistensi
         final batasWaktu = DateTime.now().toUtc().subtract(
           const Duration(days: 30),
         );
@@ -381,7 +380,7 @@ class PelangganAktifOperasi {
           where: 'diarsipkan IS NOT NULL AND diarsipkan < ?',
           whereArgs: [
             batasWaktu.toIso8601String(),
-          ], // diubah: Membandingkan dengan string UTC
+          ],
         );
 
         if (pelangganKadaluarsa.isEmpty) {
@@ -418,41 +417,20 @@ class PelangganAktifOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> hapusSemuaPelangganAktif({bool dariServer = false}) async {
-    try {
-      Log.info('PERINGATAN: Menghapus SEMUA pelanggan aktif secara permanen');
-
-      await _operasiDasar.jalankanOperasiKompleks((txn) async {
-        await txn.delete('pelanggan_aktif');
-        Log.info('Semua data di tabel pelanggan_aktif telah dihapus permanen');
-      }, dariServer: dariServer);
-
-      Log.info('Operasi hapus semua pelanggan aktif selesai');
-    } catch (e, st) {
-      Log.error(
-        'Gagal menghapus semua pelanggan aktif',
-        e: e,
-        st: st,
-      );
-      rethrow;
-    }
-  }
-
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk perbandingan dan pembaruan
   Future<int> arsipkanPelangganKadaluarsa({bool dariServer = false}) async {
     try {
       Log.info('Memeriksa pelanggan kadaluarsa untuk diarsipkan');
       final db = await dbHelper.database;
       final sekarang = DateTime.now()
-          .toUtc(); // diubah: Menggunakan UTC untuk konsistensi
+          .toUtc();
 
       final List<Map<String, dynamic>> pelangganKadaluarsa = await db.query(
         'pelanggan_aktif',
         where: 'tanggal_berakhir < ? AND isDeleted = 0',
         whereArgs: [
           sekarang.toIso8601String(),
-        ], // diubah: Membandingkan dengan string UTC
+        ],
       );
 
       if (pelangganKadaluarsa.isEmpty) {
@@ -470,7 +448,7 @@ class PelangganAktifOperasi {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         final now = DateTime.now()
             .toUtc()
-            .toIso8601String(); // diubah: simpan dalam UTC
+            .toIso8601String();
         Log.info(
           'Menandai ${idsToArchive.length} pelanggan sebagai isDeleted=1, diarsipkan=$now',
         );

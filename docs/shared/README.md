@@ -19,6 +19,38 @@ Fokus pada peningkatan keandalan dan visibilitas kode yang dibagikan.
 
 ---
 
+## Standarisasi Waktu (UTC) & Integritas Data
+
+Ini adalah salah satu pembaruan arsitektur paling penting untuk memastikan keandalan sinkronisasi dan logika berbasis waktu di seluruh aplikasi.
+
+### Masalah: Ambiguitas Zona Waktu
+
+Sebelumnya, banyak bagian dari kode menggunakan `DateTime.now()` untuk menghasilkan timestamp. Fungsi ini menghasilkan waktu **lokal** perangkat, yang menyebabkan masalah serius:
+
+1.  **Sinkronisasi Tidak Andal**: Jika admin di Jakarta (WIB/UTC+7) membuat data pada pukul 10:00, waktu yang tersimpan adalah `10:00+0700`. Jika pengguna di Bali (WITA/UTC+8) menerima data ini, perbandingan waktu bisa menjadi salah. Perubahan yang seharusnya baru mungkin terlihat lama, dan sebaliknya.
+2.  **Logika Kadaluarsa yang Salah**: Fitur seperti "hapus data setelah 30 hari" menjadi tidak dapat diprediksi. Data yang disimpan oleh pengguna di zona waktu yang lebih "cepat" (misalnya UTC+12) bisa dihapus lebih awal dari yang seharusnya saat diperiksa oleh sistem yang berjalan di UTC.
+
+### Solusi: UTC sebagai Satu-Satunya Sumber Kebenaran
+
+Untuk mengatasi ini, standar baru telah diterapkan di **semua file operasi data** (`lib/shared/operasi/`):
+
+1.  **Penyimpanan Wajib dalam UTC**: Setiap kali sebuah timestamp dibuat atau diperbarui (misalnya di kolom `diperbarui`, `diarsipkan`, `tanggal`, dll.), kode **WAJIB** menggunakan `DateTime.now().toUtc()`.
+2.  **Perbandingan Wajib dalam UTC**: Setiap perbandingan antara timestamp dari database dan waktu saat ini juga **WAJIB** menggunakan `DateTime.now().toUtc()`. Ini memastikan perbandingan yang akurat ("apel dengan apel").
+
+### Contoh Kritis: `pembersihan_data_operasi.dart`
+
+Bug paling berbahaya ditemukan dan diperbaiki di file ini.
+- **Sebelumnya**: Menggunakan fungsi `datetime('now', ...)` dari SQLite. Fungsi ini menggunakan waktu **lokal** sistem, menciptakan perbandingan antara data UTC (dari aplikasi) dan waktu lokal (dari database), yang sangat rawan kesalahan.
+- **Sekarang**: Logika dipindahkan sepenuhnya ke Dart. Aplikasi menghitung `batasWaktu` menggunakan `DateTime.now().toUtc()`, lalu meneruskannya sebagai parameter ke query SQL. Ini menjamin perbandingan selalu UTC vs UTC.
+
+### Manfaat
+
+- **Integritas Data**: Semua data waktu sekarang konsisten di seluruh database lokal dan server.
+- **Sinkronisasi yang Andal**: Sistem dapat dengan andal mendeteksi perubahan terbaru untuk diunggah atau diunduh.
+- **Pencegahan Bug**: Menghilangkan seluruh kelas bug zona waktu yang sulit dilacak.
+
+---
+
 ## `operasi/` (Lapisan Operasi Data)
 
 Direktori ini adalah jantung dari manajemen data lokal aplikasi. Ini berisi kelas-kelas "operasi" yang bertanggung jawab untuk semua interaksi CRUD (Create, Read, Update, Delete) dengan database SQLite lokal. Setiap kelas operasi dikhususkan untuk satu model data (misalnya, `dompet_operasi.dart` untuk `DompetModel`).

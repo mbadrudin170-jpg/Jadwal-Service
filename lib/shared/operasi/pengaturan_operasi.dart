@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/pengaturan_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// diubah: Menambahkan pengaturan `diperbarui` dengan UTC pada setiap operasi tulis.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -34,8 +34,11 @@ class PengaturanOperasi {
         Log.warning(
           'Tidak ditemukan data pengaturan, membuat pengaturan default.',
         );
-        final pengaturanDefault = PengaturanModel(id: idPengaturanGlobal);
-        // Saat membuat default, itu adalah operasi lokal, jadi `dariServer` adalah false
+        // ditambah: Saat membuat default, kita juga set `diperbarui`.
+        final pengaturanDefault = PengaturanModel(
+          id: idPengaturanGlobal,
+          diperbarui: DateTime.now().toUtc(),
+        );
         await simpanAtauPerbaruiPengaturan(pengaturanDefault, dariServer: false);
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
@@ -51,11 +54,12 @@ class PengaturanOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
   Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan, {bool dariServer = false}) async {
     try {
       final pengaturanUntukDisimpan = pengaturan.copyWith(
         id: idPengaturanGlobal,
+        diperbarui: DateTime.now().toUtc(),
       );
 
       Log.info(
@@ -64,7 +68,7 @@ class PengaturanOperasi {
       await _operasiDasar.sisipkan(
         _namaTabel,
         pengaturanUntukDisimpan.toSqlite(),
-        dariServer: dariServer, // diteruskan ke operasi dasar
+        dariServer: dariServer,
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
@@ -79,7 +83,7 @@ class PengaturanOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
   Future<void> simpanAtauPerbaruiPengaturanDenganBatch(
     PengaturanModel pengaturan,
      {bool dariServer = false}
@@ -88,11 +92,12 @@ class PengaturanOperasi {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final pengaturanUntukDisimpan = pengaturan.copyWith(
         id: idPengaturanGlobal,
+        diperbarui: DateTime.now().toUtc(),
       );
       final dataPengaturan = pengaturanUntukDisimpan.toSqlite();
       await _operasiDasar.sisipkanAtauPerbaruiBatch(_namaTabel, [
         dataPengaturan,
-      ], dariServer: dariServer); // diteruskan ke operasi dasar
+      ], dariServer: dariServer); 
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
       Log.error(

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
-import 'package:wifi/user/page/form_kritik_dan_saran.dart';
+import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
 
 class RiwayatKritikDanSaranPage extends StatefulWidget {
   final String userId;

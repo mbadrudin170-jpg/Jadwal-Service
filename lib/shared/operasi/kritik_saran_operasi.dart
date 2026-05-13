@@ -1,5 +1,5 @@
-// path: lib/data/operasi/kritik_saran_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// path: lib/shared/operasi/kritik_saran_operasi.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu dan memperbaiki path.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -11,13 +11,12 @@ class KritikSaranOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan pola .copyWith dan UTC untuk konsistensi
   Future<void> createKritikSaran(KritikSaranModel kritikSaran,
       {bool dariServer = false}) async {
     Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
     try {
-      final data = kritikSaran.toSqlite()
-        ..['diperbarui'] = DateTime.now().toUtc();
+      final data = kritikSaran.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
       await _operasiDasar.sisipkan('kritik_saran', data,
           dariServer: dariServer);
@@ -109,7 +108,7 @@ class KritikSaranOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menambahkan `diperbarui` dengan UTC untuk setiap item batch
   Future<void> sisipkanAtauPerbaruiBatch(
       List<KritikSaranModel> daftarKritikSaran,
       {bool dariServer = false}) async {
@@ -123,7 +122,7 @@ class KritikSaranOperasi {
       return;
     }
     try {
-      final data = daftarKritikSaran.map((item) => item.toSqlite()).toList();
+      final data = daftarKritikSaran.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
       await _operasiDasar.sisipkanAtauPerbaruiBatch('kritik_saran', data,
           dariServer: dariServer);
       Log.info(

@@ -1,5 +1,5 @@
-// path: lib/data/operasi/kategori_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// path: lib/shared/operasi/kategori_operasi.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu dan memperbaiki path.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,11 +10,11 @@ class KategoriOperasi {
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<KategoriModel> createKategori(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai createKategori untuk kategori: ${kategori.toSqlite()}');
     try {
-      final kategoriBaru = kategori.copyWith(diperbarui: DateTime.now());
+      final kategoriBaru = kategori.copyWith(diperbarui: DateTime.now().toUtc());
       final data = kategoriBaru.toSqlite();
 
       await _operasiDasar.sisipkan('kategori', data, dariServer: dariServer);
@@ -104,11 +104,11 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> update(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai update untuk kategori: ${kategori.toSqlite()}');
     try {
-      final data = kategori.copyWith(diperbarui: DateTime.now()).toSqlite();
+      final data = kategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.perbarui('kategori', data, kategori.id, dariServer: dariServer);
       Log.info('Berhasil update kategori untuk ID: ${kategori.id}.');
     } catch (e, st) {
@@ -135,11 +135,11 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
   Future<void> arsipkanSatuKategori(String id, {bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuKategori (soft delete) untuk ID: $id');
     try {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       final Map<String, dynamic> dataToUpdate = {
         'diarsipkan': now.toIso8601String(),
         'diperbarui': now.toIso8601String(),
@@ -159,7 +159,7 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items, {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai bersihkanDanSisipkanSemua. Ini akan menghapus semua kategori dan menggantinya dengan ${items.length} item baru.',
@@ -174,7 +174,7 @@ class KategoriOperasi {
         await txn.delete('kategori');
         Log.info('Tabel kategori berhasil dibersihkan.');
         for (var item in items) {
-          await txn.insert('kategori', item.toSqlite());
+          await txn.insert('kategori', item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite());
         }
         Log.info(
           'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.',
@@ -215,7 +215,7 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  // diubah: Menggunakan UTC untuk `diperbarui`
   Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items, {bool dariServer = false}) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
@@ -227,7 +227,7 @@ class KategoriOperasi {
       return;
     }
     try {
-      final data = items.map((item) => item.toSqlite()).toList();
+      final data = items.map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite()).toList();
       await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data, dariServer: dariServer);
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',

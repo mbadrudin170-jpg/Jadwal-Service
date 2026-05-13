@@ -72,7 +72,10 @@ class TransaksiOperasi {
 
       await txn.update(
         'dompet',
-        {'saldo': totalSaldo, 'diperbarui': DateTime.now().toUtc().toIso8601String()},
+        {
+          'saldo': totalSaldo,
+          'diperbarui': DateTime.now().toUtc().toIso8601String()
+        },
         where: 'id = ?',
         whereArgs: [idDompet],
       );
@@ -91,7 +94,8 @@ class TransaksiOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<int> tambahTransaksi(TransaksiModel transaksi, {bool dariServer = false}) async {
+  Future<int> tambahTransaksi(TransaksiModel transaksi,
+      {bool dariServer = false}) async {
     try {
       final id = await _operasiDasar.jalankanOperasiKompleks<int>((txn) async {
         Log.info(
@@ -281,7 +285,8 @@ class TransaksiOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> updateTransaksi(String id, TransaksiModel transaksiBaru, {bool dariServer = false}) async {
+  Future<void> updateTransaksi(String id, TransaksiModel transaksiBaru,
+      {bool dariServer = false}) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks((txn) async {
         Log.info(
@@ -295,7 +300,8 @@ class TransaksiOperasi {
 
         if (maps.isNotEmpty) {
           final transaksiLama = TransaksiModel.fromSqlite(maps.first);
-          final dataUpdate = transaksiBaru.copyWith(diperbarui: DateTime.now().toUtc());
+          final dataUpdate =
+              transaksiBaru.copyWith(diperbarui: DateTime.now().toUtc());
 
           await txn.update(
             'transaksi',
@@ -358,10 +364,15 @@ class TransaksiOperasi {
 
         if (maps.isNotEmpty) {
           final transaksiLama = TransaksiModel.fromSqlite(maps.first);
-
+          final now = DateTime.now().toUtc();
           await txn.update(
             'transaksi',
-            {'isDeleted': 1, 'diperbarui': DateTime.now().toUtc().toIso8601String()},
+            {
+              // TODO: tugas selanjutnya adalah menambahkan diarsipkan
+              'isDeleted': 1,
+              'diperbarui': now.toIso8601String(),
+              'diarsipkan': now.toIso8601String()
+            },
             where: 'id = ?',
             whereArgs: [id],
           );
@@ -515,7 +526,8 @@ class TransaksiOperasi {
   }
 
   // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items, {bool dariServer = false}) async {
+  Future<void> sisipkanAtauPerbaruiBatch(List<TransaksiModel> items,
+      {bool dariServer = false}) async {
     Set<String> affectedWallets = {};
 
     try {
