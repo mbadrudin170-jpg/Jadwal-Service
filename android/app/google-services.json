@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "71302938947",
-    "project_id": "flutter-coding-9f081",
-    "storage_bucket": "flutter-coding-9f081.firebasestorage.app"
+    "project_number": "374464649442",
+    "project_id": "studio-5934431625-6eeb1",
+    "storage_bucket": "studio-5934431625-6eeb1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:71302938947:android:c2e6233b92caf5c02baff6",
+        "mobilesdk_app_id": "1:374464649442:android:c9cd9edc79bbad861066bb",
         "android_client_info": {
           "package_name": "com.example.adminwifi"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+          "current_key": "AIzaSyBVBa4xyhqiQhtwSu3Gg5qMJEkRgV6NpL4"
         }
       ],
       "services": {
@@ -26,26 +26,7 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:71302938947:android:ca89c2efe94620be2baff6",
-        "android_client_info": {
-          "package_name": "com.example.myapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:71302938947:android:a95ae1e817f6b1c92baff6",
+        "mobilesdk_app_id": "1:374464649442:android:521483824c57ca601066bb",
         "android_client_info": {
           "package_name": "com.wifi.admin"
         }
@@ -53,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+          "current_key": "AIzaSyBVBa4xyhqiQhtwSu3Gg5qMJEkRgV6NpL4"
         }
       ],
       "services": {
@@ -64,7 +45,7 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:71302938947:android:b5da15c21d1e13aa2baff6",
+        "mobilesdk_app_id": "1:374464649442:android:15abb5d27601d0281066bb",
         "android_client_info": {
           "package_name": "com.wifi.user"
         }
@@ -72,7 +53,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+          "current_key": "AIzaSyBVBa4xyhqiQhtwSu3Gg5qMJEkRgV6NpL4"
         }
       ],
       "services": {
