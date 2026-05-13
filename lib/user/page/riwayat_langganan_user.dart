@@ -126,7 +126,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   Widget build(BuildContext context) {
     Log.info(
         'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.');
-    return Scaffold(
+  return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [

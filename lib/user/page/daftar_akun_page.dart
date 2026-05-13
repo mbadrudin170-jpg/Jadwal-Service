@@ -274,16 +274,36 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
             child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _tampilkanDialogKeluar(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.errorColor.withAlpha(25),
-                    foregroundColor: AppColors.textOnDark,
-                    elevation: 0,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _tampilkanDialogKeluar(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      AppColors.errorColor.withAlpha(200), // Lebih solid
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('Keluar'),
-                )),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.logout, size: 20, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Keluar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

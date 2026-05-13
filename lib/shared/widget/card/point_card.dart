@@ -22,7 +22,6 @@ class TotalPointCard extends StatelessWidget {
     return Container(
       // Bungkus dengan Material agar efek InkWell terlihat
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -38,7 +37,7 @@ class TotalPointCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap, // Menghubungkan parameter onTap
           splashColor: themeColor.withAlpha(20), // Warna saat ditekan
-          highlightColor: Colors.transparent,
+          // highlightColor: Colors.transparent,
           child: Padding(
             // Pindahkan padding dari Container ke sini agar seluruh area padding bisa diklik
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
