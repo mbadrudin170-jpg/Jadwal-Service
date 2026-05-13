@@ -1,12 +1,21 @@
 // path: lib/shared/services/cek_koneksi_internet.dart
 // File ini menyediakan layanan terpusat untuk memeriksa status koneksi internet.
 
+// ditambah: Menerapkan Dependency Injection agar kelas ini dapat diuji.
 // ditambah: Menambahkan Log yang lebih detail untuk setiap langkah.
 // diperbaiki: Memperbaiki sintaks pemanggilan Log.error yang salah.
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 class KoneksiInternetService {
+  // ditambah: Variabel final untuk menyimpan instance Connectivity.
+  final Connectivity _connectivity;
+
+  // ditambah: Konstruktor yang memungkinkan injeksi dependency untuk pengujian.
+  // Jika tidak ada yang diberikan, ia akan menggunakan instance default.
+  KoneksiInternetService({Connectivity? connectivity})
+      : _connectivity = connectivity ?? Connectivity();
+
   // Fungsi untuk memeriksa apakah perangkat terhubung ke internet (WiFi atau Mobile).
   // Mengembalikan Future<bool> yang bernilai true jika online, dan false jika offline.
   Future<bool> cekKoneksi() async {
@@ -14,8 +23,9 @@ class KoneksiInternetService {
 
     try {
       // ditambah: Log sebelum memanggil plugin.
-      Log.info('[Koneksi] Memanggil Connectivity().checkConnectivity().');
-      final connectivityResult = await Connectivity().checkConnectivity();
+      Log.info('[Koneksi] Memanggil _connectivity.checkConnectivity().');
+      // diubah: Menggunakan instance _connectivity yang sudah diinjeksi/dibuat.
+      final connectivityResult = await _connectivity.checkConnectivity();
 
       Log.info('[Koneksi] Hasil mentah konektivitas diterima: $connectivityResult');
 

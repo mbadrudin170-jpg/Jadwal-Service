@@ -50,7 +50,8 @@ class PengaturanPageUser extends StatelessWidget {
             leading: const Icon(Icons.feedback_outlined),
             title: const Text('Kritik dan Saran'),
             onTap: () {
-              Log.info('[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.');
+              Log.info(
+                  '[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -85,7 +86,8 @@ class PengaturanPageUser extends StatelessWidget {
               style: TextStyle(color: colorScheme.error),
             ),
             onTap: () {
-              Log.info('[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).');
+              Log.info(
+                  '[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).');
               Navigator.push(
                 context,
                 MaterialPageRoute(
