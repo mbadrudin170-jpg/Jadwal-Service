@@ -1,106 +1,86 @@
-// path: lib/providers/theme_provider.dart
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/shared/debug/log.dart';
+// path: lib/user/provider/theme_provider.dart
+// Fitur: Manajemen Tema Aplikasi
+// Tujuan: Menyediakan, mengubah, dan menyimpan preferensi tema pengguna.
+//
+// diubah: Menghapus semua logika konversi tipe manual (toString/fromString).
+// ThemeProvider sekarang berinteraksi langsung dengan LocalStorageService
+// menggunakan tipe data ThemeMode, karena service tersebut sudah menangani
+// konversi internal ke/dari String.
 
-// Kelas abstrak untuk ThemeProvider agar bisa di-mock dalam pengujian
+import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
+
 abstract class ThemeProvider extends ChangeNotifier {
-  ThemeMode get tema;
+  ThemeMode get themeMode;
+  bool get isDarkMode;
   Future<void> aturTema(ThemeMode mode);
-  Future<void> muatTema(); // Tambah method untuk load tema
+  Future<void> muatTema();
 }
 
 class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
-  ThemeMode _tema = ThemeMode.system;
-  static const String _keyTema = 'theme_mode'; // Key untuk SharedPreferences
+  final LocalStorageService localStorageService;
 
-  ThemeProviderImpl() {
-    Log.info('[Inisialisasi Provider] ✅ ThemeProviderImpl dibuat.');
-    // muatTema() akan dipanggil secara eksplisit dari luar setelah inisialisasi
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeProviderImpl({required this.localStorageService}) {
+    Log.info(
+        '[ThemeProvider] Inisialisasi, memuat tema dari LocalStorageService.');
+    muatTema();
   }
 
   @override
-  ThemeMode get tema => _tema;
+  ThemeMode get themeMode => _themeMode;
 
   @override
+  bool get isDarkMode {
+    if (_themeMode == ThemeMode.system) {
+      final brightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      return brightness == Brightness.dark;
+    } else {
+      return _themeMode == ThemeMode.dark;
+    }
+  }
+
+  // diubah: Menggunakan tipe ThemeMode secara langsung dari service.
+  @override
   Future<void> muatTema() async {
-    Log.info(
-      '[Muat Tema] ✅ Memulai memuat tema dari SharedPreferences.',
-    );
+    Log.info('[ThemeProvider] Sedang memuat preferensi tema pengguna...');
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final temaString = prefs.getString(_keyTema) ?? 'system';
+      final modeDariPenyimpanan = await localStorageService.ambilModeTema();
       Log.info(
-        '[Muat Tema] ✅ Tema yang tersimpan adalah: `$temaString`.',
-      );
+          '[ThemeProvider] Tema berhasil dimuat dari penyimpanan: $modeDariPenyimpanan');
 
-      ThemeMode mode;
-      switch (temaString) {
-        case 'light':
-          mode = ThemeMode.light;
-          break;
-        case 'dark':
-          mode = ThemeMode.dark;
-          break;
-        default:
-          mode = ThemeMode.system;
-      }
-
-      if (_tema != mode) {
-        _tema = mode;
-        Log.info(
-          '[Pembaruan State] ✅ Tema berhasil dimuat dan diatur ke: $mode.',
-        );
+      if (_themeMode != modeDariPenyimpanan) {
+        _themeMode = modeDariPenyimpanan;
         notifyListeners();
-      } else {
-        Log.info(
-          '[Muat Tema] ✅ Tema yang dimuat sama dengan state saat ini, tidak ada perubahan.',
-        );
       }
     } catch (e, st) {
       Log.error(
-        '[Muat Tema] ❌ Gagal memuat tema dari SharedPreferences.',
+        '[ThemeProvider] Gagal memuat preferensi tema',
         e: e,
         st: st,
       );
     }
   }
 
+  // diubah: Mengirim tipe ThemeMode secara langsung ke service.
   @override
   Future<void> aturTema(ThemeMode mode) async {
-    if (_tema == mode) {
-      Log.info(
-        '[Atur Tema] ✅ Mode tema sudah sama ($mode), tidak ada aksi.',
-      );
-      return;
-    }
+    if (mode == _themeMode) return;
 
-    _tema = mode;
-    Log.info(
-      '[Pembaruan State] ✅ Mengatur tema baru ke: $mode dan memberitahu listener.',
-    );
+    Log.info('[ThemeProvider] Mengatur tema baru: $mode');
+    _themeMode = mode;
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String value;
-      switch (mode) {
-        case ThemeMode.light:
-          value = 'light';
-          break;
-        case ThemeMode.dark:
-          value = 'dark';
-          break;
-        default:
-          value = 'system';
-      }
-      await prefs.setString(_keyTema, value);
+      await localStorageService.simpanModeTema(mode);
       Log.info(
-        '[Simpan Tema] ✅ Tema ($value) berhasil disimpan ke SharedPreferences.',
-      );
+          '[ThemeProvider] Preferensi tema berhasil dikirim ke service untuk disimpan.');
     } catch (e, st) {
       Log.error(
-        '[Simpan Tema] ❌ Gagal menyimpan tema ke SharedPreferences.',
+        '[ThemeProvider] Gagal menyimpan preferensi tema melalui service',
         e: e,
         st: st,
       );

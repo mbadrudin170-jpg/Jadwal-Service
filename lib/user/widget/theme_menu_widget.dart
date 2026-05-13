@@ -1,4 +1,5 @@
-// path: lib/widget/theme_menu_widget.dart
+// path: lib/user/widget/theme_menu_widget.dart
+// diubah: Menghapus blok default yang tidak perlu pada switch.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,14 +11,13 @@ class ThemeMenuWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Log.info('[Build UI] ✅ Membangun widget ThemeMenuWidget.');
-    
-    Log.info('[State Management] ✅ Mendapatkan instance dari ThemeProvider.');
+
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    Log.info('[Fungsi Lokal] ✅ Mendefinisikan fungsi lokal getCurrentIcon untuk mendapatkan ikon tema saat ini.');
     IconData getCurrentIcon() {
-      Log.info('[Eksekusi Fungsi] ✅ Menjalankan getCurrentIcon untuk menentukan ikon berdasarkan tema: ${themeProvider.tema}.');
-      switch (themeProvider.tema) {
+      Log.info('[Eksekusi Fungsi] ✅ Menjalankan getCurrentIcon untuk menentukan ikon berdasarkan tema: ${themeProvider.themeMode}.');
+      // diubah: Switch sekarang sudah mencakup semua kasus, jadi tidak perlu default.
+      switch (themeProvider.themeMode) {
         case ThemeMode.light:
           Log.info('[Pilihan Tema] ✅ Tema saat ini adalah Terang (light), mengembalikan ikon light_mode.');
           return Icons.light_mode;

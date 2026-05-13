@@ -1,5 +1,6 @@
 // path: lib/user/page/login_page.dart
 // diubah: Menambahkan logika untuk menyimpan FCM Token setelah login berhasil.
+// diperbaiki: Menghilangkan TextStyle yang bertentangan pada ElevatedButton untuk mencegah crash.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -193,9 +194,6 @@ class _TampilanLoginState extends State<_TampilanLogin> {
         'Terjadi kesalahan saat login.',
         e: e,
         st: s,
-        data: {
-          'telepon': telepon,
-        },
       );
       _tampilkanAlertError(
           "Terjadi kesalahan koneksi ke server. Silakan coba lagi.");

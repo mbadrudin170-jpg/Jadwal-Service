@@ -1,6 +1,7 @@
 // path: lib/user/page/daftar_akun_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'main_page.dart';
 import '../services/storage/local_storage_service.dart';
@@ -122,7 +123,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                           TextButton(
                             child: const Text(
                               'Hapus & Keluar',
-                              style: TextStyle(color: AppColors.primaryColor),
+                              style: TextStyle(color: AppColors.errorColor),
                             ),
                             onPressed: () async {
                               // 1. Ambil navigator SEBELUM await
@@ -178,8 +179,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               navigator.pushNamedAndRemoveUntil('/login', (route) => false);
             },
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.primaryColor.withAlpha(25),
-              foregroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.errorColor.withAlpha(25),
+              foregroundColor: AppColors.textOnDark,
             ),
             child: const Text(
               'Keluar/Hapus Akun',
@@ -187,14 +188,19 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           ),
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.primaryColor.withAlpha(25),
-              foregroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.errorColor.withAlpha(25),
+              foregroundColor: AppColors.textOnDark,
             ),
             onPressed: () async {
               final navigator = Navigator.of(dialogContext);
               if (!_isLocalStorageInitialized) return;
               await _localStorageService.hapusTokenLogin();
+              Log.info('Navigasi ke halaman login setelah keluar.');
+
               navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+              Log.error(
+                'error tidak bisa menuju ke halaman login ',
+              );
             },
             child: const Text(
               'Keluar',
@@ -265,8 +271,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 child: ElevatedButton(
                   onPressed: () => _tampilkanDialogKeluar(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor.withAlpha(25),
-                    foregroundColor: AppColors.primaryColor,
+                    backgroundColor: AppColors.errorColor.withAlpha(25),
+                    foregroundColor: AppColors.textOnDark,
                     elevation: 0,
                   ),
                   child: const Text('Keluar'),
