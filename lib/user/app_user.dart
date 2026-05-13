@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
+import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
 import 'package:wifi/user/provider/theme_provider.dart';
 import 'package:wifi/user/services/firestore_service.dart';
@@ -42,6 +43,9 @@ class AppUser extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             home: const SplashScreenUser(),
+            routes: {
+              '/login': (context) => const LoginPage(),
+            },
           );
         },
       ),

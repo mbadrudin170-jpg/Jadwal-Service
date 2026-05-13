@@ -20,7 +20,8 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    flavorDimensions += "app"
+    // diubah: Menambahkan dimensi 'environment' untuk memisahkan dev dan prod.
+    flavorDimensions += listOf("app", "environment")
 
     defaultConfig {
         applicationId = "com.example.myapp"
@@ -31,12 +32,26 @@ android {
         multiDexEnabled = true
     }
 
+    // diubah: Mengkonfigurasi productFlavors untuk menjadi multi-dimensi.
     productFlavors {
+        // Lingkungan Pengembangan (dev)
+        create("dev") {
+            dimension = "environment"
+        }
+
+        // Lingkungan Produksi (prod)
+        create("prod") {
+            dimension = "environment"
+        }
+
+        // Aplikasi Admin
         create("admin") {
             dimension = "app"
             applicationId = "com.wifi.admin"
             versionNameSuffix = "-admin"
         }
+
+        // Aplikasi User
         create("user") {
             dimension = "app"
             applicationId = "com.wifi.user"

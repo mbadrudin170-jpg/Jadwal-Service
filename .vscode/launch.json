@@ -1,24 +1,70 @@
+// {
+//     "version": "0.2.0",
+//     "configurations": [
+//         {
+//             "name": "Run User App",
+//             "request": "launch",
+//             "type": "dart",
+//             "program": "lib/main_user.dart",
+//             "args": [
+//                 "--flavor",
+//                 "user"
+//             ]
+//         },
+//         {
+//             "name": "Run Admin App",
+//             "request": "launch",
+//             "type": "dart",
+//             "program": "lib/main_admin.dart",
+//             "args": [
+//                 "--flavor",
+//                 "admin"
+//             ]
+//         }
+//     ]
+// }
 {
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "Run User App",
-            "request": "launch",
+            "name": "User Dev",
             "type": "dart",
-            "program": "lib/main_user.dart",
+            "request": "launch",
+            "program": "lib/main_user/main_user.dart",
             "args": [
                 "--flavor",
-                "user"
+                "userDev"
             ]
         },
         {
-            "name": "Run Admin App",
-            "request": "launch",
+            "name": "User Prod",
             "type": "dart",
+            "request": "launch",
+            "program": "lib/main_user/main_user.dart",
+            "args": [
+                "--flavor",
+                "userProd"
+            ]
+        },
+        {
+            "name": "Admin Dev",
+            "type": "dart",
+            "request": "launch",
             "program": "lib/main_admin.dart",
             "args": [
                 "--flavor",
-                "admin"
+                "adminDev"
+            ]
+        },
+        {
+            "name": "Admin Prod",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main_admin.dart",
+            "args": [
+                "--flavor",
+                "adminProd"
             ]
         }
     ]
