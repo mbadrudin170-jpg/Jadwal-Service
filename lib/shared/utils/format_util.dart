@@ -48,7 +48,7 @@ class FormatJam {
     try {
       final dateTime = DateTime.parse(teksWaktu);
       return DateFormat('HH:mm').format(dateTime);
-    } catch (e) {
+    } on Exception {
       return '--:--'; // Fallback jika format teks tidak valid.
     }
   }

@@ -1,16 +1,31 @@
-// path: lib/halaman/form/form_versi_apk_user.dart
+// path: lib/admin/halaman/form/form_versi_apk_user.dart
+// diubah: Menambahkan unawaited untuk menangani discarded_futures.
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
-import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
-import 'package:uuid/uuid.dart';
 
+/// Form untuk mengelola versi APK pengguna.
+///
+/// Form ini digunakan untuk menambah atau mengubah informasi mengenai
+/// versi APK yang tersedia untuk diunduh oleh pengguna, termasuk nomor build,
+/// tautan unduhan, dan catatan rilis.
 class FormVersiApkUser extends StatefulWidget {
+  /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final VersiApkUserModel? versiApkUser;
+
+  /// Operasi untuk berinteraksi dengan data versi APK di database.
   final VersiApkUserOperasi operasi;
 
+  /// Membuat instance dari [FormVersiApkUser].
+  ///
+  /// Parameter [operasi] bersifat opsional dan akan diinisialisasi
+  /// dengan instance default jika tidak disediakan. Ini berguna untuk
+  /// injeksi dependensi saat testing.
   FormVersiApkUser({super.key, this.versiApkUser, VersiApkUserOperasi? operasi})
       : operasi = operasi ?? VersiApkUserOperasi();
 
@@ -39,7 +54,8 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
   void initState() {
     super.initState();
     Log.info(
-        'Menginisialisasi FormVersiApkUser (Mode: ${_isEdit ? 'Edit' : 'Tambah'})');
+      'Menginisialisasi FormVersiApkUser (Mode: ${_isEdit ? 'Edit' : 'Tambah'})',
+    );
 
     _catatanRilisController = TextEditingController();
     _versiTerbaruController = TextEditingController();
@@ -56,11 +72,11 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     if (_isEdit) {
       _populateControllers(widget.versiApkUser!);
     } else {
-      _muatDataVersiTerakhir();
+      unawaited(_muatDataVersiTerakhir());
     }
   }
 
-  void _muatDataVersiTerakhir() async {
+  Future<void> _muatDataVersiTerakhir() async {
     Log.info('Memuat data rilis terakhir untuk otomatisasi input.');
     setState(() => _isLoading = true);
     try {
@@ -74,9 +90,10 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
         _buildUniversalController.text = buildBerikutnya.toString();
 
         Log.info(
-            'Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya');
+          'Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya',
+        );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal memuat data versi terakhir', e: e, st: s);
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -120,7 +137,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     super.dispose();
   }
 
-  void _simpanForm() async {
+  Future<void> _simpanForm() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Menampilkan dialog konfirmasi kepada pengguna');
 
@@ -135,7 +152,8 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
             ],
           ),
           content: const Text(
-              'Apakah data versi aplikasi yang Anda masukkan sudah benar?'),
+            'Apakah data versi aplikasi yang Anda masukkan sudah benar?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -218,7 +236,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
           ),
         );
         Navigator.of(context).pop(dataToSave);
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

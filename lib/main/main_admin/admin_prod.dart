@@ -1,31 +1,40 @@
-// path: lib/main_admin.dart
-import 'package:flutter/material.dart';
+// path: lib/main/main_admin/admin_prod.dart
+// Fitur: Entry point untuk aplikasi admin (Production)
+// Tujuan: Menginisialisasi Firebase dan layanan lainnya sebelum menjalankan aplikasi admin.
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
-// This is the entry point for the Admin version of the app.
-
+/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
+///
+/// Menginisialisasi [WidgetsFlutterBinding] dan Firebase dengan opsi produksi,
+/// serta menginisialisasi layanan notifikasi sebelum menjalankan [AdminApp].
 void main() async {
+  // ditambah: Memastikan binding Flutter siap sebelum kode asynchronous dijalankan.
   WidgetsFlutterBinding.ensureInitialized();
+  // ditambah: Inisialisasi Firebase untuk platform saat ini dengan opsi produksi.
   await Firebase.initializeApp(
-    // Menggunakan DefaultFirebaseOptions dari file konfigurasi admin
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 1. Inisialisasi servis notifikasi lokal
+  // ditambah: Inisialisasi servis notifikasi.
   final notifikasiServis = NotifikasiServis();
   await notifikasiServis.inisialisasi();
-  await notifikasiServis.requestPermissions(); // Meminta izin
+  // ditambah: Meminta izin notifikasi kepada pengguna.
+  await notifikasiServis.requestPermissions(); 
 
-  // 2. Inisialisasi servis FCM dan berikan notifikasiServis padanya  await fcmServis.inisialisasi();
-
+  // ditambah: Menjalankan aplikasi admin.
   runApp(const AdminApp());
 }
 
-// ditambah: Mengembalikan kelas AdminApp yang hilang
+/// Widget root untuk aplikasi admin.
+///
+/// Mengatur [MaterialApp] dengan tema dan halaman utama [MyApp].
 class AdminApp extends StatelessWidget {
+  /// Membuat instance [AdminApp].
   const AdminApp({super.key});
 
   @override
@@ -36,7 +45,8 @@ class AdminApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MyApp(), // Memanggil MyApp dari app_admin.dart
+      // diubah: Halaman utama sekarang adalah MyApp dari app_admin.dart
+      home: const MyApp(),
     );
   }
 }

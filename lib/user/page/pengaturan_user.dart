@@ -8,12 +8,23 @@ import 'package:wifi/user/page/kritik_dan_saran_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
+/// Halaman pengaturan untuk pengguna.
+///
+/// Menyediakan opsi untuk mengubah tema, memberikan masukan, melihat info aplikasi,
+/// dan keluar dari akun.
 class PengaturanPageUser extends StatelessWidget {
+  /// ID pengguna yang sedang login.
   final String userId;
+
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  const PengaturanPageUser(
-      {super.key, required this.userId, required this.localStorageService});
+  /// Membuat instance dari [PengaturanPageUser].
+  const PengaturanPageUser({
+    super.key,
+    required this.userId,
+    required this.localStorageService,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +42,10 @@ class PengaturanPageUser extends StatelessWidget {
           const SizedBox(height: 20),
           // FIX: Membungkus ThemeMenuWidget dengan Row(mainAxisSize: MainAxisSize.min)
           // untuk mengatasi error RenderBox.
-          ListTile(
-            leading: const Icon(Icons.brightness_6_outlined),
-            title: const Text('Tema Aplikasi'),
-            trailing: const Row(
+          const ListTile(
+            leading: Icon(Icons.brightness_6_outlined),
+            title: Text('Tema Aplikasi'),
+            trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ThemeMenuWidget(),
@@ -45,12 +56,13 @@ class PengaturanPageUser extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.feedback_outlined),
             title: const Text('Kritik dan Saran'),
-            onTap: () {
+            onTap: () async {
               Log.info(
-                  '[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.');
-              Navigator.push(
+                '[Navigasi] 🚀 Menavigasi ke halaman RiwayatKritikDanSaranPage.',
+              );
+              await Navigator.push(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<void>(
                   builder: (context) =>
                       RiwayatKritikDanSaranPage(userId: userId),
                 ),
@@ -61,11 +73,11 @@ class PengaturanPageUser extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('Info Aplikasi & Perangkat'),
-            onTap: () {
+            onTap: () async {
               Log.info('[Navigasi] 🚀 Menavigasi ke halaman InfoApkPage.');
-              Navigator.push(
+              await Navigator.push(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<void>(
                   builder: (context) => const InfoApkPage(),
                 ),
               );
@@ -81,14 +93,17 @@ class PengaturanPageUser extends StatelessWidget {
               'Ganti Akun/Keluar',
               style: TextStyle(color: colorScheme.error),
             ),
-            onTap: () {
+            onTap: () async {
               Log.info(
-                  '[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).');
-              Navigator.push(
+                '[Navigasi] 🚀 Menavigasi ke halaman DaftarAkunPage (untuk ganti akun).',
+              );
+              await Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => DaftarAkunPage(
-                        localStorageService: localStorageService)),
+                MaterialPageRoute<void>(
+                  builder: (context) => DaftarAkunPage(
+                    localStorageService: localStorageService,
+                  ),
+                ),
               );
             },
           ),

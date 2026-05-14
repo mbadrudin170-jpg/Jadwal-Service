@@ -57,15 +57,20 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         widget.subKategori != null || widget.idKategoriInduk != null;
 
     Log.info(
-        'Membuat state untuk FormKategoriPage. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.nama} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}');
+      '''Membuat state untuk FormKategoriPage. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.nama} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
+    );
 
     Log.info('========================================');
     Log.info('LIFECYCLE: initState() - Halaman FormKategoriPage');
     Log.info('========================================');
 
-    Log.info('Membuat TextEditingController untuk input nama.');
+    Log.info(
+      'Membuat TextEditingController untuk input nama.',
+    );
     _namaController = TextEditingController();
-    Log.info('TextEditingController berhasil dibuat.');
+    Log.info(
+      'TextEditingController berhasil dibuat.',
+    );
 
     Log.info('Membuat FocusNode untuk input nama.');
     Log.info('FocusNode berhasil dibuat: ${_namaFocusNode.hashCode}');
@@ -77,13 +82,15 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
       Log.info('  - Nama: ${widget.kategori!.nama}');
       Log.info('  - Tipe: ${widget.kategori!.tipe}');
       Log.info(
-          '  - Jumlah Sub-Kategori: ${widget.kategori!.subKategori.length}');
+        '  - Jumlah Sub-Kategori: ${widget.kategori!.subKategori.length}',
+      );
       Log.info('  - Diperbarui: ${widget.kategori!.diperbarui}');
       Log.info('  - isDeleted: ${widget.kategori!.isDeleted}');
       Log.info('  - Diarsipkan: ${widget.kategori!.diarsipkan ?? "NULL"}');
 
       Log.info(
-          'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"');
+        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"',
+      );
       _namaController.text = widget.kategori!.nama;
       _tipe = widget.kategori!.tipe;
       Log.info('Tipe kategori diatur ke: ${widget.kategori!.tipe}');
@@ -96,10 +103,13 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
       Log.info('  - Diperbarui: ${widget.subKategori!.diperbarui}');
 
       Log.info(
-          'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.nama}"');
+        'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.nama}"',
+      );
       _namaController.text = widget.subKategori!.nama;
     } else {
-      Log.info('MODE TAMBAH BARU terdeteksi.');
+      Log.info(
+        'MODE TAMBAH BARU terdeteksi.',
+      );
       Log.info('Form akan membuat kategori baru dengan:');
       Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
       Log.info('  - Tipe Default: pemasukan');
@@ -116,7 +126,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     }
 
     Log.info(
-        'Inisialisasi FormKategoriPage selesai. Siap menerima input dari pengguna.');
+      'Inisialisasi FormKategoriPage selesai. Siap menerima input dari pengguna.',
+    );
   }
 
   @override
@@ -127,7 +138,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('  - Mendispose TextEditingController utama (_namaController)');
     Log.info('  - Mendispose FocusNode (_namaFocusNode)');
     Log.info(
-        '  - Mendispose ${_subKategoriControllers.length} TextEditingController sub-kategori');
+      '  - Mendispose ${_subKategoriControllers.length} TextEditingController sub-kategori',
+    );
     Log.info('========================================');
 
     _namaController.dispose();
@@ -146,7 +158,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('========================================');
     Log.info('AKSI: Menambahkan field input sub-kategori baru');
     Log.info(
-        'Jumlah field sub-kategori sebelum ditambah: ${_subKategoriControllers.length}');
+      'Jumlah field sub-kategori sebelum ditambah: ${_subKategoriControllers.length}',
+    );
     Log.info('========================================');
 
     setState(() {
@@ -155,7 +168,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
     Log.info('Field sub-kategori baru berhasil ditambahkan.');
     Log.info(
-        'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}');
+      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
+    );
     Log.info('Index field baru: ${_subKategoriControllers.length - 1}');
   }
 
@@ -164,14 +178,17 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('AKSI: Menghapus field input sub-kategori');
     Log.info('Index yang akan dihapus: $index');
     Log.info(
-        'Jumlah field sub-kategori sebelum dihapus: ${_subKategoriControllers.length}');
+      'Jumlah field sub-kategori sebelum dihapus: ${_subKategoriControllers.length}',
+    );
 
     if (index >= 0 && index < _subKategoriControllers.length) {
       Log.info(
-          'Nilai field sebelum dihapus: "${_subKategoriControllers[index].text}"');
+        'Nilai field sebelum dihapus: "${_subKategoriControllers[index].text}"',
+      );
     } else {
       Log.warning(
-          'Index $index tidak valid. Jumlah field: ${_subKategoriControllers.length}');
+        'Index $index tidak valid. Jumlah field: ${_subKategoriControllers.length}',
+      );
     }
     Log.info('========================================');
 
@@ -184,7 +201,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
     Log.info('Field sub-kategori berhasil dihapus.');
     Log.info(
-        'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}');
+      'Jumlah field sub-kategori sekarang: ${_subKategoriControllers.length}',
+    );
   }
 
   Future<void> _simpanForm() async {
@@ -192,7 +210,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('AKSI: Tombol Simpan Ditekan');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
-        'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
+      'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
+    );
     Log.info('Nama yang akan disimpan: "${_namaController.text}"');
     Log.info('Tipe kategori: $_tipe');
     Log.info('========================================');
@@ -215,20 +234,25 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
           if (widget.idKategoriInduk == null) {
             Log.error(
-                'ID kategori induk tidak ditemukan saat mengedit sub-kategori. Ini adalah kesalahan logika karena sub-kategori harus selalu memiliki kategori induk.');
+              'ID kategori induk tidak ditemukan saat mengedit sub-kategori. Ini adalah kesalahan logika karena sub-kategori harus selalu memiliki kategori induk.',
+            );
             throw Exception(
-                'ID kategori induk tidak ditemukan saat mengedit sub-kategori.');
+              'ID kategori induk tidak ditemukan saat mengedit sub-kategori.',
+            );
           }
 
           Log.info(
-              'Mengambil data kategori induk dengan ID: ${widget.idKategoriInduk}');
+            'Mengambil data kategori induk dengan ID: ${widget.idKategoriInduk}',
+          );
           final kategoriInduk =
               await _kategoriOperasi.getKategoriById(widget.idKategoriInduk!);
 
           Log.info(
-              'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.subKategori.length} sub-kategori).');
+            'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.subKategori.length} sub-kategori).',
+          );
           Log.info(
-              'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.');
+            'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.',
+          );
 
           final subKategoriIndex = kategoriInduk.subKategori
               .indexWhere((s) => s.id == widget.subKategori!.id);
@@ -236,10 +260,12 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           if (subKategoriIndex != -1) {
             Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
             Log.info(
-                'Nama sub-kategori sebelum update: "${kategoriInduk.subKategori[subKategoriIndex].nama}"');
+              'Nama sub-kategori sebelum update: "${kategoriInduk.subKategori[subKategoriIndex].nama}"',
+            );
 
             Log.info(
-                'Membuat salinan sub-kategori dengan nama baru dan timestamp diperbarui.');
+              'Membuat salinan sub-kategori dengan nama baru dan timestamp diperbarui.',
+            );
             final subKategoriDiperbarui =
                 kategoriInduk.subKategori[subKategoriIndex].copyWith(
               nama: _namaController.text,
@@ -247,19 +273,23 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             );
 
             Log.info(
-                'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.');
+              'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.',
+            );
             kategoriInduk.subKategori[subKategoriIndex] = subKategoriDiperbarui;
 
             Log.info(
-                'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan kategori induk.');
+              'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan kategori induk.',
+            );
             await _kategoriOperasi.update(kategoriInduk);
 
             Log.info('Update sub-kategori BERHASIL.');
             Log.info(
-                'Nama sub-kategori berubah dari "${widget.subKategori!.nama}" menjadi "${_namaController.text}"');
+              'Nama sub-kategori berubah dari "${widget.subKategori!.nama}" menjadi "${_namaController.text}"',
+            );
           } else {
             Log.error(
-                'Sub-kategori dengan ID ${widget.subKategori!.id} tidak ditemukan dalam daftar sub-kategori kategori induk.');
+              'Sub-kategori dengan ID ${widget.subKategori!.id} tidak ditemukan dalam daftar sub-kategori kategori induk.',
+            );
             throw Exception('Sub-kategori tidak ditemukan untuk diedit.');
           }
         } else if (_isEditMode && widget.kategori != null) {
@@ -275,7 +305,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info('  - Tipe Baru: $_tipe');
 
           Log.info(
-              'Membuat salinan kategori dengan data baru dan timestamp diperbarui.');
+            'Membuat salinan kategori dengan data baru dan timestamp diperbarui.',
+          );
           final kategoriDiperbarui = widget.kategori!.copyWith(
             nama: _namaController.text,
             tipe: _tipe,
@@ -289,14 +320,17 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info('  - Diperbarui: ${kategoriDiperbarui.diperbarui}');
 
           Log.info(
-              'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan.');
+            'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan.',
+          );
           await _kategoriOperasi.update(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
           Log.info(
-              'Nama kategori berubah dari "${widget.kategori!.nama}" menjadi "${_namaController.text}"');
+            'Nama kategori berubah dari "${widget.kategori!.nama}" menjadi "${_namaController.text}"',
+          );
           Log.info(
-              'Tipe kategori berubah dari "${widget.kategori!.tipe}" menjadi "$_tipe"');
+            'Tipe kategori berubah dari "${widget.kategori!.tipe}" menjadi "$_tipe"',
+          );
         } else {
           Log.info('========================================');
           Log.info('PROSES TAMBAH KATEGORI BARU (MODE TAMBAH)');
@@ -307,7 +341,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info('UUID berhasil digenerate: $kategoriId');
 
           Log.info(
-              'Memproses ${_subKategoriControllers.length} field input sub-kategori.');
+            'Memproses ${_subKategoriControllers.length} field input sub-kategori.',
+          );
 
           int subKategoriKosong = 0;
           int subKategoriTerisi = 0;
@@ -318,11 +353,13 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             if (isEmpty) {
               subKategoriKosong++;
               Log.info(
-                  '  Sub-kategori dengan nilai "${controller.text}" akan DIABAIKAN karena kosong.');
+                '  Sub-kategori dengan nilai "${controller.text}" akan DIABAIKAN karena kosong.',
+              );
             } else {
               subKategoriTerisi++;
               Log.info(
-                  '  Sub-kategori dengan nilai "${controller.text}" akan DISIMPAN.');
+                '  Sub-kategori dengan nilai "${controller.text}" akan DISIMPAN.',
+              );
             }
             return !isEmpty;
           }).map((controller) {
@@ -334,7 +371,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           }).toList();
 
           Log.info(
-              'Ringkasan sub-kategori: $subKategoriTerisi akan disimpan, $subKategoriKosong diabaikan.');
+            'Ringkasan sub-kategori: $subKategoriTerisi akan disimpan, $subKategoriKosong diabaikan.',
+          );
 
           Log.info('Membuat objek KategoriModel baru.');
           final kategoriBaru = KategoriModel(
@@ -350,11 +388,13 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info('  - Nama: ${kategoriBaru.nama}');
           Log.info('  - Tipe: ${kategoriBaru.tipe}');
           Log.info(
-              '  - Jumlah Sub-Kategori: ${kategoriBaru.subKategori.length}');
+            '  - Jumlah Sub-Kategori: ${kategoriBaru.subKategori.length}',
+          );
           Log.info('  - Diperbarui: ${kategoriBaru.diperbarui}');
 
           Log.info(
-              'Memanggil _kategoriOperasi.createKategori() untuk menyimpan kategori baru.');
+            'Memanggil _kategoriOperasi.createKategori() untuk menyimpan kategori baru.',
+          );
           await _kategoriOperasi.createKategori(kategoriBaru);
 
           Log.info('Kategori baru BERHASIL disimpan ke database lokal.');
@@ -370,14 +410,15 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
         if (isOnline) {
           Log.info(
-              'Koneksi internet tersedia. Melakukan sinkronisasi data kategori ke Firestore.');
+            'Koneksi internet tersedia. Melakukan sinkronisasi data kategori ke Firestore.',
+          );
           await _layananUnggahData.unggahDataKategori();
           Log.info('Sinkronisasi data kategori ke cloud BERHASIL.');
         } else {
           Log.info(
-              'Tidak ada koneksi internet. Data hanya disimpan secara lokal.');
-          Log.info(
-              'Sinkronisasi akan dilakukan saat koneksi tersedia nanti.');
+            'Tidak ada koneksi internet. Data hanya disimpan secara lokal.',
+          );
+          Log.info('Sinkronisasi akan dilakukan saat koneksi tersedia nanti.');
         }
 
         Log.info('========================================');
@@ -386,7 +427,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
         if (!mounted) {
           Log.warning(
-              'Widget sudah tidak mounted setelah penyimpanan berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.');
+            'Widget sudah tidak mounted setelah penyimpanan berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.',
+          );
           return;
         }
 
@@ -394,19 +436,22 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!'),
+              '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
+            ),
             backgroundColor: Colors.green,
           ),
         );
         Log.info('SnackBar sukses telah ditampilkan.');
 
         Log.info(
-            'Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.');
+          'Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.',
+        );
         Log.info(
-            'Nilai result true dikirim untuk memberitahu halaman sebelumnya bahwa ada perubahan data.');
+          'Nilai result true dikirim untuk memberitahu halaman sebelumnya bahwa ada perubahan data.',
+        );
         Navigator.pop(context, true);
         Log.info('Navigator.pop berhasil dijalankan.');
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
           e: e,
@@ -415,12 +460,14 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
         if (!mounted) {
           Log.warning(
-              'Widget sudah tidak mounted setelah error. Tidak dapat menampilkan SnackBar error.');
+            'Widget sudah tidak mounted setelah error. Tidak dapat menampilkan SnackBar error.',
+          );
           return;
         }
 
         Log.info(
-            'Widget masih mounted. Menampilkan SnackBar error ke pengguna.');
+          'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Gagal menyimpan: $e'),
@@ -432,7 +479,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     } else {
       Log.warning('Validasi form GAGAL. Terdapat input yang tidak valid.');
       Log.warning(
-          'Kemungkinan penyebab: Nama kategori/sub-kategori kosong atau tidak memenuhi kriteria validasi.');
+        'Kemungkinan penyebab: Nama kategori/sub-kategori kosong atau tidak memenuhi kriteria validasi.',
+      );
       Log.info('Form tidak akan disimpan sampai semua input valid.');
     }
   }
@@ -445,9 +493,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     if (!_isEditMode && widget.idKategoriInduk != null) {
       judul = 'Tambah Sub-Kategori';
     }
-    if (!_isEditMode &&
-        widget.kategori == null &&
-        widget.subKategori == null) {
+    if (!_isEditMode && widget.kategori == null && widget.subKategori == null) {
       judul = 'Tambah Kategori Baru';
     }
 
@@ -456,7 +502,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('Judul halaman: "$judul"');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
-        'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}');
+      'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
+    );
     Log.info('Nama di controller: "${_namaController.text}"');
     // Log.info('Tipe terpilih: $_tipe');
     Log.info('Jumlah field sub-kategori: ${_subKategoriControllers.length}');
@@ -468,7 +515,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         leading: BackButton(
           onPressed: () {
             Log.info(
-                'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).');
+              'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).',
+            );
             Navigator.pop(context, false);
           },
         ),
@@ -493,18 +541,21 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) {
                     Log.info(
-                        'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).');
+                      'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
+                    );
                     Log.info('Nilai yang disubmit: "${_namaController.text}"');
                     Log.info('Menghilangkan fokus dari input.');
                     FocusScope.of(context).unfocus();
                   },
                   onChanged: (value) {
                     Log.info(
-                        'INPUT: Nama ${_isSubKategoriMode ? "sub-kategori" : "kategori"} berubah menjadi: "$value" (panjang: ${value.length} karakter)');
+                      'INPUT: Nama ${_isSubKategoriMode ? "sub-kategori" : "kategori"} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
+                    );
                   },
                   validator: (value) {
                     Log.info(
-                        'VALIDASI: Memvalidasi input nama. Nilai: "${value ?? "NULL"}"');
+                      'VALIDASI: Memvalidasi input nama. Nilai: "${value ?? "NULL"}"',
+                    );
                     if (value == null || value.isEmpty) {
                       Log.warning('VALIDASI GAGAL: Nama kosong.');
                       return 'Nama tidak boleh kosong';
@@ -568,16 +619,20 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                                 ),
                                 onChanged: (value) {
                                   Log.info(
-                                      'INPUT: Sub-kategori ke-${index + 1} berubah menjadi: "$value" (panjang: ${value.length} karakter)');
+                                    'INPUT: Sub-kategori ke-${index + 1} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
+                                  );
                                 },
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline,
-                                  color: Colors.red),
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
                               onPressed: () {
                                 Log.info(
-                                    'AKSI: Tombol hapus sub-kategori ke-${index + 1} ditekan.');
+                                  'AKSI: Tombol hapus sub-kategori ke-${index + 1} ditekan.',
+                                );
                                 _hapusInputSubKategori(index);
                               },
                             ),
@@ -592,7 +647,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                     child: TextButton.icon(
                       onPressed: () {
                         Log.info(
-                            'AKSI: Tombol "Tambah Input" sub-kategori ditekan.');
+                          'AKSI: Tombol "Tambah Input" sub-kategori ditekan.',
+                        );
                         _tambahInputSubKategori();
                       },
                       icon: const Icon(Icons.add),
@@ -602,9 +658,9 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                 ],
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
-                    _simpanForm();
+                    await _simpanForm();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),

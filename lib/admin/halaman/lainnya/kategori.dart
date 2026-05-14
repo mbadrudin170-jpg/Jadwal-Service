@@ -10,11 +10,11 @@
 // - _arsipkanSubKategori(): Mengarsipkan sub-kategori setelah konfirmasi.
 
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/admin/halaman/form/form_kategori.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
 ///
@@ -47,7 +47,7 @@ class _KategoriPageState extends State<KategoriPage> {
     Log.info('Memuat data kategori dari database');
     setState(() {
       _listaKategoriFuture = _kategoriOperasi.getKategori().then((data) {
-        int totalSubKategori = data.fold(
+        final int totalSubKategori = data.fold(
           0,
           (sum, kat) => sum + kat.subKategori.length,
         );
@@ -71,12 +71,12 @@ class _KategoriPageState extends State<KategoriPage> {
         );
         // diubah: Melempar error dengan tipe yang benar.
         // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
-        throw e;
+        throw Exception(e);
       });
     });
   }
 
-  void _tambahKategori() async {
+  Future<void> _tambahKategori() async {
     Log.info('Navigasi ke Form Tambah Kategori');
     // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
     // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
@@ -157,7 +157,7 @@ class _KategoriPageState extends State<KategoriPage> {
         const SnackBar(content: Text('Kategori berhasil diarsipkan.')),
       );
       _loadKategori();
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.nama}',
         e: e,
@@ -213,7 +213,7 @@ class _KategoriPageState extends State<KategoriPage> {
         const SnackBar(content: Text('Sub-kategori berhasil diarsipkan.')),
       );
       _loadKategori();
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.nama}',
         e: e,

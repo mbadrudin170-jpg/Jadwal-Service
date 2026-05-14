@@ -1,19 +1,23 @@
 // path: lib/shared/operasi/pengaturan_operasi.dart
 // diubah: Menambahkan pengaturan `diperbarui` dengan UTC pada setiap operasi tulis.
 
+import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
+/// Kelas untuk operasi terkait data pengaturan di database lokal.
 class PengaturanOperasi {
   final _namaTabel = 'pengaturan';
   final OperasiDasar _operasiDasar;
 
+  /// Konstruktor untuk `PengaturanOperasi`.
   PengaturanOperasi({@visibleForTesting OperasiDasar? operasiDasar})
       : _operasiDasar = operasiDasar ?? OperasiDasar();
 
+  /// Mengambil data pengaturan dari database.
+  /// Jika tidak ada, akan membuat pengaturan default.
   Future<PengaturanModel> getPengaturan() async {
     try {
       Log.info(
@@ -36,28 +40,30 @@ class PengaturanOperasi {
         );
         // ditambah: Saat membuat default, kita juga set `diperbarui`.
         final pengaturanDefault = PengaturanModel(
-          id: idPengaturanGlobal,
           diperbarui: DateTime.now().toUtc(),
         );
-        await simpanAtauPerbaruiPengaturan(pengaturanDefault,
-            dariServer: false);
+        await simpanAtauPerbaruiPengaturan(
+          pengaturanDefault,
+        );
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
       }
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengambil data pengaturan: $e',
         e: e,
         st: st,
       );
       Log.warning('Mengembalikan PengaturanModel default sebagai fallback.');
-      return PengaturanModel(id: idPengaturanGlobal);
+      return PengaturanModel();
     }
   }
 
-  // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
-  Future<void> simpanAtauPerbaruiPengaturan(PengaturanModel pengaturan,
-      {bool dariServer = false}) async {
+  /// Menyimpan atau memperbarui [PengaturanModel] di database.
+  Future<void> simpanAtauPerbaruiPengaturan(
+    PengaturanModel pengaturan, {
+    bool dariServer = false,
+  }) async {
     try {
       final pengaturanUntukDisimpan = pengaturan.copyWith(
         id: idPengaturanGlobal,
@@ -75,7 +81,7 @@ class PengaturanOperasi {
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
       );
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal menyimpan atau memperbarui data pengaturan: $e',
         e: e,
@@ -85,10 +91,11 @@ class PengaturanOperasi {
     }
   }
 
-  // diubah: Menambahkan `diperbarui` dengan UTC sebelum menyimpan
+  /// Menyimpan atau memperbarui [PengaturanModel] di database menggunakan batch.
   Future<void> simpanAtauPerbaruiPengaturanDenganBatch(
-      PengaturanModel pengaturan,
-      {bool dariServer = false}) async {
+    PengaturanModel pengaturan, {
+    bool dariServer = false,
+  }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final pengaturanUntukDisimpan = pengaturan.copyWith(
@@ -97,13 +104,14 @@ class PengaturanOperasi {
       );
       final dataPengaturan = pengaturanUntukDisimpan.toSqlite();
       await _operasiDasar.sisipkanAtauPerbaruiBatch(
-          _namaTabel,
-          [
-            dataPengaturan,
-          ],
-          dariServer: dariServer);
+        _namaTabel,
+        [
+          dataPengaturan,
+        ],
+        dariServer: dariServer,
+      );
       Log.info('Batch operation untuk pengaturan berhasil.');
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal menyimpan pengaturan dengan batch: $e',
         e: e,

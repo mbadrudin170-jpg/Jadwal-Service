@@ -3,6 +3,8 @@
 // dan daftar semua dompet yang tersedia. Pengguna dapat menambahkan dompet baru melalui
 // tombol floating action.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
@@ -12,7 +14,11 @@ import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
+/// Halaman untuk menampilkan dan mengelola dompet.
+///
+/// Menampilkan ringkasan keuangan (pemasukan, pengeluaran, total) dan daftar dompet.
 class DompetPage extends StatefulWidget {
+  /// Membuat instance dari [DompetPage].
   const DompetPage({super.key});
 
   @override
@@ -42,11 +48,11 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk menavigasi ke halaman tambah dompet
-  void _tambahDompet() async {
+  Future<void> _tambahDompet() async {
     Log.info('Navigasi ke halaman tambah dompet.');
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => const FormDompet()),
+      MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
     );
     if (!mounted) return;
     if (result == true) {
@@ -56,7 +62,7 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk menampilkan dialog konfirmasi sebelum menghapus semua dompet
-  void _tampilkanDialogHapusSemua() async {
+  Future<void> _tampilkanDialogHapusSemua() async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final dompetList = await _dompetOperasi.getDompet();
     if (!mounted) return;
@@ -69,7 +75,7 @@ class _DompetPageState extends State<DompetPage> {
       return;
     }
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -92,7 +98,9 @@ class _DompetPageState extends State<DompetPage> {
                   'Pengguna mengkonfirmasi penghapusan semua dompet.',
                 );
                 Navigator.of(context).pop(); // Tutup dialog sebelum operasi
-                _hapusSemuaDompet();
+                unawaited(
+                  _hapusSemuaDompet(),
+                );
               },
             ),
           ],
@@ -102,11 +110,11 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk menampilkan dialog konfirmasi pengarsipan satu dompet
-  void _showDialogHapusSatu(DompetModel dompet) {
+  Future<void> _showDialogHapusSatu(DompetModel dompet) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk dompet: "${dompet.namaDompet}".',
     );
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -131,7 +139,7 @@ class _DompetPageState extends State<DompetPage> {
                   'Pengguna mengkonfirmasi pengarsipan dompet: "${dompet.namaDompet}".',
                 );
                 Navigator.of(context).pop(); // Tutup dialog sebelum operasi
-                _hapusSatuDompet(dompet);
+                unawaited(_hapusSatuDompet(dompet));
               },
             ),
           ],
@@ -141,7 +149,7 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk mengarsipkan satu dompet
-  void _hapusSatuDompet(DompetModel dompet) async {
+  Future<void> _hapusSatuDompet(DompetModel dompet) async {
     Log.info('Memulai pengarsipan dompet: "${dompet.namaDompet}".');
     try {
       await _dompetOperasi.arsipkanSatuDompet(dompet.id);
@@ -151,7 +159,7 @@ class _DompetPageState extends State<DompetPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Dompet berhasil diarsipkan.')),
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       if (!mounted) return;
       Log.error(
         'Gagal mengarsipkan dompet: "${dompet.namaDompet}".',
@@ -165,7 +173,7 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk menghapus semua dompet secara permanen
-  void _hapusSemuaDompet() async {
+  Future<void> _hapusSemuaDompet() async {
     Log.info('Memulai penghapusan semua dompet.');
     try {
       await _dompetOperasi.hapusSemuaDompet();
@@ -175,7 +183,7 @@ class _DompetPageState extends State<DompetPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua dompet berhasil dihapus.')),
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       if (!mounted) return;
       Log.error('Gagal menghapus semua dompet.', e: e, st: s);
       ScaffoldMessenger.of(
@@ -235,9 +243,9 @@ class _DompetPageState extends State<DompetPage> {
                           Log.info(
                             'Navigasi ke detail dompet: "${dompet.namaDompet}".',
                           );
-                          await Navigator.push(
+                          await Navigator.push<void>(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                               builder: (context) =>
                                   DetailDompet(dompet: dompet),
                             ),
@@ -264,7 +272,11 @@ class _DompetPageState extends State<DompetPage> {
   }
 }
 
+/// Widget untuk menampilkan ringkasan keuangan.
+///
+/// Menampilkan pemasukan, pengeluaran, dan total saldo.
 class RingkasanKeuangan extends StatefulWidget {
+  /// Membuat instance dari [RingkasanKeuangan].
   const RingkasanKeuangan({super.key});
 
   @override
@@ -294,9 +306,7 @@ class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
   // Metode ini bisa dipanggil dari parent untuk refresh
   void refresh() {
     Log.info('Memuat ulang data ringkasan keuangan atas permintaan parent.');
-    setState(() {
-      _loadSummary();
-    });
+    setState(_loadSummary);
   }
 
   @override
@@ -368,11 +378,20 @@ class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
   }
 }
 
+/// Widget kartu untuk menampilkan informasi dompet.
+///
+/// Menampilkan nama dompet dan saldo dalam bentuk kartu.
 class DompetCard extends StatelessWidget {
+  /// Model dompet yang akan ditampilkan.
   final DompetModel dompet;
+
+  /// Callback saat kartu di-tap.
   final VoidCallback onTap;
+
+  /// Callback saat kartu di-long press.
   final VoidCallback onLongPress;
 
+  /// Membuat instance dari [DompetCard].
   const DompetCard({
     super.key,
     required this.dompet,

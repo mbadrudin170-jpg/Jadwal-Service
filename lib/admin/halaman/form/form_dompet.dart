@@ -233,7 +233,7 @@ class _FormDompetState extends State<FormDompet> {
           );
           Log.info('SnackBar sukses tambah dompet telah ditampilkan.');
         }
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan dompet. '
           'Proses ${_isEditMode ? "update" : "create"} dompet mengalami kegagalan. '
@@ -307,13 +307,13 @@ class _FormDompetState extends State<FormDompet> {
                   prefixIcon: Icon(Icons.account_balance_wallet),
                 ),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) {
+                onFieldSubmitted: (_) async {
                   Log.info(
                     'INPUT: Field nama dompet disubmit melalui keyboard (TextInputAction.done).',
                   );
                   Log.info('Nilai yang disubmit: "${_namaController.text}"');
                   Log.info('Memanggil _simpanForm() secara otomatis.');
-                  _simpanForm();
+                  await _simpanForm();
                 },
                 onChanged: (value) {
                   Log.info(
@@ -334,9 +334,9 @@ class _FormDompetState extends State<FormDompet> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
-                  _simpanForm();
+                  await _simpanForm();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),

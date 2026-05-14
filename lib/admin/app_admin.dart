@@ -71,7 +71,7 @@ class _AppInitializerState extends State<AppInitializer> {
       _updateMessage('Mengonfigurasi pengaturan lokal...');
       tz.initializeTimeZones();
       tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
-      await initializeDateFormatting('id_ID', null);
+      await initializeDateFormatting('id_ID');
 
       _updateMessage('Mempersiapkan layanan notifikasi...');
       final notifikasiServis = NotifikasiServis();
@@ -92,7 +92,7 @@ class _AppInitializerState extends State<AppInitializer> {
       await Future<void>.delayed(const Duration(milliseconds: 500));
 
       return isOnline;
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Error kritis selama inisialisasi.', e: e, st: s);
       _updateMessage('Terjadi error: ${e.toString()}');
       return false;

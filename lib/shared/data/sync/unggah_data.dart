@@ -5,6 +5,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
@@ -15,11 +16,13 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
+/// Layanan untuk mengunggah data dari database lokal (SQLite) ke Firestore.
 class LayananUnggahData {
   final DatabaseHelper _dbHelper;
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
 
+  /// Konstruktor untuk `LayananUnggahData`.
   LayananUnggahData({
     DatabaseHelper? dbHelper,
     FirebaseFirestore? firestore,
@@ -35,6 +38,7 @@ class LayananUnggahData {
     );
   }
 
+  /// Mengunggah semua data dari semua tabel lokal ke koleksi Firestore yang sesuai.
   Future<void> unggahSemuaData() async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UNGGAH SEMUA DATA KE FIREBASE');
@@ -78,7 +82,7 @@ class LayananUnggahData {
         'Semua 11 jenis data berhasil diunggah ke Firestore tanpa error.',
       );
       Log.info('========================================');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal selama proses unggah massal ke Firestore. '
         'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
@@ -91,8 +95,7 @@ class LayananUnggahData {
     }
   }
 
-  // --- FUNGSI UNGGAH SPESIFIK (POLA UJI COBA) ---
-
+  /// Mengunggah data dompet ke Firestore.
   Future<void> unggahDataDompet() async {
     Log.info(
       'Memulai proses unggah data dompet. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -111,7 +114,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data dompet selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data dompet. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -123,6 +126,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data kategori ke Firestore.
   Future<void> unggahDataKategori() async {
     Log.info(
       'Memulai proses unggah data kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -141,7 +145,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data kategori selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data kategori. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -153,6 +157,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data kritik dan saran ke Firestore.
   Future<void> unggahDataKritikSaran() async {
     Log.info(
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -171,7 +176,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data kritik_saran selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data kritik_saran. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -183,6 +188,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data paket ke Firestore.
   Future<void> unggahDataPaket() async {
     Log.info(
       'Memulai proses unggah data paket. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -201,7 +207,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data paket selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data paket. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -213,6 +219,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data pelanggan aktif ke Firestore.
   Future<void> unggahDataPelangganAktif() async {
     Log.info(
       'Memulai proses unggah data pelanggan_aktif. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -231,7 +238,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data pelanggan_aktif selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data pelanggan_aktif. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -243,6 +250,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data pelanggan ke Firestore.
   Future<void> unggahDataPelanggan() async {
     Log.info(
       'Memulai proses unggah data pelanggan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -261,7 +269,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data pelanggan selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data pelanggan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -273,6 +281,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data pesanan ke Firestore.
   Future<void> unggahDataPesanan() async {
     Log.info(
       'Memulai proses unggah data pesanan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -291,7 +300,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data pesanan selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data pesanan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -303,6 +312,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data transaksi ke Firestore.
   Future<void> unggahDataTransaksi() async {
     Log.info(
       'Memulai proses unggah data transaksi. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -321,7 +331,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data transaksi selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data transaksi. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -333,6 +343,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data sub-kategori ke Firestore.
   Future<void> unggahDataSubKategori() async {
     Log.info(
       'Memulai proses unggah data sub_kategori. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -351,7 +362,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data sub_kategori selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data sub_kategori. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -363,6 +374,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data pengaturan ke Firestore.
   Future<void> unggahDataPengaturan() async {
     Log.info(
       'Memulai proses unggah data pengaturan. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -381,7 +393,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data pengaturan selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data pengaturan. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -393,6 +405,7 @@ class LayananUnggahData {
     }
   }
 
+  /// Mengunggah data versi APK user ke Firestore.
   Future<void> unggahDataVersiApkUser() async {
     Log.info(
       'Memulai proses unggah data versi_apk_user. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
@@ -411,7 +424,7 @@ class LayananUnggahData {
         waktu,
       );
       Log.info('Proses unggah data versi_apk_user selesai dengan sukses.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data versi_apk_user. '
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
@@ -423,7 +436,15 @@ class LayananUnggahData {
     }
   }
 
-  Future<void> unggahDataGenerik<T>(
+  /// Mengunggah data secara generik dari tabel SQLite ke koleksi Firestore.
+  ///
+  /// [T] adalah tipe model data yang akan diunggah.
+  /// [namaTabel] adalah nama tabel di SQLite.
+  /// [namaKoleksi] adalah nama koleksi di Firestore.
+  /// [fromSqlite] adalah fungsi untuk mengonversi data dari SQLite ke model.
+  /// [toFirebase] adalah fungsi untuk mengonversi model ke format data Firestore.
+  /// [waktuSinkronisasiTerakhir] adalah waktu terakhir data disinkronkan.
+  Future<void> unggahDataGenerik<T extends MemilikiId>(
     String namaTabel,
     String namaKoleksi,
     T Function(Map<String, dynamic>) fromSqlite,
@@ -447,7 +468,6 @@ class LayananUnggahData {
 
       List<Map<String, dynamic>> dataUntukDiunggah;
 
-      // diubah: Kondisi khusus untuk tabel 'pengaturan' agar selalu diunggah, mengabaikan filter waktu.
       if (namaTabel == 'pengaturan') {
         Log.info(
           'Tabel $namaTabel adalah tabel khusus. Mengambil semua data tanpa filter waktu.',
@@ -456,7 +476,7 @@ class LayananUnggahData {
       } else {
         Log.info(
           'Melakukan query pada tabel $namaTabel dengan kondisi: '
-          'diperbarui > ${waktuSinkronisasiTerakhir.toIso8601String()}.',
+          'diperbarui > ${waktuSinkronisasiTerakhir.toIso8601String()}',
         );
         dataUntukDiunggah = await db.query(
           namaTabel,
@@ -500,14 +520,13 @@ class LayananUnggahData {
             'Mengkonversi data SQLite menjadi model $T menggunakan fungsi fromSqlite.',
           );
           final T data = fromSqlite(map);
-          final model = data as dynamic;
           Log.info(
-            'Konversi berhasil. ID data: ${model.id}. '
-            'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${model.id}.',
+            'Konversi berhasil. ID data: ${data.id}. '
+            'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${data.id}.',
           );
 
           final docRef =
-              _firestore.collection(namaKoleksi).doc(model.id as String?);
+              _firestore.collection(namaKoleksi).doc(data.id);
 
           Log.info(
             'Mengkonversi model menjadi Map<String, dynamic> menggunakan fungsi toFirebase.',
@@ -519,18 +538,17 @@ class LayananUnggahData {
           );
 
           Log.info(
-            'Menambahkan operasi set dengan merge:true ke batch Firestore untuk dokumen $namaKoleksi/${model.id}. '
+            'Menambahkan operasi set dengan merge:true ke batch Firestore untuk dokumen $namaKoleksi/${data.id}. '
             'Merge:true akan menggabungkan data baru dengan data yang sudah ada tanpa menghapus field lain.',
           );
           batchFirestore.set(docRef, firebaseData, SetOptions(merge: true));
 
           counterSukses++;
           Log.info(
-            'Data ke-${i + 1} (ID: ${model.id}) berhasil ditambahkan ke batch Firestore.',
+            'Data ke-${i + 1} (ID: ${data.id}) berhasil ditambahkan ke batch Firestore.',
           );
-        } catch (e, s) {
+        } on Exception catch (e, s) {
           counterError++;
-          // diubah: Menggunakan Log.error yang menerima parameter e dan st.
           Log.error(
             'Gagal memproses data ke-${i + 1} dari tabel $namaTabel. '
             'Data ini akan dilewati dan tidak dimasukkan ke batch. '
@@ -570,7 +588,7 @@ class LayananUnggahData {
       Log.info('Tabel: $namaTabel -> Koleksi: $namaKoleksi');
       Log.info('Total data diunggah: $counterSukses dokumen');
       Log.info('========================================');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengunggah data untuk tabel $namaTabel ke koleksi Firestore $namaKoleksi. '
         'Proses unggah data generik mengalami kegagalan. '

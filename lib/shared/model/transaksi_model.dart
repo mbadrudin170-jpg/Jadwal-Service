@@ -4,6 +4,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/model/paket_model.dart'; // Impor untuk TipeDurasi
 
 /// Model yang merepresentasikan satu transaksi dalam aplikasi.
@@ -11,8 +12,9 @@ import 'package:wifi/shared/model/paket_model.dart'; // Impor untuk TipeDurasi
 /// Model ini mencakup semua jenis transaksi, termasuk pemasukan, pengeluaran,
 /// transfer antar dompet, dan juga transaksi yang berhubungan dengan aktivasi
 /// atau perpanjangan langganan paket.
-class TransaksiModel {
+class TransaksiModel implements MemilikiId {
   /// ID unik untuk transaksi, biasanya UUID.
+  @override
   final String id;
 
   /// Tanggal dan waktu kapan transaksi dibuat.
@@ -119,7 +121,7 @@ class TransaksiModel {
     if (name == null) return null;
     try {
       return values.firstWhere((e) => e.name == name as String);
-    } catch (e) {
+    } on Exception {
       return null;
     }
   }
@@ -140,7 +142,9 @@ class TransaksiModel {
       idPaket: map['id_paket'] as String?,
       idSubKategori: map['id_sub_kategori'] as String?,
       statusPembayaran: _safeParseEnum(
-              StatusPembayaranEnum.values, map['status_pembayaran']) ??
+            StatusPembayaranEnum.values,
+            map['status_pembayaran'],
+          ) ??
           StatusPembayaranEnum.belumLunas,
       poinYangDihasilkan: (map['poin_yang_dihasilkan'] as num? ?? 0).toInt(),
       poinYangDigunakan: (map['poin_yang_digunakan'] as num? ?? 0).toInt(),
@@ -200,7 +204,9 @@ class TransaksiModel {
       idPaket: data['id_paket'] as String?,
       idSubKategori: data['id_sub_kategori'] as String?,
       statusPembayaran: _safeParseEnum(
-              StatusPembayaranEnum.values, data['status_pembayaran']) ??
+            StatusPembayaranEnum.values,
+            data['status_pembayaran'],
+          ) ??
           StatusPembayaranEnum.belumLunas,
       poinYangDihasilkan: (data['poin_yang_dihasilkan'] as num? ?? 0).toInt(),
       poinYangDigunakan: (data['poin_yang_digunakan'] as num? ?? 0).toInt(),
@@ -297,3 +303,4 @@ class TransaksiModel {
     );
   }
 }
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

@@ -1,23 +1,39 @@
 // path: lib/admin/halaman/lainnya/paket.dart
-
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:flutter/material.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
 
-// ditambah: Enum untuk menentukan kriteria pengurutan daftar paket.
+/// Enum untuk menentukan kriteria pengurutan daftar paket.
 enum UrutanPaket {
+  /// Urutkan berdasarkan nama paket dari A hingga Z.
   namaAZ,
+
+  /// Urutkan berdasarkan nama paket dari Z hingga A.
   namaZA,
+
+  /// Urutkan berdasarkan harga paket dari yang tertinggi ke terendah.
   hargaTertinggi,
+
+  /// Urutkan berdasarkan harga paket dari yang terendah ke tertinggi.
   hargaTerendah,
+
+  /// Urutkan berdasarkan perolehan poin dari yang tertinggi ke terendah.
   poinTertinggi,
+
+  /// Urutkan berdasarkan perolehan poin dari yang terendah ke tertinggi.
   poinTerendah,
 }
 
+/// Halaman untuk mengelola daftar paket internet.
+///
+/// Dari halaman ini, admin dapat melihat, menambah, mengubah,
+/// menghapus, dan mengurutkan daftar paket yang ditawarkan.
 class PaketPage extends StatefulWidget {
+  /// Membuat instance dari [PaketPage].
   const PaketPage({super.key});
 
   @override
@@ -45,9 +61,9 @@ class _PaketPageState extends State<PaketPage> {
   }
 
   // ditambah: Fungsi untuk menampilkan dialog pilihan pengurutan.
-  void _tampilkanDialogUrutkan() {
+  Future<void> _tampilkanDialogUrutkan() async {
     Log.info('Menampilkan dialog urutkan');
-    showDialog(
+    final UrutanPaket? hasil = await showDialog<UrutanPaket>(
       context: context,
       builder: (context) {
         return SimpleDialog(
@@ -55,48 +71,42 @@ class _PaketPageState extends State<PaketPage> {
           children: [
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.namaAZ);
+                Navigator.pop(context, UrutanPaket.namaAZ);
                 Log.info('Mengurutkan berdasarkan: Nama (A-Z)');
               },
               child: const Text('Nama (A-Z)'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.namaZA);
+                Navigator.pop(context, UrutanPaket.namaZA);
                 Log.info('Mengurutkan berdasarkan: Nama (Z-A)');
               },
               child: const Text('Nama (Z-A)'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.hargaTertinggi);
+                Navigator.pop(context, UrutanPaket.hargaTertinggi);
                 Log.info('Mengurutkan berdasarkan: Harga (Tertinggi)');
               },
               child: const Text('Harga (Tertinggi)'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.hargaTerendah);
+                Navigator.pop(context, UrutanPaket.hargaTerendah);
                 Log.info('Mengurutkan berdasarkan: Harga (Terendah)');
               },
               child: const Text('Harga (Terendah)'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.poinTertinggi);
+                Navigator.pop(context, UrutanPaket.poinTertinggi);
                 Log.info('Mengurutkan berdasarkan: Poin (Tertinggi)');
               },
               child: const Text('Poin (Tertinggi)'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context);
-                setState(() => _urutanSaatIni = UrutanPaket.poinTerendah);
+                Navigator.pop(context, UrutanPaket.poinTerendah);
                 Log.info('Mengurutkan berdasarkan: Poin (Terendah)');
               },
               child: const Text('Poin (Terendah)'),
@@ -105,11 +115,15 @@ class _PaketPageState extends State<PaketPage> {
         );
       },
     );
+
+    if (hasil != null) {
+      setState(() => _urutanSaatIni = hasil);
+    }
   }
 
-  void _showEditDeleteDialog(PaketModel paket) {
+  Future<void> _showEditDeleteDialog(PaketModel paket) async {
     Log.info('Menampilkan dialog opsi untuk paket: ${paket.nama}');
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -117,20 +131,19 @@ class _PaketPageState extends State<PaketPage> {
           content: const Text('Pilih aksi yang ingin Anda lakukan.'),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Log.info(
                   'Memilih navigasi ke Form Edit untuk paket: ${paket.nama}',
                 );
                 Navigator.pop(context);
-                Navigator.push(
+                await Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  MaterialPageRoute<void>(
                     builder: (context) => FormPaket(paket: paket),
                   ),
-                ).then((_) {
-                  Log.info('Kembali dari Form Edit, menyegarkan daftar paket');
-                  _refreshPaketList();
-                });
+                );
+                Log.info('Kembali dari Form Edit, menyegarkan daftar paket');
+                _refreshPaketList();
               },
               child: const Text('Edit'),
             ),
@@ -138,7 +151,7 @@ class _PaketPageState extends State<PaketPage> {
               onPressed: () {
                 Log.info('Memilih opsi Hapus untuk paket: ${paket.nama}');
                 Navigator.pop(context);
-                _showDeleteConfirmationDialog(paket);
+                unawaited(_showDeleteConfirmationDialog(paket));
               },
               child: const Text('Hapus'),
             ),
@@ -148,11 +161,11 @@ class _PaketPageState extends State<PaketPage> {
     );
   }
 
-  void _showDeleteConfirmationDialog(PaketModel paket) {
+  Future<void> _showDeleteConfirmationDialog(PaketModel paket) async {
     Log.info(
       'Menampilkan konfirmasi hapus untuk paket ID: ${paket.id}, nama: ${paket.nama}',
     );
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -193,7 +206,7 @@ class _PaketPageState extends State<PaketPage> {
                       backgroundColor: Colors.green,
                     ),
                   );
-                } catch (e, s) {
+                } on Exception catch (e, s) {
                   Log.error(
                     'Gagal menghapus paket ID: ${paket.id}, nama: ${paket.nama}',
                     e: e,
@@ -214,9 +227,9 @@ class _PaketPageState extends State<PaketPage> {
     );
   }
 
-  void _hapusSemuaPaket() {
+  Future<void> _hapusSemuaPaket() async {
     Log.info('User menekan tombol hapus semua paket');
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -253,7 +266,7 @@ class _PaketPageState extends State<PaketPage> {
                       backgroundColor: Colors.green,
                     ),
                   );
-                } catch (e, s) {
+                } on Exception catch (e, s) {
                   Log.error(
                     'Gagal menghapus semua paket dari database',
                     e: e,
@@ -318,12 +331,14 @@ class _PaketPageState extends State<PaketPage> {
           // ditambah: Logika untuk mengurutkan daftar paket berdasarkan _urutanSaatIni
           switch (_urutanSaatIni) {
             case UrutanPaket.namaAZ:
-              paketList.sort((a, b) =>
-                  a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+              paketList.sort(
+                (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+              );
               break;
             case UrutanPaket.namaZA:
-              paketList.sort((a, b) =>
-                  b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
+              paketList.sort(
+                (a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+              );
               break;
             case UrutanPaket.hargaTertinggi:
               paketList.sort((a, b) => b.harga.compareTo(a.harga));
@@ -341,34 +356,34 @@ class _PaketPageState extends State<PaketPage> {
           }
 
           Log.info(
-              'Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni');
+            'Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni',
+          );
 
           return ListView.builder(
             itemCount: paketList.length,
             itemBuilder: (context, index) {
               final paket = paketList[index];
               return InkWell(
-                onTap: () {
+                onTap: () async {
                   Log.info(
                     'Navigasi ke halaman Detail Paket: ${paket.nama} (ID: ${paket.id})',
                   );
-                  Navigator.push(
+                  await Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (context) => DetailPaketPage(paket: paket),
                     ),
-                  ).then((_) {
-                    Log.info(
-                      'Kembali dari halaman Detail Paket, menyegarkan daftar',
-                    );
-                    _refreshPaketList();
-                  });
+                  );
+                  Log.info(
+                    'Kembali dari halaman Detail Paket, menyegarkan daftar',
+                  );
+                  _refreshPaketList();
                 },
-                onLongPress: () {
+                onLongPress: () async {
                   Log.info(
                     'Long press pada paket: ${paket.nama} (ID: ${paket.id}), menampilkan menu edit/hapus',
                   );
-                  _showEditDeleteDialog(paket);
+                  await _showEditDeleteDialog(paket);
                 },
                 child: Card(
                   margin: const EdgeInsets.symmetric(
@@ -393,15 +408,14 @@ class _PaketPageState extends State<PaketPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Log.info('Navigasi ke Form Tambah Paket');
-          Navigator.push(
+          await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const FormPaket()),
-          ).then((_) {
-            Log.info('Kembali dari Form Tambah Paket, menyegarkan daftar');
-            _refreshPaketList();
-          });
+            MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+          );
+          Log.info('Kembali dari Form Tambah Paket, menyegarkan daftar');
+          _refreshPaketList();
         },
         tooltip: 'Tambah Paket',
         child: const Icon(Icons.add),

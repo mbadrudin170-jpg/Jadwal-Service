@@ -1,10 +1,16 @@
+// path: lib/admin/halaman/widget/tombol_aksi.dart
 import 'package:flutter/material.dart';
 
+/// Sebuah widget tombol dengan ikon dan label.
 class TombolAksi extends StatelessWidget {
+  /// Label dari tombol.
   final String label;
+  /// Ikon yang akan ditampilkan di tombol.
   final IconData icon;
+  /// Fungsi yang akan dipanggil saat tombol ditekan.
   final VoidCallback onPressed;
 
+  /// Membuat sebuah widget [TombolAksi].
   const TombolAksi({
     super.key,
     required this.label,

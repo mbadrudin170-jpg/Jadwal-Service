@@ -2,12 +2,15 @@
 // diubah: Penamaan metode diseragamkan, ditambahkan dokumentasi lengkap dan keamanan tipe.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
 /// Model yang merepresentasikan sebuah sub-kategori.
 ///
 /// Sub-kategori selalu berada di bawah sebuah [KategoriModel] induk.
-class SubKategoriModel {
+class SubKategoriModel implements MemilikiId {
   /// ID unik dari sub-kategori, biasanya dihasilkan oleh UUID.
+  @override
   final String id;
 
   /// Nama dari sub-kategori.
@@ -108,6 +111,7 @@ class SubKategoriModel {
   }
 
   /// Mengubah instance [SubKategoriModel] menjadi Map untuk disimpan di Firebase.
+  /// ID disertakan karena sub-kategori disimpan sebagai daftar di dalam dokumen kategori.
   Map<String, dynamic> toFirebase() {
     return {
       'id': id,
@@ -119,3 +123,4 @@ class SubKategoriModel {
     };
   }
 }
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

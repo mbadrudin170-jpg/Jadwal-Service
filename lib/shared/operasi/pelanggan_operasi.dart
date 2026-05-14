@@ -6,13 +6,17 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
+/// Kelas untuk operasi terkait data pelanggan di database lokal.
 class PelangganOperasi {
+  /// Instance dari DatabaseHelper untuk mengakses database.
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> createPelanggan(PelangganModel pelanggan,
-      {bool dariServer = false}) async {
+  /// Menyimpan [PelangganModel] baru ke dalam database.
+  Future<void> createPelanggan(
+    PelangganModel pelanggan, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
     try {
       final pelangganUntukDisimpan = pelanggan.copyWith(
@@ -31,6 +35,7 @@ class PelangganOperasi {
     }
   }
 
+  /// Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).
   Future<List<PelangganModel>> getPelanggan() async {
     Log.info(
       'Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).',
@@ -53,6 +58,7 @@ class PelangganOperasi {
     }
   }
 
+  /// Mengambil semua pelanggan, termasuk yang diarsipkan dan dihapus.
   Future<List<PelangganModel>> getAllPelanggan() async {
     Log.info('Mengambil SEMUA data pelanggan dari database lokal.');
     try {
@@ -73,6 +79,7 @@ class PelangganOperasi {
     }
   }
 
+  /// Mengambil [PelangganModel] berdasarkan [id].
   Future<PelangganModel?> getPelangganById(String id) async {
     Log.info('Mencari pelanggan berdasarkan ID: $id');
     try {
@@ -99,16 +106,22 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> updatePelanggan(PelangganModel pelanggan,
-      {bool dariServer = false}) async {
+  /// Memperbarui [PelangganModel] yang ada di database.
+  Future<void> updatePelanggan(
+    PelangganModel pelanggan, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
     try {
       final data =
           pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
-      await _operasiDasar.perbarui('pelanggan', data, pelanggan.id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'pelanggan',
+        data,
+        pelanggan.id,
+        dariServer: dariServer,
+      );
 
       Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
     } catch (e, s) {
@@ -117,22 +130,29 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> deletePelanggan(String id,
-      {bool softDelete = true, bool dariServer = false}) async {
+  /// Menghapus [PelangganModel] dari database.
+  ///
+  /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
+  /// Jika `false`, maka akan menghapus data secara permanen.
+  Future<void> deletePelanggan(
+    String id, {
+    bool softDelete = true,
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
     );
     try {
       if (softDelete) {
         await _operasiDasar.perbarui(
-            'pelanggan',
-            {
-              'isDeleted': 1,
-              'diperbarui': DateTime.now().toUtc().toIso8601String(),
-            },
-            id,
-            dariServer: dariServer);
+          'pelanggan',
+          {
+            'isDeleted': 1,
+            'diperbarui': DateTime.now().toUtc().toIso8601String(),
+          },
+          id,
+          dariServer: dariServer,
+        );
         Log.info('Berhasil melakukan soft delete pada pelanggan ID: $id.');
       } else {
         await _operasiDasar.hapus('pelanggan', id, dariServer: dariServer);
@@ -146,6 +166,7 @@ class PelangganOperasi {
     }
   }
 
+  /// Mengambil semua pelanggan yang telah diubah sejak [since].
   Future<List<PelangganModel>> getPerubahan(DateTime since) async {
     Log.info('Mengambil perubahan pelanggan sejak: ${since.toIso8601String()}');
     try {
@@ -172,20 +193,21 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
+  /// Mengarsipkan [PelangganModel] berdasarkan [id].
   Future<void> arsipkanPelanggan(String id, {bool dariServer = false}) async {
     Log.info('Mengarsipkan pelanggan ID: $id');
     try {
       final now = DateTime.now().toUtc();
       await _operasiDasar.perbarui(
-          'pelanggan',
-          {
-            'isDeleted': 1,
-            'diarsipkan': now.toIso8601String(),
-            'diperbarui': now.toIso8601String(),
-          },
-          id,
-          dariServer: dariServer);
+        'pelanggan',
+        {
+          'isDeleted': 1,
+          'diarsipkan': now.toIso8601String(),
+          'diperbarui': now.toIso8601String(),
+        },
+        id,
+        dariServer: dariServer,
+      );
       Log.info('Berhasil mengarsipkan pelanggan ID: $id.');
     } catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan.', e: e, st: s);
@@ -193,9 +215,11 @@ class PelangganOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<PelangganModel> items,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [PelangganModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<PelangganModel> items, {
+    bool dariServer = false,
+  }) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
       return;
@@ -206,8 +230,11 @@ class PelangganOperasi {
         return item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('pelanggan', data,
-          dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+        'pelanggan',
+        data,
+        dariServer: dariServer,
+      );
       Log.info(
         'Berhasil menyelesaikan operasi batch untuk ${items.length} pelanggan.',
       );
@@ -217,6 +244,7 @@ class PelangganOperasi {
     }
   }
 
+  /// Mengambil beberapa [PelangganModel] berdasarkan daftar [ids].
   Future<List<PelangganModel>> getPelangganByIds(List<String> ids) async {
     if (ids.isEmpty) {
       Log.info('List ID kosong, tidak ada pelanggan yang diambil.');

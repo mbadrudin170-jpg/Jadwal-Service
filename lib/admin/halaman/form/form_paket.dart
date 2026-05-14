@@ -284,7 +284,7 @@ class _FormPaketState extends State<FormPaket> {
           context,
         ).showSnackBar(SnackBar(content: Text(errorMessage)));
         Log.info('SnackBar error telah ditampilkan.');
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). '
           'Terjadi kesalahan yang tidak terduga saat operasi ${_isEditMode ? "update" : "create"} paket. '
@@ -534,9 +534,9 @@ class _FormPaketState extends State<FormPaket> {
                     );
                     return null;
                   },
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (_) async {
                     // ditambah: onFieldSubmitted
-                    _saveForm(); // diubah: panggil _saveForm saat selesai
+                    await _saveForm(); // diubah: panggil _saveForm saat selesai
                   },
                 ),
                 const SizedBox(height: 16),
@@ -585,9 +585,9 @@ class _FormPaketState extends State<FormPaket> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
-                    _saveForm();
+                    await _saveForm();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),

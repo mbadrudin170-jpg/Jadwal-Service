@@ -1,6 +1,8 @@
 // path: lib/admin/halaman/detail/detail_pelanggan.dart
 // diubah: Menggunakan PoinPageAdmin dan mengirimkan idPelanggan, serta memperbaiki unawaited future.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
@@ -38,7 +40,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     Log.info(
       'Memulai initState pada DetailPelangganPage untuk ID: ${widget.idPelanggan}.',
     );
-    _loadData();
+    unawaited(_loadData());
   }
 
   Future<void> _loadData() async {
@@ -62,8 +64,9 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
       });
 
       Log.info(
-          'Pengambilan data dari SQLite selesai. Pelanggan: ${pelanggan?.nama}, Poin: $totalPoin.');
-    } catch (e, s) {
+        'Pengambilan data dari SQLite selesai. Pelanggan: ${pelanggan?.nama}, Poin: $totalPoin',
+      );
+    } on Exception catch (e, s) {
       Log.error('Gagal mengambil data dari SQLite.', e: e, st: s);
       if (mounted) {
         setState(() => isLoading = false);
@@ -100,18 +103,17 @@ MAC : ${pelanggan.macAddress}
     SnackBarUtil.showSuccess(context, 'Informasi pelanggan berhasil disalin.');
   }
 
-  void _navigateToPoin() {
+  Future<void> _navigateToPoin() async {
     if (pelanggan == null) return;
-    Navigator.push<void>(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
         // diubah: Menggunakan PoinPageAdmin dan mengirim idPelanggan.
         builder: (context) => PoinPageAdmin(idPelanggan: pelanggan!.id),
       ),
-    ).then((_) async {
-      Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');
-      await _loadData();
-    });
+    );
+    Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');
+    await _loadData();
   }
 
   @override

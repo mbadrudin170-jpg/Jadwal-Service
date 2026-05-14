@@ -1,5 +1,9 @@
 // path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
+// diubah: Mengubah Future.value() menjadi Future<PaketModel?>.value(null) untuk memberikan tipe eksplisit.
 // diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah` dan memperbaiki unawaited future.
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,7 +30,8 @@ class DetailPelangganAktif extends StatefulWidget {
   const DetailPelangganAktif({super.key, required this.pelanggan});
 
   @override
-  // ignore: no_logic_in_create_state
+  // ditambah: Komentar untuk menjelaskan kenapa lint rule diabaikan.
+  // ignore: no_logic_in_create_state, Aturan ini diabaikan karena logika di dalamnya hanya untuk logging saat pembuatan state, yang berguna untuk debugging.
   State<DetailPelangganAktif> createState() {
     Log.info(
       'Membuat state untuk DetailPelangganAktif. '
@@ -66,7 +71,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info(
       'Memanggil _loadDetails() untuk mengambil data pelengkap (data Pelanggan dan Paket) dari database.',
     );
-    _loadDetails();
+    unawaited(_loadDetails());
   }
 
   Future<void> _launchWhatsApp(String phoneNumber) async {
@@ -116,9 +121,10 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         Log.warning(
           'URI WhatsApp tidak dapat dibuka. Kemungkinan WhatsApp tidak terinstal di perangkat.',
         );
-        throw 'Could not launch $whatsappUri';
+        // diubah: Membungkus string dalam Exception untuk mematuhi aturan lint.
+        throw Exception('Could not launch $whatsappUri');
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
         e: e,
@@ -195,7 +201,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         if (idPaket.isNotEmpty)
           paketOperasi.getPaketById(idPaket)
         else
-          Future.value(null),
+          Future<PaketModel?>.value(),
       ]);
 
       Log.info('Kedua query selesai dijalankan. Memproses hasil...');
@@ -233,7 +239,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
           'Widget sudah tidak mounted setelah data berhasil diambil. Data tidak akan diupdate ke state untuk mencegah error.',
         );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal memuat detail pelanggan aktif. Proses _loadDetails() mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, data pelanggan tidak ditemukan, data paket tidak ditemukan, atau terjadi error saat menggabungkan hasil query.',
         e: e,
@@ -366,10 +372,10 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
+            onPressed: () async {
               Log.info('AKSI: Tombol Edit pada AppBar ditekan.');
               Log.info('Memanggil _navigateToEdit() untuk membuka form edit.');
-              _navigateToEdit();
+              await _navigateToEdit();
             },
           ),
         ],
@@ -394,7 +400,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                           children: [
                             Center(
                               child: TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_pelanggan != null) {
                                     Log.info(
                                       'NAVIGASI: TextButton nama pelanggan ditekan.',
@@ -402,7 +408,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                     Log.info(
                                       'Menuju halaman DetailPelangganPage dengan ID: ${_pelanggan!.id}',
                                     );
-                                    Navigator.push<void>(
+                                    await Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
                                         builder: (context) =>
@@ -435,13 +441,13 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                               _pelanggan?.telepon ?? 'Tidak ditemukan',
                             ),
                             InkWell(
-                              onTap: () {
+                              onTap: () async {
                                 if (_paket != null) {
                                   Log.info('NAVIGASI: Row paket ditekan.');
                                   Log.info(
                                     'Menuju halaman DetailPaketPage dengan data paket: ${_paket!.nama}',
                                   );
-                                  Navigator.push<void>(
+                                  await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (context) =>
@@ -457,7 +463,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                               child: _buildInfoRow(
                                 'Paket',
                                 _paket?.nama ??
-                                    '(ID: ${_pelangganAktif.idPaket})',
+                                    ' (ID: ${_pelangganAktif.idPaket})',
                                 isLink: true,
                               ),
                             ),
@@ -500,7 +506,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                             ElevatedButton.icon(
                               icon: const Icon(Icons.send_to_mobile),
                               label: const Text('Kirim Info via WhatsApp'),
-                              onPressed: () {
+                              onPressed: () async {
                                 Log.info(
                                   '========================================',
                                 );
@@ -526,7 +532,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                 Log.info(
                                   '========================================',
                                 );
-                                PesanInfoPaket.kirimRincianPaket(
+                                await PesanInfoPaket.kirimRincianPaket(
                                   _pelangganAktif,
                                 );
                                 Log.info(
@@ -586,11 +592,11 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           InkWell(
-            onTap: () {
+            onTap: () async {
               Log.info(
                 'WHATSAPP: Row nomor HP ditekan. Memanggil _launchWhatsApp dengan nomor: $value',
               );
-              _launchWhatsApp(value);
+              await _launchWhatsApp(value);
             },
             borderRadius: BorderRadius.circular(8),
             child: Padding(

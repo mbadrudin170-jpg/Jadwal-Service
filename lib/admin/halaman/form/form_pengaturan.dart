@@ -1,12 +1,19 @@
 // path: lib/admin/halaman/form/form_pengaturan.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
-import 'package:wifi/shared/debug/log.dart';
 
+/// Form untuk mengubah pengaturan aplikasi.
+///
+/// Form ini memungkinkan administrator untuk mengubah berbagai parameter
+/// aplikasi seperti interval sinkronisasi, kebijakan penghapusan arsip,
+/// dan mode pemeliharaan.
 class FormPengaturan extends StatefulWidget {
+  /// Pengaturan saat ini yang akan diedit.
   final PengaturanModel pengaturan;
 
+  /// Membuat instance dari [FormPengaturan].
   const FormPengaturan({super.key, required this.pengaturan});
 
   @override
@@ -31,9 +38,11 @@ class _FormPengaturanState extends State<FormPengaturan> {
       'mode_pemeliharaan': widget.pengaturan.modePemeliharaan,
     });
     _intervalController = TextEditingController(
-        text: '${widget.pengaturan.intervalSinkronisasiOtomatis}');
+      text: '${widget.pengaturan.intervalSinkronisasiOtomatis}',
+    );
     _hapusArsipController = TextEditingController(
-        text: '${widget.pengaturan.hapusOtomatisDataArsip}');
+      text: '${widget.pengaturan.hapusOtomatisDataArsip}',
+    );
     _infoPemeliharaanController =
         TextEditingController(text: widget.pengaturan.infoPemeliharaan);
     _modePemeliharaan = widget.pengaturan.modePemeliharaan;
@@ -71,7 +80,8 @@ class _FormPengaturanState extends State<FormPengaturan> {
           );
           Navigator.pop(context, true); // Kembali dengan hasil true
         }
-      } catch (e, st) {
+        // diubah: Menggunakan 'on Exception' untuk menangkap error yang lebih spesifik.
+      } on Exception catch (e, st) {
         Log.error('Gagal menyimpan pengaturan.', e: e, st: st);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

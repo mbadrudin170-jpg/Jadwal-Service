@@ -1,5 +1,6 @@
 // path: lib/user/services/firestore_service.dart
 // ditambah: Menambahkan fungsi simpanTokenFCM untuk menyimpan token notifikasi pengguna.
+// diubah: Menjadikan `hentikanSinkronisasiJadwal` sebagai `async` dan menambahkan `await`.
 
 import 'dart:async';
 
@@ -9,13 +10,20 @@ import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 
+/// Service untuk berinteraksi dengan Firestore.
+///
+/// Menyediakan fungsi-fungsi untuk mengambil, menyimpan, dan mengelola data
+/// seperti pengaturan, pelanggan, transaksi, dan notifikasi.
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  StreamSubscription? _notificationSubscription;
+  StreamSubscription<dynamic>? _notificationSubscription;
 
+  /// Mengambil pengaturan aplikasi dari Firestore.
+  ///
+  /// Mengembalikan nilai default jika dokumen tidak ditemukan atau terjadi error.
   Future<Map<String, dynamic>> getPengaturan() async {
     try {
-      DocumentSnapshot doc =
+      final DocumentSnapshot doc =
           await _db.collection('pengaturan').doc('app').get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>?;
@@ -23,14 +31,15 @@ class FirestoreService {
         return data ?? {};
       } else {
         Log.warning(
-            'Dokumen pengaturan tidak ditemukan di Firestore, menggunakan nilai default.');
+          'Dokumen pengaturan tidak ditemukan di Firestore, menggunakan nilai default.',
+        );
         return {
           'modePemeliharaan': false,
           'infoPemeliharaan':
-              'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.'
+              'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.',
         };
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Error saat mengambil pengaturan dari Firestore.',
         e: e,
@@ -38,11 +47,15 @@ class FirestoreService {
       );
       return {
         'modePemeliharaan': false,
-        'infoPemeliharaan': 'Gagal memuat pengaturan. Menggunakan default.'
+        'infoPemeliharaan': 'Gagal memuat pengaturan. Menggunakan default.',
       };
     }
   }
 
+  /// Memulai sinkronisasi jadwal notifikasi untuk pengguna tertentu.
+  ///
+  /// Mendengarkan perubahan pada koleksi 'notifikasi' dan menampilkan log
+  /// saat notifikasi baru ditambahkan.
   void sinkronkanJadwalNotifikasi(String userId) {
     Log.info('Memulai sinkronisasi jadwal notifikasi untuk userId: $userId');
     final collectionRef =
@@ -62,11 +75,13 @@ class FirestoreService {
     });
   }
 
-  void hentikanSinkronisasiJadwal() {
+  /// Menghentikan sinkronisasi jadwal notifikasi.
+  Future<void> hentikanSinkronisasiJadwal() async {
     Log.info('Menghentikan sinkronisasi jadwal notifikasi.');
-    _notificationSubscription?.cancel();
+    await _notificationSubscription?.cancel();
   }
 
+  /// Mengambil data pelanggan secara real-time (stream) berdasarkan ID pengguna.
   Stream<PelangganModel?> ambilPelangganStream(String userId) {
     Log.info('Streaming data pelanggan untuk: $userId');
     return _db.collection('pelanggan').doc(userId).snapshots().map((snapshot) {
@@ -80,11 +95,16 @@ class FirestoreService {
     });
   }
 
+  /// Mengambil riwayat langganan lengkap untuk seorang pelanggan.
+  ///
+  /// Saat ini, fungsi ini hanya memanggil `ambilRiwayatLangganan`.
   Future<List<TransaksiModel>> ambilRiwayatLanggananLengkap(
-      String pelangganId) async {
+    String pelangganId,
+  ) async {
     return ambilRiwayatLangganan(pelangganId);
   }
 
+  /// Mengambil data pelanggan sekali (one-time fetch) berdasarkan ID pengguna.
   Future<PelangganModel?> ambilPelangganSekali(String userId) async {
     try {
       Log.info('Mengambil data pelanggan sekali untuk ID: $userId');
@@ -95,7 +115,7 @@ class FirestoreService {
       }
       Log.warning('Pelanggan dengan ID $userId tidak ditemukan.');
       return null;
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Error mengambil pelanggan sekali: $e',
         e: e,
@@ -105,6 +125,7 @@ class FirestoreService {
     }
   }
 
+  /// Mengambil riwayat langganan (transaksi) untuk seorang pelanggan.
   Future<List<TransaksiModel>> ambilRiwayatLangganan(String pelangganId) async {
     try {
       Log.info('Mengambil riwayat langganan untuk pelanggan ID: $pelangganId');
@@ -118,7 +139,7 @@ class FirestoreService {
       return querySnapshot.docs
           .map((doc) => TransaksiModel.fromFirebase(doc.id, doc.data()))
           .toList();
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Error mengambil riwayat langganan: $e',
         e: e,
@@ -128,6 +149,7 @@ class FirestoreService {
     }
   }
 
+  /// Mengambil nama paket berdasarkan ID paket.
   Future<String> ambilNamaPaket(String paketId) async {
     try {
       Log.info('Mengambil nama paket untuk ID: $paketId');
@@ -138,14 +160,16 @@ class FirestoreService {
         return namaPaket;
       }
       Log.warning(
-          'Paket dengan ID $paketId tidak ditemukan atau tidak memiliki nama.');
+        'Paket dengan ID $paketId tidak ditemukan atau tidak memiliki nama.',
+      );
       return 'Paket Tidak Ditemukan';
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Error mengambil nama paket: $e', e: e, st: s);
       return 'Error Memuat Paket';
     }
   }
 
+  /// Mengambil model [PaketModel] lengkap berdasarkan ID paket.
   Future<PaketModel?> ambilPaketModelById(String paketId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $paketId');
@@ -157,13 +181,14 @@ class FirestoreService {
       }
       Log.warning('Paket dengan ID $paketId tidak ditemukan untuk model.');
       return null;
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Error mengambil model paket: $e', e: e, st: s);
       return null;
     }
   }
 
   // ditambah: Fungsi untuk menyimpan atau memperbarui FCM token pengguna.
+  /// Menyimpan atau memperbarui token FCM (Firebase Cloud Messaging) pengguna.
   Future<void> simpanTokenFCM(String userId, String? token) async {
     if (token == null || token.isEmpty) {
       Log.warning('Token FCM null atau kosong, proses penyimpanan dibatalkan.');
@@ -175,7 +200,7 @@ class FirestoreService {
       final docRef = _db.collection('pelanggan').doc(userId);
       await docRef.update({'fcmToken': token});
       Log.info('Token FCM berhasil disimpan ke Firestore.');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal menyimpan token FCM ke Firestore untuk pengguna $userId',
         e: e,

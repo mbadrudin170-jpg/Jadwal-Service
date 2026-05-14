@@ -1,22 +1,45 @@
 // path: lib/model/pelanggan_aktif_model.dart
 
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
-class PelangganAktifModel {
+/// Model untuk data pelanggan aktif.
+class PelangganAktifModel implements MemilikiId {
+  /// ID unik untuk setiap entri pelanggan aktif.
+  @override
   final String id;
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+  /// ID pelanggan yang terkait dengan entri ini.
   final String idPelanggan;
+
+  /// ID paket yang dibeli oleh pelanggan.
   final String idPaket;
+
+  /// ID transaksi yang terkait dengan pembelian paket.
   final String? idTransaksi;
+
+  /// Tanggal mulai aktifnya paket.
   final DateTime tanggalMulai;
+
+  /// Tanggal berakhirnya paket.
   final DateTime tanggalBerakhir;
+
+  /// Status pembayaran paket.
   final StatusPembayaranEnum status;
+
+  /// Waktu terakhir data diperbarui.
   final DateTime? diperbarui;
+
+  /// Status apakah entri ini sudah dihapus (soft delete).
   final bool isDeleted;
+
+  /// Waktu entri ini diarsipkan.
   final DateTime? diarsipkan;
 
+  /// Konstruktor untuk `PelangganAktifModel`.
   PelangganAktifModel({
     String? id,
     required this.idPelanggan,
@@ -30,6 +53,34 @@ class PelangganAktifModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
+  /// Membuat salinan dari `PelangganAktifModel` dengan beberapa nilai yang diubah.
+  PelangganAktifModel copyWith({
+    String? id,
+    String? idPelanggan,
+    String? idPaket,
+    String? idTransaksi,
+    DateTime? tanggalMulai,
+    DateTime? tanggalBerakhir,
+    StatusPembayaranEnum? status,
+    DateTime? diperbarui,
+    bool? isDeleted,
+    DateTime? diarsipkan,
+  }) {
+    return PelangganAktifModel(
+      id: id ?? this.id,
+      idPelanggan: idPelanggan ?? this.idPelanggan,
+      idPaket: idPaket ?? this.idPaket,
+      idTransaksi: idTransaksi ?? this.idTransaksi,
+      tanggalMulai: tanggalMulai ?? this.tanggalMulai,
+      tanggalBerakhir: tanggalBerakhir ?? this.tanggalBerakhir,
+      status: status ?? this.status,
+      diperbarui: diperbarui ?? this.diperbarui,
+      isDeleted: isDeleted ?? this.isDeleted,
+      diarsipkan: diarsipkan ?? this.diarsipkan,
+    );
+  }
+
+  /// Mengonversi `PelangganAktifModel` ke format JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -45,6 +96,7 @@ class PelangganAktifModel {
     };
   }
 
+  /// Helper untuk mengurai nilai tanggal dari berbagai format.
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
@@ -55,6 +107,7 @@ class PelangganAktifModel {
     return null;
   }
 
+  /// Helper untuk mengurai nilai boolean dari berbagai format.
   static bool _parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
@@ -65,13 +118,12 @@ class PelangganAktifModel {
     return false;
   }
 
+  /// Membuat instance `PelangganAktifModel` dari data Map SQLite.
   factory PelangganAktifModel.fromSqlite(Map<String, dynamic> map) {
     try {
-      // diubah: Menggunakan key snake_case 'tanggal_mulai' dan 'tanggal_berakhir' agar cocok dengan database.
       final tanggalMulai = _parseDateTime(map['tanggal_mulai']);
       final tanggalBerakhir = _parseDateTime(map['tanggal_berakhir']);
 
-      // diubah: Menghapus fallback DateTime.now() yang berbahaya dan menggantinya dengan validasi.
       if (tanggalMulai == null) {
         throw ArgumentError.notNull('tanggal_mulai dari SQLite');
       }
@@ -103,12 +155,12 @@ class PelangganAktifModel {
     }
   }
 
+  /// Membuat instance `PelangganAktifModel` dari data Map Firebase.
   factory PelangganAktifModel.fromFirebase(
     String id,
     Map<String, dynamic> data,
   ) {
     try {
-      // diubah: Menghapus fallback DateTime.now() yang berbahaya dan menggantinya dengan validasi.
       final tanggalMulai = _parseDateTime(data['tanggalMulai']);
       final tanggalBerakhir = _parseDateTime(data['tanggalBerakhir']);
 
@@ -143,6 +195,7 @@ class PelangganAktifModel {
     }
   }
 
+  /// Mengonversi `PelangganAktifModel` ke format Map untuk disimpan di SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -158,6 +211,7 @@ class PelangganAktifModel {
     };
   }
 
+  /// Mengonversi `PelangganAktifModel` ke format Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
     final Map<String, dynamic> data = {
       'id': id,
@@ -176,31 +230,5 @@ class PelangganAktifModel {
 
     Log.api('Firestore/Pelanggan/$id', data, method: 'SET');
     return data;
-  }
-
-  PelangganAktifModel copyWith({
-    String? id,
-    String? idPelanggan,
-    String? idPaket,
-    String? idTransaksi,
-    DateTime? tanggalMulai,
-    DateTime? tanggalBerakhir,
-    StatusPembayaranEnum? status,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
-  }) {
-    return PelangganAktifModel(
-      id: id ?? this.id,
-      idPelanggan: idPelanggan ?? this.idPelanggan,
-      idPaket: idPaket ?? this.idPaket,
-      idTransaksi: idTransaksi ?? this.idTransaksi,
-      tanggalMulai: tanggalMulai ?? this.tanggalMulai,
-      tanggalBerakhir: tanggalBerakhir ?? this.tanggalBerakhir,
-      status: status ?? this.status,
-      diperbarui: diperbarui ?? this.diperbarui,
-      isDeleted: isDeleted ?? this.isDeleted,
-      diarsipkan: diarsipkan ?? this.diarsipkan,
-    );
   }
 }

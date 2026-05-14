@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 
+/// Kelas ini mendefinisikan tema terang dan gelap untuk aplikasi,
+/// termasuk skema warna, tipografi, dan gaya komponen.
 class AppTheme {
   // Tema umum untuk teks, menggunakan Google Fonts
   static final TextTheme _appTextTheme = TextTheme(
@@ -34,7 +36,7 @@ class AppTheme {
     labelSmall: GoogleFonts.lato(fontSize: 11, fontWeight: FontWeight.normal),
   );
 
-  // Definisi Tema Terang
+  /// Definisi tema terang (light theme).
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
@@ -42,7 +44,6 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primaryColor,
-      brightness: Brightness.light,
       primary: AppColors.primaryColor,
       secondary: AppColors.secondaryColor,
       surface: AppColors.lightBackground,
@@ -75,7 +76,7 @@ class AppTheme {
     ),
   );
 
-  // Definisi Tema Gelap
+  /// Definisi tema gelap (dark theme).
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

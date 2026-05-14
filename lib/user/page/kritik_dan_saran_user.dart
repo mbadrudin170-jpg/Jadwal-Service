@@ -6,9 +6,14 @@ import 'package:wifi/shared/model/kritik_saran_model.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
 
+/// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim oleh pengguna.
+///
+/// Pengguna dapat melihat, mengedit, atau menghapus masukan mereka.
 class RiwayatKritikDanSaranPage extends StatefulWidget {
+  /// ID pengguna untuk memfilter riwayat kritik dan saran.
   final String userId;
 
+  /// Membuat instance dari [RiwayatKritikDanSaranPage].
   const RiwayatKritikDanSaranPage({super.key, required this.userId});
 
   @override
@@ -20,10 +25,12 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser();
 
   Future<void> _showOptionsDialog(
-      BuildContext context, KritikSaranModel kritik) async {
+    BuildContext context,
+    KritikSaranModel kritik,
+  ) async {
     final navigator = Navigator.of(context);
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
@@ -31,17 +38,17 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
           actions: <Widget>[
             TextButton(
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-              onPressed: () {
+              onPressed: () async {
                 navigator.pop();
-                _showDeleteConfirmationAndExecute(context, kritik.id);
+                await _showDeleteConfirmationAndExecute(context, kritik.id);
               },
             ),
             TextButton(
               child: const Text('Edit'),
-              onPressed: () {
+              onPressed: () async {
                 navigator.pop();
-                navigator.push(
-                  MaterialPageRoute(
+                await navigator.push(
+                  MaterialPageRoute<void>(
                     builder: (context) => FormKritikDanSaran(
                       userId: widget.userId,
                       kritikId: kritik.id,
@@ -52,8 +59,8 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
               },
             ),
             TextButton(
+              onPressed: navigator.pop,
               child: const Text('Batal'),
-              onPressed: () => navigator.pop(),
             ),
           ],
         );
@@ -62,7 +69,9 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   }
 
   Future<void> _showDeleteConfirmationAndExecute(
-      BuildContext context, String docId) async {
+    BuildContext context,
+    String docId,
+  ) async {
     // diubah: Variabel navigator yang tidak digunakan telah dihapus.
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
@@ -92,14 +101,16 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
         await _operasi.hapusKritikSaran(docId);
         scaffoldMessenger.showSnackBar(
           const SnackBar(
-              content: Text('Masukan berhasil dihapus.'),
-              backgroundColor: Colors.green),
+            content: Text('Masukan berhasil dihapus.'),
+            backgroundColor: Colors.green,
+          ),
         );
-      } catch (e) {
+      }on Exception catch (e) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
-              content: Text('Gagal menghapus: $e'),
-              backgroundColor: Colors.red),
+            content: Text('Gagal menghapus: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -161,10 +172,10 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<void>(
               builder: (context) => FormKritikDanSaran(userId: widget.userId),
             ),
           );

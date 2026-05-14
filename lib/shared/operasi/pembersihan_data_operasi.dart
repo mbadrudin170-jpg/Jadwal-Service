@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// Kelas untuk operasi pembersihan data di database lokal.
 class PembersihanDataOperasi {
   final DatabaseHelper _dbHelper;
 
+  /// Konstruktor untuk `PembersihanDataOperasi`.
   PembersihanDataOperasi({@visibleForTesting DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
@@ -39,7 +41,8 @@ class PembersihanDataOperasi {
         DateTime.now().toUtc().subtract(Duration(days: batasHari));
     final batasWaktuString = batasWaktu.toIso8601String();
     Log.info(
-        'Batas waktu untuk penghapusan arsip diatur ke: $batasWaktuString (UTC)');
+      'Batas waktu untuk penghapusan arsip diatur ke: $batasWaktuString (UTC)',
+    );
 
     for (final tabel in daftarTabel) {
       try {
@@ -56,7 +59,7 @@ class PembersihanDataOperasi {
         }
 
         totalTerhapus += hasil;
-      } catch (e, s) {
+      } on Exception catch  (e, s) {
         Log.error('Gagal membersihkan tabel $tabel.', e: e, st: s);
         // Lanjutkan ke tabel berikutnya meskipun ada error di satu tabel
         continue;

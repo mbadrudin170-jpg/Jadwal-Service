@@ -1,28 +1,34 @@
 // path: lib/admin/halaman/form/form_pelanggan_aktif.dart
-// diubah: Memperbaiki impor enum yang rusak dan merapikan impor lainnya.
+// diubah: Menambahkan tipe eksplisit <void> pada Future.delayed untuk menghilangkan warning.
+// diubah: Menambahkan dokumentasi untuk semua anggota publik di kelas FormPelangganAktif.
+// Fitur: Form untuk menambah dan mengubah data pelanggan aktif.
+// Tujuan: Memperbaiki semua peringatan `missing_documentation_for_public_member` di file ini.
 
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/hasil_simpan_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
-import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/export/enum.dart';
 
+/// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(DateTime startDate, PaketModel paket) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
   Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
@@ -52,15 +58,38 @@ DateTime hitungTanggalBerakhir(DateTime startDate, PaketModel paket) {
   return hasil;
 }
 
+/// Form untuk menambah atau mengubah data pelanggan yang sedang aktif.
+///
+/// Form ini menangani logika untuk aktivasi paket baru atau perpanjangan
+/// paket yang sudah ada, termasuk pembuatan transaksi terkait.
 class FormPelangganAktif extends StatefulWidget {
+  /// Data pelanggan aktif yang akan diedit. Jika `null`, form akan
+  /// berada dalam mode tambah baru.
   final PelangganAktifModel? pelangganAktif;
+
+  /// Operasi untuk mengakses data pelanggan.
   final PelangganOperasi pelangganOperasi;
+
+  /// Operasi untuk mengakses data paket.
   final PaketOperasi paketOperasi;
+
+  /// Operasi untuk menambah atau mengubah data pelanggan aktif.
   final PelangganAktifOperasi pelangganAktifOperasi;
+
+  /// Operasi untuk membuat transaksi terkait aktivasi paket.
   final TransaksiOperasi transaksiOperasi;
+
+  /// Operasi untuk mengakses data dompet.
   final DompetOperasi dompetOperasi;
+
+  /// Operasi untuk mengakses data kategori.
   final KategoriOperasi kategoriOperasi;
 
+  /// Membuat instance dari [FormPelangganAktif].
+  ///
+  /// Semua parameter operasi bersifat opsional dan akan diinisialisasi
+  /// dengan instance default jika tidak disediakan. Ini berguna untuk
+  /// injeksi dependensi saat testing.
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
@@ -110,6 +139,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
   bool get _isEditMode => widget.pelangganAktif != null;
 
+  /// Menghitung jumlah poin yang akan digunakan untuk transaksi.
+  /// Mengembalikan `0` jika poin tidak digunakan.
   int hitungPoinEfektif() {
     if (_selectedPaket == null) return 0;
     if (_gunakanPoin) {
@@ -118,6 +149,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     return 0;
   }
 
+  /// Menghitung sisa poin pelanggan setelah dikurangi poin yang akan digunakan.
   int hitungSisaPoin() {
     final pakai = hitungPoinEfektif();
     return (_saldoPoinPelanggan - pakai).clamp(0, 999999999);
@@ -126,9 +158,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   @override
   void initState() {
     super.initState();
-    _loadAllData();
+    unawaited(_loadAllData());
   }
 
+  /// Memuat semua data yang diperlukan untuk form, seperti daftar pelanggan, paket, dompet, dan kategori.
   Future<void> _loadAllData() async {
     setState(() {
       _isLoading = true;
@@ -168,7 +201,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
         _isLoading = false;
       });
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal memuat data referensi', e: e, st: s);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memuat data: $e');
@@ -179,18 +212,19 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
   }
 
+  /// Memetakan data dari [_mapEditData] ke dalam state form saat mode edit.
   void _mapEditData() {
     final pa = widget.pelangganAktif!;
     try {
       _selectedPelanggan = _pelangganList.firstWhere(
         (p) => p.id == pa.idPelanggan,
       );
-    } catch (e) {
+    } on Exception {
       _selectedPelanggan = null;
     }
     try {
       _selectedPaket = _paketList.firstWhere((p) => p.id == pa.idPaket);
-    } catch (e) {
+    } on Exception {
       _selectedPaket = null;
       if (mounted) {
         SnackBarUtil.showWarning(
@@ -206,6 +240,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     _statusPembayaran = pa.status;
   }
 
+  /// Menginisialisasi data default untuk form saat mode tambah baru.
   void _mapNewData() {
     _selectedDate = DateTime.now();
     _selectedTime = TimeOfDay.now();
@@ -217,12 +252,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         _selectedKategori = _kategoriPemasukanList.firstWhere(
           (k) => k.nama.toLowerCase() == 'aktivasi paket',
         );
-      } catch (e) {
+      } on Exception {
         _selectedKategori = _kategoriPemasukanList.first;
       }
     }
   }
 
+  /// Menampilkan dialog pemilih tanggal.
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -237,6 +273,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
   }
 
+  /// Menampilkan dialog pemilih waktu.
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -253,6 +290,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
   }
 
+  /// Memvalidasi dan menyimpan data dari form.
+  ///
+  /// Mengembalikan [HasilSimpanModel] yang berisi status sukses atau gagal beserta pesan.
   Future<HasilSimpanModel<PelangganAktifModel>> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return HasilSimpanModel(sukses: false, pesan: 'Data belum lengkap');
@@ -353,7 +393,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         pesan: 'Berhasil disimpan',
         data: pelangganAktifHasil,
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal menyimpan data pelanggan aktif.',
         e: e,
@@ -637,24 +677,26 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
               'Tanggal Berakhir:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text((() {
-              if (_selectedDate != null && _selectedPaket != null) {
-                DateTime startDate = DateTime(
-                  _selectedDate!.year,
-                  _selectedDate!.month,
-                  _selectedDate!.day,
-                  _selectedTime?.hour ?? 0,
-                  _selectedTime?.minute ?? 0,
-                );
-                final DateTime endDate = hitungTanggalBerakhir(
-                  startDate,
-                  _selectedPaket!,
-                );
-                return FormatTanggal.formatTanggalDanJam(endDate);
-              } else {
-                return 'Pilih paket & tanggal mulai';
-              }
-            }())),
+            Text(
+              (() {
+                if (_selectedDate != null && _selectedPaket != null) {
+                  final DateTime startDate = DateTime(
+                    _selectedDate!.year,
+                    _selectedDate!.month,
+                    _selectedDate!.day,
+                    _selectedTime?.hour ?? 0,
+                    _selectedTime?.minute ?? 0,
+                  );
+                  final DateTime endDate = hitungTanggalBerakhir(
+                    startDate,
+                    _selectedPaket!,
+                  );
+                  return FormatTanggal.formatTanggalDanJam(endDate);
+                } else {
+                  return 'Pilih paket & tanggal mulai';
+                }
+              }()),
+            ),
           ],
         ),
       ],
@@ -677,7 +719,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             if (hasil.data != null) {
               try {
                 await PesanInfoPaket.kirimRincianPaket(hasil.data!);
-              } catch (e) {
+              } on Exception catch (e) {
                 Log.warning('Gagal mengirim pesan WhatsApp: $e');
                 if (mounted) {
                   SnackBarUtil.showWarning(
@@ -687,7 +729,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
                 }
               }
             }
-            await Future.delayed(const Duration(milliseconds: 300));
+            await Future<void>.delayed(const Duration(milliseconds: 300));
             if (mounted) {
               navigator.pop(true);
             }

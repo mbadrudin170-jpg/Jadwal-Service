@@ -34,13 +34,15 @@ void main() async {
         .collection('pengaturan')
         .doc('konfigurasi_global')
         .get(
-            const GetOptions(source: Source.server)); // Paksa ambil dari server
+          const GetOptions(source: Source.server),
+        ); // Paksa ambil dari server
 
     if (doc.exists && doc.data() != null) {
       final pengaturan = PengaturanModel.fromFirebase(doc.data()!);
       if (pengaturan.modePemeliharaan) {
         Log.warning(
-            '[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.');
+          '[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.',
+        );
         runApp(
           MaterialApp(
             title: 'Aplikasi dalam Perbaikan',
@@ -51,9 +53,10 @@ void main() async {
               maintenanceInfo: pengaturan.infoPemeliharaan,
               onRefresh: () {
                 Log.info(
-                    "[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi untuk memeriksa status terbaru.");
+                  '[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi untuk memeriksa status terbaru.',
+                );
               },
-              onExit: () => SystemNavigator.pop(),
+              onExit: SystemNavigator.pop,
             ),
           ),
         );
@@ -63,7 +66,7 @@ void main() async {
     } else {
       Log.info('[main] Dokumen pengaturan tidak ditemukan di server.');
     }
-  } catch (e, st) {
+  } on Exception catch (e, st) {
     Log.error(
       '[main] ❌ Gagal memeriksa status pemeliharaan. Menampilkan halaman maintenance sebagai fallback.',
       e: e,
@@ -80,9 +83,10 @@ void main() async {
               'Gagal terhubung ke server untuk memeriksa status. Pastikan koneksi internet Anda stabil dan coba mulai ulang aplikasi.',
           onRefresh: () {
             Log.info(
-                "[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi.");
+              '[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi.',
+            );
           },
-          onExit: () => SystemNavigator.pop(),
+          onExit: SystemNavigator.pop,
         ),
       ),
     );

@@ -1,8 +1,12 @@
-// path: lib/page/pesan_page.dart
+// path: lib/user/page/pesan_page.dart
 import 'dart:developer';
 import 'package:flutter/material.dart';
 
+/// Halaman untuk menampilkan daftar pesan.
+///
+/// Saat ini, halaman ini menampilkan daftar pesan statis.
 class PesanPage extends StatelessWidget {
+  /// Membuat instance dari [PesanPage].
   const PesanPage({super.key});
 
   @override

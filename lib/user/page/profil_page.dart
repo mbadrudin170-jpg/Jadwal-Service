@@ -1,21 +1,29 @@
 // path: lib/user/page/profil_page.dart
 // diubah: Menghapus impor yang tidak perlu.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/user/page/detail_pelanggan_user.dart';
-import 'package:wifi/user/services/firestore_service.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/user/page/detail_pelanggan_user.dart';
+import 'package:wifi/user/services/firestore_service.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilPage extends StatefulWidget {
+  /// ID pengguna yang sedang login.
   final String userId;
+
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
+
+  /// Membuat instance dari [ProfilPage].
   const ProfilPage({
     super.key,
     required this.userId,
@@ -39,8 +47,9 @@ class _ProfilPageState extends State<ProfilPage> {
   void initState() {
     super.initState();
     Log.info(
-        'Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}');
-    _inisialisasiData();
+      'Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}',
+    );
+    unawaited(_inisialisasiData());
   }
 
   Future<void> _inisialisasiData() async {
@@ -55,7 +64,8 @@ class _ProfilPageState extends State<ProfilPage> {
       final pelanggan = await _futurePelanggan;
       if (pelanggan != null) {
         Log.info(
-            'Data pelanggan berhasil diambil: ${pelanggan.nama}. Mengambil riwayat langganan...');
+          'Data pelanggan berhasil diambil: ${pelanggan.nama}. Mengambil riwayat langganan...',
+        );
         if (!mounted) return;
         setState(() {
           _riwayatLanggananFuture =
@@ -63,9 +73,10 @@ class _ProfilPageState extends State<ProfilPage> {
         });
       } else {
         Log.warning(
-            'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.');
+          'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.',
+        );
       }
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memuat data profil: $e');
@@ -100,7 +111,7 @@ class _ProfilPageState extends State<ProfilPage> {
         Log.info('Data profil berhasil diperbarui.');
         SnackBarUtil.showSuccess(context, 'Data berhasil diperbarui.');
       }
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memperbarui data: $e');
@@ -108,17 +119,18 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  void _navigasiKeDetail(String userId) {
+  Future<void> _navigasiKeDetail(String userId) async {
     Log.info('Menavigasi ke DetailPelangganUserPage untuk userId: $userId');
-    Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (context) => DetailPelangganUserPage(userId: userId),
       ),
     ).then((_) {
       Log.info(
-          'Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.');
-      _muatUlangData();
+        'Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.',
+      );
+      unawaited(_muatUlangData());
     });
   }
 
@@ -127,7 +139,8 @@ class _ProfilPageState extends State<ProfilPage> {
     Log.info('Membangun UI untuk ProfilPage.');
     if (_futurePelanggan == null) {
       Log.info(
-          'Future pelanggan masih null, menampilkan indikator loading awal.');
+        'Future pelanggan masih null, menampilkan indikator loading awal.',
+      );
       return Scaffold(
         appBar: AppBar(title: const Text('Memuat Profil...')),
         body: const Center(child: CircularProgressIndicator()),
@@ -138,7 +151,8 @@ class _ProfilPageState extends State<ProfilPage> {
       future: _futurePelanggan,
       builder: (context, snapshot) {
         Log.info(
-            'FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.');
+          'FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.',
+        );
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Memuat Profil...')),
@@ -158,7 +172,8 @@ class _ProfilPageState extends State<ProfilPage> {
         }
         if (!snapshot.hasData || snapshot.data == null) {
           Log.warning(
-              'FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.');
+            'FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
+          );
           return Scaffold(
             appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
             body: Center(
@@ -169,7 +184,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
         final pelanggan = snapshot.data!;
         Log.info(
-            'Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.');
+          'Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.',
+        );
 
         return Scaffold(
           appBar: AppBar(
@@ -190,13 +206,14 @@ class _ProfilPageState extends State<ProfilPage> {
                       'Nama Lengkap',
                       pelanggan.nama,
                       trailingIcon: Icons.chevron_right,
-                      onTap: () => _navigasiKeDetail(pelanggan.id),
+                      onTap: () => unawaited(_navigasiKeDetail(pelanggan.id)),
                     ),
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (context, snapshotRiwayat) {
                         Log.info(
-                            'FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.');
+                          'FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.',
+                        );
                         if (snapshotRiwayat.connectionState ==
                             ConnectionState.waiting) {
                           return _bangunInfoItem(
@@ -222,7 +239,8 @@ class _ProfilPageState extends State<ProfilPage> {
                         if (!snapshotRiwayat.hasData ||
                             snapshotRiwayat.data!.isEmpty) {
                           Log.warning(
-                              'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.');
+                            'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.',
+                          );
                           return _bangunInfoItem(
                             Icons.point_of_sale,
                             'Poin',
@@ -232,11 +250,16 @@ class _ProfilPageState extends State<ProfilPage> {
 
                         final riwayat = snapshotRiwayat.data!;
                         Log.info(
-                            'Menghitung total poin dari ${riwayat.length} transaksi.');
-                        int poinDihasilkan = riwayat.fold(
-                            0, (sum, item) => sum + item.poinYangDihasilkan);
-                        int poinDigunakan = riwayat.fold(
-                            0, (sum, item) => sum + item.poinYangDigunakan);
+                          'Menghitung total poin dari ${riwayat.length} transaksi.',
+                        );
+                        final int poinDihasilkan = riwayat.fold(
+                          0,
+                          (sum, item) => sum + item.poinYangDihasilkan,
+                        );
+                        final int poinDigunakan = riwayat.fold(
+                          0,
+                          (sum, item) => sum + item.poinYangDigunakan,
+                        );
 
                         final int totalPoin = poinDihasilkan - poinDigunakan;
                         Log.info('Total poin dihitung: $totalPoin.');
@@ -369,7 +392,8 @@ class _ProfilPageState extends State<ProfilPage> {
                                   namaPaket =
                                       snapshotPaket.data ?? 'Tidak tersedia';
                                   Log.info(
-                                      'Nama paket berhasil dimuat: $namaPaket');
+                                    'Nama paket berhasil dimuat: $namaPaket',
+                                  );
                                 }
                                 return _bangunInfoItem(
                                   Icons.wifi,
@@ -463,7 +487,7 @@ class _ProfilPageState extends State<ProfilPage> {
     IconData? trailingIcon,
     VoidCallback? onTap,
   }) {
-    Widget content = Padding(
+    final Widget content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

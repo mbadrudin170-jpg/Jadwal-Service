@@ -74,7 +74,6 @@ class PoinPageUi extends StatelessWidget {
       child: Center(
         child: TotalPointCard(
           points: totalPoin,
-          icon: Icons.stars_rounded,
         ),
       ),
     );

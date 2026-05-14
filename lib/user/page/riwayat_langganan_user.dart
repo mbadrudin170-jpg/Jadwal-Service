@@ -1,35 +1,60 @@
 // path: lib/user/page/riwayat_langganan_user.dart
+// diubah: Memperbaiki tipe Future yang ambigu saat idPaket null.
+// Future.value() diubah menjadi Future<PaketModel?>.value(null) untuk kejelasan tipe.
 // diubah: Memperbaiki penggunaan NamaPaketWidget dan navigasi ke DetailTransaksiPage.
+// diubah: Mengganti unawaited dengan ignore comment untuk mengatasi lint error.
+// diubah: Menambahkan await pada pemanggilan Future dan menghapus const yang tidak perlu.
+// diubah: Memperbaiki error lint dan inference failure.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/user/page/detail_transaksi_user.dart';
+import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
-import 'package:wifi/shared/widget/nama_paket.dart';
 
+/// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
+  /// Mengurutkan berdasarkan tanggal berakhir terbaru.
   tanggalBerakhirTerbaru,
+
+  /// Mengurutkan berdasarkan tanggal berakhir terlama.
   tanggalBerakhirTerlama,
+
+  /// Mengurutkan berdasarkan status lunas.
   statusLunas,
+
+  /// Mengurutkan berdasarkan status belum lunas.
   statusBelumLunas,
 }
 
+/// Halaman untuk menampilkan riwayat langganan pengguna.
 class RiwayatLanggananPage extends StatelessWidget {
+  /// ID pengguna yang sedang login.
   final String userId;
+
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
-  const RiwayatLanggananPage(
-      {super.key, required this.userId, required this.localStorageService});
+
+  /// Membuat instance dari [RiwayatLanggananPage].
+  const RiwayatLanggananPage({
+    super.key,
+    required this.userId,
+    required this.localStorageService,
+  });
 
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun RiwayatLanggananPage, meneruskan userId dan localStorageService ke _TampilanRiwayatLangganan.');
+      'Membangun RiwayatLanggananPage, meneruskan userId dan localStorageService ke _TampilanRiwayatLangganan.',
+    );
     return _TampilanRiwayatLangganan(userId: userId);
   }
 }
@@ -52,28 +77,33 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   void initState() {
     super.initState();
     Log.info('Memulai inisialisasi state untuk _TampilanRiwayatLangganan.');
+    // Future-returning calls in a non-async function should be handled.
+    // ignore: discarded_futures
     _cekArsitekturPerangkat();
     Log.info('Memulai proses sinkronisasi jadwal notifikasi.', {
       'userId': widget.userId,
     });
+    // Future-returning calls in a non-async function should be handled.
+    // ignore: discarded_futures
     _firestoreService.sinkronkanJadwalNotifikasi(widget.userId);
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     Log.info(
-        'Membersihkan state _TampilanRiwayatLangganan dan menghentikan sinkronisasi jadwal.');
-    _firestoreService.hentikanSinkronisasiJadwal();
+      'Membersihkan state _TampilanRiwayatLangganan dan menghentikan sinkronisasi jadwal.',
+    );
+    await _firestoreService.hentikanSinkronisasiJadwal();
     super.dispose();
   }
 
-  void _cekArsitekturPerangkat() async {
+  Future<void> _cekArsitekturPerangkat() async {
     Log.info('Memulai pengecekan arsitektur perangkat.');
     try {
       final arsitektur =
           await _infoPerangkatService.dapatkanArsitekturPerangkat();
       Log.info('Arsitektur Perangkat Terdeteksi.', arsitektur);
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mendapatkan arsitektur perangkat.',
         e: e,
@@ -125,7 +155,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.');
+      'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.',
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -167,7 +198,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
 
           if (snapshotPelanggan.connectionState == ConnectionState.waiting) {
             Log.info(
-                'Status: Menunggu data pelanggan. Menampilkan CircularProgressIndicator.');
+              'Status: Menunggu data pelanggan. Menampilkan CircularProgressIndicator.',
+            );
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -182,7 +214,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
 
           if (!snapshotPelanggan.hasData || snapshotPelanggan.data == null) {
             Log.info(
-                'Status: Koneksi selesai tetapi tidak ada data pelanggan.');
+              'Status: Koneksi selesai tetapi tidak ada data pelanggan.',
+            );
             return const Center(child: Text('Data pelanggan tidak ditemukan.'));
           }
 
@@ -210,7 +243,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                     if (snapshotRiwayat.connectionState ==
                         ConnectionState.waiting) {
                       Log.info(
-                          'Status: Menunggu data riwayat langganan. Menampilkan CircularProgressIndicator.');
+                        'Status: Menunggu data riwayat langganan. Menampilkan CircularProgressIndicator.',
+                      );
                       return const Center(child: CircularProgressIndicator());
                     }
 
@@ -221,21 +255,27 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                         st: snapshotRiwayat.stackTrace,
                       );
                       return Center(
-                          child: Text(
-                              'Gagal memuat riwayat: ${snapshotRiwayat.error}'));
+                        child: Text(
+                          'Gagal memuat riwayat: ${snapshotRiwayat.error}',
+                        ),
+                      );
                     }
 
                     if (!snapshotRiwayat.hasData ||
                         snapshotRiwayat.data!.isEmpty) {
                       Log.info(
-                          'Status: Koneksi selesai tetapi tidak ada riwayat.');
+                        'Status: Koneksi selesai tetapi tidak ada riwayat.',
+                      );
                       return const Card(
                         margin: EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 4.0),
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
                         child: Padding(
                           padding: EdgeInsets.all(16.0),
                           child: Center(
-                              child: Text("Tidak ada riwayat transaksi.")),
+                            child: Text('Tidak ada riwayat transaksi.'),
+                          ),
                         ),
                       );
                     }
@@ -256,14 +296,16 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
 
                         final paketFuture = tx.idPaket != null
                             ? _firestoreService.ambilPaketModelById(tx.idPaket!)
-                            : Future.value(null);
+                            : Future<PaketModel?>.value();
 
                         if (tx.tanggalBerakhir != null) {
                           teksMasaAktif = PerhitunganUtil.getTeksSisaMasaAktif(
-                              tx.tanggalBerakhir!);
+                            tx.tanggalBerakhir!,
+                          );
                           warnaMasaAktif =
                               PerhitunganUtil.getWarnaSisaMasaAktif(
-                                  tx.tanggalBerakhir!);
+                            tx.tanggalBerakhir!,
+                          );
                         } else {
                           teksMasaAktif = 'N/A';
                           warnaMasaAktif = Colors.grey;
@@ -278,7 +320,9 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
 
                         return Card(
                           margin: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 4.0),
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
                           child: ListTile(
                             leading: const Icon(Icons.receipt_long),
                             title: NamaPaketWidget(paketFuture: paketFuture),
@@ -287,10 +331,11 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                               children: [
                                 if (tx.tanggalBerakhir != null)
                                   Text(
-                                      "Berakhir - ${FormatTanggal.formatTanggalDanJam(tx.tanggalBerakhir!)}"),
+                                    'Berakhir - ${FormatTanggal.formatTanggalDanJam(tx.tanggalBerakhir!)}',
+                                  ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Status: ${tx.statusPembayaran.name}",
+                                  'Status: ${tx.statusPembayaran.name}',
                                   style: TextStyle(
                                     color: tx.statusPembayaran.name
                                                 .toLowerCase() ==
@@ -302,7 +347,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                                 Text(
                                   'Masa Aktif: $teksMasaAktif',
                                   style: TextStyle(color: warnaMasaAktif),
-                                )
+                                ),
                               ],
                             ),
                             trailing: const Icon(Icons.chevron_right),
@@ -315,7 +360,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                               if (context.mounted) {
                                 await Navigator.push(
                                   context,
-                                  MaterialPageRoute(
+                                  MaterialPageRoute<void>(
                                     builder: (context) => DetailTransaksiPage(
                                       transaksi: tx,
                                       paket: paket,
@@ -331,10 +376,10 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                   },
                 ),
               ),
-              Container(
-                alignment: Alignment.center,
-                child: const BannerAdWidget(
-                    adUnitId: 'ca-app-pub-3940256099942544/6300978111'),
+              const Center(
+                child: BannerAdWidget(
+                  adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+                ),
               ),
             ],
           );

@@ -4,11 +4,21 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart'; // ditambah: Impor Log
 
+/// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
+///
+/// Menampilkan informasi pemeliharaan, tombol untuk mencoba lagi (refresh),
+/// dan tombol untuk keluar dari aplikasi.
 class MaintenancePage extends StatelessWidget {
+  /// Informasi teks yang menjelaskan status pemeliharaan.
   final String maintenanceInfo;
+
+  /// Callback yang dipanggil saat pengguna menekan tombol "Coba Lagi".
   final VoidCallback onRefresh;
+
+  /// Callback yang dipanggil saat pengguna menekan tombol "Keluar".
   final VoidCallback onExit;
 
+  /// Membuat instance dari [MaintenancePage].
   const MaintenancePage({
     super.key,
     required this.maintenanceInfo,
@@ -20,7 +30,8 @@ class MaintenancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // ditambah: Log saat halaman ini dibangun.
     Log.info(
-        '[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"');
+      '[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"',
+    );
 
     return Scaffold(
       appBar: AppBar(

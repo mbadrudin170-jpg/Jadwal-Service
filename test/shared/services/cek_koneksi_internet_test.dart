@@ -2,10 +2,10 @@
 // Fitur: Pengujian Unit untuk KoneksiInternetService
 // Tujuan: Memastikan logika pengecekan koneksi internet berfungsi dengan benar dalam berbagai skenario.
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 
 // Buat mock untuk Connectivity
@@ -87,7 +87,8 @@ void main() {
     test('Harus mengembalikan true jika salah satu koneksi adalah WiFi',
         () async {
       when(mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.bluetooth, ConnectivityResult.wifi]);
+        (_) async => [ConnectivityResult.bluetooth, ConnectivityResult.wifi],
+      );
       final result = await koneksiService.cekKoneksi();
       expect(result, isTrue);
       verify(mockConnectivity.checkConnectivity()).called(1);

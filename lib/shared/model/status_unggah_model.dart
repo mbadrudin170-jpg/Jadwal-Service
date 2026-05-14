@@ -10,7 +10,9 @@ class StatusUnggahModel {
   /// Bendera yang menandakan status. `true` jika ada data untuk diunggah,
   /// `false` jika tidak.
   final bool perluUnggah;
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
+  /// Konstruktor untuk `StatusUnggahModel`.
   StatusUnggahModel({required this.id, required this.perluUnggah});
 
   // diubah: Nama metode diubah dari fromMap menjadi fromSqlite agar lebih jelas tujuannya

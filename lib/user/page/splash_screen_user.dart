@@ -1,5 +1,8 @@
 // path: lib/user/page/splash_screen_user.dart
 // diubah: Memperbaiki kesalahan sintaks pada pemanggilan initializeDateFormatting.
+// ditambah: Menambahkan dokumentasi untuk public members.
+// diubah: Menangani discarded_futures di initState.
+// diubah: Menambahkan trailing comma.
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -9,7 +12,9 @@ import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Halaman splash screen untuk pengguna.
 class SplashScreenUser extends StatefulWidget {
+  /// Konstruktor untuk SplashScreenUser.
   const SplashScreenUser({super.key});
 
   @override
@@ -22,7 +27,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     super.initState();
     Log.info('SplashScreen: initState dipanggil.');
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkSession();
+      unawaited(_checkSession());
     });
   }
 
@@ -31,10 +36,12 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
 
     try {
       // diubah: Membungkus 'id_ID' dengan tanda kutip.
-      await initializeDateFormatting('id_ID', null);
+      await initializeDateFormatting('id_ID');
       Log.info("Inisialisasi format tanggal 'id_ID' berhasil.");
 
-      await Future.delayed(const Duration(seconds: 1)); // Mengurangi delay
+      await Future<void>.delayed(
+        const Duration(seconds: 1),
+      ); // Mengurangi delay
 
       if (!mounted) return;
 
@@ -46,22 +53,27 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
 
       if (isLoggedIn) {
         Log.info(
-            'Pengguna sudah login. Navigasi ke MainPage.', {'userId': userId});
+          'Pengguna sudah login. Navigasi ke MainPage.',
+          {'userId': userId},
+        );
         final localStorageService = LocalStorageService(prefs: prefs);
         await Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => MainPage(
-                  userId: userId, localStorageService: localStorageService)),
+          MaterialPageRoute<void>(
+            builder: (context) => MainPage(
+              userId: userId,
+              localStorageService: localStorageService,
+            ),
+          ),
         );
       } else {
         Log.warning('Pengguna belum login. Navigasi ke LoginPage.');
         await Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute<void>(builder: (context) => const LoginPage()),
         );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal memeriksa sesi pengguna atau inisialisasi.',
         e: e,
@@ -70,7 +82,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       if (!mounted) return;
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
+        MaterialPageRoute<void>(builder: (context) => const LoginPage()),
       );
     }
   }

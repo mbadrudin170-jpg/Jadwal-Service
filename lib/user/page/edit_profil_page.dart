@@ -5,10 +5,17 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/services/firestore_service.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 
+/// Halaman untuk mengedit profil pengguna.
+///
+/// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
 class EditProfilPage extends StatefulWidget {
+  /// Data pelanggan yang akan diedit.
   final PelangganModel pelanggan;
+
+  /// ID unik pengguna yang sedang login.
   final String userId;
 
+  /// Membuat instance dari [EditProfilPage].
   const EditProfilPage({
     super.key,
     required this.pelanggan,
@@ -44,7 +51,7 @@ class _EditPageState extends State<EditProfilPage> {
       final navigator = Navigator.of(context);
 
       try {
-        Map<String, dynamic> dataUntukUpdate = {
+        final Map<String, dynamic> dataUntukUpdate = {
           'nama': _namaController.text,
           'telepon': _teleponController.text,
           'password':
@@ -66,7 +73,7 @@ class _EditPageState extends State<EditProfilPage> {
 
         // Langsung kembali ke halaman sebelumnya dengan hasil true
         navigator.pop(true);
-      } catch (e) {
+      }on Exception catch (e) {
         if (!mounted) return;
         scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('Gagal menyimpan perubahan: $e')),

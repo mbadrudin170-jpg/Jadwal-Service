@@ -36,7 +36,7 @@ class CekLanggananKadaluarsaService {
       Log.info(
         'Seluruh rangkaian proses pengecekan langganan kedaluwarsa telah diselesaikan dengan sukses.',
       );
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Terjadi kesalahan fatal selama proses pengolahan data kedaluwarsa!',
         e: e,

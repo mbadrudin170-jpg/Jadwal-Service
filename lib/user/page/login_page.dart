@@ -2,20 +2,29 @@
 // diubah: Menambahkan logika untuk menyimpan FCM Token setelah login berhasil.
 // diperbaiki: Menghilangkan TextStyle yang bertentangan pada ElevatedButton untuk mencegah crash.
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/page/daftar_akun_page.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/user/page/daftar_akun_page.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Halaman login untuk pengguna.
+///
+/// Wrapper stateless yang meneruskan dependensi ke `_TampilanLogin`.
 class LoginPage extends StatelessWidget {
+  /// Instance Firestore untuk operasi database.
   final FirebaseFirestore? firestore;
+
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService? localStorageService;
 
+  /// Membuat instance dari [LoginPage].
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
@@ -54,7 +63,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     super.initState();
     Log.info('Memulai inisialisasi state _TampilanLogin.');
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
-    _initializeLocalStorage();
+    unawaited(_initializeLocalStorage());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -73,35 +82,40 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     if (widget.localStorageService != null) {
       Log.info('LocalStorageService diterima dari widget parent.');
       _localStorageService = widget.localStorageService!;
-      setState(() {
-        _isLocalStorageInitialized = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isLocalStorageInitialized = true;
+        });
+      }
     } else {
       Log.info(
-          'LocalStorageService tidak disediakan, membuat instance baru dari SharedPreferences.');
+        'LocalStorageService tidak disediakan, membuat instance baru dari SharedPreferences.',
+      );
       final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _localStorageService = LocalStorageService(prefs: prefs);
-        _isLocalStorageInitialized = true;
-      });
+      if (mounted) {
+        setState(() {
+          _localStorageService = LocalStorageService(prefs: prefs);
+          _isLocalStorageInitialized = true;
+        });
+      }
     }
     Log.info('Inisialisasi LocalStorage selesai.', {
       'isInitialized': _isLocalStorageInitialized,
     });
   }
 
-  void _tampilkanAlertError(String pesan) {
+  Future<void> _tampilkanAlertError(String pesan) async {
     Log.warning('Menampilkan alert error.', {'pesan': pesan});
     if (!mounted) return;
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Gagal Masuk"),
+        title: const Text('Gagal Masuk'),
         content: Text(pesan),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cek Kembali"),
+            child: const Text('Cek Kembali'),
           ),
         ],
       ),
@@ -122,7 +136,8 @@ class _TampilanLoginState extends State<_TampilanLogin> {
 
     if (!_isLocalStorageInitialized) {
       Log.warning('LocalStorage belum siap saat mencoba login.');
-      _tampilkanAlertError("Layanan penyimpanan lokal belum siap. Coba lagi.");
+      await _tampilkanAlertError(
+          'Layanan penyimpanan lokal belum siap. Coba lagi.',);
       return;
     }
 
@@ -140,7 +155,8 @@ class _TampilanLoginState extends State<_TampilanLogin> {
         'teleponKosong': telepon.isEmpty,
         'passwordKosong': password.isEmpty,
       });
-      _tampilkanAlertError("Nomor telepon dan password tidak boleh kosong.");
+      await _tampilkanAlertError(
+          'Nomor telepon dan password tidak boleh kosong.',);
       return;
     }
 
@@ -190,25 +206,30 @@ class _TampilanLoginState extends State<_TampilanLogin> {
         });
 
         await navigator.pushReplacement(
-          MaterialPageRoute(
-              builder: (context) => MainPage(
-                  userId: uid, localStorageService: _localStorageService)),
+          MaterialPageRoute<void>(
+            builder: (context) => MainPage(
+              userId: uid,
+              localStorageService: _localStorageService,
+            ),
+          ),
         );
       } else {
         Log.warning('Login gagal: kredensial tidak cocok.', {
           'telepon': telepon,
         });
-        _tampilkanAlertError(
-            "Nomor telepon atau password yang Anda masukkan salah.");
+        await _tampilkanAlertError(
+          'Nomor telepon atau password yang Anda masukkan salah.',
+        );
       }
-    } catch (e, s) {
+    }on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat login.',
         e: e,
         st: s,
       );
-      _tampilkanAlertError(
-          "Terjadi kesalahan koneksi ke server. Silakan coba lagi.");
+      await _tampilkanAlertError(
+        'Terjadi kesalahan koneksi ke server. Silakan coba lagi.',
+      );
     }
   }
 
@@ -290,22 +311,23 @@ class _TampilanLoginState extends State<_TampilanLogin> {
               TextButton(
                 onPressed: () {
                   Log.info("Tombol 'Lupa Sandi?' ditekan.");
-                  showDialog(
+                  unawaited(showDialog<void>(
                     context: context,
                     builder: (ctx) => AlertDialog(
                       title: const Text('Fitur Dalam Pengembangan'),
                       content: const Text(
-                          'Fitur ini sedang kami kerjakan dan akan segera tersedia.'),
+                        'Fitur ini sedang kami kerjakan dan akan segera tersedia.',
+                      ),
                       actions: [
                         TextButton(
                           child: const Text('OK'),
                           onPressed: () {
                             Navigator.of(ctx).pop();
                           },
-                        )
+                        ),
                       ],
                     ),
-                  );
+                  ),);
                 },
                 child: const Text('Lupa Sandi?'),
               ),
@@ -313,18 +335,18 @@ class _TampilanLoginState extends State<_TampilanLogin> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Belum punya akun?"),
+                  const Text('Belum punya akun?'),
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Log.info("Tombol 'Daftar di sini' ditekan.");
-                      Navigator.push(
+                      await Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        MaterialPageRoute<void>(
                           builder: (context) => const DaftarAkunPage(),
                         ),
                       );
                     },
-                    child: const Text("Daftar di sini"),
+                    child: const Text('Daftar di sini'),
                   ),
                 ],
               ),

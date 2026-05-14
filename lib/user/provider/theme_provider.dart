@@ -7,26 +7,43 @@
 // menggunakan tipe data ThemeMode, karena service tersebut sudah menangani
 // konversi internal ke/dari String.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Kontrak untuk provider tema, mendefinisikan properti dan metode
+/// yang harus dimiliki oleh implementasi provider tema.
 abstract class ThemeProvider extends ChangeNotifier {
+  /// Mengambil mode tema saat ini (`system`, `light`, atau `dark`).
   ThemeMode get themeMode;
+
+  /// Memeriksa apakah mode gelap sedang aktif.
   bool get isDarkMode;
+
+  /// Mengatur mode tema aplikasi dan menyimpannya ke penyimpanan lokal.
   Future<void> aturTema(ThemeMode mode);
+
+  /// Memuat mode tema yang tersimpan dari penyimpanan lokal.
   Future<void> muatTema();
 }
 
+/// Implementasi konkret dari [ThemeProvider].
 class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
+  /// Service untuk berinteraksi dengan penyimpanan lokal.
   final LocalStorageService localStorageService;
 
   ThemeMode _themeMode = ThemeMode.system;
 
+  /// Membuat instance dari [ThemeProviderImpl].
+  ///
+  /// Akan memuat tema dari [localStorageService] saat inisialisasi.
   ThemeProviderImpl({required this.localStorageService}) {
     Log.info(
-        '[ThemeProvider] Inisialisasi, memuat tema dari LocalStorageService.');
-    muatTema();
+      '[ThemeProvider] Inisialisasi, memuat tema dari LocalStorageService.',
+    );
+    unawaited(muatTema());
   }
 
   @override
@@ -50,13 +67,14 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
     try {
       final modeDariPenyimpanan = await localStorageService.ambilModeTema();
       Log.info(
-          '[ThemeProvider] Tema berhasil dimuat dari penyimpanan: $modeDariPenyimpanan');
+        '[ThemeProvider] Tema berhasil dimuat dari penyimpanan: $modeDariPenyimpanan',
+      );
 
       if (_themeMode != modeDariPenyimpanan) {
         _themeMode = modeDariPenyimpanan;
         notifyListeners();
       }
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         '[ThemeProvider] Gagal memuat preferensi tema',
         e: e,
@@ -77,8 +95,9 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
     try {
       await localStorageService.simpanModeTema(mode);
       Log.info(
-          '[ThemeProvider] Preferensi tema berhasil dikirim ke service untuk disimpan.');
-    } catch (e, st) {
+        '[ThemeProvider] Preferensi tema berhasil dikirim ke service untuk disimpan.',
+      );
+    } on Exception catch (e, st) {
       Log.error(
         '[ThemeProvider] Gagal menyimpan preferensi tema melalui service',
         e: e,

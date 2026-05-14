@@ -2,5 +2,6 @@
   "IDX.agenticWorkspace": true,
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
-  "editor.formatOnPaste": true
+  "editor.formatOnPaste": true,
+  "markdown.validate.enabled": true
 }

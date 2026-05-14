@@ -96,7 +96,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
 
       Log.warning('Data $konteks dengan ID: $id tidak ditemukan di database');
       return 'Data tidak ditemukan';
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil data $konteks dengan ID: $id',
         e: e,
@@ -107,25 +107,24 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
   }
 
   // diubah: me-refresh data transaksi setelah kembali dari halaman edit
-  void _bukaFormEdit() {
+  Future<void> _bukaFormEdit() async {
     Log.info(
       'Navigasi ke FormTransaksiPage mode edit untuk ID: ${_transaksiSaatIni.id}',
     );
-    Navigator.push<TransaksiModel?>(
+    final transaksiYangDiperbarui = await Navigator.push<TransaksiModel?>(
       context,
       MaterialPageRoute<TransaksiModel?>(
         builder: (context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
       ),
-    ).then((transaksiYangDiperbarui) {
-      if (transaksiYangDiperbarui != null) {
-        Log.info('Kembali dari form edit, data telah berubah. Memperbarui UI.');
-        setState(() {
-          _transaksiSaatIni = transaksiYangDiperbarui;
-        });
-      } else {
-        Log.info('Kembali dari form edit, tidak ada perubahan data.');
-      }
-    });
+    );
+    if (transaksiYangDiperbarui != null) {
+      Log.info('Kembali dari form edit, data telah berubah. Memperbarui UI.');
+      setState(() {
+        _transaksiSaatIni = transaksiYangDiperbarui;
+      });
+    } else {
+      Log.info('Kembali dari form edit, tidak ada perubahan data.');
+    }
   }
 
   @override

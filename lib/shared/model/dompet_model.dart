@@ -1,27 +1,38 @@
+// path: lib/shared/model/dompet_model.dart
+// Fitur: Model Data
+// Tujuan: Mendefinisikan struktur data untuk dompet, termasuk konversi dari/ke format SQLite dan Firebase.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
-/// Model data untuk dompet pengguna.
-class DompetModel {
-  /// ID unik dompet, dihasilkan otomatis menggunakan UUID.
+/// Model data untuk entitas dompet dalam aplikasi.
+///
+/// Kelas ini merepresentasikan dompet pengguna dengan properti seperti nama, saldo,
+/// dan status sinkronisasi.
+class DompetModel implements MemilikiId {
+  /// ID unik untuk setiap dompet, dibuat secara otomatis jika tidak disediakan.
+  @override
   final String id;
 
-  /// Nama dompet yang diberikan pengguna.
+  /// Nama yang diberikan pengguna untuk dompet ini. Wajib diisi.
   final String namaDompet;
 
-  /// Saldo saat ini.
+  /// Jumlah saldo saat ini di dalam dompet.
   final double saldo;
 
-  /// Waktu terakhir data diperbarui.
+  /// Timestamp kapan data ini terakhir kali diperbarui di server atau lokal.
   final DateTime? diperbarui;
 
-  /// Menandakan apakah dompet sudah dihapus (soft delete).
+  /// Status soft delete. Jika `true`, dompet dianggap telah dihapus.
   final bool isDeleted;
 
-  /// Waktu dompet diarsipkan, null jika belum diarsipkan.
+  /// Timestamp kapan dompet ini diarsipkan. `null` jika tidak diarsipkan.
   final DateTime? diarsipkan;
 
-  /// Membuat instance [DompetModel] baru.
+  /// Membuat instance [DompetModel].
+  ///
+  /// Jika [id] tidak disediakan, ID unik akan dibuat menggunakan `Uuid().v4()`.
   DompetModel({
     String? id,
     required this.namaDompet,
@@ -31,7 +42,9 @@ class DompetModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
-  /// Membuat salinan [DompetModel] dengan nilai yang diubah.
+  /// Membuat salinan [DompetModel] dengan beberapa field yang diperbarui.
+  ///
+  /// Berguna untuk pembaruan data secara immutable.
   DompetModel copyWith({
     String? id,
     String? namaDompet,
@@ -50,6 +63,9 @@ class DompetModel {
     );
   }
 
+  /// Helper internal untuk mengurai nilai tanggal dari berbagai format.
+  ///
+  /// Menerima [Timestamp] dari Firestore atau [String] format ISO-8601 dari SQLite.
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
@@ -57,19 +73,24 @@ class DompetModel {
     return null;
   }
 
-  /// Mengonversi data SQLite ke [DompetModel].
+  /// Membuat instance [DompetModel] dari data map SQLite.
+  ///
+  /// Factory constructor ini menangani konversi tipe data dari format
+  /// yang disimpan di database lokal.
   factory DompetModel.fromSqlite(Map<String, dynamic> map) {
     return DompetModel(
       id: map['id'] as String?,
       namaDompet: (map['namaDompet'] as String?) ?? '',
       saldo: (map['saldo'] as num?)?.toDouble() ?? 0.0,
       diperbarui: _parseDateTime(map['diperbarui']),
-      isDeleted: map['isDeleted'] == true || map['isDeleted'] == 1,
+      isDeleted: map['isDeleted'] == 1,
       diarsipkan: _parseDateTime(map['diarsipkan']),
     );
   }
 
-  /// Mengonversi [DompetModel] ke format SQLite.
+  /// Mengonversi instance [DompetModel] menjadi map untuk disimpan di SQLite.
+  ///
+  /// [DateTime] diubah menjadi format String ISO-8601 dan boolean menjadi integer.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -81,7 +102,9 @@ class DompetModel {
     };
   }
 
-  /// Mengonversi data Firestore ke [DompetModel].
+  /// Membuat instance [DompetModel] dari dokumen Firestore.
+  ///
+  /// [id] dokumen diambil secara terpisah dari snapshot.
   factory DompetModel.fromFirebase(String id, Map<String, dynamic> data) {
     return DompetModel(
       id: id,
@@ -93,15 +116,23 @@ class DompetModel {
     );
   }
 
-  /// Mengonversi [DompetModel] ke format Firestore.
+  /// Mengonversi instance [DompetModel] menjadi map untuk disimpan di Firestore.
+  ///
+  /// `diperbarui` akan selalu diisi dengan `FieldValue.serverTimestamp()`
+  /// untuk sinkronisasi waktu yang akurat.
   Map<String, dynamic> toFirebase() {
-    return {
+    final data = <String, dynamic>{
       'id': id,
       'namaDompet': namaDompet,
       'saldo': saldo,
       'diperbarui': FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
-      'diarsipkan': Timestamp.fromDate(diarsipkan!),
     };
-  }
-}
+    if (diarsipkan != null) {
+      data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
+    }
+    return data;
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+

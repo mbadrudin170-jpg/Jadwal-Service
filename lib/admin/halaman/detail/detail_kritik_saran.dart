@@ -70,7 +70,8 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       );
       // diubah: Melempar error dengan tipe yang benar.
       // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
-      throw e;
+      // diubah: Membungkus error dalam sebuah Exception untuk mematuhi aturan lint.
+      throw Exception(e);
     });
   }
 
@@ -191,7 +192,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
 
           Navigator.of(context).pop(true);
         }
-      } catch (e, st) {
+      } on Exception catch (e, st) {
         Log.error(
           'Terjadi kesalahan saat menghapus kritik dan saran.',
           e: e,

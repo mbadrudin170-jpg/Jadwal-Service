@@ -7,14 +7,17 @@ import 'package:wifi/shared/data/sync/unggah_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
+/// Layanan untuk mengorkestrasi proses sinkronisasi data.
 class PengecekanWaktuSyncService {
   final SyncManager _syncManager;
   final LayananUnggahData _layananUnggah;
   final LayananUnduhData _layananUnduh;
   final PengecekanDataBaruService _pengecekanDataBaru;
-  // ditambah: Tambahkan instance firestore untuk memperbarui status global
   final FirebaseFirestore _firestore;
 
+  /// Konstruktor untuk PengecekanWaktuSyncService.
+  ///
+  /// Menginisialisasi semua layanan yang dibutuhkan untuk proses sinkronisasi.
   PengecekanWaktuSyncService({
     SyncManager? syncManager,
     LayananUnggahData? layananUnggah,
@@ -31,15 +34,17 @@ class PengecekanWaktuSyncService {
     );
   }
 
+  /// Menjalankan seluruh proses pengecekan dan sinkronisasi data.
+  ///
+  /// Terdiri dari dua fase: unggah data lokal ke server dan unduh data
+  /// terbaru dari server.
   Future<void> jalankanPengecekanDanSinkronisasi() async {
     Log.info(
       'Memulai siklus orkestrasi sinkronisasi global. Prosedur ini akan menjalankan dua fase utama secara berurutan: Fase Sinkronisasi Keluar (Upload) untuk memastikan data lokal terkirim ke cloud, kemudian Fase Sinkronisasi Masuk (Download) untuk memastikan data lokal tetap aktual dengan cloud.',
     );
 
-    // diubah: Tangkap status apakah ada data yang diunggah.
     final bool adaDataDiunggah = await _cekDanJalankanUnggah();
 
-    // diubah: Jika ada data yang diunggah, perbarui dokumen status global.
     if (adaDataDiunggah) {
       Log.info(
         'Pemicu sinkronisasi: Ada data baru yang diunggah. Memperbarui dokumen status/global di server.',
@@ -58,7 +63,6 @@ class PengecekanWaktuSyncService {
     );
   }
 
-  // diubah: Fungsi ini sekarang mengembalikan boolean.
   Future<bool> _cekDanJalankanUnggah() async {
     Log.info(
       'Menjalankan fungsi internal _cekDanJalankanUnggah(). Sistem akan melakukan inspeksi pada database SQLite lokal untuk mendeteksi adanya entri data baru atau perubahan yang belum ditandai sebagai tersinkronisasi.',
@@ -78,33 +82,33 @@ class PengecekanWaktuSyncService {
         Log.info(
           'Metadata sinkronisasi berhasil diperbarui. Waktu terakhir unggah (last_upload_timestamp) kini disetel pada: $waktuSekarang.',
         );
-        return true; // diubah: Kembalikan true karena ada data yang diunggah.
+        return true;
       } else {
         Log.info(
           'Hasil Pengecekan: Tidak ditemukan record baru atau perubahan data pada database SQLite lokal. Melewati fase pengunggahan untuk menghemat bandwidth dan sumber daya sistem.',
         );
-        return false; // diubah: Kembalikan false karena tidak ada data yang diunggah.
+        return false;
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Kegagalan Operasional: Terjadi kesalahan fatal selama fase pengecekan atau pengunggahan data lokal ke server. Proses sinkronisasi keluar dihentikan secara paksa untuk mencegah korupsi data.',
         e: e,
         st: s,
       );
-      return false; // diubah: Kembalikan false jika terjadi error.
+      return false;
     }
   }
 
-  // ditambah: Fungsi baru untuk membuat/memperbarui dokumen status global.
   Future<void> _updateStatusGlobal() async {
     try {
       await _firestore.collection('status').doc('global').set(
-          {'diperbarui': FieldValue.serverTimestamp()},
-          SetOptions(merge: true));
+        {'diperbarui': FieldValue.serverTimestamp()},
+        SetOptions(merge: true),
+      );
       Log.info(
         'Dokumen status/global berhasil diperbarui dengan server timestamp.',
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen status/global di Firestore.',
         e: e,
@@ -113,6 +117,7 @@ class PengecekanWaktuSyncService {
     }
   }
 
+  /// Memeriksa dan menjalankan proses unduh jika ada data baru di server.
   Future<void> _cekDanJalankanUnduh() async {
     Log.info(
       'Menjalankan fungsi internal _cekDanJalankanUnduh(). Sistem akan melakukan handshake dengan Firebase Firestore untuk memeriksa apakah ada pembaruan data dari admin atau user lain yang perlu diterapkan di database lokal.',
@@ -120,13 +125,12 @@ class PengecekanWaktuSyncService {
 
     try {
       Log.info(
-        // diubah: Memperbaiki nama koleksi dari data_baru ke status.
         'Mengirim permintaan pengecekan ke Firebase melalui apakahFirebaseAdaDataBaru() pada koleksi: "status", dokumen: "global". Mencari perbedaan timestamp antara server dan lokal.',
       );
 
       final bool apakahAdaDataBaruDiServer =
           await _pengecekanDataBaru.apakahFirebaseAdaDataBaru(
-        namaKoleksi: 'status', // diubah: Nama koleksi diperbaiki.
+        namaKoleksi: 'status',
         idDokumen: 'global',
       );
 
@@ -147,7 +151,7 @@ class PengecekanWaktuSyncService {
           'Hasil Pengecekan Server: Cloud tidak memiliki pembaruan data (data lokal sudah up-to-date). Menghentikan fase pengunduhan untuk efisiensi.',
         );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Kegagalan Operasional: Terjadi error saat mencoba mengambil atau memproses data baru dari server cloud ke penyimpanan lokal.',
         e: e,

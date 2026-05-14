@@ -1,10 +1,14 @@
 // path: lib/user/page/info_apk_page_user.dart
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-// Ubah ke StatefulWidget
+/// Halaman yang menampilkan informasi tentang aplikasi.
+///
+/// Menampilkan nama aplikasi, versi, dan deskripsi singkat.
 class InfoApkPage extends StatefulWidget {
+  /// Membuat instance dari [InfoApkPage].
   const InfoApkPage({super.key});
 
   @override
@@ -17,14 +21,18 @@ class _InfoApkPageState extends State<InfoApkPage> {
   @override
   void initState() {
     super.initState();
-    _getVersion();
+    // diubah: Menggunakan unawaited untuk menangani future di initState.
+    unawaited(_getVersion());
   }
 
   Future<void> _getVersion() async {
     final packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _version = packageInfo.version.split('-').first;
-    });
+    // ditambah: Memeriksa apakah widget masih terpasang sebelum memanggil setState.
+    if (mounted) {
+      setState(() {
+        _version = packageInfo.version.split('-').first;
+      });
+    }
   }
 
   @override

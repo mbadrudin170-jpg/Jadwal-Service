@@ -1,4 +1,5 @@
-// path: lib/shared/operasi/status_unggah_operasi.dart// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
+// path: lib/shared/operasi/status_unggah_operasi.dart
+// diubah: Menambahkan konstruktor untuk Dependency Injection agar bisa diuji.
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
@@ -12,7 +13,7 @@ class StatusUnggahOperasi {
   static const String _tableName = 'status_aplikasi';
   static const String _key = 'perlu_unggah';
 
-  // diubah: Konstruktor untuk injeksi dependensi.
+  /// Konstruktor untuk `StatusUnggahOperasi`.
   StatusUnggahOperasi({@visibleForTesting DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
@@ -24,12 +25,13 @@ class StatusUnggahOperasi {
   }) async {
     final db = transaction ?? await _dbHelper.database;
     await db.insert(
-        _tableName,
-        {
-          'id': _key,
-          'value': perluUnggah ? '1' : '0',
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace);
+      _tableName,
+      {
+        'id': _key,
+        'value': perluUnggah ? '1' : '0',
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   /// Membaca status `perlu_unggah`.

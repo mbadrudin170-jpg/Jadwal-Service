@@ -2,14 +2,27 @@
 // diubah: Penamaan metode diseragamkan dan logika Firebase diperbaiki.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
-class KritikSaranModel {
+/// Model untuk data kritik dan saran dari pengguna.
+class KritikSaranModel implements MemilikiId {
+  /// ID unik untuk setiap entri kritik dan saran.
+  @override
   final String id;
+
+  /// Isi dari kritik atau saran yang diberikan oleh pengguna.
   final String isi;
+
+  /// Tanggal kapan kritik atau saran ini dibuat.
   final DateTime? tanggal;
+
+  /// ID pengguna yang memberikan kritik atau saran.
   final String userId;
+
+  /// Waktu terakhir data ini diperbarui.
   final DateTime? diperbarui;
 
+  /// Konstruktor untuk membuat instance `KritikSaranModel`.
   KritikSaranModel({
     String? id,
     required this.isi,
@@ -18,6 +31,7 @@ class KritikSaranModel {
     this.diperbarui,
   }) : id = id ?? const Uuid().v4();
 
+  /// Membuat salinan dari `KritikSaranModel` dengan beberapa nilai yang diubah.
   KritikSaranModel copyWith({
     String? id,
     String? isi,
@@ -34,6 +48,7 @@ class KritikSaranModel {
     );
   }
 
+  /// Helper untuk mengurai nilai tanggal dari berbagai format.
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
@@ -42,7 +57,9 @@ class KritikSaranModel {
     if (dateValue is int) return DateTime.fromMillisecondsSinceEpoch(dateValue);
     return null;
   }
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
+  /// Membuat instance `KritikSaranModel` dari data Map SQLite.
   factory KritikSaranModel.fromSqlite(Map<String, dynamic> map) {
     return KritikSaranModel(
       id: map['id'] as String?,
@@ -53,6 +70,7 @@ class KritikSaranModel {
     );
   }
 
+  /// Mengonversi `KritikSaranModel` ke format Map untuk disimpan di SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -63,7 +81,7 @@ class KritikSaranModel {
     };
   }
 
-  // ditambahkan: Factory fromFirebase
+  /// Membuat instance `KritikSaranModel` dari data Map Firebase.
   factory KritikSaranModel.fromFirebase(String id, Map<String, dynamic> data) {
     return KritikSaranModel(
       id: id,
@@ -74,12 +92,12 @@ class KritikSaranModel {
     );
   }
 
-  // diubah: Nama metode dan logika diperbarui diubah
+  /// Mengonversi `KritikSaranModel` ke format Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
     return {
       'id': id,
       'isi': isi,
-      'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : null,
+      'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : FieldValue.serverTimestamp(),
       'userId': userId,
       'diperbarui': FieldValue.serverTimestamp(),
     };

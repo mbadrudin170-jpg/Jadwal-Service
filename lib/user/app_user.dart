@@ -13,8 +13,14 @@ import 'package:wifi/user/provider/theme_provider.dart';
 import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Widget utama untuk aplikasi sisi pengguna (user).
+///
+/// Bertanggung jawab untuk inisialisasi provider, tema, dan routing.
 class AppUser extends StatelessWidget {
+  /// Instance dari SharedPreferences untuk penyimpanan lokal.
   final SharedPreferences prefs;
+
+  /// Membuat instance [AppUser].
   const AppUser({super.key, required this.prefs});
 
   @override
@@ -35,7 +41,8 @@ class AppUser extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           Log.info(
-              '[Consumer<ThemeProvider>] Membangun MaterialApp dengan tema: ${themeProvider.themeMode}');
+            '[Consumer<ThemeProvider>] Membangun MaterialApp dengan tema: ${themeProvider.themeMode}',
+          );
           return MaterialApp(
             title: 'Aplikasi User',
             debugShowCheckedModeBanner: false,

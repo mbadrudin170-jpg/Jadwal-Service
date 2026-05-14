@@ -1,19 +1,28 @@
 // path: lib/admin/halaman/form/form_transaksi.dart
 
-import '../../../shared/debug/log.dart';
-import '../../../shared/operasi/kategori_operasi.dart';
-import '../../../shared/operasi/dompet_operasi.dart';
-import '../../../shared/operasi/transaksi_operasi.dart';
-import '../../../shared/enum/tipe_transaksi_enum.dart';
-import '../../../shared/model/kategori_model.dart';
-import '../../../shared/model/sub_kategori_model.dart';
-import '../../../shared/model/transaksi_model.dart';
-import 'package:flutter/material.dart';
-import '../../../shared/model/dompet_model.dart';
-import 'package:uuid/uuid.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/sub_kategori_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+
+/// Halaman form untuk menambah atau mengubah data transaksi.
+///
+/// Form ini mendukung tiga jenis transaksi: pemasukan, pengeluaran, dan transfer.
+/// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
 class FormTransaksiPage extends StatefulWidget {
+  /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final TransaksiModel? transaksi;
+
+  /// Membuat instance dari [FormTransaksiPage].
   const FormTransaksiPage({super.key, this.transaksi});
 
   @override
@@ -50,7 +59,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     Log.info(
       'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
     );
-    _loadAndPopulateInitialData();
+    unawaited(_loadAndPopulateInitialData());
   }
 
   Future<void> _loadAndPopulateInitialData() async {
@@ -137,7 +146,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         );
         _filterKategoriInternal();
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal total saat memuat data awal.', e: e, st: s);
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -223,7 +232,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     Log.info('Pengguna memilih waktu baru: ${_tanggal.toLocal()}');
   }
 
-  void _simpanForm() async {
+  Future<void> _simpanForm() async {
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -266,7 +275,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
         Navigator.pop(context, true);
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan transaksi ke database.',
           e: e,

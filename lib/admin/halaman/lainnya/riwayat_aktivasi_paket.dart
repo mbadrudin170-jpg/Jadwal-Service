@@ -1,19 +1,42 @@
 // path: lib/admin/halaman/lainnya/riwayat_aktivasi_paket.dart
 // diubah: Memperbaiki unawaited future.
 
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
-import 'package:wifi/admin/halaman/detail/detail_riwayat_langganan.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
-import 'package:wifi/shared/utils/format_util.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/detail/detail_riwayat_langganan.dart';
 import 'package:wifi/admin/halaman/widget/nama_paket.dart';
 import 'package:wifi/admin/halaman/widget/nama_pelanggan.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
-enum OpsiUrutkan { berakhirHariIni, terbaru, terlama, lunas, belumLunas }
+/// Enum untuk opsi pengurutan riwayat aktivasi paket.
+enum OpsiUrutkan {
+  /// Urutkan berdasarkan paket yang akan berakhir hari ini.
+  berakhirHariIni,
 
+  /// Urutkan berdasarkan transaksi terbaru.
+  terbaru,
+
+  /// Urutkan berdasarkan transaksi terlama.
+  terlama,
+
+  /// Tampilkan transaksi lunas di bagian atas.
+  lunas,
+
+  /// Tampilkan transaksi yang belum lunas di bagian atas.
+  belumLunas
+}
+
+/// Halaman untuk menampilkan riwayat aktivasi paket langganan.
+///
+/// Admin dapat melihat, mengurutkan, dan membuka detail setiap transaksi
+/// aktivasi paket yang pernah dilakukan.
 class RiwayatAktivasiPaketPage extends StatefulWidget {
+  /// Membuat instance dari [RiwayatAktivasiPaketPage].
   const RiwayatAktivasiPaketPage({super.key});
 
   @override
@@ -30,7 +53,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Riwayat Aktivasi Paket');
-    _loadRiwayat();
+    unawaited(_loadRiwayat());
   }
 
   Future<void> _loadRiwayat() async {
@@ -79,7 +102,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
           e: error,
           st: st,
         );
-        throw error;
+        throw Exception('Gagal memuat data transaksi: $error');
       });
     });
   }
@@ -185,7 +208,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
     Log.info('Proses pengurutan selesai, ${list.length} data telah diurutkan');
   }
 
-  void _showUrutkanDialog() async {
+  Future<void> _showUrutkanDialog() async {
     Log.info(
       'Menampilkan dialog opsi pengurutan, urutan saat ini: ${_urutanAktif.name}',
     );
@@ -319,7 +342,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                       Log.info(
                         'Navigasi ke halaman Detail Transaksi ID: ${transaksi.id}, Pelanggan ID: ${transaksi.idPelanggan ?? "N/A"}',
                       );
-                      final result = await Navigator.push(
+                      final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailLanggananTransaksiPage(

@@ -2,9 +2,11 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 
+/// Kelas layanan untuk mendapatkan informasi tentang perangkat.
 class InfoPerangkatService {
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
+  /// Mendapatkan arsitektur perangkat.
   Future<Map<String, dynamic>> dapatkanArsitekturPerangkat() async {
     if (kIsWeb) {
       return {'error': 'Tidak dapat mendeteksi arsitektur di web.'};
@@ -23,7 +25,7 @@ class InfoPerangkatService {
           'isPhysicalDevice': iosInfo.isPhysicalDevice,
         };
       }
-    } catch (e) {
+    } on Exception catch  (e) {
       return {'error': 'Gagal mendapatkan info perangkat: $e'};
     }
     return {'error': 'Platform tidak didukung'};

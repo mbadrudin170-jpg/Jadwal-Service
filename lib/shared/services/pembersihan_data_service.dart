@@ -6,6 +6,7 @@ import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pembersihan_data_operasi.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 
+/// Kelas layanan untuk membersihkan data secara berkala.
 class PembersihanDataService {
   static const String _keyLastCleanup = 'last_cleanup_timestamp';
 
@@ -16,6 +17,7 @@ class PembersihanDataService {
   /// Lock sederhana untuk mencegah eksekusi ganda
   static bool _sedangBerjalan = false;
 
+  /// Menjalankan pembersihan data jika sudah waktunya (24 jam sekali).
   Future<void> jalankanJikaPerlu() async {
     Log.info('Memicu fungsi pengecekan rutin pembersihan data...');
 
@@ -32,7 +34,8 @@ class PembersihanDataService {
 
     try {
       Log.info(
-          'Mengakses SharedPreferences untuk mengambil timestamp pembersihan terakhir...');
+        'Mengakses SharedPreferences untuk mengambil timestamp pembersihan terakhir...',
+      );
       final prefs = await SharedPreferences.getInstance();
 
       final now = DateTime.now();
@@ -45,7 +48,8 @@ class PembersihanDataService {
 
         final selisih = now.difference(lastCleanup);
         Log.info(
-            'Terakhir dibersihkan pada $lastCleanup (Selisih: ${selisih.inHours} jam).');
+          'Terakhir dibersihkan pada $lastCleanup (Selisih: ${selisih.inHours} jam).',
+        );
 
         // 🚫 Kalau belum 24 jam → stop
         if (selisih < const Duration(hours: 24)) {
@@ -56,21 +60,25 @@ class PembersihanDataService {
         }
       } else {
         Log.info(
-            'Data pembersihan terakhir tidak ditemukan. Ini kemungkinan eksekusi pertama kali.');
+          'Data pembersihan terakhir tidak ditemukan. Ini kemungkinan eksekusi pertama kali.',
+        );
       }
 
       Log.info(
-          'Kondisi terpenuhi. Memulai proses pembersihan data arsip kadaluarsa...');
+        'Kondisi terpenuhi. Memulai proses pembersihan data arsip kadaluarsa...',
+      );
 
       // ditambahkan: Mengambil pengaturan untuk mendapatkan batas hari dinamis.
       Log.info(
-          'Mengambil konfigurasi "Hapus Otomatis" dari tabel pengaturan...');
+        'Mengambil konfigurasi "Hapus Otomatis" dari tabel pengaturan...',
+      );
       final PengaturanModel pengaturan =
           await _pengaturanOperasi.getPengaturan();
       final int batasHari = pengaturan.hapusOtomatisDataArsip;
 
       Log.info(
-          'Konfigurasi aktif ditemukan. Batas retensi arsip adalah: $batasHari hari.');
+        'Konfigurasi aktif ditemukan. Batas retensi arsip adalah: $batasHari hari.',
+      );
 
       // ✅ Simpan dulu timestamp (anti loop kalau crash)
       Log.info('Memperbarui timestamp pembersihan terakhir ke sistem storage.');
@@ -84,12 +92,14 @@ class PembersihanDataService {
 
       if (totalTerhapus > 0) {
         Log.info(
-            'Pembersihan data selesai dengan sukses. Total item yang dihapus: $totalTerhapus data.');
+          'Pembersihan data selesai dengan sukses. Total item yang dihapus: $totalTerhapus data.',
+        );
       } else {
         Log.info(
-            'Proses selesai. Tidak ada data yang kadaluarsa untuk dihapus pada siklus ini.');
+          'Proses selesai. Tidak ada data yang kadaluarsa untuk dihapus pada siklus ini.',
+        );
       }
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Terjadi error fatal saat mencoba membersihkan data otomatis!',
         e: e,

@@ -1,5 +1,7 @@
 // path: lib/admin/halaman/tab/pelanggan_aktif.dart
-// diubah: Menyesuaikan pemanggilan NamaPaketWidget dengan konstruktor baru dan memperbaiki impor enum.
+// diubah: Menambahkan trailing comma untuk memperbaiki warning dari analyzer.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,9 +22,21 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/shared/widget/nama_pelanggan.dart';
 
-enum OpsiHapusPilihan { hapusSemua, arsipkanKadaluarsa, batal }
+/// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
+enum OpsiHapusPilihan {
+  /// Opsi untuk menghapus semua pelanggan aktif.
+  hapusSemua,
 
+  /// Opsi untuk mengarsipkan pelanggan yang sudah kadaluarsa.
+  arsipkanKadaluarsa,
+
+  /// Opsi untuk membatalkan aksi.
+  batal
+}
+
+/// Halaman untuk menampilkan daftar pelanggan yang sedang aktif berlangganan.
 class PelangganAktifPage extends StatefulWidget {
+  /// Konstruktor untuk PelangganAktifPage.
   const PelangganAktifPage({super.key});
 
   @override
@@ -33,7 +47,6 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     with AutomaticKeepAliveClientMixin<PelangganAktifPage> {
   final PelangganAktifOperasi _pelangganAktifOperasi = PelangganAktifOperasi();
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
-  // ditambah: Instansiasi PaketOperasi untuk digunakan nanti.
   final PaketOperasi _paketOperasi = PaketOperasi();
   final now = DateTime.now();
   List<PelangganAktifModel> _semuaPelanggan = [];
@@ -52,7 +65,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
   void initState() {
     super.initState();
     Log.info('Halaman Pelanggan Aktif sedang diinisialisasi.');
-    _loadData();
+    unawaited(_loadData());
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -93,7 +106,9 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
           const Duration(seconds: 15),
           onTimeout: () {
             Log.warning('Waktu unggah data habis.');
-            throw 'Waktu sinkronisasi habis, periksa kembali koneksi internet Anda.';
+            throw TimeoutException(
+              'Waktu sinkronisasi habis, periksa kembali koneksi internet Anda.',
+            );
           },
         );
 
@@ -124,7 +139,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
         'Berhasil memuat ${_semuaPelanggan.length} data pelanggan aktif dari database lokal.',
       );
       _applyFilterAndSort();
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat memuat data pelanggan aktif.',
         e: e,
@@ -226,7 +241,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
           _semuaPelanggan.removeWhere((p) => p.id == pelangganAktif.id);
           _hasilFilter.removeWhere((p) => p.id == pelangganAktif.id);
         });
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal mengarsipkan pelanggan aktif dengan ID: ${pelangganAktif.id}.',
           e: e,
@@ -243,7 +258,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     }
   }
 
-  void _showUrutkanDialog() async {
+  Future<void> _showUrutkanDialog() async {
     Log.info('Membuka dialog untuk memilih opsi pengurutan.');
     final OpsiUrutkan? pilihan = await showDialog<OpsiUrutkan>(
       context: context,
@@ -301,11 +316,11 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     }
   }
 
-  void _tambahPelangganAktif() async {
+  Future<void> _tambahPelangganAktif() async {
     Log.info('Navigasi ke halaman tambah pelanggan aktif.');
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => FormPelangganAktif()),
+      MaterialPageRoute<bool>(builder: (context) => FormPelangganAktif()),
     );
     if (!mounted) return;
     if (result == true) {
@@ -314,7 +329,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     }
   }
 
-  void _opsiLanjutan() async {
+  Future<void> _opsiLanjutan() async {
     Log.info('Membuka dialog opsi lanjutan.');
     final OpsiHapusPilihan? pilihan = await showDialog<OpsiHapusPilihan>(
       context: context,
@@ -425,7 +440,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, color: Colors.grey),
-                  onPressed: () => _searchController.clear(),
+                  onPressed: _searchController.clear,
                 )
               : null,
         ),
@@ -498,7 +513,6 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                           itemBuilder: (context, index) {
                             final pelanggan = _hasilFilter[index];
                             final statusPembayaran = pelanggan.status;
-                            // diubah: Membuat future untuk paket dari PaketOperasi.
                             final paketFuture =
                                 _paketOperasi.getPaketById(pelanggan.idPaket);
 
@@ -515,9 +529,9 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                                   Log.info(
                                     'Navigasi ke halaman detail pelanggan aktif dengan ID: ${pelanggan.id}.',
                                   );
-                                  await Navigator.push(
+                                  await Navigator.push<void>(
                                     context,
-                                    MaterialPageRoute(
+                                    MaterialPageRoute<void>(
                                       builder: (context) =>
                                           DetailPelangganAktif(
                                         pelanggan: pelanggan,
@@ -537,7 +551,6 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      // diubah: Menggunakan paketFuture untuk NamaPaketWidget.
                                       NamaPaketWidget(paketFuture: paketFuture),
                                       const SizedBox(height: 4),
                                       Text(

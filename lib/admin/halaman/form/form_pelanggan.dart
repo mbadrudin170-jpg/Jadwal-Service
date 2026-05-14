@@ -40,10 +40,12 @@ class _FormPelangganState extends State<FormPelanggan> {
   void initState() {
     super.initState();
     Log.info(
-        'Membuka FormPelanggan dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.');
+      'Membuka FormPelanggan dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
+    );
     if (_isEditMode) {
       Log.info(
-          'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}');
+        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
+      );
       _namaController.text = widget.pelanggan!.nama;
       _teleponController.text = widget.pelanggan!.telepon;
       _alamatController.text = widget.pelanggan!.alamat;
@@ -55,7 +57,8 @@ class _FormPelangganState extends State<FormPelanggan> {
   @override
   void dispose() {
     Log.info(
-        'Menjalankan dispose di FormPelanggan. Membersihkan semua controllers dan focus nodes.');
+      'Menjalankan dispose di FormPelanggan. Membersihkan semua controllers dan focus nodes.',
+    );
     _namaController.dispose();
     _teleponController.dispose();
     _alamatController.dispose();
@@ -90,17 +93,20 @@ class _FormPelangganState extends State<FormPelanggan> {
       try {
         if (!_isEditMode) {
           Log.info(
-              'Menjalankan operasi CREATE untuk pelanggan baru: ${newPelanggan.nama}');
+            'Menjalankan operasi CREATE untuk pelanggan baru: ${newPelanggan.nama}',
+          );
           await PelangganOperasi().createPelanggan(newPelanggan);
         } else {
           Log.info(
-              'Menjalankan operasi UPDATE untuk pelanggan ID: ${newPelanggan.id}');
+            'Menjalankan operasi UPDATE untuk pelanggan ID: ${newPelanggan.id}',
+          );
           await PelangganOperasi().updatePelanggan(newPelanggan);
         }
 
         if (mounted) {
           Log.info(
-              'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.');
+            'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
+          );
           Navigator.pop(context, true);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -109,7 +115,7 @@ class _FormPelangganState extends State<FormPelanggan> {
             ),
           );
         }
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -156,8 +162,9 @@ class _FormPelangganState extends State<FormPelanggan> {
                   label: 'Nama Pelanggan',
                   icon: Icons.person_outline,
                   nextFocus: _teleponFocusNode,
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Nama tidak boleh kosong' : null,
+                  validator: (v) => (v == null || v.isEmpty)
+                      ? 'Nama tidak boleh kosong'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -198,7 +205,8 @@ class _FormPelangganState extends State<FormPelanggan> {
                       onPressed: () {
                         Log.info('Visibilitas password diubah.');
                         setState(
-                            () => _isPasswordVisible = !_isPasswordVisible);
+                          () => _isPasswordVisible = !_isPasswordVisible,
+                        );
                       },
                     ),
                     border: OutlineInputBorder(

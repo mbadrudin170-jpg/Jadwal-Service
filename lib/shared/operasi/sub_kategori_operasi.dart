@@ -3,22 +3,27 @@
 // dihapus: Impor sqflite yang tidak digunakan.
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
-import 'package:wifi/shared/debug/log.dart';
 
+/// Kelas untuk operasi terkait data sub-kategori di database lokal.
 class SubKategoriOperasi {
+  /// Instance dari DatabaseHelper untuk mengakses database.
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> createSubKategori(SubKategoriModel subKategori,
-      {bool dariServer = false}) async {
+  /// Menyimpan [SubKategoriModel] baru ke dalam database.
+  Future<void> createSubKategori(
+    SubKategoriModel subKategori, {
+    bool dariServer = false,
+  }) async {
     Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
     await _operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
   }
 
+  /// Mengambil semua sub-kategori yang terkait dengan [idKategori].
   Future<List<SubKategoriModel>> getSubKategoriByKategoriId(
     String idKategori,
   ) async {
@@ -34,6 +39,7 @@ class SubKategoriOperasi {
     });
   }
 
+  /// Mengambil [SubKategoriModel] berdasarkan [id].
   Future<SubKategoriModel?> getSubKategoriById(String id) async {
     Log.info('Mengambil sub-kategori dengan ID: $id');
     final db = await dbHelper.database;
@@ -49,44 +55,66 @@ class SubKategoriOperasi {
     return null;
   }
 
-  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> updateSubKategori(SubKategoriModel subKategori,
-      {bool dariServer = false}) async {
+  /// Memperbarui [SubKategoriModel] yang ada di database.
+  Future<void> updateSubKategori(
+    SubKategoriModel subKategori, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
-    await _operasiDasar.perbarui('sub_kategori', data, subKategori.id,
-        dariServer: dariServer);
+    await _operasiDasar.perbarui(
+      'sub_kategori',
+      data,
+      subKategori.id,
+      dariServer: dariServer,
+    );
   }
 
-  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> deleteSubKategori(String id,
-      {bool softDelete = true, bool dariServer = false}) async {
+  /// Menghapus [SubKategoriModel] dari database.
+  ///
+  /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
+  /// Jika `false`, maka akan menghapus data secara permanen.
+  Future<void> deleteSubKategori(
+    String id, {
+    bool softDelete = true,
+    bool dariServer = false,
+  }) async {
     Log.info('Menghapus sub-kategori ID: $id (softDelete: $softDelete)');
     if (softDelete) {
       final dataToUpdate = {
         'isDeleted': 1,
-        'diperbarui': DateTime.now().toIso8601String()
+        'diperbarui': DateTime.now().toIso8601String(),
       };
-      await _operasiDasar.perbarui('sub_kategori', dataToUpdate, id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'sub_kategori',
+        dataToUpdate,
+        id,
+        dariServer: dariServer,
+      );
     } else {
       await _operasiDasar.hapus('sub_kategori', id, dariServer: dariServer);
     }
   }
 
-  // diubah: Menggunakan OperasiDasar dan menambahkan `dariServer`
-  Future<void> sisipkanAtauPerbaruiBatch(List<SubKategoriModel> items,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [SubKategoriModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<SubKategoriModel> items, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) return;
     final data = items
         .map((item) => item.copyWith(diperbarui: DateTime.now()).toSqlite())
         .toList();
-    await _operasiDasar.sisipkanAtauPerbaruiBatch('sub_kategori', data,
-        dariServer: dariServer);
+    await _operasiDasar.sisipkanAtauPerbaruiBatch(
+      'sub_kategori',
+      data,
+      dariServer: dariServer,
+    );
     Log.info('Batch sub-kategori selesai.');
   }
 
+  /// Mengambil beberapa [SubKategoriModel] berdasarkan daftar [ids].
   Future<List<SubKategoriModel>> getSubKategoriByIds(List<String> ids) async {
     if (ids.isEmpty) {
       return [];

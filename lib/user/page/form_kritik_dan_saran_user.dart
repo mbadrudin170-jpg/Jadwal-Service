@@ -5,13 +5,27 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart'; // diubah: path import diperbarui
 
+/// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
+///
+/// Jika [kritikId] disediakan, formulir akan berada dalam mode edit.
+/// Jika tidak, formulir akan membuat entri baru.
 class FormKritikDanSaran extends StatefulWidget {
+  /// ID pengguna yang mengirimkan masukan.
   final String userId;
+
+  /// ID kritik yang ada (jika dalam mode edit).
   final String? kritikId;
+
+  /// Nilai awal untuk kolom teks (jika dalam mode edit).
   final String? initialValue;
 
-  const FormKritikDanSaran(
-      {super.key, required this.userId, this.kritikId, this.initialValue});
+  /// Membuat instance dari [FormKritikDanSaran].
+  const FormKritikDanSaran({
+    super.key,
+    required this.userId,
+    this.kritikId,
+    this.initialValue,
+  });
 
   @override
   State<FormKritikDanSaran> createState() => _FormKritikDanSaranState();
@@ -63,7 +77,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
           );
           Navigator.of(context).pop();
         }
-      } catch (e, s) {
+      }on Exception catch (e, s) {
         Log.error(
           'Gagal mengirim kritik dan saran',
           e: e,
@@ -127,9 +141,11 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
                 onPressed: _isLoading ? null : _kirimKritik,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(widget.kritikId != null
-                        ? 'Simpan Perubahan'
-                        : 'Kirim Masukan'),
+                    : Text(
+                        widget.kritikId != null
+                            ? 'Simpan Perubahan'
+                            : 'Kirim Masukan',
+                      ),
               ),
             ],
           ),

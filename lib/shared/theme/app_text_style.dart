@@ -19,25 +19,50 @@ final TextTheme appTextTheme = TextTheme(
   headlineSmall: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500),
   titleLarge: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w500),
   titleMedium: GoogleFonts.openSans(
-      fontSize: 16, fontWeight: FontWeight.w500, letterSpacing: 0.15),
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.15,
+  ),
   titleSmall: GoogleFonts.openSans(
-      fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.1),
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
+  ),
   bodyLarge: GoogleFonts.openSans(
-      fontSize: 16, fontWeight: FontWeight.normal, letterSpacing: 0.5),
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.5,
+  ),
   bodyMedium: GoogleFonts.openSans(
-      fontSize: 14, fontWeight: FontWeight.normal, letterSpacing: 0.25),
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.25,
+  ),
   bodySmall: GoogleFonts.openSans(
-      fontSize: 12, fontWeight: FontWeight.normal, letterSpacing: 0.4),
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 0.4,
+  ),
   labelLarge: GoogleFonts.openSans(
-      fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1.25),
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 1.25,
+  ),
   labelMedium: GoogleFonts.openSans(
-      fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 0.5),
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+  ),
   labelSmall: GoogleFonts.openSans(
-      fontSize: 10, fontWeight: FontWeight.normal, letterSpacing: 1.5),
+    fontSize: 10,
+    fontWeight: FontWeight.normal,
+    letterSpacing: 1.5,
+  ),
 );
 
 /// Mencatat log saat TextTheme dibuat untuk tujuan debugging.
 void logTextThemeCreation() {
   Log.info(
-      'TextTheme terpusat dari app_text_style.dart telah berhasil dibuat dan diterapkan.');
+    'TextTheme terpusat dari app_text_style.dart telah berhasil dibuat dan diterapkan.',
+  );
 }

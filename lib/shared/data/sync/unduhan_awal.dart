@@ -32,7 +32,8 @@ class UnduhanAwalService {
 
     stopwatch.stop();
     Log.info(
-        'Proses unduhan awal selesai dalam ${stopwatch.elapsed.inSeconds} detik.');
+      'Proses unduhan awal selesai dalam ${stopwatch.elapsed.inSeconds} detik.',
+    );
   }
 
   /// Memeriksa apakah sebuah tabel kosong.
@@ -46,7 +47,7 @@ class UnduhanAwalService {
 
       Log.info("Tabel '$namaTabel': $jumlah baris.");
       return jumlah == 0;
-    } catch (e) {
+    } on Exception catch  (e) {
       Log.error(
         "Gagal mengecek tabel '$namaTabel'.",
         e: e,
@@ -68,7 +69,7 @@ class UnduhanAwalService {
       } else {
         Log.info("Skip '$namaTabel' (Sudah ada data).");
       }
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         "ERROR saat mengunduh '$namaTabel'",
         e: e,

@@ -1,13 +1,18 @@
 // path: lib/admin/halaman/lainnya/kritik_saran.dart
+import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_kritik_saran.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/utils/format_util.dart';
-import 'package:flutter/material.dart';
-import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/nama_dari_id.dart';
 
+/// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
+///
+/// Admin dapat melihat, membuka detail, dan menghapus kritik dan saran
+/// yang masuk melalui halaman ini.
 class KritikSaranPage extends StatefulWidget {
+  /// Membuat instance dari [KritikSaranPage].
   const KritikSaranPage({super.key});
 
   @override
@@ -37,7 +42,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           e: e,
           st: st,
         );
-        throw e;
+        // diubah: Membungkus error dalam sebuah Exception untuk mematuhi aturan lint.
+        throw Exception(e);
       });
     });
   }
@@ -77,7 +83,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           );
         }
         _loadKritikSaran();
-      } catch (e, st) {
+      } on Exception catch (e, st) {
         Log.error(
           'Gagal menghapus kritik/saran ID: ${item.id}',
           e: e,
@@ -121,7 +127,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                     onTap: () async {
                       final result = await Navigator.push(
                         context,
-                        MaterialPageRoute(
+                        MaterialPageRoute<bool>(
                           builder: (context) =>
                               DetailKritikSaranPage(id: item.id),
                         ),
@@ -146,7 +152,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                             child: Text(
                               item.tanggal != null
                                   ? FormatTanggal.formatTanggalDanJam(
-                                      item.tanggal!)
+                                      item.tanggal!,
+                                    )
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,

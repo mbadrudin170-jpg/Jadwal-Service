@@ -47,7 +47,7 @@ class DetailPelangganUI extends StatefulWidget {
 
 class _DetailPelangganUIState extends State<DetailPelangganUI> {
   // diubah: Hapus parameter BuildContext, gunakan context dari State
-  void _salinData(String label, String data) async {
+  Future<void> _salinData(String label, String data) async {
     if (!mounted) return;
 
     if (data.isEmpty) {
@@ -95,24 +95,24 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
               },
             ),
             const SizedBox(height: 24),
-            _buildDetailRow('Nama', widget.pelanggan.nama, () {
-              _salinData('Nama', widget.pelanggan.nama);
+            _buildDetailRow('Nama', widget.pelanggan.nama, () async {
+              await _salinData('Nama', widget.pelanggan.nama);
             }),
             const Divider(),
-            _buildDetailRow('Telepon', widget.pelanggan.telepon, () {
-              _salinData('No Telepon', widget.pelanggan.telepon);
+            _buildDetailRow('Telepon', widget.pelanggan.telepon, () async {
+              await _salinData('No Telepon', widget.pelanggan.telepon);
             }),
             const Divider(),
-            _buildDetailRow('Alamat', widget.pelanggan.alamat, () {
-              _salinData('Alamat', widget.pelanggan.alamat);
+            _buildDetailRow('Alamat', widget.pelanggan.alamat, () async {
+              await _salinData('Alamat', widget.pelanggan.alamat);
             }),
             const Divider(),
-            _buildDetailRow('Password', widget.pelanggan.password, () {
-              _salinData('Password', widget.pelanggan.password);
+            _buildDetailRow('Password', widget.pelanggan.password, () async {
+              await _salinData('Password', widget.pelanggan.password);
             }),
             const Divider(),
-            _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () {
-              _salinData('MAC Address', widget.pelanggan.macAddress);
+            _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () async {
+              await _salinData('MAC Address', widget.pelanggan.macAddress);
             }),
             const SizedBox(height: 24),
             if (widget.onCopyAll != null)

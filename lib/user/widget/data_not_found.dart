@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
+/// Widget untuk menampilkan pesan data tidak ditemukan.
+///
+/// Menampilkan ikon warning, judul "Whoops!", dan pesan bahwa data
+/// tidak ditemukan.
 class DataNotFound extends StatelessWidget {
+  /// Pesan yang akan ditampilkan kepada pengguna.
   final String message;
+
+  /// Membuat instance dari [DataNotFound].
+  ///
+  /// [message] adalah pesan yang menjelaskan mengapa data tidak ditemukan.
   const DataNotFound({super.key, required this.message});
 
   @override

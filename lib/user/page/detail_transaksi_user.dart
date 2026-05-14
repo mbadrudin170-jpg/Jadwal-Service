@@ -3,22 +3,31 @@
 // diubah: Menampilkan nama paket langsung dari model, bukan dari widget.
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/debug/log.dart';
 
+/// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
+///
+/// Menampilkan semua informasi yang relevan dari [TransaksiModel] dan
+/// [PaketModel] yang terkait.
 class DetailTransaksiPage extends StatelessWidget {
+  /// Data transaksi yang akan ditampilkan.
   final TransaksiModel transaksi;
+
+  /// Data paket yang terkait dengan transaksi (jika ada).
   // diubah: Menerima PaketModel yang bisa null.
   final PaketModel? paket;
 
+  /// Membuat instance dari [DetailTransaksiPage].
   const DetailTransaksiPage({super.key, required this.transaksi, this.paket});
 
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}');
+      'Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}',
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
@@ -28,11 +37,15 @@ class DetailTransaksiPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Tanggal:',
-                FormatTanggal.formatTanggalDanJam(transaksi.tanggal)),
+            _buildInfoRow(
+              'Tanggal:',
+              FormatTanggal.formatTanggalDanJam(transaksi.tanggal),
+            ),
             _buildInfoRow('Keterangan:', transaksi.keterangan),
             _buildInfoRow(
-                'Jumlah:', FormatUang.formatMataUang(transaksi.jumlah)),
+              'Jumlah:',
+              FormatUang.formatMataUang(transaksi.jumlah),
+            ),
             _buildInfoRow('Tipe:', transaksi.tipe.name),
             // diubah: Menampilkan nama paket dari objek yang diterima.
             if (paket != null)
@@ -40,7 +53,9 @@ class DetailTransaksiPage extends StatelessWidget {
             else if (transaksi.idPaket != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
-                'Status Pembayaran:', transaksi.statusPembayaran.name),
+              'Status Pembayaran:',
+              transaksi.statusPembayaran.name,
+            ),
             if (transaksi.tanggalMulai != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
@@ -52,9 +67,13 @@ class DetailTransaksiPage extends StatelessWidget {
                 FormatTanggal.formatTanggalBasic(transaksi.tanggalBerakhir!),
               ),
             _buildInfoRow(
-                'Poin didapat:', transaksi.poinYangDihasilkan.toString()),
+              'Poin didapat:',
+              transaksi.poinYangDihasilkan.toString(),
+            ),
             _buildInfoRow(
-                'Poin digunakan:', transaksi.poinYangDigunakan.toString()),
+              'Poin digunakan:',
+              transaksi.poinYangDigunakan.toString(),
+            ),
           ],
         ),
       ),

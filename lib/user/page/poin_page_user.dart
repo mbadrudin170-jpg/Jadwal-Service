@@ -1,5 +1,8 @@
 // path: lib/user/page/poin_page_user.dart
 // diubah: Mengimplementasikan logika pengambilan data dari Firestore.
+// diubah: Menambahkan dokumentasi dan memperbaiki peringatan analyzer.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,9 +13,12 @@ import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/poin_page_ui.dart';
 
+/// Halaman untuk menampilkan informasi poin, daftar hadiah, dan riwayat poin pengguna.
 class PoinPageUser extends StatefulWidget {
-  // ditambah: Menerima idPelanggan.
+  /// ID pelanggan untuk memuat data poin yang relevan.
   final String idPelanggan;
+
+  /// Konstruktor untuk PoinPageUser.
   const PoinPageUser({super.key, required this.idPelanggan});
 
   @override
@@ -21,11 +27,9 @@ class PoinPageUser extends StatefulWidget {
 
 class _PoinPageUserState extends State<PoinPageUser> {
   MenuPoin _menuPilihan = MenuPoin.penukaran;
-  // ditambah: Operasi untuk Firestore.
   final PaketOperasi _paketOperasi = PaketOperasi();
   final TransaksiOperasi _transaksiOperasi = TransaksiOperasi();
 
-  // diubah: State untuk data dari Firestore.
   int _totalPoin = 0;
   List<PaketModel> _daftarHadiah = [];
   List<TransaksiModel> _riwayatTransaksi = [];
@@ -36,11 +40,10 @@ class _PoinPageUserState extends State<PoinPageUser> {
   @override
   void initState() {
     super.initState();
-    // ditambah: Memuat data dari Firestore saat inisialisasi.
-    _loadDataPoin();
+    unawaited(_loadDataPoin());
   }
 
-  // ditambah: Logika untuk memuat data poin dan hadiah dari Firestore.
+  /// Memuat data poin, hadiah, dan riwayat transaksi dari Firestore.
   Future<void> _loadDataPoin() async {
     if (!mounted) return;
 
@@ -65,7 +68,7 @@ class _PoinPageUserState extends State<PoinPageUser> {
       if (_menuPilihan == MenuPoin.riwayat) {
         await _loadRiwayatTransaksi();
       }
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat data poin: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {
@@ -75,7 +78,7 @@ class _PoinPageUserState extends State<PoinPageUser> {
     }
   }
 
-  // ditambah: Logika untuk memuat riwayat transaksi dari Firestore.
+  /// Memuat riwayat transaksi dari Firestore.
   Future<void> _loadRiwayatTransaksi() async {
     if (!mounted) return;
 
@@ -96,7 +99,7 @@ class _PoinPageUserState extends State<PoinPageUser> {
         _riwayatTransaksi = transaksiPoin;
         _isLoadingRiwayat = false;
       });
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat riwayat transaksi: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {
@@ -135,7 +138,6 @@ class _PoinPageUserState extends State<PoinPageUser> {
     }
   }
 
-  // diubah: Menampilkan daftar hadiah dari Firestore.
   Widget _buildDaftarHadiah() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -190,8 +192,10 @@ class _PoinPageUserState extends State<PoinPageUser> {
                       // TODO: Implementasi logika penukaran poin
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text(
-                                'Fitur penukaran untuk ${hadiah.nama} belum tersedia.')),
+                          content: Text(
+                            'Fitur penukaran untuk ${hadiah.nama} belum tersedia.',
+                          ),
+                        ),
                       );
                     }
                   : null,
@@ -203,7 +207,6 @@ class _PoinPageUserState extends State<PoinPageUser> {
     );
   }
 
-  // diubah: Menampilkan riwayat poin dari Firestore.
   Widget _buildRiwayatPoin() {
     if (_isLoadingRiwayat) {
       return const Center(child: CircularProgressIndicator());

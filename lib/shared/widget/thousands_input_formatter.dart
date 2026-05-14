@@ -30,7 +30,7 @@ class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
     final bool isNegative = newValue.text.startsWith('-');
 
     // Ambil hanya digit dari string.
-    String digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final String digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
 
     // ditambah: Jika tidak ada digit (misalnya, setelah menghapus '-'),
     // pertahankan tanda '-' agar pengguna bisa lanjut mengetik angka.

@@ -85,7 +85,7 @@ class PreferensiService {
       final int millis = time.toUtc().millisecondsSinceEpoch;
       await prefs.setInt(key, millis);
       Log.info('✨ Timestamp $label berhasil disimpan | UTC: $time');
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Error saat menyimpan timestamp $label: $e', e: e, st: s);
     }
   }

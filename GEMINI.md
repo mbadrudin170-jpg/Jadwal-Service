@@ -814,7 +814,7 @@ Pendekatan terstruktur ini memastikan bahwa AI dapat secara efektif membantu dal
 # Firebase MCP
 
 Saat diminta untuk Firebase, tambahkan konfigurasi server berikut ke .idx/mcp.json. Cukup tambahkan yang berikut ini dan jangan tambahkan yang lain.
-
+<!-- 
 {
     "mcpServers": {
         "firebase": {
@@ -826,7 +826,7 @@ Saat diminta untuk Firebase, tambahkan konfigurasi server berikut ke .idx/mcp.js
             ]
         }
     }
-}
+} -->
 
 
 

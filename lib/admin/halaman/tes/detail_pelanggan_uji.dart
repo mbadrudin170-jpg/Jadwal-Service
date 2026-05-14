@@ -1,10 +1,15 @@
-// path: lib/halaman/tes/detail_pelanggan_uji.dart
+// path: lib/admin/halaman/tes/detail_pelanggan_uji.dart
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
+// diubah: Menambahkan async/await untuk mengatasi error discarded_futures.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
 
+/// Halaman untuk menampilkan detail pelanggan (versi uji coba).
 class DetailPelangganPage extends StatefulWidget {
+  /// Konstruktor untuk DetailPelangganPage.
   const DetailPelangganPage({super.key});
 
   @override
@@ -31,8 +36,8 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     'macAddress': '08:00:27:6B:4A:BD',
   };
 
-  void _handleCopy(String value, String label) {
-    Clipboard.setData(ClipboardData(text: value));
+  Future<void> _handleCopy(String value, String label) async {
+    await Clipboard.setData(ClipboardData(text: value));
     setState(() {
       _toastMessage = '$label telah disalin';
       _showToast = true;
@@ -42,11 +47,11 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     });
   }
 
-  void _handleCopyAll() {
-    String allInfo =
+  Future<void> _handleCopyAll() async {
+    final String allInfo =
         "Nama: ${customer['name'] as String}\nEmail: ${customer['email'] as String}\n"
         "Phone: ${customer['phone'] as String}\nAlamat: ${customer['address'] as String}\nID: ${customer['id'] as String}";
-    Clipboard.setData(ClipboardData(text: allInfo));
+    await Clipboard.setData(ClipboardData(text: allInfo));
     setState(() {
       _toastMessage = 'Info telah disalin';
       _showToast = true;
@@ -71,10 +76,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
             child: Container(
               decoration: const BoxDecoration(
                 color: Color(0xFF4C1D95), // purple-900
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(0),
-                  bottomRight: Radius.circular(0),
-                ),
+                borderRadius: BorderRadius.only(),
               ),
               child: Stack(
                 children: [
@@ -86,7 +88,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                       width: 150,
                       height: 150,
                       decoration: BoxDecoration(
-                        // diperbaiki: Mengganti withOpacity dengan withAlpha.
                         color: Colors.white.withAlpha((255 * 0.05).round()),
                         shape: BoxShape.circle,
                       ),
@@ -145,7 +146,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                             borderRadius: BorderRadius.circular(40),
                             boxShadow: [
                               BoxShadow(
-                                // diperbaiki: Mengganti withOpacity dengan withAlpha.
                                 color: const Color(
                                   0xFF581C87,
                                 ).withAlpha((255 * 0.05).round()),
@@ -183,7 +183,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        // diperbaiki: Mengganti withOpacity dengan withAlpha.
                                         color: const Color(
                                           0xFFFBBF24,
                                         ).withAlpha((255 * 0.4).round()),
@@ -260,7 +259,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                             borderRadius: BorderRadius.circular(40),
                             boxShadow: [
                               BoxShadow(
-                                // diperbaiki: Mengganti withOpacity dengan withAlpha.
                                 color: const Color(
                                   0xFF581C87,
                                 ).withAlpha((255 * 0.05).round()),
@@ -276,7 +274,9 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                 value: customer['email'] as String,
                                 icon: Icons.mail_outline,
                                 onCopy: () => _handleCopy(
-                                    customer['email'] as String, 'Email'),
+                                  customer['email'] as String,
+                                  'Email',
+                                ),
                               ),
                               _InfoRow(
                                 label: 'NOMOR TELEPON',
@@ -308,7 +308,9 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                 value: customer['address'] as String,
                                 icon: Icons.map_outlined,
                                 onCopy: () => _handleCopy(
-                                    customer['address'] as String, 'Alamat'),
+                                  customer['address'] as String,
+                                  'Alamat',
+                                ),
                               ),
                               _InfoRow(
                                 label: 'MAC ADDRESS',
@@ -339,7 +341,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  // diperbaiki: Mengganti withOpacity dengan withAlpha.
                                   color: const Color(
                                     0xFF581C87,
                                   ).withAlpha((255 * 0.05).round()),
@@ -434,7 +435,6 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                     borderRadius: BorderRadius.circular(100),
                     boxShadow: [
                       BoxShadow(
-                        // diperbaiki: Mengganti withOpacity dengan withAlpha.
                         color: Colors.black.withAlpha((255 * 0.3).round()),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
@@ -491,7 +491,6 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          // diperbaiki: Mengganti withOpacity dengan withAlpha.
           color: Colors.white.withAlpha((255 * 0.1).round()),
           borderRadius: BorderRadius.circular(20),
         ),

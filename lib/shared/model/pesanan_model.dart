@@ -1,18 +1,38 @@
-// path: lib/model/pesanan_model.dart
-// diubah: Penamaan metode diseragamkan dan logika Firebase disesuaikan.
+// path: lib/shared/model/pesanan_model.dart
+// diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, dan mengimplementasikan MemilikiId.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
-class PesananModel {
+/// Model untuk data pesanan.
+class PesananModel implements MemilikiId {
+  /// ID unik untuk setiap pesanan.
+  @override
   final String id;
+
+  /// ID pelanggan yang melakukan pesanan.
   final String idPelanggan;
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+
+  /// ID paket yang dipesan.
   final String idPaket;
+
+  /// Tanggal pesanan dibuat.
   final DateTime tanggal;
+
+  /// Status pesanan (misalnya, "baru", "diproses", "selesai").
   final String status;
+
+  /// Waktu terakhir data diperbarui.
   final DateTime? diperbarui;
+
+  /// Status apakah pesanan ini sudah dihapus (soft delete).
   final bool isDeleted;
+
+  /// Waktu pesanan ini diarsipkan.
   final DateTime? diarsipkan;
 
+  /// Konstruktor untuk `PesananModel`.
   PesananModel({
     String? id,
     required this.idPelanggan,
@@ -24,6 +44,7 @@ class PesananModel {
     this.diarsipkan,
   }) : id = id ?? const Uuid().v4();
 
+  /// Membuat salinan dari `PesananModel` dengan beberapa nilai yang diubah.
   PesananModel copyWith({
     String? id,
     String? idPelanggan,
@@ -46,6 +67,7 @@ class PesananModel {
     );
   }
 
+  /// Helper untuk mengurai nilai tanggal dari berbagai format.
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
@@ -57,10 +79,7 @@ class PesananModel {
     return null;
   }
 
-  // =========================
-  // SQLITE
-  // =========================
-
+  /// Membuat instance `PesananModel` dari data Map SQLite.
   factory PesananModel.fromSqlite(Map<String, dynamic> map) {
     return PesananModel(
       id: map['id'] as String? ?? '',
@@ -74,6 +93,7 @@ class PesananModel {
     );
   }
 
+  /// Mengonversi `PesananModel` ke format Map untuk disimpan di SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -87,10 +107,7 @@ class PesananModel {
     };
   }
 
-  // =========================
-  // FIREBASE
-  // =========================
-
+  /// Membuat instance `PesananModel` dari data Map Firebase.
   factory PesananModel.fromFirebase(String id, Map<String, dynamic> data) {
     return PesananModel(
       id: id,
@@ -104,8 +121,9 @@ class PesananModel {
     );
   }
 
+  /// Mengonversi `PesananModel` ke format Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
-    return {
+    final Map<String, dynamic> data = {
       'id': id,
       'id_pelanggan': idPelanggan,
       'id_paket': idPaket,
@@ -113,7 +131,12 @@ class PesananModel {
       'status': status,
       'diperbarui': FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
-      if (diarsipkan != null) 'diarsipkan': Timestamp.fromDate(diarsipkan!),
     };
+
+    if (diarsipkan != null) {
+      data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
+    }
+
+    return data;
   }
 }

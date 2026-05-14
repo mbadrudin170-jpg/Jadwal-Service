@@ -98,6 +98,6 @@ class SnackBarUtil {
 
   /// Metode pintas untuk menampilkan SnackBar dengan tipe info.
   static void showInfo(BuildContext context, String message) {
-    show(context, message, type: SnackBarType.info);
+    show(context, message);
   }
 }

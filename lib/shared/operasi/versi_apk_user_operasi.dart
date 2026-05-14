@@ -7,11 +7,13 @@ import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
+/// Kelas untuk operasi terkait data versi APK user di database lokal.
 class VersiApkUserOperasi {
   final _dbHelper = DatabaseHelper.instance;
   final String _tableName = 'versi_apk_user';
   final OperasiDasar _operasi;
 
+  /// Konstruktor untuk `VersiApkUserOperasi`.
   VersiApkUserOperasi({OperasiDasar? operasi})
       : _operasi = operasi ?? OperasiDasar() {
     Log.info(
@@ -23,20 +25,25 @@ class VersiApkUserOperasi {
   // OPERASI TULIS (WRITE)
   // ==========================
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> tambahVersiApkUser(VersiApkUserModel versiApkUser,
-      {bool dariServer = false}) async {
+  /// Menambah [VersiApkUserModel] baru ke database.
+  Future<void> tambahVersiApkUser(
+    VersiApkUserModel versiApkUser, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Menambah versi APK user baru - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
     );
 
     try {
-      await _operasi.sisipkan(_tableName, versiApkUser.toSqlite(),
-          dariServer: dariServer);
+      await _operasi.sisipkan(
+        _tableName,
+        versiApkUser.toSqlite(),
+        dariServer: dariServer,
+      );
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal menambah versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         e: e,
@@ -46,9 +53,11 @@ class VersiApkUserOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> perbaruiVersiApkUser(VersiApkUserModel versiApkUser,
-      {bool dariServer = false}) async {
+  /// Memperbarui [VersiApkUserModel] yang ada di database.
+  Future<void> perbaruiVersiApkUser(
+    VersiApkUserModel versiApkUser, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
     );
@@ -63,7 +72,7 @@ class VersiApkUserOperasi {
       Log.info(
         'Versi APK user berhasil diperbarui di tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         e: e,
@@ -73,9 +82,11 @@ class VersiApkUserOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> arsipkanVersiApkUser(String id,
-      {bool dariServer = false}) async {
+  /// Mengarsipkan [VersiApkUserModel] berdasarkan [id].
+  Future<void> arsipkanVersiApkUser(
+    String id, {
+    bool dariServer = false,
+  }) async {
     Log.info('Mengarsipkan versi APK user - ID: $id');
 
     try {
@@ -105,7 +116,7 @@ class VersiApkUserOperasi {
           'Data versi APK user ID: $id tidak ditemukan di tabel $_tableName, tidak dapat mengarsipkan',
         );
       }
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengarsipkan versi APK user - ID: $id',
         e: e,
@@ -115,9 +126,11 @@ class VersiApkUserOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
-  Future<void> sisipkanAtauPerbaruiBatch(List<VersiApkUserModel> daftarModel,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [VersiApkUserModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<VersiApkUserModel> daftarModel, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Memulai operasi batch sisipkan/perbarui - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
     );
@@ -129,12 +142,15 @@ class VersiApkUserOperasi {
 
     try {
       final daftarMap = daftarModel.map((model) => model.toSqlite()).toList();
-      await _operasi.sisipkanAtauPerbaruiBatch(_tableName, daftarMap,
-          dariServer: dariServer);
+      await _operasi.sisipkanAtauPerbaruiBatch(
+        _tableName,
+        daftarMap,
+        dariServer: dariServer,
+      );
       Log.info(
         'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_tableName',
       );
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal melakukan operasi batch - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
         e: e,
@@ -149,6 +165,7 @@ class VersiApkUserOperasi {
   // OPERASI BACA (READ)
   // ==========================
 
+  /// Mengambil semua versi APK dari database.
   Future<List<VersiApkUserModel>> ambilSemuaVersiApk() async {
     Log.info(
       'Mengambil semua data versi APK dari tabel $_tableName (termasuk yang diarsipkan)',
@@ -183,7 +200,7 @@ class VersiApkUserOperasi {
         'Berhasil mengambil ${result.length} data versi APK - Aktif: $jumlahAktif, Diarsipkan: $jumlahDiarsipkan',
       );
       return result;
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_tableName, mengembalikan list kosong',
         e: e,
@@ -193,6 +210,7 @@ class VersiApkUserOperasi {
     }
   }
 
+  /// Mengambil semua versi APK yang aktif dari database.
   Future<List<VersiApkUserModel>> ambilSemuaVersiApkAktif() async {
     Log.info(
       'Mengambil semua versi APK aktif (isDeleted = 0) dari tabel $_tableName',
@@ -226,7 +244,7 @@ class VersiApkUserOperasi {
       }
 
       return result;
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengambil versi APK aktif dari tabel $_tableName, mengembalikan list kosong',
         e: e,
@@ -236,6 +254,7 @@ class VersiApkUserOperasi {
     }
   }
 
+  /// Mengambil versi APK terbaru yang aktif dari database.
   Future<VersiApkUserModel?> ambilVersiApkTerbaru() async {
     Log.info('Mengambil versi APK terbaru (aktif) dari tabel $_tableName');
 
@@ -262,7 +281,7 @@ class VersiApkUserOperasi {
 
       Log.info('Tidak ada versi APK aktif yang ditemukan di tabel $_tableName');
       return null;
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengambil versi APK terbaru dari tabel $_tableName, mengembalikan null',
         e: e,
@@ -272,6 +291,7 @@ class VersiApkUserOperasi {
     }
   }
 
+  /// Mengambil [VersiApkUserModel] berdasarkan [id].
   Future<VersiApkUserModel?> ambilVersiApkById(String id) async {
     Log.info('Mengambil versi APK by ID: $id dari tabel $_tableName');
 
@@ -299,7 +319,7 @@ class VersiApkUserOperasi {
         'Versi APK dengan ID: $id tidak ditemukan (mungkin sudah diarsipkan atau tidak ada)',
       );
       return null;
-    } catch (e, st) {
+    } on Exception catch  (e, st) {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_tableName, mengembalikan null',
         e: e,

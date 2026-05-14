@@ -91,7 +91,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
         widget.transaksi.idKategori,
       );
       return kategori.nama;
-    } catch (e) {
+    } on Exception {
       return 'Tidak ada kategori';
     }
   }
@@ -102,12 +102,12 @@ class _TransaksiTileState extends State<TransaksiTile> {
         widget.transaksi.idDompet,
       );
       return dompet!.namaDompet;
-    } catch (e) {
+    } on Exception {
       return 'Tidak ada dompet';
     }
   }
 
-  void _arsipkanTransaksi() async {
+  Future<void> _arsipkanTransaksi() async {
     await widget.transaksiOperasi.arsipkanTransaksi(widget.transaksi.id);
     widget.onDataChanged();
   }
@@ -142,8 +142,8 @@ class _TransaksiTileState extends State<TransaksiTile> {
             widget.onDataChanged();
           }
         },
-        onLongPress: () {
-          showDialog<void>(
+        onLongPress: () async {
+          await showDialog<void>(
             // ✅ Explicit type
             context: context,
             builder: (context) => AlertDialog(
@@ -171,9 +171,9 @@ class _TransaksiTileState extends State<TransaksiTile> {
                   child: const Text('Edit'),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    _arsipkanTransaksi();
+                    await _arsipkanTransaksi();
                   },
                   child: const Text('Hapus'),
                 ),

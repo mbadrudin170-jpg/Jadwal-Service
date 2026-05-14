@@ -1,19 +1,42 @@
 // path: lib/admin/halaman/lainnya/versi_apk_user.dart
-// diubah: Memperbaiki impor enum yang rusak dan memperbaiki unawaited future.
+// diubah: Memperbaiki discarded_futures dengan unawaited.
+// diubah: Peringatan 'deprecated_member_use' untuk RadioListTile ditekan sementara.
 
-import 'package:wifi/admin/halaman/detail/detail_versi_apk_user.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/admin/halaman/detail/detail_versi_apk_user.dart';
 import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
+import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
 
-enum Urutan { buildZA, buildAZ, versiZA, versiAZ }
+/// Enum untuk menentukan kriteria pengurutan daftar versi APK.
+enum Urutan {
+  /// Urutkan berdasarkan nomor build dari Z ke A (terbaru ke terlama).
+  buildZA,
 
+  /// Urutkan berdasarkan nomor build dari A ke Z (terlama ke terbaru).
+  buildAZ,
+
+  /// Urutkan berdasarkan nomor versi dari Z ke A.
+  versiZA,
+
+  /// Urutkan berdasarkan nomor versi dari A ke Z.
+  versiAZ,
+}
+
+/// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
+///
+/// Admin dapat melihat, menambah, mengedit, mengarsipkan, dan mengurutkan
+/// daftar versi APK yang akan ditampilkan kepada pengguna.
 class VersiApkUserPage extends StatefulWidget {
+  /// Operasi database untuk mengelola data versi APK. Jika null,
+  /// instance baru akan dibuat.
   final VersiApkUserOperasi? operasi;
 
+  /// Membuat instance dari [VersiApkUserPage].
   const VersiApkUserPage({super.key, this.operasi});
 
   @override
@@ -35,7 +58,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info(
       'Menggunakan operasi: ${widget.operasi != null ? "dari parameter" : "instance baru"}',
     );
-    _loadData();
+    unawaited(_loadData());
   }
 
   void _urutkanList() {
@@ -126,7 +149,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
           'Set state: daftarVersiApk=${_daftarVersiApk.length} data, isLoading=false',
         );
       });
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal memuat data versi APK dari database',
         e: e,
@@ -172,21 +195,20 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     });
   }
 
-  void _keDetail(VersiApkUserModel versiApk) {
+  Future<void> _keDetail(VersiApkUserModel versiApk) async {
     Log.info(
       'Navigasi ke halaman Detail Versi APK - ID: ${versiApk.id}, Versi: ${versiApk.versiTerbaru}',
     );
-    Navigator.push(
+    await Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (context) => DetailVersiApkUser(versiApk: versiApk),
       ),
-    ).then((_) {
-      Log.info('Kembali dari halaman Detail Versi APK ID: ${versiApk.id}');
-    });
+    );
+    Log.info('Kembali dari halaman Detail Versi APK ID: ${versiApk.id}');
   }
 
-  void _keFormEdit(VersiApkUserModel versiApk) async {
+  Future<void> _keFormEdit(VersiApkUserModel versiApk) async {
     Log.info(
       'Navigasi ke Form Edit Versi APK - ID: ${versiApk.id}, Versi: ${versiApk.versiTerbaru}',
     );
@@ -212,7 +234,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     }
   }
 
-  void _keFormTambah() async {
+  Future<void> _keFormTambah() async {
     Log.info('Navigasi ke Form Tambah Versi APK');
     final hasil = await Navigator.push<VersiApkUserModel>(
       context,
@@ -245,27 +267,24 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               title: const Text('Urutkan Berdasarkan'),
-              content: RadioGroup<Urutan>(
-                groupValue: selectedUrutan,
-                onChanged: (Urutan? value) {
-                  if (value != null) {
-                    Log.info('User memilih opsi: ${_getNamaUrutan(value)}');
-                    setStateDialog(() {
-                      selectedUrutan = value;
-                    });
-                  }
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: Urutan.values.map((urutan) {
-                    final isSelected = urutan == _urutanSaatIni;
-                    final nama = _getNamaUrutan(urutan);
-                    return RadioListTile<Urutan>(
-                      title: Text('$nama${isSelected ? " (saat ini)" : ""}'),
-                      value: urutan,
-                    );
-                  }).toList(),
-                ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: Urutan.values.map((urutan) {
+                  return RadioListTile<Urutan>(
+                    title: Text(_getNamaUrutan(urutan)),
+                    value: urutan,
+                    // ignore: deprecated_member_use, temporary solution until RadioGroup is implemented.
+                    groupValue: selectedUrutan,
+                    // ignore: deprecated_member_use, temporary solution until RadioGroup is implemented.
+                    onChanged: (Urutan? value) {
+                      if (value != null) {
+                        setStateDialog(() {
+                          selectedUrutan = value;
+                        });
+                      }
+                    },
+                  );
+                }).toList(),
               ),
               actions: <Widget>[
                 TextButton(
@@ -325,16 +344,16 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info(
       'Menampilkan dialog opsi untuk Versi: ${versi.versiTerbaru} (ID: ${versi.id})',
     );
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (c) => SimpleDialog(
         title: Text('Opsi Versi ${versi.versiTerbaru}'),
         children: [
           SimpleDialogOption(
-            onPressed: () {
+            onPressed: () async {
               Log.info('Opsi Edit dipilih untuk Versi: ${versi.versiTerbaru}');
               Navigator.pop(c);
-              _keFormEdit(versi);
+              await _keFormEdit(versi);
             },
             child: const ListTile(
               leading: Icon(Icons.edit),
@@ -363,7 +382,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
     Log.info(
       'Menampilkan dialog konfirmasi arsip untuk ID: ${versi.id}, Versi: ${versi.versiTerbaru}',
     );
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
@@ -382,12 +401,12 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
           ),
           TextButton(
             child: const Text('Arsipkan'),
-            onPressed: () {
+            onPressed: () async {
               Log.info(
                 'User mengonfirmasi pengarsipan versi ${versi.versiTerbaru}',
               );
               Navigator.pop(c);
-              _arsipkan(versi.id);
+              await _arsipkan(versi.id);
             },
           ),
         ],
@@ -437,7 +456,7 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
         );
         Log.info('SnackBar sukses ditampilkan');
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal mengarsipkan data ID: $id', e: e, st: s);
       if (!mounted) {
         Log.warning('Widget tidak mounted setelah error arsip');
@@ -471,9 +490,9 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: () {
+            onPressed: () async {
               Log.info('Icon sort pada AppBar ditekan');
-              _tampilkanDialogUrutkan();
+              await _tampilkanDialogUrutkan();
             },
             tooltip: 'Urutkan',
           ),
@@ -481,9 +500,9 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
       ),
       body: _buildContent(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           Log.info('FAB Tambah Versi APK ditekan');
-          _keFormTambah();
+          await _keFormTambah();
         },
         tooltip: 'Tambah Versi APK',
         child: const Icon(Icons.add),
@@ -545,17 +564,17 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              onTap: () {
+              onTap: () async {
                 Log.info(
                   'Tap pada item index $index - ID: ${versiApk.id}, Versi: ${versiApk.versiTerbaru}',
                 );
-                _keDetail(versiApk);
+                await _keDetail(versiApk);
               },
-              onLongPress: () {
+              onLongPress: () async {
                 Log.info(
                   'LongPress pada item index $index - ID: ${versiApk.id}, Versi: ${versiApk.versiTerbaru}',
                 );
-                _tampilkanDialogOpsi(versiApk);
+                await _tampilkanDialogOpsi(versiApk);
               },
             ),
           );

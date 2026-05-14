@@ -1,18 +1,29 @@
-// path: lib/admin/halaman/lainnya/pelanggan.dart// diubah: Merefaktor penggunaan RadioListTile untuk menggunakan RadioGroup,
-// Ini menghilangkan peringatan deprecation dan menyederhanakan kode.
-// ditambah: Menambahkan `const` pada konstruktor untuk optimasi performa dan memperbaiki unawaited future.
+// path: lib/admin/halaman/lainnya/pelanggan.dart
+// diubah: Menghapus import yang tidak digunakan dan memperbaiki gaya penulisan fungsi.
 
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:flutter/material.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 
-// ditambah: Enum untuk opsi pengurutan
-enum OpsiUrut { namaAZ, namaZA }
+/// Enum untuk menentukan opsi pengurutan daftar pelanggan.
+enum OpsiUrut {
+  /// Urutkan berdasarkan nama dari A hingga Z.
+  namaAZ,
 
+  /// Urutkan berdasarkan nama dari Z hingga A.
+  namaZA,
+}
+
+/// Halaman untuk menampilkan dan mengelola daftar semua pelanggan.
+///
+/// Admin dapat mencari, mengurutkan, menambah, mengedit, dan mengarsipkan pelanggan.
 class PelangganPage extends StatefulWidget {
+  /// Membuat instance dari [PelangganPage].
   const PelangganPage({super.key});
 
   @override
@@ -28,7 +39,6 @@ class _PelangganPageState extends State<PelangganPage> {
   List<PelangganModel> _filteredPelanggan = [];
   bool _isLoading = true;
 
-  // ditambah: State untuk menyimpan opsi urutan saat ini
   OpsiUrut _opsiUrutSaatIni = OpsiUrut.namaAZ;
 
   @override
@@ -37,7 +47,7 @@ class _PelangganPageState extends State<PelangganPage> {
     Log.info(
       'Menginisialisasi state untuk PelangganPage. Memanggil _refreshPelangganList untuk pertama kali.',
     );
-    _refreshPelangganList();
+    unawaited(_refreshPelangganList());
     _searchController.addListener(_filterPelanggan);
   }
 
@@ -65,7 +75,6 @@ class _PelangganPageState extends State<PelangganPage> {
             )
           : const Text('Daftar Pelanggan'),
       actions: [
-        // ditambah: Tombol untuk menampilkan dialog pengurutan
         IconButton(
           icon: const Icon(Icons.sort),
           tooltip: 'Urutkan',
@@ -94,47 +103,69 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  // diubah: Fungsi dialog pengurutan sekarang menggunakan RadioGroup.
-  void _showSortDialog() {
+  Future<void> _showSortDialog() async {
     Log.info('Menampilkan dialog opsi pengurutan.');
-    showDialog(
+    OpsiUrut? groupValue = _opsiUrutSaatIni;
+    final OpsiUrut? result = await showDialog<OpsiUrut>(
       context: context,
       builder: (BuildContext context) {
-        // StatefulBuilder tidak lagi diperlukan karena RadioGroup menangani
-        // state visualnya sendiri secara internal.
-        return AlertDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          content: RadioGroup<OpsiUrut>(
-            groupValue: _opsiUrutSaatIni,
-            onChanged: (OpsiUrut? value) {
-              if (value != null) {
-                // Terapkan pengurutan dan tutup dialog.
-                _applySort(value);
-                Navigator.of(context).pop();
-              }
-            },
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                RadioListTile<OpsiUrut>(
-                  title: Text('Nama (A-Z)'),
-                  value: OpsiUrut.namaAZ,
-                  // dihapus: groupValue dan onChanged yang sudah usang.
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void handleRadioValueChanged(OpsiUrut? value) {
+              setState(() {
+                groupValue = value;
+              });
+            }
+
+            return AlertDialog(
+              title: const Text('Urutkan Berdasarkan'),
+              content: RadioGroup<OpsiUrut>(
+                groupValue: groupValue,
+                onChanged: handleRadioValueChanged,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      title: const Text('Nama (A-Z)'),
+                      leading: const Radio<OpsiUrut>(
+                        value: OpsiUrut.namaAZ,
+                      ),
+                      onTap: () => handleRadioValueChanged(OpsiUrut.namaAZ),
+                    ),
+                    ListTile(
+                      title: const Text('Nama (Z-A)'),
+                      leading: const Radio<OpsiUrut>(
+                        value: OpsiUrut.namaZA,
+                      ),
+                      onTap: () => handleRadioValueChanged(OpsiUrut.namaZA),
+                    ),
+                  ],
                 ),
-                RadioListTile<OpsiUrut>(
-                  title: Text('Nama (Z-A)'),
-                  value: OpsiUrut.namaZA,
-                  // dihapus: groupValue dan onChanged yang sudah usang.
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Batal'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(groupValue);
+                  },
                 ),
               ],
-            ),
-          ),
+            );
+          },
         );
       },
     );
+    if (result != null) {
+      _applySort(result);
+    }
   }
 
-  // ditambah: Fungsi untuk menerapkan logika pengurutan
   void _applySort(OpsiUrut option) {
     Log.info('Menerapkan pengurutan: $option');
     setState(() {
@@ -175,7 +206,7 @@ class _PelangganPageState extends State<PelangganPage> {
           );
         });
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal total saat memuat daftar pelanggan.',
         e: e,
@@ -210,11 +241,11 @@ class _PelangganPageState extends State<PelangganPage> {
     });
   }
 
-  void _tambahPelanggan() async {
+  Future<void> _tambahPelanggan() async {
     Log.info(
       'Tombol FAB (+) ditekan. Menavigasi ke FormPelanggan untuk menambah data baru.',
     );
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
@@ -230,11 +261,11 @@ class _PelangganPageState extends State<PelangganPage> {
     }
   }
 
-  void _showDialogOpsi(PelangganModel pelanggan) {
+  Future<void> _showDialogOpsi(PelangganModel pelanggan) async {
     Log.info(
       'Menampilkan dialog opsi (Edit/Arsipkan) untuk pelanggan: ${pelanggan.nama} (ID: ${pelanggan.id}).',
     );
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -245,28 +276,29 @@ class _PelangganPageState extends State<PelangganPage> {
               ListTile(
                 leading: const Icon(Icons.edit),
                 title: const Text('Edit Pelanggan'),
-                onTap: () {
+                onTap: () async {
                   Log.info(
                     'Opsi "Edit Pelanggan" dipilih. Menutup dialog dan menavigasi ke FormPelanggan dengan data yang ada.',
                   );
                   Navigator.of(dialogContext).pop();
-                  Navigator.push(
+                  await Navigator.push<void>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => FormPelanggan(pelanggan: pelanggan),
                     ),
-                  ).then((_) => _refreshPelangganList());
+                  );
+                  await _refreshPelangganList();
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.archive_outlined),
                 title: const Text('Arsipkan Pelanggan'),
-                onTap: () {
+                onTap: () async {
                   Log.info(
                     'Opsi "Arsipkan Pelanggan" dipilih. Menutup dialog dan memanggil _showDialogArsipkan.',
                   );
                   Navigator.of(dialogContext).pop();
-                  _showDialogArsipkan(pelanggan);
+                  await _showDialogArsipkan(pelanggan);
                 },
               ),
             ],
@@ -276,11 +308,11 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  void _showDialogArsipkan(PelangganModel pelanggan) {
+  Future<void> _showDialogArsipkan(PelangganModel pelanggan) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${pelanggan.nama}".',
     );
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -301,12 +333,12 @@ class _PelangganPageState extends State<PelangganPage> {
                 'Arsipkan',
                 style: TextStyle(color: Colors.red),
               ),
-              onPressed: () {
+              onPressed: () async {
                 Log.info(
                   'Pengguna mengonfirmasi pengarsipan. Memanggil _arsipkanPelanggan dengan ID: ${pelanggan.id}.',
                 );
                 Navigator.of(context).pop();
-                _arsipkanPelanggan(pelanggan.id);
+                await _arsipkanPelanggan(pelanggan.id);
               },
             ),
           ],
@@ -315,7 +347,7 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  void _arsipkanPelanggan(String id) async {
+  Future<void> _arsipkanPelanggan(String id) async {
     Log.info('Memulai proses pengarsipan untuk ID pelanggan: $id.');
     try {
       await _pelangganOperasi.arsipkanPelanggan(id);
@@ -331,7 +363,7 @@ class _PelangganPageState extends State<PelangganPage> {
           ),
         );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengarsipkan pelanggan dengan ID: $id.',
         e: e,
@@ -395,11 +427,11 @@ class _PelangganPageState extends State<PelangganPage> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(pelanggan.macAddress),
-            onTap: () {
+            onTap: () async {
               Log.info(
                 'ListTile untuk pelanggan "${pelanggan.nama}" ditekan. Menavigasi ke DetailPelangganPage.',
               );
-              Navigator.push(
+              await Navigator.push<void>(
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
@@ -407,11 +439,11 @@ class _PelangganPageState extends State<PelangganPage> {
                 ),
               );
             },
-            onLongPress: () {
+            onLongPress: () async {
               Log.info(
                 'ListTile untuk pelanggan "${pelanggan.nama}" ditekan lama (long press). Memanggil _showDialogOpsi.',
               );
-              _showDialogOpsi(pelanggan);
+              await _showDialogOpsi(pelanggan);
             },
           ),
         );

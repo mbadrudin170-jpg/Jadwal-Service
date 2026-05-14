@@ -1,9 +1,12 @@
 // path: lib/shared/model/kategori_model.dart
-// diubah: Penamaan metode diseragamkan, logika Firebase diperbaiki, dan ditambahkan dokumentasi serta keamanan tipe.
+// Fitur: Model Data
+// Tujuan: Mendefinisikan struktur data untuk kategori transaksi, termasuk konversi dari/ke format SQLite dan Firebase.
+
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 
 /// Enum untuk mendefinisikan tipe-tipe kategori transaksi.
@@ -21,8 +24,9 @@ enum TipeKategori {
 /// Model yang merepresentasikan sebuah kategori transaksi.
 ///
 /// Setiap kategori memiliki nama, tipe, dan bisa memiliki daftar sub-kategori.
-class KategoriModel {
+class KategoriModel implements MemilikiId {
   /// ID unik dari kategori, biasanya dihasilkan oleh UUID.
+  @override
   final String id;
 
   /// Nama dari kategori.
@@ -75,7 +79,9 @@ class KategoriModel {
     );
   }
 
-  /// Helper untuk mengubah nilai dinamis menjadi DateTime.
+  /// Mengurai nilai tanggal dari berbagai format (String, Timestamp) ke [DateTime].
+  ///
+  /// Mengembalikan `null` jika nilai input null atau tidak dapat diurai.
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
@@ -83,17 +89,22 @@ class KategoriModel {
     return null;
   }
 
-  /// Helper untuk parsing enum dengan aman dari String.
+  /// Mengurai nama enum dari [String] ke tipe enum [T] dengan aman.
+  ///
+  /// Mengembalikan `null` jika nama tidak ditemukan atau input null.
   static T? _safeParseEnum<T extends Enum>(List<T> values, dynamic name) {
     if (name == null) return null;
     try {
       return values.firstWhere((e) => e.name == name as String);
-    } catch (e) {
+    } on Exception {
       return null;
     }
   }
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
-  /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
+  /// Mengurai nilai [bool] dari berbagai format (bool, int, String) dengan aman.
+  ///
+  /// Mengembalikan `false` jika input null atau format tidak dikenal.
   static bool _parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
@@ -102,7 +113,7 @@ class KategoriModel {
     return false;
   }
 
-  /// Factory constructor untuk membuat [KategoriModel] dari data SQLite.
+  /// Factory constructor untuk membuat [KategoriModel] dari data Map SQLite.
   factory KategoriModel.fromSqlite(Map<String, dynamic> map) {
     List<SubKategoriModel> parseSubKategori(dynamic data) {
       if (data == null) return [];
@@ -124,7 +135,7 @@ class KategoriModel {
             })
             .whereType<SubKategoriModel>()
             .toList();
-      } catch (e) {
+      } on Exception {
         return [];
       }
     }
@@ -133,7 +144,7 @@ class KategoriModel {
       id: map['id'] as String? ?? '',
       nama: map['nama'] as String? ?? '',
       tipe: _safeParseEnum(TipeKategori.values, map['tipe']) ??
-          TipeKategori.pemasukan,
+          TipeKategori.pengeluaran,
       subKategori: parseSubKategori(map['id_sub_kategori']),
       diperbarui: _parseDateTime(map['diperbarui']),
       isDeleted: _parseBool(map['isDeleted']),
@@ -156,15 +167,13 @@ class KategoriModel {
     };
   }
 
-  /// Factory constructor untuk membuat [KategoriModel] dari data Firebase.
+  /// Factory constructor untuk membuat [KategoriModel] dari data Map Firebase.
   factory KategoriModel.fromFirebase(String id, Map<String, dynamic> data) {
     List<SubKategoriModel> parseSubKategori(dynamic subKategoriData) {
       if (subKategoriData is List) {
         return subKategoriData
             .map((item) {
               if (item is Map<String, dynamic>) {
-                // Dokumen sub-koleksi tidak memiliki ID terpisah di dalam datanya,
-                // jadi kita bisa meng-generate atau menggunakan ID dari field jika ada.
                 final String subId = item['id'] as String? ?? const Uuid().v4();
                 return SubKategoriModel.fromFirebase(subId, item);
               }
@@ -180,7 +189,7 @@ class KategoriModel {
       id: id,
       nama: data['nama'] as String? ?? '',
       tipe: _safeParseEnum(TipeKategori.values, data['tipe']) ??
-          TipeKategori.pemasukan,
+          TipeKategori.pengeluaran,
       subKategori: parseSubKategori(data['id_sub_kategori']),
       diperbarui: _parseDateTime(data['diperbarui']),
       isDeleted: _parseBool(data['isDeleted']),
@@ -191,7 +200,6 @@ class KategoriModel {
   /// Mengubah instance [KategoriModel] menjadi Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
     return {
-      // 'id' tidak perlu disimpan karena sudah menjadi ID dokumen
       'nama': nama,
       'tipe': tipe.name,
       'id_sub_kategori': subKategori.map((sub) => sub.toFirebase()).toList(),

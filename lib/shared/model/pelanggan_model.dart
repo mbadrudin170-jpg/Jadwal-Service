@@ -3,12 +3,14 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/model/memiliki_id.dart';
 
 /// Model yang merepresentasikan data seorang pelanggan.
-class PelangganModel {
+class PelangganModel implements MemilikiId {
   /// ID unik dari pelanggan, biasanya dihasilkan oleh UUID.
+  @override
   final String id;
-
+// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
   /// Nama lengkap pelanggan.
   final String nama;
 
@@ -153,9 +155,9 @@ class PelangganModel {
   }
 
   /// Mengubah instance [PelangganModel] menjadi Map untuk disimpan di Firebase.
+  /// ID tidak disertakan karena digunakan sebagai ID dokumen.
   Map<String, dynamic> toFirebase() {
     final Map<String, dynamic> data = {
-      // 'id' tidak perlu disimpan karena sudah menjadi ID dokumen
       'nama': nama,
       'telepon': telepon,
       'alamat': alamat,

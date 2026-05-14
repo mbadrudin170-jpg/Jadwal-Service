@@ -1,14 +1,19 @@
 // path: lib/data/services/pengecekan_data_baru.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Layanan untuk memeriksa apakah ada data baru di SQLite atau Firebase.
 class PengecekanDataBaruService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
   final StatusUnggahOperasi _statusUnggahOperasi;
 
+  /// Konstruktor untuk PengecekanDataBaruService.
+  ///
+  /// Menginisialisasi [_firestore], [_syncManager], dan [_statusUnggahOperasi].
+  /// Jika tidak ada instance yang diberikan, maka akan membuat instance baru.
   PengecekanDataBaruService({
     FirebaseFirestore? firestore,
     SyncManager? syncManager,
@@ -21,6 +26,9 @@ class PengecekanDataBaruService {
     );
   }
 
+  /// Memeriksa apakah ada data baru di SQLite yang perlu diunggah.
+  ///
+  /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
   Future<bool> apakahSqliteAdaDataBaru() async {
     Log.info(
       'Memulai prosedur pengecekan data lokal di SQLite. Sistem akan memverifikasi apakah ada perubahan data yang belum diunggah ke server.',
@@ -42,7 +50,7 @@ class PengecekanDataBaruService {
         );
       }
       return hasil;
-    } catch (e, s) {
+    }on Exception catch (e, s) {
       Log.error(
         'Gagal melakukan pengecekan status perlu_unggah pada SQLite. Terjadi kesalahan pada query database atau akses file database lokal terhambat.',
         e: e,
@@ -52,6 +60,12 @@ class PengecekanDataBaruService {
     }
   }
 
+  /// Memeriksa apakah ada data baru di Firebase yang perlu diunduh.
+  ///
+  /// Membandingkan waktu terakhir diunduh secara lokal dengan waktu terakhir
+  /// diperbarui di Firebase.
+  ///
+  /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
   Future<bool> apakahFirebaseAdaDataBaru({
     required String namaKoleksi,
     required String idDokumen,
@@ -115,7 +129,7 @@ class PengecekanDataBaruService {
         );
         return false;
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Terjadi kegagalan saat proses pembandingan waktu server dan lokal. Masalah mungkin terletak pada koneksi jaringan atau hak akses (Security Rules) Firebase Firestore.',
         e: e,

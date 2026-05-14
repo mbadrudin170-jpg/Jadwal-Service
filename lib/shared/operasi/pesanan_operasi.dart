@@ -2,25 +2,33 @@
 // diubah: Memastikan semua operasi tulis memperbarui timestamp `diperbarui` dengan UTC.
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
-import 'package:wifi/shared/debug/log.dart';
 
+/// Kelas untuk operasi terkait data pesanan di database lokal.
 class PesananOperasi {
+  /// Instance dari DatabaseHelper untuk mengakses database.
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menambahkan pengaturan `diperbarui` dengan UTC sebelum menyimpan
-  Future<void> simpanPesanan(PesananModel pesanan,
-      {bool dariServer = false}) async {
+  /// Menyimpan [PesananModel] baru ke dalam database.
+  Future<void> simpanPesanan(
+    PesananModel pesanan, {
+    bool dariServer = false,
+  }) async {
     Log.info('Menyimpan pesanan baru ID: ${pesanan.id}');
     final pesananUntukDisimpan = pesanan.copyWith(
       diperbarui: DateTime.now().toUtc(),
     );
-    await _operasiDasar.sisipkan('pesanan', pesananUntukDisimpan.toSqlite(),
-        dariServer: dariServer);
+    await _operasiDasar.sisipkan(
+      'pesanan',
+      pesananUntukDisimpan.toSqlite(),
+      dariServer: dariServer,
+    );
   }
 
+  /// Mengambil semua pesanan dari database.
   Future<List<PesananModel>> ambilSemuaPesanan() async {
     Log.info('Mengambil semua pesanan dari database.');
     final db = await dbHelper.database;
@@ -28,9 +36,10 @@ class PesananOperasi {
       'pesanan',
       orderBy: 'tanggal DESC',
     );
-    return maps.map((map) => PesananModel.fromSqlite(map)).toList();
+    return maps.map(PesananModel.fromSqlite).toList();
   }
 
+  /// Mengambil pesanan berdasarkan [status].
   Future<List<PesananModel>> ambilPesananByStatus(String status) async {
     Log.info('Mengambil pesanan dengan status: $status');
     final db = await dbHelper.database;
@@ -40,13 +49,15 @@ class PesananOperasi {
       whereArgs: [status],
       orderBy: 'tanggal DESC',
     );
-    return maps.map((map) => PesananModel.fromSqlite(map)).toList();
+    return maps.map(PesananModel.fromSqlite).toList();
   }
 
-  // diubah: Logika diubah untuk mengambil data, memperbarui, lalu menyimpan kembali.
-  // Ini memastikan `diperbarui` selalu diatur dengan benar saat status berubah.
-  Future<void> updateStatusPesanan(String id, String status,
-      {bool dariServer = false}) async {
+  /// Memperbarui status [PesananModel] berdasarkan [id].
+  Future<void> updateStatusPesanan(
+    String id,
+    String status, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi $status');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -61,36 +72,50 @@ class PesananOperasi {
         status: status,
         diperbarui: DateTime.now().toUtc(),
       );
-      await _operasiDasar.perbarui('pesanan', pesananBaru.toSqlite(), id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'pesanan',
+        pesananBaru.toSqlite(),
+        id,
+        dariServer: dariServer,
+      );
       Log.info(
-          'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.');
+        'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
+      );
     } else {
       Log.warning(
-          'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.');
+        'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.',
+      );
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  /// Menghapus [PesananModel] dari database berdasarkan [id].
   Future<void> hapusPesanan(String id, {bool dariServer = false}) async {
     Log.info('Menghapus pesanan ID: $id');
     await _operasiDasar.hapus('pesanan', id, dariServer: dariServer);
   }
 
-  // diubah: Menambahkan pengaturan `diperbarui` dengan UTC untuk setiap item batch
-  Future<void> sisipkanAtauPerbaruiBatch(List<PesananModel> items,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [PesananModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<PesananModel> items, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} pesanan.');
     if (items.isEmpty) return;
     final data = items
-        .map((item) =>
-            item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+        .map(
+          (item) =>
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
+        )
         .toList();
-    await _operasiDasar.sisipkanAtauPerbaruiBatch('pesanan', data,
-        dariServer: dariServer);
+    await _operasiDasar.sisipkanAtauPerbaruiBatch(
+      'pesanan',
+      data,
+      dariServer: dariServer,
+    );
     Log.info('Batch pesanan selesai.');
   }
 
+  /// Mengambil beberapa [PesananModel] berdasarkan daftar [ids].
   Future<List<PesananModel>> getPesananByIds(List<String> ids) async {
     if (ids.isEmpty) {
       return [];

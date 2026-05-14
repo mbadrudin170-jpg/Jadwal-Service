@@ -2,17 +2,28 @@
 // diubah: Mengganti penggunaan log dari dart:developer menjadi Log.info dari shared/debug/log.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/page/riwayat_langganan_user.dart';
 import 'package:wifi/user/page/pengaturan_user.dart';
 import 'package:wifi/user/page/profil_page.dart';
+import 'package:wifi/user/page/riwayat_langganan_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
+///
+/// Mengelola halaman-halaman utama seperti [ProfilPage], [RiwayatLanggananPage],
+/// dan [PengaturanPageUser].
 class MainPage extends StatefulWidget {
+  /// ID pengguna yang sedang login.
   final String userId;
+
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  const MainPage(
-      {super.key, required this.userId, required this.localStorageService});
+  /// Membuat instance dari [MainPage].
+  const MainPage({
+    super.key,
+    required this.userId,
+    required this.localStorageService,
+  });
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -49,8 +60,9 @@ class _MainPageState extends State<MainPage> {
 
     final List<Widget> pages = [
       ProfilPage(
-          userId: widget.userId,
-          localStorageService: widget.localStorageService),
+        userId: widget.userId,
+        localStorageService: widget.localStorageService,
+      ),
       RiwayatLanggananPage(
         userId: widget.userId,
         localStorageService: widget.localStorageService,

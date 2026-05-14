@@ -3,13 +3,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-// untuk mengontrol status aplikasi pengguna dari jarak jauh
+/// Kelas ini berfungsi untuk mengontrol status aplikasi pengguna dari jarak jauh
+/// melalui Firestore.
 class KontrolAplikasiService {
   // Mendapatkan referensi ke koleksi 'pengaturan' di Firestore.
   final CollectionReference _pengaturanRef =
       FirebaseFirestore.instance.collection('pengaturan');
 
-  // untuk mendapatkan status maintenance dari firestore
+  /// Mengambil status maintenance dari Firestore.
+  ///
+  /// Mengembalikan `true` jika aplikasi dalam mode maintenance,
+  /// dan `false` jika tidak atau jika terjadi error.
   Future<bool> dapatkanStatusMaintenance() async {
     Log.info('Memulai pengambilan status maintenance dari Firestore...');
 
@@ -41,7 +45,7 @@ class KontrolAplikasiService {
       // Jika dokumen tidak ada atau field tidak ada, default ke false (tidak maintenance).
       Log.info('Menggunakan nilai default (false)');
       return false;
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       // Mencatat error jika gagal mengambil data.
       Log.error(
         'Gagal mengambil status maintenance dari database',
@@ -53,7 +57,9 @@ class KontrolAplikasiService {
     }
   }
 
-  // untuk mengubah status maintenance di firestore
+  /// Mengatur status maintenance di Firestore.
+  ///
+  /// Akan memperbarui field `sedang_maintenance` di dokumen `status_aplikasi`.
   Future<void> aturStatusMaintenance(bool status) async {
     Log.info('Memproses perubahan status maintenance menjadi: $status');
 
@@ -67,7 +73,7 @@ class KontrolAplikasiService {
       Log.info(
         '✨ Berhasil memperbarui status maintenance di Firestore menjadi: $status',
       );
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       // Mencatat error jika gagal menyimpan data.
       Log.error(
         'Gagal mengatur status maintenance ke database: $status',

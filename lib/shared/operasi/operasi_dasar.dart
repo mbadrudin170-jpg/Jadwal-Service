@@ -12,13 +12,20 @@ class OperasiDasar {
   final DatabaseHelper _dbHelper;
   final StatusUnggahOperasi _statusUnggahOperasi;
 
+  /// Konstruktor untuk `OperasiDasar`.
+  ///
+  /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `StatusUnggahOperasi`
+  /// untuk memfasilitasi pengujian.
   OperasiDasar({
     @visibleForTesting DatabaseHelper? dbHelper,
     @visibleForTesting StatusUnggahOperasi? statusUnggahOperasi,
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
         _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi();
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Menjalankan `aksi` di dalam sebuah transaksi database.
+  ///
+  /// Jika [dariServer] bernilai `false`, maka akan menandai status `perlu_unggah`
+  /// menjadi `true` untuk sinkronisasi data ke server.
   Future<T> _jalankanDalamTransaksi<T>(
     Future<T> Function(Transaction) aksi, {
     bool dariServer = false,
@@ -35,8 +42,6 @@ class OperasiDasar {
         );
 
         try {
-          // diubah: Ini adalah perubahan kunci. Bendera `perlu_unggah` hanya
-          // diatur ke TRUE jika operasi ini BUKAN berasal dari sinkronisasi server.
           if (!dariServer) {
             Log.info(
               '[TRANSAKSI AKTIF] Menandai status `perlu_unggah` menjadi TRUE (operasi lokal).',
@@ -79,7 +84,7 @@ class OperasiDasar {
     }
   }
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
   Future<T> jalankanOperasiKompleks<T>(
     Future<T> Function(Transaction txn) aksiKustom, {
     bool dariServer = false,
@@ -88,7 +93,7 @@ class OperasiDasar {
     return await _jalankanDalamTransaksi(aksiKustom, dariServer: dariServer);
   }
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Menyisipkan data baru ke dalam [tabel].
   Future<void> sisipkan(
     String tabel,
     Map<String, dynamic> data, {
@@ -96,15 +101,18 @@ class OperasiDasar {
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $tabel');
     try {
-      await _jalankanDalamTransaksi((txn) async {
-        final result = await txn.insert(
-          tabel,
-          data,
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-        Log.info('INSERT berhasil', {'rowId': result, 'tabel': tabel});
-        return result;
-      }, dariServer: dariServer);
+      await _jalankanDalamTransaksi(
+        (txn) async {
+          final result = await txn.insert(
+            tabel,
+            data,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+          Log.info('INSERT berhasil', {'rowId': result, 'tabel': tabel});
+          return result;
+        },
+        dariServer: dariServer,
+      );
     } catch (e, s) {
       Log.error(
         'Gagal menyisipkan data ke tabel: $tabel',
@@ -116,7 +124,7 @@ class OperasiDasar {
     }
   }
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Memperbarui data di [tabel] berdasarkan [id].
   Future<void> perbarui(
     String tabel,
     Map<String, dynamic> data,
@@ -128,23 +136,27 @@ class OperasiDasar {
       'data': data,
     });
     try {
-      await _jalankanDalamTransaksi((txn) async {
-        final rowsAffected = await txn.update(
-          tabel,
-          data,
-          where: 'id = ?',
-          whereArgs: [id],
-        );
-        if (rowsAffected == 0) {
-          Log.warning(
-            'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
-            {'id': id, 'tabel': tabel},
+      await _jalankanDalamTransaksi(
+        (txn) async {
+          final rowsAffected = await txn.update(
+            tabel,
+            data,
+            where: 'id = ?',
+            whereArgs: [id],
           );
-        } else {
-          Log.info('UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id});
-        }
-        return rowsAffected;
-      }, dariServer: dariServer);
+          if (rowsAffected == 0) {
+            Log.warning(
+              'Update selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
+              {'id': id, 'tabel': tabel},
+            );
+          } else {
+            Log.info(
+                'UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id},);
+          }
+          return rowsAffected;
+        },
+        dariServer: dariServer,
+      );
     } catch (e, s) {
       Log.error(
         'Gagal memperbarui data di tabel: $tabel',
@@ -156,28 +168,29 @@ class OperasiDasar {
     }
   }
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Menghapus data dari [tabel] berdasarkan [id].
   Future<void> hapus(String tabel, String id, {bool dariServer = false}) async {
     Log.info('Memulai penghapusan data', {'tabel': tabel, 'id': id});
     try {
-      await _jalankanDalamTransaksi((txn) async {
-        // Untuk operasi `hapus`, kita anggap selalu berasal dari lokal
-        // kecuali ada kasus khusus. Namun, parameter tetap diteruskan.
-        final rowsDeleted = await txn.delete(
-          tabel,
-          where: 'id = ?',
-          whereArgs: [id],
-        );
-        if (rowsDeleted == 0) {
-          Log.warning('Delete selesai tapi tidak ada data yang terhapus', {
-            'id': id,
-            'tabel': tabel,
-          });
-        } else {
-          Log.info('DELETE berhasil', {'rowsDeleted': rowsDeleted, 'id': id});
-        }
-        return rowsDeleted;
-      }, dariServer: dariServer);
+      await _jalankanDalamTransaksi(
+        (txn) async {
+          final rowsDeleted = await txn.delete(
+            tabel,
+            where: 'id = ?',
+            whereArgs: [id],
+          );
+          if (rowsDeleted == 0) {
+            Log.warning('Delete selesai tapi tidak ada data yang terhapus', {
+              'id': id,
+              'tabel': tabel,
+            });
+          } else {
+            Log.info('DELETE berhasil', {'rowsDeleted': rowsDeleted, 'id': id});
+          }
+          return rowsDeleted;
+        },
+        dariServer: dariServer,
+      );
     } catch (e, s) {
       Log.error(
         'Gagal menghapus data di tabel: $tabel',
@@ -189,7 +202,7 @@ class OperasiDasar {
     }
   }
 
-  // diubah: Menambahkan parameter `dariServer`.
+  /// Menyisipkan atau memperbarui sekumpulan data dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
     String tabel,
     List<Map<String, dynamic>> daftarData, {
@@ -207,24 +220,27 @@ class OperasiDasar {
       'dariServer': dariServer,
     });
     try {
-      await _jalankanDalamTransaksi((txn) async {
-        final batch = txn.batch();
-        int validCount = 0;
-        for (int i = 0; i < daftarData.length; i++) {
-          final data = daftarData[i];
-          if (data.isNotEmpty) {
-            batch.insert(
-              tabel,
-              data,
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-            validCount++;
+      await _jalankanDalamTransaksi(
+        (txn) async {
+          final batch = txn.batch();
+          int validCount = 0;
+          for (int i = 0; i < daftarData.length; i++) {
+            final data = daftarData[i];
+            if (data.isNotEmpty) {
+              batch.insert(
+                tabel,
+                data,
+                conflictAlgorithm: ConflictAlgorithm.replace,
+              );
+              validCount++;
+            }
           }
-        }
-        Log.info('Melakukan commit batch...', {'validCount': validCount});
-        await batch.commit(noResult: true);
-        Log.info('Batch operation sukses');
-      }, dariServer: dariServer);
+          Log.info('Melakukan commit batch...', {'validCount': validCount});
+          await batch.commit(noResult: true);
+          Log.info('Batch operation sukses');
+        },
+        dariServer: dariServer,
+      );
     } catch (e, s) {
       Log.error(
         'Gagal melakukan batch operation di tabel: $tabel',

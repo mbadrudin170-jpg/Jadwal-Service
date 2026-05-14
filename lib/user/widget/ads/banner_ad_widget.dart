@@ -1,11 +1,21 @@
-// path: lib/widget/ads/banner_ad_widget.dart
+// path: lib/user/widget/ads/banner_ad_widget.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// Widget untuk menampilkan banner iklan Google Mobile Ads.
+///
+/// Widget ini mengelola siklus hidup banner ad, termasuk loading,
+/// error handling, dan retry otomatis jika gagal load.
 class BannerAdWidget extends StatefulWidget {
+  /// Unit ID iklan yang akan ditampilkan.
   final String adUnitId;
 
+  /// Membuat instance dari [BannerAdWidget].
+  ///
+  /// [adUnitId] adalah ID unit iklan dari Google AdMob.
   const BannerAdWidget({
     super.key,
     required this.adUnitId,
@@ -22,7 +32,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    _loadBanner();
+    unawaited(_loadBanner());
   }
 
   @override
@@ -31,12 +41,12 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
     if (oldWidget.adUnitId != widget.adUnitId) {
       Log.info('Ad unit ID changed. Reloading banner.');
-      _disposeBanner();
-      _loadBanner();
+      unawaited(_disposeBanner());
+      unawaited(_loadBanner());
     }
   }
 
-  void _loadBanner() {
+  Future<void> _loadBanner() async {
     Log.api('/banner_ad', {'adUnitId': widget.adUnitId}, method: 'LOAD');
     _isLoaded = false;
 
@@ -52,7 +62,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             _isLoaded = true;
           });
         },
-        onAdFailedToLoad: (ad, error) {
+        onAdFailedToLoad: (ad, error) async {
           Log.error(
             'Banner ad failed to load',
             e: error,
@@ -62,23 +72,23 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
               'errorMessage': error.message,
             },
           );
-          ad.dispose();
+          await ad.dispose();
           _bannerAd = null;
 
           // optional: retry ringan
-          Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) _loadBanner();
-          });
+          unawaited(Future.delayed(const Duration(seconds: 3), () async {
+            if (mounted) await _loadBanner();
+          }),);
         },
       ),
     );
 
-    _bannerAd!.load();
+    await _bannerAd!.load();
   }
 
-  void _disposeBanner() {
+  Future<void> _disposeBanner() async {
     Log.info('Disposing banner ad.');
-    _bannerAd?.dispose();
+    await _bannerAd?.dispose();
     _bannerAd = null;
     _isLoaded = false;
   }
@@ -100,7 +110,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   void dispose() {
-    _disposeBanner();
+    unawaited(_disposeBanner());
     super.dispose();
   }
 }

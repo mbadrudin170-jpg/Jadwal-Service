@@ -1,5 +1,5 @@
 // path: lib/shared/data/sync/unduh_data.dart
-// diubah: Memperbaiki typo dan menambahkan `dariServer` ke pemanggilan batch.
+// diubah: Memperbaiki blok catch yang salah dan duplikat.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -27,6 +27,7 @@ import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
+/// Layanan untuk mengunduh semua data dari Firebase.
 class LayananUnduhData {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
@@ -44,6 +45,7 @@ class LayananUnduhData {
   final VersiApkUserOperasi _versiApkUserOperasi = VersiApkUserOperasi();
   final PengaturanOperasi _pengaturanOperasi = PengaturanOperasi();
 
+  /// Konstruktor untuk LayananUnduhData.
   LayananUnduhData({FirebaseFirestore? firestore, SyncManager? syncManager})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager() {
@@ -52,6 +54,7 @@ class LayananUnduhData {
     );
   }
 
+  /// Mengunduh semua data dari semua koleksi di Firebase.
   Future<void> unduhSemuaData() async {
     Log.info(
       'Memulai prosedur orkestrasi unduh data massal.',
@@ -77,7 +80,7 @@ class LayananUnduhData {
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Kegagalan kritis selama prosedur unduh massal.',
         e: e,
@@ -87,6 +90,7 @@ class LayananUnduhData {
     }
   }
 
+  /// Mengunduh data pengaturan dari Firebase.
   Future<void> unduhDataPengaturan() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PENGATURAN]');
     try {
@@ -112,8 +116,10 @@ class LayananUnduhData {
           if (waktuPembaruanServer.isAfter(waktuUnduhTerakhir)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final pengaturan = PengaturanModel.fromFirebase(data);
-            await _pengaturanOperasi.simpanAtauPerbaruiPengaturan(pengaturan,
-                dariServer: true);
+            await _pengaturanOperasi.simpanAtauPerbaruiPengaturan(
+              pengaturan,
+              dariServer: true,
+            );
             Log.info('Update Pengaturan lokal berhasil.');
           } else {
             Log.info('Data pengaturan lokal sudah sinkron.');
@@ -124,122 +130,138 @@ class LayananUnduhData {
       } else {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Kesalahan sinkronisasi Pengaturan.', e: e, st: s);
     }
   }
 
-  // Wrapper untuk Koleksi Lainnya
+  /// Mengunduh data dompet dari Firebase.
   Future<void> unduhDataDompet() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<DompetModel>(
       namaKoleksi: 'dompet',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => DompetModel.fromFirebase(id, map),
+      fromFirebase: DompetModel.fromFirebase,
       operasiBatch: (data) =>
           _dompetOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data kategori dari Firebase.
   Future<void> unduhDataKategori() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<KategoriModel>(
       namaKoleksi: 'kategori',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => KategoriModel.fromFirebase(id, map),
+      fromFirebase: KategoriModel.fromFirebase,
       operasiBatch: (data) =>
           _kategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data paket dari Firebase.
   Future<void> unduhDataPaket() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<PaketModel>(
       namaKoleksi: 'paket',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => PaketModel.fromFirebase(id, map),
+      fromFirebase: PaketModel.fromFirebase,
       operasiBatch: (data) =>
           _paketOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data pelanggan dari Firebase.
   Future<void> unduhDataPelanggan() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<PelangganModel>(
       namaKoleksi: 'pelanggan',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => PelangganModel.fromFirebase(id, map),
+      fromFirebase: PelangganModel.fromFirebase,
       operasiBatch: (data) =>
           _pelangganOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data pelanggan aktif dari Firebase.
   Future<void> unduhDataPelangganAktif() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<PelangganAktifModel>(
       namaKoleksi: 'pelanggan_aktif',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => PelangganAktifModel.fromFirebase(id, map),
+      fromFirebase: PelangganAktifModel.fromFirebase,
       operasiBatch: (data) => _pelangganAktifOperasi
           .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data transaksi dari Firebase.
   Future<void> unduhDataTransaksi() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<TransaksiModel>(
       namaKoleksi: 'transaksi',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => TransaksiModel.fromFirebase(id, map),
+      fromFirebase: TransaksiModel.fromFirebase,
       operasiBatch: (data) =>
           _transaksiOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data kritik dan saran dari Firebase.
   Future<void> unduhDataKritikSaran() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<KritikSaranModel>(
       namaKoleksi: 'kritik_saran',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => KritikSaranModel.fromFirebase(id, map),
+      fromFirebase: KritikSaranModel.fromFirebase,
       operasiBatch: (data) =>
           _kritikSaranOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data pesanan dari Firebase.
   Future<void> unduhDataPesanan() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<PesananModel>(
       namaKoleksi: 'pesan',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => PesananModel.fromFirebase(id, map),
+      fromFirebase: PesananModel.fromFirebase,
       operasiBatch: (data) =>
           _pesanOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data sub-kategori dari Firebase.
   Future<void> unduhDataSubKategori() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<SubKategoriModel>(
       namaKoleksi: 'sub_kategori',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => SubKategoriModel.fromFirebase(id, map),
+      fromFirebase: SubKategoriModel.fromFirebase,
       operasiBatch: (data) =>
           _subKategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Mengunduh data versi APK user dari Firebase.
   Future<void> unduhDataVersiApkUser() async {
     final waktu = await _syncManager.getTerakhirUnduh();
     await sinkronisasiKoleksi<VersiApkUserModel>(
       namaKoleksi: 'versi_apk_user',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: (id, map) => VersiApkUserModel.fromFirebase(id, map),
+      fromFirebase: VersiApkUserModel.fromFirebase,
       operasiBatch: (data) => _versiApkUserOperasi
           .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
+  /// Menyinkronkan satu koleksi dari Firebase ke database lokal.
+  ///
+  /// [T] adalah tipe model data yang akan disinkronkan.
+  /// [namaKoleksi] adalah nama koleksi di Firebase.
+  /// [waktuUnduhTerakhir] adalah waktu terakhir data diunduh.
+  /// [fromFirebase] adalah fungsi untuk mengonversi data dari Firebase ke model lokal.
+  /// [operasiBatch] adalah fungsi untuk menyimpan data secara batch ke database lokal.
   Future<void> sinkronisasiKoleksi<T>({
     required String namaKoleksi,
     required DateTime waktuUnduhTerakhir,
@@ -264,7 +286,7 @@ class LayananUnduhData {
         for (final doc in snapshot.docs) {
           try {
             dataList.add(fromFirebase(doc.id, doc.data()));
-          } catch (e, s) {
+          }on Exception catch (e, s) {
             Log.error(
               'Gagal memproses dokumen ${doc.id} di koleksi $namaKoleksi',
               e: e,
@@ -279,12 +301,13 @@ class LayananUnduhData {
           Log.info('Sinkronisasi masuk untuk [$namaKoleksi] berhasil.');
         } else {
           Log.warning(
-              'Tidak ada data valid untuk disimpan dari [$namaKoleksi].');
+            'Tidak ada data valid untuk disimpan dari [$namaKoleksi].',
+          );
         }
       } else {
         Log.info('Koleksi [$namaKoleksi] sudah sinkron.');
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Kegagalan sinkronisasi koleksi: $namaKoleksi',
         e: e,

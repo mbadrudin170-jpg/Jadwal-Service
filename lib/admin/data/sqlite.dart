@@ -19,21 +19,28 @@ class DatabaseHelper {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
 
-  Future<void> _addColumnIfNotExists(Database db, String tableName,
-      String columnName, String columnType) async {
+  Future<void> _addColumnIfNotExists(
+    Database db,
+    String tableName,
+    String columnName,
+    String columnType,
+  ) async {
     final dbClient = db;
     final List<Map<String, dynamic>> tableInfo =
         await dbClient.rawQuery('PRAGMA table_info($tableName)');
-    final bool columnExists = tableInfo.any((column) => column['name'] == columnName);
+    final bool columnExists =
+        tableInfo.any((column) => column['name'] == columnName);
 
     if (!columnExists) {
       await dbClient
           .execute('ALTER TABLE $tableName ADD COLUMN $columnName $columnType');
       Log.info(
-          '[MIGRASI SUKSES] Berhasil menambahkan kolom `$columnName` ke tabel `$tableName`.');
+        '[MIGRASI SUKSES] Berhasil menambahkan kolom `$columnName` ke tabel `$tableName`.',
+      );
     } else {
       Log.info(
-          '[MIGRASI DILEWATI] Kolom `$columnName` sudah ada di tabel `$tableName`.');
+        '[MIGRASI DILEWATI] Kolom `$columnName` sudah ada di tabel `$tableName`.',
+      );
     }
   }
 
@@ -54,7 +61,7 @@ class DatabaseHelper {
       _database = await _initDB();
       Log.info('Database berhasil diinisialisasi dan di-cache.');
       return _database!;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal total mendapatkan instance database.', e: e, st: st);
       rethrow;
     }
@@ -70,23 +77,27 @@ class DatabaseHelper {
         return databaseFactory.openDatabase(
           inMemoryDatabasePath,
           options: OpenDatabaseOptions(
-              version: _databaseVersion,
-              onCreate: createTables,
-              onUpgrade: _onUpgrade,),
+            version: _databaseVersion,
+            onCreate: createTables,
+            onUpgrade: _onUpgrade,
+          ),
         );
       }
 
       Log.info('Mode PRODUKSI/DEBUG. Menggunakan database fisik.');
-      final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      final Directory documentsDirectory =
+          await getApplicationDocumentsDirectory();
       final String path = join(documentsDirectory.path, 'mydatabase.db');
       Log.info('Path database: $path');
 
       Log.info('Membuka database dengan versi $_databaseVersion...');
-      return openDatabase(path,
-          version: _databaseVersion,
-          onCreate: createTables,
-          onUpgrade: _onUpgrade,);
-    } catch (e, st) {
+      return openDatabase(
+        path,
+        version: _databaseVersion,
+        onCreate: createTables,
+        onUpgrade: _onUpgrade,
+      );
+    } on Exception catch (e, st) {
       Log.error('Gagal membuka atau membuat database.', e: e, st: st);
       rethrow;
     }
@@ -105,7 +116,8 @@ class DatabaseHelper {
       // lalu ganti nama. Ini menjamin skema yang benar dan bersih.
       if (oldVersion < 45) {
         Log.info(
-            '[MIGRASI DIMULAI] Menangani tabel \'pengaturan\' untuk memastikan PRIMARY KEY dan data tunggal.');
+          '[MIGRASI DIMULAI] Menangani tabel \'pengaturan\' untuk memastikan PRIMARY KEY dan data tunggal.',
+        );
 
         // 1. Buat tabel baru dengan skema yang benar
         await db.execute('''
@@ -127,25 +139,36 @@ class DatabaseHelper {
         // 3. Ganti nama tabel baru menjadi nama tabel asli
         await db.execute('ALTER TABLE pengaturan_baru RENAME TO pengaturan');
         Log.info(
-            '[MIGRASI SUKSES] Tabel `pengaturan` berhasil dibuat ulang dengan skema yang benar dan data bersih.');
+          '[MIGRASI SUKSES] Tabel `pengaturan` berhasil dibuat ulang dengan skema yang benar dan data bersih.',
+        );
       }
 
       // Migrasi idempoten lainnya
       await _addColumnIfNotExists(
-          db, 'pelanggan_aktif', 'tanggal_berakhir', 'TEXT',);
+        db,
+        'pelanggan_aktif',
+        'tanggal_berakhir',
+        'TEXT',
+      );
       await _addColumnIfNotExists(
-          db, 'pelanggan_aktif', 'tanggal_mulai', 'TEXT',);
+        db,
+        'pelanggan_aktif',
+        'tanggal_mulai',
+        'TEXT',
+      );
 
       Log.info('========================================');
       Log.info('PROSES UPGRADE DATABASE SELESAI');
       Log.info(
-          'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
+        'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
+      );
       Log.info('========================================');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
-          'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
-          e: e,
-          st: st,);
+        'Gagal melakukan upgrade database dari versi $oldVersion ke versi $newVersion.',
+        e: e,
+        st: st,
+      );
       rethrow;
     }
   }
@@ -155,7 +178,8 @@ class DatabaseHelper {
     // ... (Fungsi createTables tidak berubah)
     Log.info('========================================');
     Log.info(
-        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
+      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
+    );
     Log.info('========================================');
 
     try {
@@ -179,15 +203,17 @@ class DatabaseHelper {
       await db
           .execute('CREATE INDEX idx_transaksi_dompet ON transaksi(id_dompet)');
       await db.execute(
-          'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)',);
+        'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)',
+      );
       await db.execute(
-          'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)',);
+        'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)',
+      );
       Log.info('Semua 3 index berhasil dibuat.');
 
       Log.info('========================================');
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
       Log.info('========================================');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal total saat membuat tabel atau index.', e: e, st: st);
       rethrow;
     }

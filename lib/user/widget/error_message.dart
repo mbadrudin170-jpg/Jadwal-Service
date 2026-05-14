@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
 
+/// Widget untuk menampilkan pesan error dengan tombol retry.
+///
+/// Menampilkan ikon error, judul, pesan error, dan tombol "Coba Lagi"
+/// yang bisa digunakan untuk mengulangi operasi yang gagal.
 class ErrorMessage extends StatelessWidget {
+  /// Pesan error yang akan ditampilkan.
   final String message;
+
+  /// Callback yang dipanggil saat tombol "Coba Lagi" ditekan.
   final VoidCallback onRetry;
 
-  const ErrorMessage({super.key, required this.message, required this.onRetry});
+  /// Membuat instance dari [ErrorMessage].
+  ///
+  /// [message] adalah pesan error yang akan ditampilkan ke pengguna.
+  /// [onRetry] adalah fungsi yang dipanggil saat pengguna menekan tombol retry.
+  const ErrorMessage({
+    super.key,
+    required this.message,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {

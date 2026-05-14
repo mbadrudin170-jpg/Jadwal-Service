@@ -6,11 +6,13 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
+/// Kelas untuk operasi terkait data paket di database lokal.
 class PaketOperasi {
+  /// Instance dari DatabaseHelper untuk mengakses database.
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
+  /// Menyimpan [PaketModel] baru ke dalam database.
   Future<void> createPaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembuatan paket ke OperasiDasar, method: createPaket, id: ${paket.id}',
@@ -32,6 +34,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil semua paket, termasuk yang diarsipkan.
   Future<List<PaketModel>> getAllPaket() async {
     Log.info('Memulai proses pengambilan semua data paket, method: getPaket');
     try {
@@ -68,6 +71,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil semua paket aktif (tidak diarsipkan).
   Future<List<PaketModel>> getPaket() async {
     Log.info(
       'Memulai proses pengambilan semua data paket aktif, method: getPaketAktif',
@@ -109,6 +113,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil semua paket yang bersifat publik.
   Future<List<PaketModel>> getPaketByIsPublic() async {
     Log.info(
       'Memulai proses pengambilan semua data paket publik, method: getPaketByIsPublic',
@@ -150,6 +155,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil [PaketModel] berdasarkan [id].
   Future<PaketModel?> getPaketById(String id) async {
     Log.info(
       'Memulai pencarian paket berdasarkan ID, method: getPaketById, id: $id',
@@ -181,7 +187,7 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
+  /// Memperbarui [PaketModel] yang ada di database.
   Future<void> updatePaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembaruan paket ke OperasiDasar, method: updatePaket, id: ${paket.id}',
@@ -189,8 +195,12 @@ class PaketOperasi {
     try {
       final data =
           paket.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.perbarui('paket', data, paket.id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'paket',
+        data,
+        paket.id,
+        dariServer: dariServer,
+      );
       Log.info(
         'Berhasil mendelegasikan pembaruan paket, method: updatePaket, id: ${paket.id}',
       );
@@ -204,7 +214,7 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  /// Menghapus [PaketModel] dari database secara permanen.
   Future<void> hapusPaket(String id, {bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan penghapusan paket ke OperasiDasar, method: hapusPaket, id: $id',
@@ -224,19 +234,22 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  /// Menghapus semua paket dari database secara permanen.
   Future<void> hapusSemuaPaket({bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan semua data paket, method: hapusSemuaPaket',
     );
     try {
-      await _operasiDasar.jalankanOperasiKompleks((txn) async {
-        int count = await txn.delete('paket');
-        Log.info(
-          'Berhasil menghapus semua data paket. Total terhapus: $count, method: hapusSemuaPaket',
-        );
-        return count;
-      }, dariServer: dariServer);
+      await _operasiDasar.jalankanOperasiKompleks(
+        (txn) async {
+          final int count = await txn.delete('paket');
+          Log.info(
+            'Berhasil menghapus semua data paket. Total terhapus: $count, method: hapusSemuaPaket',
+          );
+          return count;
+        },
+        dariServer: dariServer,
+      );
     } catch (e, s) {
       Log.error(
         'Gagal menghapus semua data paket, method: hapusSemuaPaket, error: $e',
@@ -247,6 +260,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil semua paket yang telah diubah sejak [since].
   Future<List<PaketModel>> getPerubahan(DateTime since) async {
     Log.info(
       'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}, method: getPerubahan',
@@ -278,19 +292,26 @@ class PaketOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<PaketModel> items,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<PaketModel> items, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Mendelegasikan proses batch ke OperasiDasar untuk ${items.length} item paket, method: sisipkanAtauPerbaruiBatch',
     );
     try {
       final dataList = items
-          .map((item) =>
-              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .map(
+            (item) =>
+                item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
+          )
           .toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('paket', dataList,
-          dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+        'paket',
+        dataList,
+        dariServer: dariServer,
+      );
       Log.info(
         'Berhasil mendelegasikan proses batch untuk ${items.length} item, method: sisipkanAtauPerbaruiBatch',
       );
@@ -304,6 +325,7 @@ class PaketOperasi {
     }
   }
 
+  /// Mengambil beberapa [PaketModel] berdasarkan daftar [ids].
   Future<List<PaketModel>> getPaketByIds(List<String> ids) async {
     Log.info(
       'Memulai pengambilan paket berdasarkan list ID, method: getPaketByIds, ids: $ids',

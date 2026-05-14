@@ -6,13 +6,17 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
+/// Kelas untuk operasi terkait data kategori di database lokal.
 class KategoriOperasi {
+  /// Instance dari DatabaseHelper untuk mengakses database.
   final dbHelper = DatabaseHelper.instance;
   final OperasiDasar _operasiDasar = OperasiDasar();
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<KategoriModel> createKategori(KategoriModel kategori,
-      {bool dariServer = false}) async {
+  /// Membuat [KategoriModel] baru di database.
+  Future<KategoriModel> createKategori(
+    KategoriModel kategori, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai createKategori untuk kategori: ${kategori.toSqlite()}');
     try {
       final kategoriBaru =
@@ -28,6 +32,7 @@ class KategoriOperasi {
     }
   }
 
+  /// Mengambil semua kategori yang tidak diarsipkan.
   Future<List<KategoriModel>> getKategori() async {
     Log.info(
       'Memulai getKategori (mengambil semua kategori yang tidak diarsipkan).',
@@ -50,6 +55,7 @@ class KategoriOperasi {
     }
   }
 
+  /// Mengambil [KategoriModel] berdasarkan [id].
   Future<KategoriModel> getKategoriById(String id) async {
     Log.info('Memulai getKategoriById untuk ID: $id');
     try {
@@ -79,6 +85,7 @@ class KategoriOperasi {
     }
   }
 
+  /// Mengambil semua kategori berdasarkan [TipeKategori].
   Future<List<KategoriModel>> getKategoriByTipe(TipeKategori tipe) async {
     Log.info('Memulai getKategoriByTipe untuk tipe: ${tipe.name}');
     try {
@@ -106,14 +113,18 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
+  /// Memperbarui [KategoriModel] yang ada di database.
   Future<void> update(KategoriModel kategori, {bool dariServer = false}) async {
     Log.info('Memulai update untuk kategori: ${kategori.toSqlite()}');
     try {
       final data =
           kategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.perbarui('kategori', data, kategori.id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'kategori',
+        data,
+        kategori.id,
+        dariServer: dariServer,
+      );
       Log.info('Berhasil update kategori untuk ID: ${kategori.id}.');
     } catch (e, st) {
       Log.error(
@@ -125,7 +136,7 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menambahkan `dariServer`
+  /// Menghapus [KategoriModel] dari database secara permanen.
   Future<void> delete(String id, {bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai operasi delete (hard delete) untuk kategori ID: $id',
@@ -139,9 +150,11 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diarsipkan` dan `diperbarui`
-  Future<void> arsipkanSatuKategori(String id,
-      {bool dariServer = false}) async {
+  /// Mengarsipkan satu kategori berdasarkan [id] (soft delete).
+  Future<void> arsipkanSatuKategori(
+    String id, {
+    bool dariServer = false,
+  }) async {
     Log.info('Memulai arsipkanSatuKategori (soft delete) untuk ID: $id');
     try {
       final now = DateTime.now().toUtc();
@@ -151,8 +164,12 @@ class KategoriOperasi {
         'isDeleted': 1,
       };
 
-      await _operasiDasar.perbarui('kategori', dataToUpdate, id,
-          dariServer: dariServer);
+      await _operasiDasar.perbarui(
+        'kategori',
+        dataToUpdate,
+        id,
+        dariServer: dariServer,
+      );
 
       Log.info('Berhasil arsipkanSatuKategori untuk ID: $id.');
     } catch (e, st) {
@@ -165,9 +182,11 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> bersihkanDanSisipkanSemua(List<KategoriModel> items,
-      {bool dariServer = false}) async {
+  /// Menghapus semua kategori yang ada dan menyisipkan yang baru.
+  Future<void> bersihkanDanSisipkanSemua(
+    List<KategoriModel> items, {
+    bool dariServer = false,
+  }) async {
     Log.warning(
       'PERINGATAN: Memulai bersihkanDanSisipkanSemua. Ini akan menghapus semua kategori dan menggantinya dengan ${items.length} item baru.',
     );
@@ -177,17 +196,22 @@ class KategoriOperasi {
       );
     }
     try {
-      await _operasiDasar.jalankanOperasiKompleks((txn) async {
-        await txn.delete('kategori');
-        Log.info('Tabel kategori berhasil dibersihkan.');
-        for (var item in items) {
-          await txn.insert('kategori',
-              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite());
-        }
-        Log.info(
-          'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.',
-        );
-      }, dariServer: dariServer);
+      await _operasiDasar.jalankanOperasiKompleks(
+        (txn) async {
+          await txn.delete('kategori');
+          Log.info('Tabel kategori berhasil dibersihkan.');
+          for (var item in items) {
+            await txn.insert(
+              'kategori',
+              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
+            );
+          }
+          Log.info(
+            'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.',
+          );
+        },
+        dariServer: dariServer,
+      );
     } catch (e, st) {
       Log.error(
         'Gagal saat menjalankan bersihkanDanSisipkanSemua',
@@ -198,6 +222,7 @@ class KategoriOperasi {
     }
   }
 
+  /// Mengambil semua kategori yang telah diubah sejak [since].
   Future<List<KategoriModel>> getPerubahan(DateTime since) async {
     Log.info(
       'Memulai getPerubahan untuk kategori sejak: ${since.toIso8601String()}',
@@ -223,9 +248,11 @@ class KategoriOperasi {
     }
   }
 
-  // diubah: Menggunakan UTC untuk `diperbarui`
-  Future<void> sisipkanAtauPerbaruiBatch(List<KategoriModel> items,
-      {bool dariServer = false}) async {
+  /// Menyisipkan atau memperbarui sekumpulan [KategoriModel] dalam satu batch.
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<KategoriModel> items, {
+    bool dariServer = false,
+  }) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
     );
@@ -237,11 +264,16 @@ class KategoriOperasi {
     }
     try {
       final data = items
-          .map((item) =>
-              item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+          .map(
+            (item) =>
+                item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
+          )
           .toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch('kategori', data,
-          dariServer: dariServer);
+      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+        'kategori',
+        data,
+        dariServer: dariServer,
+      );
       Log.info(
         'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
       );
@@ -255,6 +287,7 @@ class KategoriOperasi {
     }
   }
 
+  /// Mengambil beberapa [KategoriModel] berdasarkan daftar [ids].
   Future<List<KategoriModel>> getKategoriByIds(List<String> ids) async {
     Log.info('Memulai getKategoriByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {

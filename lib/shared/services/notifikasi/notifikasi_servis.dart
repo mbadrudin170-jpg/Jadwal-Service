@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
 
+/// Fungsi ini akan dipanggil ketika notifikasi di-tap saat aplikasi berada di background.
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(NotificationResponse response) {
   Log.info(
@@ -16,18 +17,24 @@ void onDidReceiveBackgroundNotificationResponse(NotificationResponse response) {
   );
 }
 
+/// Kelas layanan untuk mengelola notifikasi lokal.
 class NotifikasiServis {
+  /// Instance dari `FlutterLocalNotificationsPlugin`.
   final FlutterLocalNotificationsPlugin plugin;
   final Random _random =
       Random(); // ditambah: Instance dari Random untuk ID unik.
 
+  /// Channel notifikasi untuk notifikasi penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
 
+  /// Konstruktor default untuk `NotifikasiServis`.
   NotifikasiServis() : plugin = FlutterLocalNotificationsPlugin();
 
+  /// Konstruktor internal untuk keperluan pengujian.
   @visibleForTesting
   NotifikasiServis.internal(this.plugin);
 
+  /// Menginisialisasi layanan notifikasi.
   Future<void> inisialisasi() async {
     Log.info('Memulai proses inisialisasi pengaturan notifikasi...');
 
@@ -49,7 +56,7 @@ class NotifikasiServis {
             onDidReceiveBackgroundNotificationResponse,
       );
       Log.info('Layanan Notifikasi berhasil diinisialisasi.');
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal melakukan inisialisasi layanan notifikasi',
         e: e,
@@ -72,12 +79,14 @@ class NotifikasiServis {
     try {
       await androidPlugin?.createNotificationChannel(channelNotifikasiPenting!);
       Log.info(
-          'Android Notification Channel "Notifikasi Penting" berhasil dibuat.');
-    } catch (e, s) {
+        'Android Notification Channel "Notifikasi Penting" berhasil dibuat.',
+      );
+    } on Exception catch  (e, s) {
       Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
     }
   }
 
+  /// Meminta izin notifikasi dari pengguna (khusus Android).
   Future<void> requestPermissions() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
@@ -93,7 +102,7 @@ class NotifikasiServis {
         await androidPlugin.requestNotificationsPermission();
         Log.info('Permintaan izin notifikasi Android telah diproses.');
       }
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal meminta izin notifikasi',
         e: e,
@@ -102,13 +111,15 @@ class NotifikasiServis {
     }
   }
 
+  /// Mendapatkan detail peluncuran aplikasi dari notifikasi.
   Future<NotificationAppLaunchDetails?> getDetailPeluncuranNotifikasi() async {
     Log.info('Memeriksa apakah aplikasi diluncurkan melalui notifikasi...');
     final details = await plugin.getNotificationAppLaunchDetails();
 
     if (details != null && details.didNotificationLaunchApp) {
       Log.info(
-          'Aplikasi diluncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}');
+        'Aplikasi diluncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}',
+      );
     } else {
       Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');
     }
@@ -116,7 +127,7 @@ class NotifikasiServis {
     return details;
   }
 
-  // diubah: Menghapus parameter `id` dan menghasilkan ID unik secara internal.
+  /// Menampilkan notifikasi secara langsung.
   Future<void> tampilkanNotifikasiLangsung({
     required String title,
     required String body,
@@ -152,7 +163,7 @@ class NotifikasiServis {
         payload: payload,
       );
       Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal menampilkan notifikasi langsung',
         e: e,
@@ -161,6 +172,7 @@ class NotifikasiServis {
     }
   }
 
+  /// Menjadwalkan notifikasi untuk ditampilkan di masa mendatang.
   Future<void> jadwalNotifikasi({
     required int id,
     required String title,
@@ -197,7 +209,7 @@ class NotifikasiServis {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal mendaftarkan jadwal notifikasi',
         e: e,
@@ -206,6 +218,7 @@ class NotifikasiServis {
     }
   }
 
+  /// Memperbarui jadwal notifikasi yang sudah ada.
   Future<void> perbaruiJadwalNotifikasi({
     required int id,
     required String title,
@@ -227,12 +240,13 @@ class NotifikasiServis {
     Log.info('Pembaruan jadwal selesai dilakukan.');
   }
 
+  /// Membatalkan notifikasi berdasarkan [id].
   Future<void> batalNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
       await plugin.cancel(id: id);
       Log.info('Notifikasi ID: $id telah dihapus.');
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal membatalkan notifikasi ID: $id',
         e: e,
@@ -241,13 +255,15 @@ class NotifikasiServis {
     }
   }
 
+  /// Membatalkan semua notifikasi.
   Future<void> batalSemuaNotifikasi() async {
     Log.info(
-        'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...');
+      'Membersihkan semua notifikasi yang ada (aktif maupun terjadwal)...',
+    );
     try {
       await plugin.cancelAll();
       Log.info('Seluruh notifikasi berhasil dibersihkan.');
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Terjadi kesalahan saat membersihkan semua notifikasi',
         e: e,

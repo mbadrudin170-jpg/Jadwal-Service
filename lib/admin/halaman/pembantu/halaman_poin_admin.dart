@@ -1,5 +1,7 @@
 // path: lib/admin/halaman/pembantu/halaman_poin_admin.dart
-// diubah: Direfaktor untuk menggunakan PoinPageUi.
+// diubah: Direfaktor untuk menggunakan PoinPageUi dan menambahkan dokumentasi.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11,9 +13,17 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/nama_pelanggan.dart';
 import 'package:wifi/shared/widget/poin_page_ui.dart';
 
+/// Halaman untuk menampilkan dan mengelola poin pelanggan dari sisi admin.
+///
+/// Halaman ini memungkinkan admin untuk melihat total poin, daftar hadiah
+/// yang dapat ditukar, dan riwayat perolehan/penggunaan poin pelanggan.
 class PoinPageAdmin extends StatefulWidget {
+  /// ID unik dari pelanggan yang poinnya ingin ditampilkan.
   final String idPelanggan;
 
+  /// Membuat instance dari [PoinPageAdmin].
+  ///
+  /// Membutuhkan [idPelanggan] untuk mengidentifikasi pelanggan.
   const PoinPageAdmin({super.key, required this.idPelanggan});
 
   @override
@@ -35,7 +45,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
   @override
   void initState() {
     super.initState();
-    _loadDataPoin();
+    unawaited(_loadDataPoin());
   }
 
   Future<void> _loadDataPoin() async {
@@ -63,7 +73,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
       if (_menuPilihan == MenuPoin.riwayat) {
         await _loadRiwayatTransaksi();
       }
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat data poin: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {
@@ -93,7 +103,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
         _riwayatTransaksi = transaksiPoin;
         _isLoadingRiwayat = false;
       });
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat riwayat transaksi: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {

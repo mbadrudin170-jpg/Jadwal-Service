@@ -1,8 +1,13 @@
 // path: lib/shared/debug/log.dart
-import 'dart:developer' as dev;
-import 'package:flutter/foundation.dart';
 import 'dart:convert'; // Tambahkan untuk memformat data Map/List
+import 'dart:developer' as dev;
 
+import 'package:flutter/foundation.dart';
+
+/// Kelas utilitas untuk logging yang terstruktur dan berwarna selama pengembangan.
+///
+/// Menyediakan metode logging untuk berbagai level: info, warning, error, dan api.
+/// Log hanya akan muncul dalam mode debug.
 class Log {
   static const String _green = '\x1B[38;5;76m';
   static const String _reset = '\x1B[0m';
@@ -10,7 +15,7 @@ class Log {
   static const String _yellow = '\x1B[33m';
   static const String _cyan = '\x1B[36m';
 
-  /// Helper untuk memformat data agar rapi jika berupa Map atau List
+  /// Helper untuk memformat data agar rapi jika berupa Map atau List.
   static String _formatData(Object? data) {
     if (data == null) return '';
     try {
@@ -19,12 +24,15 @@ class Log {
         return '\nData: ${const JsonEncoder.withIndent('  ').convert(data)}';
       }
       return '\nData: $data';
-    } catch (_) {
+    } on Exception catch (_) {
       return '\nData: $data';
     }
   }
 
-  /// ✅ Log Informasi
+  /// Mencatat pesan informasi.
+  ///
+  /// Pesan akan berwarna hijau dan memiliki level 800.
+  /// `data` opsional dapat dilewatkan untuk dicetak dalam format JSON yang rapi.
   static void info(String message, [Object? data]) {
     _logCustom(
       '$message${_formatData(data)}',
@@ -34,7 +42,10 @@ class Log {
     );
   }
 
-  /// ⚠️ Log Warning
+  /// Mencatat pesan peringatan.
+  ///
+  /// Pesan akan berwarna kuning dan memiliki level 900.
+  /// `data` opsional dapat dilewatkan untuk dicetak.
   static void warning(String message, [Object? data]) {
     _logCustom(
       '$message${_formatData(data)}',
@@ -44,7 +55,10 @@ class Log {
     );
   }
 
-  /// ❌ Log Error
+  /// Mencatat pesan error.
+  ///
+  /// Pesan akan berwarna merah dan memiliki level 1000.
+  /// `e` (exception) dan `st` (stack trace) opsional dapat dilewatkan.
   static void error(
     String message, {
     Object? e,
@@ -61,7 +75,11 @@ class Log {
     );
   }
 
-  /// 🌐 Log API / Firestore
+  /// Mencatat pesan yang berhubungan dengan panggilan API atau Firestore.
+  ///
+  /// `path` adalah endpoint atau path koleksi.
+  /// `data` adalah payload atau data yang dikembalikan.
+  /// `method` adalah metode HTTP (GET, POST, dll.) atau operasi Firestore (SET, UPDATE).
   static void api(
     String path,
     Map<String, dynamic> data, {
@@ -75,7 +93,9 @@ class Log {
     );
   }
 
-  /// Method utama logger
+  /// Metode internal untuk melakukan logging kustom.
+  ///
+  /// Mengambil detail pemanggil dari stack trace untuk memberikan lokasi log yang tepat.
   static void _logCustom(
     String message, {
     required String name,

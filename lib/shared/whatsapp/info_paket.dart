@@ -1,5 +1,6 @@
 // path: lib/shared/whatsapp/info_paket.dart
 
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
@@ -7,7 +8,6 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Kelas utilitas untuk membuat dan mengirim pesan informasi paket.
 class PesanInfoPaket {
@@ -70,7 +70,7 @@ class PesanInfoPaket {
       // 4. Kirim pesan yang sudah diformat ke nomor telepon pelanggan via WhatsApp.
       Log.info('Memulai proses pengiriman ke nomor: ${pelanggan.telepon}.');
       await _kirimViaWhatsApp(pelanggan.telepon, pesan);
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
         e: e,
@@ -159,7 +159,7 @@ Semoga harimu menyenangkan!
           'Tidak dapat membuka URL WhatsApp. Kemungkinan aplikasi WhatsApp tidak terinstal atau ada masalah konfigurasi di AndroidManifest.xml (queries).',
         );
       }
-    } catch (e, s) {
+    } on Exception catch  (e, s) {
       Log.error(
         'Gagal total saat mencoba meluncurkan URL WhatsApp.',
         e: e,

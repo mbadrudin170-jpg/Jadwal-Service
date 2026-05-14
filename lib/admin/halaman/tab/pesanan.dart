@@ -1,12 +1,17 @@
 // path: lib/admin/halaman/tab/pesanan.dart
-// diubah: Mengganti path import, memperbaiki instansiasi, dan memperbaiki logika status
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
 import 'package:wifi/shared/operasi/pesanan_operasi.dart';
 
+/// Halaman untuk menampilkan dan mengelola daftar pesanan.
 class HalamanPesan extends StatefulWidget {
+  /// Konstruktor untuk HalamanPesan.
   const HalamanPesan({super.key});
 
   @override
@@ -31,7 +36,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     Log.info(
       'Memanggil _muatPesanan() untuk memuat data pesanan dari database.',
     );
-    _muatPesanan();
+    unawaited(_muatPesanan());
   }
 
   @override
@@ -84,7 +89,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
       Log.info(
         'State berhasil diperbarui. UI akan menampilkan ${pesanan.length} pesanan.',
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal memuat data pesanan dari database. '
         'Filter yang digunakan: "$_filterStatus". '
@@ -140,7 +145,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
           'Widget sudah tidak mounted. Tidak dapat menampilkan SnackBar.',
         );
       }
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mengubah status pesanan #${pesanan.id} dari "${pesanan.status}" menjadi "$statusBaru". '
         'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
@@ -231,7 +236,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
             'Widget sudah tidak mounted. Tidak dapat menampilkan SnackBar.',
           );
         }
-      } catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal menghapus pesanan #${pesanan.id}. '
           'Kemungkinan penyebab: koneksi database gagal, data pesanan tidak ditemukan, '
@@ -276,7 +281,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
               Log.info(
                 'AKSI: Tombol Refresh ditekan. Memuat ulang data pesanan.',
               );
-              _muatPesanan();
+              unawaited(_muatPesanan());
             },
             tooltip: 'Refresh',
           ),
@@ -348,7 +353,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         Log.info(
           'State _filterStatus berhasil diperbarui. Memanggil _muatPesanan() dengan filter baru.',
         );
-        _muatPesanan();
+        unawaited(_muatPesanan());
       },
       selectedColor: Theme.of(context).colorScheme.primaryContainer,
       checkmarkColor: Theme.of(context).colorScheme.primary,
@@ -433,7 +438,6 @@ class _HalamanPesanState extends State<HalamanPesan> {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: statusColor.withAlpha((0.3 * 255).round()),
-          width: 1,
         ),
       ),
       child: InkWell(
@@ -441,7 +445,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
           Log.info(
             'TAP: Kartu pesanan #${pesanan.id} di-tap. Menampilkan detail pesanan.',
           );
-          _showPesananDetail(pesanan);
+          unawaited(_showPesananDetail(pesanan));
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -536,7 +540,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
                     Log.info(
                       'AKSI: Tombol "Proses" ditekan untuk pesanan #${pesanan.id}.',
                     );
-                    _updateStatus(pesanan, 'diproses');
+                    unawaited(_updateStatus(pesanan, 'diproses'));
                   }),
                   const SizedBox(width: 8),
                   _actionButton('Selesai', Icons.check_circle, Colors.green,
@@ -544,14 +548,14 @@ class _HalamanPesanState extends State<HalamanPesan> {
                     Log.info(
                       'AKSI: Tombol "Selesai" ditekan untuk pesanan #${pesanan.id}.',
                     );
-                    _updateStatus(pesanan, 'selesai');
+                    unawaited(_updateStatus(pesanan, 'selesai'));
                   }),
                   const SizedBox(width: 8),
                   _actionButton('Tolak', Icons.cancel, Colors.red, () {
                     Log.info(
                       'AKSI: Tombol "Tolak" ditekan untuk pesanan #${pesanan.id}.',
                     );
-                    _updateStatus(pesanan, 'ditolak');
+                    unawaited(_updateStatus(pesanan, 'ditolak'));
                   }),
                   const SizedBox(width: 8),
                   IconButton(
@@ -560,7 +564,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
                       Log.info(
                         'AKSI: Tombol "Hapus" ditekan untuk pesanan #${pesanan.id}.',
                       );
-                      _hapusPesanan(pesanan);
+                      unawaited(_hapusPesanan(pesanan));
                     },
                     tooltip: 'Hapus',
                   ),
@@ -614,7 +618,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
         pesanan.status.substring(1);
   }
 
-  void _showPesananDetail(PesananModel pesanan) {
+  Future<void> _showPesananDetail(PesananModel pesanan) async {
     Log.info('========================================');
     Log.info('MENAMPILKAN DETAIL PESANAN (Bottom Sheet)');
     Log.info('ID Pesanan: ${pesanan.id}');
@@ -626,7 +630,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
     Log.info('========================================');
 
-    showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -663,9 +667,8 @@ class _HalamanPesanState extends State<HalamanPesan> {
           ],
         ),
       ),
-    ).then((_) {
-      Log.info('Bottom Sheet detail pesanan #${pesanan.id} ditutup.');
-    });
+    );
+    Log.info('Bottom Sheet detail pesanan #${pesanan.id} ditutup.');
   }
 
   Widget _detailRow(String label, String value) {

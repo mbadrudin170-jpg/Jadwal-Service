@@ -1,11 +1,16 @@
 // path: lib/admin/splash_screen_admin.dart
 // diubah: Mengganti onBackground yang usang dengan onSurface yang benar.
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 
+/// A stateless widget that displays a splash screen.
 class SplashScreen extends StatelessWidget {
+  /// The message to display while loading.
   final String loadingMessage;
 
+  /// Creates a [SplashScreen].
   const SplashScreen({super.key, this.loadingMessage = 'Memuat...'});
 
   @override

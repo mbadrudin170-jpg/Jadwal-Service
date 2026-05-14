@@ -1,24 +1,43 @@
 // path: lib/user/page/daftar_akun_page.dart
-// diubah: Memperbaiki unawaited future.
+// diubah: Memperbaiki unawaited future dan mengubah void function menjadi Future<void> async.
+// ditambah: Menggunakan tipe eksplisit <void> untuk MaterialPageRoute dan showDialog untuk memperbaiki inference failure.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/user/page/login_page.dart';
-import 'main_page.dart';
-import '../services/storage/local_storage_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/user/page/login_page.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
+/// Typedef untuk membangun halaman utama.
+///
+/// Digunakan untuk dependency injection pada halaman ini agar lebih mudah diuji.
 typedef MainPageBuilder = Widget Function(
-    String userId, LocalStorageService localStorageService);
+  String userId,
+  LocalStorageService localStorageService,
+);
 
+/// Halaman untuk menampilkan daftar akun yang pernah login di perangkat.
+///
+/// Pengguna dapat memilih akun untuk login, menghapus akun dari daftar,
+/// atau keluar dari semua akun.
 class DaftarAkunPage extends StatefulWidget {
+  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService? localStorageService;
+
+  /// Builder untuk membuat halaman utama setelah login berhasil.
   final MainPageBuilder? mainPageBuilder;
 
-  const DaftarAkunPage(
-      {super.key, this.localStorageService, this.mainPageBuilder});
+  /// Membuat instance dari [DaftarAkunPage].
+  const DaftarAkunPage({
+    super.key,
+    this.localStorageService,
+    this.mainPageBuilder,
+  });
 
   @override
   State<DaftarAkunPage> createState() => _DaftarAkunPageState();
@@ -32,7 +51,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
   @override
   void initState() {
     super.initState();
-    _initializeLocalStorage();
+    unawaited(_initializeLocalStorage());
   }
 
   Future<void> _initializeLocalStorage() async {
@@ -66,22 +85,28 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     }
   }
 
-  void _pilihAkun(PelangganModel pelanggan) {
+  Future<void> _pilihAkun(PelangganModel pelanggan) async {
     if (!_isLocalStorageInitialized) return;
     final navigator = Navigator.of(context);
-    _localStorageService.simpanAkun(pelanggan).then((_) {
-      if (!mounted) return;
-      final page = widget.mainPageBuilder != null
-          ? widget.mainPageBuilder!(pelanggan.id, _localStorageService)
-          : MainPage(
-              userId: pelanggan.id, localStorageService: _localStorageService);
+    await _localStorageService.simpanAkun(pelanggan);
 
-      navigator.pushReplacement(MaterialPageRoute(builder: (context) => page));
-    });
+    if (!mounted) return;
+    final page = widget.mainPageBuilder != null
+        ? widget.mainPageBuilder!(pelanggan.id, _localStorageService)
+        : MainPage(
+            userId: pelanggan.id,
+            localStorageService: _localStorageService,
+          );
+
+    await navigator
+        .pushReplacement(MaterialPageRoute<void>(builder: (context) => page));
   }
 
-  void _tampilkanDialogHapus(BuildContext context, PelangganModel pelanggan) {
-    showDialog(
+  Future<void> _tampilkanDialogHapus(
+    BuildContext context,
+    PelangganModel pelanggan,
+  ) async {
+    await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -109,13 +134,14 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                   dialogNavigator.pop(); // Tutup dialog pertama
 
                   // Tampilkan dialog konfirmasi
-                  await showDialog(
+                  await showDialog<void>(
                     context: pageContext,
                     builder: (BuildContext confirmDialogContext) {
                       return AlertDialog(
                         title: const Text('Konfirmasi Hapus'),
                         content: const Text(
-                            'Ini adalah akun yang sedang Anda gunakan. Anda akan keluar dan perlu login kembali. Lanjutkan?'),
+                          'Ini adalah akun yang sedang Anda gunakan. Anda akan keluar dan perlu login kembali. Lanjutkan?',
+                        ),
                         actions: <Widget>[
                           TextButton(
                             child: const Text('Batal'),
@@ -130,7 +156,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                             onPressed: () async {
                               // 1. Ambil navigator SEBELUM await
                               final navigator = Navigator.of(
-                                  context); // Gunakan context halaman, bukan dialog
+                                context,
+                              ); // Gunakan context halaman, bukan dialog
 
                               await _localStorageService
                                   .hapusAkun(pelanggan.id);
@@ -141,7 +168,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
 
                               // 3. Eksekusi navigasi
                               await navigator.pushNamedAndRemoveUntil(
-                                  '/login', (route) => false);
+                                '/login',
+                                (route) => false,
+                              );
                             },
                           ),
                         ],
@@ -162,8 +191,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     );
   }
 
-  void _tampilkanDialogKeluar(BuildContext context) {
-    showDialog(
+  Future<void> _tampilkanDialogKeluar(BuildContext context) async {
+    await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Keluar'),
@@ -179,7 +208,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               }
               await _localStorageService.hapusAkunSaatIni();
               await navigator.pushNamedAndRemoveUntil(
-                  '/login', (route) => false);
+                '/login',
+                (route) => false,
+              );
             },
             style: TextButton.styleFrom(
               backgroundColor: AppColors.errorColor.withAlpha(25),
@@ -207,7 +238,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
 
               // Ganti dengan ini untuk memastikan semua route dihapus
               await pageNavigator.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const LoginPage()),
+                MaterialPageRoute<void>(
+                  builder: (context) => const LoginPage(),
+                ),
                 (route) => false,
               );
             },
@@ -251,7 +284,8 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
 
                 if (daftar.isEmpty) {
                   return const Center(
-                      child: Text('Belum ada riwayat login di perangkat ini.'));
+                    child: Text('Belum ada riwayat login di perangkat ini.'),
+                  );
                 }
                 return ListView.builder(
                   itemCount: daftar.length,
@@ -259,10 +293,13 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                     final p = daftar[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
                         leading: CircleAvatar(
-                            child: Text(p.nama.isNotEmpty ? p.nama[0] : '')),
+                          child: Text(p.nama.isNotEmpty ? p.nama[0] : ''),
+                        ),
                         title: Text(p.nama),
                         onTap: () => _pilihAkun(p),
                         onLongPress: () => _tampilkanDialogHapus(context, p),

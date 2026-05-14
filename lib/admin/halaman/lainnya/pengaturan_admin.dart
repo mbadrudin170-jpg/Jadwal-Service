@@ -1,21 +1,25 @@
 // path: lib/admin/halaman/lainnya/pengaturan_admin.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
-import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
 import 'package:wifi/shared/utils/sync_manager.dart'; // ditambah: import SyncManager
 
-// Halaman untuk menampilkan konfigurasi pengaturan aplikasi.
-class PengaturanPage extends StatefulWidget {
-  const PengaturanPage({super.key});
+/// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
+///
+/// Dari halaman ini, admin dapat melihat pengaturan saat ini, mengeditnya,
+/// dan melakukan aksi terkait seperti mereset waktu sinkronisasi.
+class PengaturanAdmin extends StatefulWidget {
+  /// Membuat instance dari [PengaturanAdmin].
+  const PengaturanAdmin({super.key});
 
   @override
-  State<PengaturanPage> createState() => _PengaturanPageState();
+  State<PengaturanAdmin> createState() => _PengaturanAdminState();
 }
 
-class _PengaturanPageState extends State<PengaturanPage> {
+class _PengaturanAdminState extends State<PengaturanAdmin> {
   final PengaturanOperasi _pengaturanOperasi = PengaturanOperasi();
   late Future<PengaturanModel> _futurePengaturan;
 
@@ -42,19 +46,19 @@ class _PengaturanPageState extends State<PengaturanPage> {
           e: e,
           st: st,
         );
-        throw e;
+        throw Exception('Gagal memuat data pengaturan: $e');
       });
     });
   }
 
   // Fungsi untuk menavigasi ke halaman form edit dan memuat ulang data jika ada perubahan.
-  void _editPengaturan(PengaturanModel pengaturan) async {
+  Future<void> _editPengaturan(PengaturanModel pengaturan) async {
     Log.info('Navigasi ke halaman Form Edit Pengaturan');
     Log.info(
       'Data pengaturan sebelum edit - Interval: ${pengaturan.intervalSinkronisasiOtomatis} jam, Hapus arsip: ${pengaturan.hapusOtomatisDataArsip} hari, Mode pemeliharaan: ${pengaturan.modePemeliharaan}, Info: ${pengaturan.infoPemeliharaan.isNotEmpty ? pengaturan.infoPemeliharaan : "(kosong)"}',
     );
 
-    final hasil = await Navigator.push(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => FormPengaturan(pengaturan: pengaturan),
@@ -74,14 +78,15 @@ class _PengaturanPageState extends State<PengaturanPage> {
   }
 
   // ditambah: Fungsi untuk mereset waktu sinkronisasi
-  void _resetWaktuSinkronisasi() async {
+  Future<void> _resetWaktuSinkronisasi() async {
     Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
-    final bool? konfirmasi = await showDialog(
+    final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Konfirmasi Reset'),
         content: const Text(
-            'Anda yakin ingin mereset waktu sinkronisasi? Tindakan ini akan memaksa aplikasi untuk mengunggah semua data yang dimodifikasi dan mengunduh semua data dari server pada siklus sinkronisasi berikutnya.'),
+          'Anda yakin ingin mereset waktu sinkronisasi? Tindakan ini akan memaksa aplikasi untuk mengunggah semua data yang dimodifikasi dan mengunduh semua data dari server pada siklus sinkronisasi berikutnya.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -97,7 +102,8 @@ class _PengaturanPageState extends State<PengaturanPage> {
 
     if (konfirmasi == true) {
       Log.info(
-          'Pengguna mengonfirmasi reset. Memanggil SyncManager().resetWaktuSinkronisasi().');
+        'Pengguna mengonfirmasi reset. Memanggil SyncManager().resetWaktuSinkronisasi().',
+      );
       try {
         await SyncManager().resetWaktuSinkronisasi();
         Log.info('Reset waktu sinkronisasi berhasil.');
@@ -109,7 +115,7 @@ class _PengaturanPageState extends State<PengaturanPage> {
             ),
           );
         }
-      } catch (e, st) {
+      } on Exception catch (e, st) {
         Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -246,9 +252,9 @@ class _PengaturanPageState extends State<PengaturanPage> {
                   ElevatedButton.icon(
                     icon: const Icon(Icons.edit),
                     label: const Text('Edit Pengaturan'),
-                    onPressed: () {
+                    onPressed: () async {
                       Log.info('Tombol Edit Pengaturan ditekan');
-                      _editPengaturan(pengaturan);
+                      await _editPengaturan(pengaturan);
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
