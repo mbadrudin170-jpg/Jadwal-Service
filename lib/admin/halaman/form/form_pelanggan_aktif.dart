@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/form/form_pelanggan_aktif.dart
+// diubah: Menggunakan firstWhereOrNull untuk menghindari StateError saat kategori tidak ditemukan.
 // diubah: Menambahkan tipe eksplisit <void> pada Future.delayed untuk menghilangkan warning.
 // diubah: Menambahkan dokumentasi untuk semua anggota publik di kelas FormPelangganAktif.
 // Fitur: Form untuk menambah dan mengubah data pelanggan aktif.
@@ -6,6 +7,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
@@ -248,13 +250,11 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       _selectedDompet = _daftarDompet.first;
     }
     if (_kategoriPemasukanList.isNotEmpty) {
-      try {
-        _selectedKategori = _kategoriPemasukanList.firstWhere(
-          (final k) => k.nama.toLowerCase() == 'aktivasi paket',
-        );
-      } on Exception {
-        _selectedKategori = _kategoriPemasukanList.first;
-      }
+      // Menggunakan firstWhereOrNull untuk keamanan, dengan fallback ke elemen pertama.
+      _selectedKategori = _kategoriPemasukanList.firstWhereOrNull(
+            (final k) => k.nama.toLowerCase() == 'aktivasi paket',
+          ) ??
+          _kategoriPemasukanList.first;
     }
   }
 

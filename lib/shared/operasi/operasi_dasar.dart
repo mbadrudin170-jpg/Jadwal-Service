@@ -123,7 +123,7 @@ class OperasiDasar {
       rethrow;
     }
   }
-
+// TODO: rencana selanjutnya adalah bermasalah
   /// Memperbarui data di [tabel] berdasarkan [id].
   Future<void> perbarui(
     final String tabel,

@@ -280,6 +280,7 @@ class _FormPaketState extends State<FormPaket> {
         Log.info(
           'Menampilkan SnackBar error ke pengguna dengan pesan: "$errorMessage"',
         );
+        // TODO: rencana selanjutnya adalah mengganti snakbar dari custom
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(errorMessage)));
