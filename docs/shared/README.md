@@ -177,3 +177,12 @@ Direktori ini berisi widget-widget umum yang dapat digunakan kembali di berbagai
     - **Decoupling (Pemisahan Tanggung Jawab)**: UI (`NamaPaketWidget`) sekarang sepenuhnya terpisah dari logika pengambilan data. Ini adalah praktik arsitektur perangkat lunak yang baik, membuat kode lebih bersih, modular, dan mudah diuji.
     - **Fleksibilitas**: Karena hanya mengharapkan `Future`, widget ini dapat digunakan di mana saja. Di aplikasi admin, kita bisa memberinya `Future` dari `PaketOperasi` (SQLite). Di aplikasi pengguna, kita bisa memberinya `Future` dari `FirestoreService` (Firestore). Ini menyelesaikan bug inti di mana widget mencoba mencari ID Firestore di database SQLite.
     - **UI Asinkron yang Baik**: Menggunakan `FutureBuilder` secara internal untuk menangani siklus hidup `Future`: ia akan menampilkan `CircularProgressIndicator` saat data sedang dimuat, pesan error jika terjadi kegagalan, dan nama paket (`paket.nama`) jika berhasil.
+
+---
+
+## Pemeriksaan dan Perbaikan Direktori `lib/shared`
+
+- **File**: Seluruh file dalam direktori `lib/shared`, termasuk `data`, `debug`, `enum`, `export`, `model`, `operasi`, `services`, `theme`, dan `widget`.
+- **Masalah**: Banyak file dalam direktori `lib/shared` yang belum diperiksa dan berpotensi mengandung error, warning, atau kode yang tidak konsisten.
+- **Solusi**: Dilakukan pemeriksaan menyeluruh pada setiap file dalam direktori `lib/shared`. File-file yang bermasalah diperbaiki dengan menambahkan logging, memperbaiki logika, dan menyesuaikan dengan arsitektur yang ada. Setiap file yang telah diperbaiki diberi komentar `// TODO : file telah selesai diperbaiki` untuk menandai bahwa file tersebut telah selesai diperiksa dan diperbaiki.
+- **Hasil**: Direktori `lib/shared` sekarang lebih stabil, mudah dibaca, dan mudah dikelola. Kode di dalamnya lebih konsisten dan sesuai dengan standar proyek.

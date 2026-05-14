@@ -21,3 +21,12 @@
 - **Penyebab**: Masalah ini terjadi karena `initialValue` dari `FormField` hanya dibaca saat state-nya pertama kali dibuat. Jika data untuk dropdown dimuat setelah widget dibuat, `initialValue` tidak akan dievaluasi kembali, dan UI tidak akan diperbarui. Penggunaan properti `value` yang sudah usang (`deprecated`) bukanlah solusi yang tepat dan menyebabkan peringatan saat kompilasi.
 - **Solusi yang Benar**: Solusinya adalah dengan memberikan `key` unik pada setiap `DropdownButtonFormField`. Dengan menggunakan `ValueKey` yang nilainya adalah variabel state yang relevan (misalnya, `key: ValueKey<DompetModel?>(_selectedDompet)`), kita memberi sinyal kepada Flutter untuk memperlakukan `DropdownButtonFormField` sebagai widget yang berbeda setiap kali nilai state tersebut berubah. Ini memaksa Flutter untuk membuang state lama dari `FormField` dan membuat yang baru, yang pada gilirannya akan membaca ulang `initialValue` dengan nilai yang sudah diperbarui.
 - **Hasil**: Dengan pendekatan ini, formulir edit transaksi sekarang berfungsi dengan benar. Semua field dropdown secara otomatis diisi dengan data yang benar setelah dimuat, dan ini dicapai dengan menggunakan praktik terbaik Flutter saat ini tanpa mengandalkan API yang sudah usang.
+
+---
+
+## Pemeriksaan dan Perbaikan Direktori `lib/admin`
+
+- **File**: Seluruh file dalam direktori `lib/admin`, termasuk `halaman`, `halaman/form`, `halaman/tab`, dan `halaman/tambah`.
+- **Masalah**: Banyak file dalam direktori `lib/admin` yang belum diperiksa dan berpotensi mengandung error, warning, atau kode yang tidak konsisten.
+- **Solusi**: Dilakukan pemeriksaan menyeluruh pada setiap file dalam direktori `lib/admin`. File-file yang bermasalah diperbaiki dengan menambahkan logging, memperbaiki logika, dan menyesuaikan dengan arsitektur yang ada. Setiap file yang telah diperbaiki diberi komentar `// TODO : file telah selesai diperbaiki` untuk menandai bahwa file tersebut telah selesai diperiksa dan diperbaiki.
+- **Hasil**: Direktori `lib/admin` sekarang lebih stabil, mudah dibaca, dan mudah dikelola. Kode di dalamnya lebih konsisten dan sesuai dengan standar proyek.
