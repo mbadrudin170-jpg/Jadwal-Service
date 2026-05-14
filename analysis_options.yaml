@@ -99,7 +99,6 @@ linter:
 
     # === 5 ATURAN MOBILE PALING PENTING (BATCH 1) ===
     collection_methods_unrelated_type: true
-    avoid_print: true
     no_logic_in_create_state: true
     library_private_types_in_public_api: true
     exhaustive_cases: true
@@ -116,57 +115,56 @@ analyzer:
     - "**/*.g.dart"           # File hasil generate (json_serializable, dsb.)
     - "**/*.freezed.dart"     # File hasil generate Freezed
 
-  # errors:
-  #   # Menjadikan lint di bawah ini sebagai ERROR agar lebih ketat
-  #   unawaited_futures: error                                      # Future tidak di-await = ERROR
-  #   public_member_api_docs: error                                 # API publik tanpa dokumentasi = ERROR
-  #   prefer_const_constructors: error                              # Konstruktor bisa const tapi tidak = ERROR
-  #   use_key_in_widget_constructors: error                         # Widget publik tanpa Key = ERROR
-  #   use_build_context_synchronously: error                        # BuildContext setelah async gap = ERROR
-  #   no_literal_bool_comparisons: error                            # Membandingkan boolean literal = ERROR
-  #   close_sinks: error                                            # StreamController tidak ditutup = ERROR
-  #   avoid_redundant_argument_values: error                        # Argumen redundan dengan default = ERROR
-  #   discarded_futures: error                                      # Future dibuang di fungsi sinkron = ERROR
-  #   depend_on_referenced_packages: error                          # Import package tidak ada di pubspec = ERROR
-  #   empty_catches: error                                          # Blok catch kosong = ERROR
-  #   file_names: error                                             # Nama file tidak snake_case = ERROR
-  #   hash_and_equals: error                                        # Override == tanpa hashCode = ERROR
-  #   valid_regexps: error                                          # RegExp tidak valid = ERROR
-  #   use_super_parameters: error                                   # Bisa pakai super.x tapi tidak = ERROR
-  #   use_null_aware_elements: error                                # Bisa pakai ?element tapi tidak = ERROR
-  #   avoid_renaming_method_parameters: error                       # Mengganti nama parameter override = ERROR
-  #   avoid_shadowing_type_parameters: error                        # Menutupi type parameter = ERROR
-  #   avoid_types_as_parameter_names: error                         # Nama tipe sebagai nama parameter = ERROR
-  #   secure_pubspec_urls: error                                    # URL tidak https di pubspec = ERROR
-  #   no_wildcard_variable_uses: error                              # Menggunakan wildcard _ = ERROR
-  #   unnecessary_overrides: error                                  # Override tidak perlu = ERROR
-  #   avoid_catches_without_on_clauses: error                       # Catch tanpa on = ERROR
-  #   avoid_dynamic_calls: error                                    # Panggilan pada dynamic = ERROR
-  #   avoid_equals_and_hash_code_on_mutable_classes: error          # ==/hashCode di kelas mutable = ERROR
-  #   avoid_implementing_value_types: error                         # Mengimplementasikan value type = ERROR
-  #   no_duplicate_case_values: error                               # Case duplikat di switch = ERROR
-  #   no_self_assignments: error                                    # Self assignment = ERROR
-  #   null_check_on_nullable_type_parameter: error                  # Null check pada type parameter = ERROR
-  #   null_closures: error                                          # Null sebagai closure = ERROR
-  #   only_throw_errors: error                                      # Melempar selain Exception/Error = ERROR
-  #   parameter_assignments: error                                  # Mengubah nilai parameter = ERROR
-  #   throw_in_finally: error                                       # Throw di blok finally = ERROR
-  #   unnecessary_null_aware_operator_on_extension_on_nullable: error # ?. tidak perlu pada extension nullable = ERROR
-  #   unrelated_type_equality_checks: error                         # Membandingkan tipe tidak terkait = ERROR
-  #   use_rethrow_when_possible: error                              # Throw ulang tanpa rethrow = ERROR
-  #   collection_methods_unrelated_type: error
-  #   avoid_print: error
-  #   no_logic_in_create_state: error
-  #   library_private_types_in_public_api: error
-  #   exhaustive_cases: error
+  errors:
+    # Menjadikan lint di bawah ini sebagai ERROR agar lebih ketat
+    unawaited_futures: error                                      # Future tidak di-await = ERROR
+    public_member_api_docs: error                                 # API publik tanpa dokumentasi = ERROR
+    prefer_const_constructors: error                              # Konstruktor bisa const tapi tidak = ERROR
+    use_key_in_widget_constructors: error                         # Widget publik tanpa Key = ERROR
+    use_build_context_synchronously: error                        # BuildContext setelah async gap = ERROR
+    no_literal_bool_comparisons: error                            # Membandingkan boolean literal = ERROR
+    close_sinks: error                                            # StreamController tidak ditutup = ERROR
+    avoid_redundant_argument_values: error                        # Argumen redundan dengan default = ERROR
+    discarded_futures: error                                      # Future dibuang di fungsi sinkron = ERROR
+    depend_on_referenced_packages: error                          # Import package tidak ada di pubspec = ERROR
+    empty_catches: error                                          # Blok catch kosong = ERROR
+    file_names: error                                             # Nama file tidak snake_case = ERROR
+    hash_and_equals: error                                        # Override == tanpa hashCode = ERROR
+    valid_regexps: error                                          # RegExp tidak valid = ERROR
+    use_super_parameters: error                                   # Bisa pakai super.x tapi tidak = ERROR
+    use_null_aware_elements: error                                # Bisa pakai ?element tapi tidak = ERROR
+    avoid_renaming_method_parameters: error                       # Mengganti nama parameter override = ERROR
+    avoid_shadowing_type_parameters: error                        # Menutupi type parameter = ERROR
+    avoid_types_as_parameter_names: error                         # Nama tipe sebagai nama parameter = ERROR
+    secure_pubspec_urls: error                                    # URL tidak https di pubspec = ERROR
+    no_wildcard_variable_uses: error                              # Menggunakan wildcard _ = ERROR
+    unnecessary_overrides: error                                  # Override tidak perlu = ERROR
+    avoid_catches_without_on_clauses: error                       # Catch tanpa on = ERROR
+    avoid_dynamic_calls: error                                    # Panggilan pada dynamic = ERROR
+    avoid_equals_and_hash_code_on_mutable_classes: error          # ==/hashCode di kelas mutable = ERROR
+    avoid_implementing_value_types: error                         # Mengimplementasikan value type = ERROR
+    no_duplicate_case_values: error                               # Case duplikat di switch = ERROR
+    no_self_assignments: error                                    # Self assignment = ERROR
+    null_check_on_nullable_type_parameter: error                  # Null check pada type parameter = ERROR
+    null_closures: error                                          # Null sebagai closure = ERROR
+    only_throw_errors: error                                      # Melempar selain Exception/Error = ERROR
+    parameter_assignments: error                                  # Mengubah nilai parameter = ERROR
+    throw_in_finally: error                                       # Throw di blok finally = ERROR
+    unnecessary_null_aware_operator_on_extension_on_nullable: error # ?. tidak perlu pada extension nullable = ERROR
+    unrelated_type_equality_checks: error                         # Membandingkan tipe tidak terkait = ERROR
+    use_rethrow_when_possible: error                              # Throw ulang tanpa rethrow = ERROR
+    collection_methods_unrelated_type: error
+    no_logic_in_create_state: error
+    library_private_types_in_public_api: error
+    exhaustive_cases: error
 
 
-  #   avoid_function_literals_in_foreach_calls: error
-  #   avoid_single_cascade_in_expression_statements: error
-  #   prefer_conditional_assignment: error
-  #   prefer_is_empty: error
-  #   prefer_is_not_empty: error
-  #   annotate_overrides: error
+    avoid_function_literals_in_foreach_calls: error
+    avoid_single_cascade_in_expression_statements: error
+    prefer_conditional_assignment: error
+    prefer_is_empty: error
+    prefer_is_not_empty: error
+    annotate_overrides: error
 
 
   language:
