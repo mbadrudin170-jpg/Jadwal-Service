@@ -1,6 +1,7 @@
 // path: lib/shared/model/kategori_model.dart
 // Fitur: Model Data
 // Tujuan: Mendefinisikan struktur data untuk kategori transaksi, termasuk konversi dari/ke format SQLite dan Firebase.
+// Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'dart:convert';
 
@@ -79,12 +80,20 @@ class KategoriModel implements MemilikiId {
     );
   }
 
-  /// Mengurai nilai tanggal dari berbagai format (String, Timestamp) ke [DateTime].
+  /// Mengurai nilai tanggal dari berbagai format ke [DateTime].
   ///
+  /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
+  /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
   /// Mengembalikan `null` jika nilai input null atau tidak dapat diurai.
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
+    if (dateValue is DateTime) return dateValue;
+    // Menangani millisecondsSinceEpoch dari SQLite (INTEGER)
+    if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
+    // Backward compatibility untuk data lama yang masih dalam format String
     if (dateValue is String) return DateTime.tryParse(dateValue);
     return null;
   }
@@ -100,7 +109,6 @@ class KategoriModel implements MemilikiId {
       return null;
     }
   }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
   /// Mengurai nilai [bool] dari berbagai format (bool, int, String) dengan aman.
   ///
@@ -153,6 +161,8 @@ class KategoriModel implements MemilikiId {
   }
 
   /// Mengubah instance [KategoriModel] menjadi Map untuk disimpan di SQLite.
+  ///
+  /// Semua kolom DateTime sekarang disimpan sebagai millisecondsSinceEpoch (INTEGER).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -161,9 +171,9 @@ class KategoriModel implements MemilikiId {
       'id_sub_kategori': jsonEncode(
         subKategori.map((sub) => sub.toSqlite()).toList(),
       ),
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER
       'isDeleted': isDeleted ? 1 : 0,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch, // INTEGER
     };
   }
 

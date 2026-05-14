@@ -19,7 +19,6 @@
 //   final DateTime? diperbarui;
 //   final DateTime? diarsipkan;
 //   final bool isDeleted;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 //   RiwayatLanggananModel({
 //     String? id,
 //     required this.idPelanggan,

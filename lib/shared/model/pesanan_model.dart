@@ -12,7 +12,6 @@ class PesananModel implements MemilikiId {
 
   /// ID pelanggan yang melakukan pesanan.
   final String idPelanggan;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
   /// ID paket yang dipesan.
   final String idPaket;
@@ -68,7 +67,7 @@ class PesananModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -85,11 +84,11 @@ class PesananModel implements MemilikiId {
       id: map['id'] as String? ?? '',
       idPelanggan: map['id_pelanggan'] as String? ?? '',
       idPaket: map['id_paket'] as String? ?? '',
-      tanggal: _parseDateTime(map['tanggal']) ?? DateTime.now(),
+      tanggal: parseDateTime(map['tanggal']) ?? DateTime.now(),
       status: map['status'] as String? ?? 'baru',
-      diperbarui: _parseDateTime(map['diperbarui']),
+      diperbarui: parseDateTime(map['diperbarui']),
       isDeleted: map['isDeleted'] == 1,
-      diarsipkan: _parseDateTime(map['diarsipkan']),
+      diarsipkan: parseDateTime(map['diarsipkan']),
     );
   }
 
@@ -113,11 +112,11 @@ class PesananModel implements MemilikiId {
       id: id,
       idPelanggan: data['id_pelanggan'] as String? ?? '',
       idPaket: data['id_paket'] as String? ?? '',
-      tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
+      tanggal: parseDateTime(data['tanggal']) ?? DateTime.now(),
       status: data['status'] as String? ?? 'baru',
-      diperbarui: _parseDateTime(data['diperbarui']),
+      diperbarui: parseDateTime(data['diperbarui']),
       isDeleted: data['isDeleted'] == true,
-      diarsipkan: _parseDateTime(data['diarsipkan']),
+      diarsipkan: parseDateTime(data['diarsipkan']),
     );
   }
 

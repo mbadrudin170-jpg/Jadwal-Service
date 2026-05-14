@@ -1,4 +1,5 @@
-// path: lib/model/paket_model.dart
+// path: lib/shared/model/paket_model.dart
+// diubah: Mengganti nama fungsi helper internal dari _parse... menjadi parse... untuk menghilangkan peringatan lint.
 // ditambahkan: Import cloud_firestore untuk FieldValue dan Timestamp.
 // diubah: Menghapus field `jumlahPoin` yang tidak lagi digunakan.
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,7 +20,6 @@ enum TipeDurasi {
   /// Durasi dalam hitungan bulan.
   bulan;
 
-  /// Mendapatkan nama tampilan untuk setiap tipe durasi.
   /// Mendapatkan nama tampilan untuk setiap tipe durasi.
   String get displayName => switch (this) {
         TipeDurasi.menit => 'Menit',
@@ -116,20 +116,20 @@ class PaketModel implements MemilikiId {
       diarsipkan: diarsipkan ?? this.diarsipkan,
     );
   }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? _parseDateTime(dynamic value) {
+  static DateTime? parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
     if (value is String) return DateTime.tryParse(value);
     if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
     return null;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+  }
 
 
   /// Helper untuk mengurai nilai boolean dari berbagai format.
-  static bool _parseBool(Object? value) {
+  static bool parseBool(Object? value) {
     if (value == true || value == 1) return true;
     if (value == false || value == 0 || value == null) return false;
     if (value is String) return value.toLowerCase() == 'true';
@@ -137,7 +137,7 @@ class PaketModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai TipeDurasi dari String.
-  static TipeDurasi _parseTipe(dynamic value) {
+  static TipeDurasi parseTipe(dynamic value) {
     return TipeDurasi.values.firstWhere(
       (e) => e.name == value,
       orElse: () => TipeDurasi.hari,
@@ -151,13 +151,13 @@ class PaketModel implements MemilikiId {
       nama: map['nama'] as String? ?? '',
       harga: map['harga'] as int? ?? 0,
       durasi: map['durasi'] as int? ?? 0,
-      tipe: _parseTipe(map['tipe']),
+      tipe: parseTipe(map['tipe']),
       poinHadiah: map['poin_hadiah'] as int? ?? 0,
       poinPenukaran: map['poin_penukaran'] as int? ?? 0,
-      isPublic: _parseBool(map['isPublic']),
-      isDeleted: _parseBool(map['isDeleted']),
-      diperbarui: _parseDateTime(map['diperbarui']),
-      diarsipkan: _parseDateTime(map['diarsipkan']),
+      isPublic: parseBool(map['isPublic']),
+      isDeleted: parseBool(map['isDeleted']),
+      diperbarui: parseDateTime(map['diperbarui']),
+      diarsipkan: parseDateTime(map['diarsipkan']),
     );
   }
 
@@ -185,13 +185,13 @@ class PaketModel implements MemilikiId {
       nama: data['nama'] as String? ?? '',
       harga: data['harga'] as int? ?? 0,
       durasi: data['durasi'] as int? ?? 0,
-      tipe: _parseTipe(data['tipe']),
+      tipe: parseTipe(data['tipe']),
       poinHadiah: data['poin_hadiah'] as int? ?? 0,
       poinPenukaran: data['poin_penukaran'] as int? ?? 0,
-      isPublic: _parseBool(data['isPublic']),
-      isDeleted: _parseBool(data['isDeleted']),
-      diperbarui: _parseDateTime(data['diperbarui']),
-      diarsipkan: _parseDateTime(data['diarsipkan']),
+      isPublic: parseBool(data['isPublic']),
+      isDeleted: parseBool(data['isDeleted']),
+      diperbarui: parseDateTime(data['diperbarui']),
+      diarsipkan: parseDateTime(data['diarsipkan']),
     );
   }
 

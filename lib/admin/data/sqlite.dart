@@ -1,4 +1,6 @@
 // path: lib/admin/data/sqlite.dart
+// diubah: Menaikkan versi DB ke 46, mengubah semua kolom tanggal dari TEXT ke INTEGER, dan menambahkan migrasi.
+// ditambah: Menambahkan dokumentasi untuk anggota publik untuk memperbaiki peringatan analisis.
 
 import 'dart:io';
 import 'package:path/path.dart';
@@ -12,41 +14,14 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // dinaikkan ke 45 untuk memicu migrasi pembersihan
-  static const int _databaseVersion = 45;
+  // ditambah: Versi dinaikkan ke 46 untuk memicu migrasi tipe data tanggal.
+  static const int _databaseVersion = 46;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
 
-  Future<void> _addColumnIfNotExists(
-    Database db,
-    String tableName,
-    String columnName,
-    String columnType,
-  ) async {
-    final dbClient = db;
-    final List<Map<String, dynamic>> tableInfo =
-        await dbClient.rawQuery('PRAGMA table_info($tableName)');
-    final bool columnExists =
-        tableInfo.any((column) => column['name'] == columnName);
-
-    if (!columnExists) {
-      await dbClient
-          .execute('ALTER TABLE $tableName ADD COLUMN $columnName $columnType');
-      Log.info(
-        '[MIGRASI SUKSES] Berhasil menambahkan kolom `$columnName` ke tabel `$tableName`.',
-      );
-    } else {
-      Log.info(
-        '[MIGRASI DILEWATI] Kolom `$columnName` sudah ada di tabel `$tableName`.',
-      );
-    }
-  }
-
-  // --- DEFINISI TABEL ---
-
-  // Definisi tabel lainnya tetap sama...
+  // --- DEFINISI TABEL (diperbarui di bawah) ---
 
   /// Mendapatkan instance database.
   Future<Database> get database async {
@@ -103,65 +78,51 @@ class DatabaseHelper {
     }
   }
 
+  // diubah: Logika upgrade diperbarui untuk menangani migrasi ke versi 46 (kolom tanggal ke INTEGER).
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
     Log.info('Versi database lama: $oldVersion');
     Log.info('Versi database baru: $newVersion');
     Log.info('========================================');
+    
+    final batch = db.batch();
 
-    try {
-      // diubah: Strategi migrasi yang lebih aman untuk tabel pengaturan.
-      // Daripada DROP TABLE, kita buat ulang tabel dengan nama sementara,
-      // lalu ganti nama. Ini menjamin skema yang benar dan bersih.
-      if (oldVersion < 45) {
-        Log.info(
-          '[MIGRASI DIMULAI] Menangani tabel \'pengaturan\' untuk memastikan PRIMARY KEY dan data tunggal.',
-        );
+    // Migrasi lama dari v44 ke v45, tetap dipertahankan.
+    if (oldVersion < 45) {
+       Log.info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
+       await _migrateToV45(db);
+    }
 
-        // 1. Buat tabel baru dengan skema yang benar
-        await db.execute('''
-            CREATE TABLE pengaturan_baru(
-              id TEXT PRIMARY KEY,
-              interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
-              hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30,
-              diperbarui TEXT,
-              mode_pemeliharaan INTEGER NOT NULL DEFAULT 0,
-              info_pemeliharaan TEXT
-            )
-          ''');
-        Log.info('[MIGRASI] Tabel `pengaturan_baru` berhasil dibuat.');
+    // ditambah: Migrasi baru untuk mengubah semua kolom TEXT tanggal menjadi INTEGER.
+    // Ini adalah migrasi "destructive" yang membuat ulang tabel untuk memastikan
+    // integritas skema. Data lokal yang tidak disinkronkan akan hilang.
+    if (oldVersion < 46) {
+      Log.info('[MIGRASI v46] Memulai migrasi skema tanggal ke INTEGER.');
 
-        // 2. Hapus tabel lama
-        await db.execute('DROP TABLE IF EXISTS pengaturan');
-        Log.info('[MIGRASI] Tabel `pengaturan` lama berhasil dihapus.');
+      final List<String> daftarTabel = [
+        'kategori', 'sub_kategori', 'paket', 'pelanggan', 'pelanggan_aktif',
+        'transaksi', 'dompet', 'kritik_saran', 'pesanan', 'versi_apk_user',
+        'pengaturan', 'status_unggah', 'pesan',
+      ];
+      
+      Log.warning('[MIGRASI v46] Proses ini akan menghapus dan membuat ulang tabel berikut: $daftarTabel. Data lokal akan direset.');
 
-        // 3. Ganti nama tabel baru menjadi nama tabel asli
-        await db.execute('ALTER TABLE pengaturan_baru RENAME TO pengaturan');
-        Log.info(
-          '[MIGRASI SUKSES] Tabel `pengaturan` berhasil dibuat ulang dengan skema yang benar dan data bersih.',
-        );
+      for (final namaTabel in daftarTabel) {
+        batch.execute('DROP TABLE IF EXISTS $namaTabel');
+        Log.info('[MIGRASI v46] Jadwalkan DROP TABLE untuk `$namaTabel`.');
       }
 
-      // Migrasi idempoten lainnya
-      await _addColumnIfNotExists(
-        db,
-        'pelanggan_aktif',
-        'tanggal_berakhir',
-        'TEXT',
-      );
-      await _addColumnIfNotExists(
-        db,
-        'pelanggan_aktif',
-        'tanggal_mulai',
-        'TEXT',
-      );
+      // Menjadwalkan pembuatan kembali semua tabel dengan skema baru
+      _createAllTables(batch);
+      Log.info('[MIGRASI v46] Menjadwalkan pembuatan ulang semua tabel dengan skema INTEGER.');
+    }
 
+    try {
+      await batch.commit(noResult: true);
       Log.info('========================================');
       Log.info('PROSES UPGRADE DATABASE SELESAI');
-      Log.info(
-        'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
-      );
+      Log.info('Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
       Log.info('========================================');
     } on Exception catch (e, st) {
       Log.error(
@@ -173,43 +134,25 @@ class DatabaseHelper {
     }
   }
 
+  // ditambah: Fungsi helper untuk migrasi v45 agar _onUpgrade lebih bersih.
+  Future<void> _migrateToV45(Database db) async {
+    Log.info(
+      '[MIGRASI v45] Menangani tabel "pengaturan" untuk memastikan PRIMARY KEY.',
+    );
+    await db.execute('DROP TABLE IF EXISTS pengaturan');
+    await db.execute(_tabelPengaturan);
+    Log.info('[MIGRASI v45] Tabel `pengaturan` berhasil dibuat ulang.');
+  }
+
   /// Membuat tabel-tabel database.
   Future<void> createTables(Database db, int version) async {
-    // ... (Fungsi createTables tidak berubah)
     Log.info('========================================');
-    Log.info(
-      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
-    );
+    Log.info('MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
-
+    final batch = db.batch();
+    _createAllTables(batch);
     try {
-      await db.execute(_tabelKategori);
-      await db.execute(_tabelSubKategori);
-      await db.execute(_tabelPaket);
-      await db.execute(_tabelPelanggan);
-      await db.execute(_tabelPelangganAktif);
-      await db.execute(tabelTransaksi);
-      await db.execute(tabelDompet);
-      await db.execute(_tabelKritikSaran);
-      await db.execute(_tabelPesanan);
-      await db.execute(tabelVersiApkUser);
-      await db.execute(_tabelPengaturan);
-      await db.execute(_tabelStatusUnggah);
-      await db.execute(_tabelStatusAplikasi);
-      await db.execute(_tabelPesan);
-      Log.info('Semua 14 tabel utama berhasil dibuat.');
-
-      Log.info('Memulai pembuatan index...');
-      await db
-          .execute('CREATE INDEX idx_transaksi_dompet ON transaksi(id_dompet)');
-      await db.execute(
-        'CREATE INDEX idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)',
-      );
-      await db.execute(
-        'CREATE INDEX idx_transaksi_isDeleted ON transaksi(isDeleted)',
-      );
-      Log.info('Semua 3 index berhasil dibuat.');
-
+      await batch.commit(noResult: true);
       Log.info('========================================');
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
       Log.info('========================================');
@@ -219,7 +162,32 @@ class DatabaseHelper {
     }
   }
 
+  // ditambah: Logika pembuatan tabel dipisahkan ke fungsi sendiri agar bisa dipanggil dari onCreate dan onUpgrade.
+  void _createAllTables(Batch batch) {
+    batch.execute(_tabelKategori);
+    batch.execute(_tabelSubKategori);
+    batch.execute(_tabelPaket);
+    batch.execute(_tabelPelanggan);
+    batch.execute(_tabelPelangganAktif);
+    batch.execute(tabelTransaksi);
+    batch.execute(tabelDompet);
+    batch.execute(_tabelKritikSaran);
+    batch.execute(_tabelPesanan);
+    batch.execute(tabelVersiApkUser);
+    batch.execute(_tabelPengaturan);
+    batch.execute(_tabelStatusUnggah);
+    batch.execute(_tabelStatusAplikasi);
+    batch.execute(_tabelPesan);
+    Log.info('Semua 14 definisi tabel ditambahkan ke batch.');
+
+    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_dompet ON transaksi(id_dompet)');
+    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
+    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_isDeleted ON transaksi(isDeleted)');
+    Log.info('Semua 3 definisi index ditambahkan ke batch.');
+  }
+
   /// String SQL untuk membuat tabel versi_apk_user.
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelVersiApkUser = '''
       CREATE TABLE versi_apk_user(
         id TEXT PRIMARY KEY,
@@ -230,38 +198,40 @@ class DatabaseHelper {
         wajib_update INTEGER NOT NULL,
         youtube_tutorial TEXT NOT NULL,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT,
-        diperbarui TEXT
+        diarsipkan INTEGER,
+        diperbarui INTEGER
       )
     ''';
 
   /// String SQL untuk membuat tabel dompet.
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelDompet = '''
       CREATE TABLE dompet(
         id TEXT PRIMARY KEY,
         namaDompet TEXT NOT NULL,
         saldo REAL NOT NULL,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT
+        diarsipkan INTEGER
       )
     ''';
 
   /// String SQL untuk membuat tabel transaksi.
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelTransaksi = '''
       CREATE TABLE transaksi(
         id TEXT PRIMARY KEY,
         keterangan TEXT NOT NULL,
         jumlah REAL NOT NULL,
-        tanggal TEXT NOT NULL,
+        tanggal INTEGER NOT NULL,
         tipe TEXT NOT NULL,
         id_dompet TEXT,
         id_kategori TEXT,
         id_sub_kategori TEXT,
         id_pelanggan TEXT,
         id_paket TEXT,
-        diperbarui TEXT,
-        diarsipkan TEXT,
+        diperbarui INTEGER,
+        diarsipkan INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
         id_dompet_tujuan TEXT,
         poin_yang_dihasilkan INTEGER NOT NULL DEFAULT 0,
@@ -269,18 +239,19 @@ class DatabaseHelper {
         status_pembayaran TEXT,
         durasi_paket INTEGER,
         tipe_durasi_paket TEXT,
-        tanggal_mulai TEXT,
-        tanggal_berakhir TEXT,
+        tanggal_mulai INTEGER,
+        tanggal_berakhir INTEGER,
         aktivasi_paket INTEGER DEFAULT 0
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelStatusUnggah = '''
     CREATE TABLE status_unggah(
       tabel TEXT PRIMARY KEY,
       status INTEGER NOT NULL,
       ids TEXT NOT NULL,
-      diperbarui TEXT
+      diperbarui INTEGER
     )
   ''';
 
@@ -291,50 +262,55 @@ class DatabaseHelper {
     )
   ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPesan = '''
     CREATE TABLE pesan(
       id TEXT PRIMARY KEY,
       isi TEXT NOT NULL,
-      tanggal TEXT NOT NULL,
+      tanggal INTEGER NOT NULL,
       status TEXT NOT NULL
     )
   ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPengaturan = '''
     CREATE TABLE pengaturan(
       id TEXT PRIMARY KEY,
       interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
       hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30,
-      diperbarui TEXT,
+      diperbarui INTEGER,
       mode_pemeliharaan INTEGER NOT NULL DEFAULT 0,
       info_pemeliharaan TEXT
     )
   ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelKategori = '''
       CREATE TABLE kategori(
         id TEXT PRIMARY KEY,
         nama TEXT NOT NULL,
         tipe TEXT NOT NULL,
         id_sub_kategori TEXT,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT
+        diarsipkan INTEGER
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelSubKategori = '''
       CREATE TABLE sub_kategori(
         id TEXT PRIMARY KEY,
         nama TEXT NOT NULL,
         id_kategori TEXT NOT NULL,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT,
+        diarsipkan INTEGER,
         FOREIGN KEY (id_kategori) REFERENCES kategori (id) ON DELETE CASCADE
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPaket = '''
       CREATE TABLE paket(
         id TEXT PRIMARY KEY,
@@ -343,15 +319,16 @@ class DatabaseHelper {
         durasi INTEGER NOT NULL,
         tipe TEXT NOT NULL,
         jumlahPoin INTEGER NOT NULL DEFAULT 0,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT,
+        diarsipkan INTEGER,
         poin_hadiah INTEGER NOT NULL DEFAULT 0,
         poin_penukaran INTEGER NOT NULL DEFAULT 0,
         isPublic INTEGER NOT NULL DEFAULT 1
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPelanggan = '''
       CREATE TABLE pelanggan(
         id TEXT PRIMARY KEY,
@@ -361,51 +338,54 @@ class DatabaseHelper {
         password TEXT NOT NULL,
         mac_address TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'aktif', 
-        diperbarui TEXT,      
-        diarsipkan TEXT,
+        diperbarui INTEGER,      
+        diarsipkan INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0       
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPelangganAktif = '''
       CREATE TABLE pelanggan_aktif(
         id TEXT PRIMARY KEY,
         id_pelanggan TEXT NOT NULL,
         id_paket TEXT NOT NULL,
         id_transaksi TEXT,
-        tanggal_mulai TEXT,
-        tanggal_berakhir TEXT,
+        tanggal_mulai INTEGER,
+        tanggal_berakhir INTEGER,
         status TEXT NOT NULL,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT,
+        diarsipkan INTEGER,
         FOREIGN KEY (id_pelanggan) REFERENCES pelanggan (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (id_paket) REFERENCES paket (id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (id_transaksi) REFERENCES transaksi (id) ON DELETE SET NULL
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelKritikSaran = '''
       CREATE TABLE kritik_saran(
         id TEXT PRIMARY KEY,
         isi TEXT NOT NULL,
-        tanggal TEXT NOT NULL,
+        tanggal INTEGER NOT NULL,
         userId TEXT NOT NULL,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         FOREIGN KEY (userId) REFERENCES pelanggan (id) ON DELETE CASCADE
       )
     ''';
 
+  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPesanan = '''
       CREATE TABLE pesanan(
         id TEXT PRIMARY KEY,
         id_pelanggan TEXT NOT NULL,
         id_paket TEXT NOT NULL,
-        tanggal TEXT NOT NULL,
+        tanggal INTEGER NOT NULL,
         status TEXT,
-        diperbarui TEXT,
+        diperbarui INTEGER,
         isDeleted INTEGER NOT NULL DEFAULT 0,
-        diarsipkan TEXT,
+        diarsipkan INTEGER,
         FOREIGN KEY (id_pelanggan) REFERENCES pelanggan (id) ON DELETE CASCADE,
         FOREIGN KEY (id_paket) REFERENCES paket (id) ON DELETE CASCADE
       )

@@ -1,6 +1,5 @@
 // path: lib/shared/model/pelanggan_model.dart
-// diubah: Menambahkan dokumentasi lengkap dan perbaikan tipe data untuk keamanan.
-
+// diubah: Mengganti nama fungsi helper internal dan menyesuaikan konversi tanggal untuk SQLite.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
@@ -10,7 +9,7 @@ class PelangganModel implements MemilikiId {
   /// ID unik dari pelanggan, biasanya dihasilkan oleh UUID.
   @override
   final String id;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+
   /// Nama lengkap pelanggan.
   final String nama;
 
@@ -92,16 +91,17 @@ class PelangganModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi DateTime.
-  static DateTime? _parseDateTime(dynamic value) {
+  static DateTime? parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
     if (value is String) return DateTime.tryParse(value);
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
     return null;
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
-  static bool _parseBool(dynamic value) {
+  static bool parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -118,9 +118,9 @@ class PelangganModel implements MemilikiId {
       alamat: map['alamat'] as String? ?? '',
       password: map['password'] as String? ?? '',
       macAddress: map['mac_address'] as String? ?? '',
-      isDeleted: _parseBool(map['isDeleted']),
-      diperbarui: _parseDateTime(map['diperbarui']),
-      diarsipkan: _parseDateTime(map['diarsipkan']),
+      isDeleted: parseBool(map['isDeleted']),
+      diperbarui: parseDateTime(map['diperbarui']),
+      diarsipkan: parseDateTime(map['diarsipkan']),
     );
   }
 
@@ -134,8 +134,8 @@ class PelangganModel implements MemilikiId {
       'password': password,
       'mac_address': macAddress,
       'isDeleted': isDeleted ? 1 : 0,
-      'diperbarui': diperbarui?.toIso8601String(),
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch,
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
     };
   }
 
@@ -148,9 +148,9 @@ class PelangganModel implements MemilikiId {
       alamat: data['alamat'] as String? ?? '',
       password: data['password'] as String? ?? '',
       macAddress: data['mac_address'] as String? ?? '',
-      isDeleted: _parseBool(data['isDeleted']),
-      diperbarui: _parseDateTime(data['diperbarui']),
-      diarsipkan: _parseDateTime(data['diarsipkan']),
+      isDeleted: parseBool(data['isDeleted']),
+      diperbarui: parseDateTime(data['diperbarui']),
+      diarsipkan: parseDateTime(data['diarsipkan']),
     );
   }
 

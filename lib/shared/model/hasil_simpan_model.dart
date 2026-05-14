@@ -14,4 +14,3 @@ class HasilSimpanModel<T> {
   /// Konstruktor untuk `HasilSimpanModel`.
   HasilSimpanModel({required this.sukses, required this.pesan, this.data});
 }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

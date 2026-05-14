@@ -4,6 +4,7 @@
 // Ini memperbaiki error `undefined_method` yang terjadi di `PengaturanOperasi`.
 // diubah: Menggunakan konstanta `idPengaturanGlobal` secara konsisten di semua factory constructor.
 // diubah: Mengimplementasikan MemilikiId untuk konsistensi dengan unggah data generik.
+// diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
@@ -30,8 +31,6 @@ class PengaturanModel implements MemilikiId {
   final String infoPemeliharaan;
 
   /// Waktu terakhir data diperbarui.
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
-
   final DateTime? diperbarui;
 
   /// Konstruktor untuk `PengaturanModel`.
@@ -66,9 +65,18 @@ class PengaturanModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
+  ///
+  /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
+  /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
+    if (dateValue is DateTime) return dateValue;
+    // Menangani millisecondsSinceEpoch dari SQLite (INTEGER)
+    if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
+    // Backward compatibility untuk data lama yang masih dalam format String
     if (dateValue is String) return DateTime.tryParse(dateValue);
     return null;
   }
@@ -86,6 +94,8 @@ class PengaturanModel implements MemilikiId {
   }
 
   /// Mengonversi `PengaturanModel` ke format Map untuk disimpan di SQLite.
+  ///
+  /// Semua kolom DateTime sekarang disimpan sebagai millisecondsSinceEpoch (INTEGER).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -93,7 +103,7 @@ class PengaturanModel implements MemilikiId {
       'hapus_otomatis_data_arsip': hapusOtomatisDataArsip,
       'mode_pemeliharaan': modePemeliharaan ? 1 : 0,
       'info_pemeliharaan': infoPemeliharaan,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER
     };
   }
 
@@ -122,5 +132,3 @@ class PengaturanModel implements MemilikiId {
     };
   }
 }
-
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

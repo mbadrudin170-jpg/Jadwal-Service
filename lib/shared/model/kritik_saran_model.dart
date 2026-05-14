@@ -1,5 +1,6 @@
-// path: lib/model/kritik_saran_model.dart
+// path: lib/shared/model/kritik_saran_model.dart
 // diubah: Penamaan metode diseragamkan dan logika Firebase diperbaiki.
+// diubah: Mengganti nama fungsi helper internal dari _parseDateTime menjadi parseDateTime untuk menghilangkan peringatan lint.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
@@ -49,7 +50,7 @@ class KritikSaranModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -57,7 +58,6 @@ class KritikSaranModel implements MemilikiId {
     if (dateValue is int) return DateTime.fromMillisecondsSinceEpoch(dateValue);
     return null;
   }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
   /// Membuat instance `KritikSaranModel` dari data Map SQLite.
   factory KritikSaranModel.fromSqlite(Map<String, dynamic> map) {
@@ -65,8 +65,8 @@ class KritikSaranModel implements MemilikiId {
       id: map['id'] as String?,
       isi: map['isi'] as String? ?? '',
       userId: map['userId'] as String? ?? '',
-      tanggal: _parseDateTime(map['tanggal']), // ← Pakai _parseDateTime
-      diperbarui: _parseDateTime(map['diperbarui']), // ← Pakai _parseDateTime
+      tanggal: parseDateTime(map['tanggal']), // ← Pakai parseDateTime
+      diperbarui: parseDateTime(map['diperbarui']), // ← Pakai parseDateTime
     );
   }
 
@@ -87,8 +87,8 @@ class KritikSaranModel implements MemilikiId {
       id: id,
       isi: data['isi'] as String? ?? '',
       userId: data['userId'] as String? ?? '',
-      tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
-      diperbarui: _parseDateTime(data['diperbarui']),
+      tanggal: parseDateTime(data['tanggal']) ?? DateTime.now(),
+      diperbarui: parseDateTime(data['diperbarui']),
     );
   }
 

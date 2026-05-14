@@ -1,5 +1,6 @@
 // path: lib/shared/model/sub_kategori_model.dart
 // diubah: Penamaan metode diseragamkan, ditambahkan dokumentasi lengkap dan keamanan tipe.
+// diubah: Mengubah penyimpanan tanggal ke millisecondsSinceEpoch untuk SQLite dan memperbaiki nama helper.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
@@ -58,15 +59,17 @@ class SubKategoriModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi DateTime.
-  static DateTime? _parseDateTime(dynamic date) {
+  static DateTime? parseDateTime(dynamic date) {
     if (date == null) return null;
     if (date is Timestamp) return date.toDate();
+    if (date is DateTime) return date;
     if (date is String) return DateTime.tryParse(date);
+    if (date is int) return DateTime.fromMillisecondsSinceEpoch(date);
     return null;
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
-  static bool _parseBool(dynamic value) {
+  static bool parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -80,9 +83,9 @@ class SubKategoriModel implements MemilikiId {
       id: map['id'] as String? ?? '',
       nama: map['nama'] as String? ?? '',
       idKategori: map['id_kategori'] as String? ?? '',
-      diperbarui: _parseDateTime(map['diperbarui']),
-      isDeleted: _parseBool(map['isDeleted']),
-      diarsipkan: _parseDateTime(map['diarsipkan']),
+      diperbarui: parseDateTime(map['diperbarui']),
+      isDeleted: parseBool(map['isDeleted']),
+      diarsipkan: parseDateTime(map['diarsipkan']),
     );
   }
 
@@ -92,9 +95,9 @@ class SubKategoriModel implements MemilikiId {
       'id': id,
       'nama': nama,
       'id_kategori': idKategori,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch,
       'isDeleted': isDeleted ? 1 : 0,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
     };
   }
 
@@ -104,9 +107,9 @@ class SubKategoriModel implements MemilikiId {
       id: id,
       nama: data['nama'] as String? ?? '',
       idKategori: data['id_kategori'] as String? ?? '',
-      diperbarui: _parseDateTime(data['diperbarui']),
-      isDeleted: _parseBool(data['isDeleted']),
-      diarsipkan: _parseDateTime(data['diarsipkan']),
+      diperbarui: parseDateTime(data['diperbarui']),
+      isDeleted: parseBool(data['isDeleted']),
+      diarsipkan: parseDateTime(data['diarsipkan']),
     );
   }
 
@@ -123,4 +126,3 @@ class SubKategoriModel implements MemilikiId {
     };
   }
 }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

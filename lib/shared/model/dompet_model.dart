@@ -1,6 +1,7 @@
 // path: lib/shared/model/dompet_model.dart
 // Fitur: Model Data
 // Tujuan: Mendefinisikan struktur data untuk dompet, termasuk konversi dari/ke format SQLite dan Firebase.
+// Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -65,10 +66,17 @@ class DompetModel implements MemilikiId {
 
   /// Helper internal untuk mengurai nilai tanggal dari berbagai format.
   ///
-  /// Menerima [Timestamp] dari Firestore atau [String] format ISO-8601 dari SQLite.
+  /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
+  /// atau [String] format ISO-8601 (untuk backward compatibility).
   static DateTime? _parseDateTime(dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
+    if (dateValue is DateTime) return dateValue;
+    // Menangani millisecondsSinceEpoch dari SQLite (INTEGER)
+    if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
+    // Backward compatibility untuk data lama yang masih dalam format String
     if (dateValue is String) return DateTime.tryParse(dateValue);
     return null;
   }
@@ -76,7 +84,7 @@ class DompetModel implements MemilikiId {
   /// Membuat instance [DompetModel] dari data map SQLite.
   ///
   /// Factory constructor ini menangani konversi tipe data dari format
-  /// yang disimpan di database lokal.
+  /// yang disimpan di database lokal. Sekarang mendukung millisecondsSinceEpoch.
   factory DompetModel.fromSqlite(Map<String, dynamic> map) {
     return DompetModel(
       id: map['id'] as String?,
@@ -90,15 +98,16 @@ class DompetModel implements MemilikiId {
 
   /// Mengonversi instance [DompetModel] menjadi map untuk disimpan di SQLite.
   ///
-  /// [DateTime] diubah menjadi format String ISO-8601 dan boolean menjadi integer.
+  /// Semua kolom DateTime sekarang disimpan sebagai millisecondsSinceEpoch (INTEGER).
+  /// Boolean tetap disimpan sebagai integer (0 atau 1).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
       'namaDompet': namaDompet,
       'saldo': saldo,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER
       'isDeleted': isDeleted ? 1 : 0,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch, // INTEGER
     };
   }
 
@@ -132,7 +141,5 @@ class DompetModel implements MemilikiId {
       data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
     }
     return data;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
-
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
-
+  }
+}

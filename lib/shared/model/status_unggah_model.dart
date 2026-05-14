@@ -1,4 +1,5 @@
-// path: lib/model/status_unggah_model.dart
+// path: lib/shared/model/status_unggah_model.dart
+
 
 /// Model ini merepresentasikan satu baris tunggal dalam tabel `status_unggah`.
 /// Tujuannya adalah untuk bertindak sebagai "bendera" global yang menandakan
@@ -10,7 +11,6 @@ class StatusUnggahModel {
   /// Bendera yang menandakan status. `true` jika ada data untuk diunggah,
   /// `false` jika tidak.
   final bool perluUnggah;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
 
   /// Konstruktor untuk `StatusUnggahModel`.
   StatusUnggahModel({required this.id, required this.perluUnggah});

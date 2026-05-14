@@ -1,5 +1,6 @@
 // path: lib/shared/model/transaksi_model.dart
 // diubah: Model digabungkan dengan RiwayatLanggananModel dan denormalisasi data dihapus.
+// diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 // ditambah: Dokumentasi lengkap dan perbaikan tipe data untuk keamanan.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
@@ -113,6 +114,10 @@ class TransaksiModel implements MemilikiId {
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
     if (dateValue is String) return DateTime.tryParse(dateValue);
+    // Menangani millisecondsSinceEpoch dari SQLite (INTEGER)
+    if (dateValue is int) {
+      return DateTime.fromMillisecondsSinceEpoch(dateValue);
+    }
     return null;
   }
 
@@ -161,10 +166,11 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Mengubah instance [TransaksiModel] menjadi Map untuk disimpan di SQLite.
+  /// Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
-      'tanggal': tanggal.toIso8601String(),
+      'tanggal': tanggal.millisecondsSinceEpoch, // INTEGER
       'keterangan': keterangan,
       'jumlah': jumlah,
       'tipe': tipe.name,
@@ -177,13 +183,15 @@ class TransaksiModel implements MemilikiId {
       'status_pembayaran': statusPembayaran.name,
       'poin_yang_dihasilkan': poinYangDihasilkan,
       'poin_yang_digunakan': poinYangDigunakan,
-      'diperbarui': diperbarui?.toIso8601String(),
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER atau NULL
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch, // INTEGER atau NULL
       'isDeleted': isDeleted ? 1 : 0,
       'durasi_paket': durasiPaket,
       'tipe_durasi_paket': tipeDurasiPaket?.name,
-      'tanggal_mulai': tanggalMulai?.toIso8601String(),
-      'tanggal_berakhir': tanggalBerakhir?.toIso8601String(),
+      'tanggal_mulai':
+          tanggalMulai?.millisecondsSinceEpoch, // INTEGER atau NULL
+      'tanggal_berakhir':
+          tanggalBerakhir?.millisecondsSinceEpoch, // INTEGER atau NULL
       'aktivasi_paket': aktivasiPaket ? 1 : 0,
     };
   }
@@ -303,4 +311,3 @@ class TransaksiModel implements MemilikiId {
     );
   }
 }
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart

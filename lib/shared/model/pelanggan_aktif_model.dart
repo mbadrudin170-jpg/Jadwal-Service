@@ -1,4 +1,5 @@
 // path: lib/model/pelanggan_aktif_model.dart
+// Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -11,7 +12,7 @@ class PelangganAktifModel implements MemilikiId {
   /// ID unik untuk setiap entri pelanggan aktif.
   @override
   final String id;
-// TODO: tugas selanjutnya adalah merubah semua data yang disimpan ke sqlite kolom  tanggal diubah  ke millisecondsSinceEpoch, dan menyesuaikan tipe nya dengan sqlite.dart
+
   /// ID pelanggan yang terkait dengan entri ini.
   final String idPelanggan;
 
@@ -97,10 +98,18 @@ class PelangganAktifModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
+  ///
+  /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
+  /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
   static DateTime? _parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
+    // Menangani millisecondsSinceEpoch dari SQLite (INTEGER)
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    // Backward compatibility untuk data lama yang masih dalam format String
     if (value is String) return DateTime.tryParse(value);
 
     Log.warning('Format DateTime tidak dikenali: $value');
@@ -196,18 +205,20 @@ class PelangganAktifModel implements MemilikiId {
   }
 
   /// Mengonversi `PelangganAktifModel` ke format Map untuk disimpan di SQLite.
+  ///
+  /// Semua kolom DateTime sekarang disimpan sebagai millisecondsSinceEpoch (INTEGER).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
       'id_pelanggan': idPelanggan,
       'id_paket': idPaket,
       'id_transaksi': idTransaksi,
-      'tanggal_mulai': tanggalMulai.toIso8601String(), // snake_case
-      'tanggal_berakhir': tanggalBerakhir.toIso8601String(), // snake_case
+      'tanggal_mulai': tanggalMulai.millisecondsSinceEpoch, // INTEGER
+      'tanggal_berakhir': tanggalBerakhir.millisecondsSinceEpoch, // INTEGER
       'status': status.name,
-      'diperbarui': diperbarui?.toIso8601String(),
+      'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER
       'isDeleted': isDeleted ? 1 : 0,
-      'diarsipkan': diarsipkan?.toIso8601String(),
+      'diarsipkan': diarsipkan?.millisecondsSinceEpoch, // INTEGER
     };
   }
 
