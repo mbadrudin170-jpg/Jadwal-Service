@@ -159,8 +159,8 @@ class KategoriOperasi {
     try {
       final now = DateTime.now().toUtc();
       final Map<String, dynamic> dataToUpdate = {
-        'diarsipkan': now.toIso8601String(),
-        'diperbarui': now.toIso8601String(),
+        'diarsipkan': now.millisecondsSinceEpoch,
+        'diperbarui': now.millisecondsSinceEpoch,
         'isDeleted': 1,
       };
 
@@ -232,7 +232,7 @@ class KategoriOperasi {
       final List<Map<String, dynamic>> maps = await db.query(
         'kategori',
         where: 'diperbarui > ?',
-        whereArgs: [since.toIso8601String()],
+        whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       final listKategori = List.generate(
         maps.length,

@@ -19,7 +19,7 @@ class SubKategoriOperasi {
     bool dariServer = false,
   }) async {
     Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
-    final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
+    final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
     await _operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
   }
 
@@ -61,7 +61,7 @@ class SubKategoriOperasi {
     bool dariServer = false,
   }) async {
     Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
-    final data = subKategori.copyWith(diperbarui: DateTime.now()).toSqlite();
+    final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
     await _operasiDasar.perbarui(
       'sub_kategori',
       data,
@@ -83,7 +83,7 @@ class SubKategoriOperasi {
     if (softDelete) {
       final dataToUpdate = {
         'isDeleted': 1,
-        'diperbarui': DateTime.now().toIso8601String(),
+        'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
       };
       await _operasiDasar.perbarui(
         'sub_kategori',
@@ -104,7 +104,7 @@ class SubKategoriOperasi {
     Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) return;
     final data = items
-        .map((item) => item.copyWith(diperbarui: DateTime.now()).toSqlite())
+        .map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
         .toList();
     await _operasiDasar.sisipkanAtauPerbaruiBatch(
       'sub_kategori',

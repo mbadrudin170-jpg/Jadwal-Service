@@ -148,7 +148,7 @@ class PelangganOperasi {
           'pelanggan',
           {
             'isDeleted': 1,
-            'diperbarui': DateTime.now().toUtc().toIso8601String(),
+            'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
           },
           id,
           dariServer: dariServer,
@@ -174,7 +174,7 @@ class PelangganOperasi {
       final List<Map<String, dynamic>> maps = await db.query(
         'pelanggan',
         where: 'diperbarui > ?',
-        whereArgs: [since.toIso8601String()],
+        whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info(
         'Ditemukan ${maps.length} perubahan pelanggan sejak waktu yang ditentukan.',
@@ -202,8 +202,8 @@ class PelangganOperasi {
         'pelanggan',
         {
           'isDeleted': 1,
-          'diarsipkan': now.toIso8601String(),
-          'diperbarui': now.toIso8601String(),
+          'diarsipkan': now.millisecondsSinceEpoch,
+          'diperbarui': now.millisecondsSinceEpoch,
         },
         id,
         dariServer: dariServer,

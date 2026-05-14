@@ -270,7 +270,7 @@ class PaketOperasi {
       final List<Map<String, dynamic>> maps = await db.query(
         'paket',
         where: 'diperbarui > ?',
-        whereArgs: [since.toIso8601String()],
+        whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       if (maps.isNotEmpty) {
         Log.info(

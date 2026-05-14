@@ -96,13 +96,13 @@ class PelangganAktifOperasi {
       Log.info('Berhasil mengambil ${maps.length} pelanggan aktif');
 
       int jumlahMendekatiBerakhir = 0;
-      final sekarang = DateTime.now();
+      final sekarang = DateTime.now().toUtc();
       final tigaHariLagi = sekarang.add(const Duration(days: 3));
 
       for (var map in maps) {
-        final tanggalBerakhirString = map['tanggal_berakhir'] as String? ?? '';
-        if (tanggalBerakhirString.isNotEmpty) {
-          final tanggalBerakhir = DateTime.parse(tanggalBerakhirString);
+        final tanggalBerakhirInt = map['tanggal_berakhir'] as int? ?? 0;
+        if (tanggalBerakhirInt > 0) {
+          final tanggalBerakhir = DateTime.fromMillisecondsSinceEpoch(tanggalBerakhirInt, isUtc: true);
           if (tanggalBerakhir.isBefore(tigaHariLagi) &&
               tanggalBerakhir.isAfter(sekarang)) {
             jumlahMendekatiBerakhir++;
@@ -415,7 +415,7 @@ class PelangganAktifOperasi {
             'pelanggan_aktif',
             where: 'diarsipkan IS NOT NULL AND diarsipkan < ?',
             whereArgs: [
-              batasWaktu.toIso8601String(),
+              batasWaktu.millisecondsSinceEpoch,
             ],
           );
 
@@ -465,7 +465,7 @@ class PelangganAktifOperasi {
         'pelanggan_aktif',
         where: 'tanggal_berakhir < ? AND isDeleted = 0',
         whereArgs: [
-          sekarang.toIso8601String(),
+          sekarang.millisecondsSinceEpoch,
         ],
       );
 
@@ -482,7 +482,7 @@ class PelangganAktifOperasi {
 
       await _operasiDasar.jalankanOperasiKompleks(
         (txn) async {
-          final now = DateTime.now().toUtc().toIso8601String();
+          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
           Log.info(
             'Menandai ${idsToArchive.length} pelanggan sebagai isDeleted=1, diarsipkan=$now',
           );
@@ -536,7 +536,7 @@ class PelangganAktifOperasi {
         (txn) async {
           final now = DateTime.now()
               .toUtc()
-              .toIso8601String(); // diubah: simpan dalam UTC
+              .millisecondsSinceEpoch; // diubah: simpan dalam UTC
           Log.info(
             'Menandai ${idsToArchive.length} pelanggan sebagai isDeleted=1, diarsipkan=$now',
           );

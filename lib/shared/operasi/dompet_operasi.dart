@@ -171,8 +171,8 @@ class DompetOperasi {
     try {
       final now = DateTime.now().toUtc();
       final Map<String, dynamic> dataToUpdate = {
-        'diarsipkan': now.toIso8601String(),
-        'diperbarui': now.toIso8601String(),
+        'diarsipkan': now.millisecondsSinceEpoch,
+        'diperbarui': now.millisecondsSinceEpoch,
         'isDeleted': 1,
       };
 
