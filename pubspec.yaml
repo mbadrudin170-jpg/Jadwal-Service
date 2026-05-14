@@ -11,12 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cloud_firestore: ^6.4.0
+  cloud_firestore: ^4.15.9
   collection: ^1.19.1
   connectivity_plus: ^7.1.1
   cupertino_icons: ^1.0.9
   device_info_plus: ^13.0.0
-  firebase_core: ^4.8.0
+  firebase_core: ^2.32.0
   fl_chart: ^1.2.0
   flutter_local_notifications: ^21.0.0
   flutter_timezone: ^5.0.2
@@ -46,6 +46,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   mockito: ^5.6.4
+  fake_cloud_firestore: ^2.5.2
+  mocktail: ^1.0.5
 
 flutter_launcher_icons:
   android: "launcher_icon"

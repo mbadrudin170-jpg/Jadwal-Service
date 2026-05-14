@@ -5,7 +5,13 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
 class TransaksiOpFirebase {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _db;
+
+  // diubah: Menambahkan konstruktor untuk injeksi dependensi.
+  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
+  /// Memungkinkan injeksi instance palsu untuk pengujian.
+  TransaksiOpFirebase({final FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
 
   /// Mengambil riwayat langganan (transaksi) untuk seorang pelanggan.
   ///
@@ -41,6 +47,8 @@ class TransaksiOpFirebase {
   Future<List<TransaksiModel>> ambilRiwayatLanggananLengkap(
     final String pelangganId,
   ) {
+    // TODO: Implementasi mungkin perlu dibedakan dari ambilRiwayatLangganan
+    //       jika ada kebutuhan untuk mengambil data yang lebih detail.
     return ambilRiwayatLangganan(pelangganId);
   }
 }
