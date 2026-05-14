@@ -94,7 +94,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
       final riwayatTransaksi = await _transaksiOperasi
           .ambilTransaksiByPelangganId(widget.idPelanggan);
       final transaksiPoin = riwayatTransaksi
-          .where((t) => t.poinYangDihasilkan > 0 || t.poinYangDigunakan > 0)
+          .where((final t) => t.poinYangDihasilkan > 0 || t.poinYangDigunakan > 0)
           .toList();
 
       if (!mounted) return;
@@ -114,7 +114,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PoinPageUi(
       appBarTitle: Row(
         children: [
@@ -124,7 +124,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
       ),
       totalPoin: _totalPoin,
       menuPilihan: _menuPilihan,
-      onSelectionChanged: (Set<MenuPoin> newSelection) async {
+      onSelectionChanged: (final Set<MenuPoin> newSelection) async {
         final selection = newSelection.first;
         setState(() {
           _menuPilihan = selection;
@@ -162,7 +162,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
 
     return ListView.builder(
       itemCount: _daftarHadiah.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final hadiah = _daftarHadiah[index];
         final cukupPoin = _totalPoin >= hadiah.poinPenukaran;
         final progresPoin = hadiah.poinPenukaran > 0
@@ -211,7 +211,7 @@ class _PoinPageAdminState extends State<PoinPageAdmin> {
 
     return ListView.builder(
       itemCount: _riwayatTransaksi.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final transaksi = _riwayatTransaksi[index];
         final isPenambahan = transaksi.poinYangDihasilkan > 0;
         final poinValue = isPenambahan

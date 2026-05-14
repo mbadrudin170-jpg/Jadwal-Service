@@ -173,7 +173,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
     Log.info('Index field baru: ${_subKategoriControllers.length - 1}');
   }
 
-  void _hapusInputSubKategori(int index) {
+  void _hapusInputSubKategori(final int index) {
     Log.info('========================================');
     Log.info('AKSI: Menghapus field input sub-kategori');
     Log.info('Index yang akan dihapus: $index');
@@ -255,7 +255,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           );
 
           final subKategoriIndex = kategoriInduk.subKategori
-              .indexWhere((s) => s.id == widget.subKategori!.id);
+              .indexWhere((final s) => s.id == widget.subKategori!.id);
 
           if (subKategoriIndex != -1) {
             Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
@@ -343,7 +343,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           int subKategoriTerisi = 0;
 
           final List<SubKategoriModel> subKategoriList =
-              _subKategoriControllers.where((controller) {
+              _subKategoriControllers.where((final controller) {
             final isEmpty = controller.text.isEmpty;
             if (isEmpty) {
               subKategoriKosong++;
@@ -357,7 +357,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
               );
             }
             return !isEmpty;
-          }).map((controller) {
+          }).map((final controller) {
             return SubKategoriModel(
               nama: controller.text,
               idKategori: kategoriId,
@@ -479,7 +479,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     String judul = 'Form Kategori';
     if (_isEditMode && widget.kategori != null) judul = 'Edit Kategori';
     if (_isEditMode && widget.subKategori != null) judul = 'Edit Sub-Kategori';
@@ -532,7 +532,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                     border: const OutlineInputBorder(),
                   ),
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (final _) {
                     Log.info(
                       'INPUT: Field nama disubmit melalui keyboard (TextInputAction.done).',
                     );
@@ -540,12 +540,12 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                     Log.info('Menghilangkan fokus dari input.');
                     FocusScope.of(context).unfocus();
                   },
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Nama ${_isSubKategoriMode ? "sub-kategori" : "kategori"} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input nama. Nilai: "${value ?? "NULL"}"',
                     );
@@ -566,8 +566,8 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                       border: OutlineInputBorder(),
                     ),
                     items: TipeKategori.values
-                        .where((tipe) => tipe != TipeKategori.transfer)
-                        .map((TipeKategori tipe) {
+                        .where((final tipe) => tipe != TipeKategori.transfer)
+                        .map((final TipeKategori tipe) {
                       return DropdownMenuItem<TipeKategori>(
                         value: tipe,
                         child: Text(
@@ -576,7 +576,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                         ),
                       );
                     }).toList(),
-                    onChanged: (TipeKategori? newValue) {
+                    onChanged: (final TipeKategori? newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
                         Log.info('  - Tipe Lama: $_tipe');
@@ -598,7 +598,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _subKategoriControllers.length,
-                    itemBuilder: (context, index) {
+                    itemBuilder: (final context, final index) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Row(
@@ -610,7 +610,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                                   labelText: 'Nama Sub-Kategori ${index + 1}',
                                   border: const OutlineInputBorder(),
                                 ),
-                                onChanged: (value) {
+                                onChanged: (final value) {
                                   Log.info(
                                     'INPUT: Sub-kategori ke-${index + 1} berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                                   );

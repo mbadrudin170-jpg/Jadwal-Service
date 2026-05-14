@@ -79,16 +79,16 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(pelanggan: pelanggan),
+        builder: (final context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
-    if (result == true && mounted) {
+    if ((result ?? false) && mounted) {
       Log.info('Kembali dari edit, memuat ulang data dari SQLite.');
       await _loadData();
     }
   }
 
-  Future<void> _salinSemuaInfo(PelangganModel pelanggan) async {
+  Future<void> _salinSemuaInfo(final PelangganModel pelanggan) async {
     final info = '''
 Nama : ${pelanggan.nama}
 No HP : ${pelanggan.telepon}
@@ -109,7 +109,7 @@ MAC : ${pelanggan.macAddress}
       context,
       MaterialPageRoute<void>(
         // diubah: Menggunakan PoinPageAdmin dan mengirim idPelanggan.
-        builder: (context) => PoinPageAdmin(idPelanggan: pelanggan!.id),
+        builder: (final context) => PoinPageAdmin(idPelanggan: pelanggan!.id),
       ),
     );
     Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');
@@ -117,7 +117,7 @@ MAC : ${pelanggan.macAddress}
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),

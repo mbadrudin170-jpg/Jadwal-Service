@@ -11,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 
 /// Fungsi ini akan dipanggil ketika notifikasi di-tap saat aplikasi berada di background.
 @pragma('vm:entry-point')
-void onDidReceiveBackgroundNotificationResponse(NotificationResponse response) {
+void onDidReceiveBackgroundNotificationResponse(final NotificationResponse response) {
   Log.info(
     'Notifikasi background di-tap. Payload: ${response.payload}',
   );
@@ -47,7 +47,7 @@ class NotifikasiServis {
     try {
       await plugin.initialize(
         settings: settings,
-        onDidReceiveNotificationResponse: (response) {
+        onDidReceiveNotificationResponse: (final response) {
           Log.info(
             'Notifikasi foreground di-tap. Payload: ${response.payload}',
           );
@@ -129,9 +129,9 @@ class NotifikasiServis {
 
   /// Menampilkan notifikasi secara langsung.
   Future<void> tampilkanNotifikasiLangsung({
-    required String title,
-    required String body,
-    String? payload,
+    required final String title,
+    required final String body,
+    final String? payload,
   }) async {
     if (channelNotifikasiPenting == null) {
       Log.error(
@@ -174,11 +174,11 @@ class NotifikasiServis {
 
   /// Menjadwalkan notifikasi untuk ditampilkan di masa mendatang.
   Future<void> jadwalNotifikasi({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime jadwal,
-    String? payload,
+    required final int id,
+    required final String title,
+    required final String body,
+    required final DateTime jadwal,
+    final String? payload,
   }) async {
     if (channelNotifikasiPenting == null) {
       Log.error(
@@ -220,11 +220,11 @@ class NotifikasiServis {
 
   /// Memperbarui jadwal notifikasi yang sudah ada.
   Future<void> perbaruiJadwalNotifikasi({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime jadwal,
-    String? payload,
+    required final int id,
+    required final String title,
+    required final String body,
+    required final DateTime jadwal,
+    final String? payload,
   }) async {
     Log.info('Memulai pembaruan jadwal notifikasi untuk ID: $id');
 
@@ -241,7 +241,7 @@ class NotifikasiServis {
   }
 
   /// Membatalkan notifikasi berdasarkan [id].
-  Future<void> batalNotifikasi(int id) async {
+  Future<void> batalNotifikasi(final int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
       await plugin.cancel(id: id);

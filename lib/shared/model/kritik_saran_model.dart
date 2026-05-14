@@ -25,7 +25,7 @@ class KritikSaranModel implements MemilikiId {
 
   /// Konstruktor untuk membuat instance `KritikSaranModel`.
   KritikSaranModel({
-    String? id,
+    final String? id,
     required this.isi,
     this.tanggal,
     required this.userId,
@@ -34,11 +34,11 @@ class KritikSaranModel implements MemilikiId {
 
   /// Membuat salinan dari `KritikSaranModel` dengan beberapa nilai yang diubah.
   KritikSaranModel copyWith({
-    String? id,
-    String? isi,
-    DateTime? tanggal,
-    String? userId,
-    DateTime? diperbarui,
+    final String? id,
+    final String? isi,
+    final DateTime? tanggal,
+    final String? userId,
+    final DateTime? diperbarui,
   }) {
     return KritikSaranModel(
       id: id ?? this.id,
@@ -50,7 +50,7 @@ class KritikSaranModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? parseDateTime(dynamic dateValue) {
+  static DateTime? parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -60,7 +60,7 @@ class KritikSaranModel implements MemilikiId {
   }
 
   /// Membuat instance `KritikSaranModel` dari data Map SQLite.
-  factory KritikSaranModel.fromSqlite(Map<String, dynamic> map) {
+  factory KritikSaranModel.fromSqlite(final Map<String, dynamic> map) {
     return KritikSaranModel(
       id: map['id'] as String?,
       isi: map['isi'] as String? ?? '',
@@ -82,7 +82,7 @@ class KritikSaranModel implements MemilikiId {
   }
 
   /// Membuat instance `KritikSaranModel` dari data Map Firebase.
-  factory KritikSaranModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory KritikSaranModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return KritikSaranModel(
       id: id,
       isi: data['isi'] as String? ?? '',

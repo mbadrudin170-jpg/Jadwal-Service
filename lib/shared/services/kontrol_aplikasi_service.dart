@@ -60,7 +60,7 @@ class KontrolAplikasiService {
   /// Mengatur status maintenance di Firestore.
   ///
   /// Akan memperbarui field `sedang_maintenance` di dokumen `status_aplikasi`.
-  Future<void> aturStatusMaintenance(bool status) async {
+  Future<void> aturStatusMaintenance(final bool status) async {
     Log.info('Memproses perubahan status maintenance menjadi: $status');
 
     try {

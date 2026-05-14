@@ -27,7 +27,7 @@ class PengaturanPageUser extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('[Build UI] ✅ Membangun halaman PengaturanPage.');
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -63,7 +63,7 @@ class PengaturanPageUser extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) =>
+                  builder: (final context) =>
                       RiwayatKritikDanSaranPage(userId: userId),
                 ),
               );
@@ -78,7 +78,7 @@ class PengaturanPageUser extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const InfoApkPage(),
+                  builder: (final context) => const InfoApkPage(),
                 ),
               );
             },
@@ -100,7 +100,7 @@ class PengaturanPageUser extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => DaftarAkunPage(
+                  builder: (final context) => DaftarAkunPage(
                     localStorageService: localStorageService,
                   ),
                 ),

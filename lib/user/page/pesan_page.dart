@@ -10,7 +10,7 @@ class PesanPage extends StatelessWidget {
   const PesanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     log(
       '[Pembangunan UI] ✅ Membangun UI untuk PesanPage, menampilkan daftar pesan statis.',
       name: 'pesan_page.dart',

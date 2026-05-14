@@ -29,9 +29,9 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+      create: (final _) => ThemeProvider(),
       child: const AppInitializer(),
     );
   }
@@ -99,7 +99,7 @@ class _AppInitializerState extends State<AppInitializer> {
     }
   }
 
-  void _updateMessage(String message) {
+  void _updateMessage(final String message) {
     if (!mounted) return;
     setState(() {
       _loadingMessage = message;
@@ -107,10 +107,10 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<bool>(
       future: _initialization,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final isOnline = snapshot.data ?? false;
           return AppProviders(isOffline: !isOnline);
@@ -132,11 +132,11 @@ class AppProviders extends StatelessWidget {
   const AppProviders({super.key, required this.isOffline});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<SyncManager>(
-          create: (_) => SyncManager(),
+          create: (final _) => SyncManager(),
         ),
       ],
       child: AppMaterial(isOffline: isOffline),
@@ -153,9 +153,9 @@ class AppMaterial extends StatelessWidget {
   const AppMaterial({super.key, required this.isOffline});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+      builder: (final context, final themeProvider, final child) {
         return MaterialApp(
           title: 'Admin Wifi',
           debugShowCheckedModeBanner: false,

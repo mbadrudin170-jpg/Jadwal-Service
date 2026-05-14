@@ -23,7 +23,7 @@ abstract class ThemeProvider extends ChangeNotifier {
   bool get isDarkMode;
 
   /// Mengatur mode tema aplikasi dan menyimpannya ke penyimpanan lokal.
-  Future<void> aturTema(ThemeMode mode);
+  Future<void> aturTema(final ThemeMode mode);
 
   /// Memuat mode tema yang tersimpan dari penyimpanan lokal.
   Future<void> muatTema();
@@ -85,7 +85,7 @@ class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
 
   // diubah: Mengirim tipe ThemeMode secara langsung ke service.
   @override
-  Future<void> aturTema(ThemeMode mode) async {
+  Future<void> aturTema(final ThemeMode mode) async {
     if (mode == _themeMode) return;
 
     Log.info('[ThemeProvider] Mengatur tema baru: $mode');

@@ -85,7 +85,6 @@ class _FormPelangganState extends State<FormPelanggan> {
         alamat: _alamatController.text.trim(),
         password: _passwordController.text, // No trim for password
         macAddress: _macAddressController.text.trim().toUpperCase(),
-        diperbarui: DateTime.now(),
       );
 
       Log.info('Model Pelanggan yang akan disimpan: ${newPelanggan.toJson()}');
@@ -134,7 +133,7 @@ class _FormPelangganState extends State<FormPelanggan> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI FormPelanggan. isSaving: $_isSaving');
     return Scaffold(
       appBar: AppBar(
@@ -162,7 +161,7 @@ class _FormPelangganState extends State<FormPelanggan> {
                   label: 'Nama Pelanggan',
                   icon: Icons.person_outline,
                   nextFocus: _teleponFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
+                  validator: (final v) => (v == null || v.isEmpty)
                       ? 'Nama tidak boleh kosong'
                       : null,
                 ),
@@ -174,7 +173,7 @@ class _FormPelangganState extends State<FormPelanggan> {
                   icon: Icons.phone_android_outlined,
                   keyboard: TextInputType.phone,
                   nextFocus: _alamatFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
+                  validator: (final v) => (v == null || v.isEmpty)
                       ? 'Telepon tidak boleh kosong'
                       : null,
                 ),
@@ -185,7 +184,7 @@ class _FormPelangganState extends State<FormPelanggan> {
                   label: 'Alamat Lengkap',
                   icon: Icons.home_outlined,
                   nextFocus: _passwordFocusNode,
-                  validator: (v) => (v == null || v.isEmpty)
+                  validator: (final v) => (v == null || v.isEmpty)
                       ? 'Alamat tidak boleh kosong'
                       : null,
                 ),
@@ -215,9 +214,9 @@ class _FormPelangganState extends State<FormPelanggan> {
                   ),
                   obscureText: !_isPasswordVisible,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) =>
+                  onFieldSubmitted: (final _) =>
                       FocusScope.of(context).requestFocus(_macAddressFocusNode),
-                  validator: (v) => (v == null || v.isEmpty)
+                  validator: (final v) => (v == null || v.isEmpty)
                       ? 'Password tidak boleh kosong'
                       : null,
                 ),
@@ -229,8 +228,8 @@ class _FormPelangganState extends State<FormPelanggan> {
                   icon: Icons.router_outlined,
                   hint: 'XX:XX:XX:XX:XX:XX',
                   action: TextInputAction.done,
-                  onSubmitted: (_) => _macAddressFocusNode.unfocus(),
-                  validator: (v) => (v == null || v.isEmpty)
+                  onSubmitted: (final _) => _macAddressFocusNode.unfocus(),
+                  validator: (final v) => (v == null || v.isEmpty)
                       ? 'MAC Address tidak boleh kosong'
                       : null,
                 ),
@@ -266,16 +265,16 @@ class _FormPelangganState extends State<FormPelanggan> {
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String label,
-    required IconData icon,
-    String? hint,
-    TextInputType keyboard = TextInputType.text,
-    TextInputAction action = TextInputAction.next,
-    FocusNode? nextFocus,
-    void Function(String)? onSubmitted,
-    String? Function(String?)? validator,
+    required final TextEditingController controller,
+    required final FocusNode focusNode,
+    required final String label,
+    required final IconData icon,
+    final String? hint,
+    final TextInputType keyboard = TextInputType.text,
+    final TextInputAction action = TextInputAction.next,
+    final FocusNode? nextFocus,
+    final void Function(String)? onSubmitted,
+    final String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -288,7 +287,7 @@ class _FormPelangganState extends State<FormPelanggan> {
       ),
       keyboardType: keyboard,
       textInputAction: action,
-      onFieldSubmitted: (v) {
+      onFieldSubmitted: (final v) {
         if (nextFocus != null) FocusScope.of(context).requestFocus(nextFocus);
         if (onSubmitted != null) onSubmitted(v);
       },

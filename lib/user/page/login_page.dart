@@ -28,7 +28,7 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun LoginPage, meneruskan ke _TampilanLogin.', {
       'hasFirestore': firestore != null,
       'hasLocalStorage': localStorageService != null,
@@ -64,7 +64,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     Log.info('Memulai inisialisasi state _TampilanLogin.');
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     unawaited(_initializeLocalStorage());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -104,12 +104,12 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     });
   }
 
-  Future<void> _tampilkanAlertError(String pesan) async {
+  Future<void> _tampilkanAlertError(final String pesan) async {
     Log.warning('Menampilkan alert error.', {'pesan': pesan});
     if (!mounted) return;
     await showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (final ctx) => AlertDialog(
         title: const Text('Gagal Masuk'),
         content: Text(pesan),
         actions: [
@@ -207,7 +207,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
 
         await navigator.pushReplacement(
           MaterialPageRoute<void>(
-            builder: (context) => MainPage(
+            builder: (final context) => MainPage(
               userId: uid,
               localStorageService: _localStorageService,
             ),
@@ -242,7 +242,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('🔴🔴🔴 HALAMAN LOGIN DITAMPILKAN 🔴🔴🔴');
     return Scaffold(
       body: Center(
@@ -270,7 +270,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                 ),
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                onFieldSubmitted: (final _) => FocusScope.of(context).nextFocus(),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -292,7 +292,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                   ),
                 ),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _prosesLogin(),
+                onFieldSubmitted: (final _) => _prosesLogin(),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -313,7 +313,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                   Log.info("Tombol 'Lupa Sandi?' ditekan.");
                   unawaited(showDialog<void>(
                     context: context,
-                    builder: (ctx) => AlertDialog(
+                    builder: (final ctx) => AlertDialog(
                       title: const Text('Fitur Dalam Pengembangan'),
                       content: const Text(
                         'Fitur ini sedang kami kerjakan dan akan segera tersedia.',
@@ -342,7 +342,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
                       await Navigator.push(
                         context,
                         MaterialPageRoute<void>(
-                          builder: (context) => const DaftarAkunPage(),
+                          builder: (final context) => const DaftarAkunPage(),
                         ),
                       );
                     },

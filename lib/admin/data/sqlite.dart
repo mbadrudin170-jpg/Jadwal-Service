@@ -79,7 +79,7 @@ class DatabaseHelper {
   }
 
   // diubah: Logika upgrade diperbarui untuk menangani migrasi ke versi 46 (kolom tanggal ke INTEGER).
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  Future<void> _onUpgrade(final Database db, final int oldVersion, final int newVersion) async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
     Log.info('Versi database lama: $oldVersion');
@@ -135,7 +135,7 @@ class DatabaseHelper {
   }
 
   // ditambah: Fungsi helper untuk migrasi v45 agar _onUpgrade lebih bersih.
-  Future<void> _migrateToV45(Database db) async {
+  Future<void> _migrateToV45(final Database db) async {
     Log.info(
       '[MIGRASI v45] Menangani tabel "pengaturan" untuk memastikan PRIMARY KEY.',
     );
@@ -145,7 +145,7 @@ class DatabaseHelper {
   }
 
   /// Membuat tabel-tabel database.
-  Future<void> createTables(Database db, int version) async {
+  Future<void> createTables(final Database db, final int version) async {
     Log.info('========================================');
     Log.info('MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
@@ -163,7 +163,7 @@ class DatabaseHelper {
   }
 
   // ditambah: Logika pembuatan tabel dipisahkan ke fungsi sendiri agar bisa dipanggil dari onCreate dan onUpgrade.
-  void _createAllTables(Batch batch) {
+  void _createAllTables(final Batch batch) {
     batch.execute(_tabelKategori);
     batch.execute(_tabelSubKategori);
     batch.execute(_tabelPaket);

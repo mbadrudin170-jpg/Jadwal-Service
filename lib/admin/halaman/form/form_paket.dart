@@ -321,7 +321,7 @@ class _FormPaketState extends State<FormPaket> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI FormPaket');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
@@ -362,12 +362,12 @@ class _FormPaketState extends State<FormPaket> {
                   textInputAction:
                       TextInputAction.next, // ditambah: textInputAction
                   decoration: const InputDecoration(labelText: 'Nama Paket'),
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Nama paket berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input nama paket. Nilai: "${value ?? "NULL"}"',
                     );
@@ -378,7 +378,7 @@ class _FormPaketState extends State<FormPaket> {
                     Log.info('VALIDASI BERHASIL: Nama paket valid.');
                     return null;
                   },
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (final _) {
                     // ditambah: onFieldSubmitted
                     FocusScope.of(context).requestFocus(_hargaFocusNode);
                   },
@@ -391,12 +391,12 @@ class _FormPaketState extends State<FormPaket> {
                       TextInputAction.next, // ditambah: textInputAction
                   decoration: const InputDecoration(labelText: 'Harga'),
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Harga berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input harga. Nilai: "${value ?? "NULL"}"',
                     );
@@ -415,7 +415,7 @@ class _FormPaketState extends State<FormPaket> {
                     );
                     return null;
                   },
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (final _) {
                     // ditambah: onFieldSubmitted
                     FocusScope.of(context).requestFocus(_durasiFocusNode);
                   },
@@ -428,12 +428,12 @@ class _FormPaketState extends State<FormPaket> {
                       TextInputAction.next, // ditambah: textInputAction
                   decoration: const InputDecoration(labelText: 'Durasi'),
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Durasi berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input durasi. Nilai: "${value ?? "NULL"}"',
                     );
@@ -452,7 +452,7 @@ class _FormPaketState extends State<FormPaket> {
                     );
                     return null;
                   },
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (final _) {
                     // ditambah: onFieldSubmitted
                     FocusScope.of(context).requestFocus(_poinHadiahFocusNode);
                   },
@@ -465,12 +465,12 @@ class _FormPaketState extends State<FormPaket> {
                       TextInputAction.next, // ditambah: textInputAction
                   decoration: const InputDecoration(labelText: 'Poin Hadiah'),
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Poin hadiah berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input poin hadiah. Nilai: "${value ?? "NULL"}"',
                     );
@@ -491,7 +491,7 @@ class _FormPaketState extends State<FormPaket> {
                     );
                     return null;
                   },
-                  onFieldSubmitted: (_) {
+                  onFieldSubmitted: (final _) {
                     // ditambah: onFieldSubmitted
                     FocusScope.of(
                       context,
@@ -508,12 +508,12 @@ class _FormPaketState extends State<FormPaket> {
                     labelText: 'Poin Penukaran',
                   ),
                   keyboardType: TextInputType.number,
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info(
                       'INPUT: Poin penukaran berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                     );
                   },
-                  validator: (value) {
+                  validator: (final value) {
                     Log.info(
                       'VALIDASI: Memvalidasi input poin penukaran. Nilai: "${value ?? "NULL"}"',
                     );
@@ -534,7 +534,7 @@ class _FormPaketState extends State<FormPaket> {
                     );
                     return null;
                   },
-                  onFieldSubmitted: (_) async {
+                  onFieldSubmitted: (final _) async {
                     // ditambah: onFieldSubmitted
                     await _saveForm(); // diubah: panggil _saveForm saat selesai
                   },
@@ -543,13 +543,13 @@ class _FormPaketState extends State<FormPaket> {
                 DropdownButtonFormField<TipeDurasi>(
                   initialValue: _selectedTipe,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
-                  items: TipeDurasi.values.map((TipeDurasi tipe) {
+                  items: TipeDurasi.values.map((final TipeDurasi tipe) {
                     return DropdownMenuItem<TipeDurasi>(
                       value: tipe,
                       child: Text(tipe.displayName),
                     );
                   }).toList(),
-                  onChanged: (TipeDurasi? newValue) {
+                  onChanged: (final TipeDurasi? newValue) {
                     if (newValue != null) {
                       Log.info('DROPDOWN: Tipe durasi diubah.');
                       Log.info('  - Tipe Lama: ${_selectedTipe.displayName}');
@@ -568,7 +568,7 @@ class _FormPaketState extends State<FormPaket> {
                   title: const Text('Paket Aktif (Public)'),
                   subtitle: const Text('Jika OFF, paket tidak tampil ke user'),
                   value: _isPublic,
-                  onChanged: (value) {
+                  onChanged: (final value) {
                     Log.info('SWITCH: Status public diubah.');
                     Log.info('  - Status Lama: $_isPublic');
                     Log.info('  - Status Baru: $value');

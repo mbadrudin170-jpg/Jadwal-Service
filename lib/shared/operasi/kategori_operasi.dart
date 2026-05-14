@@ -14,8 +14,8 @@ class KategoriOperasi {
 
   /// Membuat [KategoriModel] baru di database.
   Future<KategoriModel> createKategori(
-    KategoriModel kategori, {
-    bool dariServer = false,
+    final KategoriModel kategori, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai createKategori untuk kategori: ${kategori.toSqlite()}');
     try {
@@ -45,7 +45,7 @@ class KategoriOperasi {
       );
       final listKategori = List.generate(
         maps.length,
-        (i) => KategoriModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${listKategori.length} data kategori.');
       return listKategori;
@@ -56,7 +56,7 @@ class KategoriOperasi {
   }
 
   /// Mengambil [KategoriModel] berdasarkan [id].
-  Future<KategoriModel> getKategoriById(String id) async {
+  Future<KategoriModel> getKategoriById(final String id) async {
     Log.info('Memulai getKategoriById untuk ID: $id');
     try {
       final db = await dbHelper.database;
@@ -86,7 +86,7 @@ class KategoriOperasi {
   }
 
   /// Mengambil semua kategori berdasarkan [TipeKategori].
-  Future<List<KategoriModel>> getKategoriByTipe(TipeKategori tipe) async {
+  Future<List<KategoriModel>> getKategoriByTipe(final TipeKategori tipe) async {
     Log.info('Memulai getKategoriByTipe untuk tipe: ${tipe.name}');
     try {
       final db = await dbHelper.database;
@@ -97,7 +97,7 @@ class KategoriOperasi {
       );
       final listKategori = List.generate(
         maps.length,
-        (i) => KategoriModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${listKategori.length} data kategori untuk tipe ${tipe.name}.',
@@ -114,7 +114,7 @@ class KategoriOperasi {
   }
 
   /// Memperbarui [KategoriModel] yang ada di database.
-  Future<void> update(KategoriModel kategori, {bool dariServer = false}) async {
+  Future<void> update(final KategoriModel kategori, {final bool dariServer = false}) async {
     Log.info('Memulai update untuk kategori: ${kategori.toSqlite()}');
     try {
       final data =
@@ -137,7 +137,7 @@ class KategoriOperasi {
   }
 
   /// Menghapus [KategoriModel] dari database secara permanen.
-  Future<void> delete(String id, {bool dariServer = false}) async {
+  Future<void> delete(final String id, {final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai operasi delete (hard delete) untuk kategori ID: $id',
     );
@@ -152,8 +152,8 @@ class KategoriOperasi {
 
   /// Mengarsipkan satu kategori berdasarkan [id] (soft delete).
   Future<void> arsipkanSatuKategori(
-    String id, {
-    bool dariServer = false,
+    final String id, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai arsipkanSatuKategori (soft delete) untuk ID: $id');
     try {
@@ -184,8 +184,8 @@ class KategoriOperasi {
 
   /// Menghapus semua kategori yang ada dan menyisipkan yang baru.
   Future<void> bersihkanDanSisipkanSemua(
-    List<KategoriModel> items, {
-    bool dariServer = false,
+    final List<KategoriModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.warning(
       'PERINGATAN: Memulai bersihkanDanSisipkanSemua. Ini akan menghapus semua kategori dan menggantinya dengan ${items.length} item baru.',
@@ -197,7 +197,7 @@ class KategoriOperasi {
     }
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           await txn.delete('kategori');
           Log.info('Tabel kategori berhasil dibersihkan.');
           for (var item in items) {
@@ -223,7 +223,7 @@ class KategoriOperasi {
   }
 
   /// Mengambil semua kategori yang telah diubah sejak [since].
-  Future<List<KategoriModel>> getPerubahan(DateTime since) async {
+  Future<List<KategoriModel>> getPerubahan(final DateTime since) async {
     Log.info(
       'Memulai getPerubahan untuk kategori sejak: ${since.toIso8601String()}',
     );
@@ -236,7 +236,7 @@ class KategoriOperasi {
       );
       final listKategori = List.generate(
         maps.length,
-        (i) => KategoriModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil menemukan ${listKategori.length} perubahan kategori sejak ${since.toIso8601String()}.',
@@ -250,8 +250,8 @@ class KategoriOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [KategoriModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<KategoriModel> items, {
-    bool dariServer = false,
+    final List<KategoriModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item kategori.',
@@ -265,7 +265,7 @@ class KategoriOperasi {
     try {
       final data = items
           .map(
-            (item) =>
+            (final item) =>
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
@@ -288,7 +288,7 @@ class KategoriOperasi {
   }
 
   /// Mengambil beberapa [KategoriModel] berdasarkan daftar [ids].
-  Future<List<KategoriModel>> getKategoriByIds(List<String> ids) async {
+  Future<List<KategoriModel>> getKategoriByIds(final List<String> ids) async {
     Log.info('Memulai getKategoriByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -306,7 +306,7 @@ class KategoriOperasi {
       );
       final listKategori = List.generate(
         maps.length,
-        (i) => KategoriModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${listKategori.length} kategori dari ${ids.length} ID yang diminta.',

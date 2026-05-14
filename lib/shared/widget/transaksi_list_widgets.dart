@@ -16,7 +16,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 /// Mengembalikan [Map] dengan kunci [DateTime] (hanya tahun, bulan, hari)
 /// dan nilai berupa [List] dari [TransaksiModel] pada tanggal tersebut.
 Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
-  List<TransaksiModel> transaksi,
+  final List<TransaksiModel> transaksi,
 ) {
   final Map<DateTime, List<TransaksiModel>> grouped = {};
   for (final t in transaksi) {
@@ -33,7 +33,7 @@ Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
 ///
 /// Menampilkan [tanggal] yang diformat dan [total] nominal transaksi
 /// pada tanggal tersebut.
-Widget bangunHeaderSeksi(DateTime tanggal, double total) {
+Widget bangunHeaderSeksi(final DateTime tanggal, final double total) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     child: Row(
@@ -113,7 +113,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     IconData iconData;
     Color iconColor;
     if (widget.transaksi.tipe == TipeTransaksi.pemasukan) {
@@ -134,11 +134,11 @@ class _TransaksiTileState extends State<TransaksiTile> {
             context,
             MaterialPageRoute<bool>(
               // ✅ Explicit type
-              builder: (context) =>
+              builder: (final context) =>
                   DetailTransaksiPage(transaksi: widget.transaksi),
             ),
           );
-          if (result == true) {
+          if (result ?? false) {
             widget.onDataChanged();
           }
         },
@@ -146,7 +146,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
           await showDialog<void>(
             // ✅ Explicit type
             context: context,
-            builder: (context) => AlertDialog(
+            builder: (final context) => AlertDialog(
               title: const Text('Opsi'),
               content: const Text(
                 'Apa yang ingin Anda lakukan dengan transaksi ini?',
@@ -160,11 +160,11 @@ class _TransaksiTileState extends State<TransaksiTile> {
                       context,
                       MaterialPageRoute<bool>(
                         // ✅ Explicit type
-                        builder: (context) =>
+                        builder: (final context) =>
                             FormTransaksiPage(transaksi: widget.transaksi),
                       ),
                     );
-                    if (result == true) {
+                    if (result ?? false) {
                       widget.onDataChanged();
                     }
                   },
@@ -188,7 +188,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
         title: Text(widget.transaksi.keterangan),
         subtitle: FutureBuilder<List<String>>(
           future: Future.wait([_getNamaKategori(), _getNamaDompet()]),
-          builder: (context, snapshot) {
+          builder: (final context, final snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Memuat...');
             }
@@ -220,10 +220,10 @@ class _TransaksiTileState extends State<TransaksiTile> {
 ///
 /// Fungsi convenience untuk membuat tile transaksi.
 Widget bangunItemTransaksi(
-  BuildContext context,
-  TransaksiModel transaksi,
-  VoidCallback onDataChanged,
-  TransaksiOperasi transaksiOperasi,
+  final BuildContext context,
+  final TransaksiModel transaksi,
+  final VoidCallback onDataChanged,
+  final TransaksiOperasi transaksiOperasi,
 ) {
   return TransaksiTile(
     transaksi: transaksi,

@@ -30,7 +30,7 @@ class RingkasanTransaksi extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI RingkasanTransaksi dengan data: Pemasukan=${pemasukan.toStringAsFixed(2)}, Pengeluaran=${pengeluaran.toStringAsFixed(2)}, Total=${total.toStringAsFixed(2)}',
     );
@@ -138,9 +138,9 @@ class _TransaksiPageState extends State<TransaksiPage> {
     Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
     final result = await Navigator.push(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const FormTransaksiPage()),
+      MaterialPageRoute<bool>(builder: (final context) => const FormTransaksiPage()),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
         'Form ditutup dengan hasil sukses (true). Memuat ulang data transaksi.',
       );
@@ -153,7 +153,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI utama Halaman Transaksi (build method).');
     return Scaffold(
       appBar: AppBar(
@@ -176,7 +176,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _dataFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             Log.info(
               'FutureBuilder: Menunggu hasil dari _getData. Menampilkan CircularProgressIndicator.',
@@ -235,7 +235,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     );
   }
 
-  Widget _buildTransaksiList(List<TransaksiModel> transaksiData) {
+  Widget _buildTransaksiList(final List<TransaksiModel> transaksiData) {
     Log.info(
       'Membangun daftar transaksi (_buildTransaksiList) dengan ${transaksiData.length} item.',
     );
@@ -243,12 +243,12 @@ class _TransaksiPageState extends State<TransaksiPage> {
 
     return ListView.builder(
       itemCount: groupedTransaksi.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final tanggal = groupedTransaksi.keys.elementAt(index);
         final transaksiPadaTanggal = groupedTransaksi[tanggal]!;
         final totalPadaTanggal = transaksiPadaTanggal.fold(
           0.0,
-          (sum, item) =>
+          (final sum, final item) =>
               sum +
               (item.tipe == TipeTransaksi.pemasukan
                   ? item.jumlah
@@ -260,7 +260,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
           children: [
             bangunHeaderSeksi(tanggal, totalPadaTanggal),
             ...transaksiPadaTanggal.map(
-              (transaksi) => bangunItemTransaksi(
+              (final transaksi) => bangunItemTransaksi(
                 context,
                 transaksi,
                 _loadData,

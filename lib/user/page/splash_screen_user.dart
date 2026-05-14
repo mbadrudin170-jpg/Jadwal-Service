@@ -26,7 +26,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   void initState() {
     super.initState();
     Log.info('SplashScreen: initState dipanggil.');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
       unawaited(_checkSession());
     });
   }
@@ -60,7 +60,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         await Navigator.pushReplacement(
           context,
           MaterialPageRoute<void>(
-            builder: (context) => MainPage(
+            builder: (final context) => MainPage(
               userId: userId,
               localStorageService: localStorageService,
             ),
@@ -70,7 +70,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         Log.warning('Pengguna belum login. Navigasi ke LoginPage.');
         await Navigator.pushReplacement(
           context,
-          MaterialPageRoute<void>(builder: (context) => const LoginPage()),
+          MaterialPageRoute<void>(builder: (final context) => const LoginPage()),
         );
       }
     } on Exception catch (e, s) {
@@ -82,7 +82,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       if (!mounted) return;
       await Navigator.pushReplacement(
         context,
-        MaterialPageRoute<void>(builder: (context) => const LoginPage()),
+        MaterialPageRoute<void>(builder: (final context) => const LoginPage()),
       );
     }
   }
@@ -94,7 +94,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('SplashScreen: Membangun UI.');
     const message = 'Memeriksa sesi pengguna...';
     final theme = Theme.of(context);

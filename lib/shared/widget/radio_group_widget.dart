@@ -65,10 +65,10 @@ class _SingingCharacterRadioGroupState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return RadioGroup<SingingCharacter>(
       groupValue: _character,
-      onChanged: (SingingCharacter? value) {
+      onChanged: (final SingingCharacter? value) {
         setState(() {
           _character = value;
         });
@@ -129,10 +129,10 @@ class _GenreRadioGroupState extends State<GenreRadioGroup> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return RadioGroup<Genre>(
       groupValue: _genre,
-      onChanged: (Genre? value) {
+      onChanged: (final Genre? value) {
         setState(() {
           _genre = value;
         });

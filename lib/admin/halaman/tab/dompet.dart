@@ -52,10 +52,10 @@ class _DompetPageState extends State<DompetPage> {
     Log.info('Navigasi ke halaman tambah dompet.');
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
+      MaterialPageRoute<bool>(builder: (final context) => const FormDompet()),
     );
     if (!mounted) return;
-    if (result == true) {
+    if (result ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memuat ulang data.');
       _loadDompet();
     }
@@ -77,7 +77,7 @@ class _DompetPageState extends State<DompetPage> {
 
     await showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
           content: const Text(
@@ -110,13 +110,13 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk menampilkan dialog konfirmasi pengarsipan satu dompet
-  Future<void> _showDialogHapusSatu(DompetModel dompet) async {
+  Future<void> _showDialogHapusSatu(final DompetModel dompet) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk dompet: "${dompet.namaDompet}".',
     );
     await showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
@@ -149,7 +149,7 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   // Fungsi untuk mengarsipkan satu dompet
-  Future<void> _hapusSatuDompet(DompetModel dompet) async {
+  Future<void> _hapusSatuDompet(final DompetModel dompet) async {
     Log.info('Memulai pengarsipan dompet: "${dompet.namaDompet}".');
     try {
       await _dompetOperasi.arsipkanSatuDompet(dompet.id);
@@ -193,7 +193,7 @@ class _DompetPageState extends State<DompetPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI untuk Halaman Dompet.');
     return Scaffold(
       appBar: AppBar(
@@ -212,7 +212,7 @@ class _DompetPageState extends State<DompetPage> {
           Expanded(
             child: FutureBuilder<List<DompetModel>>(
               future: _listaDompetFuture,
-              builder: (context, snapshot) {
+              builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   Log.info('Menunggu data dompet...');
                   return const Center(child: CircularProgressIndicator());
@@ -235,7 +235,7 @@ class _DompetPageState extends State<DompetPage> {
                   return ListView.builder(
                     padding: const EdgeInsets.only(top: 8),
                     itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
+                    itemBuilder: (final context, final index) {
                       final dompet = snapshot.data![index];
                       return DompetCard(
                         dompet: dompet,
@@ -246,7 +246,7 @@ class _DompetPageState extends State<DompetPage> {
                           await Navigator.push<void>(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (context) =>
+                              builder: (final context) =>
                                   DetailDompet(dompet: dompet),
                             ),
                           );
@@ -310,11 +310,11 @@ class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI untuk widget Ringkasan Keuangan.');
     return FutureBuilder<List<double>>(
       future: _summaryFuture,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         double pemasukan = 0.0;
         double pengeluaran = 0.0;
         double total = 0.0;
@@ -400,7 +400,7 @@ class DompetCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

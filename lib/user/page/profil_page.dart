@@ -1,5 +1,6 @@
 // path: lib/user/page/profil_page.dart
 // diubah: Menghapus impor yang tidak perlu.
+// refactor: Menghapus ketergantungan pada FirestoreService dan menggunakan kelas operasi yang sesuai.
 
 import 'dart:async';
 
@@ -8,11 +9,13 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/page/detail_pelanggan_user.dart';
-import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
@@ -35,7 +38,9 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final PelangganOpFirebase _pelangganOp = PelangganOpFirebase();
+  final TransaksiOpFirebase _transaksiOp = TransaksiOpFirebase();
+  final PaketOpFirebase _paketOp = PaketOpFirebase();
 
   Future<PelangganModel?>? _futurePelanggan;
   Future<List<TransaksiModel>>? _riwayatLanggananFuture;
@@ -57,7 +62,7 @@ class _ProfilPageState extends State<ProfilPage> {
     if (!mounted) return;
 
     setState(() {
-      _futurePelanggan = _firestoreService.ambilPelangganSekali(widget.userId);
+      _futurePelanggan = _pelangganOp.ambilPelangganSekali(widget.userId);
     });
 
     try {
@@ -69,14 +74,14 @@ class _ProfilPageState extends State<ProfilPage> {
         if (!mounted) return;
         setState(() {
           _riwayatLanggananFuture =
-              _firestoreService.ambilRiwayatLangganan(pelanggan.id);
+              _transaksiOp.ambilRiwayatLangganan(pelanggan.id);
         });
       } else {
         Log.warning(
           'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.',
         );
       }
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memuat data profil: $e');
@@ -90,7 +95,7 @@ class _ProfilPageState extends State<ProfilPage> {
 
     // Inisialisasi ulang semua future untuk memicu state loading di FutureBuilder
     setState(() {
-      _futurePelanggan = _firestoreService.ambilPelangganSekali(widget.userId);
+      _futurePelanggan = _pelangganOp.ambilPelangganSekali(widget.userId);
     });
 
     try {
@@ -99,7 +104,7 @@ class _ProfilPageState extends State<ProfilPage> {
         setState(() {
           // Reset juga future-future dependen
           _riwayatLanggananFuture =
-              _firestoreService.ambilRiwayatLangganan(pelanggan.id);
+              _transaksiOp.ambilRiwayatLangganan(pelanggan.id);
           _futureNamaPaket = null;
           _cacheIdPaket = null;
         });
@@ -111,7 +116,7 @@ class _ProfilPageState extends State<ProfilPage> {
         Log.info('Data profil berhasil diperbarui.');
         SnackBarUtil.showSuccess(context, 'Data berhasil diperbarui.');
       }
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
       if (mounted) {
         SnackBarUtil.showError(context, 'Gagal memperbarui data: $e');
@@ -119,14 +124,14 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  Future<void> _navigasiKeDetail(String userId) async {
+  Future<void> _navigasiKeDetail(final String userId) async {
     Log.info('Menavigasi ke DetailPelangganUserPage untuk userId: $userId');
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => DetailPelangganUserPage(userId: userId),
+        builder: (final context) => DetailPelangganUserPage(userId: userId),
       ),
-    ).then((_) {
+    ).then((final _) {
       Log.info(
         'Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.',
       );
@@ -135,7 +140,7 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI untuk ProfilPage.');
     if (_futurePelanggan == null) {
       Log.info(
@@ -149,7 +154,7 @@ class _ProfilPageState extends State<ProfilPage> {
 
     return FutureBuilder<PelangganModel?>(
       future: _futurePelanggan,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         Log.info(
           'FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.',
         );
@@ -210,7 +215,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
-                      builder: (context, snapshotRiwayat) {
+                      builder: (final context, final snapshotRiwayat) {
                         Log.info(
                           'FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.',
                         );
@@ -254,11 +259,11 @@ class _ProfilPageState extends State<ProfilPage> {
                         );
                         final int poinDihasilkan = riwayat.fold(
                           0,
-                          (sum, item) => sum + item.poinYangDihasilkan,
+                          (final sum, final item) => sum + item.poinYangDihasilkan,
                         );
                         final int poinDigunakan = riwayat.fold(
                           0,
-                          (sum, item) => sum + item.poinYangDigunakan,
+                          (final sum, final item) => sum + item.poinYangDigunakan,
                         );
 
                         final int totalPoin = poinDihasilkan - poinDigunakan;
@@ -281,7 +286,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   children: [
                     FutureBuilder<List<TransaksiModel>>(
                       future: _riwayatLanggananFuture,
-                      builder: (context, snapshotRiwayat) {
+                      builder: (final context, final snapshotRiwayat) {
                         // Log sudah ada di FutureBuilder sebelumnya, tidak perlu diulang
                         if (snapshotRiwayat.connectionState ==
                             ConnectionState.waiting) {
@@ -313,7 +318,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         final now = DateTime.now();
                         final langgananAktif = snapshotRiwayat.data!
                             .where(
-                              (langganan) =>
+                              (final langganan) =>
                                   langganan.tanggalBerakhir != null &&
                                   langganan.tanggalBerakhir!.isAfter(now),
                             )
@@ -322,7 +327,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         final TransaksiModel? langgananTerakhir;
                         if (langgananAktif.isNotEmpty) {
                           langgananTerakhir = langgananAktif.reduce(
-                            (a, b) =>
+                            (final a, final b) =>
                                 a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!)
                                     ? a
                                     : b,
@@ -366,7 +371,7 @@ class _ProfilPageState extends State<ProfilPage> {
                           Log.info(
                             'ID Paket berubah. Mengambil nama paket baru untuk ID: ${langgananTerakhir.idPaket!}.',
                           );
-                          _futureNamaPaket = _firestoreService.ambilNamaPaket(
+                          _futureNamaPaket = _paketOp.ambilNamaPaket(
                             langgananTerakhir.idPaket!,
                           );
                           _cacheIdPaket = langgananTerakhir.idPaket;
@@ -376,7 +381,7 @@ class _ProfilPageState extends State<ProfilPage> {
                           children: [
                             FutureBuilder<String>(
                               future: _futureNamaPaket,
-                              builder: (context, snapshotPaket) {
+                              builder: (final context, final snapshotPaket) {
                                 String namaPaket;
                                 if (snapshotPaket.connectionState ==
                                     ConnectionState.waiting) {
@@ -446,10 +451,10 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Widget _bangunKartuInformasi(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
+    final BuildContext context, {
+    required final String title,
+    required final IconData icon,
+    required final List<Widget> children,
   }) {
     return Card(
       elevation: 3,
@@ -480,12 +485,12 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Widget _bangunInfoItem(
-    IconData icon,
-    String label,
-    String value, {
-    Color? valueColor,
-    IconData? trailingIcon,
-    VoidCallback? onTap,
+    final IconData icon,
+    final String label,
+    final String value, {
+    final Color? valueColor,
+    final IconData? trailingIcon,
+    final VoidCallback? onTap,
   }) {
     final Widget content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

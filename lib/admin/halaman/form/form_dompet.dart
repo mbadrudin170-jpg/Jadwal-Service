@@ -270,7 +270,7 @@ class _FormDompetState extends State<FormDompet> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI FormDompet');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
@@ -306,7 +306,7 @@ class _FormDompetState extends State<FormDompet> {
                   prefixIcon: Icon(Icons.account_balance_wallet),
                 ),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) async {
+                onFieldSubmitted: (final _) async {
                   Log.info(
                     'INPUT: Field nama dompet disubmit melalui keyboard (TextInputAction.done).',
                   );
@@ -314,12 +314,12 @@ class _FormDompetState extends State<FormDompet> {
                   Log.info('Memanggil _simpanForm() secara otomatis.');
                   await _simpanForm();
                 },
-                onChanged: (value) {
+                onChanged: (final value) {
                   Log.info(
                     'INPUT: Nama dompet berubah menjadi: "$value" (panjang: ${value.length} karakter)',
                   );
                 },
-                validator: (value) {
+                validator: (final value) {
                   Log.info(
                     'VALIDASI: Memvalidasi input nama dompet. Nilai: "${value ?? "NULL"}"',
                   );

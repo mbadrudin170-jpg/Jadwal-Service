@@ -46,7 +46,7 @@ class PoinPageUi extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: appBarTitle,
@@ -66,7 +66,7 @@ class PoinPageUi extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoPoinHeader(BuildContext context) {
+  Widget _buildInfoPoinHeader(final BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),

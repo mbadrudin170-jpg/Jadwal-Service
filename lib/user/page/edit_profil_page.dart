@@ -1,9 +1,11 @@
 // path: lib/user/page/edit_profil_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/services/firestore_service.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman untuk mengedit profil pengguna.
 ///
@@ -31,7 +33,7 @@ class _EditPageState extends State<EditProfilPage> {
   late TextEditingController _namaController;
   late TextEditingController _teleponController;
   late TextEditingController _passwordController; // Controller untuk password
-  final FirestoreService _firestoreService = FirestoreService();
+  final _pelangganOpFirebase = PelangganOpFirebase();
 
   bool _apakahPasswordTerlihat = false; // State untuk visibilitas password
 
@@ -46,38 +48,34 @@ class _EditPageState extends State<EditProfilPage> {
   }
 
   Future<void> _simpanPerubahan() async {
-    if (_formKey.currentState!.validate()) {
-      final scaffoldMessenger = ScaffoldMessenger.of(context);
+    if (_formKey.currentState?.validate() ?? false) {
       final navigator = Navigator.of(context);
 
       try {
-        final Map<String, dynamic> dataUntukUpdate = {
-          'nama': _namaController.text,
-          'telepon': _teleponController.text,
-          'password':
-              _passwordController.text, // Tambahkan password ke data update
-        };
+        // Gunakan copyWith untuk membuat instance baru dengan data yang diperbarui
+        final pelangganYangDiperbarui = widget.pelanggan.copyWith(
+          nama: _namaController.text,
+          telepon: _teleponController.text,
+          password: _passwordController.text,
+        );
 
-        await _firestoreService.perbaruiProfil(widget.userId, dataUntukUpdate);
+        await _pelangganOpFirebase.perbaruiPelanggan(pelangganYangDiperbarui);
 
         if (!mounted) return;
 
-        // Menampilkan SnackBar sebagai notifikasi sukses
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Profil berhasil diperbarui.'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // Gunakan SnackBarUtil untuk notifikasi sukses
+        SnackBarUtil.showSuccess(context, 'Profil berhasil diperbarui.');
 
         // Langsung kembali ke halaman sebelumnya dengan hasil true
         navigator.pop(true);
-      }on Exception catch (e) {
-        if (!mounted) return;
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan perubahan: $e')),
+      } on Exception catch (e, st) {
+        Log.error(
+          'Gagal menyimpan perubahan profil',
+          e: e,
+          st: st,
         );
+        if (!mounted) return;
+        SnackBarUtil.showError(context, 'Gagal menyimpan perubahan: $e');
       }
     }
   }
@@ -91,7 +89,7 @@ class _EditPageState extends State<EditProfilPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profil')),
       body: Padding(
@@ -103,7 +101,7 @@ class _EditPageState extends State<EditProfilPage> {
               TextFormField(
                 controller: _namaController,
                 decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                validator: (value) {
+                validator: (final value) {
                   if (value == null || value.isEmpty) {
                     return 'Nama tidak boleh kosong';
                   }
@@ -115,7 +113,7 @@ class _EditPageState extends State<EditProfilPage> {
                 controller: _teleponController,
                 decoration: const InputDecoration(labelText: 'No. HP'),
                 keyboardType: TextInputType.phone,
-                validator: (value) {
+                validator: (final value) {
                   if (value == null || value.isEmpty) {
                     return 'No. HP tidak boleh kosong';
                   }
@@ -145,7 +143,7 @@ class _EditPageState extends State<EditProfilPage> {
                     },
                   ),
                 ),
-                validator: (value) {
+                validator: (final value) {
                   if (value == null || value.isEmpty) {
                     return 'Password tidak boleh kosong';
                   }

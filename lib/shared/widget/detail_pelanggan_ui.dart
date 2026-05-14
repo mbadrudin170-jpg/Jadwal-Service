@@ -47,7 +47,7 @@ class DetailPelangganUI extends StatefulWidget {
 
 class _DetailPelangganUIState extends State<DetailPelangganUI> {
   // diubah: Hapus parameter BuildContext, gunakan context dari State
-  Future<void> _salinData(String label, String data) async {
+  Future<void> _salinData(final String label, final String data) async {
     if (!mounted) return;
 
     if (data.isEmpty) {
@@ -62,7 +62,7 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun DetailPelangganUI untuk pelanggan: ${widget.pelanggan.nama}',
     );
@@ -134,9 +134,9 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
   }
 
   Widget _buildDetailRow(
-    String judul,
-    String detail,
-    VoidCallback salinData,
+    final String judul,
+    final String detail,
+    final VoidCallback salinData,
   ) {
     Log.info('Membangun baris detail untuk: $judul');
     return Padding(

@@ -1,5 +1,31 @@
 # Dokumentasi APK User
 
+## Refaktorisasi Halaman Edit Profil dan Modernisasi Akses Data (Terbaru)
+
+Sebagai bagian dari pembersihan arsitektur, halaman `edit_profil_page.dart` telah dirombak total untuk meninggalkan pola akses data yang usang dan mengadopsi praktik terbaik yang lebih modern dan konsisten dengan bagian lain dari aplikasi.
+
+### Masalah yang Diidentifikasi
+
+Analisis kode menunjukkan bahwa `edit_profil_page.dart` memiliki beberapa masalah serius:
+
+1.  **Dependensi Usang**: Halaman ini masih bergantung pada file `firestore_service.dart` yang generik dan telah dijadwalkan untuk dihapus.
+2.  **Inkonsistensi Notifikasi**: Menggunakan `ScaffoldMessenger.showSnackBar` secara langsung, alih-alih menggunakan utilitas terpusat `SnackBarUtil` yang menyediakan gaya dan logging yang seragam.
+3.  **Logika Pembaruan yang Berisiko**: Saat mencoba memperbarui data pengguna, kode membuat instance `PelangganModel` baru dengan cara yang tidak aman, yang menyebabkan error `undefined_named_parameter` karena konstruktor tidak cocok.
+
+### Perubahan yang Dilakukan
+
+1.  **Migrasi ke `PelangganOpFirebase`**: Semua panggilan ke `firestore_service.dart` telah diganti dengan panggilan ke `PelangganOpFirebase.perbaruiPelanggan()`. Ini menyelaraskan halaman dengan arsitektur baru di mana setiap model memiliki kelas operasi Firestore-nya sendiri.
+2.  **Implementasi `SnackBarUtil`**: Semua notifikasi (baik untuk keberhasilan maupun kegagalan) sekarang ditampilkan menggunakan `SnackBarUtil.showSuccess()` dan `SnackBarUtil.showError()`. Ini memastikan pengalaman pengguna yang konsisten dan logging otomatis untuk setiap notifikasi.
+3.  **Penggunaan `copyWith` yang Aman**: Logika pembaruan data telah diperbaiki secara fundamental. Alih-alih membuat objek baru dari awal, kode sekarang menggunakan metode `widget.pelanggan.copyWith(...)`. Ini adalah cara yang aman dan direkomendasikan untuk membuat salinan model dengan beberapa perubahan, secara efektif menghilangkan risiko error terkait konstruktor.
+
+### Manfaat Perubahan
+
+- **Kode yang Bersih dan Terpusat**: Halaman ini sekarang mengikuti arsitektur yang sama dengan bagian lain dari aplikasi, membuatnya lebih mudah dipahami dan dipelihara.
+- **Stabilitas yang Ditingkatkan**: Dengan menggunakan `copyWith` dan menghilangkan dependensi lama, potensi bug runtime telah berkurang secara signifikan.
+- **Pengalaman Pengguna yang Konsisten**: Penggunaan `SnackBarUtil` memastikan semua pesan yang dilihat pengguna memiliki tampilan dan nuansa yang sama di seluruh aplikasi.
+
+---
+
 ## **Peningkatan Sistem Logging & Perbaikan Error (27 Juli 2024)**
 
 Melakukan pembaruan signifikan pada sistem logging di seluruh aplikasi pengguna dan memperbaiki serangkaian error sintaks yang muncul selama proses tersebut. Pekerjaan ini sangat penting untuk meningkatkan visibilitas alur kerja aplikasi dan mempermudah proses debugging di masa depan, sejalan dengan aturan ketat yang ditetapkan dalam `GEMINI.md`.

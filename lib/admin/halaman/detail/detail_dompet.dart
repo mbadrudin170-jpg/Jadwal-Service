@@ -253,7 +253,7 @@ class _DetailDompetState extends State<DetailDompet> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI DetailDompet');
     Log.info(
@@ -318,7 +318,7 @@ class _DetailDompetState extends State<DetailDompet> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute<bool>(
-                  builder: (context) => FormDompet(dompet: dompetUntukEdit),
+                  builder: (final context) => FormDompet(dompet: dompetUntukEdit),
                 ),
               );
 
@@ -327,7 +327,7 @@ class _DetailDompetState extends State<DetailDompet> {
               Log.info('Nilai result yang diterima: $result');
               Log.info('========================================');
 
-              if (result == true) {
+              if (result ?? false) {
                 Log.info(
                   'Result bernilai TRUE. Ini berarti user melakukan perubahan data di FormDompet.',
                 );
@@ -357,7 +357,7 @@ class _DetailDompetState extends State<DetailDompet> {
       ),
       body: FutureBuilder<DetailDompetData>(
         future: _futureDetailData,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           Log.info(
             'FutureBuilder builder dipanggil. ConnectionState: ${snapshot.connectionState}',
           );
@@ -444,7 +444,7 @@ class _DetailDompetState extends State<DetailDompet> {
     );
   }
 
-  Widget _buildTransaksiList(List<TransaksiModel> transaksiData) {
+  Widget _buildTransaksiList(final List<TransaksiModel> transaksiData) {
     Log.info(
       'Membangun daftar transaksi yang dikelompokkan berdasarkan tanggal.',
     );
@@ -458,13 +458,13 @@ class _DetailDompetState extends State<DetailDompet> {
     final groupedTransaksi = groupTransaksiByDate(transaksiData);
 
     Log.info('Hasil pengelompokan: ${groupedTransaksi.length} grup tanggal.');
-    groupedTransaksi.forEach((tanggal, transaksiList) {
+    groupedTransaksi.forEach((final tanggal, final transaksiList) {
       Log.info('  - Tanggal $tanggal: ${transaksiList.length} transaksi');
     });
 
     return ListView.builder(
       itemCount: groupedTransaksi.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final tanggal = groupedTransaksi.keys.elementAt(index);
         final transaksiPadaTanggal = groupedTransaksi[tanggal]!;
 
@@ -474,7 +474,7 @@ class _DetailDompetState extends State<DetailDompet> {
 
         final totalHarian = transaksiPadaTanggal.fold(
           0.0,
-          (sum, item) =>
+          (final sum, final item) =>
               sum +
               (item.tipe == TipeTransaksi.pemasukan
                   ? item.jumlah
@@ -488,7 +488,7 @@ class _DetailDompetState extends State<DetailDompet> {
           children: [
             bangunHeaderSeksi(tanggal, totalHarian),
             ...transaksiPadaTanggal.map(
-              (transaksi) => bangunItemTransaksi(
+              (final transaksi) => bangunItemTransaksi(
                 context,
                 transaksi,
                 () {

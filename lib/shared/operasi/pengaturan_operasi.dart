@@ -13,7 +13,7 @@ class PengaturanOperasi {
   final OperasiDasar _operasiDasar;
 
   /// Konstruktor untuk `PengaturanOperasi`.
-  PengaturanOperasi({@visibleForTesting OperasiDasar? operasiDasar})
+  PengaturanOperasi({@visibleForTesting final OperasiDasar? operasiDasar})
       : _operasiDasar = operasiDasar ?? OperasiDasar();
 
   /// Mengambil data pengaturan dari database.
@@ -61,8 +61,8 @@ class PengaturanOperasi {
 
   /// Menyimpan atau memperbarui [PengaturanModel] di database.
   Future<void> simpanAtauPerbaruiPengaturan(
-    PengaturanModel pengaturan, {
-    bool dariServer = false,
+    final PengaturanModel pengaturan, {
+    final bool dariServer = false,
   }) async {
     try {
       final pengaturanUntukDisimpan = pengaturan.copyWith(
@@ -93,8 +93,8 @@ class PengaturanOperasi {
 
   /// Menyimpan atau memperbarui [PengaturanModel] di database menggunakan batch.
   Future<void> simpanAtauPerbaruiPengaturanDenganBatch(
-    PengaturanModel pengaturan, {
-    bool dariServer = false,
+    final PengaturanModel pengaturan, {
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');

@@ -16,7 +16,7 @@ class PesanInfoPaket {
   ///
   /// [pelangganAktif]: Objek PelangganAktifModel yang baru saja dibuat atau diperbarui.
   static Future<void> kirimRincianPaket(
-    PelangganAktifModel pelangganAktif,
+    final PelangganAktifModel pelangganAktif,
   ) async {
     Log.info(
       'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${pelangganAktif.id}',
@@ -80,10 +80,10 @@ class PesanInfoPaket {
   }
 
   static String _buatPesan(
-    PelangganModel pelanggan,
-    PaketModel paket,
-    PelangganAktifModel pelangganAktif,
-    String statusPembayaran,
+    final PelangganModel pelanggan,
+    final PaketModel paket,
+    final PelangganAktifModel pelangganAktif,
+    final String statusPembayaran,
   ) {
     final namaPelanggan = pelanggan.nama;
     final namaPaket = paket.nama;
@@ -126,8 +126,8 @@ Semoga harimu menyenangkan!
   }
 
   static Future<void> _kirimViaWhatsApp(
-    String nomorTelepon,
-    String pesan,
+    final String nomorTelepon,
+    final String pesan,
   ) async {
     // 1. Format nomor telepon ke standar internasional (misal: 62812...)
     Log.info('Memformat nomor telepon: $nomorTelepon');

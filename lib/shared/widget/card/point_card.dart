@@ -32,8 +32,8 @@ class TotalPointCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(final BuildContext context) {
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [

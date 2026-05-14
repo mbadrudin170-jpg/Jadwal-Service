@@ -24,7 +24,7 @@ class PelangganAktifOperasi {
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
 
   /// Konstruktor untuk `PelangganAktifOperasi`.
-  PelangganAktifOperasi({NotifikasiServis? notifikasiServis}) {
+  PelangganAktifOperasi({final NotifikasiServis? notifikasiServis}) {
     this.notifikasiServis = notifikasiServis ?? NotifikasiServis();
     Log.info(
       'PelangganAktifOperasi diinisialisasi dengan NotifikasiServis: ${notifikasiServis != null ? "dari parameter" : "instance baru"}',
@@ -33,8 +33,8 @@ class PelangganAktifOperasi {
 
   /// Membuat [PelangganAktifModel] baru di database.
   Future<PelangganAktifModel> createPelangganAktif(
-    PelangganAktifModel pelangganAktif, {
-    bool dariServer = false,
+    final PelangganAktifModel pelangganAktif, {
+    final bool dariServer = false,
   }) async {
     try {
       final idBaru = pelangganAktif.id.isEmpty ? uuid.v4() : pelangganAktif.id;
@@ -48,7 +48,7 @@ class PelangganAktifOperasi {
       );
 
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final data = pelangganUntukDisimpan.toSqlite();
           Log.info('Menyisipkan data pelanggan aktif ke tabel pelanggan_aktif');
 
@@ -118,7 +118,7 @@ class PelangganAktifOperasi {
 
       return List.generate(
         maps.length,
-        (i) => PelangganAktifModel.fromSqlite(maps[i]),
+        (final i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
     } on Exception catch (e, st) {
       Log.error(
@@ -131,7 +131,7 @@ class PelangganAktifOperasi {
   }
 
   /// Mengambil [PelangganAktifModel] berdasarkan [id].
-  Future<PelangganAktifModel?> ambilSatuPelangganAktif(String id) async {
+  Future<PelangganAktifModel?> ambilSatuPelangganAktif(final String id) async {
     try {
       final db = await dbHelper.database;
       Log.info('Mencari pelanggan aktif dengan ID: $id');
@@ -164,8 +164,8 @@ class PelangganAktifOperasi {
 
   /// Memperbarui [PelangganAktifModel] yang ada di database.
   Future<PelangganAktifModel> updatePelangganAktif(
-    PelangganAktifModel pelangganAktif, {
-    bool dariServer = false,
+    final PelangganAktifModel pelangganAktif, {
+    final bool dariServer = false,
   }) async {
     try {
       final pelangganUntukDisimpan = pelangganAktif.copyWith(
@@ -177,7 +177,7 @@ class PelangganAktifOperasi {
       );
 
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final data = pelangganUntukDisimpan.toSqlite();
           Log.info(
             'Menjalankan update di tabel pelanggan_aktif dengan conflict replace',
@@ -211,7 +211,7 @@ class PelangganAktifOperasi {
   }
 
   /// Menjadwalkan notifikasi untuk [PelangganAktifModel].
-  Future<void> _jadwalkanNotifikasi(PelangganAktifModel pelangganAktif) async {
+  Future<void> _jadwalkanNotifikasi(final PelangganAktifModel pelangganAktif) async {
     try {
       Log.info(
         'Menjadwalkan notifikasi untuk pelanggan aktif ID: ${pelangganAktif.id}',
@@ -307,15 +307,15 @@ class PelangganAktifOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [PelangganAktifModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PelangganAktifModel> items, {
-    bool dariServer = false,
+    final List<PelangganAktifModel> items, {
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Memproses batch ${items.length} pelanggan aktif');
 
       final data = items
           .map(
-            (item) =>
+            (final item) =>
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
@@ -340,8 +340,8 @@ class PelangganAktifOperasi {
 
   /// Mengarsipkan [PelangganAktifModel] berdasarkan [id].
   Future<void> arsipkanPelangganAktif(
-    String id, {
-    bool dariServer = false,
+    final String id, {
+    final bool dariServer = false,
   }) async {
     try {
       Log.info('Mengarsipkan pelanggan aktif ID: $id');
@@ -359,7 +359,7 @@ class PelangganAktifOperasi {
       );
 
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final pelangganDiarsipkan = pelangganAktif.copyWith(
             isDeleted: true,
             diarsipkan: DateTime.now().toUtc(), // diubah: simpan dalam UTC
@@ -398,11 +398,11 @@ class PelangganAktifOperasi {
 
   /// Menghapus permanen pelanggan yang sudah diarsipkan lebih dari 30 hari.
   Future<void> hapusPermanenPelangganYangDiArsipkan({
-    bool dariServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final batasWaktu = DateTime.now().toUtc().subtract(
                 const Duration(days: 30),
               );
@@ -425,7 +425,7 @@ class PelangganAktifOperasi {
           }
 
           final idsUntukDihapus =
-              pelangganKadaluarsa.map((map) => map['id'] as String).toList();
+              pelangganKadaluarsa.map((final map) => map['id'] as String).toList();
 
           Log.info(
             'Ditemukan ${idsUntukDihapus.length} pelanggan diarsipkan kadaluarsa, menghapus permanen...',
@@ -455,7 +455,7 @@ class PelangganAktifOperasi {
   }
 
   /// Mengarsipkan pelanggan yang sudah kadaluarsa.
-  Future<int> arsipkanPelangganKadaluarsa({bool dariServer = false}) async {
+  Future<int> arsipkanPelangganKadaluarsa({final bool dariServer = false}) async {
     try {
       Log.info('Memeriksa pelanggan kadaluarsa untuk diarsipkan');
       final db = await dbHelper.database;
@@ -475,13 +475,13 @@ class PelangganAktifOperasi {
       }
 
       final idsToArchive =
-          pelangganKadaluarsa.map((p) => p['id'] as String).toList();
+          pelangganKadaluarsa.map((final p) => p['id'] as String).toList();
       Log.info(
         'Ditemukan ${idsToArchive.length} pelanggan kadaluarsa (berakhir sebelum ${sekarang.toIso8601String()})',
       );
 
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final now = DateTime.now().toUtc().millisecondsSinceEpoch;
           Log.info(
             'Menandai ${idsToArchive.length} pelanggan sebagai isDeleted=1, diarsipkan=$now',
@@ -519,7 +519,7 @@ class PelangganAktifOperasi {
   }
 
   /// Mengarsipkan semua pelanggan aktif.
-  Future<int> arsipkanSemuaPelangganAktif({bool dariServer = false}) async {
+  Future<int> arsipkanSemuaPelangganAktif({final bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA pelanggan aktif');
       final semuaPelanggan = await ambilSemuaPelangganAktif();
@@ -529,11 +529,11 @@ class PelangganAktifOperasi {
         return 0;
       }
 
-      final idsToArchive = semuaPelanggan.map((p) => p.id).toList();
+      final idsToArchive = semuaPelanggan.map((final p) => p.id).toList();
       Log.info('Mengarsipkan ${idsToArchive.length} pelanggan aktif');
 
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final now = DateTime.now()
               .toUtc()
               .millisecondsSinceEpoch; // diubah: simpan dalam UTC
@@ -574,7 +574,7 @@ class PelangganAktifOperasi {
 
   /// Mengambil beberapa [PelangganAktifModel] berdasarkan daftar [ids].
   Future<List<PelangganAktifModel>> getPelangganAktifByIds(
-    List<String> ids,
+    final List<String> ids,
   ) async {
     try {
       if (ids.isEmpty) {
@@ -598,7 +598,7 @@ class PelangganAktifOperasi {
         'Ditemukan ${maps.length} dari ${ids.length} pelanggan aktif yang dicari (${ids.length - maps.length} tidak ditemukan)',
       );
 
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PelangganAktifModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {

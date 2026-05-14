@@ -16,7 +16,7 @@ class Log {
   static const String _cyan = '\x1B[36m';
 
   /// Helper untuk memformat data agar rapi jika berupa Map atau List.
-  static String _formatData(Object? data) {
+  static String _formatData(final Object? data) {
     if (data == null) return '';
     try {
       if (data is Map || data is List) {
@@ -33,7 +33,7 @@ class Log {
   ///
   /// Pesan akan berwarna hijau dan memiliki level 800.
   /// `data` opsional dapat dilewatkan untuk dicetak dalam format JSON yang rapi.
-  static void info(String message, [Object? data]) {
+  static void info(final String message, [final Object? data]) {
     _logCustom(
       '$message${_formatData(data)}',
       name: '✅',
@@ -46,7 +46,7 @@ class Log {
   ///
   /// Pesan akan berwarna kuning dan memiliki level 900.
   /// `data` opsional dapat dilewatkan untuk dicetak.
-  static void warning(String message, [Object? data]) {
+  static void warning(final String message, [final Object? data]) {
     _logCustom(
       '$message${_formatData(data)}',
       name: '⚠️',
@@ -60,10 +60,10 @@ class Log {
   /// Pesan akan berwarna merah dan memiliki level 1000.
   /// `e` (exception) dan `st` (stack trace) opsional dapat dilewatkan.
   static void error(
-    String message, {
-    Object? e,
-    StackTrace? st,
-    Object? data,
+    final String message, {
+    final Object? e,
+    final StackTrace? st,
+    final Object? data,
   }) {
     _logCustom(
       '$message${_formatData(data)}',
@@ -81,9 +81,9 @@ class Log {
   /// `data` adalah payload atau data yang dikembalikan.
   /// `method` adalah metode HTTP (GET, POST, dll.) atau operasi Firestore (SET, UPDATE).
   static void api(
-    String path,
-    Map<String, dynamic> data, {
-    required String method,
+    final String path,
+    final Map<String, dynamic> data, {
+    required final String method,
   }) {
     _logCustom(
       '[$method] $path${_formatData(data)}',
@@ -97,12 +97,12 @@ class Log {
   ///
   /// Mengambil detail pemanggil dari stack trace untuk memberikan lokasi log yang tepat.
   static void _logCustom(
-    String message, {
-    required String name,
-    required String color,
-    required int level,
-    Object? e,
-    StackTrace? st,
+    final String message, {
+    required final String name,
+    required final String color,
+    required final int level,
+    final Object? e,
+    final StackTrace? st,
   }) {
     if (!kDebugMode) return;
 

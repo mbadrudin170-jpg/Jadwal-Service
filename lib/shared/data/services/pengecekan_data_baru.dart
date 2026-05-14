@@ -15,9 +15,9 @@ class PengecekanDataBaruService {
   /// Menginisialisasi [_firestore], [_syncManager], dan [_statusUnggahOperasi].
   /// Jika tidak ada instance yang diberikan, maka akan membuat instance baru.
   PengecekanDataBaruService({
-    FirebaseFirestore? firestore,
-    SyncManager? syncManager,
-    StatusUnggahOperasi? statusUnggahOperasi,
+    final FirebaseFirestore? firestore,
+    final SyncManager? syncManager,
+    final StatusUnggahOperasi? statusUnggahOperasi,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager(),
         _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi() {
@@ -67,8 +67,8 @@ class PengecekanDataBaruService {
   ///
   /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
   Future<bool> apakahFirebaseAdaDataBaru({
-    required String namaKoleksi,
-    required String idDokumen,
+    required final String namaKoleksi,
+    required final String idDokumen,
   }) async {
     Log.info(
       'Memulai prosedur pembandingan timestamp server. Lokasi target koleksi: "$namaKoleksi", dokumen: "$idDokumen". Prosedur ini akan menentukan apakah aplikasi perlu mengunduh data terbaru.',

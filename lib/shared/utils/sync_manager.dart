@@ -21,7 +21,7 @@ class SyncManager {
   }
 
   /// Menyimpan timestamp terakhir unduh.
-  Future<void> setTerakhirUnduh(DateTime time) async {
+  Future<void> setTerakhirUnduh(final DateTime time) async {
     Log.info('Menyimpan timestamp terakhir unduh: $time');
     await PreferensiService.setTerakhirUnduh(time);
     Log.info('Timestamp terakhir unduh berhasil disimpan');
@@ -40,7 +40,7 @@ class SyncManager {
   }
 
   /// Menyimpan timestamp terakhir unggah.
-  Future<void> setTerakhirUnggah(DateTime time) async {
+  Future<void> setTerakhirUnggah(final DateTime time) async {
     Log.info('Menyimpan timestamp terakhir unggah: $time');
     await PreferensiService.setTerakhirUnggah(time);
     Log.info('Timestamp terakhir unggah berhasil disimpan');

@@ -109,7 +109,7 @@ class TransaksiModel implements MemilikiId {
   });
 
   /// Helper untuk mengubah nilai dinamis menjadi DateTime.
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? _parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -122,17 +122,17 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Helper untuk parsing enum dengan aman dari String.
-  static T? _safeParseEnum<T extends Enum>(List<T> values, dynamic name) {
+  static T? _safeParseEnum<T extends Enum>(final List<T> values, final dynamic name) {
     if (name == null) return null;
     try {
-      return values.firstWhere((e) => e.name == name as String);
+      return values.firstWhere((final e) => e.name == name as String);
     } on Exception {
       return null;
     }
   }
 
   /// Factory constructor untuk membuat [TransaksiModel] dari data SQLite.
-  factory TransaksiModel.fromSqlite(Map<String, dynamic> map) {
+  factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
     return TransaksiModel(
       id: map['id'] as String? ?? '',
       tanggal: _parseDateTime(map['tanggal']) ?? DateTime.now(),
@@ -197,7 +197,7 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [TransaksiModel] dari data Firebase.
-  factory TransaksiModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory TransaksiModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return TransaksiModel(
       id: id,
       tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
@@ -262,28 +262,28 @@ class TransaksiModel implements MemilikiId {
 
   /// Membuat salinan dari instance [TransaksiModel] dengan beberapa nilai yang diubah.
   TransaksiModel copyWith({
-    String? id,
-    DateTime? tanggal,
-    String? keterangan,
-    double? jumlah,
-    TipeTransaksi? tipe,
-    String? idDompet,
-    String? idKategori,
-    String? idDompetTujuan,
-    String? idPelanggan,
-    String? idPaket,
-    String? idSubKategori,
-    StatusPembayaranEnum? statusPembayaran,
-    int? poinYangDihasilkan,
-    int? poinYangDigunakan,
-    DateTime? diperbarui,
-    DateTime? diarsipkan,
-    bool? isDeleted,
-    int? durasiPaket,
-    TipeDurasi? tipeDurasiPaket,
-    DateTime? tanggalMulai,
-    DateTime? tanggalBerakhir,
-    bool? aktivasiPaket,
+    final String? id,
+    final DateTime? tanggal,
+    final String? keterangan,
+    final double? jumlah,
+    final TipeTransaksi? tipe,
+    final String? idDompet,
+    final String? idKategori,
+    final String? idDompetTujuan,
+    final String? idPelanggan,
+    final String? idPaket,
+    final String? idSubKategori,
+    final StatusPembayaranEnum? statusPembayaran,
+    final int? poinYangDihasilkan,
+    final int? poinYangDigunakan,
+    final DateTime? diperbarui,
+    final DateTime? diarsipkan,
+    final bool? isDeleted,
+    final int? durasiPaket,
+    final TipeDurasi? tipeDurasiPaket,
+    final DateTime? tanggalMulai,
+    final DateTime? tanggalBerakhir,
+    final bool? aktivasiPaket,
   }) {
     return TransaksiModel(
       id: id ?? this.id,

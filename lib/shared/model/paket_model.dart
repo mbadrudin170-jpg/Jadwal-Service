@@ -67,7 +67,7 @@ class PaketModel implements MemilikiId {
 
   /// Konstruktor untuk `PaketModel`.
   PaketModel({
-    String? id,
+    final String? id,
     required this.nama,
     required this.harga,
     required this.durasi,
@@ -90,17 +90,17 @@ class PaketModel implements MemilikiId {
   /// final paketBaru = paket.copyWith(harga: 75000);
   /// ```
   PaketModel copyWith({
-    String? id,
-    String? nama,
-    int? harga,
-    int? durasi,
-    TipeDurasi? tipe,
-    int? poinHadiah,
-    int? poinPenukaran,
-    bool? isPublic,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? nama,
+    final int? harga,
+    final int? durasi,
+    final TipeDurasi? tipe,
+    final int? poinHadiah,
+    final int? poinPenukaran,
+    final bool? isPublic,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return PaketModel(
       id: id ?? this.id,
@@ -118,7 +118,7 @@ class PaketModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? parseDateTime(dynamic value) {
+  static DateTime? parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -129,7 +129,7 @@ class PaketModel implements MemilikiId {
 
 
   /// Helper untuk mengurai nilai boolean dari berbagai format.
-  static bool parseBool(Object? value) {
+  static bool parseBool(final Object? value) {
     if (value == true || value == 1) return true;
     if (value == false || value == 0 || value == null) return false;
     if (value is String) return value.toLowerCase() == 'true';
@@ -137,15 +137,15 @@ class PaketModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai TipeDurasi dari String.
-  static TipeDurasi parseTipe(dynamic value) {
+  static TipeDurasi parseTipe(final dynamic value) {
     return TipeDurasi.values.firstWhere(
-      (e) => e.name == value,
+      (final e) => e.name == value,
       orElse: () => TipeDurasi.hari,
     );
   }
 
   /// Membuat instance `PaketModel` dari data Map SQLite.
-  factory PaketModel.fromSqlite(Map<String, dynamic> map) {
+  factory PaketModel.fromSqlite(final Map<String, dynamic> map) {
     return PaketModel(
       id: map['id'] as String?,
       nama: map['nama'] as String? ?? '',
@@ -179,7 +179,7 @@ class PaketModel implements MemilikiId {
   }
 
   /// Membuat instance `PaketModel` dari data Map Firebase.
-  factory PaketModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory PaketModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return PaketModel(
       id: id,
       nama: data['nama'] as String? ?? '',

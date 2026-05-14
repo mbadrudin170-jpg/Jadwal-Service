@@ -38,7 +38,7 @@ class AdminApp extends StatelessWidget {
   const AdminApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return MaterialApp(
       title: 'Wifi Admin',
       theme: ThemeData(

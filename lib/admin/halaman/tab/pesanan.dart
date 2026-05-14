@@ -103,7 +103,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     }
   }
 
-  Future<void> _updateStatus(PesananModel pesanan, String statusBaru) async {
+  Future<void> _updateStatus(final PesananModel pesanan, final String statusBaru) async {
     Log.info('========================================');
     Log.info('MENGUBAH STATUS PESANAN');
     Log.info('ID Pesanan: ${pesanan.id}');
@@ -166,7 +166,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     }
   }
 
-  Future<void> _hapusPesanan(PesananModel pesanan) async {
+  Future<void> _hapusPesanan(final PesananModel pesanan) async {
     Log.info('========================================');
     Log.info('KONFIRMASI HAPUS PESANAN');
     Log.info('ID Pesanan: ${pesanan.id}');
@@ -178,7 +178,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
 
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (final context) => AlertDialog(
         title: const Text('Hapus Pesanan'),
         content: Text('Yakin hapus pesanan dari ${pesanan.idPelanggan}?'),
         actions: [
@@ -202,10 +202,10 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
 
     Log.info(
-      'Hasil konfirmasi: ${konfirmasi == true ? "DISETUJUI (true)" : "DIBATALKAN (${konfirmasi ?? "null"})"}',
+      'Hasil konfirmasi: ${konfirmasi ?? false ? "DISETUJUI (true)" : "DIBATALKAN (${konfirmasi ?? "null"})"}',
     );
 
-    if (konfirmasi == true) {
+    if (konfirmasi ?? false) {
       Log.info(
         'Pengguna mengkonfirmasi penghapusan. Memproses hapus pesanan...',
       );
@@ -263,7 +263,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI HalamanPesan');
     Log.info('Status loading: $_isLoading');
@@ -338,12 +338,12 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
   }
 
-  Widget _filterChip(String label, String value) {
+  Widget _filterChip(final String label, final String value) {
     final isSelected = _filterStatus == value;
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (selected) {
+      onSelected: (final selected) {
         Log.info(
           'FILTER: FilterChip "$label" (value: "$value") dipilih. Selected: $selected',
         );
@@ -378,7 +378,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
   }
 
-  Widget _summaryCard(String title, String value, IconData icon, Color color) {
+  Widget _summaryCard(final String title, final String value, final IconData icon, final Color color) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -417,7 +417,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _daftarPesanan.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final pesanan = _daftarPesanan[index];
         Log.info(
           'Membangun kartu pesanan ke-${index + 1}/${_daftarPesanan.length}: '
@@ -428,7 +428,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
   }
 
-  Widget _buildPesananCard(PesananModel pesanan) {
+  Widget _buildPesananCard(final PesananModel pesanan) {
     final Color statusColor = _getStatusColor(pesanan);
 
     return Card(
@@ -578,10 +578,10 @@ class _HalamanPesanState extends State<HalamanPesan> {
   }
 
   Widget _actionButton(
-    String label,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
+    final String label,
+    final IconData icon,
+    final Color color,
+    final VoidCallback onPressed,
   ) {
     return TextButton.icon(
       onPressed: onPressed,
@@ -595,7 +595,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
   }
 
-  Color _getStatusColor(PesananModel pesanan) {
+  Color _getStatusColor(final PesananModel pesanan) {
     switch (pesanan.status) {
       case 'baru':
         return Colors.blue;
@@ -613,12 +613,12 @@ class _HalamanPesanState extends State<HalamanPesan> {
     }
   }
 
-  String _getStatusText(PesananModel pesanan) {
+  String _getStatusText(final PesananModel pesanan) {
     return pesanan.status.substring(0, 1).toUpperCase() +
         pesanan.status.substring(1);
   }
 
-  Future<void> _showPesananDetail(PesananModel pesanan) async {
+  Future<void> _showPesananDetail(final PesananModel pesanan) async {
     Log.info('========================================');
     Log.info('MENAMPILKAN DETAIL PESANAN (Bottom Sheet)');
     Log.info('ID Pesanan: ${pesanan.id}');
@@ -635,7 +635,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
+      builder: (final context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -671,7 +671,7 @@ class _HalamanPesanState extends State<HalamanPesan> {
     Log.info('Bottom Sheet detail pesanan #${pesanan.id} ditutup.');
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(final String label, final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(

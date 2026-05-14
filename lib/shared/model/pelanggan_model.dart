@@ -38,7 +38,7 @@ class PelangganModel implements MemilikiId {
   ///
   /// Jika [id] tidak disediakan, ID baru akan dibuat menggunakan UUID v4.
   PelangganModel({
-    String? id,
+    final String? id,
     required this.nama,
     required this.telepon,
     required this.alamat,
@@ -51,15 +51,15 @@ class PelangganModel implements MemilikiId {
 
   /// Membuat salinan dari instance [PelangganModel] dengan beberapa nilai yang diubah.
   PelangganModel copyWith({
-    String? id,
-    String? nama,
-    String? telepon,
-    String? alamat,
-    String? password,
-    String? macAddress,
-    bool? isDeleted,
-    DateTime? diperbarui,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? nama,
+    final String? telepon,
+    final String? alamat,
+    final String? password,
+    final String? macAddress,
+    final bool? isDeleted,
+    final DateTime? diperbarui,
+    final DateTime? diarsipkan,
   }) {
     return PelangganModel(
       id: id ?? this.id,
@@ -91,7 +91,7 @@ class PelangganModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi DateTime.
-  static DateTime? parseDateTime(dynamic value) {
+  static DateTime? parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -101,7 +101,7 @@ class PelangganModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
-  static bool parseBool(dynamic value) {
+  static bool parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -110,7 +110,7 @@ class PelangganModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [PelangganModel] dari data SQLite (Map).
-  factory PelangganModel.fromSqlite(Map<String, dynamic> map) {
+  factory PelangganModel.fromSqlite(final Map<String, dynamic> map) {
     return PelangganModel(
       id: map['id'] as String? ?? '',
       nama: map['nama'] as String? ?? '',
@@ -140,7 +140,7 @@ class PelangganModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [PelangganModel] dari data Firebase.
-  factory PelangganModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory PelangganModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return PelangganModel(
       id: id,
       nama: data['nama'] as String? ?? '',

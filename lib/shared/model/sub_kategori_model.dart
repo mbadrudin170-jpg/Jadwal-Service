@@ -31,7 +31,7 @@ class SubKategoriModel implements MemilikiId {
 
   /// Konstruktor utama untuk membuat instance [SubKategoriModel].
   SubKategoriModel({
-    String? id,
+    final String? id,
     required this.nama,
     required this.idKategori,
     this.diperbarui,
@@ -41,12 +41,12 @@ class SubKategoriModel implements MemilikiId {
 
   /// Membuat salinan dari instance [SubKategoriModel] dengan beberapa nilai yang diubah.
   SubKategoriModel copyWith({
-    String? id,
-    String? nama,
-    String? idKategori,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? nama,
+    final String? idKategori,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return SubKategoriModel(
       id: id ?? this.id,
@@ -59,7 +59,7 @@ class SubKategoriModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi DateTime.
-  static DateTime? parseDateTime(dynamic date) {
+  static DateTime? parseDateTime(final dynamic date) {
     if (date == null) return null;
     if (date is Timestamp) return date.toDate();
     if (date is DateTime) return date;
@@ -69,7 +69,7 @@ class SubKategoriModel implements MemilikiId {
   }
 
   /// Helper untuk mengubah nilai dinamis menjadi boolean dengan aman.
-  static bool parseBool(dynamic value) {
+  static bool parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -78,7 +78,7 @@ class SubKategoriModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [SubKategoriModel] dari data SQLite.
-  factory SubKategoriModel.fromSqlite(Map<String, dynamic> map) {
+  factory SubKategoriModel.fromSqlite(final Map<String, dynamic> map) {
     return SubKategoriModel(
       id: map['id'] as String? ?? '',
       nama: map['nama'] as String? ?? '',
@@ -102,7 +102,7 @@ class SubKategoriModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [SubKategoriModel] dari data Firebase.
-  factory SubKategoriModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory SubKategoriModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return SubKategoriModel(
       id: id,
       nama: data['nama'] as String? ?? '',

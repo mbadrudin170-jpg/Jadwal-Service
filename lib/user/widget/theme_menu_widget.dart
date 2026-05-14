@@ -16,7 +16,7 @@ class ThemeMenuWidget extends StatelessWidget {
   const ThemeMenuWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('[Build UI] ✅ Membangun widget ThemeMenuWidget.');
 
     final themeProvider = Provider.of<ThemeProvider>(context);
@@ -50,7 +50,7 @@ class ThemeMenuWidget extends StatelessWidget {
     );
     return PopupMenuButton<ThemeMode>(
       icon: Icon(getCurrentIcon()),
-      onSelected: (ThemeMode mode) {
+      onSelected: (final ThemeMode mode) {
         Log.info(
           '[Aksi Pengguna] ✅ Pengguna memilih tema baru: $mode.',
         );
@@ -67,7 +67,7 @@ class ThemeMenuWidget extends StatelessWidget {
           );
         }
       },
-      itemBuilder: (BuildContext context) {
+      itemBuilder: (final BuildContext context) {
         Log.info('[Build UI] ✅ Membangun item-item untuk PopupMenuButton.');
         return <PopupMenuEntry<ThemeMode>>[
           const PopupMenuItem<ThemeMode>(

@@ -36,7 +36,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant BannerAdWidget oldWidget) {
+  void didUpdateWidget(covariant final BannerAdWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.adUnitId != widget.adUnitId) {
@@ -55,14 +55,14 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
-        onAdLoaded: (ad) {
+        onAdLoaded: (final ad) {
           if (!mounted) return;
           Log.info('Banner ad loaded successfully.');
           setState(() {
             _isLoaded = true;
           });
         },
-        onAdFailedToLoad: (ad, error) async {
+        onAdFailedToLoad: (final ad, final error) async {
           Log.error(
             'Banner ad failed to load',
             e: error,
@@ -94,7 +94,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (!_isLoaded || _bannerAd == null) {
       return const SizedBox(
         height: 50, // stabil biar UI gak loncat

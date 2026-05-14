@@ -19,11 +19,11 @@ class PengecekanWaktuSyncService {
   ///
   /// Menginisialisasi semua layanan yang dibutuhkan untuk proses sinkronisasi.
   PengecekanWaktuSyncService({
-    SyncManager? syncManager,
-    LayananUnggahData? layananUnggah,
-    LayananUnduhData? layananUnduh,
-    PengecekanDataBaruService? pengecekanDataBaru,
-    FirebaseFirestore? firestore,
+    final SyncManager? syncManager,
+    final LayananUnggahData? layananUnggah,
+    final LayananUnduhData? layananUnduh,
+    final PengecekanDataBaruService? pengecekanDataBaru,
+    final FirebaseFirestore? firestore,
   })  : _syncManager = syncManager ?? SyncManager(),
         _layananUnggah = layananUnggah ?? LayananUnggahData(),
         _layananUnduh = layananUnduh ?? LayananUnduhData(),

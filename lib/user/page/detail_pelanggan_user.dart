@@ -2,14 +2,16 @@
 // diubah: Mengirim idPelanggan saat navigasi ke PoinPageUser.
 // diubah: Mengubah _navigateToPoin menjadi async dan menggunakan await.
 // diubah: Menambahkan tipe eksplisit <bool> pada MaterialPageRoute di _navigasiKeEdit.
+// refactor: Menghapus ketergantungan pada FirestoreService dan menggunakan PelangganOpFirebase dan TransaksiOpFirebase.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/widget/detail_pelanggan_ui.dart';
 import 'package:wifi/user/page/edit_profil_page.dart';
 import 'package:wifi/user/page/poin_page_user.dart';
-import 'package:wifi/user/services/firestore_service.dart';
 
 // Kelas untuk menggabungkan data yang dibutuhkan oleh UI
 class _ProfilData {
@@ -36,7 +38,8 @@ class DetailPelangganUserPage extends StatefulWidget {
 }
 
 class _DetailPelangganUserPageState extends State<DetailPelangganUserPage> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final PelangganOpFirebase _pelangganOp = PelangganOpFirebase();
+  final TransaksiOpFirebase _transaksiOp = TransaksiOpFirebase();
   Future<_ProfilData>? _dataFuture;
 
   @override
@@ -52,8 +55,7 @@ class _DetailPelangganUserPageState extends State<DetailPelangganUserPage> {
   Future<_ProfilData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final pelanggan =
-          await _firestoreService.ambilPelangganSekali(widget.userId);
+      final pelanggan = await _pelangganOp.ambilPelangganSekali(widget.userId);
       if (pelanggan == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
@@ -63,14 +65,17 @@ class _DetailPelangganUserPageState extends State<DetailPelangganUserPage> {
         'Pelanggan ditemukan: ${pelanggan.nama}. Mengambil riwayat transaksi...',
       );
 
-      final riwayat =
-          await _firestoreService.ambilRiwayatLangganan(pelanggan.id);
+      final riwayat = await _transaksiOp.ambilRiwayatLangganan(pelanggan.id);
       Log.info('Ditemukan ${riwayat.length} transaksi. Menghitung poin...');
 
-      final int poinDihasilkan =
-          riwayat.fold(0, (sum, item) => sum + item.poinYangDihasilkan);
-      final int poinDigunakan =
-          riwayat.fold(0, (sum, item) => sum + item.poinYangDigunakan);
+      final int poinDihasilkan = riwayat.fold<int>(
+        0,
+        (final sum, final item) => sum + item.poinYangDihasilkan,
+      );
+      final int poinDigunakan = riwayat.fold<int>(
+        0,
+        (final sum, final item) => sum + item.poinYangDigunakan,
+      );
       final int totalPoin = poinDihasilkan - poinDigunakan;
 
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
@@ -92,37 +97,37 @@ class _DetailPelangganUserPageState extends State<DetailPelangganUserPage> {
     });
   }
 
-  Future<void> _navigasiKeEdit(PelangganModel pelanggan) async {
+  Future<void> _navigasiKeEdit(final PelangganModel pelanggan) async {
     final bool? hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) =>
+        builder: (final context) =>
             EditProfilPage(pelanggan: pelanggan, userId: widget.userId),
       ),
     );
-    if (hasil == true) {
+    if (hasil ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
       _muatUlangData();
     }
   }
 
   // diubah: Menambahkan parameter idPelanggan.
-  Future<void> _navigateToPoin(String idPelanggan) async {
+  Future<void> _navigateToPoin(final String idPelanggan) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
         // diubah: Mengirim idPelanggan ke PoinPageUser.
-        builder: (context) => PoinPageUser(idPelanggan: idPelanggan),
+        builder: (final context) => PoinPageUser(idPelanggan: idPelanggan),
       ),
     );
     _muatUlangData();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<_ProfilData>(
       future: _dataFuture,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: const Text('Memuat Profil...')),

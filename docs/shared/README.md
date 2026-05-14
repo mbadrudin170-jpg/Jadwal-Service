@@ -1,6 +1,31 @@
 # README Shared
 
-Direktori `shared` berisi kode yang digunakan bersama oleh aplikasi admin dan aplikasi pengguna untuk memastikan konsistensi dan mengurangi duplikasi kode.
+## Refaktorisasi Arsitektur Operasi Firestore (Pembaruan Terkini)
+
+Sebagai bagian dari upaya berkelanjutan untuk memodernisasi arsitektur dan meningkatkan kualitas kode, telah dilakukan perombakan signifikan pada cara aplikasi berinteraksi dengan Firestore.
+
+### Penghapusan `firestore_service.dart`
+
+- **Masalah**: Proyek sebelumnya mengandalkan sebuah file generik bernama `firestore_service.dart`. File ini menjadi "keranjang sampah" untuk berbagai macam interaksi Firestore, membuatnya sulit dipelihara, tidak jelas, dan rawan kesalahan.
+- **Solusi**: File `firestore_service.dart` telah **dihapus sepenuhnya**.
+- **Pengganti**: Logikanya telah dipindahkan ke dalam kelas-kelas operasi yang lebih spesifik dan berorientasi pada model, yang terletak di `lib/shared/operasi/firebase_operasi/`.
+
+### Pengenalan `PelangganOpFirebase`
+
+- **Tujuan**: Sebagai pengganti fungsionalitas terkait pelanggan dari `firestore_service.dart`, file baru `pelanggan_op_firebase.dart` telah dibuat.
+- **Peran**: Kelas `PelangganOpFirebase` sekarang menjadi **satu-satunya sumber kebenaran** untuk semua operasi CRUD (Create, Read, Update, Delete) yang menargetkan koleksi `pelanggan` di Firestore.
+- **Keunggulan**:
+    - **Spesifik**: Hanya menangani logika untuk `PelangganModel`.
+    - **Jelas**: Tanggung jawabnya terdefinisi dengan baik.
+    - **Dapat Diperluas**: Mudah untuk menambahkan fungsionalitas baru terkait pelanggan di masa depan.
+
+### Manfaat Keseluruhan
+
+- **Arsitektur yang Lebih Bersih**: Menghilangkan dependensi pada file "serba bisa" yang membingungkan.
+- **Pemisahan Tanggung Jawab**: Setiap kelas operasi sekarang memiliki fokus yang sempit, sejalan dengan prinsip *Single Responsibility Principle*.
+- **Pemeliharaan yang Lebih Mudah**: Saat perlu mengubah cara data pelanggan ditangani di Firestore, pengembang sekarang tahu persis ke mana harus mencari: `pelanggan_op_firebase.dart`.
+
+---
 
 ## **Peningkatan Kualitas Kode & Logging (27 Juli 2024)**
 
@@ -186,3 +211,54 @@ Direktori ini berisi widget-widget umum yang dapat digunakan kembali di berbagai
 - **Masalah**: Banyak file dalam direktori `lib/shared` yang belum diperiksa dan berpotensi mengandung error, warning, atau kode yang tidak konsisten.
 - **Solusi**: Dilakukan pemeriksaan menyeluruh pada setiap file dalam direktori `lib/shared`. File-file yang bermasalah diperbaiki dengan menambahkan logging, memperbaiki logika, dan menyesuaikan dengan arsitektur yang ada. Setiap file yang telah diperbaiki diberi komentar `// TODO : file telah selesai diperbaiki` untuk menandai bahwa file tersebut telah selesai diperiksa dan diperbaiki.
 - **Hasil**: Direktori `lib/shared` sekarang lebih stabil, mudah dibaca, dan mudah dikelola. Kode di dalamnya lebih konsisten dan sesuai dengan standar proyek.
+
+---
+
+### **Arsitektur Operasi Data: Pemisahan Lokal dan Jarak Jauh**
+
+Untuk meningkatkan keterbacaan, pemeliharaan, dan skalabilitas, proyek ini mengadopsi pemisahan yang jelas antara operasi database lokal (SQLite) dan operasi database jarak jauh (Firestore). Logika untuk setiap model data dipecah ke dalam dua file operasi yang berbeda:
+
+1.  **`lib/shared/operasi/[nama_model]_operasi.dart`**: Bertanggung jawab untuk semua operasi CRUD (Create, Read, Update, Delete) pada database **SQLite lokal**. Contoh: `pelanggan_operasi.dart`.
+2.  **`lib/shared/operasi/firebase_operasi/[nama_model]_op_firebase.dart`**: Bertanggung jawab untuk semua interaksi dengan **Firestore**. Contoh: `pelanggan_op_firebase.dart`.
+
+Pemisahan ini memungkinkan kita mengelola logika sinkronisasi dengan lebih baik dan menjaga agar kode tetap terorganisir.
+
+### **File Baru: `lib/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart`**
+
+*   **Tujuan Utama**: File ini berfungsi sebagai satu-satunya titik akses (single source of truth) untuk semua operasi yang berkaitan dengan data **pelanggan di Firestore**. Dengan memusatkan logika ini, kita memastikan konsistensi dan kemudahan dalam melakukan pemeliharaan.
+
+*   **Fitur Utama & Cara Kerja**:
+    *   **Kelas `PelangganOpFirebase`**: Merangkum semua metode yang berinteraksi dengan koleksi `pelanggan` di Firestore.
+    *   **Metode `perbaruiPelanggan(PelangganModel pelanggan)`**:
+        *   Menerima objek `PelangganModel` yang sudah divalidasi, bukan `Map` mentah. Ini menjamin keamanan tipe dan mengurangi risiko *bug*.
+        *   Memanggil metode `pelanggan.toFirebase()` untuk mengonversi objek model menjadi `Map` yang siap dikirim ke Firestore.
+        *   **Penanganan *Timestamp* Otomatis**: Secara otomatis menambahkan `FieldValue.serverTimestamp()` untuk kolom `diperbarui`. Ini adalah mekanisme krusial yang memastikan setiap pembaruan data akan dicatat menggunakan waktu server Firestore yang akurat dan konsisten, bukan waktu dari perangkat pengguna yang bisa jadi tidak sinkron.
+    *   **Logging dan Error Handling**: Setiap langkah, baik keberhasilan maupun kegagalan, dicatat menggunakan `Log` kustom untuk mempermudah proses *debugging*.
+
+*   **Keunggulan Arsitektur Ini**:
+    *   **Pemisahan Tanggung Jawab (Separation of Concerns)**: Logika untuk database lokal dan jarak jauh tidak saling bercampur.
+    *   **Konsistensi**: Proses pembaruan data ke Firestore selalu sama, memastikan kolom `diperbarui` tidak akan pernah lupa untuk diisi.
+    *   **Skalabilitas**: Jika di masa depan ada operasi Firestore lain untuk pelanggan (misalnya, membuat, membaca, atau menghapus), metode-metode tersebut dapat ditambahkan di dalam kelas ini dengan rapi.
+
+---
+## Peningkatan Kualitas Kode Melalui Analisis Statis
+
+Sebagai bagian dari pemeliharaan rutin, dilakukan analisis kode statis (`flutter analyze`) untuk memastikan seluruh basis kode mematuhi aturan yang didefinisikan dalam `analysis_options.yaml`. Proses ini menghasilkan beberapa temuan yang telah ditindaklanjuti untuk meningkatkan konsistensi dan kejelasan kode.
+
+### 1. Kepatuhan Aturan `require_trailing_commas`
+- **Aturan**: Mengharuskan penggunaan koma penutup (trailing comma) pada daftar argumen atau parameter. Tujuannya adalah untuk mempermudah penambahan item baru dan menghasilkan *diff* yang lebih bersih di sistem kontrol versi.
+- **Tindakan**: Aturan ini diaktifkan di `analysis_options.yaml`. Peringatan yang muncul di file `lib/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart` telah diperbaiki dengan menambahkan koma yang hilang.
+
+### 2. Penerapan Aturan `public_member_api_docs`
+- **Aturan**: Mendorong praktik dokumentasi yang baik dengan mengharuskan setiap *member* publik (kelas, metode, fungsi) memiliki komentar dokumentasi (doc comments).
+- **Tindakan**: Aturan ini juga diaktifkan. Seluruh kelas dan metode publik di dalam direktori `lib/shared/operasi/firebase_operasi/` yang belum memiliki dokumentasi, kini telah dilengkapi dengan komentar yang menjelaskan tujuan, parameter, dan nilai kembaliannya. File yang terpengaruh antara lain:
+    - `pelanggan_op_firebase.dart`
+    - `paket_op_firebase.dart`
+    - `transaksi_op_firebase.dart`
+    - `pengaturan_op_firebase.dart`
+    - `notifikasi_op_firebase.dart`
+
+### Manfaat Keseluruhan
+- **Konsistensi Kode**: Seluruh proyek sekarang secara seragam mengikuti aturan pemformatan dan dokumentasi.
+- **Kemudahan Pemeliharaan**: Dokumentasi yang jelas pada API publik memudahkan pengembang lain (atau diri sendiri di masa depan) untuk memahami cara kerja suatu fungsi tanpa harus membaca implementasinya secara mendalam.
+- **Kualitas Terjaga**: Dengan mematuhi hasil analisis statis, proyek menjadi lebih kuat dan bebas dari "utang teknis" kecil yang bisa menumpuk seiring waktu.

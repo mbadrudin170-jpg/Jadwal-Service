@@ -27,9 +27,9 @@ class SnackBarUtil {
   /// [type] adalah tipe dari SnackBar (success, error, warning, info),
   /// yang akan menentukan warna latar belakang dan level log.
   static void show(
-    BuildContext context,
-    String message, {
-    SnackBarType type = SnackBarType.info,
+    final BuildContext context,
+    final String message, {
+    final SnackBarType type = SnackBarType.info,
   }) {
     // Mencatat pesan ke log berdasarkan tipenya
     final logMessage = '[SNACKBAR] Tipe: ${type.name}, Pesan: $message';
@@ -82,22 +82,22 @@ class SnackBarUtil {
   }
 
   /// Metode pintas untuk menampilkan SnackBar dengan tipe success.
-  static void showSuccess(BuildContext context, String message) {
+  static void showSuccess(final BuildContext context, final String message) {
     show(context, message, type: SnackBarType.success);
   }
 
   /// Metode pintas untuk menampilkan SnackBar dengan tipe error.
-  static void showError(BuildContext context, String message) {
+  static void showError(final BuildContext context, final String message) {
     show(context, message, type: SnackBarType.error);
   }
 
   /// Metode pintas untuk menampilkan SnackBar dengan tipe warning.
-  static void showWarning(BuildContext context, String message) {
+  static void showWarning(final BuildContext context, final String message) {
     show(context, message, type: SnackBarType.warning);
   }
 
   /// Metode pintas untuk menampilkan SnackBar dengan tipe info.
-  static void showInfo(BuildContext context, String message) {
+  static void showInfo(final BuildContext context, final String message) {
     show(context, message);
   }
 }

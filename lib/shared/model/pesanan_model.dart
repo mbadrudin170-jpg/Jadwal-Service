@@ -33,7 +33,7 @@ class PesananModel implements MemilikiId {
 
   /// Konstruktor untuk `PesananModel`.
   PesananModel({
-    String? id,
+    final String? id,
     required this.idPelanggan,
     required this.idPaket,
     required this.tanggal,
@@ -45,14 +45,14 @@ class PesananModel implements MemilikiId {
 
   /// Membuat salinan dari `PesananModel` dengan beberapa nilai yang diubah.
   PesananModel copyWith({
-    String? id,
-    String? idPelanggan,
-    String? idPaket,
-    DateTime? tanggal,
-    String? status,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? idPelanggan,
+    final String? idPaket,
+    final DateTime? tanggal,
+    final String? status,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return PesananModel(
       id: id ?? this.id,
@@ -67,7 +67,7 @@ class PesananModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai tanggal dari berbagai format.
-  static DateTime? parseDateTime(dynamic dateValue) {
+  static DateTime? parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -79,7 +79,7 @@ class PesananModel implements MemilikiId {
   }
 
   /// Membuat instance `PesananModel` dari data Map SQLite.
-  factory PesananModel.fromSqlite(Map<String, dynamic> map) {
+  factory PesananModel.fromSqlite(final Map<String, dynamic> map) {
     return PesananModel(
       id: map['id'] as String? ?? '',
       idPelanggan: map['id_pelanggan'] as String? ?? '',
@@ -107,7 +107,7 @@ class PesananModel implements MemilikiId {
   }
 
   /// Membuat instance `PesananModel` dari data Map Firebase.
-  factory PesananModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory PesananModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return PesananModel(
       id: id,
       idPelanggan: data['id_pelanggan'] as String? ?? '',

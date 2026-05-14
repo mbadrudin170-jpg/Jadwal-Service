@@ -108,10 +108,10 @@ class _PelangganPageState extends State<PelangganPage> {
     OpsiUrut? groupValue = _opsiUrutSaatIni;
     final OpsiUrut? result = await showDialog<OpsiUrut>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return StatefulBuilder(
-          builder: (context, setState) {
-            void handleRadioValueChanged(OpsiUrut? value) {
+          builder: (final context, final setState) {
+            void handleRadioValueChanged(final OpsiUrut? value) {
               setState(() {
                 groupValue = value;
               });
@@ -166,19 +166,19 @@ class _PelangganPageState extends State<PelangganPage> {
     }
   }
 
-  void _applySort(OpsiUrut option) {
+  void _applySort(final OpsiUrut option) {
     Log.info('Menerapkan pengurutan: $option');
     setState(() {
       _opsiUrutSaatIni = option;
       switch (option) {
         case OpsiUrut.namaAZ:
           _filteredPelanggan.sort(
-            (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+            (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
           );
           break;
         case OpsiUrut.namaZA:
           _filteredPelanggan.sort(
-            (a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+            (final a, final b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
           );
           break;
       }
@@ -232,7 +232,7 @@ class _PelangganPageState extends State<PelangganPage> {
 
     setState(() {
       _filteredPelanggan = _allPelanggan
-          .where((p) => p.nama.toLowerCase().contains(query))
+          .where((final p) => p.nama.toLowerCase().contains(query))
           .toList();
       _applySort(_opsiUrutSaatIni); // Terapkan kembali urutan setelah filter
       Log.info(
@@ -247,9 +247,9 @@ class _PelangganPageState extends State<PelangganPage> {
     );
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => const FormPelanggan()),
+      MaterialPageRoute(builder: (final context) => const FormPelanggan()),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
         'Kembali dari FormPelanggan dengan hasil sukses (true). Memanggil _refreshPelangganList untuk memuat ulang data.',
       );
@@ -261,13 +261,13 @@ class _PelangganPageState extends State<PelangganPage> {
     }
   }
 
-  Future<void> _showDialogOpsi(PelangganModel pelanggan) async {
+  Future<void> _showDialogOpsi(final PelangganModel pelanggan) async {
     Log.info(
       'Menampilkan dialog opsi (Edit/Arsipkan) untuk pelanggan: ${pelanggan.nama} (ID: ${pelanggan.id}).',
     );
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (final BuildContext dialogContext) {
         return AlertDialog(
           title: Text(pelanggan.nama),
           content: Column(
@@ -284,7 +284,7 @@ class _PelangganPageState extends State<PelangganPage> {
                   await Navigator.push<void>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                      builder: (final context) => FormPelanggan(pelanggan: pelanggan),
                     ),
                   );
                   await _refreshPelangganList();
@@ -308,13 +308,13 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  Future<void> _showDialogArsipkan(PelangganModel pelanggan) async {
+  Future<void> _showDialogArsipkan(final PelangganModel pelanggan) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${pelanggan.nama}".',
     );
     await showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
@@ -347,7 +347,7 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  Future<void> _arsipkanPelanggan(String id) async {
+  Future<void> _arsipkanPelanggan(final String id) async {
     Log.info('Memulai proses pengarsipan untuk ID pelanggan: $id.');
     try {
       await _pelangganOperasi.arsipkanPelanggan(id);
@@ -381,7 +381,7 @@ class _PelangganPageState extends State<PelangganPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI PelangganPage. Status loading: $_isLoading.');
     return Scaffold(
       appBar: _buildAppBar(),
@@ -417,7 +417,7 @@ class _PelangganPageState extends State<PelangganPage> {
     );
     return ListView.builder(
       itemCount: _filteredPelanggan.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (final context, final index) {
         final pelanggan = _filteredPelanggan[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -434,7 +434,7 @@ class _PelangganPageState extends State<PelangganPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
+                  builder: (final context) =>
                       DetailPelangganPage(idPelanggan: pelanggan.id),
                 ),
               );

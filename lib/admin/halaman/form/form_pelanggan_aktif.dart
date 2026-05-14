@@ -29,7 +29,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
-DateTime hitungTanggalBerakhir(DateTime startDate, PaketModel paket) {
+DateTime hitungTanggalBerakhir(final DateTime startDate, final PaketModel paket) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
   Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
   Log.info('  - Nama Paket: ${paket.nama}');
@@ -93,12 +93,12 @@ class FormPelangganAktif extends StatefulWidget {
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
-    PelangganOperasi? pelangganOperasi,
-    PaketOperasi? paketOperasi,
-    PelangganAktifOperasi? pelangganAktifOperasi,
-    TransaksiOperasi? transaksiOperasi,
-    DompetOperasi? dompetOperasi,
-    KategoriOperasi? kategoriOperasi,
+    final PelangganOperasi? pelangganOperasi,
+    final PaketOperasi? paketOperasi,
+    final PelangganAktifOperasi? pelangganAktifOperasi,
+    final TransaksiOperasi? transaksiOperasi,
+    final DompetOperasi? dompetOperasi,
+    final KategoriOperasi? kategoriOperasi,
   })  : pelangganOperasi = pelangganOperasi ?? PelangganOperasi(),
         paketOperasi = paketOperasi ?? PaketOperasi(),
         pelangganAktifOperasi =
@@ -180,17 +180,17 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       setState(() {
         _pelangganList = (results[0] as List<PelangganModel>)
           ..sort(
-            (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+            (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
           );
         _paketList = results[1] as List<PaketModel>;
         final semuaDompet = results[2] as List<DompetModel>;
-        _daftarDompet = semuaDompet.where((d) => !d.isDeleted).toList();
+        _daftarDompet = semuaDompet.where((final d) => !d.isDeleted).toList();
         final semuaKategori = results[3] as List<KategoriModel>;
         _kategoriPemasukanList = semuaKategori
-            .where((k) => k.tipe == TipeKategori.pemasukan && !k.isDeleted)
+            .where((final k) => k.tipe == TipeKategori.pemasukan && !k.isDeleted)
             .toList();
         _kategoriPengeluaranList = semuaKategori
-            .where((k) => k.tipe == TipeKategori.pengeluaran && !k.isDeleted)
+            .where((final k) => k.tipe == TipeKategori.pengeluaran && !k.isDeleted)
             .toList();
 
         if (_isEditMode) {
@@ -217,13 +217,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     final pa = widget.pelangganAktif!;
     try {
       _selectedPelanggan = _pelangganList.firstWhere(
-        (p) => p.id == pa.idPelanggan,
+        (final p) => p.id == pa.idPelanggan,
       );
     } on Exception {
       _selectedPelanggan = null;
     }
     try {
-      _selectedPaket = _paketList.firstWhere((p) => p.id == pa.idPaket);
+      _selectedPaket = _paketList.firstWhere((final p) => p.id == pa.idPaket);
     } on Exception {
       _selectedPaket = null;
       if (mounted) {
@@ -250,7 +250,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     if (_kategoriPemasukanList.isNotEmpty) {
       try {
         _selectedKategori = _kategoriPemasukanList.firstWhere(
-          (k) => k.nama.toLowerCase() == 'aktivasi paket',
+          (final k) => k.nama.toLowerCase() == 'aktivasi paket',
         );
       } on Exception {
         _selectedKategori = _kategoriPemasukanList.first;
@@ -259,7 +259,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   /// Menampilkan dialog pemilih tanggal.
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(final BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
@@ -274,11 +274,11 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   /// Menampilkan dialog pemilih waktu.
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _selectTime(final BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
-      builder: (context, child) => MediaQuery(
+      builder: (final context, final child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
         child: child!,
       ),
@@ -348,7 +348,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         status: _statusPembayaran,
-        diperbarui: DateTime.now(),
         idTransaksi: transaksiId,
       );
 
@@ -366,7 +365,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         statusPembayaran: _statusPembayaran,
         poinYangDihasilkan: _gunakanPoin ? 0 : selectedPaket.poinHadiah,
         poinYangDigunakan: _gunakanPoin ? selectedPaket.poinPenukaran : 0,
-        diperbarui: DateTime.now(),
         durasiPaket: selectedPaket.durasi,
         tipeDurasiPaket: selectedPaket.tipe,
         tanggalMulai: tanggalMulai,
@@ -404,7 +402,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -475,7 +473,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           ),
           Switch(
             value: _gunakanPoin,
-            onChanged: (bool value) {
+            onChanged: (final bool value) {
               setState(() {
                 _gunakanPoin = value;
                 if (!_kategoriList.contains(_selectedKategori)) {
@@ -499,9 +497,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       ),
       initialValue: _selectedPelanggan,
       items: _pelangganList
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .map((final p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
-      onChanged: (PelangganModel? newValue) async {
+      onChanged: (final PelangganModel? newValue) async {
         if (newValue == null) return;
         final saldoPoin = await widget.transaksiOperasi.getTotalPoin(
           newValue.id,
@@ -513,7 +511,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           });
         }
       },
-      validator: (v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
+      validator: (final v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
     );
   }
 
@@ -526,11 +524,11 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       ),
       initialValue: _selectedPaket,
       items: _paketList
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .map((final p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
-      onChanged: (PaketModel? newValue) =>
+      onChanged: (final PaketModel? newValue) =>
           setState(() => _selectedPaket = newValue),
-      validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
+      validator: (final v) => v == null ? 'Paket tidak boleh kosong' : null,
     );
   }
 
@@ -543,11 +541,11 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       ),
       initialValue: _selectedDompet,
       items: _daftarDompet
-          .map((d) => DropdownMenuItem(value: d, child: Text(d.namaDompet)))
+          .map((final d) => DropdownMenuItem(value: d, child: Text(d.namaDompet)))
           .toList(),
-      onChanged: (DompetModel? newValue) =>
+      onChanged: (final DompetModel? newValue) =>
           setState(() => _selectedDompet = newValue),
-      validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,
+      validator: (final v) => v == null ? 'Dompet tidak boleh kosong' : null,
     );
   }
 
@@ -560,11 +558,11 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       ),
       initialValue: _selectedKategori,
       items: _kategoriList
-          .map((k) => DropdownMenuItem(value: k, child: Text(k.nama)))
+          .map((final k) => DropdownMenuItem(value: k, child: Text(k.nama)))
           .toList(),
-      onChanged: (KategoriModel? newValue) =>
+      onChanged: (final KategoriModel? newValue) =>
           setState(() => _selectedKategori = newValue),
-      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
+      validator: (final v) => v == null ? 'Kategori tidak boleh kosong' : null,
     );
   }
 

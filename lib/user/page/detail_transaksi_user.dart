@@ -24,7 +24,7 @@ class DetailTransaksiPage extends StatelessWidget {
   const DetailTransaksiPage({super.key, required this.transaksi, this.paket});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}',
     );
@@ -80,7 +80,7 @@ class DetailTransaksiPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, dynamic value) {
+  Widget _buildInfoRow(final String label, final dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

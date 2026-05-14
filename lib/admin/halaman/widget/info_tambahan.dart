@@ -12,7 +12,7 @@ class InfoTambahan extends StatelessWidget {
   const InfoTambahan({super.key, required this.label, required this.value});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

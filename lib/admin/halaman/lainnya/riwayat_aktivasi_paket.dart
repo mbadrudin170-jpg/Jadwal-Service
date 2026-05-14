@@ -60,7 +60,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
     Log.info('Memuat data transaksi aktivasi paket dari database');
     setState(() {
       _listTransaksiFuture =
-          _transaksiOperasi.getTransaksiByAktivasiPaket().then((list) {
+          _transaksiOperasi.getTransaksiByAktivasiPaket().then((final list) {
         Log.info(
           'Berhasil memuat ${list.length} data transaksi aktivasi paket',
         );
@@ -96,7 +96,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
 
         _urutkanList(list, _urutanAktif);
         return list;
-      }).catchError((Object error, StackTrace st) {
+      }).catchError((final Object error, final StackTrace st) {
         Log.error(
           'Gagal memuat data transaksi aktivasi paket dari database',
           e: error,
@@ -107,7 +107,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
     });
   }
 
-  void _urutkanList(List<TransaksiModel> list, OpsiUrutkan pilihan) {
+  void _urutkanList(final List<TransaksiModel> list, final OpsiUrutkan pilihan) {
     Log.info(
       'Mengurutkan ${list.length} data transaksi berdasarkan: ${pilihan.name}',
     );
@@ -115,17 +115,17 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
 
     switch (pilihan) {
       case OpsiUrutkan.terbaru:
-        comparator = (a, b) =>
+        comparator = (final a, final b) =>
             (b.diperbarui ?? b.tanggal).compareTo(a.diperbarui ?? a.tanggal);
         Log.info('Pengurutan: Terbaru (berdasarkan waktu update/tanggal)');
         break;
       case OpsiUrutkan.terlama:
-        comparator = (a, b) =>
+        comparator = (final a, final b) =>
             (a.diperbarui ?? a.tanggal).compareTo(b.diperbarui ?? b.tanggal);
         Log.info('Pengurutan: Terlama (berdasarkan waktu update/tanggal)');
         break;
       case OpsiUrutkan.lunas:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final isLunasA = a.statusPembayaran == StatusPembayaranEnum.lunas;
           final isLunasB = b.statusPembayaran == StatusPembayaranEnum.lunas;
           if (isLunasA == isLunasB) {
@@ -143,7 +143,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
         Log.info('Pengurutan: Lunas di atas, Belum Lunas di bawah');
         break;
       case OpsiUrutkan.belumLunas:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final isLunasA = a.statusPembayaran == StatusPembayaranEnum.lunas;
           final isLunasB = b.statusPembayaran == StatusPembayaranEnum.lunas;
           if (isLunasA == isLunasB) {
@@ -161,11 +161,11 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
         Log.info('Pengurutan: Belum Lunas di atas, Lunas di bawah');
         break;
       case OpsiUrutkan.berakhirHariIni:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final sekarang = DateTime.now();
           final tanggalSekarangStr = FormatTanggal.formatTanggalBasic(sekarang);
 
-          bool isHariIni(DateTime? tanggal) {
+          bool isHariIni(final DateTime? tanggal) {
             if (tanggal == null) return false;
             return tanggal.year == sekarang.year &&
                 tanggal.month == sekarang.month &&
@@ -214,8 +214,8 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
     );
     final OpsiUrutkan? pilihan = await showDialog<OpsiUrutkan>(
       context: context,
-      builder: (BuildContext context) {
-        Widget buildOption(String text, OpsiUrutkan value) {
+      builder: (final BuildContext context) {
+        Widget buildOption(final String text, final OpsiUrutkan value) {
           final bool isSelected = _urutanAktif == value;
           return SimpleDialogOption(
             onPressed: () {
@@ -267,7 +267,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI halaman Riwayat Aktivasi Paket, urutan aktif: ${_urutanAktif.name}',
     );
@@ -293,7 +293,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
       ),
       body: FutureBuilder<List<TransaksiModel>>(
         future: _listTransaksiFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           Log.info('FutureBuilder status: ${snapshot.connectionState}');
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -321,7 +321,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
 
             return ListView.builder(
               itemCount: dataLength,
-              itemBuilder: (context, index) {
+              itemBuilder: (final context, final index) {
                 final transaksi = snapshot.data![index];
                 final statusPembayaranColor =
                     transaksi.statusPembayaran == StatusPembayaranEnum.lunas
@@ -345,12 +345,12 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DetailLanggananTransaksiPage(
+                          builder: (final context) => DetailLanggananTransaksiPage(
                             idTransaksi: transaksi.id,
                           ),
                         ),
                       );
-                      if (result == true) {
+                      if (result ?? false) {
                         Log.info(
                           'Kembali dari Detail Transaksi ID: ${transaksi.id} dengan perubahan data, menyegarkan daftar',
                         );

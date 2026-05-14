@@ -90,7 +90,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         _tanggal = trx.tanggal;
 
         _selectedDompet = _dompetList.firstWhere(
-          (d) => d.id == trx.idDompet,
+          (final d) => d.id == trx.idDompet,
           orElse: () {
             Log.warning(
               'Dompet asal dengan ID ${trx.idDompet} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
@@ -101,7 +101,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
 
         if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
           _selectedDompetTujuan = _dompetList.firstWhere(
-            (d) => d.id == trx.idDompetTujuan,
+            (final d) => d.id == trx.idDompetTujuan,
             orElse: () {
               Log.warning(
                 'Dompet tujuan dengan ID ${trx.idDompetTujuan} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
@@ -116,7 +116,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         if (trx.idKategori.isNotEmpty) {
           _selectedKategori =
               _kategoriFiltered.cast<KategoriModel?>().firstWhere(
-            (k) => k?.id == trx.idKategori,
+            (final k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
                 'Kategori dengan ID ${trx.idKategori} tidak ditemukan setelah filter.',
@@ -129,7 +129,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
             _selectedSubKategori = _selectedKategori!.subKategori
                 .cast<SubKategoriModel?>()
                 .firstWhere(
-              (sk) => sk?.id == trx.idSubKategori,
+              (final sk) => sk?.id == trx.idSubKategori,
               orElse: () {
                 Log.warning(
                   'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
@@ -167,7 +167,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         : TipeKategori.pengeluaran;
 
     _kategoriFiltered =
-        _kategoriList.where((k) => k.tipe == tipeKategoriTarget).toList();
+        _kategoriList.where((final k) => k.tipe == tipeKategoriTarget).toList();
     Log.info(
       'Kategori difilter untuk tipe: ${_tipe.name}. Jumlah: $tipeSebelum -> ${_kategoriFiltered.length}.',
     );
@@ -184,7 +184,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     });
   }
 
-  Future<void> _pilihTanggal(BuildContext context) async {
+  Future<void> _pilihTanggal(final BuildContext context) async {
     Log.info('Membuka dialog pemilih tanggal.');
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -208,7 +208,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     }
   }
 
-  Future<void> _pilihWaktu(BuildContext context) async {
+  Future<void> _pilihWaktu(final BuildContext context) async {
     Log.info('Membuka dialog pemilih waktu.');
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -298,7 +298,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI FormTransaksiPage. isLoading: $_isLoading, isSaving: $_isSaving',
     );
@@ -317,7 +317,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                     Center(
                       child: SegmentedButton<TipeTransaksi>(
                         segments: TipeTransaksi.values.map((
-                          TipeTransaksi tipe,
+                          final TipeTransaksi tipe,
                         ) {
                           return ButtonSegment<TipeTransaksi>(
                             value: tipe,
@@ -325,7 +325,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                           );
                         }).toList(),
                         selected: <TipeTransaksi>{_tipe},
-                        onSelectionChanged: (Set<TipeTransaksi> newSelection) {
+                        onSelectionChanged: (final Set<TipeTransaksi> newSelection) {
                           setState(() {
                             Log.info(
                               'Tipe transaksi diubah menjadi: ${newSelection.first.name}',
@@ -342,7 +342,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       decoration: const InputDecoration(
                         labelText: 'Keterangan',
                       ),
-                      validator: (value) => value == null || value.isEmpty
+                      validator: (final value) => value == null || value.isEmpty
                           ? 'Keterangan tidak boleh kosong'
                           : null,
                     ),
@@ -350,7 +350,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       controller: _jumlahController,
                       decoration: const InputDecoration(labelText: 'Jumlah'),
                       keyboardType: TextInputType.number,
-                      validator: (value) {
+                      validator: (final value) {
                         if (value == null || value.isEmpty) {
                           return 'Jumlah tidak boleh kosong';
                         }
@@ -383,19 +383,19 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       key: ValueKey<DompetModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
                       decoration: const InputDecoration(labelText: 'Dompet'),
-                      items: _dompetList.map((dompet) {
+                      items: _dompetList.map((final dompet) {
                         return DropdownMenuItem(
                           value: dompet,
                           child: Text(dompet.namaDompet),
                         );
                       }).toList(),
-                      onChanged: (val) {
+                      onChanged: (final val) {
                         Log.info(
                           'Pengguna memilih dompet: ${val?.namaDompet ?? "null"}',
                         );
                         setState(() => _selectedDompet = val);
                       },
-                      validator: (val) =>
+                      validator: (final val) =>
                           val == null ? 'Dompet harus dipilih' : null,
                     ),
                     if (_tipe == TipeTransaksi.transfer)
@@ -405,19 +405,19 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
                         ),
-                        items: _dompetList.map((dompet) {
+                        items: _dompetList.map((final dompet) {
                           return DropdownMenuItem(
                             value: dompet,
                             child: Text(dompet.namaDompet),
                           );
                         }).toList(),
-                        onChanged: (val) {
+                        onChanged: (final val) {
                           Log.info(
                             'Pengguna memilih dompet tujuan: ${val?.namaDompet ?? "null"}',
                           );
                           setState(() => _selectedDompetTujuan = val);
                         },
-                        validator: (val) {
+                        validator: (final val) {
                           if (val == null) return 'Dompet tujuan harus dipilih';
                           if (val == _selectedDompet) {
                             return 'Dompet tidak boleh sama';
@@ -432,13 +432,13 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
                         ),
-                        items: _kategoriFiltered.map((kategori) {
+                        items: _kategoriFiltered.map((final kategori) {
                           return DropdownMenuItem(
                             value: kategori,
                             child: Text(kategori.nama),
                           );
                         }).toList(),
-                        onChanged: (val) {
+                        onChanged: (final val) {
                           Log.info(
                             'Pengguna memilih kategori: ${val?.nama ?? "null"}',
                           );
@@ -447,7 +447,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                             _selectedSubKategori = null;
                           });
                         },
-                        validator: (val) =>
+                        validator: (final val) =>
                             val == null ? 'Kategori harus dipilih' : null,
                       ),
                     if (_selectedKategori != null &&
@@ -458,19 +458,19 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',
                         ),
-                        items: _selectedKategori!.subKategori.map((sub) {
+                        items: _selectedKategori!.subKategori.map((final sub) {
                           return DropdownMenuItem(
                             value: sub,
                             child: Text(sub.nama),
                           );
                         }).toList(),
-                        onChanged: (val) {
+                        onChanged: (final val) {
                           Log.info(
                             'Pengguna memilih sub-kategori: ${val?.nama ?? "null"}',
                           );
                           setState(() => _selectedSubKategori = val);
                         },
-                        validator: (val) =>
+                        validator: (final val) =>
                             val == null ? 'Sub Kategori harus dipilih' : null,
                       ),
                     const SizedBox(height: 20),

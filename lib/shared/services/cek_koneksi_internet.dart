@@ -15,7 +15,7 @@ class KoneksiInternetService {
   /// Konstruktor untuk `KoneksiInternetService`.
   ///
   /// Memungkinkan injeksi `Connectivity` untuk keperluan pengujian.
-  KoneksiInternetService({Connectivity? connectivity})
+  KoneksiInternetService({final Connectivity? connectivity})
       : _connectivity = connectivity ?? Connectivity();
 
   /// Memeriksa apakah perangkat terhubung ke internet (WiFi atau Mobile).

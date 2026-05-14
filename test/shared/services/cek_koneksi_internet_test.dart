@@ -30,7 +30,7 @@ void main() {
     test('Harus mengembalikan true ketika terhubung ke WiFi', () async {
       // Atur mock untuk mengembalikan hasil WiFi
       when(mockConnectivity.checkConnectivity())
-          .thenAnswer((_) async => [ConnectivityResult.wifi]);
+          .thenAnswer((final _) async => [ConnectivityResult.wifi]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -45,7 +45,7 @@ void main() {
     test('Harus mengembalikan true ketika terhubung ke data seluler', () async {
       // Atur mock untuk mengembalikan hasil mobile
       when(mockConnectivity.checkConnectivity())
-          .thenAnswer((_) async => [ConnectivityResult.mobile]);
+          .thenAnswer((final _) async => [ConnectivityResult.mobile]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -59,7 +59,7 @@ void main() {
     test('Harus mengembalikan false ketika tidak ada koneksi', () async {
       // Atur mock untuk mengembalikan hasil tidak ada koneksi
       when(mockConnectivity.checkConnectivity())
-          .thenAnswer((_) async => [ConnectivityResult.none]);
+          .thenAnswer((final _) async => [ConnectivityResult.none]);
 
       // Panggil metode yang akan diuji
       final hasil = await koneksiService.cekKoneksi();
@@ -87,7 +87,7 @@ void main() {
     test('Harus mengembalikan true jika salah satu koneksi adalah WiFi',
         () async {
       when(mockConnectivity.checkConnectivity()).thenAnswer(
-        (_) async => [ConnectivityResult.bluetooth, ConnectivityResult.wifi],
+        (final _) async => [ConnectivityResult.bluetooth, ConnectivityResult.wifi],
       );
       final result = await koneksiService.cekKoneksi();
       expect(result, isTrue);
@@ -97,7 +97,7 @@ void main() {
     // Test 6: Harus mengembalikan false untuk koneksi selain mobile dan wifi (misal: bluetooth)
     test('Harus mengembalikan false untuk koneksi bluetooth saja', () async {
       when(mockConnectivity.checkConnectivity())
-          .thenAnswer((_) async => [ConnectivityResult.bluetooth]);
+          .thenAnswer((final _) async => [ConnectivityResult.bluetooth]);
       final result = await koneksiService.cekKoneksi();
       expect(result, isFalse);
       verify(mockConnectivity.checkConnectivity()).called(1);

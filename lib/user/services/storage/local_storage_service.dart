@@ -28,7 +28,7 @@ class LocalStorageService {
   /// Menyimpan mode tema ([ThemeMode]) yang dipilih pengguna.
   ///
   /// Mode tema disimpan berdasarkan `userId` untuk personalisasi.
-  Future<void> simpanModeTema(ThemeMode mode) async {
+  Future<void> simpanModeTema(final ThemeMode mode) async {
     Log.info('[Simpan Tema] Menyimpan mode tema: $mode.');
     final userId = prefs.getString(_kunciUserId);
     if (userId == null) {
@@ -66,7 +66,7 @@ class LocalStorageService {
     }
 
     final themeMode = ThemeMode.values.firstWhere(
-      (e) => e.toString() == modeString,
+      (final e) => e.toString() == modeString,
       orElse: () => ThemeMode.system,
     );
     Log.info('[Ambil Tema] Mode tema ($themeMode) berhasil diambil.');
@@ -74,7 +74,7 @@ class LocalStorageService {
   }
 
   /// Menyimpan akun pelanggan ke dalam daftar akun di penyimpanan lokal.
-  Future<void> simpanAkun(PelangganModel pelanggan) async {
+  Future<void> simpanAkun(final PelangganModel pelanggan) async {
     Log.info('[Simpan Akun] Menyimpan akun: ${pelanggan.nama}.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     // ditambah: Tipe eksplisit untuk menghindari dynamic calls.
@@ -82,7 +82,7 @@ class LocalStorageService {
         daftarJson != null ? jsonDecode(daftarJson) as List<dynamic> : [];
 
     // ditambah: Tipe eksplisit untuk menghindari dynamic calls.
-    if (!daftar.cast<Map<String, dynamic>>().any((p) => p['id'] == pelanggan.id)) {
+    if (!daftar.cast<Map<String, dynamic>>().any((final p) => p['id'] == pelanggan.id)) {
       // diubah: Menggunakan toSqlite() untuk konsistensi
       daftar.add(pelanggan.toSqlite());
       await prefs.setString(_kunciDaftarAkun, jsonEncode(daftar));
@@ -115,7 +115,7 @@ class LocalStorageService {
   }
 
   /// Menghapus akun pelanggan dari daftar berdasarkan `userId`.
-  Future<void> hapusAkun(String userId) async {
+  Future<void> hapusAkun(final String userId) async {
     Log.info('[Hapus Akun] Menghapus akun dengan ID: $userId.');
     final daftarJson = prefs.getString(_kunciDaftarAkun);
     if (daftarJson == null) {
@@ -128,7 +128,7 @@ class LocalStorageService {
     // ditambah: Tipe eksplisit untuk menghindari dynamic calls.
     final List<dynamic> daftar = jsonDecode(daftarJson) as List<dynamic>;
     final int jumlahSebelum = daftar.length;
-    daftar.removeWhere((p) => (p as Map<String, dynamic>)['id'] == userId);
+    daftar.removeWhere((final p) => (p as Map<String, dynamic>)['id'] == userId);
     final int jumlahSesudah = daftar.length;
 
     if (jumlahSebelum > jumlahSesudah) {
@@ -182,7 +182,7 @@ class LocalStorageService {
       // ditambah: Tipe eksplisit untuk menghindari dynamic calls.
       final Map<String, dynamic> akunJson = daftar
           .cast<Map<String, dynamic>>()
-          .firstWhere((p) => p['id'] == userId);
+          .firstWhere((final p) => p['id'] == userId);
       // diubah: Menggunakan fromSqlite() untuk deserialisasi
       final pelanggan = PelangganModel.fromSqlite(akunJson);
       Log.info(

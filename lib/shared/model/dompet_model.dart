@@ -35,7 +35,7 @@ class DompetModel implements MemilikiId {
   ///
   /// Jika [id] tidak disediakan, ID unik akan dibuat menggunakan `Uuid().v4()`.
   DompetModel({
-    String? id,
+    final String? id,
     required this.namaDompet,
     required this.saldo,
     this.diperbarui,
@@ -47,12 +47,12 @@ class DompetModel implements MemilikiId {
   ///
   /// Berguna untuk pembaruan data secara immutable.
   DompetModel copyWith({
-    String? id,
-    String? namaDompet,
-    double? saldo,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? namaDompet,
+    final double? saldo,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return DompetModel(
       id: id ?? this.id,
@@ -68,7 +68,7 @@ class DompetModel implements MemilikiId {
   ///
   /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
   /// atau [String] format ISO-8601 (untuk backward compatibility).
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? _parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -85,7 +85,7 @@ class DompetModel implements MemilikiId {
   ///
   /// Factory constructor ini menangani konversi tipe data dari format
   /// yang disimpan di database lokal. Sekarang mendukung millisecondsSinceEpoch.
-  factory DompetModel.fromSqlite(Map<String, dynamic> map) {
+  factory DompetModel.fromSqlite(final Map<String, dynamic> map) {
     return DompetModel(
       id: map['id'] as String?,
       namaDompet: (map['namaDompet'] as String?) ?? '',
@@ -114,7 +114,7 @@ class DompetModel implements MemilikiId {
   /// Membuat instance [DompetModel] dari dokumen Firestore.
   ///
   /// [id] dokumen diambil secara terpisah dari snapshot.
-  factory DompetModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory DompetModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     return DompetModel(
       id: id,
       namaDompet: (data['namaDompet'] as String?) ?? '',

@@ -13,7 +13,7 @@ class PaketOperasi {
   final OperasiDasar _operasiDasar = OperasiDasar();
 
   /// Menyimpan [PaketModel] baru ke dalam database.
-  Future<void> createPaket(PaketModel paket, {bool dariServer = false}) async {
+  Future<void> createPaket(final PaketModel paket, {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembuatan paket ke OperasiDasar, method: createPaket, id: ${paket.id}',
     );
@@ -58,7 +58,7 @@ class PaketOperasi {
       } else {
         Log.warning('Tidak ada data paket yang ditemukan, method: getPaket');
       }
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -100,7 +100,7 @@ class PaketOperasi {
           'Tidak ada data paket aktif yang ditemukan, method: getPaketAktif',
         );
       }
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -142,7 +142,7 @@ class PaketOperasi {
           'Tidak ada data paket publik yang ditemukan, method: getPaketByIsPublic',
         );
       }
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -156,7 +156,7 @@ class PaketOperasi {
   }
 
   /// Mengambil [PaketModel] berdasarkan [id].
-  Future<PaketModel?> getPaketById(String id) async {
+  Future<PaketModel?> getPaketById(final String id) async {
     Log.info(
       'Memulai pencarian paket berdasarkan ID, method: getPaketById, id: $id',
     );
@@ -188,7 +188,7 @@ class PaketOperasi {
   }
 
   /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> updatePaket(PaketModel paket, {bool dariServer = false}) async {
+  Future<void> updatePaket(final PaketModel paket, {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembaruan paket ke OperasiDasar, method: updatePaket, id: ${paket.id}',
     );
@@ -215,7 +215,7 @@ class PaketOperasi {
   }
 
   /// Menghapus [PaketModel] dari database secara permanen.
-  Future<void> hapusPaket(String id, {bool dariServer = false}) async {
+  Future<void> hapusPaket(final String id, {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan penghapusan paket ke OperasiDasar, method: hapusPaket, id: $id',
     );
@@ -235,13 +235,13 @@ class PaketOperasi {
   }
 
   /// Menghapus semua paket dari database secara permanen.
-  Future<void> hapusSemuaPaket({bool dariServer = false}) async {
+  Future<void> hapusSemuaPaket({final bool dariServer = false}) async {
     Log.info(
       'Memulai proses penghapusan semua data paket, method: hapusSemuaPaket',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final int count = await txn.delete('paket');
           Log.info(
             'Berhasil menghapus semua data paket. Total terhapus: $count, method: hapusSemuaPaket',
@@ -261,7 +261,7 @@ class PaketOperasi {
   }
 
   /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PaketModel>> getPerubahan(DateTime since) async {
+  Future<List<PaketModel>> getPerubahan(final DateTime since) async {
     Log.info(
       'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}, method: getPerubahan',
     );
@@ -281,7 +281,7 @@ class PaketOperasi {
           'Tidak ada perubahan paket ditemukan sejak ${since.toIso8601String()}, method: getPerubahan',
         );
       }
-      return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
+      return List.generate(maps.length, (final i) => PaketModel.fromSqlite(maps[i]));
     } catch (e, s) {
       Log.error(
         'Gagal mengambil perubahan paket, method: getPerubahan, error: $e',
@@ -294,8 +294,8 @@ class PaketOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PaketModel> items, {
-    bool dariServer = false,
+    final List<PaketModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Mendelegasikan proses batch ke OperasiDasar untuk ${items.length} item paket, method: sisipkanAtauPerbaruiBatch',
@@ -303,7 +303,7 @@ class PaketOperasi {
     try {
       final dataList = items
           .map(
-            (item) =>
+            (final item) =>
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
@@ -326,7 +326,7 @@ class PaketOperasi {
   }
 
   /// Mengambil beberapa [PaketModel] berdasarkan daftar [ids].
-  Future<List<PaketModel>> getPaketByIds(List<String> ids) async {
+  Future<List<PaketModel>> getPaketByIds(final List<String> ids) async {
     Log.info(
       'Memulai pengambilan paket berdasarkan list ID, method: getPaketByIds, ids: $ids',
     );
@@ -347,7 +347,7 @@ class PaketOperasi {
       Log.info(
         'Berhasil mengambil ${maps.length} paket dari ${ids.length} ID yang diminta, method: getPaketByIds',
       );
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {

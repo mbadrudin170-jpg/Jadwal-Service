@@ -86,7 +86,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     await _loadData(forceRefresh: true);
   }
 
-  Future<void> _loadData({bool forceRefresh = false}) async {
+  Future<void> _loadData({final bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
@@ -164,7 +164,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     final query = _searchController.text.toLowerCase();
 
     if (query.isNotEmpty) {
-      tempResult = _semuaPelanggan.where((pelanggan) {
+      tempResult = _semuaPelanggan.where((final pelanggan) {
         final nama =
             _mapNamaPelanggan[pelanggan.idPelanggan]?.toLowerCase() ?? '';
         return nama.contains(query);
@@ -187,13 +187,13 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     }
   }
 
-  Future<void> _arsipkanPelanggan(PelangganAktifModel pelangganAktif) async {
+  Future<void> _arsipkanPelanggan(final PelangganAktifModel pelangganAktif) async {
     Log.info(
       'Meminta konfirmasi untuk mengarsipkan pelanggan aktif dengan ID: ${pelangganAktif.id}.',
     );
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Arsipkan'),
           content: Wrap(
@@ -223,7 +223,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
       },
     );
 
-    if (konfirmasi == true) {
+    if (konfirmasi ?? false) {
       try {
         await _pelangganAktifOperasi.arsipkanPelangganAktif(pelangganAktif.id);
         Log.info(
@@ -238,8 +238,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
           ),
         );
         setState(() {
-          _semuaPelanggan.removeWhere((p) => p.id == pelangganAktif.id);
-          _hasilFilter.removeWhere((p) => p.id == pelangganAktif.id);
+          _semuaPelanggan.removeWhere((final p) => p.id == pelangganAktif.id);
+          _hasilFilter.removeWhere((final p) => p.id == pelangganAktif.id);
         });
       } on Exception catch (e, s) {
         Log.error(
@@ -262,8 +262,8 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     Log.info('Membuka dialog untuk memilih opsi pengurutan.');
     final OpsiUrutkan? pilihan = await showDialog<OpsiUrutkan>(
       context: context,
-      builder: (BuildContext context) {
-        Widget buildOption(String text, OpsiUrutkan value) {
+      builder: (final BuildContext context) {
+        Widget buildOption(final String text, final OpsiUrutkan value) {
           final bool isSelected = _urutanAktif == value;
           return Container(
             color: isSelected ? Theme.of(context).highlightColor : null,
@@ -320,10 +320,10 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     Log.info('Navigasi ke halaman tambah pelanggan aktif.');
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => FormPelangganAktif()),
+      MaterialPageRoute<bool>(builder: (final context) => FormPelangganAktif()),
     );
     if (!mounted) return;
-    if (result == true) {
+    if (result ?? false) {
       Log.info('Berhasil menambahkan pelanggan aktif baru.');
       await _loadData(forceRefresh: true);
     }
@@ -333,7 +333,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
     Log.info('Membuka dialog opsi lanjutan.');
     final OpsiHapusPilihan? pilihan = await showDialog<OpsiHapusPilihan>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return SimpleDialog(
           title: const Text('Opsi Lanjutan'),
           children: <Widget>[
@@ -368,7 +368,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
         );
         final bool? konfirmasi = await showDialog(
           context: context,
-          builder: (BuildContext context) {
+          builder: (final BuildContext context) {
             return AlertDialog(
               title: const Text('Konfirmasi Hapus Semua'),
               content: const Text(
@@ -388,7 +388,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
           },
         );
 
-        if (konfirmasi == true) {
+        if (konfirmasi ?? false) {
           await _pelangganAktifOperasi.arsipkanSemuaPelangganAktif();
           Log.info('Semua pelanggan aktif berhasil diarsipkan.');
           await _loadData(forceRefresh: true);
@@ -494,7 +494,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     super.build(context);
     return Scaffold(
       appBar: _buildAppBar(),
@@ -510,7 +510,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                       ? const Center(child: Text('Pelanggan tidak ditemukan.'))
                       : ListView.builder(
                           itemCount: _hasilFilter.length,
-                          itemBuilder: (context, index) {
+                          itemBuilder: (final context, final index) {
                             final pelanggan = _hasilFilter[index];
                             final statusPembayaran = pelanggan.status;
                             final paketFuture =
@@ -532,7 +532,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                                   await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
-                                      builder: (context) =>
+                                      builder: (final context) =>
                                           DetailPelangganAktif(
                                         pelanggan: pelanggan,
                                       ),

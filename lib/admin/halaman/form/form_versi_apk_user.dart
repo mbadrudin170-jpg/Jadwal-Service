@@ -26,7 +26,7 @@ class FormVersiApkUser extends StatefulWidget {
   /// Parameter [operasi] bersifat opsional dan akan diinisialisasi
   /// dengan instance default jika tidak disediakan. Ini berguna untuk
   /// injeksi dependensi saat testing.
-  FormVersiApkUser({super.key, this.versiApkUser, VersiApkUserOperasi? operasi})
+  FormVersiApkUser({super.key, this.versiApkUser, final VersiApkUserOperasi? operasi})
       : operasi = operasi ?? VersiApkUserOperasi();
 
   @override
@@ -100,7 +100,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     }
   }
 
-  void _populateControllers(VersiApkUserModel data) {
+  void _populateControllers(final VersiApkUserModel data) {
     Log.info('Memasukkan data model ke dalam form controller (ID: ${data.id})');
     _catatanRilisController.text = data.catatanRilis;
     _versiTerbaruController.text = data.versiTerbaru;
@@ -143,7 +143,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
 
       final konfirmasi = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (final context) => AlertDialog(
           title: const Row(
             children: [
               Icon(Icons.info_outline, color: Colors.blue),
@@ -252,7 +252,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Edit Versi APK' : 'Tambah Versi APK'),
@@ -273,7 +273,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
                       prefixIcon: Icon(Icons.info_outline),
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+                    validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
                   ),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Nomor Build'),
@@ -299,7 +299,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 3,
-                    validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+                    validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -316,7 +316,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
                   SwitchListTile(
                     title: const Text('Wajib Update'),
                     value: _wajibUpdate,
-                    onChanged: (bool value) {
+                    onChanged: (final bool value) {
                       Log.info('Switch Wajib Update diubah ke: $value');
                       setState(() => _wajibUpdate = value);
                     },
@@ -334,7 +334,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
             ),
           ),
           if (_isLoading)
-            Container(
+            ColoredBox(
               color: Colors.black.withAlpha(128),
               child: const Center(
                 child: Column(
@@ -352,7 +352,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(final String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
@@ -366,7 +366,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     );
   }
 
-  Widget _buildNumberField(TextEditingController controller, String label) {
+  Widget _buildNumberField(final TextEditingController controller, final String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: TextFormField(
@@ -380,7 +380,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     );
   }
 
-  Widget _buildUrlField(TextEditingController controller, String label) {
+  Widget _buildUrlField(final TextEditingController controller, final String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: TextFormField(

@@ -46,14 +46,14 @@ class _DetailLanggananTransaksiPageState
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI halaman detail langganan transaksi.');
 
     return Scaffold(
       appBar: AppBar(title: const Text('Detail Langganan')),
       body: FutureBuilder<TransaksiModel?>(
         future: _transaksiFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           Log.info(
             'FutureBuilder transaksi dijalankan dengan state: ${snapshot.connectionState}.',
           );
@@ -91,7 +91,7 @@ class _DetailLanggananTransaksiPageState
                     'Informasi Pelanggan',
                     _pelangganOperasi.getPelangganById(transaksi.idPelanggan!),
                     'Pelanggan',
-                    (pelanggan) => [
+                    (final pelanggan) => [
                       _buildDetailRow(
                         'Nama Pelanggan',
                         pelanggan?.nama ?? 'Tidak Diketahui',
@@ -104,7 +104,7 @@ class _DetailLanggananTransaksiPageState
                     'Informasi Paket',
                     _paketOperasi.getPaketById(transaksi.idPaket!),
                     'Paket',
-                    (paket) => [
+                    (final paket) => [
                       _buildDetailRow(
                         'Nama Paket',
                         paket?.nama ?? 'Tidak Diketahui',
@@ -155,7 +155,7 @@ class _DetailLanggananTransaksiPageState
   }
 
   // ditambahkan: Widget untuk menampilkan informasi poin
-  Widget _buildInfoPoin(TransaksiModel transaksi) {
+  Widget _buildInfoPoin(final TransaksiModel transaksi) {
     Log.info('Membangun widget informasi poin transaksi.');
 
     // Jika tidak ada perubahan poin, tidak perlu menampilkan widget
@@ -202,7 +202,7 @@ class _DetailLanggananTransaksiPageState
     ]);
   }
 
-  Widget _buildInfoCard(String title, List<Widget> children) {
+  Widget _buildInfoCard(final String title, final List<Widget> children) {
     Log.info('Membangun info card dengan judul: $title.');
 
     return Card(
@@ -226,16 +226,16 @@ class _DetailLanggananTransaksiPageState
   }
 
   Widget _buildFutureInfoCard<T>(
-    String title,
-    Future<T?> future,
-    String tag,
-    List<Widget> Function(T? data) builder,
+    final String title,
+    final Future<T?> future,
+    final String tag,
+    final List<Widget> Function(T? data) builder,
   ) {
     Log.info('Membangun Future info card untuk data $tag.');
 
     return FutureBuilder<T?>(
       future: future,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         Log.info(
           'FutureBuilder $tag dijalankan dengan state: ${snapshot.connectionState}.',
         );
@@ -268,7 +268,7 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(final String label, final String value) {
     Log.info('Membangun detail row dengan label: $label dan value: $value.');
 
     return Padding(
@@ -291,11 +291,11 @@ class _DetailLanggananTransaksiPageState
 
   // ditambahkan: Widget detail row dengan kustomisasi warna dan style
   Widget _buildDetailRowWithColor(
-    String label,
-    String value,
-    Color? valueColor,
-    FontWeight fontWeight, {
-    double fontSize = 14,
+    final String label,
+    final String value,
+    final Color? valueColor,
+    final FontWeight fontWeight, {
+    final double fontSize = 14,
   }) {
     Log.info(
       'Membangun detail row berwarna dengan label: $label dan value: $value.',

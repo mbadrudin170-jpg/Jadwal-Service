@@ -1,6 +1,5 @@
 // path: lib/shared/model/versi_apk_user_model.dart
 // diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, impor enum diperbaiki, dan mengimplementasikan MemilikiId.
-// diubah: Mengubah penyimpanan tanggal ke millisecondsSinceEpoch untuk SQLite, memperbaiki nama helper, dan menghapus TODO.
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -64,9 +63,9 @@ class VersiApkUserModel implements MemilikiId {
       'id': id,
       'catatanRilis': catatanRilis,
       'nomorBuildTerbaru':
-          nomorBuildTerbaru.map((key, value) => MapEntry(key.name, value)),
+          nomorBuildTerbaru.map((final key, final value) => MapEntry(key.name, value)),
       'tautanUnduhan':
-          tautanUnduhan.map((key, value) => MapEntry(key.name, value)),
+          tautanUnduhan.map((final key, final value) => MapEntry(key.name, value)),
       'versiTerbaru': versiTerbaru,
       'wajibUpdate': wajibUpdate,
       'youtubeTutorial': youtubeTutorial,
@@ -80,7 +79,7 @@ class VersiApkUserModel implements MemilikiId {
   // SQLITE
   // =========================
   /// Factory constructor untuk membuat `VersiApkUserModel` dari data SQLite.
-  factory VersiApkUserModel.fromSqlite(Map<String, dynamic> map) {
+  factory VersiApkUserModel.fromSqlite(final Map<String, dynamic> map) {
     return VersiApkUserModel(
       id: map['id'] as String? ?? '',
       catatanRilis: map['catatan_rilis'] as String? ?? '',
@@ -105,10 +104,10 @@ class VersiApkUserModel implements MemilikiId {
       'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
       'diperbarui': diperbarui?.millisecondsSinceEpoch,
       'nomor_build_terbaru': jsonEncode(
-        nomorBuildTerbaru.map((key, value) => MapEntry(key.name, value)),
+        nomorBuildTerbaru.map((final key, final value) => MapEntry(key.name, value)),
       ),
       'tautan_unduhan': jsonEncode(
-        tautanUnduhan.map((key, value) => MapEntry(key.name, value)),
+        tautanUnduhan.map((final key, final value) => MapEntry(key.name, value)),
       ),
       'wajib_update': wajibUpdate ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
@@ -119,7 +118,7 @@ class VersiApkUserModel implements MemilikiId {
   // FIREBASE
   // =========================
   /// Factory constructor untuk membuat `VersiApkUserModel` dari data Firebase.
-  factory VersiApkUserModel.fromFirebase(String id, Map<String, dynamic> map) {
+  factory VersiApkUserModel.fromFirebase(final String id, final Map<String, dynamic> map) {
     return VersiApkUserModel(
       id: id,
       catatanRilis: map['catatan_rilis'] as String? ?? '',
@@ -144,10 +143,10 @@ class VersiApkUserModel implements MemilikiId {
       'diperbarui': FieldValue.serverTimestamp(),
       if (diarsipkan != null) 'diarsipkan': Timestamp.fromDate(diarsipkan!),
       'nomor_build_terbaru': nomorBuildTerbaru.map(
-        (key, value) => MapEntry(key.name, value),
+        (final key, final value) => MapEntry(key.name, value),
       ),
       'tautan_unduhan': tautanUnduhan.map(
-        (key, value) => MapEntry(key.name, value),
+        (final key, final value) => MapEntry(key.name, value),
       ),
       'wajib_update': wajibUpdate,
       'isDeleted': isDeleted,
@@ -159,7 +158,7 @@ class VersiApkUserModel implements MemilikiId {
   // =========================
 
   /// Helper untuk mem-parsing `DateTime` dari berbagai format.
-  static DateTime? parseDateTime(dynamic date) {
+  static DateTime? parseDateTime(final dynamic date) {
     if (date == null) return null;
     if (date is Timestamp) return date.toDate();
     if (date is DateTime) return date;
@@ -183,16 +182,16 @@ class VersiApkUserModel implements MemilikiId {
   };
 
   /// Helper untuk mengonversi String menjadi `ArsitekturApkEnum`.
-  static ArsitekturApkEnum? arsitekturDariString(String value) {
+  static ArsitekturApkEnum? arsitekturDariString(final String value) {
     try {
-      return ArsitekturApkEnum.values.firstWhere((e) => e.name == value);
+      return ArsitekturApkEnum.values.firstWhere((final e) => e.name == value);
     } on Exception catch (_) {
       return null;
     }
   }
 
   /// Helper untuk mem-parsing data nomor build dari format Map atau JSON String.
-  static Map<ArsitekturApkEnum, int> parseNomorBuild(dynamic data) {
+  static Map<ArsitekturApkEnum, int> parseNomorBuild(final dynamic data) {
     final hasil = <ArsitekturApkEnum, int>{};
     Map<dynamic, dynamic>? mapData;
 
@@ -225,7 +224,7 @@ class VersiApkUserModel implements MemilikiId {
   }
 
   /// Helper untuk mem-parsing data tautan unduhan dari format Map atau JSON String.
-  static Map<ArsitekturApkEnum, String> parseTautanUnduhan(dynamic data) {
+  static Map<ArsitekturApkEnum, String> parseTautanUnduhan(final dynamic data) {
     final hasil = <ArsitekturApkEnum, String>{};
     Map<dynamic, dynamic>? mapData;
 
@@ -258,16 +257,16 @@ class VersiApkUserModel implements MemilikiId {
 
   /// Membuat salinan dari instance `VersiApkUserModel` dengan beberapa nilai yang diubah.
   VersiApkUserModel copyWith({
-    String? id,
-    String? catatanRilis,
-    Map<ArsitekturApkEnum, int>? nomorBuildTerbaru,
-    Map<ArsitekturApkEnum, String>? tautanUnduhan,
-    String? versiTerbaru,
-    bool? wajibUpdate,
-    String? youtubeTutorial,
-    bool? isDeleted,
-    DateTime? diarsipkan,
-    DateTime? diperbarui,
+    final String? id,
+    final String? catatanRilis,
+    final Map<ArsitekturApkEnum, int>? nomorBuildTerbaru,
+    final Map<ArsitekturApkEnum, String>? tautanUnduhan,
+    final String? versiTerbaru,
+    final bool? wajibUpdate,
+    final String? youtubeTutorial,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
+    final DateTime? diperbarui,
   }) {
     return VersiApkUserModel(
       id: id ?? this.id,

@@ -45,12 +45,12 @@ class PengaturanModel implements MemilikiId {
 
   /// Membuat salinan dari `PengaturanModel` dengan beberapa nilai yang diubah.
   PengaturanModel copyWith({
-    String? id,
-    int? intervalSinkronisasiOtomatis,
-    int? hapusOtomatisDataArsip,
-    bool? modePemeliharaan,
-    String? infoPemeliharaan,
-    DateTime? diperbarui,
+    final String? id,
+    final int? intervalSinkronisasiOtomatis,
+    final int? hapusOtomatisDataArsip,
+    final bool? modePemeliharaan,
+    final String? infoPemeliharaan,
+    final DateTime? diperbarui,
   }) {
     return PengaturanModel(
       id: id ?? this.id,
@@ -68,7 +68,7 @@ class PengaturanModel implements MemilikiId {
   ///
   /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
   /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? _parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -82,7 +82,7 @@ class PengaturanModel implements MemilikiId {
   }
 
   /// Membuat instance `PengaturanModel` dari data Map SQLite.
-  factory PengaturanModel.fromSqlite(Map<String, dynamic> map) {
+  factory PengaturanModel.fromSqlite(final Map<String, dynamic> map) {
     return PengaturanModel(
       intervalSinkronisasiOtomatis:
           map['interval_sinkronisasi_otomatis'] as int? ?? 24,
@@ -108,7 +108,7 @@ class PengaturanModel implements MemilikiId {
   }
 
   /// Membuat instance `PengaturanModel` dari data Map Firebase.
-  factory PengaturanModel.fromFirebase(Map<String, dynamic> data) {
+  factory PengaturanModel.fromFirebase(final Map<String, dynamic> data) {
     return PengaturanModel(
       id: data['id'] as String? ?? idPengaturanGlobal,
       intervalSinkronisasiOtomatis:

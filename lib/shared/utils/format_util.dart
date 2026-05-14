@@ -12,18 +12,18 @@ class FormatTanggal {
   FormatTanggal._();
 
   /// Mengubah [DateTime] menjadi format tanggal "d MMM yyyy" (contoh: "17 Agu 2024").
-  static String formatTanggalBasic(DateTime tanggal) {
+  static String formatTanggalBasic(final DateTime tanggal) {
     return DateFormat('d MMM yyyy', 'id_ID').format(tanggal);
   }
 
   /// Mengubah [DateTime] menjadi format tanggal dan jam "d MMM yyyy, HH:mm".
-  static String formatTanggalDanJam(DateTime tanggal) {
+  static String formatTanggalDanJam(final DateTime tanggal) {
     final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
     return format.format(tanggal);
   }
 
   /// Mengubah [DateTime] menjadi format tanggal ringkas "E, d MMM yy" (contoh: "Sel, 17 Agu 26").
-  static String formatTanggalRingkas(DateTime tanggal) {
+  static String formatTanggalRingkas(final DateTime tanggal) {
     return DateFormat('E, d MMM yy', 'id_ID').format(tanggal);
   }
 }
@@ -34,17 +34,17 @@ class FormatJam {
   FormatJam._();
 
   /// Mengubah [DateTime] menjadi format jam dan menit "HH:mm".
-  static String formatJamMenit(DateTime waktu) {
+  static String formatJamMenit(final DateTime waktu) {
     return DateFormat('HH:mm').format(waktu);
   }
 
   /// Mengubah [DateTime] menjadi format jam, menit, dan detik "HH:mm:ss".
-  static String formatJamLengkap(DateTime waktu) {
+  static String formatJamLengkap(final DateTime waktu) {
     return DateFormat('HH:mm:ss').format(waktu);
   }
 
   /// Mengonversi string waktu (ISO 8601) menjadi format "HH:mm".
-  static String formatTeksKeJam(String teksWaktu) {
+  static String formatTeksKeJam(final String teksWaktu) {
     try {
       final dateTime = DateTime.parse(teksWaktu);
       return DateFormat('HH:mm').format(dateTime);
@@ -60,7 +60,7 @@ class FormatUang {
   FormatUang._();
 
   /// Memformat angka [double] menjadi format mata uang Rupiah ("Rp 50.000").
-  static String formatMataUang(double jumlah) {
+  static String formatMataUang(final double jumlah) {
     // Kembali ke implementasi standar yang menghasilkan format -Rp XX.XXX
     final formatter = NumberFormat.currency(
       locale: 'id_ID',

@@ -40,7 +40,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(final int index) {
     Log.info(
       '[Aksi Navigasi] ✅ Pengguna menekan item navigasi. Index baru: $index, Index sebelumnya: $_selectedIndex.',
     );
@@ -53,7 +53,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       '[Pembangunan UI] ✅ Membangun UI untuk MainPage. Halaman yang ditampilkan saat ini adalah index: $_selectedIndex.',
     );

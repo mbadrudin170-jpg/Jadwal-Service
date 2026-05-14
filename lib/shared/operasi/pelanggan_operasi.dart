@@ -14,8 +14,8 @@ class PelangganOperasi {
 
   /// Menyimpan [PelangganModel] baru ke dalam database.
   Future<void> createPelanggan(
-    PelangganModel pelanggan, {
-    bool dariServer = false,
+    final PelangganModel pelanggan, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
     try {
@@ -49,7 +49,7 @@ class PelangganOperasi {
       );
 
       Log.info('Berhasil mengambil ${maps.length} pelanggan aktif.');
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -66,7 +66,7 @@ class PelangganOperasi {
       final List<Map<String, dynamic>> maps = await db.query('pelanggan');
 
       Log.info('Berhasil mengambil total ${maps.length} pelanggan.');
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -80,7 +80,7 @@ class PelangganOperasi {
   }
 
   /// Mengambil [PelangganModel] berdasarkan [id].
-  Future<PelangganModel?> getPelangganById(String id) async {
+  Future<PelangganModel?> getPelangganById(final String id) async {
     Log.info('Mencari pelanggan berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
@@ -108,8 +108,8 @@ class PelangganOperasi {
 
   /// Memperbarui [PelangganModel] yang ada di database.
   Future<void> updatePelanggan(
-    PelangganModel pelanggan, {
-    bool dariServer = false,
+    final PelangganModel pelanggan, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
     try {
@@ -135,9 +135,9 @@ class PelangganOperasi {
   /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
   /// Jika `false`, maka akan menghapus data secara permanen.
   Future<void> deletePelanggan(
-    String id, {
-    bool softDelete = true,
-    bool dariServer = false,
+    final String id, {
+    final bool softDelete = true,
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
@@ -167,7 +167,7 @@ class PelangganOperasi {
   }
 
   /// Mengambil semua pelanggan yang telah diubah sejak [since].
-  Future<List<PelangganModel>> getPerubahan(DateTime since) async {
+  Future<List<PelangganModel>> getPerubahan(final DateTime since) async {
     Log.info('Mengambil perubahan pelanggan sejak: ${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
@@ -181,7 +181,7 @@ class PelangganOperasi {
       );
       return List.generate(
         maps.length,
-        (i) => PelangganModel.fromSqlite(maps[i]),
+        (final i) => PelangganModel.fromSqlite(maps[i]),
       );
     } catch (e, s) {
       Log.error(
@@ -194,7 +194,7 @@ class PelangganOperasi {
   }
 
   /// Mengarsipkan [PelangganModel] berdasarkan [id].
-  Future<void> arsipkanPelanggan(String id, {bool dariServer = false}) async {
+  Future<void> arsipkanPelanggan(final String id, {final bool dariServer = false}) async {
     Log.info('Mengarsipkan pelanggan ID: $id');
     try {
       final now = DateTime.now().toUtc();
@@ -217,8 +217,8 @@ class PelangganOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [PelangganModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PelangganModel> items, {
-    bool dariServer = false,
+    final List<PelangganModel> items, {
+    final bool dariServer = false,
   }) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
@@ -226,7 +226,7 @@ class PelangganOperasi {
     }
     Log.info('Memulai batch insert/update untuk ${items.length} pelanggan.');
     try {
-      final data = items.map((item) {
+      final data = items.map((final item) {
         return item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
@@ -245,7 +245,7 @@ class PelangganOperasi {
   }
 
   /// Mengambil beberapa [PelangganModel] berdasarkan daftar [ids].
-  Future<List<PelangganModel>> getPelangganByIds(List<String> ids) async {
+  Future<List<PelangganModel>> getPelangganByIds(final List<String> ids) async {
     if (ids.isEmpty) {
       Log.info('List ID kosong, tidak ada pelanggan yang diambil.');
       return [];
@@ -262,7 +262,7 @@ class PelangganOperasi {
       Log.info(
         'Berhasil mengambil ${maps.length} pelanggan berdasarkan list ID yang diberikan.',
       );
-      return List.generate(maps.length, (i) {
+      return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {

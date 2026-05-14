@@ -8,12 +8,12 @@ import 'package:wifi/shared/utils/format_util.dart';
 /// [alignment] mengatur perataan kolom (default: center).
 /// [textKey] dapat digunakan untuk memberikan key khusus pada teks jumlah.
 Widget bangunInfoRingkasan({
-  required BuildContext context,
-  required String label,
-  required double jumlah,
-  required Color warna,
-  CrossAxisAlignment alignment = CrossAxisAlignment.center,
-  Key? textKey,
+  required final BuildContext context,
+  required final String label,
+  required final double jumlah,
+  required final Color warna,
+  final CrossAxisAlignment alignment = CrossAxisAlignment.center,
+  final Key? textKey,
 }) {
   return Column(
     crossAxisAlignment: alignment,

@@ -34,7 +34,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
     // ditambah: Menggunakan await untuk menunggu hasil dari dialog.
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Keluar'),
           content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
@@ -59,7 +59,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
     );
 
     // ditambah: Memeriksa hasil dialog sebelum keluar dari aplikasi.
-    if (shouldLogout == true) {
+    if (shouldLogout ?? false) {
       Log.info('Keluar dari aplikasi.');
       // Keluar dari aplikasi.
       await SystemNavigator.pop();
@@ -67,7 +67,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun halaman Lainnya untuk admin.');
     return Scaffold(
       appBar: AppBar(
@@ -84,7 +84,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const PelangganPage(),
+                  builder: (final context) => const PelangganPage(),
                 ),
               );
             },
@@ -98,7 +98,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const PaketPage(),
+                  builder: (final context) => const PaketPage(),
                 ),
               );
             },
@@ -112,7 +112,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const KategoriPage(),
+                  builder: (final context) => const KategoriPage(),
                 ),
               );
             },
@@ -127,7 +127,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const RiwayatAktivasiPaketPage(),
+                  builder: (final context) => const RiwayatAktivasiPaketPage(),
                 ),
               );
             },
@@ -142,7 +142,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const VersiApkUserPage(),
+                  builder: (final context) => const VersiApkUserPage(),
                 ),
               );
             },
@@ -156,7 +156,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const KritikSaranPage(),
+                  builder: (final context) => const KritikSaranPage(),
                 ),
               );
             },
@@ -171,7 +171,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const HalamanMigrasi(),
+                  builder: (final context) => const HalamanMigrasi(),
                 ),
               );
             },
@@ -185,7 +185,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const PengaturanAdmin(),
+                  builder: (final context) => const PengaturanAdmin(),
                 ),
               );
             },
@@ -199,7 +199,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               await Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const TentangAplikasiPage(),
+                  builder: (final context) => const TentangAplikasiPage(),
                 ),
               );
             },
@@ -218,10 +218,10 @@ class _LainnyaPageState extends State<LainnyaPage> {
   }
 
   Widget _buildMenuItem({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
+    required final BuildContext context,
+    required final IconData icon,
+    required final String title,
+    required final VoidCallback onTap,
   }) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),

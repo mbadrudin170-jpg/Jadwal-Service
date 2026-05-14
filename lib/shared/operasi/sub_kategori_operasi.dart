@@ -15,8 +15,8 @@ class SubKategoriOperasi {
 
   /// Menyimpan [SubKategoriModel] baru ke dalam database.
   Future<void> createSubKategori(
-    SubKategoriModel subKategori, {
-    bool dariServer = false,
+    final SubKategoriModel subKategori, {
+    final bool dariServer = false,
   }) async {
     Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
@@ -25,7 +25,7 @@ class SubKategoriOperasi {
 
   /// Mengambil semua sub-kategori yang terkait dengan [idKategori].
   Future<List<SubKategoriModel>> getSubKategoriByKategoriId(
-    String idKategori,
+    final String idKategori,
   ) async {
     Log.info('Mengambil sub-kategori untuk kategori ID: $idKategori');
     final db = await dbHelper.database;
@@ -34,13 +34,13 @@ class SubKategoriOperasi {
       where: 'id_kategori = ? AND isDeleted = ?',
       whereArgs: [idKategori, 0],
     );
-    return List.generate(maps.length, (i) {
+    return List.generate(maps.length, (final i) {
       return SubKategoriModel.fromSqlite(maps[i]);
     });
   }
 
   /// Mengambil [SubKategoriModel] berdasarkan [id].
-  Future<SubKategoriModel?> getSubKategoriById(String id) async {
+  Future<SubKategoriModel?> getSubKategoriById(final String id) async {
     Log.info('Mengambil sub-kategori dengan ID: $id');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -57,8 +57,8 @@ class SubKategoriOperasi {
 
   /// Memperbarui [SubKategoriModel] yang ada di database.
   Future<void> updateSubKategori(
-    SubKategoriModel subKategori, {
-    bool dariServer = false,
+    final SubKategoriModel subKategori, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
@@ -75,9 +75,9 @@ class SubKategoriOperasi {
   /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
   /// Jika `false`, maka akan menghapus data secara permanen.
   Future<void> deleteSubKategori(
-    String id, {
-    bool softDelete = true,
-    bool dariServer = false,
+    final String id, {
+    final bool softDelete = true,
+    final bool dariServer = false,
   }) async {
     Log.info('Menghapus sub-kategori ID: $id (softDelete: $softDelete)');
     if (softDelete) {
@@ -98,13 +98,13 @@ class SubKategoriOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [SubKategoriModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<SubKategoriModel> items, {
-    bool dariServer = false,
+    final List<SubKategoriModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} sub-kategori.');
     if (items.isEmpty) return;
     final data = items
-        .map((item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
+        .map((final item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
         .toList();
     await _operasiDasar.sisipkanAtauPerbaruiBatch(
       'sub_kategori',
@@ -115,7 +115,7 @@ class SubKategoriOperasi {
   }
 
   /// Mengambil beberapa [SubKategoriModel] berdasarkan daftar [ids].
-  Future<List<SubKategoriModel>> getSubKategoriByIds(List<String> ids) async {
+  Future<List<SubKategoriModel>> getSubKategoriByIds(final List<String> ids) async {
     if (ids.isEmpty) {
       return [];
     }
@@ -127,7 +127,7 @@ class SubKategoriOperasi {
       where: 'id IN ($placeholders)',
       whereArgs: ids,
     );
-    return List.generate(maps.length, (i) {
+    return List.generate(maps.length, (final i) {
       return SubKategoriModel.fromSqlite(maps[i]);
     });
   }

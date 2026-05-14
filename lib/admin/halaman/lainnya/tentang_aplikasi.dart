@@ -89,7 +89,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI halaman Tentang Aplikasi');
     Log.info(
       'Informasi yang ditampilkan - App: ${_packageInfo.appName}, Versi: ${_packageInfo.version}, Build: ${_packageInfo.buildNumber}',
@@ -163,7 +163,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(final String label, final String value) {
     Log.info('Membangun baris info teknis - $label: $value');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

@@ -10,7 +10,7 @@ class ContainerWithBorder extends StatelessWidget {
   const ContainerWithBorder({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

@@ -46,9 +46,9 @@ class PelangganAktifSorter {
   ///
   /// Mengembalikan list baru yang sudah terurut.
   static List<PelangganAktifModel> sort(
-    List<PelangganAktifModel> pelanggan,
-    OpsiUrutkan urutan,
-    Map<String, String> mapNamaPelanggan,
+    final List<PelangganAktifModel> pelanggan,
+    final OpsiUrutkan urutan,
+    final Map<String, String> mapNamaPelanggan,
   ) {
     Log.info(
       'Mengurutkan ${pelanggan.length} pelanggan berdasarkan: ${urutan.name}',
@@ -59,13 +59,13 @@ class PelangganAktifSorter {
 
     switch (urutan) {
       case OpsiUrutkan.tanggalBerakhir:
-        comparator = (a, b) => a.tanggalBerakhir.compareTo(b.tanggalBerakhir);
+        comparator = (final a, final b) => a.tanggalBerakhir.compareTo(b.tanggalBerakhir);
         break;
       case OpsiUrutkan.tanggalMulai:
-        comparator = (a, b) => a.tanggalMulai.compareTo(b.tanggalMulai);
+        comparator = (final a, final b) => a.tanggalMulai.compareTo(b.tanggalMulai);
         break;
       case OpsiUrutkan.diPerbarui:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final dateA = a.diperbarui ?? a.tanggalMulai;
           final dateB = b.diperbarui ?? b.tanggalMulai;
           return dateB.compareTo(dateA);
@@ -73,7 +73,7 @@ class PelangganAktifSorter {
         break;
       case OpsiUrutkan.namaAZ:
       case OpsiUrutkan.namaZA:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final namaA = mapNamaPelanggan[a.idPelanggan] ?? '';
           final namaB = mapNamaPelanggan[b.idPelanggan] ?? '';
           return urutan == OpsiUrutkan.namaAZ
@@ -83,7 +83,7 @@ class PelangganAktifSorter {
         break;
       case OpsiUrutkan.lunas:
       case OpsiUrutkan.belumLunas:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final isLunasA = a.status == StatusPembayaranEnum.lunas;
           final isLunasB = b.status == StatusPembayaranEnum.lunas;
           if (isLunasA == isLunasB) {
@@ -96,7 +96,7 @@ class PelangganAktifSorter {
         break;
       case OpsiUrutkan.paketAktif:
       case OpsiUrutkan.paketTidakAktif:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final isAktifA = PerhitunganUtil.sisaHari(a.tanggalBerakhir) >= 0;
           final isAktifB = PerhitunganUtil.sisaHari(b.tanggalBerakhir) >= 0;
           if (isAktifA == isAktifB) {

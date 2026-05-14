@@ -14,14 +14,14 @@ class StatusUnggahOperasi {
   static const String _key = 'perlu_unggah';
 
   /// Konstruktor untuk `StatusUnggahOperasi`.
-  StatusUnggahOperasi({@visibleForTesting DatabaseHelper? dbHelper})
+  StatusUnggahOperasi({@visibleForTesting final DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   /// Mengatur status `perlu_unggah`.
   /// true = 1, false = 0.
   Future<void> setPerluUnggah(
-    bool perluUnggah, {
-    Transaction? transaction,
+    final bool perluUnggah, {
+    final Transaction? transaction,
   }) async {
     final db = transaction ?? await _dbHelper.database;
     await db.insert(

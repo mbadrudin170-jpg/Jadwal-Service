@@ -109,7 +109,29 @@ linter:
     prefer_conditional_assignment: true
     prefer_is_empty: true
     prefer_is_not_empty: true
-    annotate_overrides: true    
+    annotate_overrides: true
+
+    # ============================================================
+    # TAMBAHAN DART 3 & BEST PRACTICE (17 ATURAN)
+    # ============================================================
+    matching_super_parameters: true             # Nama parameter super harus cocok (Dart 3)
+    unnecessary_async: true                     # Hapus async jika tidak ada await
+    avoid_catching_errors: true                 # Jangan tangkap Error (hanya Exception)
+    # avoid_returning_null_for_future: true       # Jangan return null untuk Future<T>
+    literal_only_boolean_expressions: true      # Ekspresi boolean hanya literal = bug
+    no_runtimetype_tostring: true               # Jangan panggil toString() pada runtimeType
+    test_types_in_equals: true                  # Cek tipe argumen di operator ==
+    unnecessary_statements: true                # Hapus statement yang tidak perlu
+    use_colored_box: true                       # Gunakan ColoredBox alih-alih Container(color:)
+    use_decorated_box: true                     # Gunakan DecoratedBox alih-alih Container(decoration:)
+    sized_box_shrink_expand: true               # Gunakan SizedBox.shrink() / .expand()
+    prefer_final_parameters: true               # Gunakan final untuk parameter yang tidak di-reassign
+    use_if_null_to_convert_nulls_to_bools: true # Gunakan ?? untuk konversi null ke bool
+    prefer_asserts_with_message: true           # Sertakan pesan di assert
+    # avoid_unstable_final_fields: true           # Hindari field final yang tidak stabil
+    prefer_constructors_over_static_methods: true # Gunakan konstruktor daripada static method untuk membuat instance
+    unnecessary_null_checks: true               # Hapus null check (!) yang tidak diperlukan
+
 analyzer:
   exclude:
     - "**/*.g.dart"           # File hasil generate (json_serializable, dsb.)
@@ -158,7 +180,6 @@ analyzer:
     library_private_types_in_public_api: error
     exhaustive_cases: error
 
-
     avoid_function_literals_in_foreach_calls: error
     avoid_single_cascade_in_expression_statements: error
     prefer_conditional_assignment: error
@@ -166,6 +187,24 @@ analyzer:
     prefer_is_not_empty: error
     annotate_overrides: error
 
+    # === TAMBAHAN ERROR ===
+    matching_super_parameters: error
+    unnecessary_async: error
+    avoid_catching_errors: error
+    avoid_returning_null_for_future: error
+    literal_only_boolean_expressions: error
+    no_runtimetype_tostring: error
+    test_types_in_equals: error
+    unnecessary_statements: error
+    use_colored_box: error
+    use_decorated_box: error
+    sized_box_shrink_expand: error
+    prefer_final_parameters: error
+    use_if_null_to_convert_nulls_to_bools: error
+    prefer_asserts_with_message: error
+    avoid_unstable_final_fields: error
+    prefer_constructors_over_static_methods: error
+    unnecessary_null_checks: error
 
   language:
     strict-casts: true              # Casting harus eksplisit dan aman

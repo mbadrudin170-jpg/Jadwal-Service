@@ -16,8 +16,8 @@ class DompetOperasi {
   ///
   /// [dariServer] menandakan apakah operasi ini berasal dari sinkronisasi server.
   Future<void> createDompet(
-    DompetModel dompet, {
-    bool dariServer = false,
+    final DompetModel dompet, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai createDompet untuk dompet: ${dompet.toSqlite()}');
     try {
@@ -35,7 +35,7 @@ class DompetOperasi {
   ///
   /// Jika [tampilkanDiarsipkan] `true`, maka dompet yang telah diarsipkan juga akan diambil.
   Future<List<DompetModel>> getDompet({
-    bool tampilkanDiarsipkan = false,
+    final bool tampilkanDiarsipkan = false,
   }) async {
     Log.info(
       'Memulai getDompet (tampilkanDiarsipkan: $tampilkanDiarsipkan).',
@@ -52,7 +52,7 @@ class DompetOperasi {
 
       final listDompet = List.generate(
         maps.length,
-        (i) => DompetModel.fromSqlite(maps[i]),
+        (final i) => DompetModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${listDompet.length} data dompet.');
       return listDompet;
@@ -63,7 +63,7 @@ class DompetOperasi {
   }
 
   /// Mengambil [DompetModel] berdasarkan [id].
-  Future<DompetModel?> getDompetById(String id) async {
+  Future<DompetModel?> getDompetById(final String id) async {
     Log.info('Memulai getDompetById untuk ID: $id');
     try {
       final db = await dbHelper.database;
@@ -93,8 +93,8 @@ class DompetOperasi {
 
   /// Memperbarui [DompetModel] yang ada di database.
   Future<void> updateDompet(
-    DompetModel dompet, {
-    bool dariServer = false,
+    final DompetModel dompet, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai updateDompet untuk dompet: ${dompet.toSqlite()}');
     try {
@@ -118,7 +118,7 @@ class DompetOperasi {
   }
 
   /// Mengarsipkan semua dompet yang aktif.
-  Future<void> arsipSemuaDompet({bool dariServer = false}) async {
+  Future<void> arsipSemuaDompet({final bool dariServer = false}) async {
     Log.info('Memulai proses pengarsipan untuk semua dompet.');
     try {
       final daftarDompetAktif = await getDompet();
@@ -145,13 +145,13 @@ class DompetOperasi {
   }
 
   /// Menghapus semua dompet dari database secara permanen.
-  Future<void> hapusSemuaDompet({bool dariServer = false}) async {
+  Future<void> hapusSemuaDompet({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusSemuaDompet. Ini adalah operasi destruktif.',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final count = await txn.delete('dompet');
           Log.info(
             'Berhasil hapusSemuaDompet. Total baris yang dihapus: $count',
@@ -166,7 +166,7 @@ class DompetOperasi {
   }
 
   /// Mengarsipkan satu dompet berdasarkan [id] (soft delete).
-  Future<void> arsipkanSatuDompet(String id, {bool dariServer = false}) async {
+  Future<void> arsipkanSatuDompet(final String id, {final bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuDompet (soft delete) untuk ID: $id');
     try {
       final now = DateTime.now().toUtc();
@@ -268,8 +268,8 @@ class DompetOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan dompet dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<DompetModel> items, {
-    bool dariServer = false,
+    final List<DompetModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${items.length} item dompet.',
@@ -281,7 +281,7 @@ class DompetOperasi {
       return;
     }
     try {
-      final data = items.map((item) => item.toSqlite()).toList();
+      final data = items.map((final item) => item.toSqlite()).toList();
       await _operasiDasar.sisipkanAtauPerbaruiBatch(
         'dompet',
         data,
@@ -301,7 +301,7 @@ class DompetOperasi {
   }
 
   /// Mengambil beberapa [DompetModel] berdasarkan daftar [ids].
-  Future<List<DompetModel>> getDompetByIds(List<String> ids) async {
+  Future<List<DompetModel>> getDompetByIds(final List<String> ids) async {
     Log.info('Memulai getDompetByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -320,7 +320,7 @@ class DompetOperasi {
 
       final listDompet = List.generate(
         maps.length,
-        (i) => DompetModel.fromSqlite(maps[i]),
+        (final i) => DompetModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${listDompet.length} dompet dari ${ids.length} ID yang diminta.',

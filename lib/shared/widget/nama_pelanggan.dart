@@ -21,12 +21,12 @@ class NamaPelangganWidget extends StatelessWidget {
   const NamaPelangganWidget({super.key, required this.idPelanggan, this.style});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final PelangganOperasi pelangganOperasi = PelangganOperasi();
 
     return FutureBuilder<PelangganModel?>(
       future: pelangganOperasi.getPelangganById(idPelanggan),
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text(
             '...',

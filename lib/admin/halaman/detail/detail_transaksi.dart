@@ -55,9 +55,9 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
 
   // DIUBAH: Logika diperkuat dengan pengecekan tipe eksplisit untuk mencegah error.
   Future<String?> _getNama(
-    Future<dynamic> Function(String) getModel,
-    String id,
-    String konteks,
+    final Future<dynamic> Function(String) getModel,
+    final String id,
+    final String konteks,
   ) async {
     if (id.isEmpty) {
       Log.info('ID $konteks kosong, mengembalikan null');
@@ -114,7 +114,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     final transaksiYangDiperbarui = await Navigator.push<TransaksiModel?>(
       context,
       MaterialPageRoute<TransaksiModel?>(
-        builder: (context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
+        builder: (final context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
       ),
     );
     if (transaksiYangDiperbarui != null) {
@@ -128,7 +128,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final TransaksiModel transaksi =
         _transaksiSaatIni; // diubah: Menggunakan data dari state
     Log.info('Membangun UI Detail Transaksi ID: ${transaksi.id}');
@@ -254,7 +254,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(final String label, final String value) {
     Log.info('Membangun baris detail - $label: $value');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -270,11 +270,11 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     );
   }
 
-  Widget _buildFutureDetailRow(String label, Future<String?> future) {
+  Widget _buildFutureDetailRow(final String label, final Future<String?> future) {
     Log.info('Membangun FutureBuilder untuk: $label');
     return FutureBuilder<String?>(
       future: future,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('FutureBuilder $label: masih loading');
           return _buildDetailRow(label, 'Memuat...');

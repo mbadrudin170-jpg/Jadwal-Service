@@ -26,7 +26,7 @@ class PreferensiService {
   }
 
   /// Menyimpan timestamp terakhir unduh.
-  static Future<void> setTerakhirUnduh(DateTime waktu) async {
+  static Future<void> setTerakhirUnduh(final DateTime waktu) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unduh: $waktu $_keyTerakhirUnduh',
     );
@@ -47,7 +47,7 @@ class PreferensiService {
   }
 
   /// Menyimpan timestamp terakhir unggah.
-  static Future<void> setTerakhirUnggah(DateTime waktu) async {
+  static Future<void> setTerakhirUnggah(final DateTime waktu) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unggah: $waktu $_keyTerakhirUnggah',
     );
@@ -55,7 +55,7 @@ class PreferensiService {
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
-  static Future<DateTime?> _getTimestamp(String key, String label) async {
+  static Future<DateTime?> _getTimestamp(final String key, final String label) async {
     Log.info('Membaca timestamp $label dari SharedPreferences | Key: $key');
     final prefs = await _prefs;
     final timestamp = prefs.getInt(key);
@@ -73,9 +73,9 @@ class PreferensiService {
   }
 
   static Future<void> _setTimestamp(
-    String key,
-    DateTime time,
-    String label,
+    final String key,
+    final DateTime time,
+    final String label,
   ) async {
     Log.info(
       'Menyimpan timestamp $label ke SharedPreferences | Value: $time | Key: $key',

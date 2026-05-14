@@ -17,7 +17,7 @@ class StatusUnggahModel {
 
   // diubah: Nama metode diubah dari fromMap menjadi fromSqlite agar lebih jelas tujuannya
   /// Konversi dari Map (yang didapat dari database SQLite) ke model.
-  factory StatusUnggahModel.fromSqlite(Map<String, dynamic> map) {
+  factory StatusUnggahModel.fromSqlite(final Map<String, dynamic> map) {
     return StatusUnggahModel(
       id: map['id'] as int,
       // Database SQLite tidak punya tipe boolean, jadi kita simpan sebagai integer (0 atau 1).

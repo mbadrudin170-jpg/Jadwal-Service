@@ -45,7 +45,7 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) {
+        builder: (final context) {
           Log.info(
             'Membangun halaman FormPaket untuk proses edit.',
           );
@@ -61,7 +61,7 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
       'Halaman edit paket selesai ditutup dengan hasil: $result.',
     );
 
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
         'Terdeteksi perubahan data paket setelah proses edit.',
       );
@@ -92,7 +92,7 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI halaman detail paket.',
     );
@@ -245,10 +245,10 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
   }
 
   Widget _buildDetailRow(
-    String label,
-    String value, {
-    String? subTitle,
-    Color? customValueColor,
+    final String label,
+    final String value, {
+    final String? subTitle,
+    final Color? customValueColor,
   }) {
     Log.info(
       'Membangun detail row dengan label: $label dan value: $value.',

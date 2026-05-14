@@ -14,12 +14,12 @@ class NamaPaketWidget extends StatelessWidget {
   const NamaPaketWidget({super.key, required this.idPaket, this.style});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final PaketOperasi paketOperasi = PaketOperasi();
 
     return FutureBuilder<PaketModel?>(
       future: paketOperasi.getPaketById(idPaket),
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Text('Loading...', style: TextStyle(color: Colors.grey));
         }

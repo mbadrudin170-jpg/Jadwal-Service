@@ -17,8 +17,8 @@ class OperasiDasar {
   /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `StatusUnggahOperasi`
   /// untuk memfasilitasi pengujian.
   OperasiDasar({
-    @visibleForTesting DatabaseHelper? dbHelper,
-    @visibleForTesting StatusUnggahOperasi? statusUnggahOperasi,
+    @visibleForTesting final DatabaseHelper? dbHelper,
+    @visibleForTesting final StatusUnggahOperasi? statusUnggahOperasi,
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
         _statusUnggahOperasi = statusUnggahOperasi ?? StatusUnggahOperasi();
 
@@ -27,8 +27,8 @@ class OperasiDasar {
   /// Jika [dariServer] bernilai `false`, maka akan menandai status `perlu_unggah`
   /// menjadi `true` untuk sinkronisasi data ke server.
   Future<T> _jalankanDalamTransaksi<T>(
-    Future<T> Function(Transaction) aksi, {
-    bool dariServer = false,
+    final Future<T> Function(Transaction) aksi, {
+    final bool dariServer = false,
   }) async {
     Log.info(
       '[TRANSAKSI DIMULAI] Memulai proses eksekusi dalam wrapper transaksi.',
@@ -36,7 +36,7 @@ class OperasiDasar {
 
     try {
       final db = await _dbHelper.database;
-      return await db.transaction((txn) async {
+      return await db.transaction((final txn) async {
         Log.info(
           '[TRANSAKSI AKTIF] Blok transaksi telah dimulai. Instance: ${txn.runtimeType}',
         );
@@ -86,8 +86,8 @@ class OperasiDasar {
 
   /// Menjalankan operasi database yang kompleks di dalam sebuah transaksi.
   Future<T> jalankanOperasiKompleks<T>(
-    Future<T> Function(Transaction txn) aksiKustom, {
-    bool dariServer = false,
+    final Future<T> Function(Transaction txn) aksiKustom, {
+    final bool dariServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
     return await _jalankanDalamTransaksi(aksiKustom, dariServer: dariServer);
@@ -95,14 +95,14 @@ class OperasiDasar {
 
   /// Menyisipkan data baru ke dalam [tabel].
   Future<void> sisipkan(
-    String tabel,
-    Map<String, dynamic> data, {
-    bool dariServer = false,
+    final String tabel,
+    final Map<String, dynamic> data, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $tabel');
     try {
       await _jalankanDalamTransaksi(
-        (txn) async {
+        (final txn) async {
           final result = await txn.insert(
             tabel,
             data,
@@ -126,10 +126,10 @@ class OperasiDasar {
 
   /// Memperbarui data di [tabel] berdasarkan [id].
   Future<void> perbarui(
-    String tabel,
-    Map<String, dynamic> data,
-    String id, {
-    bool dariServer = false,
+    final String tabel,
+    final Map<String, dynamic> data,
+    final String id, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai pembaruan data di tabel: $tabel', {
       'id': id,
@@ -137,7 +137,7 @@ class OperasiDasar {
     });
     try {
       await _jalankanDalamTransaksi(
-        (txn) async {
+        (final txn) async {
           final rowsAffected = await txn.update(
             tabel,
             data,
@@ -169,11 +169,11 @@ class OperasiDasar {
   }
 
   /// Menghapus data dari [tabel] berdasarkan [id].
-  Future<void> hapus(String tabel, String id, {bool dariServer = false}) async {
+  Future<void> hapus(final String tabel, final String id, {final bool dariServer = false}) async {
     Log.info('Memulai penghapusan data', {'tabel': tabel, 'id': id});
     try {
       await _jalankanDalamTransaksi(
-        (txn) async {
+        (final txn) async {
           final rowsDeleted = await txn.delete(
             tabel,
             where: 'id = ?',
@@ -204,9 +204,9 @@ class OperasiDasar {
 
   /// Menyisipkan atau memperbarui sekumpulan data dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    String tabel,
-    List<Map<String, dynamic>> daftarData, {
-    bool dariServer = false,
+    final String tabel,
+    final List<Map<String, dynamic>> daftarData, {
+    final bool dariServer = false,
   }) async {
     if (daftarData.isEmpty) {
       Log.warning('Daftar data batch kosong, operasi dibatalkan', {
@@ -221,7 +221,7 @@ class OperasiDasar {
     });
     try {
       await _jalankanDalamTransaksi(
-        (txn) async {
+        (final txn) async {
           final batch = txn.batch();
           int validCount = 0;
           for (int i = 0; i < daftarData.length; i++) {

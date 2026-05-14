@@ -50,7 +50,7 @@ class KategoriModel implements MemilikiId {
 
   /// Konstruktor utama untuk membuat instance [KategoriModel].
   KategoriModel({
-    String? id,
+    final String? id,
     required this.nama,
     required this.tipe,
     this.subKategori = const [],
@@ -61,13 +61,13 @@ class KategoriModel implements MemilikiId {
 
   /// Membuat salinan dari instance [KategoriModel] dengan beberapa nilai yang diubah.
   KategoriModel copyWith({
-    String? id,
-    String? nama,
-    TipeKategori? tipe,
-    List<SubKategoriModel>? subKategori,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? nama,
+    final TipeKategori? tipe,
+    final List<SubKategoriModel>? subKategori,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return KategoriModel(
       id: id ?? this.id,
@@ -85,7 +85,7 @@ class KategoriModel implements MemilikiId {
   /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
   /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
   /// Mengembalikan `null` jika nilai input null atau tidak dapat diurai.
-  static DateTime? _parseDateTime(dynamic dateValue) {
+  static DateTime? _parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
     if (dateValue is DateTime) return dateValue;
@@ -101,10 +101,10 @@ class KategoriModel implements MemilikiId {
   /// Mengurai nama enum dari [String] ke tipe enum [T] dengan aman.
   ///
   /// Mengembalikan `null` jika nama tidak ditemukan atau input null.
-  static T? _safeParseEnum<T extends Enum>(List<T> values, dynamic name) {
+  static T? _safeParseEnum<T extends Enum>(final List<T> values, final dynamic name) {
     if (name == null) return null;
     try {
-      return values.firstWhere((e) => e.name == name as String);
+      return values.firstWhere((final e) => e.name == name as String);
     } on Exception {
       return null;
     }
@@ -113,7 +113,7 @@ class KategoriModel implements MemilikiId {
   /// Mengurai nilai [bool] dari berbagai format (bool, int, String) dengan aman.
   ///
   /// Mengembalikan `false` jika input null atau format tidak dikenal.
-  static bool _parseBool(dynamic value) {
+  static bool _parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -122,8 +122,8 @@ class KategoriModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [KategoriModel] dari data Map SQLite.
-  factory KategoriModel.fromSqlite(Map<String, dynamic> map) {
-    List<SubKategoriModel> parseSubKategori(dynamic data) {
+  factory KategoriModel.fromSqlite(final Map<String, dynamic> map) {
+    List<SubKategoriModel> parseSubKategori(final dynamic data) {
       if (data == null) return [];
       try {
         List<dynamic> list;
@@ -135,7 +135,7 @@ class KategoriModel implements MemilikiId {
           return [];
         }
         return list
-            .map((item) {
+            .map((final item) {
               if (item is Map<String, dynamic>) {
                 return SubKategoriModel.fromSqlite(item);
               }
@@ -169,7 +169,7 @@ class KategoriModel implements MemilikiId {
       'nama': nama,
       'tipe': tipe.name,
       'id_sub_kategori': jsonEncode(
-        subKategori.map((sub) => sub.toSqlite()).toList(),
+        subKategori.map((final sub) => sub.toSqlite()).toList(),
       ),
       'diperbarui': diperbarui?.millisecondsSinceEpoch, // INTEGER
       'isDeleted': isDeleted ? 1 : 0,
@@ -178,11 +178,11 @@ class KategoriModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [KategoriModel] dari data Map Firebase.
-  factory KategoriModel.fromFirebase(String id, Map<String, dynamic> data) {
-    List<SubKategoriModel> parseSubKategori(dynamic subKategoriData) {
+  factory KategoriModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+    List<SubKategoriModel> parseSubKategori(final dynamic subKategoriData) {
       if (subKategoriData is List) {
         return subKategoriData
-            .map((item) {
+            .map((final item) {
               if (item is Map<String, dynamic>) {
                 final String subId = item['id'] as String? ?? const Uuid().v4();
                 return SubKategoriModel.fromFirebase(subId, item);
@@ -212,7 +212,7 @@ class KategoriModel implements MemilikiId {
     return {
       'nama': nama,
       'tipe': tipe.name,
-      'id_sub_kategori': subKategori.map((sub) => sub.toFirebase()).toList(),
+      'id_sub_kategori': subKategori.map((final sub) => sub.toFirebase()).toList(),
       'diperbarui': FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,

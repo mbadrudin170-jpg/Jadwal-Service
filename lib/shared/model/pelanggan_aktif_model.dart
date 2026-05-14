@@ -42,7 +42,7 @@ class PelangganAktifModel implements MemilikiId {
 
   /// Konstruktor untuk `PelangganAktifModel`.
   PelangganAktifModel({
-    String? id,
+    final String? id,
     required this.idPelanggan,
     required this.idPaket,
     this.idTransaksi,
@@ -56,16 +56,16 @@ class PelangganAktifModel implements MemilikiId {
 
   /// Membuat salinan dari `PelangganAktifModel` dengan beberapa nilai yang diubah.
   PelangganAktifModel copyWith({
-    String? id,
-    String? idPelanggan,
-    String? idPaket,
-    String? idTransaksi,
-    DateTime? tanggalMulai,
-    DateTime? tanggalBerakhir,
-    StatusPembayaranEnum? status,
-    DateTime? diperbarui,
-    bool? isDeleted,
-    DateTime? diarsipkan,
+    final String? id,
+    final String? idPelanggan,
+    final String? idPaket,
+    final String? idTransaksi,
+    final DateTime? tanggalMulai,
+    final DateTime? tanggalBerakhir,
+    final StatusPembayaranEnum? status,
+    final DateTime? diperbarui,
+    final bool? isDeleted,
+    final DateTime? diarsipkan,
   }) {
     return PelangganAktifModel(
       id: id ?? this.id,
@@ -101,7 +101,7 @@ class PelangganAktifModel implements MemilikiId {
   ///
   /// Menerima [Timestamp] dari Firestore, [int] millisecondsSinceEpoch dari SQLite,
   /// [DateTime], atau [String] format ISO-8601 (backward compatibility).
-  static DateTime? _parseDateTime(dynamic value) {
+  static DateTime? _parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -117,7 +117,7 @@ class PelangganAktifModel implements MemilikiId {
   }
 
   /// Helper untuk mengurai nilai boolean dari berbagai format.
-  static bool _parseBool(dynamic value) {
+  static bool _parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -128,7 +128,7 @@ class PelangganAktifModel implements MemilikiId {
   }
 
   /// Membuat instance `PelangganAktifModel` dari data Map SQLite.
-  factory PelangganAktifModel.fromSqlite(Map<String, dynamic> map) {
+  factory PelangganAktifModel.fromSqlite(final Map<String, dynamic> map) {
     try {
       final tanggalMulai = _parseDateTime(map['tanggal_mulai']);
       final tanggalBerakhir = _parseDateTime(map['tanggal_berakhir']);
@@ -148,7 +148,7 @@ class PelangganAktifModel implements MemilikiId {
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         status: StatusPembayaranEnum.values.firstWhere(
-          (e) => e.name == map['status'],
+          (final e) => e.name == map['status'],
           orElse: () => StatusPembayaranEnum.lunas,
         ),
         diperbarui: _parseDateTime(map['diperbarui']),
@@ -166,8 +166,8 @@ class PelangganAktifModel implements MemilikiId {
 
   /// Membuat instance `PelangganAktifModel` dari data Map Firebase.
   factory PelangganAktifModel.fromFirebase(
-    String id,
-    Map<String, dynamic> data,
+    final String id,
+    final Map<String, dynamic> data,
   ) {
     try {
       final tanggalMulai = _parseDateTime(data['tanggalMulai']);
@@ -188,7 +188,7 @@ class PelangganAktifModel implements MemilikiId {
         tanggalMulai: tanggalMulai,
         tanggalBerakhir: tanggalBerakhir,
         status: StatusPembayaranEnum.values.firstWhere(
-          (e) => e.name == data['status'],
+          (final e) => e.name == data['status'],
           orElse: () => StatusPembayaranEnum.lunas,
         ),
         diperbarui: _parseDateTime(data['diperbarui']),

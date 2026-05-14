@@ -1,22 +1,18 @@
-// path: lib/user/page/riwayat_langganan_user.dart
-// diubah: Memperbaiki tipe Future yang ambigu saat idPaket null.
-// Future.value() diubah menjadi Future<PaketModel?>.value(null) untuk kejelasan tipe.
-// diubah: Memperbaiki penggunaan NamaPaketWidget dan navigasi ke DetailTransaksiPage.
-// diubah: Mengganti unawaited dengan ignore comment untuk mengatasi lint error.
-// diubah: Menambahkan await pada pemanggilan Future dan menghapus const yang tidak perlu.
-// diubah: Memperbaiki error lint dan inference failure.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/widget/nama_paket.dart';
 import 'package:wifi/user/page/detail_transaksi_user.dart';
-import 'package:wifi/user/services/firestore_service.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
@@ -51,7 +47,7 @@ class RiwayatLanggananPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun RiwayatLanggananPage, meneruskan userId dan localStorageService ke _TampilanRiwayatLangganan.',
     );
@@ -69,7 +65,10 @@ class _TampilanRiwayatLangganan extends StatefulWidget {
 }
 
 class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final PelangganOpFirebase _pelangganOpFirebase = PelangganOpFirebase();
+  final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
+  final PaketOpFirebase _paketOpFirebase = PaketOpFirebase();
+  final NotifikasiOpFirebase _notifikasiOpFirebase = NotifikasiOpFirebase();
   final InfoPerangkatService _infoPerangkatService = InfoPerangkatService();
   SortMode _sortMode = SortMode.tanggalBerakhirTerbaru;
 
@@ -85,7 +84,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
     });
     // Future-returning calls in a non-async function should be handled.
     // ignore: discarded_futures
-    _firestoreService.sinkronkanJadwalNotifikasi(widget.userId);
+    _notifikasiOpFirebase.sinkronkanJadwalNotifikasi(widget.userId);
   }
 
   @override
@@ -93,7 +92,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
     Log.info(
       'Membersihkan state _TampilanRiwayatLangganan dan menghentikan sinkronisasi jadwal.',
     );
-    await _firestoreService.hentikanSinkronisasiJadwal();
+    await _notifikasiOpFirebase.hentikanSinkronisasiJadwal();
     super.dispose();
   }
 
@@ -112,10 +111,10 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
     }
   }
 
-  List<TransaksiModel> _urutkanRiwayat(List<TransaksiModel> riwayat) {
+  List<TransaksiModel> _urutkanRiwayat(final List<TransaksiModel> riwayat) {
     switch (_sortMode) {
       case SortMode.tanggalBerakhirTerbaru:
-        riwayat.sort((a, b) {
+        riwayat.sort((final a, final b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
           if (a.tanggalBerakhir == null) return 1;
           if (b.tanggalBerakhir == null) return -1;
@@ -123,7 +122,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
         });
         break;
       case SortMode.tanggalBerakhirTerlama:
-        riwayat.sort((a, b) {
+        riwayat.sort((final a, final b) {
           if (a.tanggalBerakhir == null && b.tanggalBerakhir == null) return 0;
           if (a.tanggalBerakhir == null) return 1;
           if (b.tanggalBerakhir == null) return -1;
@@ -131,7 +130,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
         });
         break;
       case SortMode.statusLunas:
-        riwayat.sort((a, b) {
+        riwayat.sort((final a, final b) {
           final statusA =
               a.statusPembayaran.name.toLowerCase() == 'lunas' ? 0 : 1;
           final statusB =
@@ -140,7 +139,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
         });
         break;
       case SortMode.statusBelumLunas:
-        riwayat.sort((a, b) {
+        riwayat.sort((final a, final b) {
           final statusA =
               a.statusPembayaran.name.toLowerCase() == 'belum lunas' ? 0 : 1;
           final statusB =
@@ -153,7 +152,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI _TampilanRiwayatLangganan dengan Scaffold dan StreamBuilder.',
     );
@@ -162,12 +161,12 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
         title: const Text('Riwayat Langganan'),
         actions: [
           PopupMenuButton<SortMode>(
-            onSelected: (SortMode result) {
+            onSelected: (final SortMode result) {
               setState(() {
                 _sortMode = result;
               });
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<SortMode>>[
+            itemBuilder: (final BuildContext context) => <PopupMenuEntry<SortMode>>[
               const PopupMenuItem<SortMode>(
                 value: SortMode.tanggalBerakhirTerbaru,
                 child: Text('Tanggal Berakhir (Terbaru)'),
@@ -190,8 +189,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
         ],
       ),
       body: StreamBuilder<PelangganModel?>(
-        stream: _firestoreService.ambilPelangganStream(widget.userId),
-        builder: (context, snapshotPelanggan) {
+        stream: _pelangganOpFirebase.ambilPelangganStream(widget.userId),
+        builder: (final context, final snapshotPelanggan) {
           Log.info('Menerima update status koneksi StreamBuilder Pelanggan.', {
             'connectionState': snapshotPelanggan.connectionState.toString(),
           });
@@ -230,9 +229,9 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
             children: [
               Expanded(
                 child: FutureBuilder<List<TransaksiModel>>(
-                  future: _firestoreService
+                  future: _transaksiOpFirebase
                       .ambilRiwayatLanggananLengkap(pelanggan.id),
-                  builder: (context, snapshotRiwayat) {
+                  builder: (final context, final snapshotRiwayat) {
                     Log.info(
                         'Menerima update status koneksi FutureBuilder Riwayat.',
                         {
@@ -289,13 +288,13 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
 
                     return ListView.builder(
                       itemCount: riwayatUrut.length,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (final context, final index) {
                         final tx = riwayatUrut[index];
                         final String teksMasaAktif;
                         final Color warnaMasaAktif;
 
                         final paketFuture = tx.idPaket != null
-                            ? _firestoreService.ambilPaketModelById(tx.idPaket!)
+                            ? _paketOpFirebase.ambilPaketModelById(tx.idPaket!)
                             : Future<PaketModel?>.value();
 
                         if (tx.tanggalBerakhir != null) {
@@ -361,7 +360,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute<void>(
-                                    builder: (context) => DetailTransaksiPage(
+                                    builder: (final context) => DetailTransaksiPage(
                                       transaksi: tx,
                                       paket: paket,
                                     ),

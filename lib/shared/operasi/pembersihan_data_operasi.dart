@@ -10,12 +10,12 @@ class PembersihanDataOperasi {
   final DatabaseHelper _dbHelper;
 
   /// Konstruktor untuk `PembersihanDataOperasi`.
-  PembersihanDataOperasi({@visibleForTesting DatabaseHelper? dbHelper})
+  PembersihanDataOperasi({@visibleForTesting final DatabaseHelper? dbHelper})
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   /// Fungsi utama untuk menghapus semua data arsip
   /// yang sudah lebih tua dari [batasHari] di semua tabel yang relevan.
-  Future<int> hapusSemuaDataArsipKadaluarsa({required int batasHari}) async {
+  Future<int> hapusSemuaDataArsipKadaluarsa({required final int batasHari}) async {
     Log.info(
       'Memulai proses pembersihan data arsip yang lebih tua dari $batasHari hari.',
     );

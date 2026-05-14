@@ -65,7 +65,7 @@ class _PaketPageState extends State<PaketPage> {
     Log.info('Menampilkan dialog urutkan');
     final UrutanPaket? hasil = await showDialog<UrutanPaket>(
       context: context,
-      builder: (context) {
+      builder: (final context) {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: [
@@ -121,11 +121,11 @@ class _PaketPageState extends State<PaketPage> {
     }
   }
 
-  Future<void> _showEditDeleteDialog(PaketModel paket) async {
+  Future<void> _showEditDeleteDialog(final PaketModel paket) async {
     Log.info('Menampilkan dialog opsi untuk paket: ${paket.nama}');
     await showDialog<void>(
       context: context,
-      builder: (context) {
+      builder: (final context) {
         return AlertDialog(
           title: Text(paket.nama),
           content: const Text('Pilih aksi yang ingin Anda lakukan.'),
@@ -139,7 +139,7 @@ class _PaketPageState extends State<PaketPage> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (context) => FormPaket(paket: paket),
+                    builder: (final context) => FormPaket(paket: paket),
                   ),
                 );
                 Log.info('Kembali dari Form Edit, menyegarkan daftar paket');
@@ -161,13 +161,13 @@ class _PaketPageState extends State<PaketPage> {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(PaketModel paket) async {
+  Future<void> _showDeleteConfirmationDialog(final PaketModel paket) async {
     Log.info(
       'Menampilkan konfirmasi hapus untuk paket ID: ${paket.id}, nama: ${paket.nama}',
     );
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (final BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
           content: Text(
@@ -231,7 +231,7 @@ class _PaketPageState extends State<PaketPage> {
     Log.info('User menekan tombol hapus semua paket');
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (final BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus Semua'),
           content: const Text(
@@ -288,7 +288,7 @@ class _PaketPageState extends State<PaketPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('Membangun UI halaman Daftar Paket');
     return Scaffold(
       appBar: AppBar(
@@ -309,7 +309,7 @@ class _PaketPageState extends State<PaketPage> {
       ),
       body: FutureBuilder<List<PaketModel>>(
         future: _paketFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -332,26 +332,26 @@ class _PaketPageState extends State<PaketPage> {
           switch (_urutanSaatIni) {
             case UrutanPaket.namaAZ:
               paketList.sort(
-                (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+                (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
               );
               break;
             case UrutanPaket.namaZA:
               paketList.sort(
-                (a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+                (final a, final b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
               );
               break;
             case UrutanPaket.hargaTertinggi:
-              paketList.sort((a, b) => b.harga.compareTo(a.harga));
+              paketList.sort((final a, final b) => b.harga.compareTo(a.harga));
               break;
             case UrutanPaket.hargaTerendah:
-              paketList.sort((a, b) => a.harga.compareTo(b.harga));
+              paketList.sort((final a, final b) => a.harga.compareTo(b.harga));
               break;
             // diubah: Menggunakan poinHadiah untuk pengurutan
             case UrutanPaket.poinTertinggi:
-              paketList.sort((a, b) => b.poinHadiah.compareTo(a.poinHadiah));
+              paketList.sort((final a, final b) => b.poinHadiah.compareTo(a.poinHadiah));
               break;
             case UrutanPaket.poinTerendah:
-              paketList.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
+              paketList.sort((final a, final b) => a.poinHadiah.compareTo(b.poinHadiah));
               break;
           }
 
@@ -361,7 +361,7 @@ class _PaketPageState extends State<PaketPage> {
 
           return ListView.builder(
             itemCount: paketList.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (final context, final index) {
               final paket = paketList[index];
               return InkWell(
                 onTap: () async {
@@ -371,7 +371,7 @@ class _PaketPageState extends State<PaketPage> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => DetailPaketPage(paket: paket),
+                      builder: (final context) => DetailPaketPage(paket: paket),
                     ),
                   );
                   Log.info(
@@ -412,7 +412,7 @@ class _PaketPageState extends State<PaketPage> {
           Log.info('Navigasi ke Form Tambah Paket');
           await Navigator.push(
             context,
-            MaterialPageRoute<void>(builder: (context) => const FormPaket()),
+            MaterialPageRoute<void>(builder: (final context) => const FormPaket()),
           );
           Log.info('Kembali dari Form Tambah Paket, menyegarkan daftar');
           _refreshPaketList();

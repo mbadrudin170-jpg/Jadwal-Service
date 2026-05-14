@@ -85,7 +85,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     }
   }
 
-  Future<void> _pilihAkun(PelangganModel pelanggan) async {
+  Future<void> _pilihAkun(final PelangganModel pelanggan) async {
     if (!_isLocalStorageInitialized) return;
     final navigator = Navigator.of(context);
     await _localStorageService.simpanAkun(pelanggan);
@@ -98,17 +98,18 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
             localStorageService: _localStorageService,
           );
 
-    await navigator
-        .pushReplacement(MaterialPageRoute<void>(builder: (context) => page));
+    await navigator.pushReplacement(
+      MaterialPageRoute<void>(builder: (final context) => page),
+    );
   }
 
   Future<void> _tampilkanDialogHapus(
-    BuildContext context,
-    PelangganModel pelanggan,
+    final BuildContext context,
+    final PelangganModel pelanggan,
   ) async {
     await showDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (final BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Hapus Akun'),
           content: Text('Anda yakin ingin menghapus akun ${pelanggan.nama}?'),
@@ -136,7 +137,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                   // Tampilkan dialog konfirmasi
                   await showDialog<void>(
                     context: pageContext,
-                    builder: (BuildContext confirmDialogContext) {
+                    builder: (final BuildContext confirmDialogContext) {
                       return AlertDialog(
                         title: const Text('Konfirmasi Hapus'),
                         content: const Text(
@@ -169,7 +170,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                               // 3. Eksekusi navigasi
                               await navigator.pushNamedAndRemoveUntil(
                                 '/login',
-                                (route) => false,
+                                (final route) => false,
                               );
                             },
                           ),
@@ -191,10 +192,10 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     );
   }
 
-  Future<void> _tampilkanDialogKeluar(BuildContext context) async {
+  Future<void> _tampilkanDialogKeluar(final BuildContext context) async {
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (final dialogContext) => AlertDialog(
         title: const Text('Keluar'),
         content: const Text('Pilih metode keluar:'),
         actions: [
@@ -209,7 +210,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               await _localStorageService.hapusAkunSaatIni();
               await navigator.pushNamedAndRemoveUntil(
                 '/login',
-                (route) => false,
+                (final route) => false,
               );
             },
             style: TextButton.styleFrom(
@@ -239,9 +240,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               // Ganti dengan ini untuk memastikan semua route dihapus
               await pageNavigator.pushAndRemoveUntil(
                 MaterialPageRoute<void>(
-                  builder: (context) => const LoginPage(),
+                  builder: (final context) => const LoginPage(),
                 ),
-                (route) => false,
+                (final route) => false,
               );
             },
             child: const Text(
@@ -254,7 +255,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     if (!_isLocalStorageInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -273,7 +274,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           Expanded(
             child: FutureBuilder<List<PelangganModel>>(
               future: _futureDaftarAkun, // Perbaikan salah ketik di sini
-              builder: (context, snapshot) {
+              builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -289,7 +290,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 }
                 return ListView.builder(
                   itemCount: daftar.length,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (final context, final index) {
                     final p = daftar[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(

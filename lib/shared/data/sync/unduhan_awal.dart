@@ -37,7 +37,7 @@ class UnduhanAwalService {
   }
 
   /// Memeriksa apakah sebuah tabel kosong.
-  Future<bool> _apakahTabelKosong(String namaTabel) async {
+  Future<bool> _apakahTabelKosong(final String namaTabel) async {
     try {
       final db = await _dbHelper.database;
       final hasil = await db.rawQuery(
@@ -58,8 +58,8 @@ class UnduhanAwalService {
 
   /// Template fungsi pembungkus untuk proses unduh per tabel agar kode lebih bersih.
   Future<void> _prosesUnduhJikaKosong({
-    required String namaTabel,
-    required Future<void> Function() fungsiUnduh,
+    required final String namaTabel,
+    required final Future<void> Function() fungsiUnduh,
   }) async {
     try {
       if (await _apakahTabelKosong(namaTabel)) {
@@ -80,60 +80,60 @@ class UnduhanAwalService {
 
   // --- Implementasi Fungsi Khusus ---
 
-  Future<void> _unduhDataPaketJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataPaketJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'paket',
         fungsiUnduh: _layananUnduh.unduhDataPaket,
       );
 
-  Future<void> _unduhDataKategoriJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataKategoriJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'kategori',
         fungsiUnduh: _layananUnduh.unduhDataKategori,
       );
 
-  Future<void> _unduhDataSubKategoriJikaKosong() async =>
+  Future<void> _unduhDataSubKategoriJikaKosong() =>
       _prosesUnduhJikaKosong(
         namaTabel: 'sub_kategori',
         fungsiUnduh: _layananUnduh.unduhDataSubKategori,
       );
 
-  Future<void> _unduhDataDompetJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataDompetJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'dompet',
         fungsiUnduh: _layananUnduh.unduhDataDompet,
       );
 
-  Future<void> _unduhDataPelangganJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataPelangganJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'pelanggan',
         fungsiUnduh: _layananUnduh.unduhDataPelanggan,
       );
 
-  Future<void> _unduhDataVersiApkJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataVersiApkJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'versi_apk_user',
         fungsiUnduh: _layananUnduh.unduhDataVersiApkUser,
       );
 
-  Future<void> _unduhDataPengaturanJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataPengaturanJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'pengaturan',
         fungsiUnduh: _layananUnduh.unduhDataPengaturan,
       );
 
-  Future<void> _unduhDataPelangganAktifJikaKosong() async =>
+  Future<void> _unduhDataPelangganAktifJikaKosong() =>
       _prosesUnduhJikaKosong(
         namaTabel: 'pelanggan_aktif',
         fungsiUnduh: _layananUnduh.unduhDataPelangganAktif,
       );
 
-  Future<void> _unduhDataTransaksiJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataTransaksiJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'transaksi',
         fungsiUnduh: _layananUnduh.unduhDataTransaksi,
       );
 
-  Future<void> _unduhDataKritikSaranJikaKosong() async =>
+  Future<void> _unduhDataKritikSaranJikaKosong() =>
       _prosesUnduhJikaKosong(
         namaTabel: 'kritik_saran',
         fungsiUnduh: _layananUnduh.unduhDataKritikSaran,
       );
 
-  Future<void> _unduhDataPesananJikaKosong() async => _prosesUnduhJikaKosong(
+  Future<void> _unduhDataPesananJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'pesan',
         fungsiUnduh: _layananUnduh.unduhDataPesanan,
       );

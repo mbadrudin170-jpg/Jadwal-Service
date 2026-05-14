@@ -14,7 +14,7 @@ class KritikSaranOperasiUser {
   /// Menyimpan [kritikSaran] baru ke Firestore.
   ///
   /// Melemparkan [Exception] jika terjadi kegagalan.
-  Future<void> buatKritikSaranBaru(KritikSaranModel kritikSaran) async {
+  Future<void> buatKritikSaranBaru(final KritikSaranModel kritikSaran) async {
     try {
       await _kritikSaranCollection.add(kritikSaran.toFirebase());
     } catch (e) {
@@ -26,13 +26,13 @@ class KritikSaranOperasiUser {
   ///
   /// Mengembalikan [Stream] dari daftar [KritikSaranModel] yang diurutkan
   /// berdasarkan tanggal pembaruan terbaru.
-  Stream<List<KritikSaranModel>> bacaSemuaKritikSaran(String userId) {
+  Stream<List<KritikSaranModel>> bacaSemuaKritikSaran(final String userId) {
     return _kritikSaranCollection
         .where('userId', isEqualTo: userId)
         .orderBy('diperbarui', descending: true)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
+        .map((final snapshot) {
+      return snapshot.docs.map((final doc) {
         return KritikSaranModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,
@@ -45,7 +45,7 @@ class KritikSaranOperasiUser {
   ///
   /// [docId] adalah ID dokumen yang akan diperbarui.
   /// [isiBaru] adalah konten baru dari kritik atau saran.
-  Future<void> perbaruiKritikSaran(String docId, String isiBaru) async {
+  Future<void> perbaruiKritikSaran(final String docId, final String isiBaru) async {
     try {
       final dataToUpdate = {
         'isi': isiBaru,
@@ -58,7 +58,7 @@ class KritikSaranOperasiUser {
   }
 
   /// Menghapus kritik dan saran dari Firestore berdasarkan [docId].
-  Future<void> hapusKritikSaran(String docId) async {
+  Future<void> hapusKritikSaran(final String docId) async {
     try {
       await _kritikSaranCollection.doc(docId).delete();
     } catch (e) {

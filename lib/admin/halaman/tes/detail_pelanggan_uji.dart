@@ -36,7 +36,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
     'macAddress': '08:00:27:6B:4A:BD',
   };
 
-  Future<void> _handleCopy(String value, String label) async {
+  Future<void> _handleCopy(final String value, final String label) async {
     await Clipboard.setData(ClipboardData(text: value));
     setState(() {
       _toastMessage = '$label telah disalin';
@@ -62,7 +62,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBEB), // amber-50
       body: Stack(
@@ -73,7 +73,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
             left: 0,
             right: 0,
             height: 280,
-            child: Container(
+            child: DecoratedBox(
               decoration: const BoxDecoration(
                 color: Color(0xFF4C1D95), // purple-900
                 borderRadius: BorderRadius.only(),
@@ -485,7 +485,7 @@ class _ActionButton extends StatelessWidget {
   const _ActionButton({required this.icon, required this.onPressed});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -523,7 +523,7 @@ class _InfoRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Column(
       children: [
         Padding(

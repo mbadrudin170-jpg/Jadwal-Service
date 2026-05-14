@@ -27,7 +27,7 @@ class MaintenancePage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     // ditambah: Log saat halaman ini dibangun.
     Log.info(
       '[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"',

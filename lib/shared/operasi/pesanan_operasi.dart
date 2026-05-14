@@ -14,8 +14,8 @@ class PesananOperasi {
 
   /// Menyimpan [PesananModel] baru ke dalam database.
   Future<void> simpanPesanan(
-    PesananModel pesanan, {
-    bool dariServer = false,
+    final PesananModel pesanan, {
+    final bool dariServer = false,
   }) async {
     Log.info('Menyimpan pesanan baru ID: ${pesanan.id}');
     final pesananUntukDisimpan = pesanan.copyWith(
@@ -40,7 +40,7 @@ class PesananOperasi {
   }
 
   /// Mengambil pesanan berdasarkan [status].
-  Future<List<PesananModel>> ambilPesananByStatus(String status) async {
+  Future<List<PesananModel>> ambilPesananByStatus(final String status) async {
     Log.info('Mengambil pesanan dengan status: $status');
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -54,9 +54,9 @@ class PesananOperasi {
 
   /// Memperbarui status [PesananModel] berdasarkan [id].
   Future<void> updateStatusPesanan(
-    String id,
-    String status, {
-    bool dariServer = false,
+    final String id,
+    final String status, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi $status');
     final db = await dbHelper.database;
@@ -89,21 +89,21 @@ class PesananOperasi {
   }
 
   /// Menghapus [PesananModel] dari database berdasarkan [id].
-  Future<void> hapusPesanan(String id, {bool dariServer = false}) async {
+  Future<void> hapusPesanan(final String id, {final bool dariServer = false}) async {
     Log.info('Menghapus pesanan ID: $id');
     await _operasiDasar.hapus('pesanan', id, dariServer: dariServer);
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [PesananModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PesananModel> items, {
-    bool dariServer = false,
+    final List<PesananModel> items, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} pesanan.');
     if (items.isEmpty) return;
     final data = items
         .map(
-          (item) =>
+          (final item) =>
               item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
         )
         .toList();
@@ -116,7 +116,7 @@ class PesananOperasi {
   }
 
   /// Mengambil beberapa [PesananModel] berdasarkan daftar [ids].
-  Future<List<PesananModel>> getPesananByIds(List<String> ids) async {
+  Future<List<PesananModel>> getPesananByIds(final List<String> ids) async {
     if (ids.isEmpty) {
       return [];
     }
@@ -128,7 +128,7 @@ class PesananOperasi {
       where: 'id IN ($placeholders)',
       whereArgs: ids,
     );
-    return List.generate(maps.length, (i) {
+    return List.generate(maps.length, (final i) {
       return PesananModel.fromSqlite(maps[i]);
     });
   }

@@ -11,8 +11,10 @@
 4. karena disini ada tahap-tahap selama mengerjakan proyek ini.
 5. Disini Ai bertugas sebagai pekerja user yang paham banget mengenai firebase, flutter, dart, dan IDX studio.
 6. Selalu jaga konsistensi sebuah kode.
-7. Setiap kode harus disisipkan Log contoh Log.info, Log.warning dan Log error yang dipanggil dari file custome khusus log bernama debug.log.dart jadi jangan gunakan developer.log lagi.
-8. Untuk meenampilkan snackbar AI harus memanggil dari file custom khusus snackbar di file snackbar_utils.dart.
+7. Setiap kode harus disisipkan Log contoh Log.info, Log.warning dan Log error yang dipanggil dari file custome khusus log bernama debug/log.dart jadi jangan gunakan developer.log lagi.
+8. Untuk meenampilkan snackbar AI harus memanggil dari file custom khusus snackbar di file class SnackBArUtil snackbar_util.dart.
+9. selalu sertakan path file nya yang dibungkus komentar contoh : `// path : lib/main.dart.
+
 
 ### **Konsep Arsitektur**
 
@@ -64,7 +66,7 @@ agar sebuah file atau kode ditempatkan di file atau folder tertentu.
 
 # Selesai Pekerjaan
 1. AI diharapkan menulis komentar `// TODO:...` jika ada fungsi atau kdiimplemenetasikan, kode yang belum sepenuhnya fix selesai, menemukan kode yang tidak konsisten, dan sebagainya.
-2. AI Harus menuliskan rangkuman difolder README.md yang ada diroot proyek, apa saja yang membuat error dan solusinya apa saja yang telah AI lakukan sehingga kode itu tidak error/warning lagi.
+2. AI Harus menuliskan rangkuman difolder README.md yang ada diroot proyek, apa saja yang membuat error, kendala dan solusinya apa saja yang telah AI lakukan sehingga kode itu tidak error/warning lagi.
 3. setelah melakukan pekerjaan dan menulis rangkuman di follder README.md sekarang AI harus melakukan dokumentasi sebuah projek yang telah AI lakukan kenapa kerjakan kedalam file docs/admin/README.md, docs/shared/README.md, dan docs/user/README.md tapi jangan hapus dokumen yang sudah ada.
 4. setelah melakukan pekerjaan wajib menjalankan flutter analyze/analyze project agar tidak ada error dan warning tersembunyi.
 5. 

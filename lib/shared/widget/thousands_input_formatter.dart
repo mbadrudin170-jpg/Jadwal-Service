@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 class ThousandsAndNegativeInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
+    final TextEditingValue oldValue,
+    final TextEditingValue newValue,
   ) {
     // dihapus: Logika lama yang tidak efisien dalam menangani string kosong.
     // if (newValue.text.isEmpty) {

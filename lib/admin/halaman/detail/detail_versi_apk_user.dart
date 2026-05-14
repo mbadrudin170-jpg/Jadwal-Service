@@ -16,7 +16,7 @@ class DetailVersiApkUser extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun halaman detail versi APK dengan versi terbaru: ${versiApk.versiTerbaru}.',
     );
@@ -40,7 +40,7 @@ class DetailVersiApkUser extends StatelessWidget {
               final result = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) {
+                  builder: (final context) {
                     Log.info(
                       'Membangun halaman FormVersiApkUser untuk proses edit.',
                     );
@@ -56,7 +56,7 @@ class DetailVersiApkUser extends StatelessWidget {
                 'Halaman form edit versi APK selesai ditutup dengan hasil: $result.',
               );
 
-              if (result == true && context.mounted) {
+              if ((result ?? false) && context.mounted) {
                 Log.info(
                   'Berhasil edit data versi APK dan mengirim sinyal refresh ke halaman sebelumnya.',
                 );
@@ -106,7 +106,7 @@ class DetailVersiApkUser extends StatelessWidget {
             ),
           ),
           ...versiApk.nomorBuildTerbaru.entries.map(
-            (entry) {
+            (final entry) {
               Log.info(
                 'Menampilkan nomor build untuk arsitektur: ${entry.key.name} dengan nilai: ${entry.value}.',
               );
@@ -128,7 +128,7 @@ class DetailVersiApkUser extends StatelessWidget {
             ),
           ),
           ...versiApk.tautanUnduhan.entries.map(
-            (entry) {
+            (final entry) {
               Log.info(
                 'Menampilkan tautan unduhan untuk arsitektur: ${entry.key.name}.',
               );
@@ -153,8 +153,8 @@ class DetailVersiApkUser extends StatelessWidget {
 
   // untuk membangun baris informasi
   Widget _buildInfoRow(
-    String label,
-    String value,
+    final String label,
+    final String value,
   ) {
     Log.info(
       'Membangun info row dengan label: $label dan value: $value.',

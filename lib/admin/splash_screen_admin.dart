@@ -14,7 +14,7 @@ class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key, this.loadingMessage = 'Memuat...'});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final theme = Theme.of(context);
     Log.info('Membangun UI untuk SplashScreen dengan pesan: "$loadingMessage"');
 

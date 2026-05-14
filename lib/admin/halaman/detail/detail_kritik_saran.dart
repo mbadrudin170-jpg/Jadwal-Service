@@ -54,7 +54,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
     );
 
     _kritikSaranFuture =
-        _kritikSaranOperasi.getKritikSaranById(widget.id).then((value) {
+        _kritikSaranOperasi.getKritikSaranById(widget.id).then((final value) {
       Log.info(
         'Data kritik dan saran berhasil dimuat dari database.',
       );
@@ -62,7 +62,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       return value;
       // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
       // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
-    }).catchError((Object e, StackTrace st) {
+    }).catchError((final Object e, final StackTrace st) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
         e: e,
@@ -82,7 +82,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
 
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (context) {
+      builder: (final context) {
         Log.info(
           'Dialog konfirmasi penghapusan berhasil ditampilkan.',
         );
@@ -125,7 +125,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       'Dialog konfirmasi selesai diproses dengan hasil: $konfirmasi.',
     );
 
-    if (konfirmasi == true && mounted) {
+    if ((konfirmasi ?? false) && mounted) {
       Log.info(
         'Memulai proses penghapusan data kritik dan saran.',
       );
@@ -139,7 +139,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
         await showDialog<void>(
           context: context,
           barrierDismissible: false,
-          builder: (context) {
+          builder: (final context) {
             Log.info(
               'Loading dialog berhasil ditampilkan.',
             );
@@ -230,7 +230,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI halaman detail kritik dan saran.',
     );
@@ -250,7 +250,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
       ),
       body: FutureBuilder<KritikSaranModel>(
         future: _kritikSaranFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           Log.info(
             'FutureBuilder dijalankan dengan connection state: ${snapshot.connectionState}.',
           );

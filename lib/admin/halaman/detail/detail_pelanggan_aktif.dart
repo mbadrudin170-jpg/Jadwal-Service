@@ -74,7 +74,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     unawaited(_loadDetails());
   }
 
-  Future<void> _launchWhatsApp(String phoneNumber) async {
+  Future<void> _launchWhatsApp(final String phoneNumber) async {
     Log.info('========================================');
     Log.info('WHATSAPP: Mencoba membuka aplikasi WhatsApp');
     Log.info('Nomor telepon mentah yang diterima: $phoneNumber');
@@ -275,7 +275,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) =>
+        builder: (final context) =>
             FormPelangganAktif(pelangganAktif: _pelangganAktif),
       ),
     );
@@ -285,7 +285,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info('Nilai result yang diterima: $result');
     Log.info('========================================');
 
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
         'Result bernilai TRUE. User telah melakukan perubahan data di form.',
       );
@@ -349,7 +349,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI DetailPelangganAktif');
     Log.info('Status loading: $_isLoading');
@@ -411,7 +411,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                     await Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
-                                        builder: (context) =>
+                                        builder: (final context) =>
                                             DetailPelangganPage(
                                           idPelanggan: _pelanggan!.id,
                                         ),
@@ -450,7 +450,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                   await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
-                                      builder: (context) =>
+                                      builder: (final context) =>
                                           DetailPaketPage(paket: _paket!),
                                     ),
                                   );
@@ -561,7 +561,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isLink = false}) {
+  Widget _buildInfoRow(final String label, final String value, {final bool isLink = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -584,7 +584,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     );
   }
 
-  Widget _buildWhatsAppInfoRow(String label, String value) {
+  Widget _buildWhatsAppInfoRow(final String label, final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(

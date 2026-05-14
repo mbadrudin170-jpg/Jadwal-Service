@@ -46,10 +46,10 @@ class _KategoriPageState extends State<KategoriPage> {
   void _loadKategori() {
     Log.info('Memuat data kategori dari database');
     setState(() {
-      _listaKategoriFuture = _kategoriOperasi.getKategori().then((data) {
+      _listaKategoriFuture = _kategoriOperasi.getKategori().then((final data) {
         final int totalSubKategori = data.fold(
           0,
-          (sum, kat) => sum + kat.subKategori.length,
+          (final sum, final kat) => sum + kat.subKategori.length,
         );
         Log.info(
           'Berhasil memuat ${data.length} kategori utama dengan total $totalSubKategori sub-kategori',
@@ -63,7 +63,7 @@ class _KategoriPageState extends State<KategoriPage> {
       })
           // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
           // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
-          .catchError((Object e, StackTrace st) {
+          .catchError((final Object e, final StackTrace st) {
         Log.error(
           'Gagal memuat data kategori dari database',
           e: e,
@@ -82,9 +82,9 @@ class _KategoriPageState extends State<KategoriPage> {
     // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const FormKategoriPage()),
+      MaterialPageRoute<bool>(builder: (final context) => const FormKategoriPage()),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
         'Kategori baru berhasil ditambahkan, menyegarkan daftar kategori',
       );
@@ -94,11 +94,11 @@ class _KategoriPageState extends State<KategoriPage> {
     }
   }
 
-  Future<bool> _tampilkanDialogKonfirmasi(String judul, String konten) async {
+  Future<bool> _tampilkanDialogKonfirmasi(final String judul, final String konten) async {
     Log.info('Menampilkan dialog konfirmasi: "$judul"');
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (final BuildContext context) {
         return AlertDialog(
           title: Text(judul),
           content: Text(konten),
@@ -122,12 +122,12 @@ class _KategoriPageState extends State<KategoriPage> {
       },
     );
     Log.info(
-      'Hasil konfirmasi dialog "$judul": ${konfirmasi == true ? "Ya" : "Batal"}',
+      'Hasil konfirmasi dialog "$judul": ${konfirmasi ?? false ? "Ya" : "Batal"}',
     );
     return konfirmasi ?? false;
   }
 
-  Future<void> _arsipkanKategoriUtama(KategoriModel kategori) async {
+  Future<void> _arsipkanKategoriUtama(final KategoriModel kategori) async {
     Log.info(
       'Memproses pengarsipan kategori utama: ${kategori.nama} (ID: ${kategori.id})',
     );
@@ -171,8 +171,8 @@ class _KategoriPageState extends State<KategoriPage> {
   }
 
   Future<void> _arsipkanSubKategori(
-    KategoriModel kategoriInduk,
-    SubKategoriModel subKategori,
+    final KategoriModel kategoriInduk,
+    final SubKategoriModel subKategori,
   ) async {
     Log.info(
       'Memproses pengarsipan sub-kategori: ${subKategori.nama} (ID: ${subKategori.id}) dari kategori induk: ${kategoriInduk.nama}',
@@ -195,7 +195,7 @@ class _KategoriPageState extends State<KategoriPage> {
       final subKategoriDiperbarui = subKategori.copyWith(
         diarsipkan: DateTime.now(),
       );
-      final daftarSubKategoriBaru = kategoriInduk.subKategori.map((sub) {
+      final daftarSubKategoriBaru = kategoriInduk.subKategori.map((final sub) {
         return sub.id == subKategori.id ? subKategoriDiperbarui : sub;
       }).toList();
       final kategoriIndukDiperbarui = kategoriInduk.copyWith(
@@ -227,7 +227,7 @@ class _KategoriPageState extends State<KategoriPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI halaman Kategori (Mode Edit: $_isEdit, Mode Arsip: $_isArsipMode, Filter Tipe: ${_selectedTipe.name})',
     );
@@ -301,7 +301,7 @@ class _KategoriPageState extends State<KategoriPage> {
           Expanded(
             child: FutureBuilder<List<KategoriModel>>(
               future: _listaKategoriFuture,
-              builder: (context, snapshot) {
+              builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
@@ -321,7 +321,7 @@ class _KategoriPageState extends State<KategoriPage> {
                 } else {
                   final filteredKategori = snapshot.data!
                       .where(
-                        (k) => k.tipe == _selectedTipe && k.diarsipkan == null,
+                        (final k) => k.tipe == _selectedTipe && k.diarsipkan == null,
                       )
                       .toList();
 
@@ -331,7 +331,7 @@ class _KategoriPageState extends State<KategoriPage> {
 
                   return ListView.builder(
                     itemCount: filteredKategori.length,
-                    itemBuilder: (context, index) {
+                    itemBuilder: (final context, final index) {
                       final kategori = filteredKategori[index];
                       return Card(
                         margin: const EdgeInsets.all(8.0),
@@ -348,12 +348,12 @@ class _KategoriPageState extends State<KategoriPage> {
                                     final result = await Navigator.push<bool>(
                                       context,
                                       MaterialPageRoute<bool>(
-                                        builder: (context) => FormKategoriPage(
+                                        builder: (final context) => FormKategoriPage(
                                           kategori: kategori,
                                         ),
                                       ),
                                     );
-                                    if (result == true) {
+                                    if (result ?? false) {
                                       Log.info(
                                         'Kategori ${kategori.nama} berhasil diedit, menyegarkan daftar',
                                       );
@@ -374,8 +374,8 @@ class _KategoriPageState extends State<KategoriPage> {
                                     )
                                   : null,
                           children: kategori.subKategori
-                              .where((sub) => sub.diarsipkan == null)
-                              .map((sub) {
+                              .where((final sub) => sub.diarsipkan == null)
+                              .map((final sub) {
                             return ListTile(
                               title: Text(sub.nama),
                               trailing: _isEdit
@@ -390,14 +390,14 @@ class _KategoriPageState extends State<KategoriPage> {
                                             await Navigator.push<bool>(
                                           context,
                                           MaterialPageRoute<bool>(
-                                            builder: (context) =>
+                                            builder: (final context) =>
                                                 FormKategoriPage(
                                               subKategori: sub,
                                               idKategoriInduk: kategori.id,
                                             ),
                                           ),
                                         );
-                                        if (result == true) {
+                                        if (result ?? false) {
                                           Log.info(
                                             'Sub-kategori ${sub.nama} berhasil diedit, menyegarkan daftar',
                                           );

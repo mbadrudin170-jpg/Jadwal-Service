@@ -52,7 +52,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
     const LainnyaPage(),
   ];
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(final int index) {
     Log.info(
       'Pengguna menekan bottom navigation index: $index.',
     );
@@ -86,7 +86,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
     // ditambah: Daftarkan observer untuk memantau siklus hidup aplikasi (resume, pause).
     WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((final _) async {
       Log.info(
         'Frame pertama selesai dirender.',
       );
@@ -118,7 +118,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(final AppLifecycleState state) {
     // ditambah: Logika ini akan berjalan setiap kali state aplikasi berubah.
     if (state == AppLifecycleState.resumed) {
       Log.info('Aplikasi kembali aktif (resumed), memicu sinkronisasi data.');
@@ -128,7 +128,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
   }
 
   // ditambah: Callback yang akan dieksekusi setiap kali status koneksi berubah.
-  Future<void> _onKoneksiBerubah(List<ConnectivityResult> hasil) async {
+  Future<void> _onKoneksiBerubah(final List<ConnectivityResult> hasil) async {
     final terkoneksi = hasil.contains(ConnectivityResult.mobile) ||
         hasil.contains(ConnectivityResult.wifi);
     if (terkoneksi) {
@@ -183,7 +183,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
       'Membangun UI halaman utama dengan selected index: $_selectedIndex.',
     );

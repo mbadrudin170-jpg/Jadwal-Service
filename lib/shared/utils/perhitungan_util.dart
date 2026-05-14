@@ -14,7 +14,7 @@ class PerhitunganUtil {
   ///
   /// Poin dianggap hangus jika selisih antara [tanggalMulai] dan sekarang
   /// lebih dari 30 hari. [now] dapat digunakan untuk pengujian.
-  static String getPoinHangus({required DateTime tanggalMulai, DateTime? now}) {
+  static String getPoinHangus({required final DateTime tanggalMulai, final DateTime? now}) {
     final tanggalSekarang = now ?? DateTime.now();
     final selisihHari = tanggalSekarang.difference(tanggalMulai).inDays;
 
@@ -27,7 +27,7 @@ class PerhitunganUtil {
   /// Fungsi ini menghitung selisih hari antara tanggal berakhir dan tanggal sekarang.
   /// Mengembalikan jumlah sisa hari dalam bentuk integer.
   /// Jika tanggal berakhir sudah lewat, hasilnya akan menjadi negatif.
-  static int sisaHari(DateTime tanggalBerakhir, {DateTime? now}) {
+  static int sisaHari(final DateTime tanggalBerakhir, {final DateTime? now}) {
     final tanggalSekarang = DateUtils.dateOnly(now ?? DateTime.now());
     final akhir = DateUtils.dateOnly(tanggalBerakhir);
     return akhir.difference(tanggalSekarang).inDays;
@@ -37,8 +37,8 @@ class PerhitunganUtil {
   /// Fungsi untuk mendapatkan representasi teks dari sisa masa aktif.
   /// Contoh: "Sisa 5 hari", "Sisa 12 jam", atau "Berakhir".
   static String getTeksSisaMasaAktif(
-    DateTime tanggalBerakhir, {
-    DateTime? now,
+    final DateTime tanggalBerakhir, {
+    final DateTime? now,
   }) {
     final sisa = tanggalBerakhir.difference(now ?? DateTime.now());
 
@@ -63,8 +63,8 @@ class PerhitunganUtil {
   /// - Oranye: Jika sisa masa aktif antara 1 hingga 7 hari.
   /// - Merah: Jika paket berakhir hari ini atau sudah kadaluarsa.
   static Color getWarnaSisaMasaAktif(
-    DateTime tanggalBerakhir, {
-    DateTime? now,
+    final DateTime tanggalBerakhir, {
+    final DateTime? now,
   }) {
     final sisa = sisaHari(tanggalBerakhir, now: now);
 

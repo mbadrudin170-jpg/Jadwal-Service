@@ -46,7 +46,7 @@ class LayananUnduhData {
   final PengaturanOperasi _pengaturanOperasi = PengaturanOperasi();
 
   /// Konstruktor untuk LayananUnduhData.
-  LayananUnduhData({FirebaseFirestore? firestore, SyncManager? syncManager})
+  LayananUnduhData({final FirebaseFirestore? firestore, final SyncManager? syncManager})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager() {
     Log.info(
@@ -142,7 +142,7 @@ class LayananUnduhData {
       namaKoleksi: 'dompet',
       waktuUnduhTerakhir: waktu,
       fromFirebase: DompetModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _dompetOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -154,7 +154,7 @@ class LayananUnduhData {
       namaKoleksi: 'kategori',
       waktuUnduhTerakhir: waktu,
       fromFirebase: KategoriModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _kategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -166,7 +166,7 @@ class LayananUnduhData {
       namaKoleksi: 'paket',
       waktuUnduhTerakhir: waktu,
       fromFirebase: PaketModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _paketOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -178,7 +178,7 @@ class LayananUnduhData {
       namaKoleksi: 'pelanggan',
       waktuUnduhTerakhir: waktu,
       fromFirebase: PelangganModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _pelangganOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -190,7 +190,7 @@ class LayananUnduhData {
       namaKoleksi: 'pelanggan_aktif',
       waktuUnduhTerakhir: waktu,
       fromFirebase: PelangganAktifModel.fromFirebase,
-      operasiBatch: (data) => _pelangganAktifOperasi
+      operasiBatch: (final data) => _pelangganAktifOperasi
           .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -202,7 +202,7 @@ class LayananUnduhData {
       namaKoleksi: 'transaksi',
       waktuUnduhTerakhir: waktu,
       fromFirebase: TransaksiModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _transaksiOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -214,7 +214,7 @@ class LayananUnduhData {
       namaKoleksi: 'kritik_saran',
       waktuUnduhTerakhir: waktu,
       fromFirebase: KritikSaranModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _kritikSaranOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -226,7 +226,7 @@ class LayananUnduhData {
       namaKoleksi: 'pesan',
       waktuUnduhTerakhir: waktu,
       fromFirebase: PesananModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _pesanOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -238,7 +238,7 @@ class LayananUnduhData {
       namaKoleksi: 'sub_kategori',
       waktuUnduhTerakhir: waktu,
       fromFirebase: SubKategoriModel.fromFirebase,
-      operasiBatch: (data) =>
+      operasiBatch: (final data) =>
           _subKategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -250,7 +250,7 @@ class LayananUnduhData {
       namaKoleksi: 'versi_apk_user',
       waktuUnduhTerakhir: waktu,
       fromFirebase: VersiApkUserModel.fromFirebase,
-      operasiBatch: (data) => _versiApkUserOperasi
+      operasiBatch: (final data) => _versiApkUserOperasi
           .sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
@@ -263,10 +263,10 @@ class LayananUnduhData {
   /// [fromFirebase] adalah fungsi untuk mengonversi data dari Firebase ke model lokal.
   /// [operasiBatch] adalah fungsi untuk menyimpan data secara batch ke database lokal.
   Future<void> sinkronisasiKoleksi<T>({
-    required String namaKoleksi,
-    required DateTime waktuUnduhTerakhir,
-    required T Function(String id, Map<String, dynamic> data) fromFirebase,
-    required Future<void> Function(List<T>) operasiBatch,
+    required final String namaKoleksi,
+    required final DateTime waktuUnduhTerakhir,
+    required final T Function(String id, Map<String, dynamic> data) fromFirebase,
+    required final Future<void> Function(List<T>) operasiBatch,
   }) async {
     Log.info(
       'Sinkronisasi Koleksi: Memeriksa [$namaKoleksi] untuk data baru sejak $waktuUnduhTerakhir.',

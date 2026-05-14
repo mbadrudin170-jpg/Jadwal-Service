@@ -24,9 +24,9 @@ class LayananUnggahData {
 
   /// Konstruktor untuk `LayananUnggahData`.
   LayananUnggahData({
-    DatabaseHelper? dbHelper,
-    FirebaseFirestore? firestore,
-    SyncManager? syncManager,
+    final DatabaseHelper? dbHelper,
+    final FirebaseFirestore? firestore,
+    final SyncManager? syncManager,
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
         _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager() {
@@ -110,7 +110,7 @@ class LayananUnggahData {
         'dompet',
         'dompet',
         DompetModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data dompet selesai dengan sukses.');
@@ -141,7 +141,7 @@ class LayananUnggahData {
         'kategori',
         'kategori',
         KategoriModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data kategori selesai dengan sukses.');
@@ -172,7 +172,7 @@ class LayananUnggahData {
         'kritik_saran',
         'kritik_saran',
         KritikSaranModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data kritik_saran selesai dengan sukses.');
@@ -203,7 +203,7 @@ class LayananUnggahData {
         'paket',
         'paket',
         PaketModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data paket selesai dengan sukses.');
@@ -234,7 +234,7 @@ class LayananUnggahData {
         'pelanggan_aktif',
         'pelanggan_aktif',
         PelangganAktifModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data pelanggan_aktif selesai dengan sukses.');
@@ -265,7 +265,7 @@ class LayananUnggahData {
         'pelanggan',
         'pelanggan',
         PelangganModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data pelanggan selesai dengan sukses.');
@@ -296,7 +296,7 @@ class LayananUnggahData {
         'pesanan',
         'pesan',
         PesananModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data pesanan selesai dengan sukses.');
@@ -327,7 +327,7 @@ class LayananUnggahData {
         'transaksi',
         'transaksi',
         TransaksiModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data transaksi selesai dengan sukses.');
@@ -358,7 +358,7 @@ class LayananUnggahData {
         'sub_kategori',
         'sub_kategori',
         SubKategoriModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data sub_kategori selesai dengan sukses.');
@@ -389,7 +389,7 @@ class LayananUnggahData {
         'pengaturan',
         'pengaturan',
         PengaturanModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data pengaturan selesai dengan sukses.');
@@ -420,7 +420,7 @@ class LayananUnggahData {
         'versi_apk_user',
         'versi_apk_user',
         VersiApkUserModel.fromSqlite,
-        (m) => m.toFirebase(),
+        (final m) => m.toFirebase(),
         waktu,
       );
       Log.info('Proses unggah data versi_apk_user selesai dengan sukses.');
@@ -445,11 +445,11 @@ class LayananUnggahData {
   /// [toFirebase] adalah fungsi untuk mengonversi model ke format data Firestore.
   /// [waktuSinkronisasiTerakhir] adalah waktu terakhir data disinkronkan.
   Future<void> unggahDataGenerik<T extends MemilikiId>(
-    String namaTabel,
-    String namaKoleksi,
-    T Function(Map<String, dynamic>) fromSqlite,
-    Map<String, dynamic> Function(T) toFirebase,
-    DateTime waktuSinkronisasiTerakhir,
+    final String namaTabel,
+    final String namaKoleksi,
+    final T Function(Map<String, dynamic>) fromSqlite,
+    final Map<String, dynamic> Function(T) toFirebase,
+    final DateTime waktuSinkronisasiTerakhir,
   ) async {
     Log.info('========================================');
     Log.info('MEMULAI UNGGAH DATA GENERIK');

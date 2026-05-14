@@ -1,7 +1,9 @@
+// TODO: File ini dalam proses untuk dihapus. Semua fungsi telah dipindahkan ke kelas operasi yang sesuai di `lib/shared/operasi/firebase_operasi/`. Jangan menambahkan kode baru di sini.
+
 // path: lib/user/services/firestore_service.dart
 // ditambah: Menambahkan fungsi simpanTokenFCM untuk menyimpan token notifikasi pengguna.
 // diubah: Menjadikan `hentikanSinkronisasiJadwal` sebagai `async` dan menambahkan `await`.
-
+// TODO: rencana selanjutnya adalah apakah fungsi disini dipisah
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,12 +58,13 @@ class FirestoreService {
   ///
   /// Mendengarkan perubahan pada koleksi 'notifikasi' dan menampilkan log
   /// saat notifikasi baru ditambahkan.
-  void sinkronkanJadwalNotifikasi(String userId) {
+  void sinkronkanJadwalNotifikasi(final String userId) {
     Log.info('Memulai sinkronisasi jadwal notifikasi untuk userId: $userId');
     final collectionRef =
         _db.collection('notifikasi').where('id_pelanggan', isEqualTo: userId);
 
-    _notificationSubscription = collectionRef.snapshots().listen((snapshot) {
+    _notificationSubscription =
+        collectionRef.snapshots().listen((final snapshot) {
       for (var docChange in snapshot.docChanges) {
         if (docChange.type == DocumentChangeType.added) {
           final data = docChange.doc.data();
@@ -82,9 +85,13 @@ class FirestoreService {
   }
 
   /// Mengambil data pelanggan secara real-time (stream) berdasarkan ID pengguna.
-  Stream<PelangganModel?> ambilPelangganStream(String userId) {
+  Stream<PelangganModel?> ambilPelangganStream(final String userId) {
     Log.info('Streaming data pelanggan untuk: $userId');
-    return _db.collection('pelanggan').doc(userId).snapshots().map((snapshot) {
+    return _db
+        .collection('pelanggan')
+        .doc(userId)
+        .snapshots()
+        .map((final snapshot) {
       if (snapshot.exists) {
         Log.info('Data pelanggan stream diperbarui.', snapshot.data());
         return PelangganModel.fromFirebase(snapshot.id, snapshot.data()!);
@@ -99,13 +106,13 @@ class FirestoreService {
   ///
   /// Saat ini, fungsi ini hanya memanggil `ambilRiwayatLangganan`.
   Future<List<TransaksiModel>> ambilRiwayatLanggananLengkap(
-    String pelangganId,
-  ) async {
+    final String pelangganId,
+  ) {
     return ambilRiwayatLangganan(pelangganId);
   }
 
   /// Mengambil data pelanggan sekali (one-time fetch) berdasarkan ID pengguna.
-  Future<PelangganModel?> ambilPelangganSekali(String userId) async {
+  Future<PelangganModel?> ambilPelangganSekali(final String userId) async {
     try {
       Log.info('Mengambil data pelanggan sekali untuk ID: $userId');
       final doc = await _db.collection('pelanggan').doc(userId).get();
@@ -126,7 +133,9 @@ class FirestoreService {
   }
 
   /// Mengambil riwayat langganan (transaksi) untuk seorang pelanggan.
-  Future<List<TransaksiModel>> ambilRiwayatLangganan(String pelangganId) async {
+  Future<List<TransaksiModel>> ambilRiwayatLangganan(
+    final String pelangganId,
+  ) async {
     try {
       Log.info('Mengambil riwayat langganan untuk pelanggan ID: $pelangganId');
       final querySnapshot = await _db
@@ -137,7 +146,7 @@ class FirestoreService {
 
       Log.info('Menemukan ${querySnapshot.docs.length} riwayat transaksi.');
       return querySnapshot.docs
-          .map((doc) => TransaksiModel.fromFirebase(doc.id, doc.data()))
+          .map((final doc) => TransaksiModel.fromFirebase(doc.id, doc.data()))
           .toList();
     } on Exception catch (e, s) {
       Log.error(
@@ -150,7 +159,7 @@ class FirestoreService {
   }
 
   /// Mengambil nama paket berdasarkan ID paket.
-  Future<String> ambilNamaPaket(String paketId) async {
+  Future<String> ambilNamaPaket(final String paketId) async {
     try {
       Log.info('Mengambil nama paket untuk ID: $paketId');
       final doc = await _db.collection('paket').doc(paketId).get();
@@ -170,7 +179,7 @@ class FirestoreService {
   }
 
   /// Mengambil model [PaketModel] lengkap berdasarkan ID paket.
-  Future<PaketModel?> ambilPaketModelById(String paketId) async {
+  Future<PaketModel?> ambilPaketModelById(final String paketId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $paketId');
       final doc = await _db.collection('paket').doc(paketId).get();
@@ -189,7 +198,7 @@ class FirestoreService {
 
   // ditambah: Fungsi untuk menyimpan atau memperbarui FCM token pengguna.
   /// Menyimpan atau memperbarui token FCM (Firebase Cloud Messaging) pengguna.
-  Future<void> simpanTokenFCM(String userId, String? token) async {
+  Future<void> simpanTokenFCM(final String userId, final String? token) async {
     if (token == null || token.isEmpty) {
       Log.warning('Token FCM null atau kosong, proses penyimpanan dibatalkan.');
       return;

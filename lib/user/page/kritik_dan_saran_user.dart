@@ -25,14 +25,14 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser();
 
   Future<void> _showOptionsDialog(
-    BuildContext context,
-    KritikSaranModel kritik,
+    final BuildContext context,
+    final KritikSaranModel kritik,
   ) async {
     final navigator = Navigator.of(context);
 
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) {
+      builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Pilih Aksi'),
           actions: <Widget>[
@@ -49,7 +49,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
                 navigator.pop();
                 await navigator.push(
                   MaterialPageRoute<void>(
-                    builder: (context) => FormKritikDanSaran(
+                    builder: (final context) => FormKritikDanSaran(
                       userId: widget.userId,
                       kritikId: kritik.id,
                       initialValue: kritik.isi,
@@ -69,15 +69,15 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   }
 
   Future<void> _showDeleteConfirmationAndExecute(
-    BuildContext context,
-    String docId,
+    final BuildContext context,
+    final String docId,
   ) async {
     // diubah: Variabel navigator yang tidak digunakan telah dihapus.
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) {
+      builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
           content: const Text('Yakin ingin menghapus masukan ini?'),
@@ -96,7 +96,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
       },
     );
 
-    if (shouldDelete == true) {
+    if (shouldDelete ?? false) {
       try {
         await _operasi.hapusKritikSaran(docId);
         scaffoldMessenger.showSnackBar(
@@ -117,7 +117,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Masukan'),
@@ -125,7 +125,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
       ),
       body: StreamBuilder<List<KritikSaranModel>>(
         stream: _operasi.bacaSemuaKritikSaran(widget.userId),
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -143,7 +143,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: kritiks.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (final context, final index) {
               final kritik = kritiks[index];
               final formattedDate = kritik.tanggal != null
                   ? DateFormat.yMMMMd('id_ID').add_jm().format(kritik.tanggal!)
@@ -176,7 +176,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (context) => FormKritikDanSaran(userId: widget.userId),
+              builder: (final context) => FormKritikDanSaran(userId: widget.userId),
             ),
           );
         },

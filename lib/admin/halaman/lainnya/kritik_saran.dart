@@ -33,10 +33,10 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
   void _loadKritikSaran() {
     Log.info('Memuat data kritik dan saran dari database');
     setState(() {
-      _kritikSaranFuture = _kritikSaranOperasi.getKritikSaran().then((data) {
+      _kritikSaranFuture = _kritikSaranOperasi.getKritikSaran().then((final data) {
         Log.info('Berhasil memuat ${data.length} data kritik dan saran');
         return data;
-      }).catchError((Object e, StackTrace st) {
+      }).catchError((final Object e, final StackTrace st) {
         Log.error(
           'Gagal memuat data kritik dan saran dari database',
           e: e,
@@ -48,10 +48,10 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
     });
   }
 
-  Future<void> _hapusKritikSaran(KritikSaranModel item) async {
+  Future<void> _hapusKritikSaran(final KritikSaranModel item) async {
     final konfirmasi = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (final context) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: const Text(
           'Apakah Anda yakin ingin menghapus kritik dan saran ini?',
@@ -70,7 +70,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
       ),
     );
 
-    if (konfirmasi == true && mounted) {
+    if ((konfirmasi ?? false) && mounted) {
       try {
         await _kritikSaranOperasi.hapusKritikSaran(item.id);
 
@@ -102,12 +102,12 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Kritik & Saran')),
       body: FutureBuilder<List<KritikSaranModel>>(
         future: _kritikSaranFuture,
-        builder: (context, snapshot) {
+        builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -119,7 +119,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
             return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: listKritikSaran.length,
-              itemBuilder: (context, index) {
+              itemBuilder: (final context, final index) {
                 final item = listKritikSaran[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -128,11 +128,11 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute<bool>(
-                          builder: (context) =>
+                          builder: (final context) =>
                               DetailKritikSaranPage(id: item.id),
                         ),
                       );
-                      if (result == true) {
+                      if (result ?? false) {
                         _loadKritikSaran();
                       }
                     },

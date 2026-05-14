@@ -22,10 +22,10 @@ class NamaPaketWidget extends StatelessWidget {
   const NamaPaketWidget({super.key, required this.paketFuture, this.style});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<PaketModel?>(
       future: paketFuture,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(
             width: 12,

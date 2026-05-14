@@ -15,8 +15,8 @@ class KritikSaranOperasi {
 
   /// Menyimpan [KritikSaranModel] baru ke dalam database.
   Future<void> createKritikSaran(
-    KritikSaranModel kritikSaran, {
-    bool dariServer = false,
+    final KritikSaranModel kritikSaran, {
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
     try {
@@ -48,7 +48,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${listKritik.length} data kritik_saran.');
       return listKritik;
@@ -59,7 +59,7 @@ class KritikSaranOperasi {
   }
 
   /// Mengambil [KritikSaranModel] berdasarkan [id].
-  Future<KritikSaranModel> getKritikSaranById(String id) async {
+  Future<KritikSaranModel> getKritikSaranById(final String id) async {
     Log.info('Memulai getKritikSaranById untuk ID: $id');
     try {
       final db = await dbHelper.database;
@@ -90,7 +90,7 @@ class KritikSaranOperasi {
   }
 
   /// Mengambil semua kritik dan saran yang telah diubah sejak [lastSync].
-  Future<List<KritikSaranModel>> getPerubahan(DateTime lastSync) async {
+  Future<List<KritikSaranModel>> getPerubahan(final DateTime lastSync) async {
     Log.info(
       'Memulai getPerubahan kritik_saran sejak: ${lastSync.toIso8601String()}',
     );
@@ -103,7 +103,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Ditemukan ${listKritik.length} perubahan kritik_saran sejak ${lastSync.toIso8601String()}.',
@@ -121,8 +121,8 @@ class KritikSaranOperasi {
 
   /// Menyisipkan atau memperbarui sekumpulan [KritikSaranModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<KritikSaranModel> daftarKritikSaran, {
-    bool dariServer = false,
+    final List<KritikSaranModel> daftarKritikSaran, {
+    final bool dariServer = false,
   }) async {
     Log.info(
       'Memulai sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item kritik_saran.',
@@ -136,7 +136,7 @@ class KritikSaranOperasi {
     try {
       final data = daftarKritikSaran
           .map(
-            (item) =>
+            (final item) =>
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
@@ -159,7 +159,7 @@ class KritikSaranOperasi {
   }
 
   /// Menghapus [KritikSaranModel] dari database secara permanen.
-  Future<void> hapusKritikSaran(String id, {bool dariServer = false}) async {
+  Future<void> hapusKritikSaran(final String id, {final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusKritikSaran (hard delete) untuk ID: $id',
     );
@@ -177,13 +177,13 @@ class KritikSaranOperasi {
   }
 
   /// Menghapus semua kritik dan saran dari database secara permanen.
-  Future<void> hapusSemuaKritikSaran({bool dariServer = false}) async {
+  Future<void> hapusSemuaKritikSaran({final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusSemuaKritikSaran. Ini adalah operasi destruktif.',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final int count = await txn.delete('kritik_saran');
           Log.info(
             'Berhasil hapusSemuaKritikSaran. Total baris yang dihapus: $count',
@@ -199,13 +199,13 @@ class KritikSaranOperasi {
   }
 
   /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
-  Future<void> hapusByUserId(String userId, {bool dariServer = false}) async {
+  Future<void> hapusByUserId(final String userId, {final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusByUserId (hard delete) untuk userId: $userId',
     );
     try {
       await _operasiDasar.jalankanOperasiKompleks(
-        (txn) async {
+        (final txn) async {
           final deletedCount = await txn.delete(
             'kritik_saran',
             where: 'userId = ?',
@@ -236,7 +236,7 @@ class KritikSaranOperasi {
           await FirebaseFirestore.instance.collection('kritik_saran').get();
       final List<KritikSaranModel> data = snapshot.docs
           .map(
-            (doc) => KritikSaranModel.fromFirebase(
+            (final doc) => KritikSaranModel.fromFirebase(
               doc.id,
               doc.data() as Map<String, dynamic>,
             ),
@@ -258,7 +258,7 @@ class KritikSaranOperasi {
   }
 
   /// Mengambil beberapa [KritikSaranModel] berdasarkan daftar [ids].
-  Future<List<KritikSaranModel>> getKritikSaranByIds(List<String> ids) async {
+  Future<List<KritikSaranModel>> getKritikSaranByIds(final List<String> ids) async {
     Log.info('Memulai getKritikSaranByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -276,7 +276,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${listKritik.length} data kritik_saran dari ${ids.length} ID yang diminta.',

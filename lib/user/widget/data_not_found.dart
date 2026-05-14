@@ -14,7 +14,7 @@ class DataNotFound extends StatelessWidget {
   const DataNotFound({super.key, required this.message});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

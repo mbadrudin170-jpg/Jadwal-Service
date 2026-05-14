@@ -108,7 +108,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.kritikId != null ? 'Edit Masukan' : 'Beri Masukan'),
@@ -129,7 +129,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 5,
-                validator: (value) {
+                validator: (final value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Mohon jangan biarkan kolom ini kosong.';
                   }

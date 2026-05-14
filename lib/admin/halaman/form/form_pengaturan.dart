@@ -93,7 +93,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Pengaturan'),
@@ -109,7 +109,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
                 label: 'Interval Sinkronisasi Otomatis (Jam)',
                 icon: Icons.sync,
                 keyboardType: TextInputType.number,
-                validator: (value) => (value == null || value.isEmpty)
+                validator: (final value) => (value == null || value.isEmpty)
                     ? 'Harap masukkan interval'
                     : null,
               ),
@@ -119,7 +119,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
                 label: 'Hapus Arsip Otomatis (Hari)',
                 icon: Icons.auto_delete,
                 keyboardType: TextInputType.number,
-                validator: (value) => (value == null || value.isEmpty)
+                validator: (final value) => (value == null || value.isEmpty)
                     ? 'Harap masukkan hari'
                     : null,
               ),
@@ -149,12 +149,12 @@ class _FormPengaturanState extends State<FormPengaturan> {
   }
 
   Widget _buildTextFormField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    int? maxLines = 1,
+    required final TextEditingController controller,
+    required final String label,
+    required final IconData icon,
+    final TextInputType keyboardType = TextInputType.text,
+    final String? Function(String?)? validator,
+    final int? maxLines = 1,
   }) {
     return TextFormField(
       controller: controller,
@@ -173,7 +173,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
     return SwitchListTile(
       title: const Text('Mode Pemeliharaan'),
       value: _modePemeliharaan,
-      onChanged: (bool value) {
+      onChanged: (final bool value) {
         setState(() {
           _modePemeliharaan = value;
           Log.info('Mode pemeliharaan diubah menjadi: $value');
