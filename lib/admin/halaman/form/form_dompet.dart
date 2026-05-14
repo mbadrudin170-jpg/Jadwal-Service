@@ -126,7 +126,6 @@ class _FormDompetState extends State<FormDompet> {
             id: widget.dompet!.id,
             namaDompet: _namaController.text,
             saldo: widget.dompet!.saldo,
-            diperbarui: DateTime.now(),
           );
 
           Log.info('Objek DompetModel berhasil dibuat:');

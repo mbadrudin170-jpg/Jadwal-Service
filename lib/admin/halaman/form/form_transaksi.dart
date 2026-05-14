@@ -251,7 +251,6 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
             _tipe == TipeTransaksi.transfer ? _selectedDompetTujuan?.id : null,
         idKategori: _selectedKategori?.id ?? '',
         idSubKategori: _selectedSubKategori?.id,
-        // diperbarui: DateTime.now().toUtc(),
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');

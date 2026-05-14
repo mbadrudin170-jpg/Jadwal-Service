@@ -115,7 +115,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
       Log.info('  - Tipe Default: pemasukan');
       Log.info('  - Nama: Dari input pengguna');
       Log.info('  - Sub-Kategori: Opsional, bisa ditambahkan multiple');
-      Log.info('  - Diperbarui: DateTime.now()');
+      Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data');
 
       Log.info('Mengatur tipe default ke pemasukan.');
       _tipe = TipeKategori.pemasukan;
@@ -264,12 +264,11 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             );
 
             Log.info(
-              'Membuat salinan sub-kategori dengan nama baru dan timestamp diperbarui.',
+              'Membuat salinan sub-kategori dengan nama baru.',
             );
             final subKategoriDiperbarui =
                 kategoriInduk.subKategori[subKategoriIndex].copyWith(
               nama: _namaController.text,
-              diperbarui: DateTime.now(),
             );
 
             Log.info(
@@ -303,21 +302,17 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info('  - Nama Baru: ${_namaController.text}');
           Log.info('  - Tipe Lama: ${widget.kategori!.tipe}');
           Log.info('  - Tipe Baru: $_tipe');
+          Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
 
-          Log.info(
-            'Membuat salinan kategori dengan data baru dan timestamp diperbarui.',
-          );
           final kategoriDiperbarui = widget.kategori!.copyWith(
             nama: _namaController.text,
             tipe: _tipe,
-            diperbarui: DateTime.now(),
           );
 
-          Log.info('Objek KategoriModel baru:');
+          Log.info('Objek KategoriModel baru (tanpa timestamp):');
           Log.info('  - ID: ${kategoriDiperbarui.id}');
           Log.info('  - Nama: ${kategoriDiperbarui.nama}');
           Log.info('  - Tipe: ${kategoriDiperbarui.tipe}');
-          Log.info('  - Diperbarui: ${kategoriDiperbarui.diperbarui}');
 
           Log.info(
             'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan.',
@@ -366,7 +361,6 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             return SubKategoriModel(
               nama: controller.text,
               idKategori: kategoriId,
-              diperbarui: DateTime.now(),
             );
           }).toList();
 
@@ -380,7 +374,6 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             nama: _namaController.text,
             tipe: _tipe,
             subKategori: subKategoriList,
-            diperbarui: DateTime.now(),
           );
 
           Log.info('Objek KategoriModel berhasil dibuat:');
@@ -390,7 +383,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info(
             '  - Jumlah Sub-Kategori: ${kategoriBaru.subKategori.length}',
           );
-          Log.info('  - Diperbarui: ${kategoriBaru.diperbarui}');
+          Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
 
           Log.info(
             'Memanggil _kategoriOperasi.createKategori() untuk menyimpan kategori baru.',
