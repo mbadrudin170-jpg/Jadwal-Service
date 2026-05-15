@@ -2,6 +2,7 @@
 // diubah: Refaktorisasi untuk menggunakan OperasiDasar dan menambahkan parameter `dariServer`.
 // dihapus: Impor sqflite yang tidak digunakan.
 
+import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
@@ -10,8 +11,30 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 /// Kelas untuk operasi terkait data sub-kategori di database lokal.
 class SubKategoriOperasi {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  DatabaseHelper dbHelper;
+
+  /// Instance dari OperasiDasar untuk operasi CRUD dasar.
+  OperasiDasar operasiDasar;
+
+  /// Konstruktor untuk [SubKategoriOperasi].
+  ///
+  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [operasiDasar]
+  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
+  SubKategoriOperasi({final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar})
+      : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        operasiDasar = operasiDasar ?? OperasiDasar();
+
+  /// Mengganti instance [DatabaseHelper] untuk tujuan pengujian.
+  @visibleForTesting
+  void testSetDbHelper(final DatabaseHelper helper) {
+    dbHelper = helper;
+  }
+
+  /// Mengganti instance [OperasiDasar] untuk tujuan pengujian.
+  @visibleForTesting
+  void testSetOperasiDasar(final OperasiDasar operasi) {
+    operasiDasar = operasi;
+  }
 
   /// Menyimpan [SubKategoriModel] baru ke dalam database.
   Future<void> createSubKategori(
@@ -20,7 +43,7 @@ class SubKategoriOperasi {
   }) async {
     Log.info('Membuat sub-kategori baru: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-    await _operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
+    await operasiDasar.sisipkan('sub_kategori', data, dariServer: dariServer);
   }
 
   /// Mengambil semua sub-kategori yang terkait dengan [idKategori].
@@ -62,7 +85,7 @@ class SubKategoriOperasi {
   }) async {
     Log.info('Memperbarui sub-kategori: ${subKategori.nama}');
     final data = subKategori.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-    await _operasiDasar.perbarui(
+    await operasiDasar.perbarui(
       'sub_kategori',
       data,
       subKategori.id,
@@ -85,14 +108,14 @@ class SubKategoriOperasi {
         'isDeleted': 1,
         'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
       };
-      await _operasiDasar.perbarui(
+      await operasiDasar.perbarui(
         'sub_kategori',
         dataToUpdate,
         id,
         dariServer: dariServer,
       );
     } else {
-      await _operasiDasar.hapus('sub_kategori', id, dariServer: dariServer);
+      await operasiDasar.hapus('sub_kategori', id, dariServer: dariServer);
     }
   }
 
@@ -106,7 +129,7 @@ class SubKategoriOperasi {
     final data = items
         .map((final item) => item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite())
         .toList();
-    await _operasiDasar.sisipkanAtauPerbaruiBatch(
+    await operasiDasar.sisipkanAtauPerbaruiBatch(
       'sub_kategori',
       data,
       dariServer: dariServer,

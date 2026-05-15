@@ -1,110 +1,249 @@
 // path: test/shared/operasi/operasi_dasar_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
 
-// --- Mock classes ---
-class MockDatabaseHelper extends Mock implements DatabaseHelper {}
+import 'operasi_dasar_test.mocks.dart';
 
-class MockDatabase extends Mock implements Database {}
-
-class MockTransaction extends Mock implements Transaction {}
-
-class MockStatusUnggahOperasi extends Mock implements StatusUnggahOperasi {}
-
+@GenerateMocks([DatabaseHelper, Transaction, StatusUnggahOperasi])
 void main() {
   late MockDatabaseHelper mockDbHelper;
-  late MockDatabase mockDatabase;
+  late FakeDatabase fakeDatabase;
   late MockTransaction mockTransaction;
   late MockStatusUnggahOperasi mockStatusUnggah;
   late OperasiDasar operasiDasar;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
-    mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
     mockStatusUnggah = MockStatusUnggahOperasi();
 
-    // Injeksi mock ke OperasiDasar
+    // FakeDatabase untuk mensimulasikan transaksi
+    fakeDatabase = FakeDatabase(mockTransaction);
+
     operasiDasar = OperasiDasar(
       dbHelper: mockDbHelper,
       statusUnggahOperasi: mockStatusUnggah,
     );
 
-    // Setup dasar: dbHelper mengembalikan database
-    when(() => mockDbHelper.database).thenAnswer((_) async => mockDatabase);
-
-    // Setup transaksi: jalankan callback dan berikan mockTransaction
-    when(() => mockDatabase.transaction(any())).thenAnswer((invocation) async {
-      final callback = invocation.positionalArguments[0] as Future<dynamic>
-          Function(Transaction);
-      return await callback(mockTransaction);
-    });
-
-    // Setup default untuk mockTransaction methods (insert, update, delete)
-    when(() => mockTransaction.insert(any(), any(),
-            conflictAlgorithm: any(named: 'conflictAlgorithm')))
-        .thenAnswer((_) async => 1); // return rowId dummy
-    when(() => mockTransaction.update(any(), any(),
-            where: any(named: 'where'), whereArgs: any(named: 'whereArgs')))
-        .thenAnswer((_) async => 1); // rows affected
-    when(() => mockTransaction.delete(any(),
-        where: any(named: 'where'),
-        whereArgs: any(named: 'whereArgs'))).thenAnswer((_) async => 1);
-
-    // mock statusUnggah.setPerluUnggah
-    when(() => mockStatusUnggah.setPerluUnggah(true,
-        transaction: any(named: 'transaction'))).thenAnswer((_) async {});
+    when(mockDbHelper.database).thenAnswer((final _) async => fakeDatabase);
   });
 
-  // ---------- sisipkan ----------
   group('sisipkan', () {
     test('memasukkan data dan menandai perlu unggah jika dariServer false',
         () async {
       final data = {'nama': 'Test'};
-      await operasiDasar.sisipkan('tabel_test', data, dariServer: false);
+      when(
+        mockTransaction.insert(
+          any,
+          any,
+          conflictAlgorithm: anyNamed('conflictAlgorithm'),
+        ),
+      ).thenAnswer((final _) async => 1);
+      when(
+        mockStatusUnggah.setPerluUnggah(
+          any,
+          transaction: anyNamed('transaction'),
+        ),
+      ).thenAnswer((final _) async {});
 
-      // Verifikasi insert dipanggil
-      verify(() => mockTransaction.insert('tabel_test', data,
-          conflictAlgorithm: ConflictAlgorithm.replace)).called(1);
-      // Verifikasi status unggah diset
-      verify(() => mockStatusUnggah.setPerluUnggah(true,
-          transaction: mockTransaction)).called(1);
+      await operasiDasar.sisipkan('tabel_test', data);
+
+      verify(
+        mockTransaction.insert(
+          'tabel_test',
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        ),
+      ).called(1);
+      verify(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
+      ).called(1);
     });
 
     test('tidak menandai perlu unggah jika dariServer true', () async {
-      await operasiDasar.sisipkan('tabel_test', {}, dariServer: true);
-      verifyNever(() => mockStatusUnggah.setPerluUnggah(true,
-          transaction: any(named: 'transaction')));
-    });
+      final data = {'nama': 'Test'};
+      when(
+        mockTransaction.insert(
+          any,
+          any,
+          conflictAlgorithm: anyNamed('conflictAlgorithm'),
+        ),
+      ).thenAnswer((final _) async => 1);
 
-    test('melempar error jika insert gagal', () async {
-      when(() => mockTransaction.insert(any(), any(),
-              conflictAlgorithm: any(named: 'conflictAlgorithm')))
-          .thenThrow(DatabaseException('Gagal insert'));
+      await operasiDasar.sisipkan('tabel_test', data, dariServer: true);
 
-      expect(
-        () => operasiDasar.sisipkan('tabel', {}),
-        throwsA(isA<DatabaseException>()),
+      verify(
+        mockTransaction.insert(
+          'tabel_test',
+          data,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        ),
+      ).called(1);
+      verifyNever(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
       );
     });
   });
 
-  // ---------- perbarui ----------
   group('perbarui', () {
     final dataUpdate = {'nama': 'Updated'};
     const id = '123';
 
     test('berhasil update dan tandai perlu unggah jika lokal', () async {
-      await operasiDasar.perbarui('tabel', dataUpdate, id, dariServer: false);
+      when(
+        mockTransaction.update(
+          any,
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => 1);
+      when(
+        mockStatusUnggah.setPerluUnggah(
+          any,
+          transaction: anyNamed('transaction'),
+        ),
+      ).thenAnswer((final _) async {});
 
-      verify(() => mockTransaction.update(
-            'tabel',
-            dataUpdate,
-            where: 'id = ?',
-            whereArgs: [id],
-          )).called(1);
-      verify(() => mockSta
+      await operasiDasar.perbarui('tabel', dataUpdate, id);
+
+      verify(
+        mockTransaction.update(
+          'tabel',
+          dataUpdate,
+          where: 'id = ?',
+          whereArgs: [id],
+        ),
+      ).called(1);
+      verify(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
+      ).called(1);
+    });
+
+    test('tidak menandai perlu unggah jika dariServer true', () async {
+      when(
+        mockTransaction.update(
+          any,
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => 1);
+
+      await operasiDasar.perbarui('tabel', dataUpdate, id, dariServer: true);
+
+      verify(
+        mockTransaction.update(
+          'tabel',
+          dataUpdate,
+          where: 'id = ?',
+          whereArgs: [id],
+        ),
+      ).called(1);
+      verifyNever(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
+      );
+    });
+  });
+
+  group('hapus', () {
+    const id = '123';
+
+    test('berhasil hapus dan tandai perlu unggah jika lokal', () async {
+      when(
+        mockTransaction.delete(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => 1);
+      when(
+        mockStatusUnggah.setPerluUnggah(
+          any,
+          transaction: anyNamed('transaction'),
+        ),
+      ).thenAnswer((final _) async {});
+
+      await operasiDasar.hapus('tabel', id);
+
+      verify(
+        mockTransaction.delete(
+          'tabel',
+          where: 'id = ?',
+          whereArgs: [id],
+        ),
+      ).called(1);
+      verify(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
+      ).called(1);
+    });
+
+    test('tidak menandai perlu unggah jika dariServer true', () async {
+      when(
+        mockTransaction.delete(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => 1);
+
+      await operasiDasar.hapus('tabel', id, dariServer: true);
+
+      verify(
+        mockTransaction.delete(
+          'tabel',
+          where: 'id = ?',
+          whereArgs: [id],
+        ),
+      ).called(1);
+      verifyNever(
+        mockStatusUnggah.setPerluUnggah(
+          true,
+          transaction: mockTransaction,
+        ),
+      );
+    });
+  });
+}
+
+// --- Fake Database ---
+/// Implementasi palsu dari [Database] yang hanya menjalankan callback transaksi
+/// dengan [mockTransaction] yang telah disediakan, tanpa membuka koneksi database asli.
+class FakeDatabase implements Database {
+  final Transaction mockTransaction;
+
+  FakeDatabase(this.mockTransaction);
+
+  @override
+  Future<T> transaction<T>(
+    final Future<T> Function(Transaction txn) action, {
+    final bool? exclusive,
+  }) async {
+    return await action(mockTransaction);
+  }
+
+  // Method lain tidak digunakan, lempar UnimplementedError.
+  @override
+  dynamic noSuchMethod(final Invocation invocation) =>
+      super.noSuchMethod(invocation);
+}

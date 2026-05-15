@@ -525,8 +525,7 @@ class LayananUnggahData {
             'Membuat referensi dokumen Firestore pada koleksi $namaKoleksi dengan ID ${data.id}.',
           );
 
-          final docRef =
-              _firestore.collection(namaKoleksi).doc(data.id);
+          final docRef = _firestore.collection(namaKoleksi).doc(data.id);
 
           Log.info(
             'Mengkonversi model menjadi Map<String, dynamic> menggunakan fungsi toFirebase.',
@@ -548,6 +547,7 @@ class LayananUnggahData {
             'Data ke-${i + 1} (ID: ${data.id}) berhasil ditambahkan ke batch Firestore.',
           );
         } on Exception catch (e, s) {
+          // <--- Diubah di sini
           counterError++;
           Log.error(
             'Gagal memproses data ke-${i + 1} dari tabel $namaTabel. '

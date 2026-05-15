@@ -1,6 +1,8 @@
 // path: lib/shared/operasi/pelanggan_operasi.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Menambahkan konstruktor untuk dependency injection (DI) agar bisa di-test.
 
+import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
@@ -9,25 +11,39 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 /// Kelas untuk operasi terkait data pelanggan di database lokal.
 class PelangganOperasi {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  @visibleForTesting
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari [OperasiDasar] untuk operasi CRUD dasar.
+  @visibleForTesting
+  final OperasiDasar operasiDasar;
+
+  /// Konstruktor untuk [PelangganOperasi].
+  ///
+  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [operasiDasar]
+  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
+  PelangganOperasi({
+    final DatabaseHelper? dbHelper,
+    final OperasiDasar? operasiDasar,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        operasiDasar = operasiDasar ?? OperasiDasar();
 
   /// Menyimpan [PelangganModel] baru ke dalam database.
   Future<void> createPelanggan(
     final PelangganModel pelanggan, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
+    Log.info('Memulai pembuatan pelanggan dengan ID: \${pelanggan.id}');
     try {
       final pelangganUntukDisimpan = pelanggan.copyWith(
         diperbarui: DateTime.now().toUtc(),
       );
       final data = pelangganUntukDisimpan.toSqlite();
 
-      await _operasiDasar.sisipkan('pelanggan', data, dariServer: dariServer);
+      await operasiDasar.sisipkan('pelanggan', data, dariServer: dariServer);
 
       Log.info(
-        'Pelanggan (ID: ${pelangganUntukDisimpan.id}) berhasil dibuat di database lokal.',
+        'Pelanggan (ID: \${pelangganUntukDisimpan.id}) berhasil dibuat di database lokal.',
       );
     } catch (e, s) {
       Log.error('Gagal membuat pelanggan.', e: e, st: s);
@@ -48,7 +64,7 @@ class PelangganOperasi {
         whereArgs: [0],
       );
 
-      Log.info('Berhasil mengambil ${maps.length} pelanggan aktif.');
+      Log.info('Berhasil mengambil \${maps.length} pelanggan aktif.');
       return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);
       });
@@ -65,7 +81,7 @@ class PelangganOperasi {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query('pelanggan');
 
-      Log.info('Berhasil mengambil total ${maps.length} pelanggan.');
+      Log.info('Berhasil mengambil total \${maps.length} pelanggan.');
       return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);
       });
@@ -81,7 +97,7 @@ class PelangganOperasi {
 
   /// Mengambil [PelangganModel] berdasarkan [id].
   Future<PelangganModel?> getPelangganById(final String id) async {
-    Log.info('Mencari pelanggan berdasarkan ID: $id');
+    Log.info('Mencari pelanggan berdasarkan ID: \$id');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -91,10 +107,10 @@ class PelangganOperasi {
       );
 
       if (maps.isNotEmpty) {
-        Log.info('Pelanggan dengan ID: $id ditemukan.');
+        Log.info('Pelanggan dengan ID: \$id ditemukan.');
         return PelangganModel.fromSqlite(maps.first);
       }
-      Log.warning('Pelanggan dengan ID: $id tidak ditemukan.');
+      Log.warning('Pelanggan dengan ID: \$id tidak ditemukan.');
       return null;
     } catch (e, s) {
       Log.error(
@@ -111,19 +127,19 @@ class PelangganOperasi {
     final PelangganModel pelanggan, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
+    Log.info('Memulai pembaruan untuk pelanggan ID: \${pelanggan.id}');
     try {
       final data =
           pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
-      await _operasiDasar.perbarui(
+      await operasiDasar.perbarui(
         'pelanggan',
         data,
         pelanggan.id,
         dariServer: dariServer,
       );
 
-      Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
+      Log.info('Berhasil memperbarui pelanggan ID: \${pelanggan.id}.');
     } catch (e, s) {
       Log.error('Gagal memperbarui pelanggan.', e: e, st: s);
       rethrow;
@@ -140,11 +156,11 @@ class PelangganOperasi {
     final bool dariServer = false,
   }) async {
     Log.info(
-      'Memulai proses penghapusan untuk pelanggan ID: $id (softDelete: $softDelete)',
+      'Memulai proses penghapusan untuk pelanggan ID: \$id (softDelete: \$softDelete)',
     );
     try {
       if (softDelete) {
-        await _operasiDasar.perbarui(
+        await operasiDasar.perbarui(
           'pelanggan',
           {
             'isDeleted': 1,
@@ -153,11 +169,11 @@ class PelangganOperasi {
           id,
           dariServer: dariServer,
         );
-        Log.info('Berhasil melakukan soft delete pada pelanggan ID: $id.');
+        Log.info('Berhasil melakukan soft delete pada pelanggan ID: \$id.');
       } else {
-        await _operasiDasar.hapus('pelanggan', id, dariServer: dariServer);
+        await operasiDasar.hapus('pelanggan', id, dariServer: dariServer);
         Log.warning(
-          'Berhasil melakukan hard delete (penghapusan permanen) pada pelanggan ID: $id.',
+          'Berhasil melakukan hard delete (penghapusan permanen) pada pelanggan ID: \$id.',
         );
       }
     } catch (e, s) {
@@ -168,7 +184,7 @@ class PelangganOperasi {
 
   /// Mengambil semua pelanggan yang telah diubah sejak [since].
   Future<List<PelangganModel>> getPerubahan(final DateTime since) async {
-    Log.info('Mengambil perubahan pelanggan sejak: ${since.toIso8601String()}');
+    Log.info('Mengambil perubahan pelanggan sejak: \${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -177,7 +193,7 @@ class PelangganOperasi {
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info(
-        'Ditemukan ${maps.length} perubahan pelanggan sejak waktu yang ditentukan.',
+        'Ditemukan \${maps.length} perubahan pelanggan sejak waktu yang ditentukan.',
       );
       return List.generate(
         maps.length,
@@ -195,10 +211,10 @@ class PelangganOperasi {
 
   /// Mengarsipkan [PelangganModel] berdasarkan [id].
   Future<void> arsipkanPelanggan(final String id, {final bool dariServer = false}) async {
-    Log.info('Mengarsipkan pelanggan ID: $id');
+    Log.info('Mengarsipkan pelanggan ID: \$id');
     try {
       final now = DateTime.now().toUtc();
-      await _operasiDasar.perbarui(
+      await operasiDasar.perbarui(
         'pelanggan',
         {
           'isDeleted': 1,
@@ -208,7 +224,7 @@ class PelangganOperasi {
         id,
         dariServer: dariServer,
       );
-      Log.info('Berhasil mengarsipkan pelanggan ID: $id.');
+      Log.info('Berhasil mengarsipkan pelanggan ID: \$id.');
     } catch (e, s) {
       Log.error('Gagal mengarsipkan pelanggan.', e: e, st: s);
       rethrow;
@@ -224,19 +240,19 @@ class PelangganOperasi {
       Log.info('Tidak ada item untuk diproses dalam batch.');
       return;
     }
-    Log.info('Memulai batch insert/update untuk ${items.length} pelanggan.');
+    Log.info('Memulai batch insert/update untuk \${items.length} pelanggan.');
     try {
       final data = items.map((final item) {
         return item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
-      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+      await operasiDasar.sisipkanAtauPerbaruiBatch(
         'pelanggan',
         data,
         dariServer: dariServer,
       );
       Log.info(
-        'Berhasil menyelesaikan operasi batch untuk ${items.length} pelanggan.',
+        'Berhasil menyelesaikan operasi batch untuk \${items.length} pelanggan.',
       );
     } catch (e, s) {
       Log.error('Gagal menjalankan operasi batch.', e: e, st: s);
@@ -250,17 +266,16 @@ class PelangganOperasi {
       Log.info('List ID kosong, tidak ada pelanggan yang diambil.');
       return [];
     }
-    Log.info('Mengambil data pelanggan untuk ${ids.length} ID.');
+    Log.info('Mengambil data pelanggan untuk \${ids.length} ID.');
     try {
       final db = await dbHelper.database;
-      final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         'pelanggan',
-        where: 'id IN ($placeholders)',
+        where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
       Log.info(
-        'Berhasil mengambil ${maps.length} pelanggan berdasarkan list ID yang diberikan.',
+        'Berhasil mengambil \${maps.length} pelanggan berdasarkan list ID yang diberikan.',
       );
       return List.generate(maps.length, (final i) {
         return PelangganModel.fromSqlite(maps[i]);

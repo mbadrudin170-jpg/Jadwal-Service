@@ -1,5 +1,35 @@
 # README Shared
 
+## Perbaikan Lingkungan Pengujian (`build_runner`)
+
+Untuk memastikan keandalan dan stabilitas basis kode, dilakukan upaya untuk memperbaiki lingkungan pengujian yang rusak. Proses ini sangat penting karena `build_runner` yang gagal menghalangi pembuatan *mock* dan eksekusi pengujian unit.
+
+### Latar Belakang Masalah
+
+Setelah serangkaian perubahan kode, perintah `flutter pub run build_runner build` mulai gagal. Kegagalan ini menandakan adanya masalah kritis dalam berkas-berkas pengujian yang mencegah `mockito` (pustaka untuk membuat *mock*) menghasilkan kode yang diperlukan.
+
+### Proses Perbaikan Iteratif
+
+Proses perbaikan ini bersifat iteratif, di mana perbaikan satu masalah sering kali mengungkap masalah lain yang tersembunyi.
+
+1.  **Perbaikan Linting Awal**: Analisis awal pada `test/shared/operasi/kategori_operasi_test.dart` menemukan beberapa pelanggaran linting sederhana, seperti parameter yang tidak ditandai `final` dan penggunaan argumen *default* yang berlebihan. Ini diperbaiki untuk mematuhi standar kode.
+
+2.  **Investigasi Kegagalan `build_runner`**: Meskipun linting bersih, `build_runner` tetap gagal. Log *error* menunjuk ke beberapa berkas pengujian yang "rusak":
+    *   `test/shared/operasi/sub_kategori_operasi_test.dart`: Anotasi `@GenerateMocks` tidak valid, *mock* tidak disuntikkan dengan benar ke dalam kelas yang diuji, dan verifikasi panggilan metode tidak akurat.
+    *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik pada nama variabel (`mockSta` bukan `mockStatusUnggah`) dan beberapa kode pengujian yang tidak lengkap.
+    *   `test/shared/operasi/pelanggan_operasi_test.dart`: Serupa dengan yang lain, berkas ini memiliki masalah dalam penyiapan dan verifikasi *mock*.
+
+3.  **Penanganan *Error* Tak Terduga**: Selama proses perbaikan, sebuah *error* `Unterminated string literal` muncul di `sub_kategori_operasi_test.dart`. Ini disebabkan oleh kesalahan sederhana: seluruh konten berkas secara tidak sengaja terbungkus dalam tanda kutip tiga (`"""`), yang membuat kode Dart tidak valid.
+
+### Solusi dan Hasil Akhir
+
+- **Penulisan Ulang Berkas Pengujian**: Semua berkas pengujian yang bermasalah ditulis ulang untuk mengikuti praktik terbaik: dependensi disuntikkan melalui konstruktor, *mock* diinisialisasi dengan benar di `setUp()`, dan verifikasi panggilan metode diperbaiki menggunakan `argThat` dan `isA`.
+- **Verifikasi Berulang**: Setelah setiap perbaikan, `build_runner` dijalankan kembali untuk memastikan tidak ada *error* baru. Proses ini diulangi hingga perintah tersebut berhasil dijalankan tanpa ada masalah.
+
+Dengan selesainya perbaikan ini, **`build_runner` sekarang berhasil dieksekusi**, yang berarti *mock* dapat dihasilkan kembali dan pengujian unit dapat berjalan dengan andal. Ini memulihkan jaring pengaman penting dalam proses pengembangan dan memastikan kualitas kode dapat terus dipantau.
+
+---
+
 ## Refaktorisasi Arsitektur Operasi Firestore (Pembaruan Terkini)
 
 Sebagai bagian dari upaya berkelanjutan untuk memodernisasi arsitektur dan meningkatkan kualitas kode, telah dilakukan perombakan signifikan pada cara aplikasi berinteraksi dengan Firestore.
@@ -262,3 +292,15 @@ Sebagai bagian dari pemeliharaan rutin, dilakukan analisis kode statis (`flutter
 - **Konsistensi Kode**: Seluruh proyek sekarang secara seragam mengikuti aturan pemformatan dan dokumentasi.
 - **Kemudahan Pemeliharaan**: Dokumentasi yang jelas pada API publik memudahkan pengembang lain (atau diri sendiri di masa depan) untuk memahami cara kerja suatu fungsi tanpa harus membaca implementasinya secara mendalam.
 - **Kualitas Terjaga**: Dengan mematuhi hasil analisis statis, proyek menjadi lebih kuat dan bebas dari "utang teknis" kecil yang bisa menumpuk seiring waktu.
+
+---
+## Refaktorisasi dan Peningkatan Kualitas Kode di Lapisan Operasi dan Data
+
+- **Konteks**: Proses pemeliharaan kode mengidentifikasi beberapa area di lapisan operasi data (`shared/operasi`) dan lapisan sinkronisasi data (`shared/data/sync`) yang memerlukan perbaikan untuk meningkatkan *testability* dan mematuhi praktik terbaik Dart.
+- **Tindakan**:
+    - **Refaktorisasi `versi_apk_user_operasi.dart`**: Kelas ini diubah untuk menerima `DatabaseHelper` melalui konstruktor (*Dependency Injection*). Hal ini memisahkan logika dari pembuatan *hard-coded dependency*, sehingga memungkinkan pengujian unit yang terisolasi dengan menggunakan *mock* `DatabaseHelper`.
+    - **Pembaruan Pengujian Terkait**: Berkas `versi_apk_user_operasi_test.dart` diperbarui untuk mencerminkan refaktorisasi, dengan menyediakan *mock* yang diperlukan untuk menjalankan pengujian tanpa bergantung pada database nyata.
+    - **Peningkatan Keamanan Tipe**: Peringatan `avoid_dynamic_calls` di `dompet_operasi_test.dart` diperbaiki dengan melakukan *casting* eksplisit pada objek `Map<String, dynamic>`, mencegah potensi *runtime error*.
+    - **Penanganan *Exception* yang Lebih Baik**: Peringatan `avoid_catches_without_on_clauses` di `unggah_data.dart` diatasi dengan menambahkan klausa `on Exception`, memastikan bahwa hanya *exception* yang relevan yang ditangkap dan ditangani, bukan semua jenis `Error`.
+    - **Serialisasi yang Aman**: Peringatan di `log.dart` terkait penanganan objek yang tidak dapat diserialisasikan ke JSON telah diperbaiki. Ini meningkatkan ketahanan sistem *logging*.
+- **Hasil**: Lapisan operasi data dan sinkronisasi sekarang lebih kuat, lebih aman, dan sepenuhnya dapat diuji. Kualitas kode secara keseluruhan meningkat, mengurangi potensi *bug* dan mempermudah pemeliharaan di masa depan.

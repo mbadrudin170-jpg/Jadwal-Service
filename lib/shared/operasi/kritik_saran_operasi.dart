@@ -1,7 +1,9 @@
 // path: lib/shared/operasi/kritik_saran_operasi.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu dan memperbaiki path.
+// diubah: Menambahkan konstruktor untuk dependency injection (DI) agar bisa di-test.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
@@ -10,25 +12,39 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class KritikSaranOperasi {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  @visibleForTesting
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari [OperasiDasar] untuk operasi CRUD dasar.
+  @visibleForTesting
+  final OperasiDasar operasiDasar;
+
+  /// Konstruktor untuk [KritikSaranOperasi].
+  ///
+  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [operasiDasar]
+  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
+  KritikSaranOperasi({
+    final DatabaseHelper? dbHelper,
+    final OperasiDasar? operasiDasar,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        operasiDasar = operasiDasar ?? OperasiDasar();
 
   /// Menyimpan [KritikSaranModel] baru ke dalam database.
   Future<void> createKritikSaran(
     final KritikSaranModel kritikSaran, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai createKritikSaran untuk data: ${kritikSaran.toSqlite()}');
+    Log.info('Memulai createKritikSaran untuk data: \${kritikSaran.toSqlite()}');
     try {
       final data =
           kritikSaran.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
 
-      await _operasiDasar.sisipkan(
+      await operasiDasar.sisipkan(
         'kritik_saran',
         data,
         dariServer: dariServer,
       );
-      Log.info('Berhasil membuat kritik_saran dengan ID: ${kritikSaran.id}');
+      Log.info('Berhasil membuat kritik_saran dengan ID: \${kritikSaran.id}');
     } catch (e, st) {
       Log.error('Gagal saat createKritikSaran', e: e, st: st);
       rethrow;
@@ -50,7 +66,7 @@ class KritikSaranOperasi {
         maps.length,
         (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
-      Log.info('Berhasil mengambil ${listKritik.length} data kritik_saran.');
+      Log.info('Berhasil mengambil \${listKritik.length} data kritik_saran.');
       return listKritik;
     } catch (e, st) {
       Log.error('Gagal saat getKritikSaran', e: e, st: st);
@@ -60,7 +76,7 @@ class KritikSaranOperasi {
 
   /// Mengambil [KritikSaranModel] berdasarkan [id].
   Future<KritikSaranModel> getKritikSaranById(final String id) async {
-    Log.info('Memulai getKritikSaranById untuk ID: $id');
+    Log.info('Memulai getKritikSaranById untuk ID: \$id');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -72,16 +88,16 @@ class KritikSaranOperasi {
       if (maps.isNotEmpty) {
         final data = KritikSaranModel.fromSqlite(maps.first);
         Log.info(
-          'Kritik & saran dengan ID: $id ditemukan. Data: ${data.toSqlite()}',
+          'Kritik & saran dengan ID: \$id ditemukan. Data: \${data.toSqlite()}',
         );
         return data;
       } else {
-        Log.error('Kritik & saran dengan ID $id tidak ditemukan.');
-        throw Exception('ID $id tidak ditemukan');
+        Log.error('Kritik & saran dengan ID \$id tidak ditemukan.');
+        throw Exception('ID \$id tidak ditemukan');
       }
     } catch (e, st) {
       Log.error(
-        'Gagal saat getKritikSaranById untuk ID: $id',
+        'Gagal saat getKritikSaranById untuk ID: \$id',
         e: e,
         st: st,
       );
@@ -92,7 +108,7 @@ class KritikSaranOperasi {
   /// Mengambil semua kritik dan saran yang telah diubah sejak [lastSync].
   Future<List<KritikSaranModel>> getPerubahan(final DateTime lastSync) async {
     Log.info(
-      'Memulai getPerubahan kritik_saran sejak: ${lastSync.toIso8601String()}',
+      'Memulai getPerubahan kritik_saran sejak: \${lastSync.toIso8601String()}',
     );
     try {
       final db = await dbHelper.database;
@@ -106,7 +122,7 @@ class KritikSaranOperasi {
         (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Ditemukan ${listKritik.length} perubahan kritik_saran sejak ${lastSync.toIso8601String()}.',
+        'Ditemukan \${listKritik.length} perubahan kritik_saran sejak \${lastSync.toIso8601String()}',
       );
       return listKritik;
     } catch (e, st) {
@@ -125,7 +141,7 @@ class KritikSaranOperasi {
     final bool dariServer = false,
   }) async {
     Log.info(
-      'Memulai sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item kritik_saran.',
+      'Memulai sisipkanAtauPerbaruiBatch untuk \${daftarKritikSaran.length} item kritik_saran.',
     );
     if (daftarKritikSaran.isEmpty) {
       Log.warning(
@@ -140,13 +156,13 @@ class KritikSaranOperasi {
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+      await operasiDasar.sisipkanAtauPerbaruiBatch(
         'kritik_saran',
         data,
         dariServer: dariServer,
       );
       Log.info(
-        'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk ${daftarKritikSaran.length} item.',
+        'Berhasil menyelesaikan sisipkanAtauPerbaruiBatch untuk \${daftarKritikSaran.length} item.',
       );
     } catch (e, st) {
       Log.error(
@@ -161,14 +177,14 @@ class KritikSaranOperasi {
   /// Menghapus [KritikSaranModel] dari database secara permanen.
   Future<void> hapusKritikSaran(final String id, {final bool dariServer = false}) async {
     Log.warning(
-      'PERINGATAN: Memulai hapusKritikSaran (hard delete) untuk ID: $id',
+      'PERINGATAN: Memulai hapusKritikSaran (hard delete) untuk ID: \$id',
     );
     try {
-      await _operasiDasar.hapus('kritik_saran', id, dariServer: dariServer);
-      Log.info('Berhasil menghapus permanen kritik_saran dengan ID: $id.');
+      await operasiDasar.hapus('kritik_saran', id, dariServer: dariServer);
+      Log.info('Berhasil menghapus permanen kritik_saran dengan ID: \$id.');
     } catch (e, st) {
       Log.error(
-        'Gagal saat hapusKritikSaran untuk ID: $id',
+        'Gagal saat hapusKritikSaran untuk ID: \$id',
         e: e,
         st: st,
       );
@@ -182,11 +198,11 @@ class KritikSaranOperasi {
       'PERINGATAN: Memulai hapusSemuaKritikSaran. Ini adalah operasi destruktif.',
     );
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           final int count = await txn.delete('kritik_saran');
           Log.info(
-            'Berhasil hapusSemuaKritikSaran. Total baris yang dihapus: $count',
+            'Berhasil hapusSemuaKritikSaran. Total baris yang dihapus: \$count',
           );
           return count;
         },
@@ -201,10 +217,10 @@ class KritikSaranOperasi {
   /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
   Future<void> hapusByUserId(final String userId, {final bool dariServer = false}) async {
     Log.warning(
-      'PERINGATAN: Memulai hapusByUserId (hard delete) untuk userId: $userId',
+      'PERINGATAN: Memulai hapusByUserId (hard delete) untuk userId: \$userId',
     );
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           final deletedCount = await txn.delete(
             'kritik_saran',
@@ -212,7 +228,7 @@ class KritikSaranOperasi {
             whereArgs: [userId],
           );
           Log.info(
-            'Berhasil menghapus $deletedCount kritik & saran dari user: $userId',
+            'Berhasil menghapus \$deletedCount kritik & saran dari user: \$userId',
           );
           return deletedCount;
         },
@@ -220,7 +236,7 @@ class KritikSaranOperasi {
       );
     } catch (e, st) {
       Log.error(
-        'Gagal saat hapusByUserId untuk userId: $userId',
+        'Gagal saat hapusByUserId untuk userId: \$userId',
         e: e,
         st: st,
       );
@@ -244,7 +260,7 @@ class KritikSaranOperasi {
           .toList();
 
       Log.info(
-        'Berhasil mengunduh ${data.length} data kritik dan saran dari Firebase.',
+        'Berhasil mengunduh \${data.length} data kritik dan saran dari Firebase.',
       );
       return data;
     }on Exception catch (e, st) {
@@ -259,7 +275,7 @@ class KritikSaranOperasi {
 
   /// Mengambil beberapa [KritikSaranModel] berdasarkan daftar [ids].
   Future<List<KritikSaranModel>> getKritikSaranByIds(final List<String> ids) async {
-    Log.info('Memulai getKritikSaranByIds untuk ${ids.length} ID.');
+    Log.info('Memulai getKritikSaranByIds untuk \${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
         'List ID untuk getKritikSaranByIds kosong, mengembalikan list kosong.',
@@ -268,10 +284,9 @@ class KritikSaranOperasi {
     }
     try {
       final db = await dbHelper.database;
-      final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         'kritik_saran',
-        where: 'id IN ($placeholders)',
+        where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
       final listKritik = List.generate(
@@ -279,7 +294,7 @@ class KritikSaranOperasi {
         (final i) => KritikSaranModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Berhasil mengambil ${listKritik.length} data kritik_saran dari ${ids.length} ID yang diminta.',
+        'Berhasil mengambil \${listKritik.length} data kritik_saran dari \${ids.length} ID yang diminta.',
       );
       return listKritik;
     } catch (e, st) {

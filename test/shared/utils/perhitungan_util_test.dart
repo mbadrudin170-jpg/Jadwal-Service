@@ -18,7 +18,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 31);
 
-          final tanggalMulai = DateTime(2025, 12, 1);
+          final tanggalMulai = DateTime(2025, 12);
 
           // Act
           final hasil = PerhitunganUtil.getPoinHangus(
@@ -37,7 +37,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 20);
 
-          final tanggalMulai = DateTime(2026, 1, 1);
+          final tanggalMulai = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.getPoinHangus(
@@ -56,7 +56,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 31);
 
-          final tanggalMulai = DateTime(2026, 1, 1);
+          final tanggalMulai = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.getPoinHangus(
@@ -75,7 +75,7 @@ void main() {
         'harus mengembalikan sisa hari positif',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
           final tanggalBerakhir = DateTime(2026, 1, 10);
 
@@ -94,9 +94,9 @@ void main() {
         'harus mengembalikan nol jika hari ini berakhir',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
-          final tanggalBerakhir = DateTime(2026, 1, 1);
+          final tanggalBerakhir = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.sisaHari(
@@ -115,7 +115,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 10);
 
-          final tanggalBerakhir = DateTime(2026, 1, 1);
+          final tanggalBerakhir = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.sisaHari(
@@ -153,7 +153,7 @@ void main() {
         'harus mengembalikan teks sisa hari',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
           final tanggalBerakhir = sekarang.add(
             const Duration(days: 5),
@@ -195,7 +195,7 @@ void main() {
         'harus mengembalikan teks sisa menit',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1, 10, 0);
+          final sekarang = DateTime(2026, 1, 1, 10);
 
           final tanggalBerakhir = sekarang.add(
             const Duration(minutes: 30),
@@ -218,7 +218,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 10);
 
-          final tanggalBerakhir = DateTime(2026, 1, 1);
+          final tanggalBerakhir = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.getTeksSisaMasaAktif(
@@ -235,7 +235,7 @@ void main() {
         'harus mengembalikan Berakhir dalam beberapa saat',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1, 10, 0, 0);
+          final sekarang = DateTime(2026, 1, 1, 10);
 
           final tanggalBerakhir = sekarang.add(
             const Duration(seconds: 20),
@@ -261,7 +261,7 @@ void main() {
         'harus mengembalikan warna hijau jika lebih dari 7 hari',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
           final tanggalBerakhir = DateTime(2026, 1, 20);
 
@@ -280,7 +280,7 @@ void main() {
         'harus mengembalikan warna orange jika kurang dari 7 hari',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
           final tanggalBerakhir = DateTime(2026, 1, 5);
 
@@ -299,9 +299,9 @@ void main() {
         'harus mengembalikan warna merah jika hari ini berakhir',
         () {
           // Arrange
-          final sekarang = DateTime(2026, 1, 1);
+          final sekarang = DateTime(2026);
 
-          final tanggalBerakhir = DateTime(2026, 1, 1);
+          final tanggalBerakhir = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.getWarnaSisaMasaAktif(
@@ -320,7 +320,7 @@ void main() {
           // Arrange
           final sekarang = DateTime(2026, 1, 10);
 
-          final tanggalBerakhir = DateTime(2026, 1, 1);
+          final tanggalBerakhir = DateTime(2026);
 
           // Act
           final hasil = PerhitunganUtil.getWarnaSisaMasaAktif(

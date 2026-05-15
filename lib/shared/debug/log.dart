@@ -2,6 +2,7 @@
 import 'dart:convert'; // Tambahkan untuk memformat data Map/List
 import 'dart:developer' as dev;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 /// Kelas utilitas untuk logging yang terstruktur dan berwarna selama pengembangan.
@@ -18,13 +19,32 @@ class Log {
   /// Helper untuk memformat data agar rapi jika berupa Map atau List.
   static String _formatData(final Object? data) {
     if (data == null) return '';
+
+    // Encoder kustom untuk menangani objek yang tidak dapat di-JSON-kan.
+    Object? customEncoder(final Object? object) {
+      if (object is DateTime) {
+        return object.toIso8601String();
+      }
+      if (object is Timestamp) {
+        return object.toDate().toIso8601String();
+      }
+      // Untuk objek lain yang tidak dapat diserialisasi, coba panggil toJson jika ada,
+      // jika tidak, kembalikan representasi stringnya.
+      try {
+        return (object as dynamic).toJson();
+      } on Exception {
+        return object.toString();
+      }
+    }
+
     try {
       if (data is Map || data is List) {
-        // Menggunakan JsonEncoder agar tampilan di console berbaris rapi (pretty print)
-        return '\nData: ${const JsonEncoder.withIndent('  ').convert(data)}';
-      }
+        final encoder = JsonEncoder.withIndent('  ', customEncoder);
+        return '\nData: ${encoder.convert(data)}';
+      } 
       return '\nData: $data';
-    } on Exception catch (_) {
+    } on Exception {
+      // Jika proses encoding gagal, cetak representasi string mentah dari data.
       return '\nData: $data';
     }
   }

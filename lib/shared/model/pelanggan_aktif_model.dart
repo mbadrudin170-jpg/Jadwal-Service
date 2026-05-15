@@ -239,7 +239,7 @@ class PelangganAktifModel implements MemilikiId {
       data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
     }
 
-    Log.api('Firestore/Pelanggan/$id', data, method: 'SET');
+    Log.info('Data toFirebase untuk Pelanggan $id siap dikirim.');
     return data;
   }
 }

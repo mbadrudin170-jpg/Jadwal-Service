@@ -8,10 +8,13 @@ import 'package:wifi/shared/model/pelanggan_model.dart';
 
 /// Kelas ini menangani semua operasi terkait data pelanggan di Firestore.
 class PelangganOpFirebase {
-  // Membuat instance dari FirebaseFirestore untuk berinteraksi dengan database.
-  // Koleksi 'pelanggan' akan menjadi target utama operasi di kelas ini.
-  final CollectionReference _koleksiPelanggan =
-      FirebaseFirestore.instance.collection('pelanggan');
+  final CollectionReference _koleksiPelanggan;
+
+  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
+  /// Memungkinkan injeksi instance palsu untuk pengujian.
+  PelangganOpFirebase({final FirebaseFirestore? firestore})
+      : _koleksiPelanggan =
+            (firestore ?? FirebaseFirestore.instance).collection('pelanggan');
 
   /// Memperbarui data pelanggan yang ada di Firestore berdasarkan ID-nya.
   ///
@@ -52,7 +55,7 @@ class PelangganOpFirebase {
     Log.info('Streaming data pelanggan untuk: $userId');
     return _koleksiPelanggan.doc(userId).snapshots().map((final snapshot) {
       if (snapshot.exists) {
-        Log.info('Data pelanggan stream diperbarui.', snapshot.data());
+        Log.info('Data pelanggan stream diperbarui untuk ID: $userId');
         return PelangganModel.fromFirebase(
           snapshot.id,
           snapshot.data()! as Map<String, dynamic>,

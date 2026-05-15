@@ -1,128 +1,163 @@
-// path: lib/shared/operasi/pelanggan_operasi.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// path: test/shared/operasi/pelanggan_operasi_test.dart
 
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 
-/// Kelas untuk operasi terkait data pelanggan di database lokal.
-class PelangganOperasi {
-  /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+import 'pelanggan_operasi_test.mocks.dart';
 
-  /// Menyimpan [PelangganModel] baru ke dalam database.
-  Future<void> createPelanggan(
-    final PelangganModel pelanggan, {
-    final bool dariServer = false,
-  }) async {
-    Log.info('Memulai pembuatan pelanggan dengan ID: ${pelanggan.id}');
-    try {
-      final pelangganUntukDisimpan = pelanggan.copyWith(
-        diperbarui: DateTime.now().toUtc(),
-      );
-      final data = pelangganUntukDisimpan.toSqlite();
+@GenerateMocks([DatabaseHelper, OperasiDasar, Database])
+void main() {
+  late MockDatabaseHelper mockDbHelper;
+  late MockOperasiDasar mockOperasiDasar;
+  late MockDatabase mockDatabase;
+  late PelangganOperasi pelangganOperasi;
 
-      await _operasiDasar.sisipkan('pelanggan', data, dariServer: dariServer);
-
-      Log.info(
-        'Pelanggan (ID: ${pelangganUntukDisimpan.id}) berhasil dibuat di database lokal.',
-      );
-    } catch (e, s) {
-      Log.error('Gagal membuat pelanggan.', e: e, st: s);
-      rethrow;
-    }
-  }
-
-  /// Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).
-  Future<List<PelangganModel>> getPelanggan() async {
-    Log.info(
-      'Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).',
+  setUp(() {
+    mockDbHelper = MockDatabaseHelper();
+    mockOperasiDasar = MockOperasiDasar();
+    mockDatabase = MockDatabase();
+    pelangganOperasi = PelangganOperasi(
+      dbHelper: mockDbHelper,
+      operasiDasar: mockOperasiDasar,
     );
-    try {
-      final db = await dbHelper.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
-        where: 'diarsipkan IS NULL AND isDeleted = ?',
-        whereArgs: [0],
-      );
 
-      Log.info('Berhasil mengambil ${maps.length} pelanggan aktif.');
-      return List.generate(maps.length, (final i) {
-        return PelangganModel.fromSqlite(maps[i]);
-      });
-    } catch (e, s) {
-      Log.error('Gagal mengambil pelanggan aktif.', e: e, st: s);
-      rethrow;
-    }
-  }
+    when(mockDbHelper.database).thenAnswer((final _) async => mockDatabase);
+  });
 
-  /// Mengambil semua pelanggan, termasuk yang diarsipkan dan dihapus.
-  Future<List<PelangganModel>> getAllPelanggan() async {
-    Log.info('Mengambil SEMUA data pelanggan dari database lokal.');
-    try {
-      final db = await dbHelper.database;
-      final List<Map<String, dynamic>> maps = await db.query('pelanggan');
+  final tPelanggan = PelangganModel(
+    id: '1',
+    nama: 'John Doe',
+    telepon: '081234567890',
+    alamat: 'Jl. Pahlawan No. 1',
+    password: 'password123',
+  );
 
-      Log.info('Berhasil mengambil total ${maps.length} pelanggan.');
-      return List.generate(maps.length, (final i) {
-        return PelangganModel.fromSqlite(maps[i]);
-      });
-    } catch (e, s) {
-      Log.error(
-        'Gagal mengambil semua data pelanggan.',
-        e: e,
-        st: s,
-      );
-      rethrow;
-    }
-  }
+  final tPelangganMap = {
+    'id': '1',
+    'nama': 'John Doe',
+    'telepon': '081234567890',
+    'alamat': 'Jl. Pahlawan No. 1',
+    'password': 'password123',
+    'isDeleted': 0,
+    'diarsipkan': null,
+    'diperbarui': DateTime.now().millisecondsSinceEpoch,
+  };
 
-  /// Mengambil [PelangganModel] berdasarkan [id].
-  Future<PelangganModel?> getPelangganById(final String id) async {
-    Log.info('Mencari pelanggan berdasarkan ID: $id');
-    try {
-      final db = await dbHelper.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+  group('createPelanggan', () {
+    test('should call sisipkan on operasiDasar with correct data', () async {
+      when(mockOperasiDasar.sisipkan(any, any))
+          .thenAnswer((final _) async => 1);
 
-      if (maps.isNotEmpty) {
-        Log.info('Pelanggan dengan ID: $id ditemukan.');
-        return PelangganModel.fromSqlite(maps.first);
-      }
-      Log.warning('Pelanggan dengan ID: $id tidak ditemukan.');
-      return null;
-    } catch (e, s) {
-      Log.error(
-        'Gagal mencari pelanggan berdasarkan ID.',
-        e: e,
-        st: s,
-      );
-      rethrow;
-    }
-  }
+      await pelangganOperasi.createPelanggan(tPelanggan);
 
-  /// Memperbarui [PelangganModel] yang ada di database.
-  Future<void> updatePelanggan(
-    final PelangganModel pelanggan, {
-    final bool dariServer = false,
-  }) async {
-    Log.info('Memulai pembaruan untuk pelanggan ID: ${pelanggan.id}');
-    try {
-      final data =
-          pelanggan.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
+      verify(
+        mockOperasiDasar.sisipkan(
+          'pelanggan',
+          any,
+        ),
+      ).called(1);
+    });
+  });
 
-      await _operasiDasar.perbarui(
-        'pelanggan',
-        data,
-        pelanggan.id,
-        dariServer: dariServer,
-      );
+  group('getPelangganById', () {
+    test('should return PelangganModel when data is found', () async {
+      when(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs'),),)
+          .thenAnswer((final _) async => [tPelangganMap]);
 
-      Log.info('Berhasil memperbarui pelanggan ID: ${pelanggan.id}.');
-    } catch (e, s) {
-      Log.error('Gagal memperbarui pelangg
+      final result = await pelangganOperasi.getPelangganById('1');
+
+      expect(result, isA<PelangganModel>());
+      expect(result!.id, '1');
+    });
+
+    test('should return null when data is not found', () async {
+      when(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs'),),)
+          .thenAnswer((final _) async => []);
+
+      final result = await pelangganOperasi.getPelangganById('1');
+
+      expect(result, isNull);
+    });
+  });
+
+  group('getPelanggan', () {
+    test('should return a list of active PelangganModel', () async {
+      when(
+        mockDatabase.query(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => [tPelangganMap]);
+
+      final result = await pelangganOperasi.getPelanggan();
+
+      expect(result, isA<List<PelangganModel>>());
+      expect(result.length, 1);
+      expect(result.first.isDeleted, false);
+      expect(result.first.diarsipkan, isNull);
+    });
+  });
+
+  group('getAllPelanggan', () {
+    test('should return all PelangganModel', () async {
+      when(mockDatabase.query(any))
+          .thenAnswer((final _) async => [tPelangganMap]);
+
+      final result = await pelangganOperasi.getAllPelanggan();
+
+      expect(result, isA<List<PelangganModel>>());
+      expect(result.length, 1);
+    });
+  });
+
+  group('updatePelanggan', () {
+    test('should call perbarui on operasiDasar with correct data', () async {
+      when(mockOperasiDasar.perbarui(any, any, any))
+          .thenAnswer((final _) async => 1);
+
+      await pelangganOperasi.updatePelanggan(tPelanggan);
+
+      verify(
+        mockOperasiDasar.perbarui(
+          'pelanggan',
+          any,
+          '1',
+        ),
+      ).called(1);
+    });
+  });
+
+  group('deletePelanggan', () {
+    test('should call perbarui for soft delete', () async {
+      when(mockOperasiDasar.perbarui(any, any, any))
+          .thenAnswer((final _) async => 1);
+
+      await pelangganOperasi.deletePelanggan('1');
+
+      verify(
+        mockOperasiDasar.perbarui(
+          'pelanggan',
+          any,
+          '1',
+        ),
+      ).called(1);
+    });
+
+    test('should call hapus for hard delete', () async {
+      when(mockOperasiDasar.hapus(any, any)).thenAnswer((final _) async => 1);
+
+      await pelangganOperasi.deletePelanggan('1', softDelete: false);
+
+      verify(mockOperasiDasar.hapus('pelanggan', '1')).called(1);
+    });
+  });
+}

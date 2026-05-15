@@ -2,6 +2,36 @@
 
 Berikut adalah rangkuman pekerjaan yang telah dilakukan oleh AI:
 
+## Perbaikan Build Runner dan Berkas Pengujian
+
+### Latar Belakang
+
+Setelah beberapa perubahan pada basis kode, `build_runner` gagal dijalankan, yang menandakan adanya masalah pada berkas-berkas yang dihasilkan atau pada berkas pengujian itu sendiri. Hal ini menghalangi proses *build* dan pengujian lebih lanjut.
+
+### Rangkuman Perubahan
+
+1.  **Analisis dan Perbaikan Awal**: Analisis awal menunjukkan beberapa *error* linting di `test/shared/operasi/kategori_operasi_test.dart`, termasuk:
+    *   `prefer_final_parameters`: Parameter fungsi tidak ditandai sebagai `final`.
+    *   `avoid_redundant_argument_values`: Argumen yang sama dengan nilai *default* digunakan secara eksplisit.
+    *   `inference_failure_on_function_invocation`: Tipe argumen pada pemanggilan fungsi `jalankanOperasiKompleks` tidak dapat diinferensikan secara otomatis.
+    Semua masalah ini telah diperbaiki dengan menambahkan `final`, menghapus argumen yang tidak perlu, dan menambahkan argumen tipe eksplisit.
+
+2.  **Perbaikan Berkas Pengujian yang Rusak**: Setelah perbaikan awal, `build_runner` masih gagal. Investigasi lebih lanjut menemukan masalah di beberapa berkas pengujian lainnya:
+    *   `test/shared/operasi/sub_kategori_operasi_test.dart`: Anotasi `@GenerateMocks` tidak valid, dependensi *mock* tidak disuntikkan, dan verifikasi *mock* tidak benar. Berkas ini ditulis ulang untuk memperbaiki masalah-masalah ini.
+    *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik (`mockSta` bukan `mockStatusUnggah`) dan kode yang tidak perlu. Berkas ini telah dibersihkan dan diperbaiki.
+    *   `test/shared/operasi/pelanggan_operasi_test.dart`: Mengalami masalah serupa dengan berkas pengujian lainnya dan telah diperbaiki untuk memastikan konsistensi dan kebenaran.
+
+3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`"""`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
+
+### Proses dan Tantangan
+
+*   **Kesalahan `build_runner` yang Bertingkat**: Awalnya, `build_runner` melaporkan *error* di satu berkas, tetapi setelah diperbaiki, *error* baru muncul di berkas lain. Ini menunjukkan bahwa beberapa masalah tersembunyi dan hanya muncul setelah masalah yang lebih awal diperbaiki.
+*   **Pentingnya Verifikasi Berulang**: Setiap perubahan diverifikasi dengan menjalankan kembali `build_runner` untuk memastikan tidak ada masalah baru yang muncul. Proses ini sangat penting untuk memastikan bahwa semua *error* telah teratasi sepenuhnya.
+
+Dengan selesainya perbaikan ini, `build_runner` sekarang berjalan dengan sukses, yang memungkinkan proses pengembangan dan pengujian untuk dilanjutkan.
+
+---
+
 ## Refaktorisasi Layanan Firestore dan Perbaikan Halaman Edit Profil
 
 Baru-baru ini, sebuah refaktorisasi besar telah dilakukan untuk memodernisasi dan menyederhanakan interaksi dengan Firestore, khususnya untuk operasi terkait data pelanggan.
@@ -71,3 +101,33 @@ Dengan selesainya perbaikan ini, kode proyek kini sepenuhnya mematuhi aturan ana
 - **Struktur Kode yang Profesional:** Penempatan file dan kode dijaga agar sesuai dengan struktur proyek yang profesional.
 
 Dengan ini, proyek diharapkan menjadi lebih stabil, mudah dibaca, dan mudah dikelola.
+
+---
+
+## Refaktorisasi dan Perbaikan Kode Operasi
+
+### Latar Belakang
+Selama proses pengembangan, ditemukan bahwa file `versi_apk_user_operasi.dart` tidak ditulis dengan cara yang mudah untuk diuji (testable). Selain itu, setelah menjalankan `flutter analyze`, beberapa peringatan dan info terdeteksi di berbagai file, yang menunjukkan perlunya pembersihan kode untuk menjaga kualitas dan konsistensi.
+
+### Rangkuman Perubahan
+
+1.  **Refaktorisasi `versi_apk_user_operasi.dart`**:
+    *   File ini telah di-refactor untuk menerima instance `DatabaseHelper` melalui konstruktornya.
+    *   Perubahan ini (dikenal sebagai *Dependency Injection*) memisahkan logika operasi dari pembuatan instance database, sehingga memungkinkan untuk menyuntikkan *mock* `DatabaseHelper` selama pengujian.
+
+2.  **Perbaikan Berkas Pengujian `versi_apk_user_operasi_test.dart`**:
+    *   Berkas pengujian ini diperbarui secara signifikan untuk mencerminkan perubahan pada `versi_apk_user_operasi.dart`.
+    *   *Mock* untuk `DatabaseHelper` dan `Database` digunakan untuk mengisolasi unit yang diuji dari dependensi eksternal.
+    *   Perintah `build_runner` dijalankan untuk menghasilkan file *mock* yang diperlukan.
+
+3.  **Pembersihan Peringatan dari `flutter analyze`**:
+    *   **`lib/shared/data/sync/unggah_data.dart`**: Memperbaiki peringatan `avoid_catches_without_on_clauses` dengan menambahkan klausa `on Exception` pada blok `catch`.
+    *   **`lib/shared/debug/log.dart`**: Memperbaiki peringatan `avoid_dynamic_calls` dan `avoid_catching_errors` dengan mengimplementasikan penanganan yang lebih aman untuk serialisasi objek.
+    *   **`test/shared/operasi/dompet_operasi_test.dart`**: Memperbaiki `avoid_dynamic_calls` dengan menambahkan *casting* tipe eksplisit pada data yang diambil dari *mock*.
+
+### Proses dan Tantangan
+*   Proses dimulai dengan refaktorisasi untuk kemudahan pengujian, yang kemudian mengarah pada kebutuhan untuk memperbarui berkas pengujian.
+*   Setelah pengujian berhasil, fokus beralih ke pembersihan kode statis menggunakan `flutter analyze`.
+*   Setiap masalah yang ditemukan oleh `flutter analyze` diperbaiki satu per satu, dan analisis dijalankan kembali untuk memastikan tidak ada masalah baru yang muncul.
+
+Dengan selesainya perbaikan ini, kode operasi menjadi lebih mudah diuji dan basis kode secara keseluruhan menjadi lebih bersih dan bebas dari peringatan.

@@ -1,5 +1,5 @@
 // path: lib/data/operasi/versi_apk_user_operasi.dart
-// diubah: Menambahkan parameter `dariServer` ke semua operasi tulis.
+// diubah: Menambahkan injeksi DatabaseHelper dan membuatnya final untuk kemudahan pengujian dan best practice.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9,13 +9,18 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
 class VersiApkUserOperasi {
-  final _dbHelper = DatabaseHelper.instance;
+  /// Instance dari DatabaseHelper untuk berinteraksi dengan database.
+  /// Dapat diganti saat pengujian.
+  final DatabaseHelper dbHelper;
   final String _tableName = 'versi_apk_user';
   final OperasiDasar _operasi;
 
   /// Konstruktor untuk `VersiApkUserOperasi`.
-  VersiApkUserOperasi({final OperasiDasar? operasi})
-      : _operasi = operasi ?? OperasiDasar() {
+  VersiApkUserOperasi({
+    final OperasiDasar? operasi,
+    final DatabaseHelper? dbHelper,
+  })  : _operasi = operasi ?? OperasiDasar(),
+        dbHelper = dbHelper ?? DatabaseHelper.instance {
     Log.info(
       'VersiApkUserOperasi diinisialisasi - Tabel: $_tableName, OperasiDasar: ${operasi != null ? "dari parameter" : "instance baru"}',
     );
@@ -43,7 +48,7 @@ class VersiApkUserOperasi {
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal menambah versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         e: e,
@@ -72,7 +77,7 @@ class VersiApkUserOperasi {
       Log.info(
         'Versi APK user berhasil diperbarui di tabel $_tableName - ID: ${versiApkUser.id}',
       );
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal memperbarui versi APK user - ID: ${versiApkUser.id}, Versi: ${versiApkUser.versiTerbaru}',
         e: e,
@@ -90,7 +95,7 @@ class VersiApkUserOperasi {
     Log.info('Mengarsipkan versi APK user - ID: $id');
 
     try {
-      final db = await _dbHelper.database;
+      final db = await dbHelper.database;
       Log.info('Mencari data versi APK user ID: $id di tabel $_tableName');
 
       final data = await db.query(_tableName, where: 'id = ?', whereArgs: [id]);
@@ -116,7 +121,7 @@ class VersiApkUserOperasi {
           'Data versi APK user ID: $id tidak ditemukan di tabel $_tableName, tidak dapat mengarsipkan',
         );
       }
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengarsipkan versi APK user - ID: $id',
         e: e,
@@ -150,7 +155,7 @@ class VersiApkUserOperasi {
       Log.info(
         'Operasi batch berhasil - ${daftarMap.length} data diproses di tabel $_tableName',
       );
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal melakukan operasi batch - Jumlah data: ${daftarModel.length}, Tabel: $_tableName',
         e: e,
@@ -172,7 +177,7 @@ class VersiApkUserOperasi {
     );
 
     try {
-      final db = await _dbHelper.database;
+      final db = await dbHelper.database;
       Log.info('Query: SELECT * FROM $_tableName ORDER BY diperbarui DESC');
 
       final List<Map<String, dynamic>> maps = await db.query(
@@ -188,7 +193,7 @@ class VersiApkUserOperasi {
       // Log ringkasan
       int jumlahAktif = 0;
       int jumlahDiarsipkan = 0;
-      for (var model in result) {
+      for (final model in result) {
         if (model.isDeleted) {
           jumlahDiarsipkan++;
         } else {
@@ -200,7 +205,7 @@ class VersiApkUserOperasi {
         'Berhasil mengambil ${result.length} data versi APK - Aktif: $jumlahAktif, Diarsipkan: $jumlahDiarsipkan',
       );
       return result;
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_tableName, mengembalikan list kosong',
         e: e,
@@ -217,7 +222,7 @@ class VersiApkUserOperasi {
     );
 
     try {
-      final db = await _dbHelper.database;
+      final db = await dbHelper.database;
       Log.info(
         'Query: SELECT * FROM $_tableName WHERE isDeleted = 0 ORDER BY diperbarui DESC',
       );
@@ -244,7 +249,7 @@ class VersiApkUserOperasi {
       }
 
       return result;
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK aktif dari tabel $_tableName, mengembalikan list kosong',
         e: e,
@@ -259,7 +264,7 @@ class VersiApkUserOperasi {
     Log.info('Mengambil versi APK terbaru (aktif) dari tabel $_tableName');
 
     try {
-      final db = await _dbHelper.database;
+      final db = await dbHelper.database;
       Log.info(
         'Query: SELECT * FROM $_tableName WHERE isDeleted = 0 ORDER BY diperbarui DESC LIMIT 1',
       );
@@ -277,11 +282,11 @@ class VersiApkUserOperasi {
           'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.versiTerbaru}, Build Universal: ${model.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}, Diperbarui: ${model.diperbarui?.toIso8601String()}',
         );
         return model;
+      } else {
+        Log.info('Tidak ada versi APK aktif yang ditemukan di tabel $_tableName');
+        return null;
       }
-
-      Log.info('Tidak ada versi APK aktif yang ditemukan di tabel $_tableName');
-      return null;
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK terbaru dari tabel $_tableName, mengembalikan null',
         e: e,
@@ -296,7 +301,7 @@ class VersiApkUserOperasi {
     Log.info('Mengambil versi APK by ID: $id dari tabel $_tableName');
 
     try {
-      final db = await _dbHelper.database;
+      final db = await dbHelper.database;
       Log.info(
         'Query: SELECT * FROM $_tableName WHERE id = $id AND isDeleted = 0',
       );
@@ -313,13 +318,13 @@ class VersiApkUserOperasi {
           'Versi APK ditemukan - ID: $id, Versi: ${model.versiTerbaru}, Build Universal: ${model.nomorBuildTerbaru[ArsitekturApkEnum.universal] ?? 0}, Catatan: ${model.catatanRilis.length > 50 ? "${model.catatanRilis.substring(0, 50)}..." : model.catatanRilis}',
         );
         return model;
+      } else {
+        Log.info(
+          'Versi APK dengan ID: $id tidak ditemukan (mungkin sudah diarsipkan atau tidak ada)',
+        );
+        return null;
       }
-
-      Log.info(
-        'Versi APK dengan ID: $id tidak ditemukan (mungkin sudah diarsipkan atau tidak ada)',
-      );
-      return null;
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_tableName, mengembalikan null',
         e: e,

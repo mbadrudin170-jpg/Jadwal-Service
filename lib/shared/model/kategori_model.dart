@@ -101,13 +101,13 @@ class KategoriModel implements MemilikiId {
   /// Mengurai nama enum dari [String] ke tipe enum [T] dengan aman.
   ///
   /// Mengembalikan `null` jika nama tidak ditemukan atau input null.
-  static T? _safeParseEnum<T extends Enum>(final List<T> values, final dynamic name) {
+  static T? _safeParseEnum<T extends Enum>(
+      final List<T> values, final dynamic name,) {
     if (name == null) return null;
-    try {
-      return values.firstWhere((final e) => e.name == name as String);
-    } on Exception {
-      return null;
-    }
+    return values.cast<T?>().firstWhere(
+          (final e) => e!.name == name as String,
+          orElse: () => null,
+        );
   }
 
   /// Mengurai nilai [bool] dari berbagai format (bool, int, String) dengan aman.
@@ -178,7 +178,8 @@ class KategoriModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [KategoriModel] dari data Map Firebase.
-  factory KategoriModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory KategoriModel.fromFirebase(
+      final String id, final Map<String, dynamic> data,) {
     List<SubKategoriModel> parseSubKategori(final dynamic subKategoriData) {
       if (subKategoriData is List) {
         return subKategoriData
@@ -212,7 +213,8 @@ class KategoriModel implements MemilikiId {
     return {
       'nama': nama,
       'tipe': tipe.name,
-      'id_sub_kategori': subKategori.map((final sub) => sub.toFirebase()).toList(),
+      'id_sub_kategori':
+          subKategori.map((final sub) => sub.toFirebase()).toList(),
       'diperbarui': FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,

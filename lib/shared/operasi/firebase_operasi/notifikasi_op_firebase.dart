@@ -66,7 +66,7 @@ class NotifikasiOpFirebase {
       }
     }, onError: (final Object e, final StackTrace s) {
       Log.error('Error saat sinkronisasi notifikasi', e: e, st: s);
-    });
+    },);
   }
 
   /// Menghentikan sinkronisasi dan berhenti mendengarkan jadwal notifikasi.

@@ -7,9 +7,19 @@ import 'package:wifi/shared/debug/log.dart';
 
 /// [UnduhanAwalService] bertanggung jawab untuk mengisi database lokal dengan
 /// data dari server jika tabel-tabel tertentu masih kosong.
+// path: lib/shared/data/sync/unduhan_awal.dart
+
 class UnduhanAwalService {
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  final LayananUnduhData _layananUnduh = LayananUnduhData();
+  final DatabaseHelper _dbHelper;
+  final LayananUnduhData _layananUnduh;
+
+  /// Konstruktor utama.
+  /// Menerima [dbHelper] dan [layananUnduh] opsional, berguna untuk pengujian.
+  UnduhanAwalService({
+    final DatabaseHelper? dbHelper,
+    final LayananUnduhData? layananUnduh,
+  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _layananUnduh = layananUnduh ?? LayananUnduhData();
 
   /// Menjalankan pengecekan dan pengunduhan data awal untuk seluruh tabel.
   Future<void> jalankanUnduhanAwal() async {
@@ -47,7 +57,7 @@ class UnduhanAwalService {
 
       Log.info("Tabel '$namaTabel': $jumlah baris.");
       return jumlah == 0;
-    } on Exception catch  (e) {
+    } on Exception catch (e) {
       Log.error(
         "Gagal mengecek tabel '$namaTabel'.",
         e: e,
@@ -69,7 +79,7 @@ class UnduhanAwalService {
       } else {
         Log.info("Skip '$namaTabel' (Sudah ada data).");
       }
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         "ERROR saat mengunduh '$namaTabel'",
         e: e,
@@ -90,8 +100,7 @@ class UnduhanAwalService {
         fungsiUnduh: _layananUnduh.unduhDataKategori,
       );
 
-  Future<void> _unduhDataSubKategoriJikaKosong() =>
-      _prosesUnduhJikaKosong(
+  Future<void> _unduhDataSubKategoriJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'sub_kategori',
         fungsiUnduh: _layananUnduh.unduhDataSubKategori,
       );
@@ -116,8 +125,7 @@ class UnduhanAwalService {
         fungsiUnduh: _layananUnduh.unduhDataPengaturan,
       );
 
-  Future<void> _unduhDataPelangganAktifJikaKosong() =>
-      _prosesUnduhJikaKosong(
+  Future<void> _unduhDataPelangganAktifJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'pelanggan_aktif',
         fungsiUnduh: _layananUnduh.unduhDataPelangganAktif,
       );
@@ -127,8 +135,7 @@ class UnduhanAwalService {
         fungsiUnduh: _layananUnduh.unduhDataTransaksi,
       );
 
-  Future<void> _unduhDataKritikSaranJikaKosong() =>
-      _prosesUnduhJikaKosong(
+  Future<void> _unduhDataKritikSaranJikaKosong() => _prosesUnduhJikaKosong(
         namaTabel: 'kritik_saran',
         fungsiUnduh: _layananUnduh.unduhDataKritikSaran,
       );

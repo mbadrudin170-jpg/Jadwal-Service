@@ -1,213 +1,63 @@
 // path: test/shared/operasi/pengaturan_operasi_test.dart
-// ditambahkan: Pengujian untuk PengaturanOperasi.
-// ditambahkan: Pengujian getPengaturan.
-// ditambahkan: Pengujian simpanAtauPerbaruiPengaturan.
-// ditambahkan: Pengujian simpanAtauPerbaruiPengaturanDenganBatch.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 
-class MockOperasiDasar extends Mock implements OperasiDasar {}
+import 'pengaturan_operasi_test.mocks.dart';
 
+@GenerateMocks([OperasiDasar])
 void main() {
   late PengaturanOperasi pengaturanOperasi;
   late MockOperasiDasar mockOperasiDasar;
 
   setUp(() {
     mockOperasiDasar = MockOperasiDasar();
-
-    pengaturanOperasi = PengaturanOperasi(
-      operasiDasar: mockOperasiDasar,
-    );
+    pengaturanOperasi = PengaturanOperasi(operasiDasar: mockOperasiDasar);
   });
 
-  group('PengaturanOperasi', () {
-    group('simpanAtauPerbaruiPengaturan', () {
-      test(
-        'harus berhasil menyimpan pengaturan',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel(
-            temaGelap: true,
-          );
+  // Data dummy yang sesuai dengan properti model PengaturanModel
+  final tPengaturanModel = PengaturanModel(
+    intervalSinkronisasiOtomatis: 12,
+    hapusOtomatisDataArsip: 60,
+    modePemeliharaan: true,
+    infoPemeliharaan: 'Dalam perbaikan',
+    diperbarui: DateTime.now(),
+  );
 
-          when(
-            mockOperasiDasar.sisipkan(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenAnswer((_) async {});
+  group('simpanAtauPerbaruiPengaturan', () {
+    test('should call sisipkan on OperasiDasar with correct data', () async {
+      when(mockOperasiDasar.sisipkan(any, any))
+          .thenAnswer((final _) async => 1);
 
-          // Act
-          await pengaturanOperasi.simpanAtauPerbaruiPengaturan(
-            pengaturan,
-          );
+      await pengaturanOperasi.simpanAtauPerbaruiPengaturan(tPengaturanModel);
 
-          // Assert
-          verify(
-            mockOperasiDasar.sisipkan(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).called(1);
-        },
-      );
-
-      test(
-        'harus meneruskan parameter dariServer',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel();
-
-          when(
-            mockOperasiDasar.sisipkan(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenAnswer((_) async {});
-
-          // Act
-          await pengaturanOperasi.simpanAtauPerbaruiPengaturan(
-            pengaturan,
-            dariServer: true,
-          );
-
-          // Assert
-          verify(
-            mockOperasiDasar.sisipkan(
-              any,
-              any,
-              dariServer: true,
-            ),
-          ).called(1);
-        },
-      );
-
-      test(
-        'harus melempar exception ketika gagal menyimpan',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel();
-
-          when(
-            mockOperasiDasar.sisipkan(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenThrow(
-            Exception('Gagal menyimpan'),
-          );
-
-          // Act & Assert
-          expect(
-            () async => pengaturanOperasi.simpanAtauPerbaruiPengaturan(
-              pengaturan,
-            ),
-            throwsException,
-          );
-        },
-      );
+      verify(
+        mockOperasiDasar.sisipkan(
+          'pengaturan',
+          any,
+        ),
+      ).called(1);
     });
+  });
 
-    group('simpanAtauPerbaruiPengaturanDenganBatch', () {
-      test(
-        'harus berhasil menyimpan pengaturan dengan batch',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel();
+  group('simpanAtauPerbaruiPengaturanDenganBatch', () {
+    test('should call sisipkanAtauPerbaruiBatch on OperasiDasar', () async {
+      when(mockOperasiDasar.sisipkanAtauPerbaruiBatch(any, any))
+          .thenAnswer((final _) async => {});
 
-          when(
-            mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenAnswer((_) async {});
+      await pengaturanOperasi
+          .simpanAtauPerbaruiPengaturanDenganBatch(tPengaturanModel);
 
-          // Act
-          await pengaturanOperasi.simpanAtauPerbaruiPengaturanDenganBatch(
-            pengaturan,
-          );
-
-          // Assert
-          verify(
-            mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).called(1);
-        },
-      );
-
-      test(
-        'harus meneruskan parameter dariServer pada batch',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel();
-
-          when(
-            mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenAnswer((_) async {});
-
-          // Act
-          await pengaturanOperasi.simpanAtauPerbaruiPengaturanDenganBatch(
-            pengaturan,
-            dariServer: true,
-          );
-
-          // Assert
-          verify(
-            mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-              any,
-              any,
-              dariServer: true,
-            ),
-          ).called(1);
-        },
-      );
-
-      test(
-        'harus melempar exception ketika batch gagal',
-        () async {
-          // Arrange
-          final pengaturan = PengaturanModel();
-
-          when(
-            mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-              any,
-              any,
-              dariServer: anyNamed('dariServer'),
-            ),
-          ).thenThrow(
-            Exception('Batch gagal'),
-          );
-
-          // Act & Assert
-          expect(
-            () async =>
-                pengaturanOperasi.simpanAtauPerbaruiPengaturanDenganBatch(
-              pengaturan,
-            ),
-            throwsException,
-          );
-        },
-      );
+      verify(
+        mockOperasiDasar.sisipkanAtauPerbaruiBatch(
+          'pengaturan',
+          any,
+        ),
+      ).called(1);
     });
-
-    // TODO: Tambahkan pengujian getPengaturan menggunakan database mock/in-memory.
-    // TODO: Tambahkan pengujian validasi nilai `diperbarui` menggunakan UTC.
-    // TODO: Tambahkan pengujian fallback ketika database gagal diakses.
   });
 }

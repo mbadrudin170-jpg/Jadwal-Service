@@ -1,5 +1,13 @@
 # Dokumentasi APK User
 
+## Peningkatan Stabilitas Kode Melalui Perbaikan Pengujian
+
+- **Konteks**: Meskipun tidak terlihat langsung oleh pengguna, lingkungan pengujian di belakang layar mengalami masalah yang menghambat verifikasi kualitas kode. Proses `build_runner`, yang penting untuk membuat *mock* dalam pengujian, gagal berjalan.
+- **Tindakan**: Dilakukan perbaikan menyeluruh pada infrastruktur pengujian. Berkas-berkas pengujian yang rusak dan menyebabkan kegagalan `build_runner` telah diidentifikasi dan diperbaiki.
+- **Manfaat untuk Pengguna**: Dengan lingkungan pengujian yang sekarang stabil, setiap perubahan atau penambahan fitur baru dapat diverifikasi secara otomatis untuk mencegah regresi (munculnya kembali bug lama) dan memastikan kualitas kode tetap terjaga. Ini secara tidak langsung berkontribusi pada aplikasi yang lebih stabil dan andal bagi pengguna akhir.
+
+---
+
 ## Refaktorisasi Halaman Edit Profil dan Modernisasi Akses Data (Terbaru)
 
 Sebagai bagian dari pembersihan arsitektur, halaman `edit_profil_page.dart` telah dirombak total untuk meninggalkan pola akses data yang usang dan mengadopsi praktik terbaik yang lebih modern dan konsisten dengan bagian lain dari aplikasi.

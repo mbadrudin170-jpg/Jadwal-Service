@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/transaksi_operasi.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Menggunakan dependency injection untuk testability.
 
 import 'package:sqflite/sqflite.dart';
 
@@ -11,21 +12,22 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOperasi {
-  static DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  /// Instance dari `DatabaseHelper` untuk mengakses database SQLite.
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari `OperasiDasar` untuk operasi CRUD umum.
+  final OperasiDasar operasiDasar;
 
   /// Konstruktor untuk `TransaksiOperasi`.
-  TransaksiOperasi();
+  ///
+  /// Menerima instance `DatabaseHelper` dan `OperasiDasar` secara opsional
+  /// untuk kemudahan pengujian (dependency injection). Jika tidak disediakan,
+  /// akan menggunakan instance default.
+  TransaksiOperasi({final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar})
+      : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        operasiDasar = operasiDasar ?? OperasiDasar();
 
-  /// Mengatur instance `DatabaseHelper` secara manual untuk keperluan pengujian.
-  static void testSetInstance(final DatabaseHelper dbHelper) {
-    _dbHelper = dbHelper;
-    Log.info(
-      'DatabaseHelper instance manual ditetapkan untuk testing - method: testSetInstance',
-    );
-  }
-
-  Future<Database> get _db async => await _dbHelper.database;
+  Future<Database> get _db async => await dbHelper.database;
 
   // ===================================================================
   // -- OPERASI DASAR CRUD (Create, Read, Update, Delete) --
@@ -102,7 +104,7 @@ class TransaksiOperasi {
     final bool dariServer = false,
   }) async {
     try {
-      final id = await _operasiDasar.jalankanOperasiKompleks<int>(
+      final id = await operasiDasar.jalankanOperasiKompleks<int>(
         (final txn) async {
           Log.info(
             'Memulai transaksi database untuk tambahTransaksi - method: tambahTransaksi',
@@ -146,7 +148,7 @@ class TransaksiOperasi {
 
   /// Mengambil semua transaksi dari database.
   Future<List<TransaksiModel>> ambilSemuaTransaksi() async {
-    final db = await _dbHelper.database;
+    final db = await dbHelper.database;
     try {
       Log.info(
         'Mengambil data semua transaksi (isDeleted = 0) - method: ambilSemuaTransaksi',
@@ -304,7 +306,7 @@ class TransaksiOperasi {
     final bool dariServer = false,
   }) async {
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           Log.info(
             'Memulai update transaksi database ID: $id - method: updateTransaksi',
@@ -371,7 +373,7 @@ class TransaksiOperasi {
   /// Mengarsipkan [TransaksiModel] berdasarkan [id].
   Future<void> arsipkanTransaksi(final String id, {final bool dariServer = false}) async {
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           Log.info(
             'Memulai proses pengarsipan (Soft Delete) ID: $id - method: arsipkanTransaksi',
@@ -494,7 +496,7 @@ class TransaksiOperasi {
 
   /// Mendapatkan total poin yang dihasilkan oleh [idPelanggan].
   Future<int> getPoinYangDihasilkan(final String idPelanggan) async {
-    final db = await _dbHelper.database;
+    final db = await dbHelper.database;
     try {
       Log.info(
         'Menghitung poin yang dihasilkan Pelanggan: $idPelanggan - method: getPoinYangDihasilkan',
@@ -518,7 +520,7 @@ class TransaksiOperasi {
 
   /// Mendapatkan total poin yang digunakan oleh [idPelanggan].
   Future<int> getPoinYangDigunakan(final String idPelanggan) async {
-    final db = await _dbHelper.database;
+    final db = await dbHelper.database;
     try {
       Log.info(
         'Menghitung poin yang digunakan Pelanggan: $idPelanggan - method: getPoinYangDigunakan',
@@ -560,7 +562,7 @@ class TransaksiOperasi {
     final Set<String> affectedWallets = {};
 
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           Log.info(
             'Memulai proses Batch insert/update untuk ${items.length} item - method: sisipkanAtauPerbaruiBatch',

@@ -21,6 +21,13 @@ class DatabaseHelper {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
 
+  /// Atur ulang instance database (hanya untuk pengujian).
+  void debugSetDatabaseNull() {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      _database = null;
+    }
+  }
+
   // --- DEFINISI TABEL (diperbarui di bawah) ---
 
   /// Mendapatkan instance database.

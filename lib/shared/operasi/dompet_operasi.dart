@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/dompet_operasi.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Menambahkan konstruktor yang dapat diinjeksi untuk pengujian.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -9,8 +10,14 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class DompetOperasi {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  late final DatabaseHelper dbHelper;
+  late final OperasiDasar _operasiDasar;
+
+  /// Konstruktor dengan injeksi dependensi untuk pengujian.
+  DompetOperasi({final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar}) 
+    : dbHelper = dbHelper ?? DatabaseHelper.instance,
+      _operasiDasar = operasiDasar ?? OperasiDasar();
+
 
   /// Menyimpan [DompetModel] baru ke dalam database.
   ///

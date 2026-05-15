@@ -1,10 +1,16 @@
+// path: lib/shared/operasi/firebase_operasi/pengaturan_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Kelas untuk mengelola operasi terkait data pengaturan di Firestore.
 class PengaturanOpFirebase {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore _db;
+
+  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
+  /// Memungkinkan injeksi instance palsu untuk pengujian.
+  PengaturanOpFirebase({final FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
 
   /// Mengambil pengaturan aplikasi dari Firestore.
   ///

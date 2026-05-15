@@ -1,5 +1,13 @@
 # Dokumentasi APK Admin
 
+## Perbaikan Lingkungan Pengujian
+
+- **Konteks**: Proses `build_runner` yang penting untuk menghasilkan *mock* untuk pengujian unit mengalami kegagalan.
+- **Tindakan**: Dilakukan investigasi dan perbaikan pada beberapa berkas pengujian yang terkait dengan operasi data admin, termasuk `kategori_operasi_test.dart`. Masalah seperti pelanggaran linting dan kesalahan dalam penyiapan *mock* telah diatasi.
+- **Hasil**: `build_runner` sekarang berjalan dengan sukses, memulihkan kemampuan untuk menjalankan pengujian unit dan memastikan kualitas kode di sisi admin.
+
+---
+
 ## Perbaikan Tampilan Nama Paket di Daftar Pelanggan Aktif (25 Juli 2024)
 
 - **File**: `lib/admin/halaman/tab/pelanggan_aktif.dart`
@@ -30,3 +38,14 @@
 - **Masalah**: Banyak file dalam direktori `lib/admin` yang belum diperiksa dan berpotensi mengandung error, warning, atau kode yang tidak konsisten.
 - **Solusi**: Dilakukan pemeriksaan menyeluruh pada setiap file dalam direktori `lib/admin`. File-file yang bermasalah diperbaiki dengan menambahkan logging, memperbaiki logika, dan menyesuaikan dengan arsitektur yang ada. Setiap file yang telah diperbaiki diberi komentar `// TODO : file telah selesai diperbaiki` untuk menandai bahwa file tersebut telah selesai diperiksa dan diperbaiki.
 - **Hasil**: Direktori `lib/admin` sekarang lebih stabil, mudah dibaca, dan mudah dikelola. Kode di dalamnya lebih konsisten dan sesuai dengan standar proyek.
+
+---
+
+## Peningkatan Kualitas Kode Melalui Refaktorisasi dan Analisis Statis
+
+- **Konteks**: Ditemukan bahwa beberapa bagian dari basis kode sulit untuk diuji, dan analisis statis menunjukkan adanya peringatan yang dapat memengaruhi kualitas dan pemeliharaan kode.
+- **Tindakan**:
+    - **Refaktorisasi untuk Testability**: `versi_apk_user_operasi.dart` telah di-refactor untuk menggunakan *Dependency Injection*, memisahkan logika bisnis dari lapisan data, yang secara signifikan meningkatkan kemudahan pengujian.
+    - **Pembaruan Pengujian**: Berkas pengujian `versi_apk_user_operasi_test.dart` telah diperbarui untuk mencerminkan arsitektur baru dan menggunakan *mock* untuk pengujian yang terisolasi dan andal.
+    - **Pembersihan Kode**: Berbagai peringatan dari `flutter analyze` di seluruh proyek telah diatasi, termasuk `avoid_dynamic_calls`, `avoid_catching_errors`, dan `avoid_catches_without_on_clauses`, yang menghasilkan kode yang lebih aman dan dapat diprediksi.
+- **Hasil**: Kualitas basis kode secara keseluruhan telah meningkat. Kode sekarang tidak hanya lebih mudah untuk diuji dan dipelihara, tetapi juga lebih tangguh terhadap *error* dengan penanganan `exception` yang lebih baik dan tipe data yang lebih aman.

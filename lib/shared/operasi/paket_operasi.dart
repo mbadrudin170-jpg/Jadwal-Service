@@ -1,6 +1,9 @@
 // path: lib/shared/operasi/paket_operasi.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Menambahkan konstruktor untuk dependency injection (DI) agar bisa di-test.
+// diubah: Menambahkan pengecekan list kosong pada sisipkanAtauPerbaruiBatch.
 
+import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
@@ -9,18 +12,33 @@ import 'package:wifi/shared/operasi/operasi_dasar.dart';
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PaketOperasi {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final dbHelper = DatabaseHelper.instance;
-  final OperasiDasar _operasiDasar = OperasiDasar();
+  @visibleForTesting
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari [OperasiDasar] untuk operasi CRUD dasar.
+  @visibleForTesting
+  final OperasiDasar operasiDasar;
+
+  /// Konstruktor untuk [PaketOperasi].
+  ///
+  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [operasiDasar]
+  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
+  PaketOperasi({
+    final DatabaseHelper? dbHelper,
+    final OperasiDasar? operasiDasar,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        operasiDasar = operasiDasar ?? OperasiDasar();
 
   /// Menyimpan [PaketModel] baru ke dalam database.
-  Future<void> createPaket(final PaketModel paket, {final bool dariServer = false}) async {
+  Future<void> createPaket(final PaketModel paket,
+      {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembuatan paket ke OperasiDasar, method: createPaket, id: ${paket.id}',
     );
     try {
       final data =
           paket.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.sisipkan('paket', data, dariServer: dariServer);
+      await operasiDasar.sisipkan('paket', data, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan pembuatan paket, method: createPaket, id: ${paket.id}',
       );
@@ -188,14 +206,15 @@ class PaketOperasi {
   }
 
   /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> updatePaket(final PaketModel paket, {final bool dariServer = false}) async {
+  Future<void> updatePaket(final PaketModel paket,
+      {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan pembaruan paket ke OperasiDasar, method: updatePaket, id: ${paket.id}',
     );
     try {
       final data =
           paket.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
-      await _operasiDasar.perbarui(
+      await operasiDasar.perbarui(
         'paket',
         data,
         paket.id,
@@ -215,12 +234,13 @@ class PaketOperasi {
   }
 
   /// Menghapus [PaketModel] dari database secara permanen.
-  Future<void> hapusPaket(final String id, {final bool dariServer = false}) async {
+  Future<void> hapusPaket(final String id,
+      {final bool dariServer = false}) async {
     Log.info(
       'Mendelegasikan penghapusan paket ke OperasiDasar, method: hapusPaket, id: $id',
     );
     try {
-      await _operasiDasar.hapus('paket', id, dariServer: dariServer);
+      await operasiDasar.hapus('paket', id, dariServer: dariServer);
       Log.info(
         'Berhasil mendelegasikan penghapusan paket, method: hapusPaket, id: $id',
       );
@@ -240,7 +260,7 @@ class PaketOperasi {
       'Memulai proses penghapusan semua data paket, method: hapusSemuaPaket',
     );
     try {
-      await _operasiDasar.jalankanOperasiKompleks(
+      await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
           final int count = await txn.delete('paket');
           Log.info(
@@ -281,7 +301,8 @@ class PaketOperasi {
           'Tidak ada perubahan paket ditemukan sejak ${since.toIso8601String()}, method: getPerubahan',
         );
       }
-      return List.generate(maps.length, (final i) => PaketModel.fromSqlite(maps[i]));
+      return List.generate(
+          maps.length, (final i) => PaketModel.fromSqlite(maps[i]));
     } catch (e, s) {
       Log.error(
         'Gagal mengambil perubahan paket, method: getPerubahan, error: $e',
@@ -300,6 +321,12 @@ class PaketOperasi {
     Log.info(
       'Mendelegasikan proses batch ke OperasiDasar untuk ${items.length} item paket, method: sisipkanAtauPerbaruiBatch',
     );
+    // Perbaikan: cegah pemanggilan jika list kosong
+    if (items.isEmpty) {
+      Log.warning(
+          'List item batch kosong, operasi dibatalkan, method: sisipkanAtauPerbaruiBatch');
+      return;
+    }
     try {
       final dataList = items
           .map(
@@ -307,7 +334,7 @@ class PaketOperasi {
                 item.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      await _operasiDasar.sisipkanAtauPerbaruiBatch(
+      await operasiDasar.sisipkanAtauPerbaruiBatch(
         'paket',
         dataList,
         dariServer: dariServer,
@@ -338,10 +365,9 @@ class PaketOperasi {
         return [];
       }
       final db = await dbHelper.database;
-      final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         'paket',
-        where: 'id IN ($placeholders)',
+        where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
       Log.info(

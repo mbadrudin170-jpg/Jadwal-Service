@@ -1,9 +1,14 @@
 // path: test/shared/utils/format_util_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 void main() {
+  // Inisialisasi data lokal Indonesia sebelum semua pengujian
+  setUpAll(() async {
+    await initializeDateFormatting('id_ID');
+  });
+
   // ========== FormatTanggal ==========
   group('FormatTanggal', () {
     group('formatTanggalBasic', () {
@@ -50,7 +55,7 @@ void main() {
 
       test('menangani hari berbeda', () {
         // 1 Januari 2024 adalah hari Senin
-        final date = DateTime(2024, 1, 1);
+        final date = DateTime(2024);
         final result = FormatTanggal.formatTanggalRingkas(date);
         expect(result, 'Sen, 1 Jan 24');
       });
@@ -73,7 +78,7 @@ void main() {
       });
 
       test('menangani tengah malam', () {
-        final time = DateTime(2024, 1, 1, 0, 0);
+        final time = DateTime(2024);
         final result = FormatJam.formatJamMenit(time);
         expect(result, '00:00');
       });

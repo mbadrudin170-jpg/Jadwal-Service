@@ -1,113 +1,91 @@
 // path: test/shared/operasi/firebase_operasi/pelanggan_op_firebase_test.dart
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
 
-// Generate mocks
-@GenerateMocks([
-  FirebaseFirestore,
-  CollectionReference,
-  DocumentReference,
-  DocumentSnapshot
-])
-import 'pelanggan_op_firebase_test.mocks.dart';
-
-/// Subclass untuk injeksi mock collection
-class TestPelangganOpFirebase extends PelangganOpFirebase {
-  final CollectionReference mockCollection;
-
-  TestPelangganOpFirebase(this.mockCollection);
-
-  @override
-  CollectionReference get _koleksiPelanggan => mockCollection;
-}
-
 void main() {
-  late MockFirebaseFirestore mockFirestore;
-  late MockCollectionReference mockCollection;
-  late MockDocumentReference mockDocRef;
-  late MockDocumentSnapshot mockDocSnapshot;
-  late TestPelangganOpFirebase opFirebase;
+  group('PelangganOpFirebase', () {
+    late FakeFirebaseFirestore fakeFirestore;
+    late PelangganOpFirebase pelangganOpFirebase;
 
-  setUp(() {
-    mockFirestore = MockFirebaseFirestore();
-    mockCollection = MockCollectionReference();
-    mockDocRef = MockDocumentReference();
-    mockDocSnapshot = MockDocumentSnapshot();
-    opFirebase = TestPelangganOpFirebase(mockCollection);
+    final pelangganTest = PelangganModel(
+      id: 'user_123',
+      nama: 'Nama Pengguna',
+      telepon: '081234567890',
+      alamat: 'Jl. Contoh No. 123',
+      password: 'password123', // Seharusnya tidak disimpan langsung
+      diperbarui: DateTime.now(),
+    );
+
+    setUp(() async {
+      fakeFirestore = FakeFirebaseFirestore();
+      pelangganOpFirebase = PelangganOpFirebase(firestore: fakeFirestore);
+
+      // Menambahkan data pelanggan awal
+      await fakeFirestore
+          .collection('pelanggan')
+          .doc(pelangganTest.id)
+          .set(pelangganTest.toFirebase());
+    });
+
+    test('perbaruiPelanggan harus memperbarui data di Firestore', () async {
+      final pelangganDiperbarui = pelangganTest.copyWith(nama: 'Nama Baru');
+
+      await pelangganOpFirebase.perbaruiPelanggan(pelangganDiperbarui);
+
+      final snapshot = await fakeFirestore.collection('pelanggan').doc(pelangganTest.id).get();
+      final data = snapshot.data();
+
+      expect(data, isNotNull);
+      expect(data!['nama'], 'Nama Baru');
+    });
+
+    test('ambilPelangganStream mengembalikan stream PelangganModel', () {
+      final stream = pelangganOpFirebase.ambilPelangganStream(pelangganTest.id);
+
+      expect(stream, isA<Stream<PelangganModel?>>());
+
+      // Verifikasi data pertama dari stream
+      expect(stream, emits(isA<PelangganModel>().having((final p) => p.id, 'id', pelangganTest.id)));
+    });
+
+    test('ambilPelangganStream mengembalikan null jika pelanggan tidak ada', () {
+       final stream = pelangganOpFirebase.ambilPelangganStream('user_tidak_ada');
+       expect(stream, emits(null));
+    });
+
+    test('ambilPelangganSekali mengembalikan PelangganModel jika ada', () async {
+      final hasil = await pelangganOpFirebase.ambilPelangganSekali(pelangganTest.id);
+
+      expect(hasil, isNotNull);
+      expect(hasil, isA<PelangganModel>());
+      expect(hasil!.id, pelangganTest.id);
+    });
+
+    test('ambilPelangganSekali mengembalikan null jika tidak ada', () async {
+      final hasil = await pelangganOpFirebase.ambilPelangganSekali('user_tidak_ada');
+      expect(hasil, isNull);
+    });
+
+     test('simpanTokenFCM harus memperbarui token FCM', () async {
+      const tokenBaru = 'token_fcm_baru';
+      await pelangganOpFirebase.simpanTokenFCM(pelangganTest.id, tokenBaru);
+
+      final snapshot = await fakeFirestore.collection('pelanggan').doc(pelangganTest.id).get();
+
+      expect(snapshot.data()?['fcmToken'], tokenBaru);
+    });
+
+    test('simpanTokenFCM tidak melakukan apa-apa jika token null atau kosong', () async {
+       await pelangganOpFirebase.simpanTokenFCM(pelangganTest.id, null);
+       final snapshot1 = await fakeFirestore.collection('pelanggan').doc(pelangganTest.id).get();
+       expect(snapshot1.data()!['fcmToken'], isNull);
+
+       await pelangganOpFirebase.simpanTokenFCM(pelangganTest.id, '');
+       final snapshot2 = await fakeFirestore.collection('pelanggan').doc(pelangganTest.id).get();
+       expect(snapshot2.data()!['fcmToken'], isNull);
+    });
   });
-
-  // Helper: buat dummy PelangganModel
-  PelangganModel dummyPelanggan(String id) => PelangganModel(
-        id: id,
-        nama: 'Nama $id',
-        email: '$id@test.com',
-        nomorHp: '08123456789',
-        dibuat: DateTime(2024, 1, 1),
-        diperbarui: DateTime(2024, 1, 1),
-      );
-
-  // ===================== perbaruiPelanggan =====================
-  group('perbaruiPelanggan', () {
-    test('berhasil memperbarui dokumen dengan data yang benar', () async {
-      final pelanggan = dummyPelanggan('123');
-      // Setup mock
-      when(mockCollection.doc('123')).thenReturn(mockDocRef);
-      when(mockDocRef.update(any)).thenAnswer((_) async => {});
-
-      await opFirebase.perbaruiPelanggan(pelanggan);
-
-      // Verifikasi update dipanggil dengan map yang mengandung 'diperbarui'
-      final captured = verify(mockDocRef.update(captureAny)).captured.first
-          as Map<String, dynamic>;
-      expect(captured['id'],
-          null); // ID mungkin tidak ada, yang penting diperbarui ada
-      expect(captured['diperbarui'],
-          isA<FieldValue>()); // FieldValue.serverTimestamp()
-    });
-
-    test('melempar ulang error jika Firestore gagal', () async {
-      final pelanggan = dummyPelanggan('error');
-      when(mockCollection.doc('error')).thenReturn(mockDocRef);
-      when(mockDocRef.update(any)).thenThrow(FirebaseException(
-          plugin: 'cloud_firestore', message: 'Permission denied'));
-
-      expect(() => opFirebase.perbaruiPelanggan(pelanggan),
-          throwsA(isA<FirebaseException>()));
-    });
-  });
-
-  // ===================== ambilPelangganStream =====================
-  group('ambilPelangganStream', () {
-    test('mengembalikan PelangganModel jika dokumen ada', () async {
-      final userId = 'user1';
-      final data = <String, dynamic>{
-        'nama': 'Budi',
-        'email': 'budi@test.com',
-        'nomorHp': '08123456789',
-        'dibuat': Timestamp.fromDate(DateTime(2024, 1, 1)),
-        'diperbarui': Timestamp.fromDate(DateTime(2024, 1, 1)),
-      };
-      when(mockCollection.doc(userId)).thenReturn(mockDocRef);
-      when(mockDocRef.snapshots()).thenAnswer(
-        (_) => Stream.value(mockDocSnapshot),
-      );
-      when(mockDocSnapshot.exists).thenReturn(true);
-      when(mockDocSnapshot.id).thenReturn(userId);
-      when(mockDocSnapshot.data()).thenReturn(data);
-
-      final stream = opFirebase.ambilPelangganStream(userId);
-      final result = await stream.first;
-
-      expect(result, isNotNull);
-      expect(result!.id, userId);
-      expect(result.nama, 'Budi');
-    });
-
-    test('mengembalikan null jika dokumen tidak ada', () async {
-      final userId = 'userX';
-      when(mockCollection.doc(userId)).thenReturn(mockDocRef);
-      when(mockDocRef.snapshots()).then
+}

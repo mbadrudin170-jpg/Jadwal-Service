@@ -33,6 +33,7 @@ class PembersihanDataOperasi {
       'dompet',
       'pesanan',
       'versi_apk_user',
+      'kritik_saran',
     ];
 
     // diubah: Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.

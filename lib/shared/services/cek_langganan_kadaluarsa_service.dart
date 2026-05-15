@@ -1,11 +1,17 @@
 // path: lib/shared/services/cek_langganan_kadaluarsa_service.dart// diubah: Menyederhanakan logika dengan memanggil fungsi arsipkan yang sudah ada.
+import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 
 /// Service ini bertanggung jawab untuk memeriksa dan mengarsipkan
 /// langganan pelanggan aktif yang telah kedaluwarsa secara berkala.
 class CekLanggananKadaluarsaService {
-  final PelangganAktifOperasi _pelangganAktifOperasi = PelangganAktifOperasi();
+  PelangganAktifOperasi _pelangganAktifOperasi = PelangganAktifOperasi();
+
+  @visibleForTesting
+  set pelangganAktifOperasi(final PelangganAktifOperasi operasi) {
+    _pelangganAktifOperasi = operasi;
+  }
 
   /// Memproses semua pelanggan aktif, menemukan yang kedaluwarsa,
   /// dan memanggil operasi untuk mengarsipkan mereka.
