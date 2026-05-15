@@ -1,5 +1,4 @@
 // path: lib/admin/halaman/tab/transaksi.dart
-// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
@@ -7,6 +6,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
 
@@ -94,6 +94,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     _dataFuture = _getData();
   }
 
+  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
   Future<Map<String, dynamic>> _getData() async {
     Log.info(
       'Memulai proses _getData untuk mengambil semua data transaksi dan ringkasan.',
@@ -115,7 +116,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
         'pengeluaran': (results[2] as num).toDouble(),
         'total': (results[3] as num).toDouble(),
       };
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal total saat menjalankan _getData. Kesalahan terjadi di level Future.wait.',
         e: e,
@@ -125,6 +126,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     }
   }
 
+  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
   void _loadData() {
     Log.info(
       'Memicu pemuatan ulang data transaksi secara manual melalui _loadData.',
@@ -138,7 +140,8 @@ class _TransaksiPageState extends State<TransaksiPage> {
     Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
     final result = await Navigator.push(
       context,
-      MaterialPageRoute<bool>(builder: (final context) => const FormTransaksiPage()),
+      MaterialPageRoute<bool>(
+          builder: (final context) => const FormTransaksiPage()),
     );
     if (result ?? false) {
       Log.info(
@@ -152,6 +155,43 @@ class _TransaksiPageState extends State<TransaksiPage> {
     }
   }
 
+  Future<void> _hapusSemuaTransaksi() async {
+    try {
+      final bool? konfirmasi = await showDialog<bool>(
+        context: context,
+        builder: (final context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi'),
+            content: const Text(
+                'Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Batal')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Hapus'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (konfirmasi ?? false) {
+        Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
+        await _transaksiOperasi.hapusSemuaTransaksi();
+        if (!mounted) return;
+        SnackBarUtil.showSuccess(context, 'Semua transaksi berhasil dihapus.');
+        _loadData();
+      }
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
+      if (!mounted) return;
+      SnackBarUtil.showError(context, 'Gagal menghapus transaksi: $e');
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI utama Halaman Transaksi (build method).');
@@ -160,17 +200,9 @@ class _TransaksiPageState extends State<TransaksiPage> {
         title: const Text('Transaksi'),
         actions: [
           IconButton(
-            onPressed: () {
-              Log.warning(
-                'Tombol hapus semua transaksi ditekan, tetapi fungsi belum diimplementasikan.',
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur hapus semua belum tersedia.'),
-                ),
-              );
-            },
-            icon: const Icon(Icons.delete),
+            onPressed: _hapusSemuaTransaksi,
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Hapus Semua Transaksi',
           ),
         ],
       ),
@@ -235,6 +267,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     );
   }
 
+  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
   Widget _buildTransaksiList(final List<TransaksiModel> transaksiData) {
     Log.info(
       'Membangun daftar transaksi (_buildTransaksiList) dengan ${transaksiData.length} item.',

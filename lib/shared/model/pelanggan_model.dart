@@ -1,4 +1,5 @@
 // path: lib/shared/model/pelanggan_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Mengganti nama fungsi helper internal dan menyesuaikan konversi tanggal untuk SQLite.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -164,7 +165,9 @@ class PelangganModel implements MemilikiId {
       'password': password,
       'mac_address': macAddress,
       'isDeleted': isDeleted,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
     };
     return data;

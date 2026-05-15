@@ -1,4 +1,5 @@
 // path: lib/shared/model/sub_kategori_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Penamaan metode diseragamkan, ditambahkan dokumentasi lengkap dan keamanan tipe.
 // diubah: Mengubah penyimpanan tanggal ke millisecondsSinceEpoch untuk SQLite dan memperbaiki nama helper.
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -120,7 +121,9 @@ class SubKategoriModel implements MemilikiId {
       'id': id,
       'nama': nama,
       'id_kategori': idKategori,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
     };

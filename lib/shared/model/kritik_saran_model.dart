@@ -1,4 +1,5 @@
 // path: lib/shared/model/kritik_saran_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Penamaan metode diseragamkan dan logika Firebase diperbaiki.
 // diubah: Mengganti nama fungsi helper internal dari _parseDateTime menjadi parseDateTime untuk menghilangkan peringatan lint.
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -99,7 +100,9 @@ class KritikSaranModel implements MemilikiId {
       'isi': isi,
       'tanggal': tanggal != null ? Timestamp.fromDate(tanggal!) : FieldValue.serverTimestamp(),
       'userId': userId,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
     };
   }
 }

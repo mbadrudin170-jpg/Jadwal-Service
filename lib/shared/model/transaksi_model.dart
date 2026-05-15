@@ -1,4 +1,5 @@
 // path: lib/shared/model/transaksi_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Model digabungkan dengan RiwayatLanggananModel dan denormalisasi data dihapus.
 // diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 // ditambah: Dokumentasi lengkap dan perbaikan tipe data untuk keamanan.
@@ -122,7 +123,8 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Helper untuk parsing enum dengan aman dari String.
-  static T? _safeParseEnum<T extends Enum>(final List<T> values, final dynamic name) {
+  static T? _safeParseEnum<T extends Enum>(
+      final List<T> values, final dynamic name) {
     if (name == null) return null;
     try {
       return values.firstWhere((final e) => e.name == name as String);
@@ -197,7 +199,8 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Factory constructor untuk membuat [TransaksiModel] dari data Firebase.
-  factory TransaksiModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory TransaksiModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     return TransaksiModel(
       id: id,
       tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
@@ -247,7 +250,9 @@ class TransaksiModel implements MemilikiId {
       'status_pembayaran': statusPembayaran.name,
       'poin_yang_dihasilkan': poinYangDihasilkan,
       'poin_yang_digunakan': poinYangDigunakan,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
       'isDeleted': isDeleted,
       'durasiPaket': durasiPaket,

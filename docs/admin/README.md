@@ -1,5 +1,17 @@
 # Dokumentasi APK Admin
 
+## Peningkatan Cakupan Pengujian dan Verifikasi Log untuk `DompetPage`
+
+- **File**: `test/admin/halaman/tab/dompet_test.dart` dan `lib/admin/halaman/tab/dompet.dart`
+- **Masalah**: Pengujian awal untuk `DompetPage` tidak memverifikasi semua skenario, yang terbukti dari tidak munculnya semua pernyataan `Log` yang relevan saat `flutter test` dijalankan. Ini melanggar aturan proyek yang mengharuskan semua log dapat diverifikasi.
+- **Solusi**: Cakupan pengujian untuk `DompetPage` diperluas secara signifikan dengan menambahkan beberapa skenario baru:
+    1.  **Pengujian Render dengan Data**: Menambahkan tes untuk memastikan daftar `DompetCard` dirender dengan benar saat ada data. Proses ini juga mengungkap dan memperbaiki dua bug dalam pengujian itu sendiri: kesalahan tipe data pada mock `id` dan pencarian widget yang terlalu ambigu.
+    2.  **Pengujian Navigasi**: Menambahkan tes yang mensimulasikan penekanan `FloatingActionButton` untuk memastikan aplikasi menavigasi ke `FormDompet`. Ini secara efektif memverifikasi eksekusi log navigasi.
+    3.  **Pengujian Pembaruan Data**: Menambahkan tes yang mensimulasikan keberhasilan penambahan dompet baru dengan "mengembalikan" nilai `true` dari `FormDompet`. Dengan menggunakan `verify` dari `Mockito`, tes ini membuktikan bahwa fungsi untuk memuat ulang data dipanggil, sehingga memverifikasi log terkait.
+- **Hasil**: Berkas pengujian `dompet_test.dart` sekarang jauh lebih komprehensif. Pengujian ini tidak hanya mencakup kondisi render statis tetapi juga interaksi pengguna, memastikan bahwa logika utama dan pernyataan log di `DompetPage` telah terverifikasi, sejalan dengan standar kualitas proyek.
+
+---
+
 ## Perbaikan Lingkungan Pengujian
 
 - **Konteks**: Proses `build_runner` yang penting untuk menghasilkan *mock* untuk pengujian unit mengalami kegagalan.

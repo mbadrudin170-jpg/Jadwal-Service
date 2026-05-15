@@ -1,6 +1,7 @@
 // path: lib/shared/model/dompet_model.dart
 // Fitur: Model Data
 // Tujuan: Mendefinisikan struktur data untuk dompet, termasuk konversi dari/ke format SQLite dan Firebase.
+// Diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -134,7 +135,9 @@ class DompetModel implements MemilikiId {
       'id': id,
       'namaDompet': namaDompet,
       'saldo': saldo,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
     };
     if (diarsipkan != null) {

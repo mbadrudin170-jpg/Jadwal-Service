@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/transaksi_operasi.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Menggunakan dependency injection untuk testability.
+// diubah: Menambahkan metode hapusSemuaTransaksi untuk soft delete.
 
 import 'package:sqflite/sqflite.dart';
 
@@ -23,7 +22,8 @@ class TransaksiOperasi {
   /// Menerima instance `DatabaseHelper` dan `OperasiDasar` secara opsional
   /// untuk kemudahan pengujian (dependency injection). Jika tidak disediakan,
   /// akan menggunakan instance default.
-  TransaksiOperasi({final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar})
+  TransaksiOperasi(
+      {final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar})
       : dbHelper = dbHelper ?? DatabaseHelper.instance,
         operasiDasar = operasiDasar ?? OperasiDasar();
 
@@ -241,7 +241,8 @@ class TransaksiOperasi {
   }
 
   /// Mengambil semua transaksi yang terkait dengan [dompetId].
-  Future<List<TransaksiModel>> ambilTransaksiByDompetId(final String dompetId) async {
+  Future<List<TransaksiModel>> ambilTransaksiByDompetId(
+      final String dompetId) async {
     final db = await _db;
     try {
       Log.info(
@@ -371,7 +372,8 @@ class TransaksiOperasi {
   }
 
   /// Mengarsipkan [TransaksiModel] berdasarkan [id].
-  Future<void> arsipkanTransaksi(final String id, {final bool dariServer = false}) async {
+  Future<void> arsipkanTransaksi(final String id,
+      {final bool dariServer = false}) async {
     try {
       await operasiDasar.jalankanOperasiKompleks(
         (final txn) async {
@@ -423,6 +425,42 @@ class TransaksiOperasi {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal mengarsipkan transaksi ID: $id. Error: $e - method: arsipkanTransaksi',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghapus semua transaksi dengan melakukan soft delete.
+  Future<void> hapusSemuaTransaksi({final bool dariServer = false}) async {
+    try {
+      await operasiDasar.jalankanOperasiKompleks((final txn) async {
+        Log.warning(
+          'Memulai penghapusan semua transaksi (soft delete) - method: hapusSemuaTransaksi',
+        );
+        final now = DateTime.now().toUtc();
+        final rowsAffected = await txn.update(
+          'transaksi',
+          {
+            'isDeleted': 1,
+            'diperbarui': now.millisecondsSinceEpoch,
+            'diarsipkan': now.millisecondsSinceEpoch,
+          },
+          where: 'isDeleted = ?',
+          whereArgs: [0],
+        );
+
+        Log.info(
+          '$rowsAffected transaksi telah ditandai sebagai dihapus. Memperbarui semua saldo dompet. - method: hapusSemuaTransaksi',
+        );
+
+        // Setelah semua transaksi dihapus, saldo semua dompet harus menjadi 0.
+        await txn.update('dompet', {'saldo': 0});
+      }, dariServer: dariServer);
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal menghapus semua transaksi. Error: $e - method: hapusSemuaTransaksi',
         e: e,
         st: st,
       );

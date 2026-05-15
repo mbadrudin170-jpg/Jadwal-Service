@@ -1,4 +1,5 @@
 // path: lib/shared/model/pengaturan_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Menghapus logika timestamp dari toSqlite() untuk memindahkan tanggung jawab ke lapisan operasi.
 // diubah: Menambahkan metode `copyWith` untuk memungkinkan pembaruan properti secara immutable.
 // Ini memperbaiki error `undefined_method` yang terjadi di `PengaturanOperasi`.
@@ -128,7 +129,9 @@ class PengaturanModel implements MemilikiId {
       'hapus_otomatis_data_arsip': hapusOtomatisDataArsip,
       'mode_pemeliharaan': modePemeliharaan,
       'info_pemeliharaan': infoPemeliharaan,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
     };
   }
 }

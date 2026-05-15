@@ -12,9 +12,11 @@ import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 class FormPengaturan extends StatefulWidget {
   /// Pengaturan saat ini yang akan diedit.
   final PengaturanModel pengaturan;
+  final PengaturanOperasi? pengaturanOperasi;
 
   /// Membuat instance dari [FormPengaturan].
-  const FormPengaturan({super.key, required this.pengaturan});
+  const FormPengaturan(
+      {super.key, required this.pengaturan, this.pengaturanOperasi});
 
   @override
   State<FormPengaturan> createState() => _FormPengaturanState();
@@ -22,7 +24,7 @@ class FormPengaturan extends StatefulWidget {
 
 class _FormPengaturanState extends State<FormPengaturan> {
   final _formKey = GlobalKey<FormState>();
-  final PengaturanOperasi _pengaturanOperasi = PengaturanOperasi();
+  late final PengaturanOperasi _pengaturanOperasi;
 
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
@@ -32,10 +34,13 @@ class _FormPengaturanState extends State<FormPengaturan> {
   @override
   void initState() {
     super.initState();
+    _pengaturanOperasi =
+        widget.pengaturanOperasi ?? PengaturanOperasi();
     Log.info('Menginisialisasi FormPengaturan.', {
       'interval': widget.pengaturan.intervalSinkronisasiOtomatis,
       'hapus_arsip': widget.pengaturan.hapusOtomatisDataArsip,
       'mode_pemeliharaan': widget.pengaturan.modePemeliharaan,
+      'diperbarui': widget.pengaturan.diperbarui,
     });
     _intervalController = TextEditingController(
       text: '${widget.pengaturan.intervalSinkronisasiOtomatis}',
@@ -71,7 +76,7 @@ class _FormPengaturanState extends State<FormPengaturan> {
           infoPemeliharaan: _infoPemeliharaanController.text,
         );
 
-        await _pengaturanOperasi.simpanAtauPerbaruiPengaturan(pengaturanBaru);
+        await _pengaturanOperasi.updatePengaturan(pengaturanBaru.toSqlite());
         Log.info('Pengaturan berhasil diperbarui di database.');
 
         if (mounted) {

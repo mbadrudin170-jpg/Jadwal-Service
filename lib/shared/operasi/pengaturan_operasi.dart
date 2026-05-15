@@ -48,7 +48,7 @@ class PengaturanOperasi {
         Log.info('Pengaturan default berhasil dibuat dan disimpan.');
         return pengaturanDefault;
       }
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil data pengaturan: $e',
         e: e,
@@ -81,9 +81,47 @@ class PengaturanOperasi {
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',
       );
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal menyimpan atau memperbarui data pengaturan: $e',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui sebagian field dari [PengaturanModel] di database.
+  ///
+  /// [data] adalah Map yang berisi field yang akan diperbarui.
+  Future<void> updatePengaturan(
+    final Map<String, dynamic> data, {
+    final bool dariServer = false,
+  }) async {
+    try {
+      Log.info(
+        'Memulai proses update parsial untuk pengaturan dengan ID: $idPengaturanGlobal',
+      );
+
+      // Selalu tambahkan timestamp `diperbarui` pada setiap operasi tulis.
+      final dataUntukUpdate = {
+        ...data,
+        'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
+      };
+
+      await _operasiDasar.perbarui(
+        _namaTabel,
+        dataUntukUpdate,
+        idPengaturanGlobal,
+        dariServer: dariServer,
+      );
+
+      Log.info(
+        'Pengaturan berhasil diperbarui sebagian. Fields: ${data.keys.join(', ')}',
+      );
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal memperbarui data pengaturan sebagian: $e',
         e: e,
         st: st,
       );
@@ -111,7 +149,7 @@ class PengaturanOperasi {
         dariServer: dariServer,
       );
       Log.info('Batch operation untuk pengaturan berhasil.');
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal menyimpan pengaturan dengan batch: $e',
         e: e,

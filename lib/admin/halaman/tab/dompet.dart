@@ -1,7 +1,4 @@
 // path: lib/admin/halaman/tab/dompet.dart
-// File ini menampilkan halaman dompet yang berisi ringkasan keuangan (pemasukan, pengeluaran, total)
-// dan daftar semua dompet yang tersedia. Pengguna dapat menambahkan dompet baru melalui
-// tombol floating action.
 
 import 'dart:async';
 
@@ -12,32 +9,43 @@ import 'package:wifi/admin/halaman/form/form_dompet.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
 /// Halaman untuk menampilkan dan mengelola dompet.
 ///
 /// Menampilkan ringkasan keuangan (pemasukan, pengeluaran, total) dan daftar dompet.
 class DompetPage extends StatefulWidget {
+  /// Operasi dompet yang akan digunakan oleh halaman.
+  final DompetOperasi? dompetOperasi;
+
+  /// Operasi transaksi yang akan digunakan oleh halaman, terutama untuk diteruskan ke halaman detail.
+  final TransaksiOperasi? transaksiOperasi;
+
   /// Membuat instance dari [DompetPage].
-  const DompetPage({super.key});
+  const DompetPage({
+    super.key,
+    this.dompetOperasi,
+    this.transaksiOperasi,
+  });
 
   @override
   State<DompetPage> createState() => _DompetPageState();
 }
 
 class _DompetPageState extends State<DompetPage> {
-  final DompetOperasi _dompetOperasi = DompetOperasi();
+  late final DompetOperasi _dompetOperasi;
   final GlobalKey<_RingkasanKeuanganState> _ringkasanKey = GlobalKey();
   late Future<List<DompetModel>> _listaDompetFuture;
 
   @override
   void initState() {
     super.initState();
+    _dompetOperasi = widget.dompetOperasi ?? DompetOperasi();
     Log.info('Halaman Dompet sedang diinisialisasi.');
     _loadDompet();
   }
 
-  // Fungsi untuk memuat ulang data dompet dan ringkasan keuangan
   void _loadDompet() {
     Log.info('Memulai pemuatan data dompet dan ringkasan keuangan.');
     setState(() {
@@ -47,7 +55,6 @@ class _DompetPageState extends State<DompetPage> {
     Log.info('Pemuatan data dompet dan ringkasan keuangan telah dijadwalkan.');
   }
 
-  // Fungsi untuk menavigasi ke halaman tambah dompet
   Future<void> _tambahDompet() async {
     Log.info('Navigasi ke halaman tambah dompet.');
     final result = await Navigator.push<bool>(
@@ -61,7 +68,6 @@ class _DompetPageState extends State<DompetPage> {
     }
   }
 
-  // Fungsi untuk menampilkan dialog konfirmasi sebelum menghapus semua dompet
   Future<void> _tampilkanDialogHapusSemua() async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final dompetList = await _dompetOperasi.getDompet();
@@ -97,7 +103,7 @@ class _DompetPageState extends State<DompetPage> {
                 Log.warning(
                   'Pengguna mengkonfirmasi penghapusan semua dompet.',
                 );
-                Navigator.of(context).pop(); // Tutup dialog sebelum operasi
+                Navigator.of(context).pop();
                 unawaited(
                   _hapusSemuaDompet(),
                 );
@@ -109,7 +115,6 @@ class _DompetPageState extends State<DompetPage> {
     );
   }
 
-  // Fungsi untuk menampilkan dialog konfirmasi pengarsipan satu dompet
   Future<void> _showDialogHapusSatu(final DompetModel dompet) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk dompet: "${dompet.namaDompet}".',
@@ -138,7 +143,7 @@ class _DompetPageState extends State<DompetPage> {
                 Log.warning(
                   'Pengguna mengkonfirmasi pengarsipan dompet: "${dompet.namaDompet}".',
                 );
-                Navigator.of(context).pop(); // Tutup dialog sebelum operasi
+                Navigator.of(context).pop();
                 unawaited(_hapusSatuDompet(dompet));
               },
             ),
@@ -148,12 +153,11 @@ class _DompetPageState extends State<DompetPage> {
     );
   }
 
-  // Fungsi untuk mengarsipkan satu dompet
   Future<void> _hapusSatuDompet(final DompetModel dompet) async {
     Log.info('Memulai pengarsipan dompet: "${dompet.namaDompet}".');
     try {
       await _dompetOperasi.arsipkanSatuDompet(dompet.id);
-      _loadDompet(); // Muat ulang data
+      _loadDompet();
       if (!mounted) return;
       Log.info('Dompet "${dompet.namaDompet}" berhasil diarsipkan.');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -172,12 +176,11 @@ class _DompetPageState extends State<DompetPage> {
     }
   }
 
-  // Fungsi untuk menghapus semua dompet secara permanen
   Future<void> _hapusSemuaDompet() async {
     Log.info('Memulai penghapusan semua dompet.');
     try {
       await _dompetOperasi.hapusSemuaDompet();
-      _loadDompet(); // Muat ulang data
+      _loadDompet();
       if (!mounted) return;
       Log.info('Semua dompet berhasil dihapus.');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -208,7 +211,7 @@ class _DompetPageState extends State<DompetPage> {
       ),
       body: Column(
         children: [
-          RingkasanKeuangan(key: _ringkasanKey),
+          RingkasanKeuangan(key: _ringkasanKey, dompetOperasi: _dompetOperasi),
           Expanded(
             child: FutureBuilder<List<DompetModel>>(
               future: _listaDompetFuture,
@@ -246,8 +249,11 @@ class _DompetPageState extends State<DompetPage> {
                           await Navigator.push<void>(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (final context) =>
-                                  DetailDompet(dompet: dompet),
+                              builder: (final context) => DetailDompet(
+                                dompet: dompet,
+                                dompetOperasi: _dompetOperasi,
+                                transaksiOperasi: widget.transaksiOperasi,
+                              ),
                             ),
                           );
                           if (!mounted) return;
@@ -276,15 +282,17 @@ class _DompetPageState extends State<DompetPage> {
 ///
 /// Menampilkan pemasukan, pengeluaran, dan total saldo.
 class RingkasanKeuangan extends StatefulWidget {
+  /// Operasi dompet yang akan digunakan untuk mengambil data ringkasan.
+  final DompetOperasi dompetOperasi;
+
   /// Membuat instance dari [RingkasanKeuangan].
-  const RingkasanKeuangan({super.key});
+  const RingkasanKeuangan({super.key, required this.dompetOperasi});
 
   @override
   State<RingkasanKeuangan> createState() => _RingkasanKeuanganState();
 }
 
 class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
-  final DompetOperasi _dompetOperasi = DompetOperasi();
   late Future<List<double>> _summaryFuture;
 
   @override
@@ -297,9 +305,9 @@ class _RingkasanKeuanganState extends State<RingkasanKeuangan> {
   void _loadSummary() {
     Log.info('Memuat data ringkasan keuangan.');
     _summaryFuture = Future.wait([
-      _dompetOperasi.getTotalSaldoPositif(),
-      _dompetOperasi.getTotalSaldoNegatif(),
-      _dompetOperasi.getTotalSaldo(),
+      widget.dompetOperasi.getTotalSaldoPositif(),
+      widget.dompetOperasi.getTotalSaldoNegatif(),
+      widget.dompetOperasi.getTotalSaldo(),
     ]);
   }
 

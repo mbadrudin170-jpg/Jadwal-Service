@@ -1,4 +1,5 @@
 // path: lib/model/pelanggan_aktif_model.dart
+// Diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -233,7 +234,9 @@ class PelangganAktifModel implements MemilikiId {
       'tanggalBerakhir': Timestamp.fromDate(tanggalBerakhir), // camelCase
       'status': status.name,
       'isDeleted': isDeleted,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
     };
     if (diarsipkan != null) {
       data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);

@@ -1,4 +1,5 @@
 // path: lib/shared/model/paket_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Mengganti nama fungsi helper internal dari _parse... menjadi parse... untuk menghilangkan peringatan lint.
 // ditambahkan: Import cloud_firestore untuk FieldValue dan Timestamp.
 // diubah: Menghapus field `jumlahPoin` yang tidak lagi digunakan.
@@ -207,7 +208,9 @@ class PaketModel implements MemilikiId {
       'poin_penukaran': poinPenukaran,
       'isPublic': isPublic,
       'isDeleted': isDeleted,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
     };
     if (diarsipkan != null) {
       data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);

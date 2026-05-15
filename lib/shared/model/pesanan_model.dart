@@ -1,4 +1,5 @@
 // path: lib/shared/model/pesanan_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, dan mengimplementasikan MemilikiId.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -128,7 +129,9 @@ class PesananModel implements MemilikiId {
       'id_paket': idPaket,
       'tanggal': Timestamp.fromDate(tanggal),
       'status': status,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
     };
 

@@ -1,6 +1,7 @@
 // path: lib/shared/model/kategori_model.dart
 // Fitur: Model Data
 // Tujuan: Mendefinisikan struktur data untuk kategori transaksi, termasuk konversi dari/ke format SQLite dan Firebase.
+// Diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // Diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
 
 import 'dart:convert';
@@ -215,7 +216,9 @@ class KategoriModel implements MemilikiId {
       'tipe': tipe.name,
       'id_sub_kategori':
           subKategori.map((final sub) => sub.toFirebase()).toList(),
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       'isDeleted': isDeleted,
       'diarsipkan': diarsipkan != null ? Timestamp.fromDate(diarsipkan!) : null,
     };
