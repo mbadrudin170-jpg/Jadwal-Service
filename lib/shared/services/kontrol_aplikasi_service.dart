@@ -59,16 +59,18 @@ class KontrolAplikasiService {
 
   /// Mengatur status maintenance di Firestore.
   ///
-  /// Akan memperbarui field `sedang_maintenance` di dokumen `status_aplikasi`.
+  /// Akan memperbarui field `sedang_maintenance` dan `diperbarui` di dokumen `status_aplikasi`.
   Future<void> aturStatusMaintenance(final bool status) async {
     Log.info('Memproses perubahan status maintenance menjadi: $status');
 
     try {
       // Mengatur (atau membuat jika belum ada) dokumen 'status_aplikasi'
-      // dengan field 'sedang_maintenance'.
+      // dengan field 'sedang_maintenance' dan 'diperbarui'.
+      // Menggunakan merge: true agar tidak menimpa field lain di dokumen.
       await _pengaturanRef.doc('status_aplikasi').set({
         'sedang_maintenance': status,
-      });
+        'diperbarui': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       Log.info(
         '✨ Berhasil memperbarui status maintenance di Firestore menjadi: $status',
