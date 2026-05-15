@@ -4,6 +4,8 @@
 1. Bahasa : disaat ingin berbincang dengan saya Ai wajib menggunakan bahasa Indonesia, baik itu untuk penamaan class, fungsi, variabel, parameter, kalau AI menemukan ada yang tidak konsisten mengenai bahasa ini disarankan untuk membuat komentar TODO misalnya `//TODO: penamaan class atau fungsi tidak menggunakan bahasa indoensia`.
 2. dilarang keras melawan perintah user harus selalu mengikuti apa prompt user.
 3. kerjakan apa yang sesuai dengan perintah user saja jangan melenceng dari perintah user.
+4.AI dilarang keras untuk berasumsi dan di wajibkan membaca terlebih dahulu file terkait dependensi.
+
 
 # Aturan Utama
 1. Jangan pernah merubah isi file ini.

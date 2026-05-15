@@ -1,5 +1,5 @@
 // path: lib/admin/data/sqlite.dart
-// diubah: Menaikkan versi DB ke 46, mengubah semua kolom tanggal dari TEXT ke INTEGER, dan menambahkan migrasi.
+// diubah: Menaikkan versi DB ke 47, menambahkan kolom `diarsipkan` dan `isDeleted` ke `kritik_saran`.
 // ditambah: Menambahkan dokumentasi untuk anggota publik untuk memperbaiki peringatan analisis.
 
 import 'dart:io';
@@ -14,8 +14,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // ditambah: Versi dinaikkan ke 46 untuk memicu migrasi tipe data tanggal.
-  static const int _databaseVersion = 46;
+  // diubah: Versi dinaikkan ke 47 untuk memperbaiki skema tabel `kritik_saran`.
+  static const int _databaseVersion = 47;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -54,8 +54,6 @@ class DatabaseHelper {
     try {
       if (Platform.environment.containsKey('FLUTTER_TEST')) {
         Log.info('Mode TEST terdeteksi. Menggunakan database in-memory.');
-        sqfliteFfiInit();
-        databaseFactory = databaseFactoryFfi;
         return databaseFactory.openDatabase(
           inMemoryDatabasePath,
           options: OpenDatabaseOptions(
@@ -85,7 +83,6 @@ class DatabaseHelper {
     }
   }
 
-  // diubah: Logika upgrade diperbarui untuk menangani migrasi ke versi 46 (kolom tanggal ke INTEGER).
   Future<void> _onUpgrade(final Database db, final int oldVersion, final int newVersion) async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
@@ -95,17 +92,14 @@ class DatabaseHelper {
     
     final batch = db.batch();
 
-    // Migrasi lama dari v44 ke v45, tetap dipertahankan.
     if (oldVersion < 45) {
        Log.info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
        await _migrateToV45(db);
     }
 
-    // ditambah: Migrasi baru untuk mengubah semua kolom TEXT tanggal menjadi INTEGER.
-    // Ini adalah migrasi "destructive" yang membuat ulang tabel untuk memastikan
-    // integritas skema. Data lokal yang tidak disinkronkan akan hilang.
-    if (oldVersion < 46) {
-      Log.info('[MIGRASI v46] Memulai migrasi skema tanggal ke INTEGER.');
+    // Pola migrasi destruktif untuk memastikan integritas skema.
+    if (oldVersion < 47) {
+      Log.info('[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran`.');
 
       final List<String> daftarTabel = [
         'kategori', 'sub_kategori', 'paket', 'pelanggan', 'pelanggan_aktif',
@@ -113,16 +107,15 @@ class DatabaseHelper {
         'pengaturan', 'status_unggah', 'pesan',
       ];
       
-      Log.warning('[MIGRASI v46] Proses ini akan menghapus dan membuat ulang tabel berikut: $daftarTabel. Data lokal akan direset.');
+      Log.warning('[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel berikut: $daftarTabel. Data lokal akan direset.');
 
       for (final namaTabel in daftarTabel) {
         batch.execute('DROP TABLE IF EXISTS $namaTabel');
-        Log.info('[MIGRASI v46] Jadwalkan DROP TABLE untuk `$namaTabel`.');
+        Log.info('[MIGRASI v47] Jadwalkan DROP TABLE untuk `$namaTabel`.');
       }
 
-      // Menjadwalkan pembuatan kembali semua tabel dengan skema baru
       _createAllTables(batch);
-      Log.info('[MIGRASI v46] Menjadwalkan pembuatan ulang semua tabel dengan skema INTEGER.');
+      Log.info('[MIGRASI v47] Menjadwalkan pembuatan ulang semua tabel dengan skema baru.');
     }
 
     try {
@@ -141,7 +134,6 @@ class DatabaseHelper {
     }
   }
 
-  // ditambah: Fungsi helper untuk migrasi v45 agar _onUpgrade lebih bersih.
   Future<void> _migrateToV45(final Database db) async {
     Log.info(
       '[MIGRASI v45] Menangani tabel "pengaturan" untuk memastikan PRIMARY KEY.',
@@ -169,7 +161,6 @@ class DatabaseHelper {
     }
   }
 
-  // ditambah: Logika pembuatan tabel dipisahkan ke fungsi sendiri agar bisa dipanggil dari onCreate dan onUpgrade.
   void _createAllTables(final Batch batch) {
     batch.execute(_tabelKategori);
     batch.execute(_tabelSubKategori);
@@ -194,7 +185,6 @@ class DatabaseHelper {
   }
 
   /// String SQL untuk membuat tabel versi_apk_user.
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelVersiApkUser = '''
       CREATE TABLE versi_apk_user(
         id TEXT PRIMARY KEY,
@@ -211,7 +201,6 @@ class DatabaseHelper {
     ''';
 
   /// String SQL untuk membuat tabel dompet.
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelDompet = '''
       CREATE TABLE dompet(
         id TEXT PRIMARY KEY,
@@ -224,7 +213,6 @@ class DatabaseHelper {
     ''';
 
   /// String SQL untuk membuat tabel transaksi.
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String tabelTransaksi = '''
       CREATE TABLE transaksi(
         id TEXT PRIMARY KEY,
@@ -252,7 +240,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelStatusUnggah = '''
     CREATE TABLE status_unggah(
       tabel TEXT PRIMARY KEY,
@@ -269,7 +256,6 @@ class DatabaseHelper {
     )
   ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPesan = '''
     CREATE TABLE pesan(
       id TEXT PRIMARY KEY,
@@ -279,7 +265,6 @@ class DatabaseHelper {
     )
   ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPengaturan = '''
     CREATE TABLE pengaturan(
       id TEXT PRIMARY KEY,
@@ -291,7 +276,6 @@ class DatabaseHelper {
     )
   ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelKategori = '''
       CREATE TABLE kategori(
         id TEXT PRIMARY KEY,
@@ -304,7 +288,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelSubKategori = '''
       CREATE TABLE sub_kategori(
         id TEXT PRIMARY KEY,
@@ -317,7 +300,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPaket = '''
       CREATE TABLE paket(
         id TEXT PRIMARY KEY,
@@ -335,7 +317,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPelanggan = '''
       CREATE TABLE pelanggan(
         id TEXT PRIMARY KEY,
@@ -351,7 +332,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPelangganAktif = '''
       CREATE TABLE pelanggan_aktif(
         id TEXT PRIMARY KEY,
@@ -370,7 +350,7 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
+  // diubah: Menambahkan kolom `diarsipkan` dan `isDeleted` untuk konsistensi.
   static const String _tabelKritikSaran = '''
       CREATE TABLE kritik_saran(
         id TEXT PRIMARY KEY,
@@ -378,11 +358,12 @@ class DatabaseHelper {
         tanggal INTEGER NOT NULL,
         userId TEXT NOT NULL,
         diperbarui INTEGER,
+        isDeleted INTEGER NOT NULL DEFAULT 0,
+        diarsipkan INTEGER,
         FOREIGN KEY (userId) REFERENCES pelanggan (id) ON DELETE CASCADE
       )
     ''';
 
-  // diubah: Semua kolom tanggal diubah dari TEXT menjadi INTEGER.
   static const String _tabelPesanan = '''
       CREATE TABLE pesanan(
         id TEXT PRIMARY KEY,

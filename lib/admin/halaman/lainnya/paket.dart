@@ -326,18 +326,20 @@ class _PaketPageState extends State<PaketPage> {
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
 
-          final paketList = snapshot.data!;
+          final paketList = List<PaketModel>.from(snapshot.data!);
 
           // ditambah: Logika untuk mengurutkan daftar paket berdasarkan _urutanSaatIni
           switch (_urutanSaatIni) {
             case UrutanPaket.namaAZ:
               paketList.sort(
-                (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+                (final a, final b) =>
+                    a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
               );
               break;
             case UrutanPaket.namaZA:
               paketList.sort(
-                (final a, final b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+                (final a, final b) =>
+                    b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
               );
               break;
             case UrutanPaket.hargaTertinggi:
@@ -348,10 +350,12 @@ class _PaketPageState extends State<PaketPage> {
               break;
             // diubah: Menggunakan poinHadiah untuk pengurutan
             case UrutanPaket.poinTertinggi:
-              paketList.sort((final a, final b) => b.poinHadiah.compareTo(a.poinHadiah));
+              paketList.sort(
+                  (final a, final b) => b.poinHadiah.compareTo(a.poinHadiah));
               break;
             case UrutanPaket.poinTerendah:
-              paketList.sort((final a, final b) => a.poinHadiah.compareTo(b.poinHadiah));
+              paketList.sort(
+                  (final a, final b) => a.poinHadiah.compareTo(b.poinHadiah));
               break;
           }
 
@@ -412,7 +416,8 @@ class _PaketPageState extends State<PaketPage> {
           Log.info('Navigasi ke Form Tambah Paket');
           await Navigator.push(
             context,
-            MaterialPageRoute<void>(builder: (final context) => const FormPaket()),
+            MaterialPageRoute<void>(
+                builder: (final context) => const FormPaket()),
           );
           Log.info('Kembali dari Form Tambah Paket, menyegarkan daftar');
           _refreshPaketList();

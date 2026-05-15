@@ -53,7 +53,8 @@ class KritikSaranOperasiUser {
   ///
   /// [docId] adalah ID dokumen yang akan diperbarui.
   /// [isiBaru] adalah konten baru dari kritik atau saran.
-  Future<void> perbaruiKritikSaran(final String docId, final String isiBaru) async {
+  Future<void> perbaruiKritikSaran(
+      final String docId, final String isiBaru) async {
     try {
       final dataToUpdate = {
         'isi': isiBaru,
@@ -65,6 +66,7 @@ class KritikSaranOperasiUser {
     }
   }
 
+// TODO: rencana selanjutnya adalah merubah hapus kritik saran menjadi shoft deleted dengan merubah isdeleted menjadi 0 dan memperbarui kolom diarsipkan ke tenggal timestamp
   /// Menghapus kritik dan saran dari Firestore berdasarkan [docId].
   Future<void> hapusKritikSaran(final String docId) async {
     try {

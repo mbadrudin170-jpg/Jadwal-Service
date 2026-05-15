@@ -4,7 +4,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
-
+// TODO: rencana selanjutnya adalah meambahkan kolom diarsipkan
 /// Model untuk data kritik dan saran dari pengguna.
 class KritikSaranModel implements MemilikiId {
   /// ID unik untuk setiap entri kritik dan saran.
