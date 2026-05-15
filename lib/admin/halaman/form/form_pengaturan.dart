@@ -12,6 +12,9 @@ import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 class FormPengaturan extends StatefulWidget {
   /// Pengaturan saat ini yang akan diedit.
   final PengaturanModel pengaturan;
+
+  /// Operasi untuk berinteraksi dengan data pengaturan.
+  /// Ini opsional dan akan dibuat instance-nya jika tidak disediakan.
   final PengaturanOperasi? pengaturanOperasi;
 
   /// Membuat instance dari [FormPengaturan].

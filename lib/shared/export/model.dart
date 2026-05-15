@@ -9,7 +9,6 @@ export '../model/pelanggan_aktif_model.dart';
 export '../model/pelanggan_model.dart';
 export '../model/pengaturan_model.dart';
 export '../model/pesanan_model.dart';
-export '../model/riwayat_langganan_model.dart';
 export '../model/status_unggah_model.dart';
 export '../model/sub_kategori_model.dart';
 export '../model/transaksi_model.dart';

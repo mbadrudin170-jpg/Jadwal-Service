@@ -19,9 +19,7 @@ void initializeDbForTest() {
 @GenerateMocks([PengaturanOperasi])
 void main() {
   // Panggil inisialisasi di awal
-  setUpAll(() {
-    initializeDbForTest();
-  });
+  setUpAll(initializeDbForTest);
 
   late MockPengaturanOperasi mockPengaturanOperasi;
   late PengaturanModel pengaturanAwal;
@@ -29,17 +27,15 @@ void main() {
   setUp(() {
     mockPengaturanOperasi = MockPengaturanOperasi();
     pengaturanAwal = PengaturanModel(
-      id: 'konfigurasi_global',
       intervalSinkronisasiOtomatis: 12,
       hapusOtomatisDataArsip: 45,
-      modePemeliharaan: false,
       infoPemeliharaan: 'Info awal',
-      diperbarui: DateTime(2023, 1, 1),
+      diperbarui: DateTime(2023),
     );
   });
 
   // Widget wrapper yang menginjeksi mock
-  Widget buildTestableWidget(PengaturanModel pengaturan) {
+  Widget buildTestableWidget(final PengaturanModel pengaturan) {
     return MaterialApp(
       home: FormPengaturan(
         pengaturan: pengaturan,
@@ -65,7 +61,7 @@ void main() {
         (final tester) async {
       // Stubbing mock untuk mengembalikan Future kosong
       when(mockPengaturanOperasi.updatePengaturan(any))
-          .thenAnswer((_) async {});
+          .thenAnswer((final _) async {});
 
       await tester.pumpWidget(buildTestableWidget(pengaturanAwal));
 

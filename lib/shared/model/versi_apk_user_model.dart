@@ -1,4 +1,5 @@
 // path: lib/shared/model/versi_apk_user_model.dart
+// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, impor enum diperbaiki, dan mengimplementasikan MemilikiId.
 import 'dart:convert';
 
@@ -140,7 +141,9 @@ class VersiApkUserModel implements MemilikiId {
       'catatan_rilis': catatanRilis,
       'versi_terbaru': versiTerbaru,
       'youtube_tutorial': youtubeTutorial,
-      'diperbarui': FieldValue.serverTimestamp(),
+      'diperbarui': diperbarui != null
+          ? Timestamp.fromDate(diperbarui!)
+          : FieldValue.serverTimestamp(),
       if (diarsipkan != null) 'diarsipkan': Timestamp.fromDate(diarsipkan!),
       'nomor_build_terbaru': nomorBuildTerbaru.map(
         (final key, final value) => MapEntry(key.name, value),
