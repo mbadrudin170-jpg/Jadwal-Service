@@ -107,12 +107,12 @@ class LayananUnduhData {
 
     try {
       await Future.wait([
+        unduhDataPelangganAktif(),
         unduhDataPengaturan(),
         unduhDataDompet(),
         unduhDataKategori(),
         unduhDataPaket(),
         unduhDataPelanggan(),
-        unduhDataPelangganAktif(),
         unduhDataTransaksi(),
         unduhDataKritikSaran(),
         unduhDataPesanan(),
