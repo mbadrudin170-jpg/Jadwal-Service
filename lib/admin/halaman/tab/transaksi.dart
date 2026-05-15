@@ -323,7 +323,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
           0.0,
           (final sum, final item) =>
               sum +
-              (item.tipe == TipeTransaksi.pemasukan
+              (item.tipe == TipeTransaksiEnum.pemasukan
                   ? item.jumlah
                   : -item.jumlah),
         );

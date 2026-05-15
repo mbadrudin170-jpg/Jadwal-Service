@@ -31,7 +31,8 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
-DateTime hitungTanggalBerakhir(final DateTime startDate, final PaketModel paket) {
+DateTime hitungTanggalBerakhir(
+    final DateTime startDate, final PaketModel paket) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
   Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
   Log.info('  - Nama Paket: ${paket.nama}');
@@ -182,17 +183,20 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       setState(() {
         _pelangganList = (results[0] as List<PelangganModel>)
           ..sort(
-            (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+            (final a, final b) =>
+                a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
           );
         _paketList = results[1] as List<PaketModel>;
         final semuaDompet = results[2] as List<DompetModel>;
         _daftarDompet = semuaDompet.where((final d) => !d.isDeleted).toList();
         final semuaKategori = results[3] as List<KategoriModel>;
         _kategoriPemasukanList = semuaKategori
-            .where((final k) => k.tipe == TipeKategori.pemasukan && !k.isDeleted)
+            .where(
+                (final k) => k.tipe == TipeKategori.pemasukan && !k.isDeleted)
             .toList();
         _kategoriPengeluaranList = semuaKategori
-            .where((final k) => k.tipe == TipeKategori.pengeluaran && !k.isDeleted)
+            .where(
+                (final k) => k.tipe == TipeKategori.pengeluaran && !k.isDeleted)
             .toList();
 
         if (_isEditMode) {
@@ -276,7 +280,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
   /// Menampilkan dialog pemilih waktu.
   Future<void> _selectTime(final BuildContext context) async {
-    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now().toUtc());
+    final initial =
+        _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now().toUtc());
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initial,
@@ -358,8 +363,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         tanggal: tanggalMulai,
         keterangan: 'Aktivasi Paket: ${selectedPaket.nama}',
         jumlah: _gunakanPoin ? 0 : selectedPaket.harga.toDouble(),
-        tipe:
-            _gunakanPoin ? TipeTransaksi.pengeluaran : TipeTransaksi.pemasukan,
+        tipe: _gunakanPoin
+            ? TipeTransaksiEnum.pengeluaran
+            : TipeTransaksiEnum.pemasukan,
         idDompet: _selectedDompet!.id,
         idKategori: _selectedKategori!.id,
         idPelanggan: _selectedPelanggan!.id,
@@ -543,7 +549,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       ),
       initialValue: _selectedDompet,
       items: _daftarDompet
-          .map((final d) => DropdownMenuItem(value: d, child: Text(d.namaDompet)))
+          .map((final d) =>
+              DropdownMenuItem(value: d, child: Text(d.namaDompet)))
           .toList(),
       onChanged: (final DompetModel? newValue) =>
           setState(() => _selectedDompet = newValue),

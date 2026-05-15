@@ -116,7 +116,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
   Widget build(final BuildContext context) {
     IconData iconData;
     Color iconColor;
-    if (widget.transaksi.tipe == TipeTransaksi.pemasukan) {
+    if (widget.transaksi.tipe == TipeTransaksiEnum.pemasukan) {
       iconData = Icons.arrow_downward;
       iconColor = Colors.green;
     } else {

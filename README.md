@@ -2,6 +2,36 @@
 
 Berikut adalah rangkuman pekerjaan yang telah dilakukan oleh AI:
 
+## Perbaikan Total `build_runner` dan Konflik Dependensi
+
+### Latar Belakang
+Proses pengembangan terhenti total karena `build_runner` tidak dapat berjalan, yang mengakibatkan berkas-berkas penting (`.g.dart`) tidak dibuat. Perintah `flutter analyze` juga melaporkan banyak sekali error, seperti `uri_has_not_been_generated`, yang semuanya merupakan gejala dari kegagalan `build_runner`.
+
+### Rangkuman Perubahan
+Proses perbaikan ini melibatkan serangkaian langkah pemecahan masalah yang sistematis dan mendalam:
+
+1.  **Identifikasi Masalah Awal**: Analisis `pubspec.yaml` menunjukkan bahwa dependensi krusial `hive_generator` tidak ada di `dev_dependencies`.
+2.  **Pemecahan Konflik Dependensi**:
+    *   Setelah menambahkan `hive_generator`, `flutter pub get` gagal karena konflik versi antara `build_runner` dan `hive_generator`.
+    *   Masalah ini diatasi dengan melonggarkan batasan versi `build_runner` (mengubah `^2.15.0` menjadi `any`).
+    *   Konflik baru muncul antara `mockito` dan `hive_generator`. Sesuai saran dari `pub`, versi `mockito` diturunkan ke `^5.4.4`, yang akhirnya memungkinkan `flutter pub get` berjalan sukses.
+3.  **Mengatasi Kegagalan Skrip Build `build_runner`**:
+    *   Meskipun dependensi sudah benar, `build_runner` tetap gagal dengan error `Failed to compile build script`. Ini menandakan adanya artefak build yang korup.
+    *   **Percobaan 1: Perbaikan Cache Pub (`flutter pub cache repair`)**: Upaya pertama untuk memperbaiki cache global `pub` tidak berhasil menyelesaikan masalah.
+    *   **Percobaan 2: Pembersihan Total Proyek (`flutter clean`)**: Solusi akhirnya adalah menjalankan `flutter clean` untuk menghapus direktori `build` dan `.dart_tool` yang korup. Setelah itu, `flutter pub get` dijalankan kembali untuk membangun ulang artefak dari awal.
+4.  **Verifikasi Akhir**:
+    *   Setelah pembersihan total, `flutter pub run build_runner build --delete-conflicting-outputs` akhirnya berhasil dijalankan tanpa error.
+    *   Verifikasi terakhir dengan `flutter analyze` menunjukkan **"No issues found!"**, mengonfirmasi bahwa semua masalah telah teratasi.
+
+### Proses dan Tantangan
+*   **Debug Berlapis**: Masalah ini adalah contoh klasik dari "debug berlapis", di mana memperbaiki satu error akan mengungkap error lain yang lebih dalam.
+*   **Pentingnya Kebersihan Lingkungan**: Kasus ini membuktikan bahwa cache yang rusak atau artefak build yang tidak konsisten dapat menyebabkan error yang sangat membingungkan. Perintah `flutter clean` adalah alat yang sangat ampuh untuk mengatasi masalah semacam ini.
+*   **Manajemen Dependensi**: Kesulitan dalam menemukan versi paket yang kompatibel menyoroti betapa rumitnya manajemen dependensi dalam proyek modern.
+
+Dengan selesainya pekerjaan ini, sistem build proyek telah pulih sepenuhnya, dan pengembangan dapat dilanjutkan di atas fondasi yang stabil.
+
+---
+
 ## Peningkatan Cakupan Pengujian dan Verifikasi Log untuk `DompetPage`
 
 ### Latar Belakang
@@ -13,17 +43,17 @@ Untuk mengatasi hal ini, serangkaian pengujian baru telah ditambahkan secara ber
 1.  **Pengujian Skenario "Ada Data"**:
     *   Sebuah pengujian baru ditambahkan untuk mensimulasikan kondisi di mana `DompetOperasi` mengembalikan daftar dompet.
     *   **Tantangan**: Selama implementasi, terjadi dua kegagalan tes:
-        1.  `Error: The argument type \'int\' can\'t be assigned to the parameter type \'String?\'`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
+        1.  `Error: The argument type \'\'\'int\'\'\' can\'\'\'t be assigned to the parameter type \'\'\'String?\'\'\'`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
         2.  `Expected: exactly one matching candidate ... Actual: ... <Found 2 widgets>`. Ini terjadi karena pencarian teks (`find.textContaining`) terlalu umum. Ini diperbaiki dengan menggunakan pencari yang lebih spesifik (`find.ancestor` dan `find.descendant`) untuk memvalidasi saldo di dalam `Card` yang benar.
-    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\'Berhasil memuat ... dompet\'`.
+    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\\\'Berhasil memuat ... dompet\\\'`.
 
 2.  **Pengujian Interaksi Pengguna (Navigasi)**:
     *   Pengujian ditambahkan untuk mensimulasikan pengguna menekan `FloatingActionButton`.
-    *   **Hasil**: Berhasil memverifikasi bahwa aplikasi menavigasi ke `FormDompet`, yang secara implisit membuktikan bahwa log `\'Navigasi ke halaman tambah dompet.\'` telah dieksekusi.
+    *   **Hasil**: Berhasil memverifikasi bahwa aplikasi menavigasi ke `FormDompet`, yang secara implisit membuktikan bahwa log `\\\'Navigasi ke halaman tambah dompet.\\\'` telah dieksekusi.
 
 3.  **Pengujian Interaksi Pengguna (Memuat Ulang Data)**:
     *   Pengujian terakhir ditambahkan untuk mensimulasikan halaman `FormDompet` yang ditutup dan mengembalikan hasil `true`.
-    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\'Berhasil menambahkan dompet baru, memuat ulang data.\'`.\
+    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\\\'Berhasil menambahkan dompet baru, memuat ulang data.\\\'`.\\\
 
 ### Proses dan Tantangan
 *   **Pengembangan Berbasis Umpan Balik (Feedback-Driven Development)**: Proses dimulai dari observasi sederhana (log tidak muncul), yang kemudian mendorong analisis dan penambahan pengujian secara iteratif.
@@ -53,7 +83,7 @@ Setelah beberapa perubahan pada basis kode, `build_runner` gagal dijalankan, yan
     *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik (`mockSta` bukan `mockStatusUnggah`) dan kode yang tidak perlu. Berkas ini telah dibersihkan dan diperbaiki.
     *   `test/shared/operasi/pelanggan_operasi_test.dart`: Mengalami masalah serupa dengan berkas pengujian lainnya dan telah diperbaiki untuk memastikan konsistensi dan kebenaran.
 
-3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`\"\"\"`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
+3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`\\\"\\\"\\\"`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
 
 ### Proses dan Tantangan
 
@@ -180,7 +210,7 @@ Saat mengerjakan file `lib/shared/data/sync/unggah_data.dart`, ditemukan beberap
     *   Solusinya adalah mengembalikan blok `catch` di dalam perulangan `unggahDataGenerik` ke bentuk `catch (e, s)` agar dapat menangkap semua jenis `Throwable`. Ini penting agar data yang rusak tidak menghentikan seluruh proses unggah data.
     *   Komentar `// ignore` ditambahkan dengan justifikasi yang jelas untuk mendokumentasikan mengapa aturan lint diabaikan pada kasus spesifik ini.
 
-2.  **Verifikasi dengan Tes Unit**: Setelah perbaikan logika, semua tes di `unggah_data_test.dart` dijalankan kembali dan berhasil, memvalidasi bahwa penanganan error kini berfungsi seperti yang diharapkan.
+2.  **Verifikasi dengan Tes Unit**: Setelah perbaikan logika, semua tes di `ungah_data_test.dart` dijalankan kembali dan berhasil, memvalidasi bahwa penanganan error kini berfungsi seperti yang diharapkan.
 
 3.  **Pembersihan `flutter analyze`**:
     *   Menjalankan `flutter analyze` mengungkapkan tiga masalah di seluruh proyek.

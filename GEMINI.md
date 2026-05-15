@@ -6,6 +6,7 @@
 3. kerjakan apa yang sesuai dengan perintah user saja jangan melenceng dari perintah user.
 4. AI dilarang keras untuk berasumsi dan di wajibkan membaca terlebih dahulu file terkait dependensi.
 5. AI seharusnya menuliskan kode lengkapnya, bukan placeholder.
+6. 
 
 # Aturan Utama
 1. Jangan pernah merubah isi file ini.

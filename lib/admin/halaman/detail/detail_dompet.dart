@@ -169,12 +169,12 @@ class _DetailDompetState extends State<DetailDompet> {
 
       for (int i = 0; i < daftarTransaksi.length; i++) {
         final trx = daftarTransaksi[i];
-        if (trx.tipe == TipeTransaksi.pemasukan) {
+        if (trx.tipe == TipeTransaksiEnum.pemasukan) {
           pemasukan += trx.jumlah;
           Log.info(
             '  Transaksi ke-${i + 1}: PEMASUKAN +${trx.jumlah} (Total pemasukan sementara: $pemasukan)',
           );
-        } else if (trx.tipe == TipeTransaksi.pengeluaran) {
+        } else if (trx.tipe == TipeTransaksiEnum.pengeluaran) {
           pengeluaran += trx.jumlah;
           Log.info(
             '  Transaksi ke-${i + 1}: PENGELUARAN -${trx.jumlah} (Total pengeluaran sementara: $pengeluaran)',
@@ -476,7 +476,7 @@ class _DetailDompetState extends State<DetailDompet> {
           0.0,
           (final sum, final item) =>
               sum +
-              (item.tipe == TipeTransaksi.pemasukan
+              (item.tipe == TipeTransaksiEnum.pemasukan
                   ? item.jumlah
                   : -item.jumlah),
         );

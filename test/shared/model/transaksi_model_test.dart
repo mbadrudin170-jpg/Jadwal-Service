@@ -17,7 +17,7 @@ void main() {
       tanggal: tanggalSekarang,
       keterangan: 'Beli pulsa',
       jumlah: 50000,
-      tipe: TipeTransaksi.pengeluaran,
+      tipe: TipeTransaksiEnum.pengeluaran,
       idDompet: 'dompet-A',
       idKategori: 'kat-pulsa',
     );
@@ -28,7 +28,7 @@ void main() {
       tanggal: tanggalSekarang,
       keterangan: 'Aktivasi Paket Internet 1 Bulan',
       jumlah: 150000,
-      tipe: TipeTransaksi.pemasukan, // DIGANTI: dari langganan ke pemasukan
+      tipe: TipeTransaksiEnum.pemasukan, // DIGANTI: dari langganan ke pemasukan
       idDompet: 'dompet-B',
       idKategori: 'kat-internet',
       idPelanggan: 'pel-007',
@@ -66,7 +66,7 @@ void main() {
       expect(diperbarui.keterangan, contains('Update'));
       expect(diperbarui.isDeleted, isTrue);
       expect(diperbarui.tipe,
-          TipeTransaksi.pemasukan,); // VERIFIKASI: tipe tetap sama
+          TipeTransaksiEnum.pemasukan,); // VERIFIKASI: tipe tetap sama
       expect(diperbarui.tipeDurasiPaket, TipeDurasi.hari);
       expect(diperbarui.tanggalMulai, transaksiLangganan.tanggalMulai);
     });
@@ -105,7 +105,7 @@ void main() {
 
         expect(model.id, 'sqlite-trans-1');
         expect(model.jumlah, 250000.0);
-        expect(model.tipe, TipeTransaksi.pengeluaran);
+        expect(model.tipe, TipeTransaksiEnum.pengeluaran);
         expect(model.statusPembayaran, StatusPembayaranEnum.lunas);
         expect(model.poinYangDihasilkan, 10);
         expect(model.isDeleted, isFalse);
@@ -134,7 +134,7 @@ void main() {
           'id_kategori': 'k',
         };
         final model = TransaksiModel.fromSqlite(mapKosong);
-        expect(model.tipe, TipeTransaksi.pengeluaran); // Default
+        expect(model.tipe, TipeTransaksiEnum.pengeluaran); // Default
         expect(
             model.statusPembayaran, StatusPembayaranEnum.belumLunas,); // Default
         expect(model.durasiPaket, isNull);
@@ -168,7 +168,7 @@ void main() {
 
         expect(model.id, 'fb-trans-1');
         expect(model.jumlah, 500000.0);
-        expect(model.tipe, TipeTransaksi.pengeluaran);
+        expect(model.tipe, TipeTransaksiEnum.pengeluaran);
         expect(model.tipeDurasiPaket, TipeDurasi.bulan);
         expect(model.tanggalMulai, tanggalMulai);
       });
@@ -179,7 +179,7 @@ void main() {
           tanggal: tanggalMulai,
           keterangan: 'Sewa Hosting',
           jumlah: 500000.0,
-          tipe: TipeTransaksi.pengeluaran,
+          tipe: TipeTransaksiEnum.pengeluaran,
           idDompet: 'd-fb-1',
           idKategori: 'k-fb-1',
           statusPembayaran: StatusPembayaranEnum.lunas,

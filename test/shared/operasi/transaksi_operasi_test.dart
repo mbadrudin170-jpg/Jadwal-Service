@@ -128,7 +128,7 @@ void main() {
   // Helper dummy
   TransaksiModel dummyTransaksi(
     final String id, {
-    final TipeTransaksi tipe = TipeTransaksi.pemasukan,
+    final TipeTransaksiEnum tipe = TipeTransaksiEnum.pemasukan,
   }) =>
       TransaksiModel(
         id: id,
@@ -141,7 +141,7 @@ void main() {
         tipe: tipe,
         idKategori: 'kat-$id',
         idDompetTujuan:
-            tipe == TipeTransaksi.transfer ? 'dompet-tujuan-$id' : null,
+            tipe == TipeTransaksiEnum.transfer ? 'dompet-tujuan-$id' : null,
       );
 
   Map<String, dynamic> dummyMap(final TransaksiModel t) => t.toSqlite();
@@ -362,7 +362,7 @@ void main() {
   // ============ arsipkanTransaksi ============
   group('arsipkanTransaksi', () {
     test('berhasil mengarsipkan dan update saldo', () async {
-      final transaksiLama = dummyTransaksi('t1', tipe: TipeTransaksi.transfer);
+      final transaksiLama = dummyTransaksi('t1', tipe: TipeTransaksiEnum.transfer);
       when(
         () => mockTransaction.query(
           'transaksi',
@@ -528,7 +528,7 @@ void main() {
     test('batch insert dan update saldo', () async {
       final items = [
         dummyTransaksi('1'),
-        dummyTransaksi('2', tipe: TipeTransaksi.transfer),
+        dummyTransaksi('2', tipe: TipeTransaksiEnum.transfer),
       ];
       final mockBatch = MockBatch();
       when(() => mockTransaction.batch()).thenReturn(mockBatch);

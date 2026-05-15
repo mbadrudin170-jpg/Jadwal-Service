@@ -7,6 +7,23 @@ dart fix --apply
 
 dart help
 
+# Clean
+# Hapus folder temporary
+rm -rf /tmp/*
+# Hapus cache Android & Gradle
+rm -rf /home/user/.android/cache
+rm -rf /home/user/.gradle/caches
+rm -rf /home/user/.gradle/wrapper/dists
+rm -rf /home/user/.gradle/daemon
+
+
+# Edit Alias Terminal
+code ~/.bash_aliases
+
+# Muat Ulang .bash_alias
+source ~/.bashrc
+
+
 # PERINGATAN : Penting diingat AI dilarang keras untuk merubah isi file GEMINI.md yang berhak merubah file ini adalah user sendiri
 - AI di wajibkan mengikuti semua aturan dalam file ini
 

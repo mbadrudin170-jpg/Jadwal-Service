@@ -1,13 +1,22 @@
 // path: lib/shared/enum/tipe_transaksi_enum.dart
+// diubah: Mengganti nama enum menjadi TipeTransaksiEnum dan menambahkan dokumentasi.
 
-/// Jenis tipe transaksi keuangan.
-enum TipeTransaksi {
-  /// Transaksi pemasukan uang.
+import 'package:hive/hive.dart';
+
+part 'tipe_transaksi_enum.g.dart';
+
+/// Enum untuk tipe-tipe transaksi.
+@HiveType(typeId: 1)
+enum TipeTransaksiEnum {
+  /// Untuk transaksi pemasukan.
+  @HiveField(0)
   pemasukan,
 
-  /// Transaksi pengeluaran uang.
+  /// Untuk transaksi pengeluaran.
+  @HiveField(1)
   pengeluaran,
 
-  /// Transaksi transfer antar dompet.
+  /// Untuk transaksi transfer.
+  @HiveField(2)
   transfer,
 }

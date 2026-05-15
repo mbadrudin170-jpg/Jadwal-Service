@@ -38,7 +38,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
 
   KategoriModel? _selectedKategori;
   SubKategoriModel? _selectedSubKategori;
-  TipeTransaksi _tipe = TipeTransaksi.pemasukan;
+  TipeTransaksiEnum _tipe = TipeTransaksiEnum.pemasukan;
   DompetModel? _selectedDompet;
   DompetModel? _selectedDompetTujuan;
 
@@ -100,7 +100,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
           },
         );
 
-        if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
+        if (trx.tipe == TipeTransaksiEnum.transfer && trx.idDompetTujuan != null) {
           _selectedDompetTujuan = _dompetList.firstWhere(
             (final d) => d.id == trx.idDompetTujuan,
             orElse: () {
@@ -161,7 +161,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
 
   void _filterKategoriInternal() {
     final tipeSebelum = _kategoriFiltered.length;
-    final tipeKategoriTarget = _tipe == TipeTransaksi.pemasukan
+    final tipeKategoriTarget = _tipe == TipeTransaksiEnum.pemasukan
         ? TipeKategori.pemasukan
         : TipeKategori.pengeluaran;
 
@@ -247,7 +247,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         tipe: _tipe,
         idDompet: _selectedDompet!.id,
         idDompetTujuan:
-            _tipe == TipeTransaksi.transfer ? _selectedDompetTujuan?.id : null,
+            _tipe == TipeTransaksiEnum.transfer ? _selectedDompetTujuan?.id : null,
         idKategori: _selectedKategori?.id ?? '',
         idSubKategori: _selectedSubKategori?.id,
       );
@@ -312,17 +312,17 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                 child: ListView(
                   children: [
                     Center(
-                      child: SegmentedButton<TipeTransaksi>(
-                        segments: TipeTransaksi.values.map((
-                          final TipeTransaksi tipe,
+                      child: SegmentedButton<TipeTransaksiEnum>(
+                        segments: TipeTransaksiEnum.values.map((
+                          final TipeTransaksiEnum tipe,
                         ) {
-                          return ButtonSegment<TipeTransaksi>(
+                          return ButtonSegment<TipeTransaksiEnum>(
                             value: tipe,
                             label: Text(tipe.name.toUpperCase()),
                           );
                         }).toList(),
-                        selected: <TipeTransaksi>{_tipe},
-                        onSelectionChanged: (final Set<TipeTransaksi> newSelection) {
+                        selected: <TipeTransaksiEnum>{_tipe},
+                        onSelectionChanged: (final Set<TipeTransaksiEnum> newSelection) {
                           setState(() {
                             Log.info(
                               'Tipe transaksi diubah menjadi: ${newSelection.first.name}',
@@ -395,7 +395,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       validator: (final val) =>
                           val == null ? 'Dompet harus dipilih' : null,
                     ),
-                    if (_tipe == TipeTransaksi.transfer)
+                    if (_tipe == TipeTransaksiEnum.transfer)
                       DropdownButtonFormField<DompetModel>(
                         key: ValueKey<DompetModel?>(_selectedDompetTujuan),
                         initialValue: _selectedDompetTujuan,

@@ -1,86 +1,107 @@
 // path: lib/shared/model/transaksi_model.dart
-// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
-// diubah: Model digabungkan dengan RiwayatLanggananModel dan denormalisasi data dihapus.
-// diubah: Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER) di SQLite.
-// ditambah: Dokumentasi lengkap dan perbaikan tipe data untuk keamanan.
+// diubah: Menyesuaikan dengan perubahan nama enum TipeTransaksiEnum.
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hive/hive.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/model/paket_model.dart'; // Impor untuk TipeDurasi
 
+part 'transaksi_model.g.dart';
+
 /// Model yang merepresentasikan satu transaksi dalam aplikasi.
 ///
-/// Model ini mencakup semua jenis transaksi, termasuk pemasukan, pengeluaran,
-/// transfer antar dompet, dan juga transaksi yang berhubungan dengan aktivasi
-/// atau perpanjangan langganan paket.
-class TransaksiModel implements MemilikiId {
+/// Model ini di-cache secara lokal menggunakan Hive untuk akses cepat.
+@HiveType(typeId: 0)
+class TransaksiModel extends HiveObject implements MemilikiId {
   /// ID unik untuk transaksi, biasanya UUID.
   @override
+  @HiveField(0)
   final String id;
 
   /// Tanggal dan waktu kapan transaksi dibuat.
+  @HiveField(1)
   final DateTime tanggal;
 
   /// Deskripsi atau catatan mengenai transaksi.
+  @HiveField(2)
   final String keterangan;
 
   /// Jumlah nominal dari transaksi.
+  @HiveField(3)
   final double jumlah;
 
   /// Jenis transaksi (pemasukan, pengeluaran, transfer, langganan).
-  final TipeTransaksi tipe;
+  @HiveField(4)
+  final TipeTransaksiEnum tipe;
 
   /// ID dompet sumber dana.
+  @HiveField(5)
   final String idDompet;
 
   /// ID kategori utama dari transaksi.
+  @HiveField(6)
   final String idKategori;
 
   /// ID dompet tujuan, hanya digunakan untuk transaksi tipe transfer.
+  @HiveField(7)
   final String? idDompetTujuan;
 
   /// ID pelanggan yang terkait dengan transaksi ini.
+  @HiveField(8)
   final String? idPelanggan;
 
   /// ID paket yang terkait, jika transaksi ini adalah aktivasi langganan.
+  @HiveField(9)
   final String? idPaket;
 
   /// ID sub-kategori dari transaksi.
+  @HiveField(10)
   final String? idSubKategori;
 
   /// Status pembayaran untuk transaksi (misal: lunas, belum lunas).
+  @HiveField(11)
   final StatusPembayaranEnum statusPembayaran;
 
   /// Jumlah poin yang dihasilkan dari transaksi ini.
+  @HiveField(12)
   final int poinYangDihasilkan;
 
   /// Jumlah poin yang digunakan dalam transaksi ini.
+  @HiveField(13)
   final int poinYangDigunakan;
 
   /// Waktu terakhir data ini diperbarui.
+  @HiveField(14)
   final DateTime? diperbarui;
 
   /// Waktu kapan data ini diarsipkan.
+  @HiveField(15)
   final DateTime? diarsipkan;
 
   /// Penanda jika data ini telah dihapus (soft delete).
+  @HiveField(16)
   final bool isDeleted;
 
   // Properti dari RiwayatLanggananModel yang digabung
   /// Durasi paket langganan (misal: 30).
+  @HiveField(17)
   final int? durasiPaket;
 
   /// Tipe durasi paket (misal: hari, bulan).
+  @HiveField(18)
   final TipeDurasi? tipeDurasiPaket;
 
   /// Tanggal mulai periode langganan.
+  @HiveField(19)
   final DateTime? tanggalMulai;
 
   /// Tanggal berakhir periode langganan.
+  @HiveField(20)
   final DateTime? tanggalBerakhir;
 
   /// Penanda jika transaksi ini merupakan aktivasi paket baru.
+  @HiveField(21)
   final bool aktivasiPaket;
 
   /// Konstruktor utama untuk membuat instance [TransaksiModel].
@@ -140,8 +161,8 @@ class TransaksiModel implements MemilikiId {
       tanggal: _parseDateTime(map['tanggal']) ?? DateTime.now(),
       keterangan: map['keterangan'] as String? ?? '',
       jumlah: (map['jumlah'] as num? ?? 0).toDouble(),
-      tipe: _safeParseEnum(TipeTransaksi.values, map['tipe']) ??
-          TipeTransaksi.pengeluaran,
+      tipe: _safeParseEnum(TipeTransaksiEnum.values, map['tipe']) ??
+          TipeTransaksiEnum.pengeluaran,
       idDompet: map['id_dompet'] as String? ?? '',
       idKategori: map['id_kategori'] as String? ?? '',
       idDompetTujuan: map['id_dompet_tujuan'] as String?,
@@ -168,7 +189,6 @@ class TransaksiModel implements MemilikiId {
   }
 
   /// Mengubah instance [TransaksiModel] menjadi Map untuk disimpan di SQLite.
-  /// Semua kolom tanggal disimpan sebagai millisecondsSinceEpoch (INTEGER).
   Map<String, dynamic> toSqlite() {
     return {
       'id': id,
@@ -206,8 +226,8 @@ class TransaksiModel implements MemilikiId {
       tanggal: _parseDateTime(data['tanggal']) ?? DateTime.now(),
       keterangan: data['keterangan'] as String? ?? '',
       jumlah: (data['jumlah'] as num? ?? 0).toDouble(),
-      tipe: _safeParseEnum(TipeTransaksi.values, data['tipe']) ??
-          TipeTransaksi.pengeluaran,
+      tipe: _safeParseEnum(TipeTransaksiEnum.values, data['tipe']) ??
+          TipeTransaksiEnum.pengeluaran,
       idDompet: data['id_dompet'] as String? ?? '',
       idKategori: data['id_kategori'] as String? ?? '',
       idDompetTujuan: data['id_dompet_tujuan'] as String?,
@@ -271,7 +291,7 @@ class TransaksiModel implements MemilikiId {
     final DateTime? tanggal,
     final String? keterangan,
     final double? jumlah,
-    final TipeTransaksi? tipe,
+    final TipeTransaksiEnum? tipe,
     final String? idDompet,
     final String? idKategori,
     final String? idDompetTujuan,

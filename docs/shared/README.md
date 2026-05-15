@@ -1,5 +1,35 @@
 # README Shared
 
+## Perbaikan Total `build_runner` dan Konflik Dependensi
+
+### Latar Belakang
+Proses pengembangan terhenti total karena `build_runner` tidak dapat berjalan, yang mengakibatkan berkas-berkas penting (`.g.dart`) tidak dibuat. Perintah `flutter analyze` juga melaporkan banyak sekali error, seperti `uri_has_not_been_generated`, yang semuanya merupakan gejala dari kegagalan `build_runner`.
+
+### Rangkuman Perubahan
+Proses perbaikan ini melibatkan serangkaian langkah pemecahan masalah yang sistematis dan mendalam:
+
+1.  **Identifikasi Masalah Awal**: Analisis `pubspec.yaml` menunjukkan bahwa dependensi krusial `hive_generator` tidak ada di `dev_dependencies`.
+2.  **Pemecahan Konflik Dependensi**:
+    *   Setelah menambahkan `hive_generator`, `flutter pub get` gagal karena konflik versi antara `build_runner` dan `hive_generator`.
+    *   Masalah ini diatasi dengan melonggarkan batasan versi `build_runner` (mengubah `^2.15.0` menjadi `any`).
+    *   Konflik baru muncul antara `mockito` dan `hive_generator`. Sesuai saran dari `pub`, versi `mockito` diturunkan ke `^5.4.4`, yang akhirnya memungkinkan `flutter pub get` berjalan sukses.
+3.  **Mengatasi Kegagalan Skrip Build `build_runner`**:
+    *   Meskipun dependensi sudah benar, `build_runner` tetap gagal dengan error `Failed to compile build script`. Ini menandakan adanya artefak build yang korup.
+    *   **Percobaan 1: Perbaikan Cache Pub (`flutter pub cache repair`)**: Upaya pertama untuk memperbaiki cache global `pub` tidak berhasil menyelesaikan masalah.
+    *   **Percobaan 2: Pembersihan Total Proyek (`flutter clean`)**: Solusi akhirnya adalah menjalankan `flutter clean` untuk menghapus direktori `build` dan `.dart_tool` yang korup. Setelah itu, `flutter pub get` dijalankan kembali untuk membangun ulang artefak dari awal.
+4.  **Verifikasi Akhir**:
+    *   Setelah pembersihan total, `flutter pub run build_runner build --delete-conflicting-outputs` akhirnya berhasil dijalankan tanpa error.
+    *   Verifikasi terakhir dengan `flutter analyze` menunjukkan **"No issues found!"**, mengonfirmasi bahwa semua masalah telah teratasi.
+
+### Proses dan Tantangan
+*   **Debug Berlapis**: Masalah ini adalah contoh klasik dari "debug berlapis", di mana memperbaiki satu error akan mengungkap error lain yang lebih dalam.
+*   **Pentingnya Kebersihan Lingkungan**: Kasus ini membuktikan bahwa cache yang rusak atau artefak build yang tidak konsisten dapat menyebabkan error yang sangat membingungkan. Perintah `flutter clean` adalah alat yang sangat ampuh untuk mengatasi masalah semacam ini.
+*   **Manajemen Dependensi**: Kesulitan dalam menemukan versi paket yang kompatibel menyoroti betapa rumitnya manajemen dependensi dalam proyek modern.
+
+Dengan selesainya pekerjaan ini, sistem build proyek telah pulih sepenuhnya, dan pengembangan dapat dilanjutkan di atas fondasi yang stabil.
+
+---
+
 ## Perbaikan Lingkungan Pengujian (`build_runner`)
 
 Untuk memastikan keandalan dan stabilitas basis kode, dilakukan upaya untuk memperbaiki lingkungan pengujian yang rusak. Proses ini sangat penting karena `build_runner` yang gagal menghalangi pembuatan *mock* dan eksekusi pengujian unit.
@@ -19,7 +49,7 @@ Proses perbaikan ini bersifat iteratif, di mana perbaikan satu masalah sering ka
     *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik pada nama variabel (`mockSta` bukan `mockStatusUnggah`) dan beberapa kode pengujian yang tidak lengkap.
     *   `test/shared/operasi/pelanggan_operasi_test.dart`: Serupa dengan yang lain, berkas ini memiliki masalah dalam penyiapan dan verifikasi *mock*.
 
-3.  **Penanganan *Error* Tak Terduga**: Selama proses perbaikan, sebuah *error* `Unterminated string literal` muncul di `sub_kategori_operasi_test.dart`. Ini disebabkan oleh kesalahan sederhana: seluruh konten berkas secara tidak sengaja terbungkus dalam tanda kutip tiga (`\"\"\"`), yang membuat kode Dart tidak valid.
+3.  **Penanganan *Error* Tak Terduga**: Selama proses perbaikan, sebuah *error* `Unterminated string literal` muncul di `sub_kategori_operasi_test.dart`. Ini disebabkan oleh kesalahan sederhana: seluruh konten berkas secara tidak sengaja terbungkus dalam tanda kutip tiga (`\\\"\\\"\\\"`), yang membuat kode Dart tidak valid.
 
 ### Solusi dan Hasil Akhir
 
@@ -95,7 +125,7 @@ Untuk mengatasi ini, standar baru telah diterapkan di **semua file operasi data*
 ### Contoh Kritis: `pembersihan_data_operasi.dart`
 
 Bug paling berbahaya ditemukan dan diperbaiki di file ini.
-- **Sebelumnya**: Menggunakan fungsi `datetime('now', ...)` dari SQLite. Fungsi ini menggunakan waktu **lokal** sistem, menciptakan perbandingan antara data UTC (dari aplikasi) dan waktu lokal (dari database), yang sangat rawan kesalahan.
+- **Sebelumnya**: Menggunakan fungsi `datetime(\'now\', ...)` dari SQLite. Fungsi ini menggunakan waktu **lokal** sistem, menciptakan perbandingan antara data UTC (dari aplikasi) dan waktu lokal (dari database), yang sangat rawan kesalahan.
 - **Sekarang**: Logika dipindahkan sepenuhnya ke Dart. Aplikasi menghitung `batasWaktu` menggunakan `DateTime.now().toUtc()`, lalu meneruskannya sebagai parameter ke query SQL. Ini menjamin perbandingan selalu UTC vs UTC.
 
 ### Manfaat
@@ -130,8 +160,8 @@ File ini berfungsi sebagai titik ekspor tunggal untuk semua kelas "operasi" yang
 
 **Perbaikan (Struktur Impor):**
 
-- **Masalah**: Sebelumnya, file ini menggunakan ekspor relatif (misalnya, `export 'dompet_operasi.dart';`). Pendekatan ini rapuh dan menyebabkan kesalahan analisis `uri_does_not_exist` karena resolver URI tidak dapat secara konsisten menemukan file yang benar dari konteks yang berbeda.
-- **Solusi**: Semua pernyataan ekspor telah diperbarui untuk menggunakan sintaks `package:` absolut (misalnya, `export 'package:wifi/shared/operasi/dompet_operasi.dart';`).
+- **Masalah**: Sebelumnya, file ini menggunakan ekspor relatif (misalnya, `export \'dompet_operasi.dart\';`). Pendekatan ini rapuh dan menyebabkan kesalahan analisis `uri_does_not_exist` karena resolver URI tidak dapat secara konsisten menemukan file yang benar dari konteks yang berbeda.
+- **Solusi**: Semua pernyataan ekspor telah diperbarui untuk menggunakan sintaks `package:` absolut (misalnya, `export \'package:wifi/shared/operasi/dompet_operasi.dart\';`).
 - **Manfaat**: Penggunaan path `package:` memastikan bahwa file selalu dapat ditemukan secara andal oleh alat analisis dan build Dart, terlepas dari di mana file `operasi.dart` diimpor. Ini membuat basis kode lebih kuat dan mudah dipelihara.
 
 ## `theme/`
@@ -173,8 +203,8 @@ File ini berisi `ThemeProvider`, sebuah kelas yang mengelola status tema aplikas
 1.  **Bungkus Aplikasi Anda**: Bungkus widget root aplikasi Anda dengan `ChangeNotifierProvider`.
 
     ```dart
-    import 'package:provider/provider.dart';
-    import 'package:wifi/shared/theme/theme_provider.dart';
+    import \'package:provider/provider.dart\';
+    import \'package:wifi/shared/theme/theme_provider.dart\';
 
     void main() {
       runApp(
@@ -317,7 +347,7 @@ Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke 
 ### Masalah: `on Exception` vs. `Error`
 
 - **Implementasi Awal**: Untuk mematuhi aturan lint `avoid_catches_without_on_clauses`, blok `try-catch` di dalam metode `unggahDataGenerik` diubah dari `catch (e,s)` menjadi `on Exception catch (e,s)`.
-- **Dampak Negatif**: Pengujian unit (`unggah_data_test.dart`) mengungkap bahwa perubahan ini merusak logika penanganan data yang korup. Sebuah `ArgumentError` yang sengaja dilemparkan oleh *factory constructor* (`fromSqlite`) saat menerima data tidak valid (`\'id\': null`) tidak tertangkap. Ini karena `ArgumentError` adalah turunan dari kelas `Error`, bukan `Exception`. Akibatnya, *error* tersebut tidak ditangani dan menghentikan seluruh proses *batch commit*.
+- **Dampak Negatif**: Pengujian unit (`unggah_data_test.dart`) mengungkap bahwa perubahan ini merusak logika penanganan data yang korup. Sebuah `ArgumentError` yang sengaja dilemparkan oleh *factory constructor* (`fromSqlite`) saat menerima data tidak valid (`\\\'id\\\': null`) tidak tertangkap. Ini karena `ArgumentError` adalah turunan dari kelas `Error`, bukan `Exception`. Akibatnya, *error* tersebut tidak ditangani dan menghentikan seluruh proses *batch commit*.
 
 ### Solusi: Penanganan Error yang Lebih Luas dan Terdokumentasi
 
@@ -325,7 +355,7 @@ Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke 
 
 2.  **Dokumentasi Justifikasi**: Untuk tetap mematuhi semangat aturan lint, sebuah komentar `// ignore` ditambahkan dengan penjelasan yang jelas:
     ```dart
-    // ignore: avoid_catches_without_on_clauses, justification: \'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah\'
+    // ignore: avoid_catches_without_on_clauses, justification: \\\'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah\\\'
     ```
     Dokumentasi ini krusial untuk menjelaskan kepada pengembang lain mengapa aturan lint sengaja diabaikan dalam kasus ini.
 
