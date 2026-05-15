@@ -107,7 +107,8 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
     });
   }
 
-  void _urutkanList(final List<TransaksiModel> list, final OpsiUrutkan pilihan) {
+  void _urutkanList(
+      final List<TransaksiModel> list, final OpsiUrutkan pilihan) {
     Log.info(
       'Mengurutkan ${list.length} data transaksi berdasarkan: ${pilihan.name}',
     );
@@ -345,7 +346,8 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (final context) => DetailLanggananTransaksiPage(
+                          builder: (final context) =>
+                              DetailLanggananTransaksiPage(
                             idTransaksi: transaksi.id,
                           ),
                         ),
@@ -368,7 +370,10 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        NamaPaketWidget(idPaket: transaksi.idPaket ?? ''),
+                        NamaPaketWidget(
+                          idPaket: transaksi.idPaket ?? '',
+                          style: TextStyle(color: statusPembayaranColor),
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           'Status: ${transaksi.statusPembayaran.name}',

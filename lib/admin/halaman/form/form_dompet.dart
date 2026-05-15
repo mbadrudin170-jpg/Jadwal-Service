@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
 class FormDompet extends StatefulWidget {
@@ -154,6 +155,10 @@ class _FormDompetState extends State<FormDompet> {
             return;
           }
 
+          Log.info('Menampilkan SnackBar sukses update dompet.');
+          SnackBarUtil.info(context, 'Nama dompet berhasil diperbarui!');
+          Log.info('SnackBar sukses update dompet telah ditampilkan.');
+
           Log.info(
             'Widget masih mounted. Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.',
           );
@@ -162,15 +167,6 @@ class _FormDompetState extends State<FormDompet> {
           );
           Navigator.pop(context, true);
           Log.info('Navigator.pop berhasil dijalankan.');
-
-          Log.info('Menampilkan SnackBar sukses update dompet.');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Nama dompet berhasil diperbarui!'),
-              backgroundColor: Colors.blue,
-            ),
-          );
-          Log.info('SnackBar sukses update dompet telah ditampilkan.');
         } else {
           Log.info('========================================');
           Log.info('PROSES TAMBAH DOMPET BARU (MODE TAMBAH)');
@@ -214,6 +210,10 @@ class _FormDompetState extends State<FormDompet> {
             return;
           }
 
+          Log.info('Menampilkan SnackBar sukses tambah dompet.');
+          SnackBarUtil.success(context, 'Dompet baru berhasil ditambahkan!');
+          Log.info('SnackBar sukses tambah dompet telah ditampilkan.');
+
           Log.info(
             'Widget masih mounted. Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.',
           );
@@ -222,15 +222,6 @@ class _FormDompetState extends State<FormDompet> {
           );
           Navigator.pop(context, true);
           Log.info('Navigator.pop berhasil dijalankan.');
-
-          Log.info('Menampilkan SnackBar sukses tambah dompet.');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Dompet baru berhasil ditambahkan!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Log.info('SnackBar sukses tambah dompet telah ditampilkan.');
         }
       } on Exception catch (e, s) {
         Log.error(
@@ -252,12 +243,7 @@ class _FormDompetState extends State<FormDompet> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal menyimpan dompet: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackBarUtil.error(context, 'Gagal menyimpan dompet: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {

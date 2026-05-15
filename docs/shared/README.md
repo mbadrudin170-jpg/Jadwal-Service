@@ -19,7 +19,7 @@ Proses perbaikan ini bersifat iteratif, di mana perbaikan satu masalah sering ka
     *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik pada nama variabel (`mockSta` bukan `mockStatusUnggah`) dan beberapa kode pengujian yang tidak lengkap.
     *   `test/shared/operasi/pelanggan_operasi_test.dart`: Serupa dengan yang lain, berkas ini memiliki masalah dalam penyiapan dan verifikasi *mock*.
 
-3.  **Penanganan *Error* Tak Terduga**: Selama proses perbaikan, sebuah *error* `Unterminated string literal` muncul di `sub_kategori_operasi_test.dart`. Ini disebabkan oleh kesalahan sederhana: seluruh konten berkas secara tidak sengaja terbungkus dalam tanda kutip tiga (`"""`), yang membuat kode Dart tidak valid.
+3.  **Penanganan *Error* Tak Terduga**: Selama proses perbaikan, sebuah *error* `Unterminated string literal` muncul di `sub_kategori_operasi_test.dart`. Ini disebabkan oleh kesalahan sederhana: seluruh konten berkas secara tidak sengaja terbungkus dalam tanda kutip tiga (`\"\"\"`), yang membuat kode Dart tidak valid.
 
 ### Solusi dan Hasil Akhir
 
@@ -294,6 +294,7 @@ Sebagai bagian dari pemeliharaan rutin, dilakukan analisis kode statis (`flutter
 - **Kualitas Terjaga**: Dengan mematuhi hasil analisis statis, proyek menjadi lebih kuat dan bebas dari "utang teknis" kecil yang bisa menumpuk seiring waktu.
 
 ---
+
 ## Refaktorisasi dan Peningkatan Kualitas Kode di Lapisan Operasi dan Data
 
 - **Konteks**: Proses pemeliharaan kode mengidentifikasi beberapa area di lapisan operasi data (`shared/operasi`) dan lapisan sinkronisasi data (`shared/data/sync`) yang memerlukan perbaikan untuk meningkatkan *testability* dan mematuhi praktik terbaik Dart.
@@ -316,7 +317,7 @@ Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke 
 ### Masalah: `on Exception` vs. `Error`
 
 - **Implementasi Awal**: Untuk mematuhi aturan lint `avoid_catches_without_on_clauses`, blok `try-catch` di dalam metode `unggahDataGenerik` diubah dari `catch (e,s)` menjadi `on Exception catch (e,s)`.
-- **Dampak Negatif**: Pengujian unit (`unggah_data_test.dart`) mengungkap bahwa perubahan ini merusak logika penanganan data yang korup. Sebuah `ArgumentError` yang sengaja dilemparkan oleh *factory constructor* (`fromSqlite`) saat menerima data tidak valid (`'id': null`) tidak tertangkap. Ini karena `ArgumentError` adalah turunan dari kelas `Error`, bukan `Exception`. Akibatnya, *error* tersebut tidak ditangani dan menghentikan seluruh proses *batch commit*.
+- **Dampak Negatif**: Pengujian unit (`unggah_data_test.dart`) mengungkap bahwa perubahan ini merusak logika penanganan data yang korup. Sebuah `ArgumentError` yang sengaja dilemparkan oleh *factory constructor* (`fromSqlite`) saat menerima data tidak valid (`\'id\': null`) tidak tertangkap. Ini karena `ArgumentError` adalah turunan dari kelas `Error`, bukan `Exception`. Akibatnya, *error* tersebut tidak ditangani dan menghentikan seluruh proses *batch commit*.
 
 ### Solusi: Penanganan Error yang Lebih Luas dan Terdokumentasi
 
@@ -324,7 +325,7 @@ Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke 
 
 2.  **Dokumentasi Justifikasi**: Untuk tetap mematuhi semangat aturan lint, sebuah komentar `// ignore` ditambahkan dengan penjelasan yang jelas:
     ```dart
-    // ignore: avoid_catches_without_on_clauses, justification: 'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah'
+    // ignore: avoid_catches_without_on_clauses, justification: \'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah\'
     ```
     Dokumentasi ini krusial untuk menjelaskan kepada pengembang lain mengapa aturan lint sengaja diabaikan dalam kasus ini.
 
@@ -333,3 +334,40 @@ Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke 
 - **Ketahanan (Resilience)**: Proses sinkronisasi sekarang jauh lebih tahan banting. Data yang korup akan dicatat sebagai *error*, dilewati, dan tidak akan menghentikan unggahan data lain yang valid.
 - **Kejelasan Kode**: Justifikasi yang terdokumentasi membuat keputusan teknis ini transparan dan mudah dipahami.
 - **Kualitas Terjamin**: Validasi melalui pengujian unit memastikan bahwa solusi ini berfungsi sesuai yang diharapkan dalam skenario kasus-tepi (edge case).
+
+---
+
+## Standarisasi Notifikasi dengan `SnackBarUtil`
+
+### Latar Belakang
+
+Untuk menciptakan pengalaman pengguna yang konsisten dan menyederhanakan pengembangan, semua panggilan `ScaffoldMessenger.of(context).showSnackBar()` telah direfaktor untuk menggunakan utilitas terpusat, `SnackBarUtil`.
+
+### Masalah
+
+Penggunaan `ScaffoldMessenger` secara langsung di berbagai file menyebabkan beberapa masalah:
+- **Inkonsistensi**: Setiap *snackbar* dapat memiliki gaya, warna, dan durasi yang berbeda, menghasilkan UI yang tidak seragam.
+- **Duplikasi Kode**: Kode untuk membuat dan menampilkan `SnackBar` diulang di banyak tempat.
+- **Kesulitan Pemeliharaan**: Jika desain *snackbar* perlu diubah, pengembang harus mencari dan mengubah setiap implementasi satu per satu.
+
+### Solusi: `SnackBarUtil`
+
+`SnackBarUtil` adalah kelas utilitas statis yang menyediakan metode sederhana untuk menampilkan berbagai jenis notifikasi:
+- `SnackBarUtil.success(context, message)`
+- `SnackBarUtil.error(context, message)`
+- `SnackBarUtil.info(context, message)`
+
+Setiap metode telah dikonfigurasi sebelumnya dengan warna dan ikon yang sesuai, memastikan semua notifikasi di seluruh aplikasi memiliki tampilan dan nuansa yang sama.
+
+### Proses Refaktorisasi
+
+- **Identifikasi**: Semua file yang menggunakan `ScaffoldMessenger` diidentifikasi menggunakan pencarian global.
+- **Implementasi**: Setiap pemanggilan `ScaffoldMessenger` diganti dengan pemanggilan `SnackBarUtil` yang sesuai.
+- **Perbaikan Tambahan**: Selama proses ini, beberapa peringatan analisis statis (`use_build_context_synchronously` dan `discarded_futures`) ditemukan dan diperbaiki, yang selanjutnya meningkatkan kualitas kode.
+- **Verifikasi**: `flutter analyze` dijalankan untuk memastikan tidak ada masalah baru yang muncul.
+
+### Manfaat
+
+- **Konsistensi UI**: Semua notifikasi sekarang memiliki tampilan yang seragam.
+- **Kode Lebih Bersih**: Menghilangkan kode berulang dan menyederhanakan logika di dalam *widget*.
+- **Pemeliharaan Terpusat**: Perubahan desain atau perilaku *snackbar* di masa mendatang hanya perlu dilakukan di satu file (`snackbar_util.dart`).

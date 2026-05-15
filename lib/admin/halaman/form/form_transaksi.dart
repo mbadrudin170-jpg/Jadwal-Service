@@ -13,6 +13,7 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengubah data transaksi.
 ///
@@ -149,9 +150,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal total saat memuat data awal.', e: e, st: s);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal memuat data penting: $e')));
+      SnackBarUtil.error(context, 'Gagal memuat data penting: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -281,9 +280,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
           st: s,
         );
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan transaksi: $e')),
-        );
+        SnackBarUtil.error(context, 'Gagal menyimpan transaksi: $e');
       } finally {
         if (mounted) {
           setState(() => _isSaving = false);

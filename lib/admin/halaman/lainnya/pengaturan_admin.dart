@@ -5,6 +5,7 @@ import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart'; // ditambah: import SyncManager
 
 /// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
@@ -108,21 +109,17 @@ class _PengaturanAdminState extends State<PengaturanAdmin> {
         await SyncManager().resetWaktuSinkronisasi();
         Log.info('Reset waktu sinkronisasi berhasil.');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Waktu sinkronisasi berhasil di-reset.'),
-              backgroundColor: Colors.green,
-            ),
+          SnackBarUtil.success(
+            context,
+            'Waktu sinkronisasi berhasil di-reset.',
           );
         }
       } on Exception catch (e, st) {
         Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal mereset waktu sinkronisasi: $e'),
-              backgroundColor: Colors.red,
-            ),
+          SnackBarUtil.error(
+            context,
+            'Gagal mereset waktu sinkronisasi: $e',
           );
         }
       }

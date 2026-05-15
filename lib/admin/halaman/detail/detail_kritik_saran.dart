@@ -6,11 +6,14 @@
 // - _loadData(): Memuat data kritik dan saran berdasarkan ID dari operasi.
 // - _hapusKritikSaran(): Menangani logika untuk menghapus item kritik dan saran dengan konfirmasi.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/nama_dari_id.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
@@ -134,9 +137,8 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
         Log.info(
           'Menampilkan loading dialog selama proses penghapusan.',
         );
-        // diubah: Menambahkan await untuk memenuhi aturan unawaited_futures.
-        // Alasan: Meskipun tidak menunggu hasilnya, ini adalah praktik yang baik untuk kejelasan kode dan menghilangkan peringatan linter.
-        await showDialog<void>(
+
+        unawaited(showDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: (final context) {
@@ -148,7 +150,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
               child: CircularProgressIndicator(),
             );
           },
-        );
+        ));
 
         Log.info(
           'Memanggil operasi hapus kritik dan saran ke database.',
@@ -171,17 +173,9 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
         }
 
         if (mounted) {
-          Log.info(
-            'Menampilkan snackbar sukses penghapusan.',
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Kritik dan saran berhasil dihapus',
-              ),
-              backgroundColor: Colors.green,
-            ),
+          SnackBarUtil.success(
+            context,
+            'Kritik dan saran berhasil dihapus',
           );
         }
 
@@ -208,17 +202,9 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
         }
 
         if (mounted) {
-          Log.warning(
-            'Menampilkan snackbar error penghapusan.',
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Gagal menghapus: $e',
-              ),
-              backgroundColor: Colors.red,
-            ),
+          SnackBarUtil.error(
+            context,
+            'Gagal menghapus: $e',
           );
         }
       }

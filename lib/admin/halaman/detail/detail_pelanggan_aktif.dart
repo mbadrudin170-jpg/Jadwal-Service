@@ -19,6 +19,7 @@ import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Halaman untuk menampilkan detail pelanggan aktif.
@@ -134,13 +135,9 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
-            ),
-            backgroundColor: Colors.red,
-          ),
+        SnackBarUtil.error(
+          context,
+          'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
         );
         Log.info('SnackBar error WhatsApp telah ditampilkan.');
       } else {

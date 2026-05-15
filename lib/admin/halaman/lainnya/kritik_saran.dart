@@ -5,6 +5,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/nama_dari_id.dart';
 
 /// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
@@ -75,12 +76,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
         await _kritikSaranOperasi.hapusKritikSaran(item.id);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Kritik dan saran berhasil dihapus'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          SnackBarUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
         _loadKritikSaran();
       } on Exception catch (e, st) {
@@ -90,12 +86,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
           st: st,
         );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal menghapus: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SnackBarUtil.error(context, 'Gagal menghapus: $e');
         }
       }
     }

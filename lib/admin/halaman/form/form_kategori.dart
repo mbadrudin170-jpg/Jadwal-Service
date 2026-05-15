@@ -8,6 +8,7 @@ import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
 class FormKategoriPage extends StatefulWidget {
@@ -426,14 +427,10 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         }
 
         Log.info('Widget masih mounted. Menampilkan SnackBar sukses.');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+        SnackBarUtil.success(
+            context,
+            '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
+          );
         Log.info('SnackBar sukses telah ditampilkan.');
 
         Log.info(
@@ -461,12 +458,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal menyimpan: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+       SnackBarUtil.error(context, 'Gagal menyimpan: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {

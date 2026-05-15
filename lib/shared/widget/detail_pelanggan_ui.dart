@@ -111,7 +111,8 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
               await _salinData('Password', widget.pelanggan.password);
             }),
             const Divider(),
-            _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () async {
+            _buildDetailRow('MAC Address', widget.pelanggan.macAddress,
+                () async {
               await _salinData('MAC Address', widget.pelanggan.macAddress);
             }),
             const SizedBox(height: 24),

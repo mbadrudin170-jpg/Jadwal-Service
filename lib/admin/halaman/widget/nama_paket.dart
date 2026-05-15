@@ -7,6 +7,7 @@ import 'package:wifi/shared/operasi/paket_operasi.dart';
 class NamaPaketWidget extends StatelessWidget {
   /// ID dari paket yang akan ditampilkan namanya.
   final String idPaket;
+
   /// Gaya teks untuk nama paket.
   final TextStyle? style;
 

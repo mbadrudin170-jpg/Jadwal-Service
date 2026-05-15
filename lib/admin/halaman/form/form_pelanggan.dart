@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
 class FormPelanggan extends StatefulWidget {
@@ -107,19 +108,12 @@ class _FormPelangganState extends State<FormPelanggan> {
             'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
           );
           Navigator.pop(context, true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Data pelanggan berhasil disimpan.'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          SnackBarUtil.success(context, 'Data pelanggan berhasil disimpan.');
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menyimpan data: $e')),
-          );
+          SnackBarUtil.error(context, 'Gagal menyimpan data: $e');
         }
       } finally {
         if (mounted) {

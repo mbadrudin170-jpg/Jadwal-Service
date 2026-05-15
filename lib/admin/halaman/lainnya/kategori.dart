@@ -15,6 +15,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
 ///
@@ -153,9 +154,7 @@ class _KategoriPageState extends State<KategoriPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kategori berhasil diarsipkan.')),
-      );
+      SnackBarUtil.success(context, 'Kategori berhasil diarsipkan.');
       _loadKategori();
     } on Exception catch (e, st) {
       Log.error(
@@ -164,9 +163,7 @@ class _KategoriPageState extends State<KategoriPage> {
         st: st,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengarsipkan kategori: $e')),
-      );
+      SnackBarUtil.error(context, 'Gagal mengarsipkan kategori: $e');
     }
   }
 
@@ -209,9 +206,7 @@ class _KategoriPageState extends State<KategoriPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sub-kategori berhasil diarsipkan.')),
-      );
+      SnackBarUtil.success(context, 'Sub-kategori berhasil diarsipkan.');
       _loadKategori();
     } on Exception catch (e, st) {
       Log.error(
@@ -220,9 +215,7 @@ class _KategoriPageState extends State<KategoriPage> {
         st: st,
       );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengarsipkan sub-kategori: $e')),
-      );
+      SnackBarUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
     }
   }
 

@@ -1,12 +1,12 @@
 // path: lib/admin/halaman/detail/detail_riwayat_langganan.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail transaksi langganan.
@@ -50,7 +50,7 @@ class _DetailLanggananTransaksiPageState
     Log.info('Membangun UI halaman detail langganan transaksi.');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Langganan')),
+      appBar: AppBar(title: const Text('Detail Langganan')), // TODO: rencana selanjutnya adalah menambahkan tombol edit
       body: FutureBuilder<TransaksiModel?>(
         future: _transaksiFuture,
         builder: (final context, final snapshot) {
@@ -97,6 +97,18 @@ class _DetailLanggananTransaksiPageState
                         pelanggan?.nama ?? 'Tidak Diketahui',
                       ),
                     ],
+                    onTap: (final pelanggan) {
+                      if (pelanggan != null) {
+                        unawaited(Navigator.push<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (final context) => DetailPelangganPage(
+                              idPelanggan: pelanggan.id,
+                            ),
+                          ),
+                        ));
+                      }
+                    },
                   ),
                 const SizedBox(height: 16),
                 if (transaksi.idPaket != null)
@@ -108,19 +120,30 @@ class _DetailLanggananTransaksiPageState
                       _buildDetailRow(
                         'Nama Paket',
                         paket?.nama ?? 'Tidak Diketahui',
-                      ),
+                      ),// Info nama paket
                       _buildDetailRow(
                         'Harga',
                         FormatUang.formatMataUang(paket?.harga.toDouble() ?? 0),
-                      ),
+                      ), // info harga paket
                       _buildDetailRow(
                         'Durasi',
                         '${paket?.durasi ?? 0} ${paket?.tipe.name ?? ""}',
                       ),
-                    ],
+                    ], // info durasi paket
+                    onTap: (final paket) {
+                      if (paket != null) {
+                        unawaited(Navigator.push<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (final context) => DetailPaketPage(
+                              paket: paket,
+                            ),
+                          ),
+                        ));
+                      }
+                    },
                   ),
                 const SizedBox(height: 16),
-                // ditambahkan: Widget informasi poin
                 _buildInfoPoin(transaksi),
                 const SizedBox(height: 16),
                 if (transaksi.tanggalMulai != null &&
@@ -154,11 +177,9 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
-  // ditambahkan: Widget untuk menampilkan informasi poin
   Widget _buildInfoPoin(final TransaksiModel transaksi) {
     Log.info('Membangun widget informasi poin transaksi.');
 
-    // Jika tidak ada perubahan poin, tidak perlu menampilkan widget
     if (transaksi.poinYangDihasilkan == 0 && transaksi.poinYangDigunakan == 0) {
       Log.info('Tidak ada perubahan poin pada transaksi ini.');
       return const SizedBox.shrink();
@@ -176,14 +197,12 @@ class _DetailLanggananTransaksiPageState
     );
 
     return _buildInfoCard('Informasi Poin', [
-      // Poin yang dihasilkan
       _buildDetailRowWithColor(
         'Poin Dihasilkan',
         '+${transaksi.poinYangDihasilkan} Poin',
         transaksi.poinYangDihasilkan > 0 ? Colors.green : null,
         transaksi.poinYangDihasilkan > 0 ? FontWeight.bold : FontWeight.normal,
       ),
-      // Poin yang digunakan
       _buildDetailRowWithColor(
         'Poin Digunakan',
         '-${transaksi.poinYangDigunakan} Poin',
@@ -191,7 +210,6 @@ class _DetailLanggananTransaksiPageState
         transaksi.poinYangDigunakan > 0 ? FontWeight.bold : FontWeight.normal,
       ),
       const Divider(height: 16),
-      // Total perubahan poin
       _buildDetailRowWithColor(
         isPenambahan ? 'Total Poin Bertambah' : 'Total Poin Berkurang',
         '${selisihPoin >= 0 ? "+" : ""}$selisihPoin Poin',
@@ -202,10 +220,11 @@ class _DetailLanggananTransaksiPageState
     ]);
   }
 
-  Widget _buildInfoCard(final String title, final List<Widget> children) {
+  Widget _buildInfoCard(final String title, final List<Widget> children,
+      {final VoidCallback? onTap}) {
     Log.info('Membangun info card dengan judul: $title.');
 
-    return Card(
+    final cardContent = Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
@@ -223,14 +242,25 @@ class _DetailLanggananTransaksiPageState
         ),
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: cardContent,
+      );
+    } else {
+      return cardContent;
+    }
   }
 
   Widget _buildFutureInfoCard<T>(
     final String title,
     final Future<T?> future,
     final String tag,
-    final List<Widget> Function(T? data) builder,
-  ) {
+    final List<Widget> Function(T? data) builder, {
+    final void Function(T? data)? onTap,
+  }) {
     Log.info('Membangun Future info card untuk data $tag.');
 
     return FutureBuilder<T?>(
@@ -239,6 +269,14 @@ class _DetailLanggananTransaksiPageState
         Log.info(
           'FutureBuilder $tag dijalankan dengan state: ${snapshot.connectionState}.',
         );
+
+        VoidCallback? resolvedOnTap;
+        if (onTap != null &&
+            snapshot.connectionState == ConnectionState.done &&
+            !snapshot.hasError &&
+            snapshot.hasData) {
+          resolvedOnTap = () => onTap(snapshot.data);
+        }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Data $tag masih dalam proses loading.');
@@ -263,7 +301,8 @@ class _DetailLanggananTransaksiPageState
           Log.warning('Data $tag tidak ditemukan.');
         }
 
-        return _buildInfoCard(title, builder(snapshot.data));
+        return _buildInfoCard(title, builder(snapshot.data),
+            onTap: resolvedOnTap);
       },
     );
   }
@@ -289,7 +328,6 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
-  // ditambahkan: Widget detail row dengan kustomisasi warna dan style
   Widget _buildDetailRowWithColor(
     final String label,
     final String value,

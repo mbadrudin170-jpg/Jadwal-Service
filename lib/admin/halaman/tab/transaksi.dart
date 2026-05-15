@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/tab/transaksi.dart
+// revisi: Menerapkan caching state & memperbaiki peringatan linter.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
@@ -81,7 +82,11 @@ class TransaksiPage extends StatefulWidget {
 
 class _TransaksiPageState extends State<TransaksiPage> {
   late TransaksiOperasi _transaksiOperasi;
-  late Future<Map<String, dynamic>> _dataFuture;
+  
+  // Variabel state untuk caching
+  Map<String, dynamic>? _cachedData;
+  Object? _error;
+  late Future<void> _initialLoadFuture;
 
   @override
   void initState() {
@@ -91,13 +96,13 @@ class _TransaksiPageState extends State<TransaksiPage> {
     Log.info(
       'TransaksiOperasi telah disiapkan. Memulai pengambilan data awal.',
     );
-    _dataFuture = _getData();
+    _initialLoadFuture = _muatData();
   }
 
-  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
-  Future<Map<String, dynamic>> _getData() async {
+  /// Mengambil semua data yang diperlukan dari operasi transaksi.
+  Future<Map<String, dynamic>> _ambilData() async {
     Log.info(
-      'Memulai proses _getData untuk mengambil semua data transaksi dan ringkasan.',
+      'Memulai proses _ambilData untuk mengambil semua data transaksi dan ringkasan.',
     );
     try {
       final results = await Future.wait([
@@ -118,7 +123,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
       };
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal total saat menjalankan _getData. Kesalahan terjadi di level Future.wait.',
+        'Gagal total saat menjalankan _ambilData. Kesalahan terjadi di level Future.wait.',
         e: e,
         st: s,
       );
@@ -126,16 +131,36 @@ class _TransaksiPageState extends State<TransaksiPage> {
     }
   }
 
-  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
-  void _loadData() {
-    Log.info(
-      'Memicu pemuatan ulang data transaksi secara manual melalui _loadData.',
-    );
-    setState(() {
-      _dataFuture = _getData();
-    });
+  /// Memuat atau memuat ulang data dan memperbarui state.
+  Future<void> _muatData({final bool muatUlang = false}) async {
+    Log.info(muatUlang ? 'Memicu pemuatan ulang data...' : 'Memuat data awal...');
+
+    if (muatUlang && mounted) {
+      setState(() {
+        // Hapus cache untuk menampilkan indikator loading
+        _cachedData = null;
+        _error = null;
+      });
+    }
+
+    try {
+      final data = await _ambilData();
+      if (mounted) {
+        setState(() {
+          _cachedData = data;
+        });
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal memuat data.', e: e, st: st);
+      if (mounted) {
+        setState(() {
+          _error = e;
+        });
+      }
+    }
   }
 
+  /// Membuka halaman form untuk menambah transaksi baru.
   Future<void> _tambahTransaksi() async {
     Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
     final result = await Navigator.push(
@@ -147,7 +172,8 @@ class _TransaksiPageState extends State<TransaksiPage> {
       Log.info(
         'Form ditutup dengan hasil sukses (true). Memuat ulang data transaksi.',
       );
-      _loadData();
+      // Panggil metode untuk memuat ulang data dengan loading
+      await _muatData(muatUlang: true);
     } else {
       Log.info(
         'Form ditutup tanpa hasil (false/null). Tidak ada data yang dimuat ulang.',
@@ -155,6 +181,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     }
   }
 
+  /// Menampilkan dialog konfirmasi dan menghapus semua transaksi jika disetujui.
   Future<void> _hapusSemuaTransaksi() async {
     try {
       final bool? konfirmasi = await showDialog<bool>(
@@ -183,7 +210,8 @@ class _TransaksiPageState extends State<TransaksiPage> {
         await _transaksiOperasi.hapusSemuaTransaksi();
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
-        _loadData();
+        // Panggil metode untuk memuat ulang data dengan loading
+        await _muatData(muatUlang: true);
       }
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
@@ -206,60 +234,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
           ),
         ],
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _dataFuture,
-        builder: (final context, final snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info(
-              'FutureBuilder: Menunggu hasil dari _getData. Menampilkan CircularProgressIndicator.',
-            );
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder: Menangkap error saat membangun UI.',
-              e: snapshot.error,
-              st: snapshot.stackTrace,
-            );
-            return Center(child: Text('Terjadi Kesalahan: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data == null) {
-            Log.warning(
-              'FutureBuilder: Tidak menerima data (null). Menampilkan pesan "Tidak ada data ditemukan."',
-            );
-            return const Center(child: Text('Tidak ada data ditemukan.'));
-          }
-
-          final data = snapshot.data!;
-          final pemasukan = (data['pemasukan'] as num?)?.toDouble() ?? 0.0;
-          final pengeluaran = (data['pengeluaran'] as num?)?.toDouble() ?? 0.0;
-          final total = (data['total'] as num?)?.toDouble() ?? 0.0;
-          final transaksiData = data['transaksi'] as List<TransaksiModel>;
-          Log.info(
-            'FutureBuilder: Data berhasil diterima. Membangun UI dengan ${transaksiData.length} transaksi.',
-          );
-
-          return Column(
-            children: [
-              RingkasanTransaksi(
-                key: const Key(
-                  'ringkasan_transaksi',
-                ),
-                pemasukan: pemasukan,
-                pengeluaran: pengeluaran,
-                total: total,
-              ),
-              Expanded(
-                child: transaksiData.isEmpty
-                    ? const Center(
-                        child: Text('Tidak ada transaksi ditemukan.'),
-                      )
-                    : _buildTransaksiList(transaksiData),
-              ),
-            ],
-          );
-        },
-      ),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _tambahTransaksi,
         child: const Icon(Icons.add),
@@ -267,10 +242,75 @@ class _TransaksiPageState extends State<TransaksiPage> {
     );
   }
 
-  // TODO: penamaan fungsi tidak menggunakan bahasa indoensia
-  Widget _buildTransaksiList(final List<TransaksiModel> transaksiData) {
+  /// Membangun body utama berdasarkan state data (cached, error, atau loading awal).
+  Widget _buildBody() {
+    // Jika data ada di cache, langsung tampilkan
+    if (_cachedData != null) {
+      final data = _cachedData!;
+      final pemasukan = (data['pemasukan'] as num?)?.toDouble() ?? 0.0;
+      final pengeluaran = (data['pengeluaran'] as num?)?.toDouble() ?? 0.0;
+      final total = (data['total'] as num?)?.toDouble() ?? 0.0;
+      final transaksiData = data['transaksi'] as List<TransaksiModel>;
+      Log.info(
+        'Membangun UI dari cache. Memiliki ${transaksiData.length} transaksi.',
+      );
+
+      return Column(
+        children: [
+          RingkasanTransaksi(
+            key: const Key(
+              'ringkasan_transaksi',
+            ),
+            pemasukan: pemasukan,
+            pengeluaran: pengeluaran,
+            total: total,
+          ),
+          Expanded(
+            child: transaksiData.isEmpty
+                ? const Center(
+                    child: Text('Tidak ada transaksi ditemukan.'),
+                  )
+                : _bangunDaftarTransaksi(transaksiData),
+          ),
+        ],
+      );
+    }
+
+    // Jika ada error, tampilkan pesan error
+    if (_error != null) {
+      Log.error('Membangun UI Error: $_error');
+      return Center(child: Text('Terjadi Kesalahan: $_error'));
+    }
+
+    // Jika tidak, tampilkan FutureBuilder untuk loading awal
+    return FutureBuilder<void>(
+      future: _initialLoadFuture,
+      builder: (final context, final snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          Log.info(
+            'FutureBuilder: Menunggu hasil dari _muatData (awal). Menampilkan CircularProgressIndicator.',
+          );
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          Log.error(
+            'FutureBuilder: Menangkap error saat loading awal.',
+            e: snapshot.error,
+            st: snapshot.stackTrace,
+          );
+          return Center(child: Text('Terjadi Kesalahan: ${snapshot.error}'));
+        }
+        // State ini seharusnya tidak tercapai jika logika benar, tapi sebagai fallback
+        Log.warning('FutureBuilder selesai tapi _cachedData masih null.');
+        return const Center(child: Text('Tidak ada data ditemukan.'));
+      },
+    );
+  }
+
+  /// Membangun daftar transaksi yang dikelompokkan berdasarkan tanggal.
+  Widget _bangunDaftarTransaksi(final List<TransaksiModel> transaksiData) {
     Log.info(
-      'Membangun daftar transaksi (_buildTransaksiList) dengan ${transaksiData.length} item.',
+      'Membangun daftar transaksi (_bangunDaftarTransaksi) dengan ${transaksiData.length} item.',
     );
     final groupedTransaksi = groupTransaksiByDate(transaksiData);
 
@@ -296,7 +336,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
               (final transaksi) => bangunItemTransaksi(
                 context,
                 transaksi,
-                _loadData,
+                () => _muatData(muatUlang: true), // Kirim fungsi untuk muat ulang
                 _transaksiOperasi,
               ),
             ),

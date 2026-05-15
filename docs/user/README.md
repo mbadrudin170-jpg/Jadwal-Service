@@ -158,3 +158,14 @@ Melakukan perbaikan pada beberapa file di dalam direktori `lib/user/page` yang m
 *   `lib/user/page/profil_page.dart`
 
 Perbaikan ini memastikan konsistensi dalam pemformatan data di seluruh aplikasi dan menghilangkan error yang terjadi saat runtime.
+
+---
+
+## Standarisasi Notifikasi dengan `SnackBarUtil`
+
+- **Konteks**: Untuk meningkatkan konsistensi UI/UX di seluruh aplikasi pengguna, semua notifikasi *snackbar* telah distandarisasi.
+- **Tindakan**: Semua pemanggilan `ScaffoldMessenger.of(context).showSnackBar()` telah diganti dengan utilitas terpusat, `SnackBarUtil`. Perubahan ini diterapkan pada file-file seperti:
+  - `lib/user/page/kritik_dan_saran_user.dart`
+  - `lib/user/page/login_page.dart`
+  - `lib/user/page/poin_page_user.dart`
+- **Hasil**: Notifikasi di seluruh aplikasi pengguna sekarang memiliki tampilan dan perilaku yang seragam, dikelola dari satu sumber kebenaran (`SnackBarUtil`), yang membuat kode lebih bersih dan lebih mudah dipelihara.

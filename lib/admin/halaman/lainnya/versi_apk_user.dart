@@ -11,6 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
 import 'package:wifi/shared/model/versi_apk_user_model.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.
 enum Urutan {
@@ -446,13 +447,9 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Versi ${dataSebelumArsip?.versiTerbaru ?? id} berhasil diarsipkan.',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        SnackBarUtil.success(
+          context,
+          'Versi ${dataSebelumArsip?.versiTerbaru ?? id} berhasil diarsipkan.',
         );
         Log.info('SnackBar sukses ditampilkan');
       }
@@ -462,11 +459,9 @@ class _VersiApkUserPageState extends State<VersiApkUserPage> {
         Log.warning('Widget tidak mounted setelah error arsip');
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mengarsipkan: $e'),
-          backgroundColor: Colors.red,
-        ),
+      SnackBarUtil.error(
+        context,
+        'Gagal mengarsipkan: $e',
       );
       Log.info('SnackBar error ditampilkan');
     }

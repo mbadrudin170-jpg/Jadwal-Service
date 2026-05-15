@@ -102,8 +102,6 @@ class _DetailPaketPageState extends State<DetailPaketPage> {
         title: Text(
           _paket.nama,
         ),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,

@@ -61,3 +61,13 @@
     - **Pembaruan Pengujian**: Berkas pengujian `versi_apk_user_operasi_test.dart` telah diperbarui untuk mencerminkan arsitektur baru dan menggunakan *mock* untuk pengujian yang terisolasi dan andal.
     - **Pembersihan Kode**: Berbagai peringatan dari `flutter analyze` di seluruh proyek telah diatasi, termasuk `avoid_dynamic_calls`, `avoid_catching_errors`, dan `avoid_catches_without_on_clauses`, yang menghasilkan kode yang lebih aman dan dapat diprediksi.
 - **Hasil**: Kualitas basis kode secara keseluruhan telah meningkat. Kode sekarang tidak hanya lebih mudah untuk diuji dan dipelihara, tetapi juga lebih tangguh terhadap *error* dengan penanganan `exception` yang lebih baik dan tipe data yang lebih aman.
+
+---
+
+## Standarisasi Notifikasi dengan `SnackBarUtil`
+
+- **Konteks**: Untuk meningkatkan konsistensi UI/UX di seluruh aplikasi admin, semua notifikasi *snackbar* telah distandarisasi.
+- **Tindakan**: Semua pemanggilan `ScaffoldMessenger.of(context).showSnackBar()` telah diganti dengan utilitas terpusat, `SnackBarUtil`. Perubahan ini diterapkan pada file-file seperti:
+  - `lib/admin/halaman/lainnya/pengaturan_admin.dart`
+  - `lib/admin/halaman/lainnya/pelanggan.dart`
+- **Hasil**: Notifikasi di seluruh aplikasi admin sekarang memiliki tampilan dan perilaku yang seragam, dikelola dari satu sumber kebenaran (`SnackBarUtil`), yang membuat kode lebih bersih dan lebih mudah dipelihara.
