@@ -466,7 +466,7 @@ class LayananUnggahData {
       final db = await _dbHelper.database;
       Log.info('Instance database berhasil didapatkan.');
 
-      List<Map<String, dynamic>> dataUntukDiunggah;
+      List<Map<String, dynamic>> dataUntukDiunggah = [];
 
       if (namaTabel == 'pengaturan') {
         Log.info(
@@ -507,7 +507,7 @@ class LayananUnggahData {
       Log.info('Firestore batch berhasil dibuat.');
 
       int counterSukses = 0;
-      int counterError = 0;
+      final List<Map<String, dynamic>> dataGagal = [];
 
       for (int i = 0; i < dataUntukDiunggah.length; i++) {
         final map = dataUntukDiunggah[i];
@@ -546,9 +546,9 @@ class LayananUnggahData {
           Log.info(
             'Data ke-${i + 1} (ID: ${data.id}) berhasil ditambahkan ke batch Firestore.',
           );
-        } on Exception catch (e, s) {
-          // <--- Diubah di sini
-          counterError++;
+          // ignore: avoid_catches_without_on_clauses, justification: 'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah'
+        } catch (e, s) {
+          dataGagal.add(map);
           Log.error(
             'Gagal memproses data ke-${i + 1} dari tabel $namaTabel. '
             'Data ini akan dilewati dan tidak dimasukkan ke batch. '
@@ -563,8 +563,15 @@ class LayananUnggahData {
         'Semua data selesai diproses. '
         'Total: ${dataUntukDiunggah.length} data, '
         'Sukses ditambahkan ke batch: $counterSukses, '
-        'Gagal: $counterError.',
+        'Gagal: ${dataGagal.length}.',
       );
+
+      if (dataGagal.isNotEmpty) {
+        Log.warning(
+          'Ditemukan ${dataGagal.length} dari ${dataUntukDiunggah.length} data yang gagal dikonversi untuk tabel $namaTabel. '
+          'Data yang gagal akan dilewati.',
+        );
+      }
 
       if (counterSukses > 0) {
         Log.info(

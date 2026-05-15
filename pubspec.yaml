@@ -50,6 +50,7 @@ dev_dependencies:
   fake_cloud_firestore: ^2.5.2
   mocktail: ^1.0.5
 
+  device_info_plus_platform_interface: any
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false

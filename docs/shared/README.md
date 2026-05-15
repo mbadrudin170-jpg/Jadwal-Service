@@ -302,5 +302,34 @@ Sebagai bagian dari pemeliharaan rutin, dilakukan analisis kode statis (`flutter
     - **Pembaruan Pengujian Terkait**: Berkas `versi_apk_user_operasi_test.dart` diperbarui untuk mencerminkan refaktorisasi, dengan menyediakan *mock* yang diperlukan untuk menjalankan pengujian tanpa bergantung pada database nyata.
     - **Peningkatan Keamanan Tipe**: Peringatan `avoid_dynamic_calls` di `dompet_operasi_test.dart` diperbaiki dengan melakukan *casting* eksplisit pada objek `Map<String, dynamic>`, mencegah potensi *runtime error*.
     - **Penanganan *Exception* yang Lebih Baik**: Peringatan `avoid_catches_without_on_clauses` di `unggah_data.dart` diatasi dengan menambahkan klausa `on Exception`, memastikan bahwa hanya *exception* yang relevan yang ditangkap dan ditangani, bukan semua jenis `Error`.
-    - **Serialisasi yang Aman**: Peringatan di `log.dart` terkait penanganan objek yang tidak dapat diserialisasikan ke JSON telah diperbaiki. Ini meningkatkan ketahanan sistem *logging*.
+- **Serialisasi yang Aman**: Peringatan di `log.dart` terkait penanganan objek yang tidak dapat diserialisasikan ke JSON telah diperbaiki. Ini meningkatkan ketahanan sistem *logging*.
 - **Hasil**: Lapisan operasi data dan sinkronisasi sekarang lebih kuat, lebih aman, dan sepenuhnya dapat diuji. Kualitas kode secara keseluruhan meningkat, mengurangi potensi *bug* dan mempermudah pemeliharaan di masa depan.
+
+---
+
+## Peningkatan Ketahanan Sinkronisasi Data (`unggah_data.dart`)
+
+### Konteks
+
+Layanan `LayananUnggahData` bertanggung jawab untuk menyinkronkan data lokal ke Firestore. Sebuah masalah teridentifikasi di mana proses unggah dapat berhenti total jika satu item data saja rusak atau gagal diproses. Hal ini disebabkan oleh penanganan *error* yang terlalu spesifik.
+
+### Masalah: `on Exception` vs. `Error`
+
+- **Implementasi Awal**: Untuk mematuhi aturan lint `avoid_catches_without_on_clauses`, blok `try-catch` di dalam metode `unggahDataGenerik` diubah dari `catch (e,s)` menjadi `on Exception catch (e,s)`.
+- **Dampak Negatif**: Pengujian unit (`unggah_data_test.dart`) mengungkap bahwa perubahan ini merusak logika penanganan data yang korup. Sebuah `ArgumentError` yang sengaja dilemparkan oleh *factory constructor* (`fromSqlite`) saat menerima data tidak valid (`'id': null`) tidak tertangkap. Ini karena `ArgumentError` adalah turunan dari kelas `Error`, bukan `Exception`. Akibatnya, *error* tersebut tidak ditangani dan menghentikan seluruh proses *batch commit*.
+
+### Solusi: Penanganan Error yang Lebih Luas dan Terdokumentasi
+
+1.  **Kembalikan `catch` Umum**: Blok `catch` dikembalikan ke bentuk aslinya, `catch (e, s)`. Ini memastikan bahwa **semua** jenis `Throwable` (baik `Exception` maupun `Error`) akan ditangkap. Dalam konteks perulangan data, ini adalah perilaku yang diinginkan agar satu data yang buruk tidak menggagalkan seluruh *batch*.
+
+2.  **Dokumentasi Justifikasi**: Untuk tetap mematuhi semangat aturan lint, sebuah komentar `// ignore` ditambahkan dengan penjelasan yang jelas:
+    ```dart
+    // ignore: avoid_catches_without_on_clauses, justification: 'diperlukan untuk menangkap semua jenis error termasuk ArgumentError agar data korup tidak menghentikan proses unggah'
+    ```
+    Dokumentasi ini krusial untuk menjelaskan kepada pengembang lain mengapa aturan lint sengaja diabaikan dalam kasus ini.
+
+### Manfaat
+
+- **Ketahanan (Resilience)**: Proses sinkronisasi sekarang jauh lebih tahan banting. Data yang korup akan dicatat sebagai *error*, dilewati, dan tidak akan menghentikan unggahan data lain yang valid.
+- **Kejelasan Kode**: Justifikasi yang terdokumentasi membuat keputusan teknis ini transparan dan mudah dipahami.
+- **Kualitas Terjamin**: Validasi melalui pengujian unit memastikan bahwa solusi ini berfungsi sesuai yang diharapkan dalam skenario kasus-tepi (edge case).

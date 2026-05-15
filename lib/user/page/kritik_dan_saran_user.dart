@@ -1,5 +1,6 @@
 // path: lib/user/page/kritik_dan_saran_user.dart
 // diubah: Menghapus variabel 'navigator' yang tidak digunakan untuk membersihkan analisis.
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
@@ -22,7 +23,8 @@ class RiwayatKritikDanSaranPage extends StatefulWidget {
 }
 
 class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
-  final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser();
+  final KritikSaranOperasiUser _operasi =
+      KritikSaranOperasiUser(FirebaseFirestore.instance);
 
   Future<void> _showOptionsDialog(
     final BuildContext context,

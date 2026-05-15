@@ -131,3 +131,34 @@ Selama proses pengembangan, ditemukan bahwa file `versi_apk_user_operasi.dart` t
 *   Setiap masalah yang ditemukan oleh `flutter analyze` diperbaiki satu per satu, dan analisis dijalankan kembali untuk memastikan tidak ada masalah baru yang muncul.
 
 Dengan selesainya perbaikan ini, kode operasi menjadi lebih mudah diuji dan basis kode secara keseluruhan menjadi lebih bersih dan bebas dari peringatan.
+
+---
+
+## Perbaikan Penanganan Error dan Kualitas Kode
+
+### Latar Belakang
+
+Saat mengerjakan file `lib/shared/data/sync/unggah_data.dart`, ditemukan beberapa masalah terkait penanganan error dan peringatan dari `flutter analyze`. Proses ini bertujuan untuk memastikan kode tidak hanya berfungsi dengan benar, tetapi juga kuat, dapat diuji, dan mematuhi standar kualitas proyek.
+
+### Rangkuman Perubahan
+
+1.  **Perbaikan Penanganan Error pada `unggah_data.dart`**:
+    *   Awalnya, peringatan `avoid_catches_without_on_clauses` diperbaiki dengan mengubah `catch (e, s)` menjadi `on Exception catch (e, s)`. Namun, ini menyebabkan masalah baru.
+    *   Setelah menjalankan file tes `unggah_data_test.dart`, ditemukan bahwa dua tes gagal. Kegagalan ini disebabkan karena `ArgumentError` (yang dilemparkan saat data korup) tidak tertangkap oleh `on Exception`, karena `ArgumentError` adalah turunan dari `Error`, bukan `Exception`.
+    *   Solusinya adalah mengembalikan blok `catch` di dalam perulangan `unggahDataGenerik` ke bentuk `catch (e, s)` agar dapat menangkap semua jenis `Throwable`. Ini penting agar data yang rusak tidak menghentikan seluruh proses unggah data.
+    *   Komentar `// ignore` ditambahkan dengan justifikasi yang jelas untuk mendokumentasikan mengapa aturan lint diabaikan pada kasus spesifik ini.
+
+2.  **Verifikasi dengan Tes Unit**: Setelah perbaikan logika, semua tes di `unggah_data_test.dart` dijalankan kembali dan berhasil, memvalidasi bahwa penanganan error kini berfungsi seperti yang diharapkan.
+
+3.  **Pembersihan `flutter analyze`**:
+    *   Menjalankan `flutter analyze` mengungkapkan tiga masalah di seluruh proyek.
+    *   **`document_ignores` di `unggah_data.dart`**: Peringatan ini diatasi dengan menambahkan justifikasi pada komentar `ignore`.
+    *   **`discarded_futures` dan `avoid_redundant_argument_values` di `test/admin/halaman/detail/detail_versi_apk_user_test.dart`**: Masalah ini diperbaiki dengan menjadikan fungsi `main` sebagai `async` dan menghapus argumen `null` yang tidak perlu saat memanggil `initializeDateFormatting`.
+
+### Proses dan Tantangan
+
+*   **Dampak Perubahan Kecil**: Perubahan dari `catch` umum ke `on Exception` yang tampaknya sepele ternyata memiliki dampak signifikan pada perilaku penanganan error, yang baru terungkap melalui tes unit. Ini menyoroti pentingnya pengujian yang komprehensif.
+*   **Pentingnya Memahami Hirarki Error Dart**: Tantangan utama adalah mengidentifikasi mengapa `ArgumentError` tidak tertangkap. Ini memerlukan pemahaman tentang perbedaan antara kelas `Error` dan `Exception` di Dart.
+*   **Alur Kerja Berbasis Verifikasi**: Seluruh proses ini mengikuti alur kerja yang ketat: perbaiki, uji, analisis, ulangi. Ini memastikan bahwa setiap perubahan tidak hanya memperbaiki satu masalah tetapi juga tidak menimbulkan masalah baru.
+
+Dengan selesainya pekerjaan ini, file `unggah_data.dart` kini lebih kuat dalam menangani data yang korup, dan seluruh basis kode telah diverifikasi bersih oleh `flutter analyze`, sesuai dengan standar kualitas proyek.

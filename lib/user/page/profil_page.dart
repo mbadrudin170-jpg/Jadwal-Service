@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
@@ -40,7 +41,7 @@ class ProfilPage extends StatefulWidget {
 class _ProfilPageState extends State<ProfilPage> {
   final PelangganOpFirebase _pelangganOp = PelangganOpFirebase();
   final TransaksiOpFirebase _transaksiOp = TransaksiOpFirebase();
-  final PaketOpFirebase _paketOp = PaketOpFirebase();
+  final PaketOpFirebase _paketOp = PaketOpFirebase(FirebaseFirestore.instance);
 
   Future<PelangganModel?>? _futurePelanggan;
   Future<List<TransaksiModel>>? _riwayatLanggananFuture;
@@ -259,11 +260,13 @@ class _ProfilPageState extends State<ProfilPage> {
                         );
                         final int poinDihasilkan = riwayat.fold(
                           0,
-                          (final sum, final item) => sum + item.poinYangDihasilkan,
+                          (final total, final item) =>
+                              total + item.poinYangDihasilkan,
                         );
                         final int poinDigunakan = riwayat.fold(
                           0,
-                          (final sum, final item) => sum + item.poinYangDigunakan,
+                          (final total, final item) =>
+                              total + item.poinYangDigunakan,
                         );
 
                         final int totalPoin = poinDihasilkan - poinDigunakan;

@@ -132,10 +132,103 @@ linter:
     prefer_constructors_over_static_methods: true # Gunakan konstruktor daripada static method untuk membuat instance
     unnecessary_null_checks: true               # Hapus null check (!) yang tidak diperlukan
 
+    use_string_buffers: true
+    prefer_contains: true
+    avoid_multiple_declarations_per_line: true
+
 analyzer:
   exclude:
     - "**/*.g.dart"           # File hasil generate (json_serializable, dsb.)
     - "**/*.freezed.dart"     # File hasil generate Freezed
+
+  errors:
+    # ERROR (kritis)
+    await_only_futures: error
+    use_build_context_synchronously: error
+    unawaited_futures: error
+    avoid_slow_async_io: error
+    no_literal_bool_comparisons: error
+    close_sinks: error
+    discarded_futures: error
+    hash_and_equals: error
+    valid_regexps: error
+    avoid_shadowing_type_parameters: error
+    avoid_types_as_parameter_names: error
+    secure_pubspec_urls: error
+    avoid_catches_without_on_clauses: error
+    avoid_equals_and_hash_code_on_mutable_classes: error
+    avoid_implementing_value_types: error
+    no_duplicate_case_values: error
+    no_self_assignments: error
+    null_check_on_nullable_type_parameter: error
+    null_closures: error
+    only_throw_errors: error
+    parameter_assignments: error
+    throw_in_finally: error
+    unrelated_type_equality_checks: error
+    use_rethrow_when_possible: error
+    avoid_returning_null_for_void: error
+    avoid_empty_else: error
+    cancel_subscriptions: error
+    empty_statements: error
+    collection_methods_unrelated_type: error
+    no_logic_in_create_state: error
+    avoid_catching_errors: error
+    literal_only_boolean_expressions: error
+
+    # WARNING (sisanya)
+    prefer_single_quotes: warning
+    use_super_parameters: warning
+    use_null_aware_elements: warning
+    prefer_const_constructors: warning
+    prefer_const_constructors_in_immutables: warning
+    prefer_const_declarations: warning
+    prefer_const_literals_to_create_immutables: warning
+    sort_child_properties_last: warning
+    use_key_in_widget_constructors: warning
+    public_member_api_docs: warning
+    depend_on_referenced_packages: warning
+    avoid_renaming_method_parameters: warning
+    avoid_dynamic_calls: warning
+    unnecessary_null_aware_operator_on_extension_on_nullable: warning
+    unnecessary_lambdas: warning
+    avoid_redundant_argument_values: warning
+    camel_case_extensions: warning
+    unnecessary_overrides: warning
+    avoid_void_async: warning
+    directives_ordering: warning
+    prefer_final_fields: warning
+    prefer_final_locals: warning
+    prefer_if_null_operators: warning
+    avoid_init_to_null: warning
+    file_names: warning
+    empty_catches: warning
+    comment_references: warning
+    constant_identifier_names: warning
+    document_ignores: warning
+    empty_constructor_bodies: warning
+    library_private_types_in_public_api: warning
+    exhaustive_cases: warning
+    avoid_function_literals_in_foreach_calls: warning
+    avoid_single_cascade_in_expression_statements: warning
+    prefer_conditional_assignment: warning
+    prefer_is_empty: warning
+    prefer_is_not_empty: warning
+    annotate_overrides: warning
+    matching_super_parameters: warning
+    unnecessary_async: warning
+    no_runtimetype_tostring: warning
+    test_types_in_equals: warning
+    unnecessary_statements: warning
+    use_colored_box: warning
+    use_decorated_box: warning
+    sized_box_shrink_expand: warning
+    prefer_final_parameters: warning
+    use_if_null_to_convert_nulls_to_bools: warning
+    prefer_asserts_with_message: warning
+    prefer_constructors_over_static_methods: warning
+    unnecessary_null_checks: warning
+
 
   language:
     strict-casts: true              # Casting harus eksplisit dan aman

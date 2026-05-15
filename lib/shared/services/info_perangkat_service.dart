@@ -4,11 +4,12 @@ import 'package:flutter/foundation.dart';
 
 /// Kelas layanan untuk mendapatkan informasi tentang perangkat.
 class InfoPerangkatService {
+  /// Instance dari [DeviceInfoPlugin] untuk mendapatkan informasi perangkat.
   final DeviceInfoPlugin deviceInfo;
 
   /// Konstruktor untuk InfoPerangkatService.
-  /// 
-  /// Membutuhkan instance [DeviceInfoPlugin] untuk diinjeksi, 
+  ///
+  /// Membutuhkan instance [DeviceInfoPlugin] untuk diinjeksi,
   /// yang memungkinkan untuk pengujian dengan mock.
   InfoPerangkatService(this.deviceInfo);
 
@@ -31,7 +32,7 @@ class InfoPerangkatService {
           'isPhysicalDevice': iosInfo.isPhysicalDevice,
         };
       }
-    } on Exception catch  (e) {
+    } on Exception catch (e) {
       return {'error': 'Gagal mendapatkan info perangkat: $e'};
     }
     return {'error': 'Platform tidak didukung'};

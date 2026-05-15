@@ -70,3 +70,7 @@ agar sebuah file atau kode ditempatkan di file atau folder tertentu.
 2. AI Harus menuliskan rangkuman difolder README.md yang ada diroot proyek, apa saja yang membuat error, kendala dan solusinya apa saja yang telah AI lakukan sehingga kode itu tidak error/warning lagi.
 3. setelah melakukan pekerjaan dan menulis rangkuman di follder README.md sekarang AI harus melakukan dokumentasi sebuah projek yang telah AI lakukan kenapa kerjakan kedalam file docs/admin/README.md, docs/shared/README.md, dan docs/user/README.md tapi jangan hapus dokumen yang sudah ada.
 4. Setelah selesai melakukan pekerjaan AI diharapkan selalu melakukan dart `fix --apply && flutter analyze` atau analyze project agar tidak error atau warning yang tertinggal.
+
+# TEST
+1. kita harus memastikan bahwa Log di file kode nya harus muncul saat kita jalankan debug test.
+2. untuk melakukan test AI menjalankan flutter test untuk file tertentu

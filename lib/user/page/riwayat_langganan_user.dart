@@ -1,6 +1,8 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -67,9 +69,11 @@ class _TampilanRiwayatLangganan extends StatefulWidget {
 class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
   final PelangganOpFirebase _pelangganOpFirebase = PelangganOpFirebase();
   final TransaksiOpFirebase _transaksiOpFirebase = TransaksiOpFirebase();
-  final PaketOpFirebase _paketOpFirebase = PaketOpFirebase();
+  final PaketOpFirebase _paketOpFirebase =
+      PaketOpFirebase(FirebaseFirestore.instance);
   final NotifikasiOpFirebase _notifikasiOpFirebase = NotifikasiOpFirebase();
-  final InfoPerangkatService _infoPerangkatService = InfoPerangkatService();
+  final InfoPerangkatService _infoPerangkatService =
+      InfoPerangkatService(DeviceInfoPlugin());
   SortMode _sortMode = SortMode.tanggalBerakhirTerbaru;
 
   @override

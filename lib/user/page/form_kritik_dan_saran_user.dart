@@ -1,5 +1,6 @@
 // path: lib/user/page/form_kritik_dan_saran_user.dart
 // diubah: Mengintegrasikan kelas KritikSaranOperasiUser untuk memisahkan logika UI dan data.
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
@@ -38,7 +39,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
 
   // ditambah: Membuat instance dari kelas operasi data.
   final KritikSaranOperasiUser _operasi =
-      KritikSaranOperasiUser(); // diubah: nama kelas diperbarui
+      KritikSaranOperasiUser(FirebaseFirestore.instance); // diubah: nama kelas diperbarui
 
   @override
   void initState() {

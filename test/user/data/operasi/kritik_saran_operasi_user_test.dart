@@ -22,7 +22,6 @@ void main() {
         userId: 'user123',
         isi: 'Ini adalah kritik pertama.',
         diperbarui: DateTime.now(),
-        isDeleted: false,
       );
 
       await operasi.buatKritikSaranBaru(model);
@@ -40,19 +39,16 @@ void main() {
         'userId': 'user123',
         'isi': 'Kritik 1',
         'diperbarui': DateTime.now(),
-        'isDeleted': false,
       });
       await fakeFirestore.collection('kritik_saran').add({
         'userId': 'user123',
         'isi': 'Kritik 2',
         'diperbarui': DateTime.now().add(const Duration(minutes: 5)),
-        'isDeleted': false,
       });
       await fakeFirestore.collection('kritik_saran').add({
         'userId': 'user456', // Data dari user lain
         'isi': 'Kritik 3',
         'diperbarui': DateTime.now(),
-        'isDeleted': false,
       });
 
       final stream = operasi.bacaSemuaKritikSaran('user123');
@@ -72,7 +68,6 @@ void main() {
         'userId': 'user123',
         'isi': 'Isi lama',
         'diperbarui': DateTime.now(),
-        'isDeleted': false,
       });
 
       await operasi.perbaruiKritikSaran(docRef.id, 'Isi baru yang diperbarui');
@@ -87,7 +82,6 @@ void main() {
         'userId': 'user123',
         'isi': 'Akan dihapus',
         'diperbarui': DateTime.now(),
-        'isDeleted': false,
       });
 
       // Pastikan dokumen ada sebelum dihapus

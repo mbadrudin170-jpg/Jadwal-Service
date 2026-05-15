@@ -1,6 +1,4 @@
 // path: lib/shared/data/sync/unduh_data.dart
-// diubah: Memperbaiki blok catch yang salah dan duplikat.
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
@@ -33,24 +31,70 @@ class LayananUnduhData {
   final SyncManager _syncManager;
 
   // Operasi
-  final DompetOperasi _dompetOperasi = DompetOperasi();
-  final KategoriOperasi _kategoriOperasi = KategoriOperasi();
-  final PaketOperasi _paketOperasi = PaketOperasi();
-  final PelangganOperasi _pelangganOperasi = PelangganOperasi();
-  final PelangganAktifOperasi _pelangganAktifOperasi = PelangganAktifOperasi();
-  final TransaksiOperasi _transaksiOperasi = TransaksiOperasi();
-  final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
-  final PesananOperasi _pesanOperasi = PesananOperasi();
-  final SubKategoriOperasi _subKategoriOperasi = SubKategoriOperasi();
-  final VersiApkUserOperasi _versiApkUserOperasi = VersiApkUserOperasi();
-  final PengaturanOperasi _pengaturanOperasi = PengaturanOperasi();
+  final DompetOperasi _dompetOperasi;
+  final KategoriOperasi _kategoriOperasi;
+  final PaketOperasi _paketOperasi;
+  final PelangganOperasi _pelangganOperasi;
+  final PelangganAktifOperasi _pelangganAktifOperasi;
+  final TransaksiOperasi _transaksiOperasi;
+  final KritikSaranOperasi _kritikSaranOperasi;
+  final PesananOperasi _pesanOperasi;
+  final SubKategoriOperasi _subKategoriOperasi;
+  final VersiApkUserOperasi _versiApkUserOperasi;
+  final PengaturanOperasi _pengaturanOperasi;
 
-  /// Konstruktor untuk LayananUnduhData.
-  LayananUnduhData({final FirebaseFirestore? firestore, final SyncManager? syncManager})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _syncManager = syncManager ?? SyncManager() {
+  /// Konstruktor untuk penggunaan produksi.
+  LayananUnduhData({
+    final FirebaseFirestore? firestore,
+    final SyncManager? syncManager,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _syncManager = syncManager ?? SyncManager(),
+        _dompetOperasi = DompetOperasi(),
+        _kategoriOperasi = KategoriOperasi(),
+        _paketOperasi = PaketOperasi(),
+        _pelangganOperasi = PelangganOperasi(),
+        _pelangganAktifOperasi = PelangganAktifOperasi(),
+        _transaksiOperasi = TransaksiOperasi(),
+        _kritikSaranOperasi = KritikSaranOperasi(),
+        _pesanOperasi = PesananOperasi(),
+        _subKategoriOperasi = SubKategoriOperasi(),
+        _versiApkUserOperasi = VersiApkUserOperasi(),
+        _pengaturanOperasi = PengaturanOperasi() {
     Log.info(
-      'LayananUnduhData berhasil diinisialisasi.',
+      'LayananUnduhData berhasil diinisialisasi untuk produksi.',
+    );
+  }
+
+  /// Konstruktor khusus untuk pengujian dengan dependensi mock.
+  LayananUnduhData.test({
+    required final FirebaseFirestore firestore,
+    required final SyncManager syncManager,
+    required final DompetOperasi dompetOperasi,
+    required final KategoriOperasi kategoriOperasi,
+    required final PaketOperasi paketOperasi,
+    required final PelangganOperasi pelangganOperasi,
+    required final PelangganAktifOperasi pelangganAktifOperasi,
+    required final TransaksiOperasi transaksiOperasi,
+    required final KritikSaranOperasi kritikSaranOperasi,
+    required final PesananOperasi pesanOperasi,
+    required final SubKategoriOperasi subKategoriOperasi,
+    required final VersiApkUserOperasi versiApkUserOperasi,
+    required final PengaturanOperasi pengaturanOperasi,
+  })  : _firestore = firestore,
+        _syncManager = syncManager,
+        _dompetOperasi = dompetOperasi,
+        _kategoriOperasi = kategoriOperasi,
+        _paketOperasi = paketOperasi,
+        _pelangganOperasi = pelangganOperasi,
+        _pelangganAktifOperasi = pelangganAktifOperasi,
+        _transaksiOperasi = transaksiOperasi,
+        _kritikSaranOperasi = kritikSaranOperasi,
+        _pesanOperasi = pesanOperasi,
+        _subKategoriOperasi = subKategoriOperasi,
+        _versiApkUserOperasi = versiApkUserOperasi,
+        _pengaturanOperasi = pengaturanOperasi {
+    Log.info(
+      'LayananUnduhData berhasil diinisialisasi untuk pengujian.',
     );
   }
 
@@ -132,6 +176,7 @@ class LayananUnduhData {
       }
     } on Exception catch (e, s) {
       Log.error('Kesalahan sinkronisasi Pengaturan.', e: e, st: s);
+      rethrow; // Melempar ulang agar dapat ditangkap oleh unduhSemuaData
     }
   }
 
@@ -256,16 +301,11 @@ class LayananUnduhData {
   }
 
   /// Menyinkronkan satu koleksi dari Firebase ke database lokal.
-  ///
-  /// [T] adalah tipe model data yang akan disinkronkan.
-  /// [namaKoleksi] adalah nama koleksi di Firebase.
-  /// [waktuUnduhTerakhir] adalah waktu terakhir data diunduh.
-  /// [fromFirebase] adalah fungsi untuk mengonversi data dari Firebase ke model lokal.
-  /// [operasiBatch] adalah fungsi untuk menyimpan data secara batch ke database lokal.
   Future<void> sinkronisasiKoleksi<T>({
     required final String namaKoleksi,
     required final DateTime waktuUnduhTerakhir,
-    required final T Function(String id, Map<String, dynamic> data) fromFirebase,
+    required final T Function(String id, Map<String, dynamic> data)
+        fromFirebase,
     required final Future<void> Function(List<T>) operasiBatch,
   }) async {
     Log.info(
@@ -286,7 +326,7 @@ class LayananUnduhData {
         for (final doc in snapshot.docs) {
           try {
             dataList.add(fromFirebase(doc.id, doc.data()));
-          }on Exception catch (e, s) {
+          } on Exception catch (e, s) {
             Log.error(
               'Gagal memproses dokumen ${doc.id} di koleksi $namaKoleksi',
               e: e,
@@ -313,6 +353,7 @@ class LayananUnduhData {
         e: e,
         st: s,
       );
+      rethrow; // Melempar ulang agar dapat ditangkap oleh unduhSemuaData
     }
   }
 }
