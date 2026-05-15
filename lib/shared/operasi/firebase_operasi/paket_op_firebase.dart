@@ -5,7 +5,13 @@ import 'package:wifi/shared/model/paket_model.dart';
 
 /// Kelas untuk mengelola operasi terkait data paket di Firestore.
 class PaketOpFirebase {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFirestore db;
+
+  /// Konstruktor untuk PaketOpFirebase.
+  /// 
+  /// Membutuhkan instance [FirebaseFirestore] untuk diinjeksi, 
+  /// yang memungkinkan untuk pengujian dengan mock.
+  PaketOpFirebase(this.db);
 
   /// Mengambil nama paket berdasarkan ID paket.
   ///
@@ -14,7 +20,7 @@ class PaketOpFirebase {
   Future<String> ambilNamaPaket(final String paketId) async {
     try {
       Log.info('Mengambil nama paket untuk ID: $paketId');
-      final doc = await _db.collection('paket').doc(paketId).get();
+      final doc = await db.collection('paket').doc(paketId).get();
       if (doc.exists && doc.data()!.containsKey('nama')) {
         final namaPaket = doc.data()!['nama'] as String;
         Log.info('Nama paket ditemukan: $namaPaket');
@@ -37,7 +43,7 @@ class PaketOpFirebase {
   Future<PaketModel?> ambilPaketModelById(final String paketId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $paketId');
-      final doc = await _db.collection('paket').doc(paketId).get();
+      final doc = await db.collection('paket').doc(paketId).get();
       if (doc.exists) {
         final paket = PaketModel.fromFirebase(doc.id, doc.data()!);
         Log.info('Model paket ditemukan', paket.toFirebase());

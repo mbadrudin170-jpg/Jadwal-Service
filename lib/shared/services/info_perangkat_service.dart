@@ -4,7 +4,13 @@ import 'package:flutter/foundation.dart';
 
 /// Kelas layanan untuk mendapatkan informasi tentang perangkat.
 class InfoPerangkatService {
-  final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
+  final DeviceInfoPlugin deviceInfo;
+
+  /// Konstruktor untuk InfoPerangkatService.
+  /// 
+  /// Membutuhkan instance [DeviceInfoPlugin] untuk diinjeksi, 
+  /// yang memungkinkan untuk pengujian dengan mock.
+  InfoPerangkatService(this.deviceInfo);
 
   /// Mendapatkan arsitektur perangkat.
   Future<Map<String, dynamic>> dapatkanArsitekturPerangkat() async {
@@ -13,13 +19,13 @@ class InfoPerangkatService {
     }
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
-        final AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
+        final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         return {
           'supportedAbis': androidInfo.supportedAbis,
           'isPhysicalDevice': androidInfo.isPhysicalDevice,
         };
       } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-        final IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
+        final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
         return {
           'utsname.machine': iosInfo.utsname.machine,
           'isPhysicalDevice': iosInfo.isPhysicalDevice,

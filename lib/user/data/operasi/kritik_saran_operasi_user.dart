@@ -8,8 +8,16 @@ import 'package:wifi/shared/model/kritik_saran_model.dart';
 /// Kelas untuk mengelola operasi CRUD (Create, Read, Update, Delete)
 /// terkait data kritik dan saran dari pengguna di Firestore.
 class KritikSaranOperasiUser {
-  final CollectionReference _kritikSaranCollection =
-      FirebaseFirestore.instance.collection('kritik_saran');
+  /// Instance Firestore yang akan digunakan. Dapat diganti saat pengujian.
+  final FirebaseFirestore firestore;
+
+  /// Konstruktor untuk membuat instance [KritikSaranOperasiUser].
+  /// Membutuhkan instance [FirebaseFirestore].
+  KritikSaranOperasiUser(this.firestore);
+
+  /// Mendapatkan referensi ke koleksi 'kritik_saran'.
+  CollectionReference get _kritikSaranCollection =>
+      firestore.collection('kritik_saran');
 
   /// Menyimpan [kritikSaran] baru ke Firestore.
   ///
