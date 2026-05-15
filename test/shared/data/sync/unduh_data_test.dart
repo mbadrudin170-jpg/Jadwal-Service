@@ -206,9 +206,10 @@ void main() {
         when(mockDoc.data).thenReturn(tDataMap);
 
         var batchDipanggil = false;
-        final opBatch = (final List<String> list) async {
+        final opBatch = (final List<String> list) {
           batchDipanggil = true;
           expect(list.first, tDataId);
+          return Future<void>.value();
         };
 
         await service.sinkronisasiKoleksi<String>(
@@ -226,8 +227,9 @@ void main() {
           () async {
         when(() => mockSnapshot.docs).thenReturn([]);
         var batchDipanggil = false;
-        final opBatch = (final List<String> list) async {
+        final opBatch = (final List<String> list) {
           batchDipanggil = true;
+          return Future<void>.value();
         };
 
         await service.sinkronisasiKoleksi<String>(
@@ -261,8 +263,9 @@ void main() {
             .thenReturn([mockDoc1, mockDoc2, mockDoc3]);
 
         final List<PaketModel> hasilBatch = [];
-        final opBatch = (final List<PaketModel> list) async {
+        final opBatch = (final List<PaketModel> list) {
           hasilBatch.addAll(list);
+          return Future<void>.value();
         };
 
         PaketModel fromFirebasePalsu(final String id, final Map<String, dynamic> data) {
