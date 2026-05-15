@@ -10,14 +10,9 @@ import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
-
-// Generated files
-import 'package:wifi/shared/enum/status_pembayaran_enum.g.dart';
-import 'package:wifi/shared/enum/tipe_transaksi_enum.g.dart';
-import 'package:wifi/shared/model/transaksi_model.g.dart';
-
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan.
 void main() async {
@@ -29,6 +24,7 @@ void main() async {
   await Hive.initFlutter(appDocumentDir.path);
 
   // Daftarkan semua adapter yang diperlukan untuk Hive.
+  Hive.registerAdapter(TipeDurasiAdapter());
   Hive.registerAdapter(TransaksiModelAdapter());
   Hive.registerAdapter(TipeTransaksiEnumAdapter());
   Hive.registerAdapter(StatusPembayaranEnumAdapter());

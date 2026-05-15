@@ -1,9 +1,12 @@
 // path: lib/admin/halaman/lainnya/kritik_saran.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_kritik_saran.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
+import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/nama_dari_id.dart';
@@ -22,31 +25,85 @@ class KritikSaranPage extends StatefulWidget {
 
 class _KritikSaranPageState extends State<KritikSaranPage> {
   final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
-  late Future<List<KritikSaranModel>> _kritikSaranFuture;
+  final PelangganOperasi _pelangganOperasi = PelangganOperasi();
+
+  List<KritikSaranModel> _semuaKritikSaran = [];
+  List<KritikSaranModel> _hasilFilter = [];
+  Map<String, String> _mapNamaUser = {};
+  bool _isLoading = true;
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
-    _loadKritikSaran();
+    unawaited(_loadKritikSaran());
+    _searchController.addListener(_applyFilter);
   }
 
-  void _loadKritikSaran() {
-    Log.info('Memuat data kritik dan saran dari database');
+  @override
+  void dispose() {
+    Log.info('Menutup halaman Kritik & Saran');
+    _searchController.removeListener(_applyFilter);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _applyFilter() {
+    final query = _searchController.text.toLowerCase();
+    Log.info('Menerapkan filter dengan query: "$query"');
     setState(() {
-      _kritikSaranFuture = _kritikSaranOperasi.getKritikSaran().then((final data) {
-        Log.info('Berhasil memuat ${data.length} data kritik dan saran');
-        return data;
-      }).catchError((final Object e, final StackTrace st) {
-        Log.error(
-          'Gagal memuat data kritik dan saran dari database',
-          e: e,
-          st: st,
-        );
-        // diubah: Membungkus error dalam sebuah Exception untuk mematuhi aturan lint.
-        throw Exception(e);
-      });
+      _hasilFilter = _semuaKritikSaran.where((final item) {
+        final isi = item.isi.toLowerCase();
+        final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
+        return isi.contains(query) || namaPengirim.contains(query);
+      }).toList();
     });
+  }
+
+  Future<void> _loadKritikSaran() async {
+    Log.info('Memuat data kritik dan saran dari database');
+    if (!_isLoading && mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      final List<dynamic> results = await Future.wait([
+        _kritikSaranOperasi.getKritikSaran(),
+        _pelangganOperasi.getPelanggan(),
+      ]);
+
+      final List<KritikSaranModel> kritikSaranList =
+          results[0] as List<KritikSaranModel>;
+      final List<PelangganModel> pelangganList =
+          results[1] as List<PelangganModel>;
+
+      if (mounted) {
+        setState(() {
+          _semuaKritikSaran = kritikSaranList;
+          _mapNamaUser = {for (var p in pelangganList) p.id: p.nama};
+          _applyFilter();
+          _isLoading = false;
+        });
+        Log.info(
+            'Berhasil memuat ${_semuaKritikSaran.length} data kritik dan saran');
+      }
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal memuat data kritik dan saran dari database',
+        e: e,
+        st: st,
+      );
+      if (mounted) {
+        SnackBarUtil.error(context, 'Gagal memuat data: $e');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _hapusKritikSaran(final KritikSaranModel item) async {
@@ -78,7 +135,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
         if (mounted) {
           SnackBarUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
-        _loadKritikSaran();
+        await _loadKritikSaran();
       } on Exception catch (e, st) {
         Log.error(
           'Gagal menghapus kritik/saran ID: ${item.id}',
@@ -92,75 +149,132 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
     }
   }
 
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: _isSearching ? _buildSearchField() : const Text('Kritik & Saran'),
+      actions: _isSearching ? _buildSearchActions() : _buildDefaultActions(),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      autofocus: true,
+      decoration: const InputDecoration(
+        hintText: 'Cari...',
+        border: InputBorder.none,
+        hintStyle: TextStyle(color: Colors.white70),
+      ),
+      style: const TextStyle(color: Colors.white, fontSize: 16.0),
+    );
+  }
+
+  List<Widget> _buildSearchActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () {
+          Log.info('Menutup mode pencarian.');
+          if (mounted) {
+            setState(() {
+              _isSearching = false;
+            });
+          }
+          _searchController.clear();
+        },
+        tooltip: 'Tutup Pencarian',
+      ),
+    ];
+  }
+
+  List<Widget> _buildDefaultActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.search),
+        onPressed: () {
+          Log.info('Membuka mode pencarian.');
+          if (mounted) {
+            setState(() {
+              _isSearching = true;
+            });
+          }
+        },
+        tooltip: 'Cari',
+      ),
+    ];
+  }
+
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kritik & Saran')),
-      body: FutureBuilder<List<KritikSaranModel>>(
-        future: _kritikSaranFuture,
-        builder: (final context, final snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Belum ada kritik dan saran.'));
-          } else {
-            final listKritikSaran = snapshot.data!;
-            return ListView.builder(
-              padding: const EdgeInsets.all(8.0),
-              itemCount: listKritikSaran.length,
-              itemBuilder: (final context, final index) {
-                final item = listKritikSaran[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: InkWell(
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute<bool>(
-                          builder: (final context) =>
-                              DetailKritikSaranPage(id: item.id),
-                        ),
-                      );
-                      if (result ?? false) {
-                        _loadKritikSaran();
-                      }
-                    },
-                    onLongPress: () => _hapusKritikSaran(item),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          NamaDariIdWidget(userId: item.userId),
-                          const SizedBox(height: 12),
-                          Text(item.isi),
-                          const Divider(height: 24),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            // diubah: Menambahkan null check untuk properti tanggal
-                            child: Text(
-                              item.tanggal != null
-                                  ? FormatTanggal.formatTanggalDanJam(
-                                      item.tanggal!,
-                                    )
-                                  : 'Tanggal tidak tersedia',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
+      appBar: _buildAppBar(),
+      body: RefreshIndicator(
+        onRefresh: _loadKritikSaran,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : (_hasilFilter.isEmpty
+                ? Center(
+                    child: Text(
+                      _searchController.text.isNotEmpty
+                          ? 'Tidak ada hasil ditemukan.'
+                          : 'Belum ada kritik dan saran.',
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: _hasilFilter.length,
+                    itemBuilder: (final context, final index) {
+                      final item = _hasilFilter[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: InkWell(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute<bool>(
+                                builder: (final context) =>
+                                    DetailKritikSaranPage(id: item.id),
                               ),
+                            );
+                            if ((result ?? false) && mounted) {
+                              await _loadKritikSaran();
+                            }
+                          },
+                          onLongPress: () => _hapusKritikSaran(item),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                NamaDariIdWidget(userId: item.userId),
+                                const SizedBox(height: 12),
+                                Text(
+                                  item.isi,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const Divider(height: 24),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    item.tanggal != null
+                                        ? FormatTanggal.formatTanggalDanJam(
+                                            item.tanggal!,
+                                          )
+                                        : 'Tanggal tidak tersedia',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          }
-        },
+                        ),
+                      );
+                    },
+                  )),
       ),
     );
   }

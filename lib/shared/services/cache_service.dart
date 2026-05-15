@@ -23,9 +23,11 @@ class CacheService {
       final box = await Hive.openBox<TransaksiModel>(_transaksiBoxName);
       await box.clear();
       await box.addAll(transaksiList);
-      Log.info('CacheService: ${transaksiList.length} transaksi berhasil disimpan ke cache.');
+      Log.info(
+          'CacheService: ${transaksiList.length} transaksi berhasil disimpan ke cache.');
     } on Exception catch (e, st) {
-      Log.error('CacheService: Gagal menyimpan transaksi ke cache.', e: e, st: st);
+      Log.error('CacheService: Gagal menyimpan transaksi ke cache.',
+          e: e, st: st);
     }
   }
 
@@ -36,10 +38,12 @@ class CacheService {
     try {
       final box = await Hive.openBox<TransaksiModel>(_transaksiBoxName);
       final transaksiList = box.values.toList();
-      Log.info('CacheService: ${transaksiList.length} transaksi berhasil diambil dari cache.');
+      Log.info(
+          'CacheService: ${transaksiList.length} transaksi berhasil diambil dari cache.');
       return transaksiList;
     } on Exception catch (e, st) {
-      Log.error('CacheService: Gagal mengambil transaksi dari cache.', e: e, st: st);
+      Log.error('CacheService: Gagal mengambil transaksi dari cache.',
+          e: e, st: st);
       return [];
     }
   }
@@ -51,10 +55,11 @@ class CacheService {
       await box.clear();
       Log.info('CacheService: Cache transaksi berhasil dibersihkan.');
     } on Exception catch (e, st) {
-      Log.error('CacheService: Gagal membersihkan cache transaksi.', e: e, st: st);
+      Log.error('CacheService: Gagal membersihkan cache transaksi.',
+          e: e, st: st);
     }
   }
-  
+
   /// Memeriksa apakah cache transaksi kosong.
   Future<bool> isTransaksiCacheEmpty() async {
     try {
