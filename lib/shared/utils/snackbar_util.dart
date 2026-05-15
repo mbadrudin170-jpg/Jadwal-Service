@@ -20,13 +20,8 @@ enum SnackBarType {
 
 /// Kelas utilitas untuk menampilkan SnackBar dengan gaya yang konsisten dan logging otomatis.
 class SnackBarUtil {
-  /// Menampilkan SnackBar berdasarkan tipe yang ditentukan dan mencatatnya ke log.
-  ///
-  /// [context] adalah BuildContext dari widget yang memanggil.
-  /// [message] adalah pesan yang akan ditampilkan di dalam SnackBar dan dicatat di log.
-  /// [type] adalah tipe dari SnackBar (success, error, warning, info),
-  /// yang akan menentukan warna latar belakang dan level log.
-  static void show(
+  /// Fungsi internal untuk menampilkan SnackBar dan mencatat log.
+  static void _show(
     final BuildContext context,
     final String message, {
     final SnackBarType type = SnackBarType.info,
@@ -81,23 +76,23 @@ class SnackBarUtil {
     );
   }
 
-  /// Metode pintas untuk menampilkan SnackBar dengan tipe success.
-  static void showSuccess(final BuildContext context, final String message) {
-    show(context, message, type: SnackBarType.success);
+  /// Menampilkan SnackBar dengan tipe success.
+  static void success(final BuildContext context, final String message) {
+    _show(context, message, type: SnackBarType.success);
   }
 
-  /// Metode pintas untuk menampilkan SnackBar dengan tipe error.
-  static void showError(final BuildContext context, final String message) {
-    show(context, message, type: SnackBarType.error);
+  /// Menampilkan SnackBar dengan tipe error.
+  static void error(final BuildContext context, final String message) {
+    _show(context, message, type: SnackBarType.error);
   }
 
-  /// Metode pintas untuk menampilkan SnackBar dengan tipe warning.
-  static void showWarning(final BuildContext context, final String message) {
-    show(context, message, type: SnackBarType.warning);
+  /// Menampilkan SnackBar dengan tipe warning.
+  static void warning(final BuildContext context, final String message) {
+    _show(context, message, type: SnackBarType.warning);
   }
 
-  /// Metode pintas untuk menampilkan SnackBar dengan tipe info.
-  static void showInfo(final BuildContext context, final String message) {
-    show(context, message);
+  /// Menampilkan SnackBar dengan tipe info.
+  static void info(final BuildContext context, final String message) {
+    _show(context, message);
   }
 }

@@ -26,7 +26,7 @@
             "name": "Admin Dev",
             "type": "dart",
             "request": "launch",
-            "program": "lib/main/main_admin/main_admin.dart",
+            "program": "lib/main/main_admin/admin_dev.dart",
             "args": [
                 "--flavor",
                 "adminDev"

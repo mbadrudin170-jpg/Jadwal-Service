@@ -79,6 +79,9 @@ class PengecekanWaktuSyncService {
         await _layananUnggah.unggahSemuaData();
         final waktuSekarang = DateTime.now();
         await _syncManager.setTerakhirUnggah(waktuSekarang);
+        // diubah: Reset bendera setelah unggah berhasil
+        await _pengecekanDataBaru.resetPerluUnggah();
+
         Log.info(
           'Metadata sinkronisasi berhasil diperbarui. Waktu terakhir unggah (last_upload_timestamp) kini disetel pada: $waktuSekarang.',
         );

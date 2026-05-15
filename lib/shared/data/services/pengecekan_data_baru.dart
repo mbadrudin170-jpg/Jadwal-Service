@@ -60,6 +60,22 @@ class PengecekanDataBaruService {
     }
   }
 
+  // diubah: Menambahkan metode untuk mereset bendera `perlu_unggah`
+  /// Mereset status `perlu_unggah` menjadi false.
+  Future<void> resetPerluUnggah() async {
+    Log.info('Mereset bendera perlu_unggah menjadi false.');
+    try {
+      await _statusUnggahOperasi.resetPerluUnggah();
+      Log.info('Bendera perlu_unggah berhasil direset.');
+    } on Exception catch (e, s) {
+      Log.error(
+        'Gagal mereset bendera perlu_unggah.',
+        e: e,
+        st: s,
+      );
+    }
+  }
+
   /// Memeriksa apakah ada data baru di Firebase yang perlu diunduh.
   ///
   /// Membandingkan waktu terakhir diunduh secara lokal dengan waktu terakhir

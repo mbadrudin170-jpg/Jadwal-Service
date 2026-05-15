@@ -100,7 +100,7 @@ MAC : ${pelanggan.macAddress}
 
     await Clipboard.setData(ClipboardData(text: info));
     if (!mounted) return;
-    SnackBarUtil.showSuccess(context, 'Informasi pelanggan berhasil disalin.');
+    SnackBarUtil.success(context, 'Informasi pelanggan berhasil disalin.',);
   }
 
   Future<void> _navigateToPoin() async {

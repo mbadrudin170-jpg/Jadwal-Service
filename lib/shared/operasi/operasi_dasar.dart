@@ -123,6 +123,7 @@ class OperasiDasar {
       rethrow;
     }
   }
+
 // TODO: rencana selanjutnya adalah bermasalah
   /// Memperbarui data di [tabel] berdasarkan [id].
   Future<void> perbarui(
@@ -151,7 +152,9 @@ class OperasiDasar {
             );
           } else {
             Log.info(
-                'UPDATE berhasil', {'rowsAffected': rowsAffected, 'id': id},);
+              'UPDATE berhasil',
+              {'rowsAffected': rowsAffected, 'id': id},
+            );
           }
           return rowsAffected;
         },
@@ -169,7 +172,8 @@ class OperasiDasar {
   }
 
   /// Menghapus data dari [tabel] berdasarkan [id].
-  Future<void> hapus(final String tabel, final String id, {final bool dariServer = false}) async {
+  Future<void> hapus(final String tabel, final String id,
+      {final bool dariServer = false}) async {
     Log.info('Memulai penghapusan data', {'tabel': tabel, 'id': id});
     try {
       await _jalankanDalamTransaksi(

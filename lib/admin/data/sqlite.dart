@@ -1,5 +1,5 @@
 // path: lib/admin/data/sqlite.dart
-// diubah: Menaikkan versi DB ke 47, menambahkan kolom `diarsipkan` dan `isDeleted` ke `kritik_saran`.
+// diubah: Menaikkan versi DB ke 48, menambahkan kolom `diperbarui` ke `status_aplikasi`.
 // ditambah: Menambahkan dokumentasi untuk anggota publik untuk memperbaiki peringatan analisis.
 
 import 'dart:io';
@@ -14,8 +14,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // diubah: Versi dinaikkan ke 47 untuk memperbaiki skema tabel `kritik_saran`.
-  static const int _databaseVersion = 47;
+  // diubah: Versi dinaikkan ke 48 untuk menambahkan kolom `diperbarui` ke `status_aplikasi`.
+  static const int _databaseVersion = 48;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -97,17 +97,15 @@ class DatabaseHelper {
        await _migrateToV45(db);
     }
 
-    // Pola migrasi destruktif untuk memastikan integritas skema.
     if (oldVersion < 47) {
-      Log.info('[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran`.');
-
+      Log.info('[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran` (destruktif).');
       final List<String> daftarTabel = [
         'kategori', 'sub_kategori', 'paket', 'pelanggan', 'pelanggan_aktif',
         'transaksi', 'dompet', 'kritik_saran', 'pesanan', 'versi_apk_user',
-        'pengaturan', 'status_unggah', 'pesan',
+        'pengaturan', 'status_unggah', 'pesan', 'status_aplikasi',
       ];
       
-      Log.warning('[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel berikut: $daftarTabel. Data lokal akan direset.');
+      Log.warning('[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel. Data lokal akan direset.');
 
       for (final namaTabel in daftarTabel) {
         batch.execute('DROP TABLE IF EXISTS $namaTabel');
@@ -116,6 +114,11 @@ class DatabaseHelper {
 
       _createAllTables(batch);
       Log.info('[MIGRASI v47] Menjadwalkan pembuatan ulang semua tabel dengan skema baru.');
+    }
+
+    if (oldVersion < 48) {
+      Log.info('[MIGRASI v48] Menambahkan kolom `diperbarui` ke tabel `status_aplikasi`.');
+      batch.execute('ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER');
     }
 
     try {
@@ -249,10 +252,12 @@ class DatabaseHelper {
     )
   ''';
 
+  // diubah: Menambahkan kolom `diperbarui`
   static const String _tabelStatusAplikasi = '''
     CREATE TABLE status_aplikasi(
       id TEXT PRIMARY KEY,
-      value TEXT NOT NULL
+      value TEXT NOT NULL,
+      diperbarui INTEGER
     )
   ''';
 
@@ -350,7 +355,6 @@ class DatabaseHelper {
       )
     ''';
 
-  // diubah: Menambahkan kolom `diarsipkan` dan `isDeleted` untuk konsistensi.
   static const String _tabelKritikSaran = '''
       CREATE TABLE kritik_saran(
         id TEXT PRIMARY KEY,

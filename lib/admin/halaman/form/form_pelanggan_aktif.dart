@@ -206,7 +206,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data referensi', e: e, st: s);
       if (mounted) {
-        SnackBarUtil.showError(context, 'Gagal memuat data: $e');
+        SnackBarUtil.error(context, 'Gagal memuat data: $e');
         setState(() {
           _isLoading = false;
         });
@@ -229,7 +229,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     } on Exception {
       _selectedPaket = null;
       if (mounted) {
-        SnackBarUtil.showWarning(
+        SnackBarUtil.warning(
           context,
           'Peringatan: Paket asli (ID: ${pa.idPaket}) tidak ditemukan. Harap pilih paket baru.',
         );
@@ -244,8 +244,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
   /// Menginisialisasi data default untuk form saat mode tambah baru.
   void _mapNewData() {
-    _selectedDate = DateTime.now();
-    _selectedTime = TimeOfDay.now();
+    final now = DateTime.now().toUtc();
+    _selectedDate = now;
+    _selectedTime = TimeOfDay.fromDateTime(now);
     if (_daftarDompet.isNotEmpty) {
       _selectedDompet = _daftarDompet.first;
     }
@@ -262,7 +263,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   Future<void> _selectDate(final BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now().toUtc(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
@@ -275,9 +276,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
   /// Menampilkan dialog pemilih waktu.
   Future<void> _selectTime(final BuildContext context) async {
+    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now().toUtc());
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
+      initialTime: initial,
       builder: (final context, final child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
         child: child!,
@@ -324,7 +326,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
 
     try {
-      final tanggalMulai = DateTime(
+      final tanggalMulai = DateTime.utc(
         _selectedDate!.year,
         _selectedDate!.month,
         _selectedDate!.day,
@@ -656,7 +658,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
               (_selectedDate == null || _selectedTime == null)
                   ? 'Pilih Tanggal & Jam'
                   : FormatTanggal.formatTanggalDanJam(
-                      DateTime(
+                      DateTime.utc(
                         _selectedDate!.year,
                         _selectedDate!.month,
                         _selectedDate!.day,
@@ -678,7 +680,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             Text(
               (() {
                 if (_selectedDate != null && _selectedPaket != null) {
-                  final DateTime startDate = DateTime(
+                  final DateTime startDate = DateTime.utc(
                     _selectedDate!.year,
                     _selectedDate!.month,
                     _selectedDate!.day,
@@ -713,14 +715,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           if (!mounted) return;
 
           if (hasil.sukses) {
-            SnackBarUtil.showSuccess(context, hasil.pesan);
+            SnackBarUtil.success(context, hasil.pesan);
             if (hasil.data != null) {
               try {
                 await PesanInfoPaket.kirimRincianPaket(hasil.data!);
               } on Exception catch (e) {
                 Log.warning('Gagal mengirim pesan WhatsApp: $e');
                 if (mounted) {
-                  SnackBarUtil.showWarning(
+                  SnackBarUtil.warning(
                     context,
                     'Gagal mengirim pesan WhatsApp. Aplikasi tidak terpasang?',
                   );
@@ -732,7 +734,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
               navigator.pop(true);
             }
           } else {
-            SnackBarUtil.showError(context, hasil.pesan);
+            SnackBarUtil.error(context, hasil.pesan);
           }
         },
         style: ElevatedButton.styleFrom(

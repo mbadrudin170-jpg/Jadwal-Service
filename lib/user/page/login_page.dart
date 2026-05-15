@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/page/daftar_akun_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -66,13 +67,7 @@ class _TampilanLoginState extends State<_TampilanLogin> {
     unawaited(_initializeLocalStorage());
     WidgetsBinding.instance.addPostFrameCallback((final _) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Anda telah keluar. Silakan login kembali.'),
-            duration: Duration(seconds: 3),
-            backgroundColor: Colors.green,
-          ),
-        );
+        SnackBarUtil.info(context, 'Anda telah keluar. Silakan login kembali.');
       }
     });
   }

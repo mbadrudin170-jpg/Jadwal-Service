@@ -64,7 +64,7 @@ class _EditPageState extends State<EditProfilPage> {
         if (!mounted) return;
 
         // Gunakan SnackBarUtil untuk notifikasi sukses
-        SnackBarUtil.showSuccess(context, 'Profil berhasil diperbarui.');
+        SnackBarUtil.success(context, 'Profil berhasil diperbarui.');
 
         // Langsung kembali ke halaman sebelumnya dengan hasil true
         navigator.pop(true);
@@ -75,7 +75,7 @@ class _EditPageState extends State<EditProfilPage> {
           st: st,
         );
         if (!mounted) return;
-        SnackBarUtil.showError(context, 'Gagal menyimpan perubahan: $e');
+        SnackBarUtil.error(context, 'Gagal menyimpan perubahan: $e');
       }
     }
   }

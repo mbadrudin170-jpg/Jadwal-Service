@@ -40,7 +40,7 @@ AI akan memahami dan menerapkan konsep arsitektur fundamental di Flutter:
 3. Dilarang nerasumsi liar kalau tidak yakin atau ragu tolong tanyakan ke user.
 4. Selalu ikuti semua perintah user, kalau ada perintah user yang akan membuat kode menjadi error atau tidak konsisten tanyakan lagi keuser apakah user yakin dengan semua perintah itu.
 5. jangan berasumsi liar AI harus kerjakan apa yang spesifik dengan perintah user saja jikalau ada pembaruan kode yang melenceng dari perintah user maka AI wajib meminta persetujuan user apalagi kalau sampai refaktor besar-besaran.
-6. 
+6. jalankan ls -R lib/
 
 # Database Firebase & Sqlite
 1. Setiap data yang akan disimpan ke sqlite atau pun firebase tipe nya wajib sama dengan yang ada di modelnya.

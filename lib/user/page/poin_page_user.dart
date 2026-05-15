@@ -11,6 +11,7 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/poin_page_ui.dart';
 
 /// Halaman untuk menampilkan informasi poin, daftar hadiah, dan riwayat poin pengguna.
@@ -190,13 +191,8 @@ class _PoinPageUserState extends State<PoinPageUser> {
               onPressed: cukupPoin
                   ? () {
                       // TODO: Implementasi logika penukaran poin
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Fitur penukaran untuk ${hadiah.nama} belum tersedia.',
-                          ),
-                        ),
-                      );
+                      SnackBarUtil.info(context,
+                          'Fitur penukaran untuk ${hadiah.nama} belum tersedia.',);
                     }
                   : null,
               child: const Text('Tukar'),

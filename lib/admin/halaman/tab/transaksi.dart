@@ -182,13 +182,13 @@ class _TransaksiPageState extends State<TransaksiPage> {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
         await _transaksiOperasi.hapusSemuaTransaksi();
         if (!mounted) return;
-        SnackBarUtil.showSuccess(context, 'Semua transaksi berhasil dihapus.');
+        SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
         _loadData();
       }
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
       if (!mounted) return;
-      SnackBarUtil.showError(context, 'Gagal menghapus transaksi: $e');
+      SnackBarUtil.error(context, 'Gagal menghapus transaksi: $e');
     }
   }
 

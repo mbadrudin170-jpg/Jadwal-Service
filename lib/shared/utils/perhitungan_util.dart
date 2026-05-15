@@ -14,8 +14,9 @@ class PerhitunganUtil {
   ///
   /// Poin dianggap hangus jika selisih antara [tanggalMulai] dan sekarang
   /// lebih dari 30 hari. [now] dapat digunakan untuk pengujian.
-  static String getPoinHangus({required final DateTime tanggalMulai, final DateTime? now}) {
-    final tanggalSekarang = now ?? DateTime.now();
+  static String getPoinHangus(
+      {required final DateTime tanggalMulai, final DateTime? now}) {
+    final tanggalSekarang = now ?? DateTime.now().toUtc();
     final selisihHari = tanggalSekarang.difference(tanggalMulai).inDays;
 
     if (selisihHari > 30) {
@@ -28,7 +29,7 @@ class PerhitunganUtil {
   /// Mengembalikan jumlah sisa hari dalam bentuk integer.
   /// Jika tanggal berakhir sudah lewat, hasilnya akan menjadi negatif.
   static int sisaHari(final DateTime tanggalBerakhir, {final DateTime? now}) {
-    final tanggalSekarang = DateUtils.dateOnly(now ?? DateTime.now());
+    final tanggalSekarang = DateUtils.dateOnly(now ?? DateTime.now().toUtc());
     final akhir = DateUtils.dateOnly(tanggalBerakhir);
     return akhir.difference(tanggalSekarang).inDays;
   }
@@ -40,7 +41,7 @@ class PerhitunganUtil {
     final DateTime tanggalBerakhir, {
     final DateTime? now,
   }) {
-    final sisa = tanggalBerakhir.difference(now ?? DateTime.now());
+    final sisa = tanggalBerakhir.difference(now ?? DateTime.now().toUtc());
 
     if (sisa.isNegative) {
       return 'Berakhir';

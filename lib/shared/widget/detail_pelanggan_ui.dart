@@ -52,13 +52,13 @@ class _DetailPelangganUIState extends State<DetailPelangganUI> {
 
     if (data.isEmpty) {
       Log.warning('Tidak ada data untuk disalin pada label: $label');
-      SnackBarUtil.showWarning(context, 'Tidak ada data untuk disalin.');
+      SnackBarUtil.warning(context, 'Tidak ada data untuk disalin.');
       return;
     }
     Log.info('Menyalin data untuk label: $label, data: $data');
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) return;
-    SnackBarUtil.showSuccess(context, '$label berhasil disalin');
+    SnackBarUtil.success(context, '$label berhasil disalin');
   }
 
   @override

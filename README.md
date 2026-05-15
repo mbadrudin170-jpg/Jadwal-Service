@@ -13,17 +13,17 @@ Untuk mengatasi hal ini, serangkaian pengujian baru telah ditambahkan secara ber
 1.  **Pengujian Skenario "Ada Data"**:
     *   Sebuah pengujian baru ditambahkan untuk mensimulasikan kondisi di mana `DompetOperasi` mengembalikan daftar dompet.
     *   **Tantangan**: Selama implementasi, terjadi dua kegagalan tes:
-        1.  `Error: The argument type 'int' can't be assigned to the parameter type 'String?'`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
+        1.  `Error: The argument type \'int\' can\'t be assigned to the parameter type \'String?\'`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
         2.  `Expected: exactly one matching candidate ... Actual: ... <Found 2 widgets>`. Ini terjadi karena pencarian teks (`find.textContaining`) terlalu umum. Ini diperbaiki dengan menggunakan pencari yang lebih spesifik (`find.ancestor` dan `find.descendant`) untuk memvalidasi saldo di dalam `Card` yang benar.
-    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `'Berhasil memuat ... dompet'`.
+    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\'Berhasil memuat ... dompet\'`.
 
 2.  **Pengujian Interaksi Pengguna (Navigasi)**:
     *   Pengujian ditambahkan untuk mensimulasikan pengguna menekan `FloatingActionButton`.
-    *   **Hasil**: Berhasil memverifikasi bahwa aplikasi menavigasi ke `FormDompet`, yang secara implisit membuktikan bahwa log `'Navigasi ke halaman tambah dompet.'` telah dieksekusi.
+    *   **Hasil**: Berhasil memverifikasi bahwa aplikasi menavigasi ke `FormDompet`, yang secara implisit membuktikan bahwa log `\'Navigasi ke halaman tambah dompet.\'` telah dieksekusi.
 
 3.  **Pengujian Interaksi Pengguna (Memuat Ulang Data)**:
     *   Pengujian terakhir ditambahkan untuk mensimulasikan halaman `FormDompet` yang ditutup dan mengembalikan hasil `true`.
-    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `'Berhasil menambahkan dompet baru, memuat ulang data.'`.
+    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\'Berhasil menambahkan dompet baru, memuat ulang data.\'`.\
 
 ### Proses dan Tantangan
 *   **Pengembangan Berbasis Umpan Balik (Feedback-Driven Development)**: Proses dimulai dari observasi sederhana (log tidak muncul), yang kemudian mendorong analisis dan penambahan pengujian secara iteratif.
@@ -53,7 +53,7 @@ Setelah beberapa perubahan pada basis kode, `build_runner` gagal dijalankan, yan
     *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik (`mockSta` bukan `mockStatusUnggah`) dan kode yang tidak perlu. Berkas ini telah dibersihkan dan diperbaiki.
     *   `test/shared/operasi/pelanggan_operasi_test.dart`: Mengalami masalah serupa dengan berkas pengujian lainnya dan telah diperbaiki untuk memastikan konsistensi dan kebenaran.
 
-3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`"""`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
+3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`\"\"\"`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
 
 ### Proses dan Tantangan
 
@@ -136,7 +136,7 @@ Dengan ini, proyek diharapkan menjadi lebih stabil, mudah dibaca, dan mudah dike
 
 ---
 
-## Refaktorisasi dan Perbaikan Kode Operasi
+## Refaktorisasi Kode Operasi dan Perbaikan Peringatan Analisis
 
 ### Latar Belakang
 Selama proses pengembangan, ditemukan bahwa file `versi_apk_user_operasi.dart` tidak ditulis dengan cara yang mudah untuk diuji (testable). Selain itu, setelah menjalankan `flutter analyze`, beberapa peringatan dan info terdeteksi di berbagai file, yang menunjukkan perlunya pembersihan kode untuk menjaga kualitas dan konsistensi.
@@ -194,3 +194,26 @@ Saat mengerjakan file `lib/shared/data/sync/unggah_data.dart`, ditemukan beberap
 *   **Alur Kerja Berbasis Verifikasi**: Seluruh proses ini mengikuti alur kerja yang ketat: perbaiki, uji, analisis, ulangi. Ini memastikan bahwa setiap perubahan tidak hanya memperbaiki satu masalah tetapi juga tidak menimbulkan masalah baru.
 
 Dengan selesainya pekerjaan ini, file `unggah_data.dart` kini lebih kuat dalam menangani data yang korup, dan seluruh basis kode telah diverifikasi bersih oleh `flutter analyze`, sesuai dengan standar kualitas proyek.
+
+---
+
+## Refaktorisasi Notifikasi: Mengganti `ScaffoldMessenger` dengan `SnackBarUtil`
+
+### Latar Belakang
+Untuk menjaga konsistensi UI dan memusatkan logika penampilan notifikasi (snackbar), diputuskan untuk mengganti semua penggunaan `ScaffoldMessenger` dengan utilitas kustom, `SnackBarUtil`. Pendekatan ini menyederhanakan pemanggilan notifikasi dan memastikan semua snackbar memiliki tampilan dan perilaku yang seragam sesuai dengan tema aplikasi.
+
+### Rangkuman Perubahan
+*   **Identifikasi File:** Menggunakan pencarian global (`grep`), semua file yang menggunakan `ScaffoldMessenger` diidentifikasi. File-file tersebut meliputi:
+    *   `lib/user/page/kritik_dan_saran_user.dart`
+    *   `lib/user/page/login_page.dart`
+    *   `lib/user/page/poin_page_user.dart`
+    *   `lib/admin/halaman/lainnya/pengaturan_admin.dart`
+    *   `lib/admin/halaman/lainnya/pelanggan.dart`
+*   **Proses Refaktorisasi:** Setiap file diubah secara sistematis. Panggilan ke `ScaffoldMessenger.of(context).showSnackBar(...)` diganti dengan metode yang sesuai dari `SnackBarUtil` (misalnya, `SnackBarUtil.success()`, `SnackBarUtil.error()`, `SnackBarUtil.info()`). Impor `snackbar_util.dart` juga ditambahkan di setiap file yang relevan.
+*   **Perbaikan Tambahan:** Selama proses refaktorisasi, beberapa peringatan dari `flutter analyze` ditemukan dan diperbaiki di `lib/user/page/kritik_dan_saran_user.dart`, termasuk:
+    *   `use_build_context_synchronously`: Diperbaiki dengan mengubah cara `BuildContext` diakses dalam operasi asinkron.
+    *   `discarded_futures`: Diperbaiki dengan menambahkan `async` dan `await` pada *handler* `onPressed`.
+*   **Verifikasi Akhir:** Setelah semua file diperbarui, perintah `dart fix --apply && flutter analyze` dijalankan. Hasilnya menunjukkan "No issues found!", yang mengonfirmasi bahwa refaktorisasi berhasil dan tidak ada masalah baru yang diperkenalkan.
+
+### Hasil
+Seluruh basis kode kini menggunakan `SnackBarUtil` untuk menampilkan notifikasi, meningkatkan konsistensi dan keterbacaan kode. Peringatan-peringatan terkait yang ditemukan selama proses juga telah diatasi, menjadikan kode lebih bersih dan patuh terhadap aturan linter.

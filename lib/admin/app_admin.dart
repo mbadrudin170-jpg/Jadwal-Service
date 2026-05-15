@@ -24,9 +24,9 @@ import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Widget utama aplikasi.
-class MyApp extends StatelessWidget {
+class AppAdmin extends StatelessWidget {
   /// Konstruktor untuk MyApp.
-  const MyApp({super.key});
+  const AppAdmin({super.key});
 
   @override
   Widget build(final BuildContext context) {

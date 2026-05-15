@@ -9,6 +9,7 @@ import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar pelanggan.
 enum OpsiUrut {
@@ -214,12 +215,8 @@ class _PelangganPageState extends State<PelangganPage> {
       );
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Gagal memuat data pelanggan. Silakan coba lagi.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackBarUtil.error(
+            context, 'Gagal memuat data pelanggan. Silakan coba lagi.');
       }
     }
   }
@@ -356,12 +353,7 @@ class _PelangganPageState extends State<PelangganPage> {
       );
       await _refreshPelangganList();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pelanggan berhasil diarsipkan.'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        SnackBarUtil.success(context, 'Pelanggan berhasil diarsipkan.');
       }
     } on Exception catch (e, s) {
       Log.error(
@@ -370,12 +362,7 @@ class _PelangganPageState extends State<PelangganPage> {
         st: s,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Gagal mengarsipkan pelanggan.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackBarUtil.error(context, 'Gagal mengarsipkan pelanggan.');
       }
     }
   }

@@ -476,12 +476,12 @@ class LayananUnggahData {
       } else {
         Log.info(
           'Melakukan query pada tabel $namaTabel dengan kondisi: '
-          'diperbarui > ${waktuSinkronisasiTerakhir.toIso8601String()}',
+          'diperbarui > ${waktuSinkronisasiTerakhir.millisecondsSinceEpoch}',
         );
         dataUntukDiunggah = await db.query(
           namaTabel,
           where: 'diperbarui > ?',
-          whereArgs: [waktuSinkronisasiTerakhir.toIso8601String()],
+          whereArgs: [waktuSinkronisasiTerakhir.millisecondsSinceEpoch],
         );
       }
 

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart'; // diubah: path import diperbarui
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
@@ -70,27 +71,18 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Terima kasih! Masukan Anda telah disimpan.'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          SnackBarUtil.success(
+              context, 'Terima kasih! Masukan Anda telah disimpan.');
           Navigator.of(context).pop();
         }
-      }on Exception catch (e, s) {
+      } on Exception catch (e, s) {
         Log.error(
           'Gagal mengirim kritik dan saran',
           e: e,
           st: s,
         );
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal mengirim masukan: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SnackBarUtil.error(context, 'Gagal mengirim masukan: $e');
         }
       } finally {
         if (mounted) {

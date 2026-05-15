@@ -20,17 +20,17 @@ void main() {
   }
 
   group('SnackBarUtil Tests', () {
-    testWidgets('showSuccess menampilkan SnackBar berwarna hijau dengan pesan yang benar',
+    testWidgets('1. success menampilkan SnackBar berwarna hijau dengan pesan yang benar',
         (final tester) async {
       const message = 'Operasi berhasil';
 
-      // Bangun widget dan panggil showSuccess
+      // Bangun widget dan panggil success
       await tester.pumpWidget(createTestWidget(
         Builder(
           builder: (final context) {
             // Panggil setelah frame pertama selesai dibangun
             WidgetsBinding.instance.addPostFrameCallback((final _) {
-              SnackBarUtil.showSuccess(context, message);
+              SnackBarUtil.success(context, message);
             });
             return Container();
           },
@@ -52,7 +52,7 @@ void main() {
       expect(textWidget.data, message);
     });
 
-    testWidgets('showError menampilkan SnackBar berwarna merah dengan pesan yang benar',
+    testWidgets('2. error menampilkan SnackBar berwarna merah dengan pesan yang benar',
         (final tester) async {
       const message = 'Terjadi kesalahan';
 
@@ -60,7 +60,7 @@ void main() {
         Builder(
           builder: (final context) {
             WidgetsBinding.instance.addPostFrameCallback((final _) {
-              SnackBarUtil.showError(context, message);
+              SnackBarUtil.error(context, message);
             });
             return Container();
           },
@@ -76,7 +76,7 @@ void main() {
       expect(textWidget.data, message);
     });
 
-    testWidgets('showWarning menampilkan SnackBar berwarna oranye dengan pesan yang benar',
+    testWidgets('3. warning menampilkan SnackBar berwarna oranye dengan pesan yang benar',
         (final tester) async {
       const message = 'Peringatan, harap periksa kembali';
 
@@ -84,7 +84,7 @@ void main() {
         Builder(
           builder: (final context) {
             WidgetsBinding.instance.addPostFrameCallback((final _) {
-              SnackBarUtil.showWarning(context, message);
+              SnackBarUtil.warning(context, message);
             });
             return Container();
           },
@@ -100,7 +100,7 @@ void main() {
       expect(textWidget.data, message);
     });
 
-    testWidgets('showInfo menampilkan SnackBar berwarna biru dengan pesan yang benar',
+    testWidgets('4. info menampilkan SnackBar berwarna biru dengan pesan yang benar',
         (final tester) async {
       const message = 'Informasi penting untuk Anda';
 
@@ -108,7 +108,7 @@ void main() {
         Builder(
           builder: (final context) {
             WidgetsBinding.instance.addPostFrameCallback((final _) {
-              SnackBarUtil.showInfo(context, message);
+              SnackBarUtil.info(context, message);
             });
             return Container();
           },

@@ -1,9 +1,13 @@
 // path: lib/user/page/kritik_dan_saran_user.dart
-// diubah: Menghapus variabel 'navigator' yang tidak digunakan untuk membersihkan analisis.
+// diperbaiki: Mengatasi peringatan 'use_build_context_synchronously' dengan refactoring.
+// diperbaiki: Mengatasi peringatan 'discarded_futures' dengan menambahkan async/await.
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
 
@@ -26,14 +30,10 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
   final KritikSaranOperasiUser _operasi =
       KritikSaranOperasiUser(FirebaseFirestore.instance);
 
-  Future<void> _showOptionsDialog(
-    final BuildContext context,
-    final KritikSaranModel kritik,
-  ) async {
-    final navigator = Navigator.of(context);
-
+  /// Menampilkan dialog dengan pilihan untuk mengedit atau menghapus kritik.
+  Future<void> _showOptionsDialog(final KritikSaranModel kritik) async {
     await showDialog<void>(
-      context: context,
+      context: context, // Menggunakan context dari State
       builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Pilih Aksi'),
@@ -41,17 +41,20 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
             TextButton(
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
-                navigator.pop();
-                await _showDeleteConfirmationAndExecute(context, kritik.id);
+                Navigator.of(dialogContext).pop(); // Tutup dialog pilihan
+                await _showDeleteConfirmationAndExecute(
+                  kritik.id,
+                ); // Tampilkan dialog konfirmasi
               },
             ),
             TextButton(
               child: const Text('Edit'),
               onPressed: () async {
-                navigator.pop();
-                await navigator.push(
+                Navigator.of(dialogContext).pop(); // Tutup dialog pilihan
+                await Navigator.push<void>(
+                  context, // Gunakan context dari State untuk navigasi
                   MaterialPageRoute<void>(
-                    builder: (final context) => FormKritikDanSaran(
+                    builder: (final _) => FormKritikDanSaran(
                       userId: widget.userId,
                       kritikId: kritik.id,
                       initialValue: kritik.isi,
@@ -61,7 +64,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
               },
             ),
             TextButton(
-              onPressed: navigator.pop,
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Batal'),
             ),
           ],
@@ -70,15 +73,10 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
     );
   }
 
-  Future<void> _showDeleteConfirmationAndExecute(
-    final BuildContext context,
-    final String docId,
-  ) async {
-    // diubah: Variabel navigator yang tidak digunakan telah dihapus.
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
+  /// Menampilkan dialog konfirmasi dan mengeksekusi penghapusan jika disetujui.
+  Future<void> _showDeleteConfirmationAndExecute(final String docId) async {
     final bool? shouldDelete = await showDialog<bool>(
-      context: context,
+      context: context, // Menggunakan context dari State
       builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
@@ -101,19 +99,11 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
     if (shouldDelete ?? false) {
       try {
         await _operasi.hapusKritikSaran(docId);
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            content: Text('Masukan berhasil dihapus.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }on Exception catch (e) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text('Gagal menghapus: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (!mounted) return; // Pemeriksaan mounted sekarang valid
+        SnackBarUtil.success(context, 'Masukan berhasil dihapus.');
+      } on Exception catch (e) {
+        if (!mounted) return;
+        SnackBarUtil.error(context, 'Gagal menghapus: $e');
       }
     }
   }
@@ -158,7 +148,8 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  onTap: () => _showOptionsDialog(context, kritik),
+                  onTap: () => _showOptionsDialog(
+                      kritik), // Panggilan yang sudah direfaktor
                   title: Text(kritik.isi),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -178,7 +169,8 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (final context) => FormKritikDanSaran(userId: widget.userId),
+              builder: (final context) =>
+                  FormKritikDanSaran(userId: widget.userId),
             ),
           );
         },

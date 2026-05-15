@@ -85,14 +85,14 @@ class _ProfilPageState extends State<ProfilPage> {
     } on Exception catch (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.showError(context, 'Gagal memuat data profil: $e');
+        SnackBarUtil.error(context, 'Gagal memuat data profil: $e');
       }
     }
   }
 
   Future<void> _muatUlangData() async {
     Log.info('Memuat ulang semua data profil via onRefresh.');
-    SnackBarUtil.showInfo(context, 'Memperbarui data...');
+    SnackBarUtil.info(context, 'Memperbarui data...');
 
     // Inisialisasi ulang semua future untuk memicu state loading di FutureBuilder
     setState(() {
@@ -115,12 +115,12 @@ class _ProfilPageState extends State<ProfilPage> {
 
       if (mounted) {
         Log.info('Data profil berhasil diperbarui.');
-        SnackBarUtil.showSuccess(context, 'Data berhasil diperbarui.');
+        SnackBarUtil.success(context, 'Data berhasil diperbarui.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.showError(context, 'Gagal memperbarui data: $e');
+        SnackBarUtil.error(context, 'Gagal memperbarui data: $e');
       }
     }
   }

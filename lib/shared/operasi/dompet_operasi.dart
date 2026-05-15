@@ -14,10 +14,10 @@ class DompetOperasi {
   late final OperasiDasar _operasiDasar;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
-  DompetOperasi({final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar}) 
-    : dbHelper = dbHelper ?? DatabaseHelper.instance,
-      _operasiDasar = operasiDasar ?? OperasiDasar();
-
+  DompetOperasi(
+      {final DatabaseHelper? dbHelper, final OperasiDasar? operasiDasar})
+      : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _operasiDasar = operasiDasar ?? OperasiDasar();
 
   /// Menyimpan [DompetModel] baru ke dalam database.
   ///
@@ -26,12 +26,12 @@ class DompetOperasi {
     final DompetModel dompet, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai createDompet untuk dompet: ${dompet.toSqlite()}');
+    Log.info('Memulai createDompet untuk dompet:', dompet.toSqlite());
     try {
       final data =
           dompet.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
       await _operasiDasar.sisipkan('dompet', data, dariServer: dariServer);
-      Log.info('Berhasil membuat dompet dengan ID data: ${dompet.id}');
+      Log.info('Berhasil membuat dompet dengan ID data:', dompet.toSqlite());
     } catch (e, st) {
       Log.error('Gagal saat createDompet', e: e, st: st);
       rethrow;
@@ -173,7 +173,8 @@ class DompetOperasi {
   }
 
   /// Mengarsipkan satu dompet berdasarkan [id] (soft delete).
-  Future<void> arsipkanSatuDompet(final String id, {final bool dariServer = false}) async {
+  Future<void> arsipkanSatuDompet(final String id,
+      {final bool dariServer = false}) async {
     Log.info('Memulai arsipkanSatuDompet (soft delete) untuk ID: $id');
     try {
       final now = DateTime.now().toUtc();
