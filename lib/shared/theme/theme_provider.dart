@@ -1,18 +1,14 @@
 // path: lib/shared/theme/theme_provider.dart
-// Fitur: Manajemen Tema Aplikasi
-// Tujuan: Menyediakan, mengubah, dan menyimpan preferensi tema pengguna.
+// Fitur: Manajemen Tema Aplikasi (GLOBAL)
+// Tujuan: Menyediakan, mengubah, dan menyimpan preferensi tema pengguna
+//          untuk digunakan oleh sisi admin maupun user.
 //
-// diubah: Mengganti nama kelas dari UserThemeProvider → ThemeProvider,
-//         UserThemeProviderImpl → ThemeProviderImpl agar konsisten
-//         dengan pemakaian di app_user.dart dan theme_menu_widget.dart.
-// diubah: Menghapus semua logika konversi tipe manual (toString/fromString).
-// ThemeProvider sekarang berinteraksi langsung dengan LocalStorageService
-// menggunakan tipe data ThemeMode, karena service tersebut sudah menangani
-// konversi internal ke/dari String.
-// diubah: Mengganti nama method ke Bahasa Inggris untuk konsistensi.
-// diubah: Menghapus duplikasi konten file.
-// TODO: Pertimbangkan untuk menggabungkan dengan shared/theme/theme_provider.dart
-//       untuk menghindari duplikasi kode manajemen tema.
+// diubah: Menjadikan file ini sebagai satu-satunya provider tema global.
+//         Sekarang mendukung persistensi via LocalStorageService dan
+//         memiliki method setTheme untuk kontrol tema spesifik.
+// diubah: Menghapus duplikasi kode manajemen tema yang sebelumnya terpisah
+//         antara shared/theme/theme_provider.dart (lama) dan
+//         user/provider/user_theme_provider.dart.
 
 import 'dart:async';
 
@@ -30,7 +26,7 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 //   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
 //   - lib/shared/debug/log.dart (Log)
 
-/// Kontrak untuk provider tema, mendefinisikan properti dan metode
+/// Kontrak untuk provider tema global, mendefinisikan properti dan metode
 /// yang harus dimiliki oleh implementasi provider tema.
 abstract class ThemeProvider extends ChangeNotifier {
   /// Mengambil mode tema saat ini (`system`, `light`, atau `dark`).
@@ -47,6 +43,9 @@ abstract class ThemeProvider extends ChangeNotifier {
 }
 
 /// Implementasi konkret dari [ThemeProvider].
+///
+/// Menyimpan preferensi tema ke [LocalStorageService] agar persisten
+/// setelah aplikasi ditutup.
 class ThemeProviderImpl extends ChangeNotifier implements ThemeProvider {
   /// Service untuk berinteraksi dengan penyimpanan lokal.
   final LocalStorageService localStorageService;

@@ -1,6 +1,6 @@
 // path: lib/user/widget/theme_menu_widget.dart
-// diubah: Import langsung ThemeProvider, gunakan Provider.of, pindahkan
-//         getCurrentIcon ke method terpisah untuk menghindari body_might_complete_normally.
+// diubah: Import langsung ke shared/theme/theme_provider.dart (global),
+//         gunakan Provider.of, pindahkan getCurrentIcon ke method.
 import 'dart:async';
 
 import 'package:flutter/material.dart';

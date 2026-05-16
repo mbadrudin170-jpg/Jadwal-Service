@@ -14,6 +14,7 @@ import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
@@ -22,7 +23,6 @@ import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 

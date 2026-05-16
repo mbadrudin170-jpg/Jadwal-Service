@@ -129,8 +129,9 @@ class _PointsPageUserState extends State<PointsPageUser> {
   Widget _buildRewardList() {
     if (_isLoading) return const Center(child: CircularProgressIndicator());
     if (_errorMessage != null) return Center(child: Text(_errorMessage!));
-    if (_rewardList.isEmpty)
+    if (_rewardList.isEmpty) {
       return const Center(child: Text('Belum ada hadiah tersedia'));
+    }
     return ListView.builder(
       itemCount: _rewardList.length,
       itemBuilder: (final context, final index) {
@@ -169,10 +170,12 @@ class _PointsPageUserState extends State<PointsPageUser> {
   }
 
   Widget _buildPointsHistory() {
-    if (_isLoadingHistory)
+    if (_isLoadingHistory) {
       return const Center(child: CircularProgressIndicator());
-    if (_transactionHistory.isEmpty)
+    }
+    if (_transactionHistory.isEmpty) {
       return const Center(child: Text('Belum ada riwayat poin'));
+    }
     return ListView.builder(
       itemCount: _transactionHistory.length,
       itemBuilder: (final context, final index) {

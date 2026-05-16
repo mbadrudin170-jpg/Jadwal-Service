@@ -1,9 +1,8 @@
 // path: lib/admin/app_admin.dart
-// diubah: Menghapus definisi tema lokal dan mengimpor dari AppTheme terpusat.
-// diubah: Memperbaiki import path yang salah.
+// diubah: Import ThemeProvider dari shared/theme/theme_provider.dart (global),
+//         menggunakan ThemeProviderImpl dengan LocalStorageService.
+// diubah: Memperbaiki import path dan nama class.
 // diubah: Mengurutkan import directives.
-// diubah: Memperbaiki nama class sesuai dengan file yang ada.
-// diubah: Memperbaiki pemanggilan DataCleaningOperation.
 
 import 'dart:async';
 
@@ -11,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/admin/data/sqlite.dart';
@@ -26,6 +26,7 @@ import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -46,6 +47,7 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 //   - lib/shared/theme/app_theme.dart (AppTheme)
 //   - lib/shared/theme/theme_provider.dart (ThemeProvider)
 //   - lib/shared/utils/sync_manager.dart (SyncManager)
+//   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
 
 /// Widget utama aplikasi admin.
 class AppAdmin extends StatelessWidget {
@@ -54,9 +56,22 @@ class AppAdmin extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (final _) => ThemeProvider(),
-      child: const AppInitializer(),
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (final context, final snapshot) {
+        if (!snapshot.hasData) {
+          return const MaterialApp(
+            home: SplashScreen(loadingMessage: 'Memuat...'),
+          );
+        }
+        final prefs = snapshot.data!;
+        final localStorageService = LocalStorageService(prefs: prefs);
+        return ChangeNotifierProvider<ThemeProvider>(
+          create: (final _) =>
+              ThemeProviderImpl(localStorageService: localStorageService),
+          child: const AppInitializer(),
+        );
+      },
     );
   }
 }
@@ -74,7 +89,6 @@ class _AppInitializerState extends State<AppInitializer> {
   late Future<bool> _initialization;
   String _loadingMessage = 'Memulai aplikasi...';
 
-  // PERBAIKAN 1: Menggunakan nama class yang benar
   final InternetConnectionService _connectionService =
       InternetConnectionService();
 
@@ -109,11 +123,9 @@ class _AppInitializerState extends State<AppInitializer> {
       await DatabaseHelper.instance.database;
 
       _updateMessage('Memeriksa data awal...');
-      // PERBAIKAN 2: Menggunakan nama class yang benar
       await InitialDownloadService().runInitialDownload();
 
       _updateMessage('Membersihkan data arsip kadaluarsa...');
-      // PERBAIKAN 3: Memanggil DataCleaningOperation dengan benar
       final dataCleaningOperation = DataCleaningOperation();
       await dataCleaningOperation.deleteAllExpiredArchivedData(
           retentionDays: 30);

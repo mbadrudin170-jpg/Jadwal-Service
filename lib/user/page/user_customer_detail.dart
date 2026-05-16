@@ -1,9 +1,7 @@
 // path: lib/user/page/user_customer_detail.dart
-// diubah: Mengirim customerId saat navigasi ke PoinPageUser.
-// diubah: Mengubah _navigateToPoin menjadi async dan menggunakan await.
-// diubah: Menambahkan tipe eksplisit <bool> pada MaterialPageRoute di _navigateToEdit.
-// refactor: Menghapus ketergantungan pada FirestoreService dan menggunakan CustomerOpFirebase dan TransactionOpFirebase.
-
+// diubah: Memperbaiki nama kelas PoinPageUser → PointsPageUser,
+//         CustomerDetailUi → CustomerDetailUI, idPelanggan → customerId.
+// diubah: Menghapus import yang tidak digunakan.
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -13,7 +11,7 @@ import 'package:wifi/shared/widget/customer_detail_ui.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/page/points_page_user.dart';
 
-// Kelas untuk menggabungkan data yang dibutuhkan oleh UI
+/// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
   final CustomerModel customer;
   final int totalPoints;
@@ -24,7 +22,7 @@ class _ProfileData {
 /// Halaman untuk menampilkan detail profil pengguna.
 ///
 /// Halaman ini mengambil data pelanggan dan total poin dari Firestore,
-/// lalu menampilkannya menggunakan widget [CustomerDetailUi].
+/// lalu menampilkannya menggunakan widget [CustomerDetailUI].
 class UserCustomerDetailPage extends StatefulWidget {
   /// ID unik pengguna yang detailnya akan ditampilkan.
   final String userId;
@@ -50,7 +48,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     _dataFuture = _loadData();
   }
 
-  // Fungsi terpusat untuk mengambil semua data yang diperlukan dari Firestore
+  /// Mengambil semua data yang diperlukan dari Firestore.
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
@@ -85,7 +83,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         e: e,
         st: s,
       );
-      rethrow; // Lempar ulang error untuk ditangani oleh FutureBuilder
+      rethrow;
     }
   }
 
@@ -114,7 +112,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => PoinPageUser(idPelanggan: customerId),
+        builder: (final context) => PointsPageUser(customerId: customerId),
       ),
     );
     _reloadData();
@@ -149,12 +147,11 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
         final data = snapshot.data!;
 
-        return CustomerDetailUi(
+        return CustomerDetailUI(
           customer: data.customer,
           totalPoints: data.totalPoints,
           onEdit: () => _navigateToEdit(data.customer),
           onNavigateToPoints: () => _navigateToPoints(data.customer.id),
-          // onCopyAll sengaja dibuat null karena user tidak memiliki fungsi ini
         );
       },
     );

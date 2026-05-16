@@ -1,17 +1,15 @@
 // path: lib/user/app_user.dart
-// diubah: Menyederhanakan AppUser menjadi StatelessWidget.
-// diubah: Menghapus semua logika pengecekan mode pemeliharaan yang sudah dipindah ke main_user.dart.
-// refactor: Menghapus Provider FirestoreService yang tidak lagi digunakan.
-// fix: Menggunakan import dengan alias untuk mengatasi konflik nama ThemeProvider.
+// diubah: Import ThemeProvider dari shared/theme/theme_provider.dart (global),
+//         tanpa alias karena tidak ada konflik nama lagi.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
+import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
-import 'package:wifi/shared/theme/theme_provider.dart' as user_theme;
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Widget utama untuk aplikasi sisi pengguna (user).
@@ -31,12 +29,12 @@ class AppUser extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<user_theme.ThemeProvider>(
-          create: (final context) =>
-              user_theme.ThemeProviderImpl(localStorageService: localStorageService),
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (final _) =>
+              ThemeProviderImpl(localStorageService: localStorageService),
         ),
       ],
-      child: Consumer<user_theme.ThemeProvider>(
+      child: Consumer<ThemeProvider>(
         builder: (final context, final themeProvider, final child) {
           Log.info(
             '[Consumer<ThemeProvider>] Membangun MaterialApp dengan tema: ${themeProvider.themeMode}',
