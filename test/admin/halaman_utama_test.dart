@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/admin/halaman/tab/dompet.dart';
+import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/tab/transaksi.dart';

@@ -104,3 +104,10 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/consta
 
 # wallet_form.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/
+
+# wallet_detail.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/detail/wallet_detail.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/utils/snackbar_util.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/debug/log.dart
