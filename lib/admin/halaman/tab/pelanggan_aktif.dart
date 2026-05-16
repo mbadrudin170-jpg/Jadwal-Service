@@ -588,6 +588,7 @@ class _PelangganAktifPageState extends State<PelangganAktifPage>
                         ),
             ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_pelanggan_aktif',
         onPressed: _tambahPelangganAktif,
         child: const Icon(Icons.add),
       ),

@@ -103,7 +103,8 @@ class _HalamanPesanState extends State<HalamanPesan> {
     }
   }
 
-  Future<void> _updateStatus(final PesananModel pesanan, final String statusBaru) async {
+  Future<void> _updateStatus(
+      final PesananModel pesanan, final String statusBaru) async {
     Log.info('========================================');
     Log.info('MENGUBAH STATUS PESANAN');
     Log.info('ID Pesanan: ${pesanan.id}');
@@ -378,7 +379,8 @@ class _HalamanPesanState extends State<HalamanPesan> {
     );
   }
 
-  Widget _summaryCard(final String title, final String value, final IconData icon, final Color color) {
+  Widget _summaryCard(final String title, final String value,
+      final IconData icon, final Color color) {
     return Card(
       elevation: 2,
       child: Padding(
