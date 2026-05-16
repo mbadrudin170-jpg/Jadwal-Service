@@ -10,6 +10,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/services/pembaruan_data_service.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
 /// Halaman untuk menampilkan dan mengelola dompet.
@@ -33,25 +35,47 @@ class DompetPage extends StatefulWidget {
   State<DompetPage> createState() => _DompetPageState();
 }
 
-class _DompetPageState extends State<DompetPage> {
+class _DompetPageState extends State<DompetPage>
+    with AutomaticKeepAliveClientMixin {
   late final DompetOperasi _dompetOperasi;
   final GlobalKey<_RingkasanKeuanganState> _ringkasanKey = GlobalKey();
   late Future<List<DompetModel>> _listaDompetFuture;
+  StreamSubscription<void>? _pembaruanSubscription;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     _dompetOperasi = widget.dompetOperasi ?? DompetOperasi();
     Log.info('Halaman Dompet sedang diinisialisasi.');
+
+    _pembaruanSubscription =
+        PembaruanDataService.instance.stream.listen((final _) {
+      Log.info('Menerima notifikasi pembaruan data, memuat ulang dompet...');
+      if (mounted) {
+        _loadDompet();
+      }
+    });
+
     _loadDompet();
+  }
+
+  @override
+  void dispose() {
+    unawaited(_pembaruanSubscription?.cancel());
+    super.dispose();
   }
 
   void _loadDompet() {
     Log.info('Memulai pemuatan data dompet dan ringkasan keuangan.');
-    setState(() {
-      _listaDompetFuture = _dompetOperasi.getDompet();
-      _ringkasanKey.currentState?.refresh();
-    });
+    if (mounted) {
+      setState(() {
+        _listaDompetFuture = _dompetOperasi.getDompet();
+        _ringkasanKey.currentState?.refresh();
+      });
+    }
     Log.info('Pemuatan data dompet dan ringkasan keuangan telah dijadwalkan.');
   }
 
@@ -74,9 +98,10 @@ class _DompetPageState extends State<DompetPage> {
     if (!mounted) return;
 
     if (dompetList.isEmpty) {
-      Log.warning('Tidak ada dompet untuk dihapus.');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tidak ada dompet untuk dihapus.')),
+      Log.warning('Tidak ada dompet untuk dihapus. Dialog tidak ditampilkan.');
+      SnackBarUtil.info(
+        context,
+        'Tidak ada dompet untuk dihapus.',
       );
       return;
     }
@@ -101,7 +126,7 @@ class _DompetPageState extends State<DompetPage> {
               child: const Text('Hapus'),
               onPressed: () {
                 Log.warning(
-                  'Pengguna mengkonfirmasi penghapusan semua dompet.',
+                  'Pengguna mengkonfirmasi penghapusan semua dompet melalui dialog. Memanggil _hapusSemuaDompet.',
                 );
                 Navigator.of(context).pop();
                 unawaited(
@@ -117,7 +142,7 @@ class _DompetPageState extends State<DompetPage> {
 
   Future<void> _showDialogHapusSatu(final DompetModel dompet) async {
     Log.info(
-      'Menampilkan dialog konfirmasi pengarsipan untuk dompet: "${dompet.namaDompet}".',
+      'Memicu fungsi _showDialogHapusSatu untuk dompet ID: ${dompet.id}, Nama: "${dompet.namaDompet}". Menampilkan dialog konfirmasi.',
     );
     await showDialog<void>(
       context: context,
@@ -132,7 +157,7 @@ class _DompetPageState extends State<DompetPage> {
               child: const Text('Batal'),
               onPressed: () {
                 Log.info(
-                  'Pengguna membatalkan pengarsipan dompet: "${dompet.namaDompet}".',
+                  'Pengguna membatalkan pengarsipan dompet ID: ${dompet.id}, Nama: "${dompet.namaDompet}". Dialog ditutup, tidak ada aksi.',
                 );
                 Navigator.of(context).pop();
               },
@@ -141,7 +166,7 @@ class _DompetPageState extends State<DompetPage> {
               child: const Text('Arsipkan'),
               onPressed: () {
                 Log.warning(
-                  'Pengguna mengkonfirmasi pengarsipan dompet: "${dompet.namaDompet}".',
+                  'Pengguna mengkonfirmasi pengarsipan dompet ID: ${dompet.id}, Nama: "${dompet.namaDompet}". Memanggil _hapusSatuDompet.',
                 );
                 Navigator.of(context).pop();
                 unawaited(_hapusSatuDompet(dompet));
@@ -160,8 +185,9 @@ class _DompetPageState extends State<DompetPage> {
       _loadDompet();
       if (!mounted) return;
       Log.info('Dompet "${dompet.namaDompet}" berhasil diarsipkan.');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dompet berhasil diarsipkan.')),
+      SnackBarUtil.success(
+        context,
+        'Dompet berhasil diarsipkan.',
       );
     } on Exception catch (e, s) {
       if (!mounted) return;
@@ -170,9 +196,10 @@ class _DompetPageState extends State<DompetPage> {
         e: e,
         st: s,
       );
-      ScaffoldMessenger.of(
+      SnackBarUtil.error(
         context,
-      ).showSnackBar(SnackBar(content: Text('Gagal mengarsipkan dompet: $e')));
+        'Gagal mengarsipkan dompet: $e',
+      );
     }
   }
 
@@ -183,20 +210,23 @@ class _DompetPageState extends State<DompetPage> {
       _loadDompet();
       if (!mounted) return;
       Log.info('Semua dompet berhasil dihapus.');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Semua dompet berhasil dihapus.')),
+      SnackBarUtil.success(
+        context,
+        'Semua dompet berhasil dihapus.',
       );
     } on Exception catch (e, s) {
       if (!mounted) return;
       Log.error('Gagal menghapus semua dompet.', e: e, st: s);
-      ScaffoldMessenger.of(
+      SnackBarUtil.error(
         context,
-      ).showSnackBar(SnackBar(content: Text('Gagal menghapus dompet: $e')));
+        'Gagal menghapus dompet: $e',
+      );
     }
   }
 
   @override
   Widget build(final BuildContext context) {
+    super.build(context);
     Log.info('Membangun UI untuk Halaman Dompet.');
     return Scaffold(
       appBar: AppBar(
@@ -270,6 +300,7 @@ class _DompetPageState extends State<DompetPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_dompet',
         onPressed: _tambahDompet,
         tooltip: 'Tambah Dompet',
         child: const Icon(Icons.add),

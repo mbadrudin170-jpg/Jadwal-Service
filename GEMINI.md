@@ -6,7 +6,10 @@
 3. kerjakan apa yang sesuai dengan perintah user saja jangan melenceng dari perintah user.
 4. AI dilarang keras untuk berasumsi dan di wajibkan membaca terlebih dahulu file terkait dependensi.
 5. AI seharusnya menuliskan kode lengkapnya, bukan placeholder.
-6. 
+6. Setiap sentuhan tambahkan Log atau snackbar custom.
+7. dilarang keras menulis tanda `'''` di setiap awal kode difile dart manapun
+8. Saat menggunakan tool `write_file`, jangan pernah memulai string `content` dengan `'''`. String harus berisi kode Dart murni.
+9. Dilarang keras menggunakan karakter escape `\` secara salah dalam string interpolation Dart (contoh: `Log.info('Nama: \${nama}')`). Gunakan `$` langsung (contoh: `Log.info('Nama: ${nama}')`).
 
 # Aturan Utama
 1. Jangan pernah merubah isi file ini.
