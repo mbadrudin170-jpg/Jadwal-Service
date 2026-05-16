@@ -27,3 +27,9 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman
 
 # sqlite.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/data/sqlite.dart
+
+# customer_form.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/customer_form.dart
+
+# customer_detail_ui.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/customer_detail_ui.dart
