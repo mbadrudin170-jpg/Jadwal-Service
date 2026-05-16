@@ -410,7 +410,7 @@ class _CustomerPageState extends State<CustomerPage> {
                 context,
                 MaterialPageRoute(
                   builder: (final context) =>
-                      DetailPelangganPage(idPelanggan: customer.id),
+                      CustomerDetailPage(customerId: customer.id),
                 ),
               );
               await _refreshCustomerList();

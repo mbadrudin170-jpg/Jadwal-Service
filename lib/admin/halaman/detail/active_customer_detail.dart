@@ -1,4 +1,23 @@
 // path: lib/admin/halaman/detail/active_customer_detail.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman detail pelanggan aktif dari daftar pelanggan aktif.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/detail/customer_detail.dart (CustomerDetailPage)
+//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
+//   - lib/admin/halaman/form/active_customer_form.dart (FormPelangganAktif)
+//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
+//   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/whatsapp/info_paket.dart (PesanInfoPaket)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 
@@ -9,8 +28,12 @@ import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/operasi.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -25,18 +48,8 @@ class ActiveCustomerDetailPage extends StatefulWidget {
   const ActiveCustomerDetailPage({super.key, required this.activeCustomer});
 
   @override
-  // ditambah: Komentar untuk menjelaskan kenapa lint rule diabaikan.
-  // ignore: no_logic_in_create_state, Aturan ini diabaikan karena logika di dalamnya hanya untuk logging saat pembuatan state, yang berguna untuk debugging.
-  State<ActiveCustomerDetailPage> createState() {
-    Log.info(
-      'Membuat state untuk ActiveCustomerDetailPage. '
-      'ID Pelanggan Aktif: ${activeCustomer.id}, '
-      'ID Pelanggan: ${activeCustomer.customerId}, '
-      'ID Paket: ${activeCustomer.packageId}, '
-      'Status: ${activeCustomer.status.displayName}',
-    );
-    return _ActiveCustomerDetailPageState();
-  }
+  State<ActiveCustomerDetailPage> createState() =>
+      _ActiveCustomerDetailPageState();
 }
 
 class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
@@ -48,136 +61,53 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
   @override
   void initState() {
     super.initState();
-    Log.info('========================================');
-    Log.info('LIFECYCLE: initState() - Halaman DetailPelangganAktif');
-    Log.info('Inisialisasi awal dengan data dari widget:');
+    Log.info('Membuka halaman Detail Pelanggan Aktif');
     Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
     Log.info('  - ID Pelanggan: ${widget.activeCustomer.customerId}');
     Log.info('  - ID Paket: ${widget.activeCustomer.packageId}');
-    Log.info('  - Status: ${widget.activeCustomer.status.displayName}');
-    Log.info('  - Tanggal Mulai: ${widget.activeCustomer.startDate}');
-    Log.info('  - Tanggal Berakhir: ${widget.activeCustomer.endDate}');
-    Log.info('========================================');
+    Log.info('  - Status: ${widget.activeCustomer.status.name}');
 
     _activeCustomer = widget.activeCustomer;
-    Log.info(
-      'Variabel lokal _activeCustomer telah diinisialisasi dengan data dari widget.',
-    );
-    Log.info(
-      'Memanggil _loadDetails() untuk mengambil data pelengkap (data Pelanggan dan Paket) dari database.',
-    );
     unawaited(_loadDetails());
   }
 
   Future<void> _launchWhatsApp(final String phoneNumber) async {
-    Log.info('========================================');
-    Log.info('WHATSAPP: Mencoba membuka aplikasi WhatsApp');
-    Log.info('Nomor telepon mentah yang diterima: $phoneNumber');
-    Log.info('========================================');
-
-    Log.info(
-      'Membersihkan format nomor telepon. Menghapus semua karakter non-digit.',
-    );
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-    Log.info('Nomor setelah dibersihkan: $formattedNumber');
 
     if (formattedNumber.startsWith('0')) {
-      Log.info(
-        'Nomor diawali dengan "0". Mengkonversi ke format internasional (62).',
-      );
       formattedNumber = '62${formattedNumber.substring(1)}';
-      Log.info('Nomor setelah konversi dari awalan 0: $formattedNumber');
     } else if (!formattedNumber.startsWith('62')) {
-      Log.info(
-        'Nomor tidak diawali dengan "62". Menambahkan kode negara Indonesia (62).',
-      );
       formattedNumber = '62$formattedNumber';
-      Log.info('Nomor setelah penambahan kode negara: $formattedNumber');
-    } else {
-      Log.info(
-        'Nomor sudah dalam format internasional (62). Tidak perlu modifikasi.',
-      );
     }
 
-    Log.info('Membuat URI WhatsApp: https://wa.me/$formattedNumber');
     final Uri whatsappUri = Uri.parse('https://wa.me/$formattedNumber');
 
     try {
-      Log.info('Memeriksa apakah perangkat dapat membuka URI WhatsApp.');
       if (await canLaunchUrl(whatsappUri)) {
-        Log.info(
-          'URI WhatsApp dapat dibuka. Meluncurkan WhatsApp dengan mode external application.',
-        );
         await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-        Log.info(
-          'WhatsApp berhasil dibuka. Nomor yang dituju: $formattedNumber',
-        );
       } else {
-        Log.warning(
-          'URI WhatsApp tidak dapat dibuka. Kemungkinan WhatsApp tidak terinstal di perangkat.',
-        );
-        // diubah: Membungkus string dalam Exception untuk mematuhi aturan lint.
         throw Exception('Could not launch $whatsappUri');
       }
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal membuka aplikasi WhatsApp untuk nomor: $formattedNumber. Kemungkinan penyebab: WhatsApp tidak terinstal, URI tidak valid, atau izin aplikasi tidak cukup.',
-        e: e,
-        st: s,
-      );
+      Log.error('Gagal membuka WhatsApp', e: e, st: s);
       if (mounted) {
-        Log.info(
-          'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
-        );
         SnackBarUtil.error(
           context,
           'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
-        );
-        Log.info('SnackBar error WhatsApp telah ditampilkan.');
-      } else {
-        Log.warning(
-          'Widget sudah tidak mounted. Tidak dapat menampilkan SnackBar error WhatsApp.',
         );
       }
     }
   }
 
   Future<void> _loadDetails() async {
-    Log.info('========================================');
-    Log.info('MEMULAI PROSES PEMUATAN DATA DETAIL PELANGGAN AKTIF');
-    Log.info('========================================');
-
-    if (!mounted) {
-      Log.warning(
-        'Widget sudah tidak mounted saat _loadDetails() dipanggil. Membatalkan proses pemuatan data untuk mencegah memory leak.',
-      );
-      return;
-    }
-
-    Log.info('Widget masih mounted. Melanjutkan proses pemuatan data.');
-    Log.info(
-      'Mengatur state _isLoading menjadi true untuk menampilkan indikator loading.',
-    );
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     final customerOperation = CustomerOperation();
     final packageOperation = PackageOperation();
-
-    Log.info(
-      'Menyiapkan query paralel untuk mengambil data pelanggan dan paket secara bersamaan.',
-    );
-    Log.info('  - Query 1: getCustomerById(${_activeCustomer.customerId})');
-
     final packageId = _activeCustomer.packageId;
-    Log.info('  - ID Paket: ${packageId.isNotEmpty ? packageId : "KOSONG"}');
-    Log.info(
-      '  - Query 2: ${packageId.isNotEmpty ? "getPackageById($packageId)" : "Future.value(null) karena ID Paket kosong"}',
-    );
 
     try {
-      Log.info(
-        'Menjalankan Future.wait untuk mengeksekusi kedua query secara paralel.',
-      );
       final results = await Future.wait<dynamic>([
         customerOperation.getCustomerById(_activeCustomer.customerId),
         if (packageId.isNotEmpty)
@@ -186,161 +116,57 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
           Future<PackageModel?>.value(null),
       ]);
 
-      Log.info('Kedua query selesai dijalankan. Memproses hasil...');
-      Log.info(
-        'Hasil query 1 (Pelanggan): ${results[0] != null ? "Ditemukan (Nama: ${(results[0] as CustomerModel).name})" : "NULL - Pelanggan tidak ditemukan"}',
-      );
-      Log.info(
-        'Hasil query 2 (Paket): ${results.length > 1 && results[1] != null ? "Ditemukan (Nama: ${(results[1] as PackageModel).name})" : "NULL atau tidak dicari"}',
-      );
-
       if (mounted) {
-        Log.info(
-          'Widget masih mounted. Memperbarui state dengan data yang telah diambil.',
-        );
         setState(() {
           _customer = results[0] as CustomerModel?;
           _package = results.length > 1 ? results[1] as PackageModel? : null;
           _isLoading = false;
         });
-
-        Log.info('State berhasil diperbarui:');
-        Log.info(
-          '  - _customer: ${_customer != null ? _customer!.name : "NULL"}',
-        );
-        Log.info(
-          '  - _package: ${_package != null ? "${_package!.name} (Poin Hadiah: ${_package!.rewardPoints})" : "NULL"}',
-        );
-        Log.info('  - _isLoading: $_isLoading');
-
-        Log.info('========================================');
-        Log.info('PEMUATAN DATA DETAIL PELANGGAN AKTIF BERHASIL');
-        Log.info('========================================');
-      } else {
-        Log.warning(
-          'Widget sudah tidak mounted setelah data berhasil diambil. Data tidak akan diupdate ke state untuk mencegah error.',
-        );
       }
     } on Exception catch (e, s) {
-      Log.error(
-        'Gagal memuat detail pelanggan aktif. Proses _loadDetails() mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, data pelanggan tidak ditemukan, data paket tidak ditemukan, atau terjadi error saat menggabungkan hasil query.',
-        e: e,
-        st: s,
-      );
+      Log.error('Gagal memuat detail pelanggan aktif', e: e, st: s);
       if (mounted) {
-        Log.info(
-          'Widget masih mounted. Mengatur _isLoading menjadi false agar UI menampilkan data yang tersedia.',
-        );
         setState(() => _isLoading = false);
-      } else {
-        Log.warning(
-          'Widget sudah tidak mounted. Tidak dapat memperbarui state _isLoading.',
-        );
       }
     }
   }
 
   Future<void> _navigateToEdit() async {
-    Log.info('========================================');
-    Log.info('NAVIGASI: Menuju halaman edit pelanggan aktif');
-    Log.info('Data yang akan diedit:');
-    Log.info('  - ID Pelanggan Aktif: ${_activeCustomer.id}');
-    Log.info('  - ID Pelanggan: ${_activeCustomer.customerId}');
-    Log.info('  - ID Paket: ${_activeCustomer.packageId}');
-    Log.info('  - Status Saat Ini: ${_activeCustomer.status.displayName}');
-    Log.info('========================================');
-
-    Log.info(
-      'Membuka halaman ActiveCustomerForm dengan Navigator.push. Mengirim data _activeCustomer terbaru ke form.',
-    );
-
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
         builder: (final context) =>
-            ActiveCustomerForm(activeCustomer: _activeCustomer),
+            FormPelangganAktif(pelangganAktif: _activeCustomer),
       ),
     );
 
-    Log.info('========================================');
-    Log.info('KEMBALI DARI FORM PELANGGAN AKTIF');
-    Log.info('Nilai result yang diterima: $result');
-    Log.info('========================================');
-
     if (result ?? false) {
-      Log.info(
-        'Result bernilai TRUE. User telah melakukan perubahan data di form.',
-      );
-      Log.info(
-        'Akan mengambil data terbaru dari database untuk memperbarui tampilan.',
-      );
-
       final operation = ActiveCustomerOperation();
-
-      final updatedActiveCustomer = await operation.getActiveCustomerById(
-        _activeCustomer.id,
-      );
+      final updatedActiveCustomer =
+          await operation.getActiveCustomerById(_activeCustomer.id);
 
       if (mounted && updatedActiveCustomer != null) {
-        Log.info(
-          'Widget masih mounted dan data terbaru ditemukan. Memperbarui state.',
-        );
         setState(() {
           _activeCustomer = updatedActiveCustomer;
         });
-        Log.info(
-          '_activeCustomer berhasil diperbarui. Status baru: ${updatedActiveCustomer.status.displayName}, Tanggal Berakhir: ${updatedActiveCustomer.endDate}',
-        );
-
-        Log.info(
-          'Memanggil _loadDetails() untuk memperbarui data pelanggan dan paket terkait.',
-        );
         await _loadDetails();
-      } else if (!mounted) {
-        Log.warning(
-          'Widget sudah tidak mounted. Tidak dapat memperbarui state.',
-        );
-      } else if (updatedActiveCustomer == null) {
-        Log.warning(
-          'Data pelanggan aktif terbaru tidak ditemukan. Kemungkinan data telah dihapus dari database.',
-        );
       }
-    } else {
-      Log.info(
-        'Result bernilai false atau null. Tidak ada tindakan refresh yang diperlukan.',
-      );
     }
   }
 
   @override
   Widget build(final BuildContext context) {
-    Log.info('========================================');
-    Log.info('LIFECYCLE: build() - Membangun UI DetailPelangganAktif');
-    Log.info('Status loading: $_isLoading');
-    Log.info('Nama Pelanggan: ${_customer?.name ?? "Belum dimuat"}');
-    Log.info('Nama Paket: ${_package?.name ?? "Belum dimuat / Tidak ada"}');
-    Log.info('========================================');
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_customer?.name ?? 'Detail Pelanggan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Log.info(
-              'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result true.',
-            );
-            Navigator.pop(context, true);
-          },
+          onPressed: () => Navigator.pop(context, true),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () async {
-              Log.info('AKSI: Tombol Edit pada AppBar ditekan.');
-              Log.info('Memanggil _navigateToEdit() untuk membuka form edit.');
-              await _navigateToEdit();
-            },
+            onPressed: () async => _navigateToEdit(),
           ),
         ],
       ),
@@ -366,12 +192,6 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               child: TextButton(
                                 onPressed: () async {
                                   if (_customer != null) {
-                                    Log.info(
-                                      'NAVIGASI: TextButton nama pelanggan ditekan.',
-                                    );
-                                    Log.info(
-                                      'Menuju halaman CustomerDetailPage dengan ID: ${_customer!.id}',
-                                    );
                                     await Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
@@ -381,15 +201,10 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                         ),
                                       ),
                                     );
-                                  } else {
-                                    Log.warning(
-                                      'Tidak dapat navigasi ke detail pelanggan karena data _customer masih null.',
-                                    );
                                   }
                                 },
                                 child: Text(
-                                  _customer?.name ??
-                                      _activeCustomer.customerId,
+                                  _customer?.name ?? _activeCustomer.customerId,
                                   textAlign: TextAlign.center,
                                   style: Theme.of(context)
                                       .textTheme
@@ -406,21 +221,14 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                             ),
                             InkWell(
                               onTap: () async {
-                                if (_package != null) {
-                                  Log.info('NAVIGASI: Row paket ditekan.');
-                                  Log.info(
-                                    'Menuju halaman PackageDetailPage dengan data paket: ${_package!.name}',
-                                  );
+                                final pkg = _package;
+                                if (pkg != null) {
                                   await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (final context) =>
-                                          PackageDetailPage(package: _package),
+                                          PackageDetailPage(package: pkg),
                                     ),
-                                  );
-                                } else {
-                                  Log.warning(
-                                    'Tidak dapat navigasi ke detail paket karena data _package masih null.',
                                   );
                                 }
                               },
@@ -428,12 +236,11 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                 'Paket',
                                 _package?.name ??
                                     ' (ID: ${_activeCustomer.packageId})',
-                                isLink: true,
                               ),
                             ),
                             _buildInfoRow(
                               'Status',
-                              _activeCustomer.status.displayName,
+                              _activeCustomer.status.name,
                             ),
                             if (_package != null)
                               _buildInfoRow(
@@ -442,11 +249,11 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               ),
                             _buildInfoRow(
                               'Mulai',
-                              '${FormatUtil.formatDateSimple(_activeCustomer.startDate)} - ${FormatUtil.formatTime(_activeCustomer.startDate)}',
+                              '${FormatUtil.formatDateBasic(_activeCustomer.startDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.startDate)}',
                             ),
                             _buildInfoRow(
                               'Berakhir',
-                              '${FormatUtil.formatDateSimple(_activeCustomer.endDate)} - ${FormatUtil.formatTime(_activeCustomer.endDate)}',
+                              '${FormatUtil.formatDateBasic(_activeCustomer.endDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.endDate)}',
                             ),
                             const Divider(),
                             const SizedBox(height: 16),
@@ -458,8 +265,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                   .textTheme
                                   .titleLarge
                                   ?.copyWith(
-                                    color:
-                                        CalculationUtil.getRemainingActivePeriodColor(
+                                    color: CalculationUtil
+                                        .getRemainingActivePeriodColor(
                                       _activeCustomer.endDate,
                                     ),
                                     fontWeight: FontWeight.bold,
@@ -471,37 +278,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               icon: const Icon(Icons.send_to_mobile),
                               label: const Text('Kirim Info via WhatsApp'),
                               onPressed: () async {
-                                Log.info(
-                                  '========================================',
-                                );
-                                Log.info(
-                                  'AKSI: Tombol Kirim Info via WhatsApp ditekan',
-                                );
-                                Log.info(
-                                  'Mengirim rincian paket ke pelanggan: ${_customer?.name ?? _activeCustomer.customerId}',
-                                );
-                                Log.info('Data yang akan dikirim:');
-                                Log.info(
-                                  '  - ID Pelanggan Aktif: ${_activeCustomer.id}',
-                                );
-                                Log.info(
-                                  '  - Nama Paket: ${_package?.name ?? "Tidak ada"}',
-                                );
-                                Log.info(
-                                  '  - Status: ${_activeCustomer.status.displayName}',
-                                );
-                                Log.info(
-                                  '  - Masa Aktif: ${CalculationUtil.getRemainingActivePeriodText(_activeCustomer.endDate)}',
-                                );
-                                Log.info(
-                                  '========================================',
-                                );
-                                await WhatsappPackageInfo.sendPackageDetails(
-                                  _activeCustomer,
-                                );
-                                Log.info(
-                                  'Fungsi kirimRincianPaket telah dipanggil.',
-                                );
+                                await PesanInfoPaket.kirimRincianPaket(
+                                    _activeCustomer);
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -525,7 +303,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     );
   }
 
-  Widget _buildInfoRow(final String label, final String value, {final bool isLink = false}) {
+  Widget _buildInfoRow(final String label, final String value,
+      {final bool isLink = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -556,12 +335,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           InkWell(
-            onTap: () async {
-              Log.info(
-                'WHATSAPP: Row nomor HP ditekan. Memanggil _launchWhatsApp dengan nomor: $value',
-              );
-              await _launchWhatsApp(value);
-            },
+            onTap: () async => _launchWhatsApp(value),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(
