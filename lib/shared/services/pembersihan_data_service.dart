@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pembersihan_data_operasi.dart';
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 
 /// Kelas layanan untuk membersihkan data secara berkala.
 class PembersihanDataService {

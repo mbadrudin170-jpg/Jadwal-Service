@@ -4,7 +4,7 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/paket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 
 void main() {
   group('PaketOpFirebase Test', () {

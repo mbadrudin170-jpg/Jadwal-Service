@@ -1,28 +1,28 @@
 // path: lib/shared/operasi/base_operation.dart
 // diubah: Menambahkan parameter `fromServer` untuk memutus siklus sinkronisasi.
-// diubah: Mengganti StatusUnggahOperasi menjadi UploadStatusOperasi.
+// diubah: Mengganti StatusUnggahOperasi menjadi UploadStatusOperation.
 // diubah: Mengganti nama class dari OperasiDasar menjadi BaseOperation.
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/upload_status_operasi.dart';
+import 'package:wifi/shared/operasi/upload_status_operation.dart';
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
 class BaseOperation {
   final DatabaseHelper _dbHelper;
-  final UploadStatusOperasi _uploadStatusOperasi;
+  final UploadStatusOperation _uploadStatusOperasi;
 
   /// Konstruktor untuk `BaseOperation`.
   ///
-  /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperasi`
+  /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperation`
   /// untuk memfasilitasi pengujian.
   BaseOperation({
     @visibleForTesting final DatabaseHelper? dbHelper,
-    @visibleForTesting final UploadStatusOperasi? uploadStatusOperasi,
+    @visibleForTesting final UploadStatusOperation? uploadStatusOperasi,
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _uploadStatusOperasi = uploadStatusOperasi ?? UploadStatusOperasi() {
+        _uploadStatusOperasi = uploadStatusOperasi ?? UploadStatusOperation() {
     Log.info('BaseOperation instance dibuat.');
   }
 

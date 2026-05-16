@@ -11,16 +11,16 @@ import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/pelanggan_aktif_sorter.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
-import 'package:wifi/shared/widget/nama_paket.dart';
-import 'package:wifi/shared/widget/nama_pelanggan.dart';
+import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
 enum OpsiHapusPilihan {

@@ -3,7 +3,7 @@
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
 
 /// Opsi pengurutan untuk daftar pelanggan aktif.
 enum OpsiUrutkan {

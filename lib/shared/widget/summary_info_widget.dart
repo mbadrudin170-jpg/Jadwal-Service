@@ -1,0 +1,36 @@
+// path: lib/shared/widget/summary_info_widget.dart
+// digunakan oleh: lib/admin/halaman/detail/wallet_detail.dart
+
+import 'package:flutter/material.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+
+/// Membangun widget ringkasan informasi dengan label dan jumlah yang diformat.
+///
+/// Menampilkan [label] di atas dan [amount] di bawah dengan [color] tertentu.
+/// [alignment] mengatur perataan kolom (default: center).
+/// [textKey] dapat digunakan untuk memberikan key khusus pada teks jumlah.
+Widget buildSummaryInfo({
+  required final BuildContext context,
+  required final String label,
+  required final double amount,
+  required final Color color,
+  final CrossAxisAlignment alignment = CrossAxisAlignment.center,
+  final Key? textKey,
+}) {
+  return Column(
+    crossAxisAlignment: alignment,
+    children: [
+      Text(label, style: Theme.of(context).textTheme.bodySmall),
+      const SizedBox(height: 4),
+      Text(
+        CurrencyFormat.formatCurrency(amount),
+        key: textKey ?? ValueKey(label),
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ],
+  );
+}

@@ -3,7 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 
 void main() {
   group('TransaksiOpFirebase', () {

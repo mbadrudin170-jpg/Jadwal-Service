@@ -1,55 +1,57 @@
 // path: lib/shared/utils/sync_manager.dart
 
-import 'package:wifi/shared/data/services/preferensi_service.dart';
+import 'package:wifi/shared/data/services/preference_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Manajer untuk mengelola timestamp sinkronisasi data.
 ///
 /// Menyimpan dan mengambil timestamp terakhir unduh dan unggah
-/// melalui [PreferensiService], serta menyediakan fungsi reset.
+/// melalui [PreferenceService], serta menyediakan fungsi reset.
 class SyncManager {
   /// Mengambil timestamp terakhir unduh.
   ///
-  /// Mengembalikan [DateTime] dari [PreferensiService], atau
+  /// Mengembalikan [DateTime] dari [PreferenceService], atau
   /// Epoch 0 jika belum pernah disimpan.
-  Future<DateTime> getTerakhirUnduh() async {
-    Log.info('Meminta timestamp terakhir unduh dari PreferensiService');
-    final result = await PreferensiService.getTerakhirUnduh();
-    final a = result ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-    Log.info('Timestamp terakhir unduh yang digunakan: $a');
-    return a;
+  Future<DateTime> getLastDownload() async {
+    Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
+    final result = await PreferenceService.getLastDownload();
+    final lastTime =
+        result ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+    Log.info('Timestamp terakhir unduh yang digunakan: $lastTime');
+    return lastTime;
   }
 
   /// Menyimpan timestamp terakhir unduh.
-  Future<void> setTerakhirUnduh(final DateTime time) async {
+  Future<void> setLastDownload(final DateTime time) async {
     Log.info('Menyimpan timestamp terakhir unduh: $time');
-    await PreferensiService.setTerakhirUnduh(time);
+    await PreferenceService.setLastDownload(time);
     Log.info('Timestamp terakhir unduh berhasil disimpan');
   }
 
   /// Mengambil timestamp terakhir unggah.
   ///
-  /// Mengembalikan [DateTime] dari [PreferensiService], atau
+  /// Mengembalikan [DateTime] dari [PreferenceService], atau
   /// Epoch 0 jika belum pernah disimpan.
-  Future<DateTime> getTerakhirUnggah() async {
-    Log.info('Meminta timestamp terakhir unggah dari PreferensiService');
-    final result = await PreferensiService.getTerakhirUnggah();
-    final a = result ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-    Log.info('Timestamp terakhir unggah yang digunakan: $a');
-    return a;
+  Future<DateTime> getLastUpload() async {
+    Log.info('Meminta timestamp terakhir unggah dari PreferenceService');
+    final result = await PreferenceService.getLastUpload();
+    final lastTime =
+        result ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+    Log.info('Timestamp terakhir unggah yang digunakan: $lastTime');
+    return lastTime;
   }
 
   /// Menyimpan timestamp terakhir unggah.
-  Future<void> setTerakhirUnggah(final DateTime time) async {
+  Future<void> setLastUpload(final DateTime time) async {
     Log.info('Menyimpan timestamp terakhir unggah: $time');
-    await PreferensiService.setTerakhirUnggah(time);
+    await PreferenceService.setLastUpload(time);
     Log.info('Timestamp terakhir unggah berhasil disimpan');
   }
 
   /// Mereset semua timestamp sinkronisasi (unduh dan unggah).
-  Future<void> resetWaktuSinkronisasi() async {
+  Future<void> resetSyncTime() async {
     Log.warning('MERESET WAKTU SINKRONISASI (UNDUH & UNGGAH)');
-    await PreferensiService.resetWaktuSinkronisasi();
+    await PreferenceService.resetSyncTime();
     Log.info('Waktu sinkronisasi (unduh dan unggah) berhasil di-reset.');
   }
 }

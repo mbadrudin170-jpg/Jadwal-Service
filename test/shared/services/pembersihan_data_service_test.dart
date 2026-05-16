@@ -5,7 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/pembersihan_data_operasi.dart';
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 
 // --- Mock ---
 class MockPembersihanDataOperasi extends Mock

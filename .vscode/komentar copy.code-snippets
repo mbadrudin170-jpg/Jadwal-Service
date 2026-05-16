@@ -1,0 +1,9 @@
+{
+	"Komentar Path": {
+		"prefix": "/path",
+		"body": [
+			"// path: ${RELATIVE_FILEPATH}"
+		],
+		"description": "Sisipkan komentar path file saat ini"
+	}
+}

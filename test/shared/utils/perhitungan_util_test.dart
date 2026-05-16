@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
 
 void main() {
   group('PerhitunganUtil', () {

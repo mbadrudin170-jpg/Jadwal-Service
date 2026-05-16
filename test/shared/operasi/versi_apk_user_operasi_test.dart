@@ -7,7 +7,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
 import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/operasi/apk_version_operation.dart';
 
 import 'versi_apk_user_operasi_test.mocks.dart';
 

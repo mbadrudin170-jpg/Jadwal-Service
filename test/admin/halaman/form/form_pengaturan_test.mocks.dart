@@ -7,7 +7,7 @@ import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/shared/model/pengaturan_model.dart' as _i2;
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart' as _i3;
+import 'package:wifi/shared/operasi/settings_operation.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

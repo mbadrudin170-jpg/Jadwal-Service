@@ -1,5 +1,5 @@
 // path: lib/user/page/profil_page.dart
-// diubah: Menghapus impor yang tidak perlu.
+// diubah: Menghapus impor yang tidak perlu, mengubah semua nama ke bahasa Inggris.
 // refactor: Menghapus ketergantungan pada FirestoreService dan menggunakan kelas operasi yang sesuai.
 
 import 'dart:async';
@@ -7,75 +7,75 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/paket_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaksi_op_firebase.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/user/page/detail_pelanggan_user.dart';
+import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
-class ProfilPage extends StatefulWidget {
+class ProfilePage extends StatefulWidget {
   /// ID pengguna yang sedang login.
   final String userId;
 
   /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  /// Membuat instance dari [ProfilPage].
-  const ProfilPage({
+  /// Membuat instance dari [ProfilePage].
+  const ProfilePage({
     super.key,
     required this.userId,
     required this.localStorageService,
   });
 
   @override
-  State<ProfilPage> createState() => _ProfilPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilPageState extends State<ProfilPage> {
-  final PelangganOpFirebase _pelangganOp = PelangganOpFirebase();
-  final TransaksiOpFirebase _transaksiOp = TransaksiOpFirebase();
-  final PaketOpFirebase _paketOp = PaketOpFirebase(FirebaseFirestore.instance);
+class _ProfilePageState extends State<ProfilePage> {
+  final CustomerOpFirebase _customerOp = CustomerOpFirebase();
+  final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
+  final PackageOpFirebase _packageOp =
+      PackageOpFirebase(FirebaseFirestore.instance);
+  Future<CustomerModel?>? _futureCustomer;
+  Future<List<TransactionModel>>? _subscriptionHistoryFuture;
 
-  Future<PelangganModel?>? _futurePelanggan;
-  Future<List<TransactionModel>>? _riwayatLanggananFuture;
-
-  Future<String>? _futureNamaPaket;
-  String? _cacheIdPaket;
+  Future<String>? _futurePackageName;
+  String? _cachePackageId;
 
   @override
   void initState() {
     super.initState();
     Log.info(
-      'Memulai inisialisasi state untuk ProfilPage, userId: ${widget.userId}',
+      'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
     );
-    unawaited(_inisialisasiData());
+    unawaited(_initializeData());
   }
 
-  Future<void> _inisialisasiData() async {
+  Future<void> _initializeData() async {
     Log.info('Memulai pengambilan data awal untuk userId: ${widget.userId}.');
     if (!mounted) return;
 
     setState(() {
-      _futurePelanggan = _pelangganOp.ambilPelangganSekali(widget.userId);
+      _futureCustomer = _customerOp.getCustomerOnce(widget.userId);
     });
 
     try {
-      final pelanggan = await _futurePelanggan;
-      if (pelanggan != null) {
+      final customer = await _futureCustomer;
+      if (customer != null) {
         Log.info(
-          'Data pelanggan berhasil diambil: ${pelanggan.nama}. Mengambil riwayat langganan...',
+          'Data pelanggan berhasil diambil: ${customer.name}. Mengambil riwayat langganan...',
         );
         if (!mounted) return;
         setState(() {
-          _riwayatLanggananFuture =
-              _transaksiOp.ambilRiwayatLangganan(pelanggan.id);
+          _subscriptionHistoryFuture =
+              _transactionOp.getSubscriptionHistory(customer.id);
         });
       } else {
         Log.warning(
@@ -90,27 +90,24 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  Future<void> _muatUlangData() async {
+  Future<void> _reloadData() async {
     Log.info('Memuat ulang semua data profil via onRefresh.');
     SnackBarUtil.info(context, 'Memperbarui data...');
 
-    // Inisialisasi ulang semua future untuk memicu state loading di FutureBuilder
     setState(() {
-      _futurePelanggan = _pelangganOp.ambilPelangganSekali(widget.userId);
+      _futureCustomer = _customerOp.getCustomerOnce(widget.userId);
     });
 
     try {
-      final pelanggan = await _futurePelanggan;
-      if (pelanggan != null) {
+      final customer = await _futureCustomer;
+      if (customer != null) {
         setState(() {
-          // Reset juga future-future dependen
-          _riwayatLanggananFuture =
-              _transaksiOp.ambilRiwayatLangganan(pelanggan.id);
-          _futureNamaPaket = null;
-          _cacheIdPaket = null;
+          _subscriptionHistoryFuture =
+              _transactionOp.getSubscriptionHistory(customer.id);
+          _futurePackageName = null;
+          _cachePackageId = null;
         });
-        // Tunggu hingga data dependen juga selesai dimuat
-        await _riwayatLanggananFuture;
+        await _subscriptionHistoryFuture;
       }
 
       if (mounted) {
@@ -125,25 +122,25 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  Future<void> _navigasiKeDetail(final String userId) async {
-    Log.info('Menavigasi ke DetailPelangganUserPage untuk userId: $userId');
+  Future<void> _navigateToDetail(final String userId) async {
+    Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => DetailPelangganUserPage(userId: userId),
+        builder: (final context) => UserCustomerDetailPage(userId: userId),
       ),
     ).then((final _) {
       Log.info(
-        'Kembali dari DetailPelangganUserPage, memuat ulang data jika ada perubahan.',
+        'Kembali dari UserCustomerDetailPage, memuat ulang data jika ada perubahan.',
       );
-      unawaited(_muatUlangData());
+      unawaited(_reloadData());
     });
   }
 
   @override
   Widget build(final BuildContext context) {
-    Log.info('Membangun UI untuk ProfilPage.');
-    if (_futurePelanggan == null) {
+    Log.info('Membangun UI untuk ProfilePage.');
+    if (_futureCustomer == null) {
       Log.info(
         'Future pelanggan masih null, menampilkan indikator loading awal.',
       );
@@ -153,11 +150,11 @@ class _ProfilPageState extends State<ProfilPage> {
       );
     }
 
-    return FutureBuilder<PelangganModel?>(
-      future: _futurePelanggan,
+    return FutureBuilder<CustomerModel?>(
+      future: _futureCustomer,
       builder: (final context, final snapshot) {
         Log.info(
-          'FutureBuilder<Pelanggan>: Menerima status koneksi: ${snapshot.connectionState}.',
+          'FutureBuilder<Customer>: Menerima status koneksi: ${snapshot.connectionState}.',
         );
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -167,7 +164,7 @@ class _ProfilPageState extends State<ProfilPage> {
         }
         if (snapshot.hasError) {
           Log.error(
-            'FutureBuilder<Pelanggan> mendeteksi error: ${snapshot.error}.',
+            'FutureBuilder<Customer> mendeteksi error: ${snapshot.error}.',
             e: snapshot.error,
             st: snapshot.stackTrace,
           );
@@ -178,7 +175,7 @@ class _ProfilPageState extends State<ProfilPage> {
         }
         if (!snapshot.hasData || snapshot.data == null) {
           Log.warning(
-            'FutureBuilder<Pelanggan>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
+            'FutureBuilder<Customer>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
           );
           return Scaffold(
             appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
@@ -188,9 +185,9 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
 
-        final pelanggan = snapshot.data;
+        final customer = snapshot.data!;
         Log.info(
-          'Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.',
+          'Data pelanggan berhasil dimuat untuk: ${customer.name}. Merender UI utama.',
         );
 
         return Scaffold(
@@ -198,100 +195,98 @@ class _ProfilPageState extends State<ProfilPage> {
             title: const Text('Profil Pelanggan'),
           ),
           body: RefreshIndicator(
-            onRefresh: _muatUlangData,
+            onRefresh: _reloadData,
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                _bangunKartuInformasi(
+                _buildInfoCard(
                   context,
                   title: 'Informasi Pribadi',
                   icon: Icons.person,
                   children: [
-                    _bangunInfoItem(
+                    _buildInfoItem(
                       Icons.person_outline,
                       'Nama Lengkap',
-                      pelanggan.nama,
+                      customer.name,
                       trailingIcon: Icons.chevron_right,
-                      onTap: () => unawaited(_navigasiKeDetail(pelanggan.id)),
+                      onTap: () => unawaited(_navigateToDetail(customer.id)),
                     ),
                     FutureBuilder<List<TransactionModel>>(
-                      future: _riwayatLanggananFuture,
-                      builder: (final context, final snapshotRiwayat) {
+                      future: _subscriptionHistoryFuture,
+                      builder: (final context, final historySnapshot) {
                         Log.info(
-                          'FutureBuilder<Riwayat>: Status koneksi: ${snapshotRiwayat.connectionState}.',
+                          'FutureBuilder<Riwayat>: Status koneksi: ${historySnapshot.connectionState}.',
                         );
-                        if (snapshotRiwayat.connectionState ==
+                        if (historySnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return _bangunInfoItem(
+                          return _buildInfoItem(
                             Icons.point_of_sale,
                             'Poin',
                             'Menghitung...',
                           );
                         }
 
-                        if (snapshotRiwayat.hasError) {
+                        if (historySnapshot.hasError) {
                           Log.error(
                             'FutureBuilder<Riwayat>: Gagal menghitung poin.',
-                            e: snapshotRiwayat.error,
-                            st: snapshotRiwayat.stackTrace,
+                            e: historySnapshot.error,
+                            st: historySnapshot.stackTrace,
                           );
-                          return _bangunInfoItem(
+                          return _buildInfoItem(
                             Icons.point_of_sale,
                             'Poin',
                             'Gagal memuat',
                           );
                         }
 
-                        if (!snapshotRiwayat.hasData ||
-                            snapshotRiwayat.data!.isEmpty) {
+                        if (!historySnapshot.hasData ||
+                            historySnapshot.data!.isEmpty) {
                           Log.warning(
                             'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.',
                           );
-                          return _bangunInfoItem(
+                          return _buildInfoItem(
                             Icons.point_of_sale,
                             'Poin',
                             '0',
                           );
                         }
 
-                        final riwayat = snapshotRiwayat.data!;
+                        final history = historySnapshot.data!;
                         Log.info(
-                          'Menghitung total poin dari ${riwayat.length} transaksi.',
+                          'Menghitung total poin dari ${history.length} transaksi.',
                         );
-                        final int poinDihasilkan = riwayat.fold(
+                        final int earnedPoints = history.fold<int>(
                           0,
                           (final total, final item) =>
-                              total + item.poinYangDihasilkan,
+                              total + item.earnedPoints,
                         );
-                        final int poinDigunakan = riwayat.fold(
+                        final int usedPoints = history.fold<int>(
                           0,
-                          (final total, final item) =>
-                              total + item.poinYangDigunakan,
+                          (final total, final item) => total + item.usedPoints,
                         );
 
-                        final int totalPoin = poinDihasilkan - poinDigunakan;
-                        Log.info('Total poin dihitung: $totalPoin.');
+                        final int totalPoints = earnedPoints - usedPoints;
+                        Log.info('Total poin dihitung: $totalPoints.');
 
-                        return _bangunInfoItem(
+                        return _buildInfoItem(
                           Icons.point_of_sale,
                           'Poin',
-                          totalPoin.toString(),
+                          totalPoints.toString(),
                         );
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                _bangunKartuInformasi(
+                _buildInfoCard(
                   context,
                   title: 'Informasi Paket Aktif',
                   icon: Icons.wifi,
                   children: [
                     FutureBuilder<List<TransactionModel>>(
-                      future: _riwayatLanggananFuture,
-                      builder: (final context, final snapshotRiwayat) {
-                        // Log sudah ada di FutureBuilder sebelumnya, tidak perlu diulang
-                        if (snapshotRiwayat.connectionState ==
+                      future: _subscriptionHistoryFuture,
+                      builder: (final context, final historySnapshot) {
+                        if (historySnapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const SizedBox(
                             height: 120,
@@ -301,17 +296,17 @@ class _ProfilPageState extends State<ProfilPage> {
                           );
                         }
 
-                        if (snapshotRiwayat.hasError) {
-                          return _bangunInfoItem(
+                        if (historySnapshot.hasError) {
+                          return _buildInfoItem(
                             Icons.error_outline,
                             'Error',
                             'Gagal memuat riwayat langganan.',
                           );
                         }
 
-                        if (!snapshotRiwayat.hasData ||
-                            snapshotRiwayat.data!.isEmpty) {
-                          return _bangunInfoItem(
+                        if (!historySnapshot.hasData ||
+                            historySnapshot.data!.isEmpty) {
+                          return _buildInfoItem(
                             Icons.wifi_off,
                             'Paket Aktif',
                             'Paket aktif telah berakhir.',
@@ -319,125 +314,122 @@ class _ProfilPageState extends State<ProfilPage> {
                         }
 
                         final now = DateTime.now();
-                        final langgananAktif = snapshotRiwayat.data!
+                        final activeSubscriptions = historySnapshot.data!
                             .where(
-                              (final langganan) =>
-                                  langganan.tanggalBerakhir != null &&
-                                  langganan.tanggalBerakhir!.isAfter(now),
+                              (final subscription) =>
+                                  subscription.endDate != null &&
+                                  subscription.endDate!.isAfter(now),
                             )
                             .toList();
 
-                        final TransactionModel? langgananTerakhir;
-                        if (langgananAktif.isNotEmpty) {
-                          langgananTerakhir = langgananAktif.reduce(
+                        TransactionModel? lastSubscription;
+                        if (activeSubscriptions.isNotEmpty) {
+                          lastSubscription = activeSubscriptions.reduce(
                             (final a, final b) =>
-                                a.tanggalBerakhir!.isAfter(b.tanggalBerakhir!)
-                                    ? a
-                                    : b,
+                                a.endDate!.isAfter(b.endDate!) ? a : b,
                           );
                           Log.info(
-                            'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatTanggal.formatTanggalDanJam(langgananTerakhir.tanggalBerakhir!)}.',
+                            'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatUtil.formatDateAndTime(lastSubscription.endDate!)}.',
                           );
                         } else {
-                          langgananTerakhir = null;
+                          lastSubscription = null;
                           Log.info(
                             'Tidak ada langganan aktif yang ditemukan.',
                           );
                         }
 
-                        if (langgananTerakhir == null ||
-                            langgananTerakhir.tanggalBerakhir == null) {
-                          return _bangunInfoItem(
+                        if (lastSubscription == null ||
+                            lastSubscription.endDate == null) {
+                          return _buildInfoItem(
                             Icons.wifi_off,
                             'Paket Aktif',
                             'Tidak ada paket aktif.',
                           );
                         }
 
-                        final String teksMasaAktif =
-                            PerhitunganUtil.getTeksSisaMasaAktif(
-                          langgananTerakhir.tanggalBerakhir!,
+                        final String activePeriodText =
+                            CalculationUtil.getRemainingActivePeriodText(
+                          lastSubscription.endDate!,
                         );
-                        final Color warnaMasaAktif =
-                            PerhitunganUtil.getWarnaSisaMasaAktif(
-                          langgananTerakhir.tanggalBerakhir!,
+                        final Color activePeriodColor =
+                            CalculationUtil.getRemainingActivePeriodColor(
+                          lastSubscription.endDate!,
                         );
 
-                        final Color statusPembayaranColor =
-                            langgananTerakhir.statusPembayaran ==
-                                    StatusPembayaranEnum.lunas
+                        final Color paymentStatusColor =
+                            lastSubscription.paymentStatus == PaymentStatus.paid
                                 ? Colors.green
                                 : Colors.red;
 
-                        if (langgananTerakhir.idPaket != null &&
-                            _cacheIdPaket != langgananTerakhir.idPaket) {
+                        if (lastSubscription.packageId != null &&
+                            _cachePackageId != lastSubscription.packageId) {
                           Log.info(
-                            'ID Paket berubah. Mengambil nama paket baru untuk ID: ${langgananTerakhir.idPaket!}.',
+                            'ID Paket berubah. Mengambil nama paket baru untuk ID: ${lastSubscription.packageId!}.',
                           );
-                          _futureNamaPaket = _paketOp.ambilNamaPaket(
-                            langgananTerakhir.idPaket!,
+                          _futurePackageName = _packageOp.getPackageName(
+                            lastSubscription.packageId!,
                           );
-                          _cacheIdPaket = langgananTerakhir.idPaket;
+                          _cachePackageId = lastSubscription.packageId;
                         }
 
                         return Column(
                           children: [
                             FutureBuilder<String>(
-                              future: _futureNamaPaket,
-                              builder: (final context, final snapshotPaket) {
-                                String namaPaket;
-                                if (snapshotPaket.connectionState ==
+                              future: _futurePackageName,
+                              builder: (final context, final packageSnapshot) {
+                                String packageName;
+                                if (packageSnapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  namaPaket = 'Memuat...';
-                                } else if (snapshotPaket.hasError) {
-                                  namaPaket = 'Gagal memuat';
+                                  packageName = 'Memuat...';
+                                } else if (packageSnapshot.hasError) {
+                                  packageName = 'Gagal memuat';
                                   Log.error(
-                                    'FutureBuilder<NamaPaket>: Gagal mengambil nama paket: ${snapshotPaket.error}',
-                                    e: snapshotPaket.error,
-                                    st: snapshotPaket.stackTrace,
+                                    'FutureBuilder<PackageName>: Gagal mengambil nama paket: ${packageSnapshot.error}',
+                                    e: packageSnapshot.error,
+                                    st: packageSnapshot.stackTrace,
                                   );
                                 } else {
-                                  namaPaket =
-                                      snapshotPaket.data ?? 'Tidak tersedia';
+                                  packageName =
+                                      packageSnapshot.data ?? 'Tidak tersedia';
                                   Log.info(
-                                    'Nama paket berhasil dimuat: $namaPaket',
+                                    'Nama paket berhasil dimuat: $packageName',
                                   );
                                 }
-                                return _bangunInfoItem(
+                                return _buildInfoItem(
                                   Icons.wifi,
                                   'Paket',
-                                  namaPaket,
+                                  packageName,
                                 );
                               },
                             ),
-                            if (langgananTerakhir.tanggalMulai != null)
-                              _bangunInfoItem(
+                            if (lastSubscription.startDate != null)
+                              _buildInfoItem(
                                 Icons.date_range_outlined,
                                 'Aktif Sejak',
-                                FormatTanggal.formatTanggalDanJam(
-                                  langgananTerakhir.tanggalMulai!,
+                                FormatUtil.formatDateAndTime(
+                                  lastSubscription.startDate!,
                                 ),
                               ),
-                            _bangunInfoItem(
+                            _buildInfoItem(
                               Icons.date_range_outlined,
                               'Berakhir Pada',
-                              FormatTanggal.formatTanggalDanJam(
-                                langgananTerakhir.tanggalBerakhir!,
+                              FormatUtil.formatDateAndTime(
+                                lastSubscription.endDate!,
                               ),
                             ),
-                            _bangunInfoItem(
+                            _buildInfoItem(
                               Icons.hourglass_bottom,
                               'Masa Aktif',
-                              teksMasaAktif,
-                              valueColor: warnaMasaAktif,
+                              activePeriodText,
+                              valueColor: activePeriodColor,
                             ),
-                            _bangunInfoItem(
+                            _buildInfoItem(
                               Icons.check_circle_outline,
                               'Status Pembayaran',
-                              langgananTerakhir.statusPembayaran.name
+                              lastSubscription.paymentStatus.name
                                   .replaceAll('_', ' ')
                                   .toUpperCase(),
-                              valueColor: statusPembayaranColor,
+                              valueColor: paymentStatusColor,
                             ),
                           ],
                         );
@@ -453,7 +445,7 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  Widget _bangunKartuInformasi(
+  Widget _buildInfoCard(
     final BuildContext context, {
     required final String title,
     required final IconData icon,
@@ -487,7 +479,7 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  Widget _bangunInfoItem(
+  Widget _buildInfoItem(
     final IconData icon,
     final String label,
     final String value, {

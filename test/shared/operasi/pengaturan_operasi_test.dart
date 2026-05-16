@@ -5,7 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 
 import 'pengaturan_operasi_test.mocks.dart';
 

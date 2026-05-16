@@ -1,8 +1,8 @@
 // path: lib/data/services/pengecekan_waktu_sync_services.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/data/services/pengecekan_data_baru.dart';
-import 'package:wifi/shared/data/sync/download%20data.dart';
+import 'package:wifi/shared/data/services/new_data_check_service.dart';
+import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';

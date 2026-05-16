@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
+import 'package:wifi/shared/operasi/sub_category_operation.dart';
 
 // --- Mocks ---
 class MockDatabaseHelper extends Mock implements DatabaseHelper {}

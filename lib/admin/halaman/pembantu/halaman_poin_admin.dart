@@ -10,7 +10,7 @@ import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/nama_pelanggan.dart';
+import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/poin_page_ui.dart';
 
 /// Halaman untuk menampilkan dan mengelola poin pelanggan dari sisi admin.

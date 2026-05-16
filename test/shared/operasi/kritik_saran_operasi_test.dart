@@ -7,7 +7,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
+import 'package:wifi/shared/operasi/feedback_operation.dart';
 
 import 'kritik_saran_operasi_test.mocks.dart';
 

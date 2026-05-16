@@ -8,18 +8,18 @@ library;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/shared/data/sync/download%20data.dart';
+import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
-import 'package:wifi/shared/operasi/pesanan_operasi.dart';
-import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
+import 'package:wifi/shared/operasi/feedback_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
@@ -168,7 +168,9 @@ void main() {
             .thenReturn({'id': 'paket-1', 'nama': 'Test', 'harga': 1000});
 
         when(() => mockPaketOperasi.sisipkanAtauPerbaruiBatch(any(),
-            dariServer: any(named: 'dariServer'))).thenAnswer((final _) async {});
+            dariServer: any(named: 'dariServer'))).thenAnswer((final _) async {
+              return null;
+            });
 
         await service.unduhDataPaket();
 

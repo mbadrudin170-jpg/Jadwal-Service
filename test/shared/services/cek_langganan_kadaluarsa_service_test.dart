@@ -2,7 +2,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/services/cek_langganan_kadaluarsa_service.dart';
+import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 
 // --- Mock ---
 class MockPelangganAktifOperasi extends Mock implements PelangganAktifOperasi {}

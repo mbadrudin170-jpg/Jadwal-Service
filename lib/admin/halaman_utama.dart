@@ -9,9 +9,9 @@ import 'package:wifi/admin/halaman/tab/dompet.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/tab/transaksi.dart';
-import 'package:wifi/shared/data/services/pengecekan_waktu_sync_services.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/cek_langganan_kadaluarsa_service.dart';
+import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 
 /// Halaman utama aplikasi admin yang menampilkan navigasi tab.
 class HalamanUtama extends StatefulWidget {

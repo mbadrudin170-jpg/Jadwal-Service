@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
 import 'package:wifi/shared/model/pengaturan_model.dart';
-import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 
 import 'form_pengaturan_test.mocks.dart';
 
