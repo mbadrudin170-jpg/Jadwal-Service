@@ -1,18 +1,7 @@
 // path: lib/admin/halaman/lainnya/package_activation_history.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman dalam navigasi admin (tab Lainnya).
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/subscription_history_detail.dart (DetailLanggananTransaksiPage)
-//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
-//   - lib/shared/widget/package_name.dart (PackageNameWidget)
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation) — untuk PackageNameWidget
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Memperbaiki nama class DetailLanggananTransaksiPage menjadi SubscriptionHistoryDetailPage.
+// diubah: Memperbaiki parameter yang dikirimkan ke SubscriptionHistoryDetailPage.
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
 
 import 'dart:async';
 
@@ -26,6 +15,21 @@ import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/package_name.dart';
+
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman dalam navigasi admin (tab Lainnya)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/detail/subscription_history_detail.dart (SubscriptionHistoryDetailPage)
+//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
+//   - lib/shared/widget/package_name.dart (PackageNameWidget)
+//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/utils/format_util.dart (FormatUtil)
+//   - lib/shared/debug/log.dart (Log)
 
 /// Enum untuk opsi pengurutan riwayat aktivasi paket.
 enum SortOption {
@@ -359,12 +363,13 @@ class _PackageActivationHistoryPageState
                       Log.info(
                         'Navigasi ke halaman Detail Transaksi ID: ${transaction.id}, Pelanggan ID: ${transaction.customerId ?? "N/A"}',
                       );
+                      // PERBAIKAN: Menggunakan nama class yang benar dan parameter yang benar
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (final context) =>
-                              DetailLanggananTransaksiPage(
-                            idTransaksi: transaction.id,
+                              SubscriptionHistoryDetailPage(
+                            transactionId: transaction.id,
                           ),
                         ),
                       );

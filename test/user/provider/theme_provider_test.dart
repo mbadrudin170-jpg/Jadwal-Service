@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/user/provider/theme_provider.dart';
+import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 // Mocks

@@ -1,18 +1,7 @@
 // path: lib/admin/halaman/detail/customer_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/customer.dart
-//   - lib/admin/halaman/detail/subscription_history_detail.dart
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
-//   - lib/admin/halaman/pembantu/halaman_poin_admin.dart (PoinPageAdmin)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/shared/widget/customer_detail_ui.dart (CustomerDetailUI)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Memperbaiki nama class PoinPageAdmin menjadi AdminPointsPage.
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
+// diubah: Mengurutkan import directives.
 
 import 'dart:async';
 
@@ -26,6 +15,21 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/customer_detail_ui.dart';
+
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/lainnya/customer.dart (CustomerPage)
+//   - lib/admin/halaman/detail/subscription_history_detail.dart (SubscriptionHistoryDetailPage)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
+//   - lib/admin/halaman/pembantu/admin_points_page.dart (AdminPointsPage)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/widget/customer_detail_ui.dart (CustomerDetailUI)
+//   - lib/shared/debug/log.dart (Log)
 
 /// Halaman untuk menampilkan detail pelanggan.
 class CustomerDetailPage extends StatefulWidget {
@@ -119,10 +123,11 @@ MAC : ${customer.macAddress}
 
   Future<void> _navigateToPoints() async {
     if (_customer == null) return;
+    // PERBAIKAN: Menggunakan nama class yang benar
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => PoinPageAdmin(idPelanggan: _customer!.id),
+        builder: (final context) => AdminPointsPage(customerId: _customer!.id),
       ),
     );
     Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');

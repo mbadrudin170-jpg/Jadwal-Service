@@ -1,5 +1,5 @@
-// path: lib/main_user.dart
-// diubah: Menambahkan pengecekan mode pemeliharaan di awal sebelum runApp.
+// path: lib/main/main_user/user_dev.dart
+// diubah: Mengganti nama import dan kelas dari PengaturanModel menjadi SettingsModel.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pengaturan_model.dart';
+import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/user/app_user.dart';
@@ -31,15 +31,15 @@ void main() async {
   try {
     Log.info('[main] Memeriksa status mode pemeliharaan dari Firestore...');
     final doc = await FirebaseFirestore.instance
-        .collection('pengaturan')
-        .doc('konfigurasi_global')
+        .collection('settings')
+        .doc('global_config')
         .get(
           const GetOptions(source: Source.server),
         ); // Paksa ambil dari server
 
     if (doc.exists && doc.data() != null) {
-      final pengaturan = PengaturanModel.fromFirebase(doc.data()!);
-      if (pengaturan.modePemeliharaan) {
+      final settings = SettingsModel.fromFirebase(doc.data()!);
+      if (settings.maintenanceMode) {
         Log.warning(
           '[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.',
         );
@@ -50,7 +50,7 @@ void main() async {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             home: MaintenancePage(
-              maintenanceInfo: pengaturan.infoPemeliharaan,
+              maintenanceInfo: settings.maintenanceInfo,
               onRefresh: () {
                 Log.info(
                   '[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi untuk memeriksa status terbaru.',

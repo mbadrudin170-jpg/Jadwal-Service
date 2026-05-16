@@ -24,7 +24,7 @@ class _ProfileData {
 /// Halaman untuk menampilkan detail profil pengguna.
 ///
 /// Halaman ini mengambil data pelanggan dan total poin dari Firestore,
-/// lalu menampilkannya menggunakan widget [DetailPelangganUI].
+/// lalu menampilkannya menggunakan widget [CustomerDetailUi].
 class UserCustomerDetailPage extends StatefulWidget {
   /// ID unik pengguna yang detailnya akan ditampilkan.
   final String userId;
@@ -149,11 +149,11 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
         final data = snapshot.data!;
 
-        return DetailPelangganUI(
-          pelanggan: data.customer,
-          totalPoin: data.totalPoints,
+        return CustomerDetailUi(
+          customer: data.customer,
+          totalPoints: data.totalPoints,
           onEdit: () => _navigateToEdit(data.customer),
-          onNavigateToPoin: () => _navigateToPoints(data.customer.id),
+          onNavigateToPoints: () => _navigateToPoints(data.customer.id),
           // onCopyAll sengaja dibuat null karena user tidak memiliki fungsi ini
         );
       },

@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:wifi/admin/halaman/form/form_pengaturan.dart';
-import 'package:wifi/shared/model/pengaturan_model.dart';
+import 'package:wifi/admin/halaman/form/settings_form.dart';
+import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 
 import 'form_pengaturan_test.mocks.dart';
@@ -16,35 +16,35 @@ void initializeDbForTest() {
   databaseFactory = databaseFactoryFfi;
 }
 
-@GenerateMocks([PengaturanOperasi])
+@GenerateMocks([SettingsOperation])
 void main() {
   // Panggil inisialisasi di awal
   setUpAll(initializeDbForTest);
 
-  late MockPengaturanOperasi mockPengaturanOperasi;
-  late PengaturanModel pengaturanAwal;
+  late MockSettingsOperation mockSettingsOperation;
+  late SettingsModel pengaturanAwal;
 
   setUp(() {
-    mockPengaturanOperasi = MockPengaturanOperasi();
-    pengaturanAwal = PengaturanModel(
-      intervalSinkronisasiOtomatis: 12,
-      hapusOtomatisDataArsip: 45,
-      infoPemeliharaan: 'Info awal',
-      diperbarui: DateTime(2023),
+    mockSettingsOperation = MockSettingsOperation();
+    pengaturanAwal = SettingsModel(
+      autoSyncInterval: 12,
+      autoDeleteArchive: 45,
+      maintenanceInfo: 'Info awal',
+      updatedAt: DateTime(2023),
     );
   });
 
   // Widget wrapper yang menginjeksi mock
-  Widget buildTestableWidget(final PengaturanModel pengaturan) {
+  Widget buildTestableWidget(final SettingsModel pengaturan) {
     return MaterialApp(
-      home: FormPengaturan(
-        pengaturan: pengaturan,
-        pengaturanOperasi: mockPengaturanOperasi, // Injeksi mock
+      home: SettingsForm(
+        settings: pengaturan,
+        settingsOperation: mockSettingsOperation, // Injeksi mock
       ),
     );
   }
 
-  group('FormPengaturan Widget Tests', () {
+  group('SettingsForm Widget Tests', () {
     testWidgets('1. Menampilkan nilai awal dengan benar',
         (final tester) async {
       await tester.pumpWidget(buildTestableWidget(pengaturanAwal));
@@ -60,7 +60,7 @@ void main() {
     testWidgets('2. Memperbarui field dan menyimpan perubahan',
         (final tester) async {
       // Stubbing mock untuk mengembalikan Future kosong
-      when(mockPengaturanOperasi.updatePengaturan(any))
+      when(mockSettingsOperation.updateSettings(any))
           .thenAnswer((final _) async {});
 
       await tester.pumpWidget(buildTestableWidget(pengaturanAwal));
@@ -74,13 +74,13 @@ void main() {
       await tester.tap(find.byIcon(Icons.save));
       await tester.pumpAndSettle(); // Tunggu navigasi
 
-      // Verifikasi bahwa `updatePengaturan` dipanggil dengan data yang benar
-      final captured = verify(mockPengaturanOperasi.updatePengaturan(captureAny)).captured;
+      // Verifikasi bahwa `updateSettings` dipanggil dengan data yang benar
+      final captured = verify(mockSettingsOperation.updateSettings(captureAny)).captured;
       final capturedMap = captured.first as Map<String, dynamic>;
 
-      expect(capturedMap['intervalSinkronisasiOtomatis'], 24);
-      expect(capturedMap['hapusOtomatisDataArsip'], 60);
-      expect(capturedMap['modePemeliharaan'], isTrue);
+      expect(capturedMap['autoSyncInterval'], 24);
+      expect(capturedMap['autoDeleteArchive'], 60);
+      expect(capturedMap['maintenanceMode'], isTrue);
 
       // Verifikasi SnackBar dan navigasi (jika diperlukan)
       expect(find.text('Pengaturan berhasil disimpan'), findsOneWidget);
@@ -96,12 +96,12 @@ void main() {
       await tester.pump();
 
       expect(find.text('Harap masukkan interval'), findsOneWidget);
-      verifyNever(mockPengaturanOperasi.updatePengaturan(any));
+      verifyNever(mockSettingsOperation.updateSettings(any));
     });
 
     testWidgets('4. Menampilkan SnackBar error jika penyimpanan gagal',
         (final tester) async {
-      when(mockPengaturanOperasi.updatePengaturan(any))
+      when(mockSettingsOperation.updateSettings(any))
           .thenThrow(Exception('DB Error'));
 
       await tester.pumpWidget(buildTestableWidget(pengaturanAwal));
@@ -111,7 +111,7 @@ void main() {
       await tester.pump(); // Pump lagi untuk SnackBar
 
       expect(find.text('Gagal menyimpan: Exception: DB Error'), findsOneWidget);
-      verify(mockPengaturanOperasi.updatePengaturan(any)).called(1);
+      verify(mockSettingsOperation.updateSettings(any)).called(1);
     });
   });
 }

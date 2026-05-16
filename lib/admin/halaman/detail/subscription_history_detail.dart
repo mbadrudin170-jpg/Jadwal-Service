@@ -1,19 +1,8 @@
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/detail_pelanggan.dart (DetailPelangganPage)
-//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Memperbaiki nama class DetailPelangganPage menjadi CustomerDetailPage.
+// diubah: Memperbaiki parameter yang dikirimkan ke CustomerDetailPage.
+// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
+// diubah: Mengurutkan import directives.
 
 import 'dart:async';
 
@@ -29,21 +18,37 @@ import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-/// Halaman untuk menampilkan detail transaksi langganan.
-class DetailLanggananTransaksiPage extends StatefulWidget {
-  /// ID transaksi yang akan ditampilkan.
-  final String idTransaksi;
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/detail/customer_detail.dart (CustomerDetailPage)
+//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
+//   - lib/shared/debug/log.dart (Log)
 
-  /// Konstruktor untuk DetailLanggananTransaksiPage.
-  const DetailLanggananTransaksiPage({super.key, required this.idTransaksi});
+/// Halaman untuk menampilkan detail transaksi langganan.
+class SubscriptionHistoryDetailPage extends StatefulWidget {
+  /// ID transaksi yang akan ditampilkan.
+  final String transactionId;
+
+  /// Konstruktor untuk SubscriptionHistoryDetailPage.
+  const SubscriptionHistoryDetailPage({super.key, required this.transactionId});
 
   @override
-  State<DetailLanggananTransaksiPage> createState() =>
-      _DetailLanggananTransaksiPageState();
+  State<SubscriptionHistoryDetailPage> createState() =>
+      _SubscriptionHistoryDetailPageState();
 }
 
-class _DetailLanggananTransaksiPageState
-    extends State<DetailLanggananTransaksiPage> {
+class _SubscriptionHistoryDetailPageState
+    extends State<SubscriptionHistoryDetailPage> {
   final TransactionOperation _transactionOperation = TransactionOperation();
   final PackageOperation _packageOperation = PackageOperation();
   final CustomerOperation _customerOperation = CustomerOperation();
@@ -55,11 +60,11 @@ class _DetailLanggananTransaksiPageState
     super.initState();
 
     Log.info(
-      'Memulai inisialisasi halaman detail langganan untuk ID transaksi: ${widget.idTransaksi}.',
+      'Memulai inisialisasi halaman detail langganan untuk ID transaksi: ${widget.transactionId}.',
     );
 
     _transactionFuture =
-        _transactionOperation.getTransactionById(widget.idTransaksi);
+        _transactionOperation.getTransactionById(widget.transactionId);
 
     Log.info(
       'Future transaksi berhasil dibuat untuk proses pengambilan data transaksi.',
@@ -121,13 +126,14 @@ class _DetailLanggananTransaksiPageState
                         customer?.name ?? 'Tidak Diketahui',
                       ),
                     ],
+                    // PERBAIKAN: Menggunakan CustomerDetailPage dengan parameter customerId
                     onTap: (final customer) {
                       if (customer != null) {
                         unawaited(Navigator.push<void>(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (final context) => DetailPelangganPage(
-                              idPelanggan: customer.id,
+                            builder: (final context) => CustomerDetailPage(
+                              customerId: customer.id,
                             ),
                           ),
                         ));
@@ -198,6 +204,7 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
+  /// Membangun widget untuk menampilkan informasi poin dari transaksi.
   Widget _buildInfoPoints(final TransactionModel transaction) {
     Log.info('Membangun widget informasi poin transaksi.');
 
@@ -239,6 +246,7 @@ class _DetailLanggananTransaksiPageState
     ]);
   }
 
+  /// Membangun widget kartu informasi dengan judul dan konten.
   Widget _buildInfoCard(final String title, final List<Widget> children,
       {final VoidCallback? onTap}) {
     Log.info('Membangun info card dengan judul: $title.');
@@ -273,6 +281,7 @@ class _DetailLanggananTransaksiPageState
     }
   }
 
+  /// Membangun kartu informasi yang datanya diambil secara asynchronous.
   Widget _buildFutureInfoCard<T>(
     final String title,
     final Future<T?> future,
@@ -326,6 +335,7 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
+  /// Membangun baris detail dengan label dan nilai.
   Widget _buildDetailRow(final String label, final String value) {
     Log.info('Membangun detail row dengan label: $label dan value: $value.');
 
@@ -347,6 +357,7 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
+  /// Membangun baris detail dengan warna dan ketebalan font yang bisa disesuaikan.
   Widget _buildDetailRowWithColor(
     final String label,
     final String value,

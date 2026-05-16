@@ -3,10 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/admin/halaman/tab/wallet_page.dart';
+import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
-import 'package:wifi/admin/halaman/tab/pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page.dart';
+import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 
 // Helper to mock Firebase Core in a test environment
@@ -58,7 +58,7 @@ void main() {
       // Directly call setup in here for clarity and isolation
     });
 
-    testWidgets('1. Initial page is PelangganAktifPage',
+    testWidgets('1. Initial page is ActiveCustomerTab',
         (final WidgetTester tester) async {
       await setupFirebaseCoreMock(tester);
       await tester.pumpWidget(
@@ -68,10 +68,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(PelangganAktifPage), findsOneWidget,
-          reason: 'PelangganAktifPage should be displayed initially');
-      expect(find.byType(DompetPage), findsNothing);
-      expect(find.byType(TransaksiPage), findsNothing);
+      expect(find.byType(ActiveCustomerTab), findsOneWidget,
+          reason: 'ActiveCustomerTab should be displayed initially');
+      expect(find.byType(WalletPage), findsNothing);
+      expect(find.byType(TransactionPage), findsNothing);
       expect(find.byType(LainnyaPage), findsNothing);
     });
 
@@ -88,12 +88,12 @@ void main() {
       // Tap on Dompet
       await tester.tap(find.byIcon(Icons.account_balance_wallet));
       await tester.pumpAndSettle();
-      expect(find.byType(DompetPage), findsOneWidget);
+      expect(find.byType(WalletPage), findsOneWidget);
 
       // Tap on Transaksi
       await tester.tap(find.byIcon(Icons.receipt_long));
       await tester.pumpAndSettle();
-      expect(find.byType(TransaksiPage), findsOneWidget);
+      expect(find.byType(TransactionPage), findsOneWidget);
 
       // Tap on Lainnya
       await tester.tap(find.byIcon(Icons.apps));
@@ -103,7 +103,7 @@ void main() {
       // Tap on Aktif
       await tester.tap(find.byIcon(Icons.person_pin_circle));
       await tester.pumpAndSettle();
-      expect(find.byType(PelangganAktifPage), findsOneWidget);
+      expect(find.byType(ActiveCustomerTab), findsOneWidget);
     });
 
     testWidgets('3. Shows offline snackbar when isOffline is true',

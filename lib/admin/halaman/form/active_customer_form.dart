@@ -1,7 +1,8 @@
-// path: lib/admin/halaman/form/form_pelanggan_aktif.dart
+// path: lib/admin/halaman/form/active_customer_form.dart
 // diubah: Menambahkan dokumentasi publik dan memperbaiki kurung kurawal.
 // diubah: Mengambil data transaksi di mode edit untuk mengisi dompet & kategori.
 // diubah: Mengganti `initialValue` ke `value` di Dropdown agar update state terlihat.
+// diubah: Memperbaiki error tipe data nullable pada pemanggilan PesanInfoPaket.kirimRincianPaket.
 
 import 'dart:async';
 
@@ -29,6 +30,29 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/tab/active_customer_tab.dart (ActiveCustomerPage)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
+//   - lib/shared/model/category_model.dart (CategoryModel)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/model/save_result_model.dart (SaveResultModel)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/model/wallet_model.dart (WalletModel)
+//   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
+//   - lib/shared/operasi/category_operation.dart (CategoryOperation)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/operasi/wallet_operation.dart (WalletOperation)
+//   - lib/shared/services/pembaruan_data_service.dart (PembaruanDataService)
+//   - lib/shared/utils/format_util.dart (FormatUtil)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/whatsapp/info_paket.dart (PesanInfoPaket)
+
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
   final DateTime startDate,
@@ -49,8 +73,9 @@ DateTime hitungTanggalBerakhir(
       hasil = startDate.add(Duration(days: paket.duration));
       break;
     case DurationType.months:
-      hasil =
-          Jiffy.parseFromDateTime(startDate).add(months: paket.duration).dateTime;
+      hasil = Jiffy.parseFromDateTime(startDate)
+          .add(months: paket.duration)
+          .dateTime;
       break;
     case DurationType.minutes:
       hasil = startDate.add(Duration(minutes: paket.duration));
@@ -184,12 +209,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             .toList();
         final semuaKategori = results[3] as List<CategoryModel>;
         _kategoriPemasukanList = semuaKategori
-            .where(
-                (final k) => k.type == CategoryType.income && !k.isDeleted)
+            .where((final k) => k.type == CategoryType.income && !k.isDeleted)
             .toList();
         _kategoriPengeluaranList = semuaKategori
-            .where(
-                (final k) => k.type == CategoryType.expense && !k.isDeleted)
+            .where((final k) => k.type == CategoryType.expense && !k.isDeleted)
             .toList();
 
         final transaksiTerkait =
@@ -345,9 +368,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           date: tanggalMulai,
           description: 'Aktivasi Paket: ${_selectedPaket!.name}',
           amount: _gunakanPoin ? 0 : _selectedPaket!.price.toDouble(),
-          type: _gunakanPoin
-              ? TransactionType.expense
-              : TransactionType.income,
+          type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
           walletId: _selectedDompet!.id,
           categoryId: _selectedKategori!.id,
           customerId: _selectedPelanggan!.id,
@@ -375,7 +396,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
       PembaruanDataService.instance.picuPembaruan();
       return SaveResultModel(
-          success: true, message: 'Berhasil disimpan', data: pelangganAktifHasil);
+          success: true,
+          message: 'Berhasil disimpan',
+          data: pelangganAktifHasil);
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, st: s);
       return SaveResultModel(success: false, message: 'Gagal menyimpan: $e');
@@ -501,8 +524,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
       initialValue: _selectedDompet,
       items: _daftarDompet
-          .map((final d) =>
-              DropdownMenuItem(value: d, child: Text(d.name)))
+          .map((final d) => DropdownMenuItem(value: d, child: Text(d.name)))
           .toList(),
       onChanged: (final newValue) => setState(() => _selectedDompet = newValue),
       validator: (final v) => v == null ? 'Dompet tidak boleh kosong' : null,
@@ -551,31 +573,27 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _statusPembayaran == PaymentStatus.paid
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[200],
-                  foregroundColor:
-                      _statusPembayaran == PaymentStatus.paid
-                          ? Colors.white
-                          : Colors.black),
-              onPressed: () => setState(
-                  () => _statusPembayaran = PaymentStatus.paid),
+                  backgroundColor: _statusPembayaran == PaymentStatus.paid
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[200],
+                  foregroundColor: _statusPembayaran == PaymentStatus.paid
+                      ? Colors.white
+                      : Colors.black),
+              onPressed: () =>
+                  setState(() => _statusPembayaran = PaymentStatus.paid),
               child: const Text('Lunas'))),
       const SizedBox(width: 8),
       Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _statusPembayaran == PaymentStatus.unpaid
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[200],
-                  foregroundColor:
-                      _statusPembayaran == PaymentStatus.unpaid
-                          ? Colors.white
-                          : Colors.black),
-              onPressed: () => setState(
-                  () => _statusPembayaran = PaymentStatus.unpaid),
+                  backgroundColor: _statusPembayaran == PaymentStatus.unpaid
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[200],
+                  foregroundColor: _statusPembayaran == PaymentStatus.unpaid
+                      ? Colors.white
+                      : Colors.black),
+              onPressed: () =>
+                  setState(() => _statusPembayaran = PaymentStatus.unpaid),
               child: const Text('Belum Lunas'))),
     ]);
   }
@@ -630,9 +648,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           }
           if (hasil.success) {
             SnackBarUtil.success(context, hasil.message);
+            // PERBAIKAN: Memeriksa apakah hasil.data tidak null sebelum memanggil
             if (hasil.data != null) {
               try {
-                await PesanInfoPaket.kirimRincianPaket(hasil.data);
+                await PesanInfoPaket.kirimRincianPaket(hasil.data!);
               } on Exception catch (e) {
                 Log.warning('Gagal mengirim pesan WhatsApp: $e');
                 if (mounted) {
