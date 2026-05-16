@@ -1,54 +1,48 @@
-// path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
-// diubah: Mengubah Future.value() menjadi Future<PaketModel?>.value(null) untuk memberikan tipe eksplisit.
-// diubah: Mengganti `jumlahPoin` yang sudah dihapus menjadi `poinHadiah` dan memperbaiki unawaited future.
+// path: lib/admin/halaman/detail/active_customer_detail.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
-import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/operasi.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Halaman untuk menampilkan detail pelanggan aktif.
-class DetailPelangganAktif extends StatefulWidget {
+class ActiveCustomerDetailPage extends StatefulWidget {
   /// Model pelanggan aktif yang akan ditampilkan.
-  final PelangganAktifModel pelanggan;
+  final ActiveCustomerModel activeCustomer;
 
-  /// Konstruktor untuk DetailPelangganAktif.
-  const DetailPelangganAktif({super.key, required this.pelanggan});
+  /// Konstruktor untuk ActiveCustomerDetailPage.
+  const ActiveCustomerDetailPage({super.key, required this.activeCustomer});
 
   @override
   // ditambah: Komentar untuk menjelaskan kenapa lint rule diabaikan.
   // ignore: no_logic_in_create_state, Aturan ini diabaikan karena logika di dalamnya hanya untuk logging saat pembuatan state, yang berguna untuk debugging.
-  State<DetailPelangganAktif> createState() {
+  State<ActiveCustomerDetailPage> createState() {
     Log.info(
-      'Membuat state untuk DetailPelangganAktif. '
-      'ID Pelanggan Aktif: ${pelanggan.id}, '
-      'ID Pelanggan: ${pelanggan.idPelanggan}, '
-      'ID Paket: ${pelanggan.idPaket}, '
-      'Status: ${pelanggan.status.displayName}',
+      'Membuat state untuk ActiveCustomerDetailPage. '
+      'ID Pelanggan Aktif: ${activeCustomer.id}, '
+      'ID Pelanggan: ${activeCustomer.customerId}, '
+      'ID Paket: ${activeCustomer.packageId}, '
+      'Status: ${activeCustomer.status.displayName}',
     );
-    return _DetailPelangganAktifState();
+    return _ActiveCustomerDetailPageState();
   }
 }
 
-class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
-  late PelangganAktifModel _pelangganAktif;
-  PelangganModel? _pelanggan;
-  PaketModel? _paket;
+class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
+  late ActiveCustomerModel _activeCustomer;
+  CustomerModel? _customer;
+  PackageModel? _package;
   bool _isLoading = true;
 
   @override
@@ -57,17 +51,17 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info('========================================');
     Log.info('LIFECYCLE: initState() - Halaman DetailPelangganAktif');
     Log.info('Inisialisasi awal dengan data dari widget:');
-    Log.info('  - ID Pelanggan Aktif: ${widget.pelanggan.id}');
-    Log.info('  - ID Pelanggan: ${widget.pelanggan.idPelanggan}');
-    Log.info('  - ID Paket: ${widget.pelanggan.idPaket}');
-    Log.info('  - Status: ${widget.pelanggan.status.displayName}');
-    Log.info('  - Tanggal Mulai: ${widget.pelanggan.tanggalMulai}');
-    Log.info('  - Tanggal Berakhir: ${widget.pelanggan.tanggalBerakhir}');
+    Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
+    Log.info('  - ID Pelanggan: ${widget.activeCustomer.customerId}');
+    Log.info('  - ID Paket: ${widget.activeCustomer.packageId}');
+    Log.info('  - Status: ${widget.activeCustomer.status.displayName}');
+    Log.info('  - Tanggal Mulai: ${widget.activeCustomer.startDate}');
+    Log.info('  - Tanggal Berakhir: ${widget.activeCustomer.endDate}');
     Log.info('========================================');
 
-    _pelangganAktif = widget.pelanggan;
+    _activeCustomer = widget.activeCustomer;
     Log.info(
-      'Variabel lokal _pelangganAktif telah diinisialisasi dengan data dari widget.',
+      'Variabel lokal _activeCustomer telah diinisialisasi dengan data dari widget.',
     );
     Log.info(
       'Memanggil _loadDetails() untuk mengambil data pelengkap (data Pelanggan dan Paket) dari database.',
@@ -166,47 +160,38 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     );
     setState(() => _isLoading = true);
 
-    Log.info(
-      'Membuat instance PelangganOperasi untuk mengambil data pelanggan dari database.',
-    );
-    final pelangganOperasi = PelangganOperasi();
-    Log.info('PelangganOperasi instance dibuat: ${pelangganOperasi.hashCode}');
-
-    Log.info(
-      'Membuat instance PaketOperasi untuk mengambil data paket dari database.',
-    );
-    final paketOperasi = PaketOperasi();
-    Log.info('PaketOperasi instance dibuat: ${paketOperasi.hashCode}');
+    final customerOperation = CustomerOperation();
+    final packageOperation = PackageOperation();
 
     Log.info(
       'Menyiapkan query paralel untuk mengambil data pelanggan dan paket secara bersamaan.',
     );
-    Log.info('  - Query 1: getPelangganById(${_pelangganAktif.idPelanggan})');
+    Log.info('  - Query 1: getCustomerById(${_activeCustomer.customerId})');
 
-    final idPaket = _pelangganAktif.idPaket;
-    Log.info('  - ID Paket: ${idPaket.isNotEmpty ? idPaket : "KOSONG"}');
+    final packageId = _activeCustomer.packageId;
+    Log.info('  - ID Paket: ${packageId.isNotEmpty ? packageId : "KOSONG"}');
     Log.info(
-      '  - Query 2: ${idPaket.isNotEmpty ? "getPaketById($idPaket)" : "Future.value(null) karena ID Paket kosong"}',
+      '  - Query 2: ${packageId.isNotEmpty ? "getPackageById($packageId)" : "Future.value(null) karena ID Paket kosong"}',
     );
 
     try {
       Log.info(
         'Menjalankan Future.wait untuk mengeksekusi kedua query secara paralel.',
       );
-      final results = await Future.wait([
-        pelangganOperasi.getPelangganById(_pelangganAktif.idPelanggan),
-        if (idPaket.isNotEmpty)
-          paketOperasi.getPaketById(idPaket)
+      final results = await Future.wait<dynamic>([
+        customerOperation.getCustomerById(_activeCustomer.customerId),
+        if (packageId.isNotEmpty)
+          packageOperation.getPackageById(packageId)
         else
-          Future<PaketModel?>.value(),
+          Future<PackageModel?>.value(null),
       ]);
 
       Log.info('Kedua query selesai dijalankan. Memproses hasil...');
       Log.info(
-        'Hasil query 1 (Pelanggan): ${results[0] != null ? "Ditemukan (Nama: ${(results[0] as PelangganModel).nama})" : "NULL - Pelanggan tidak ditemukan"}',
+        'Hasil query 1 (Pelanggan): ${results[0] != null ? "Ditemukan (Nama: ${(results[0] as CustomerModel).name})" : "NULL - Pelanggan tidak ditemukan"}',
       );
       Log.info(
-        'Hasil query 2 (Paket): ${results.length > 1 && results[1] != null ? "Ditemukan (Nama: ${(results[1] as PaketModel).nama})" : "NULL atau tidak dicari"}',
+        'Hasil query 2 (Paket): ${results.length > 1 && results[1] != null ? "Ditemukan (Nama: ${(results[1] as PackageModel).name})" : "NULL atau tidak dicari"}',
       );
 
       if (mounted) {
@@ -214,17 +199,17 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
           'Widget masih mounted. Memperbarui state dengan data yang telah diambil.',
         );
         setState(() {
-          _pelanggan = results[0] as PelangganModel?;
-          _paket = results.length > 1 ? results[1] as PaketModel? : null;
+          _customer = results[0] as CustomerModel?;
+          _package = results.length > 1 ? results[1] as PackageModel? : null;
           _isLoading = false;
         });
 
         Log.info('State berhasil diperbarui:');
         Log.info(
-          '  - _pelanggan: ${_pelanggan != null ? _pelanggan!.nama : "NULL"}',
+          '  - _customer: ${_customer != null ? _customer!.name : "NULL"}',
         );
         Log.info(
-          '  - _paket: ${_paket != null ? "${_paket!.nama} (Poin Hadiah: ${_paket!.poinHadiah})" : "NULL"}',
+          '  - _package: ${_package != null ? "${_package!.name} (Poin Hadiah: ${_package!.rewardPoints})" : "NULL"}',
         );
         Log.info('  - _isLoading: $_isLoading');
 
@@ -259,21 +244,21 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info('========================================');
     Log.info('NAVIGASI: Menuju halaman edit pelanggan aktif');
     Log.info('Data yang akan diedit:');
-    Log.info('  - ID Pelanggan Aktif: ${_pelangganAktif.id}');
-    Log.info('  - ID Pelanggan: ${_pelangganAktif.idPelanggan}');
-    Log.info('  - ID Paket: ${_pelangganAktif.idPaket}');
-    Log.info('  - Status Saat Ini: ${_pelangganAktif.status.displayName}');
+    Log.info('  - ID Pelanggan Aktif: ${_activeCustomer.id}');
+    Log.info('  - ID Pelanggan: ${_activeCustomer.customerId}');
+    Log.info('  - ID Paket: ${_activeCustomer.packageId}');
+    Log.info('  - Status Saat Ini: ${_activeCustomer.status.displayName}');
     Log.info('========================================');
 
     Log.info(
-      'Membuka halaman FormPelangganAktif dengan Navigator.push. Mengirim data _pelangganAktif terbaru ke form.',
+      'Membuka halaman ActiveCustomerForm dengan Navigator.push. Mengirim data _activeCustomer terbaru ke form.',
     );
 
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
         builder: (final context) =>
-            FormPelangganAktif(pelangganAktif: _pelangganAktif),
+            ActiveCustomerForm(activeCustomer: _activeCustomer),
       ),
     );
 
@@ -290,31 +275,21 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         'Akan mengambil data terbaru dari database untuk memperbarui tampilan.',
       );
 
-      Log.info(
-        'Membuat instance PelangganAktifOperasi untuk query data terbaru.',
-      );
-      final operasi = PelangganAktifOperasi();
+      final operation = ActiveCustomerOperation();
 
-      Log.info(
-        'Mengambil data pelanggan aktif terbaru dengan ID: ${_pelangganAktif.id}',
-      );
-      final updatedPelangganAktif = await operasi.ambilSatuPelangganAktif(
-        _pelangganAktif.id,
+      final updatedActiveCustomer = await operation.getActiveCustomerById(
+        _activeCustomer.id,
       );
 
-      Log.info(
-        'Hasil query data terbaru: ${updatedPelangganAktif != null ? "Ditemukan (Status: ${updatedPelangganAktif.status.displayName})" : "NULL - Data tidak ditemukan"}',
-      );
-
-      if (mounted && updatedPelangganAktif != null) {
+      if (mounted && updatedActiveCustomer != null) {
         Log.info(
           'Widget masih mounted dan data terbaru ditemukan. Memperbarui state.',
         );
         setState(() {
-          _pelangganAktif = updatedPelangganAktif;
+          _activeCustomer = updatedActiveCustomer;
         });
         Log.info(
-          '_pelangganAktif berhasil diperbarui. Status baru: ${updatedPelangganAktif.status.displayName}, Tanggal Berakhir: ${updatedPelangganAktif.tanggalBerakhir}',
+          '_activeCustomer berhasil diperbarui. Status baru: ${updatedActiveCustomer.status.displayName}, Tanggal Berakhir: ${updatedActiveCustomer.endDate}',
         );
 
         Log.info(
@@ -325,22 +300,14 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
         Log.warning(
           'Widget sudah tidak mounted. Tidak dapat memperbarui state.',
         );
-      } else if (updatedPelangganAktif == null) {
+      } else if (updatedActiveCustomer == null) {
         Log.warning(
           'Data pelanggan aktif terbaru tidak ditemukan. Kemungkinan data telah dihapus dari database.',
         );
       }
-    } else if (result == false) {
-      Log.info(
-        'Result bernilai FALSE. User tidak melakukan perubahan data. Tidak perlu refresh.',
-      );
-    } else if (result == null) {
-      Log.info(
-        'Result bernilai NULL. User menekan tombol back tanpa menyimpan. Tidak perlu refresh.',
-      );
     } else {
       Log.info(
-        'Result bernilai: $result. Tidak ada tindakan refresh yang diperlukan.',
+        'Result bernilai false atau null. Tidak ada tindakan refresh yang diperlukan.',
       );
     }
   }
@@ -350,13 +317,13 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI DetailPelangganAktif');
     Log.info('Status loading: $_isLoading');
-    Log.info('Nama Pelanggan: ${_pelanggan?.nama ?? "Belum dimuat"}');
-    Log.info('Nama Paket: ${_paket?.nama ?? "Belum dimuat / Tidak ada"}');
+    Log.info('Nama Pelanggan: ${_customer?.name ?? "Belum dimuat"}');
+    Log.info('Nama Paket: ${_package?.name ?? "Belum dimuat / Tidak ada"}');
     Log.info('========================================');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_pelanggan?.nama ?? 'Detail Pelanggan'),
+        title: Text(_customer?.name ?? 'Detail Pelanggan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -398,31 +365,31 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                             Center(
                               child: TextButton(
                                 onPressed: () async {
-                                  if (_pelanggan != null) {
+                                  if (_customer != null) {
                                     Log.info(
                                       'NAVIGASI: TextButton nama pelanggan ditekan.',
                                     );
                                     Log.info(
-                                      'Menuju halaman DetailPelangganPage dengan ID: ${_pelanggan!.id}',
+                                      'Menuju halaman CustomerDetailPage dengan ID: ${_customer!.id}',
                                     );
                                     await Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
                                         builder: (final context) =>
-                                            DetailPelangganPage(
-                                          idPelanggan: _pelanggan!.id,
+                                            CustomerDetailPage(
+                                          customerId: _customer!.id,
                                         ),
                                       ),
                                     );
                                   } else {
                                     Log.warning(
-                                      'Tidak dapat navigasi ke detail pelanggan karena data _pelanggan masih null.',
+                                      'Tidak dapat navigasi ke detail pelanggan karena data _customer masih null.',
                                     );
                                   }
                                 },
                                 child: Text(
-                                  _pelanggan?.nama ??
-                                      _pelangganAktif.idPelanggan,
+                                  _customer?.name ??
+                                      _activeCustomer.customerId,
                                   textAlign: TextAlign.center,
                                   style: Theme.of(context)
                                       .textTheme
@@ -435,65 +402,65 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                             const Divider(),
                             _buildWhatsAppInfoRow(
                               'No HP',
-                              _pelanggan?.telepon ?? 'Tidak ditemukan',
+                              _customer?.phone ?? 'Tidak ditemukan',
                             ),
                             InkWell(
                               onTap: () async {
-                                if (_paket != null) {
+                                if (_package != null) {
                                   Log.info('NAVIGASI: Row paket ditekan.');
                                   Log.info(
-                                    'Menuju halaman DetailPaketPage dengan data paket: ${_paket!.nama}',
+                                    'Menuju halaman PackageDetailPage dengan data paket: ${_package!.name}',
                                   );
                                   await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (final context) =>
-                                          DetailPaketPage(paket: _paket),
+                                          PackageDetailPage(package: _package),
                                     ),
                                   );
                                 } else {
                                   Log.warning(
-                                    'Tidak dapat navigasi ke detail paket karena data _paket masih null.',
+                                    'Tidak dapat navigasi ke detail paket karena data _package masih null.',
                                   );
                                 }
                               },
                               child: _buildInfoRow(
                                 'Paket',
-                                _paket?.nama ??
-                                    ' (ID: ${_pelangganAktif.idPaket})',
+                                _package?.name ??
+                                    ' (ID: ${_activeCustomer.packageId})',
                                 isLink: true,
                               ),
                             ),
                             _buildInfoRow(
                               'Status',
-                              _pelangganAktif.status.displayName,
+                              _activeCustomer.status.displayName,
                             ),
-                            if (_paket != null)
+                            if (_package != null)
                               _buildInfoRow(
                                 'Poin Diperoleh',
-                                '${_paket!.poinHadiah} Poin',
+                                '${_package!.rewardPoints} Poin',
                               ),
                             _buildInfoRow(
                               'Mulai',
-                              '${FormatTanggal.formatTanggalRingkas(_pelangganAktif.tanggalMulai)} - ${FormatJam.formatJamMenit(_pelangganAktif.tanggalMulai)}',
+                              '${FormatUtil.formatDateSimple(_activeCustomer.startDate)} - ${FormatUtil.formatTime(_activeCustomer.startDate)}',
                             ),
                             _buildInfoRow(
                               'Berakhir',
-                              '${FormatTanggal.formatTanggalRingkas(_pelangganAktif.tanggalBerakhir)} - ${FormatJam.formatJamMenit(_pelangganAktif.tanggalBerakhir)}',
+                              '${FormatUtil.formatDateSimple(_activeCustomer.endDate)} - ${FormatUtil.formatTime(_activeCustomer.endDate)}',
                             ),
                             const Divider(),
                             const SizedBox(height: 16),
                             Text(
-                              PerhitunganUtil.getTeksSisaMasaAktif(
-                                _pelangganAktif.tanggalBerakhir,
+                              CalculationUtil.getRemainingActivePeriodText(
+                                _activeCustomer.endDate,
                               ),
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge
                                   ?.copyWith(
                                     color:
-                                        PerhitunganUtil.getWarnaSisaMasaAktif(
-                                      _pelangganAktif.tanggalBerakhir,
+                                        CalculationUtil.getRemainingActivePeriodColor(
+                                      _activeCustomer.endDate,
                                     ),
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -511,26 +478,26 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                   'AKSI: Tombol Kirim Info via WhatsApp ditekan',
                                 );
                                 Log.info(
-                                  'Mengirim rincian paket ke pelanggan: ${_pelanggan?.nama ?? _pelangganAktif.idPelanggan}',
+                                  'Mengirim rincian paket ke pelanggan: ${_customer?.name ?? _activeCustomer.customerId}',
                                 );
                                 Log.info('Data yang akan dikirim:');
                                 Log.info(
-                                  '  - ID Pelanggan Aktif: ${_pelangganAktif.id}',
+                                  '  - ID Pelanggan Aktif: ${_activeCustomer.id}',
                                 );
                                 Log.info(
-                                  '  - Nama Paket: ${_paket?.nama ?? "Tidak ada"}',
+                                  '  - Nama Paket: ${_package?.name ?? "Tidak ada"}',
                                 );
                                 Log.info(
-                                  '  - Status: ${_pelangganAktif.status.displayName}',
+                                  '  - Status: ${_activeCustomer.status.displayName}',
                                 );
                                 Log.info(
-                                  '  - Masa Aktif: ${PerhitunganUtil.getTeksSisaMasaAktif(_pelangganAktif.tanggalBerakhir)}',
+                                  '  - Masa Aktif: ${CalculationUtil.getRemainingActivePeriodText(_activeCustomer.endDate)}',
                                 );
                                 Log.info(
                                   '========================================',
                                 );
-                                await PesanInfoPaket.kirimRincianPaket(
-                                  _pelangganAktif,
+                                await WhatsappPackageInfo.sendPackageDetails(
+                                  _activeCustomer,
                                 );
                                 Log.info(
                                   'Fungsi kirimRincianPaket telah dipanggil.',
