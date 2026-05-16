@@ -24,3 +24,6 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman
 
 # detail_versi_apk_user.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/detail/detail_versi_apk_user.dart
+
+# sqlite.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/data/sqlite.dart
