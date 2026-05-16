@@ -1,123 +1,118 @@
-// path: lib/shared/data/sync/unduh_data.dart
+// path: lib/shared/data/sync/download_data.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/pengaturan_model.dart';
-import 'package:wifi/shared/model/pesanan_model.dart';
-import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/model/user_apk_version_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/category_repository.dart';
+import 'package:wifi/shared/model/order_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 import 'package:wifi/shared/operasi/pesanan_operasi.dart';
 import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk mengunduh semua data dari Firebase.
-class LayananUnduhData {
+class DownloadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
 
   // Operasi
-  final DompetOperasi _dompetOperasi;
-  final KategoriOperasi _kategoriOperasi;
-  final PaketOperasi _paketOperasi;
-  final PelangganOperasi _pelangganOperasi;
-  final PelangganAktifOperasi _pelangganAktifOperasi;
-  final TransaksiOperasi _transaksiOperasi;
+  final WalletOperasi _walletOperasi;
+  final CategoryOperasi _categoryOperasi;
+  final PackageOperasi _packageOperasi;
+  final CustomerOperasi _customerOperasi;
+  final ActiveCustomerOperasi _activeCustomerOperasi;
+  final TransactionOperasi _transactionOperasi;
   final KritikSaranOperasi _kritikSaranOperasi;
-  final PesananOperasi _pesanOperasi;
-  final SubKategoriOperasi _subKategoriOperasi;
-  final VersiApkUserOperasi _versiApkUserOperasi;
-  final PengaturanOperasi _pengaturanOperasi;
+  final OrderOperasi _orderOperasi;
+  final SubCategoryOperasi _subCategoryOperasi;
+  final ApkVersionOperasi _apkVersionOperasi;
+  final SettingsOperasi _settingsOperasi;
 
   /// Konstruktor untuk penggunaan produksi.
-  LayananUnduhData({
+  DownloadDataService({
     final FirebaseFirestore? firestore,
     final SyncManager? syncManager,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager(),
-        _dompetOperasi = DompetOperasi(),
-        _kategoriOperasi = KategoriOperasi(),
-        _paketOperasi = PaketOperasi(),
-        _pelangganOperasi = PelangganOperasi(),
-        _pelangganAktifOperasi = PelangganAktifOperasi(),
-        _transaksiOperasi = TransaksiOperasi(),
+        _walletOperasi = WalletOperasi(),
+        _categoryOperasi = CategoryOperasi(),
+        _packageOperasi = PackageOperasi(),
+        _customerOperasi = CustomerOperasi(),
+        _activeCustomerOperasi = ActiveCustomerOperasi(),
+        _transactionOperasi = TransactionOperasi(),
         _kritikSaranOperasi = KritikSaranOperasi(),
-        _pesanOperasi = PesananOperasi(),
-        _subKategoriOperasi = SubKategoriOperasi(),
-        _versiApkUserOperasi = VersiApkUserOperasi(),
-        _pengaturanOperasi = PengaturanOperasi() {
-    Log.info(
-      'LayananUnduhData berhasil diinisialisasi untuk produksi.',
-    );
+        _orderOperasi = OrderOperasi(),
+        _subCategoryOperasi = SubCategoryOperasi(),
+        _apkVersionOperasi = ApkVersionOperasi(),
+        _settingsOperasi = SettingsOperasi() {
+    Log.info('DownloadDataService berhasil diinisialisasi untuk produksi.');
   }
 
   /// Konstruktor khusus untuk pengujian dengan dependensi mock.
-  LayananUnduhData.test({
+  DownloadDataService.test({
     required final FirebaseFirestore firestore,
     required final SyncManager syncManager,
-    required final DompetOperasi dompetOperasi,
-    required final KategoriOperasi kategoriOperasi,
-    required final PaketOperasi paketOperasi,
-    required final PelangganOperasi pelangganOperasi,
-    required final PelangganAktifOperasi pelangganAktifOperasi,
-    required final TransaksiOperasi transaksiOperasi,
+    required final WalletOperasi walletOperasi,
+    required final CategoryOperasi categoryOperasi,
+    required final PackageOperasi packageOperasi,
+    required final CustomerOperasi customerOperasi,
+    required final ActiveCustomerOperasi activeCustomerOperasi,
+    required final TransactionOperasi transactionOperasi,
     required final KritikSaranOperasi kritikSaranOperasi,
-    required final PesananOperasi pesanOperasi,
-    required final SubKategoriOperasi subKategoriOperasi,
-    required final VersiApkUserOperasi versiApkUserOperasi,
-    required final PengaturanOperasi pengaturanOperasi,
+    required final OrderOperasi orderOperasi,
+    required final SubCategoryOperasi subCategoryOperasi,
+    required final ApkVersionOperasi apkVersionOperasi,
+    required final SettingsOperasi settingsOperasi,
   })  : _firestore = firestore,
         _syncManager = syncManager,
-        _dompetOperasi = dompetOperasi,
-        _kategoriOperasi = kategoriOperasi,
-        _paketOperasi = paketOperasi,
-        _pelangganOperasi = pelangganOperasi,
-        _pelangganAktifOperasi = pelangganAktifOperasi,
-        _transaksiOperasi = transaksiOperasi,
+        _walletOperasi = walletOperasi,
+        _categoryOperasi = categoryOperasi,
+        _packageOperasi = packageOperasi,
+        _customerOperasi = customerOperasi,
+        _activeCustomerOperasi = activeCustomerOperasi,
+        _transactionOperasi = transactionOperasi,
         _kritikSaranOperasi = kritikSaranOperasi,
-        _pesanOperasi = pesanOperasi,
-        _subKategoriOperasi = subKategoriOperasi,
-        _versiApkUserOperasi = versiApkUserOperasi,
-        _pengaturanOperasi = pengaturanOperasi {
-    Log.info(
-      'LayananUnduhData berhasil diinisialisasi untuk pengujian.',
-    );
+        _orderOperasi = orderOperasi,
+        _subCategoryOperasi = subCategoryOperasi,
+        _apkVersionOperasi = apkVersionOperasi,
+        _settingsOperasi = settingsOperasi {
+    Log.info('DownloadDataService berhasil diinisialisasi untuk pengujian.');
   }
 
   /// Mengunduh semua data dari semua koleksi di Firebase.
-  Future<void> unduhSemuaData() async {
-    Log.info(
-      'Memulai prosedur orkestrasi unduh data massal.',
-    );
+  Future<void> downloadAllData() async {
+    Log.info('Memulai prosedur orkestrasi unduh data massal.');
     final stopwatch = Stopwatch()..start();
 
     try {
       await Future.wait([
-        unduhDataPelangganAktif(),
-        unduhDataPengaturan(),
-        unduhDataDompet(),
-        unduhDataKategori(),
-        unduhDataPaket(),
-        unduhDataPelanggan(),
-        unduhDataTransaksi(),
-        unduhDataKritikSaran(),
-        unduhDataPesanan(),
-        unduhDataSubKategori(),
-        unduhDataVersiApkUser(),
+        downloadActiveCustomerData(),
+        downloadSettingsData(),
+        downloadWalletData(),
+        downloadCategoryData(),
+        downloadPackageData(),
+        downloadCustomerData(),
+        downloadTransactionData(),
+        downloadFeedbackData(),
+        downloadOrderData(),
+        downloadSubCategoryData(),
+        downloadApkVersionData(),
       ]);
 
       stopwatch.stop();
@@ -135,12 +130,11 @@ class LayananUnduhData {
   }
 
   /// Mengunduh data pengaturan dari Firebase.
-  Future<void> unduhDataPengaturan() async {
-    Log.info('Memulai sinkronisasi untuk koleksi: [PENGATURAN]');
+  Future<void> downloadSettingsData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [SETTINGS]');
     try {
-      final waktuUnduhTerakhir = await _syncManager.getTerakhirUnduh();
-      final docRef =
-          _firestore.collection('pengaturan').doc(idPengaturanGlobal);
+      final lastDownloadTime = await _syncManager.getLastDownloadTime();
+      final docRef = _firestore.collection('pengaturan').doc(globalSettingsId);
       final doc = await docRef.get(const GetOptions(source: Source.server));
 
       if (doc.exists && doc.data() != null) {
@@ -150,21 +144,20 @@ class LayananUnduhData {
 
           if (fieldValue is! Timestamp) {
             Log.error(
-              'Inkompatibilitas Tipe: Field "diperbarui" bukan Timestamp.',
-            );
+                'Inkompatibilitas Tipe: Field "diperbarui" bukan Timestamp.');
             return;
           }
 
-          final waktuPembaruanServer = (fieldValue).toDate();
+          final serverUpdateTime = fieldValue.toDate();
 
-          if (waktuPembaruanServer.isAfter(waktuUnduhTerakhir)) {
+          if (serverUpdateTime.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
-            final pengaturan = PengaturanModel.fromFirebase(data);
-            await _pengaturanOperasi.simpanAtauPerbaruiPengaturan(
-              pengaturan,
-              dariServer: true,
+            final settings = SettingsModel.fromFirebase(data);
+            await _settingsOperasi.saveOrUpdateSettings(
+              settings,
+              fromServer: true,
             );
-            Log.info('Update Pengaturan lokal berhasil.');
+            Log.info('Update Settings lokal berhasil.');
           } else {
             Log.info('Data pengaturan lokal sudah sinkron.');
           }
@@ -175,151 +168,161 @@ class LayananUnduhData {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
       }
     } on Exception catch (e, s) {
-      Log.error('Kesalahan sinkronisasi Pengaturan.', e: e, st: s);
-      rethrow; // Melempar ulang agar dapat ditangkap oleh unduhSemuaData
+      Log.error('Kesalahan sinkronisasi Settings.', e: e, st: s);
+      rethrow;
     }
   }
 
   /// Mengunduh data dompet dari Firebase.
-  Future<void> unduhDataDompet() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<DompetModel>(
-      namaKoleksi: 'dompet',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: DompetModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _dompetOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadWalletData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<WalletModel>(
+      collectionName: 'dompet',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: WalletModel.fromFirebase,
+      batchOperation: (final data) =>
+          _walletOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data kategori dari Firebase.
-  Future<void> unduhDataKategori() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<KategoriModel>(
-      namaKoleksi: 'kategori',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: KategoriModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _kategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadCategoryData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<CategoryModel>(
+      collectionName: 'kategori',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: CategoryModel.fromFirebase,
+      batchOperation: (final data) =>
+          _categoryOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data paket dari Firebase.
-  Future<void> unduhDataPaket() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<PaketModel>(
-      namaKoleksi: 'paket',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: PaketModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _paketOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadPackageData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<PackageModel>(
+      collectionName: 'paket',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: PackageModel.fromFirebase,
+      batchOperation: (final data) =>
+          _packageOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data pelanggan dari Firebase.
-  Future<void> unduhDataPelanggan() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<PelangganModel>(
-      namaKoleksi: 'pelanggan',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: PelangganModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _pelangganOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadCustomerData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<CustomerModel>(
+      collectionName: 'pelanggan',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: CustomerModel.fromFirebase,
+      batchOperation: (final data) =>
+          _customerOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data pelanggan aktif dari Firebase.
-  Future<void> unduhDataPelangganAktif() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<PelangganAktifModel>(
-      namaKoleksi: 'pelanggan_aktif',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: PelangganAktifModel.fromFirebase,
-      operasiBatch: (final data) => _pelangganAktifOperasi
-          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadActiveCustomerData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<ActiveCustomerModel>(
+      collectionName: 'pelanggan_aktif',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: ActiveCustomerModel.fromFirebase,
+      batchOperation: (final data) =>
+          _activeCustomerOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data transaksi dari Firebase.
-  Future<void> unduhDataTransaksi() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<TransactionModel>(
-      namaKoleksi: 'transaksi',
-      waktuUnduhTerakhir: waktu,
+  Future<void> downloadTransactionData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<TransactionModel>(
+      collectionName: 'transaksi',
+      lastDownloadTime: lastDownloadTime,
       fromFirebase: TransactionModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _transaksiOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+      batchOperation: (final data) =>
+          _transactionOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data kritik dan saran dari Firebase.
-  Future<void> unduhDataKritikSaran() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<FeedbackModel>(
-      namaKoleksi: 'kritik_saran',
-      waktuUnduhTerakhir: waktu,
+  Future<void> downloadFeedbackData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<FeedbackModel>(
+      collectionName: 'kritik_saran',
+      lastDownloadTime: lastDownloadTime,
       fromFirebase: FeedbackModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _kritikSaranOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+      batchOperation: (final data) =>
+          _kritikSaranOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data pesanan dari Firebase.
-  Future<void> unduhDataPesanan() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<PesananModel>(
-      namaKoleksi: 'pesan',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: PesananModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _pesanOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadOrderData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<OrderModel>(
+      collectionName: 'pesan',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: OrderModel.fromFirebase,
+      batchOperation: (final data) =>
+          _orderOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data sub-kategori dari Firebase.
-  Future<void> unduhDataSubKategori() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<SubKategoriModel>(
-      namaKoleksi: 'sub_kategori',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: SubKategoriModel.fromFirebase,
-      operasiBatch: (final data) =>
-          _subKategoriOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadSubCategoryData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<SubCategoryModel>(
+      collectionName: 'sub_kategori',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: SubCategoryModel.fromFirebase,
+      batchOperation: (final data) =>
+          _subCategoryOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Mengunduh data versi APK user dari Firebase.
-  Future<void> unduhDataVersiApkUser() async {
-    final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<VersiApkUserModel>(
-      namaKoleksi: 'versi_apk_user',
-      waktuUnduhTerakhir: waktu,
-      fromFirebase: VersiApkUserModel.fromFirebase,
-      operasiBatch: (final data) => _versiApkUserOperasi
-          .sisipkanAtauPerbaruiBatch(data, dariServer: true),
+  Future<void> downloadApkVersionData() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
+    final lastDownloadTime = await _syncManager.getLastDownloadTime();
+    await synchronizeCollection<ApkVersionModel>(
+      collectionName: 'versi_apk_user',
+      lastDownloadTime: lastDownloadTime,
+      fromFirebase: ApkVersionModel.fromFirebase,
+      batchOperation: (final data) =>
+          _apkVersionOperasi.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
   /// Menyinkronkan satu koleksi dari Firebase ke database lokal.
-  Future<void> sinkronisasiKoleksi<T>({
-    required final String namaKoleksi,
-    required final DateTime waktuUnduhTerakhir,
+  Future<void> synchronizeCollection<T>({
+    required final String collectionName,
+    required final DateTime lastDownloadTime,
     required final T Function(String id, Map<String, dynamic> data)
         fromFirebase,
-    required final Future<void> Function(List<T>) operasiBatch,
+    required final Future<void> Function(List<T>) batchOperation,
   }) async {
     Log.info(
-      'Sinkronisasi Koleksi: Memeriksa [$namaKoleksi] untuk data baru sejak $waktuUnduhTerakhir.',
+      'Sinkronisasi Koleksi: Memeriksa [$collectionName] untuk data baru sejak $lastDownloadTime.',
     );
     try {
       final snapshot = await _firestore
-          .collection(namaKoleksi)
-          .where('diperbarui', isGreaterThan: waktuUnduhTerakhir)
+          .collection(collectionName)
+          .where('diperbarui', isGreaterThan: lastDownloadTime)
           .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isNotEmpty) {
         Log.info(
-          'Ditemukan ${snapshot.docs.length} dokumen baru/diperbarui di [$namaKoleksi].',
+          'Ditemukan ${snapshot.docs.length} dokumen baru/diperbarui di [$collectionName].',
         );
 
         final List<T> dataList = [];
@@ -328,7 +331,7 @@ class LayananUnduhData {
             dataList.add(fromFirebase(doc.id, doc.data()));
           } on Exception catch (e, s) {
             Log.error(
-              'Gagal memproses dokumen ${doc.id} di koleksi $namaKoleksi',
+              'Gagal memproses dokumen ${doc.id} di koleksi $collectionName',
               e: e,
               st: s,
             );
@@ -337,23 +340,23 @@ class LayananUnduhData {
 
         if (dataList.isNotEmpty) {
           Log.info('Mengirim ${dataList.length} item ke operasi batch lokal.');
-          await operasiBatch(dataList);
-          Log.info('Sinkronisasi masuk untuk [$namaKoleksi] berhasil.');
+          await batchOperation(dataList);
+          Log.info('Sinkronisasi masuk untuk [$collectionName] berhasil.');
         } else {
           Log.warning(
-            'Tidak ada data valid untuk disimpan dari [$namaKoleksi].',
+            'Tidak ada data valid untuk disimpan dari [$collectionName].',
           );
         }
       } else {
-        Log.info('Koleksi [$namaKoleksi] sudah sinkron.');
+        Log.info('Koleksi [$collectionName] sudah sinkron.');
       }
     } on Exception catch (e, s) {
       Log.error(
-        'Kegagalan sinkronisasi koleksi: $namaKoleksi',
+        'Kegagalan sinkronisasi koleksi: $collectionName',
         e: e,
         st: s,
       );
-      rethrow; // Melempar ulang agar dapat ditangkap oleh unduhSemuaData
+      rethrow;
     }
   }
 }

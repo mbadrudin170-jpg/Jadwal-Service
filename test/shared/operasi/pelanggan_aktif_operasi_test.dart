@@ -7,7 +7,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 import 'pelanggan_aktif_operasi_test.mocks.dart';

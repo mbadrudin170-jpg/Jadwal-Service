@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/shared/data/services/pengecekan_data_baru.dart';
-import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
+import 'package:wifi/shared/operasi/upload_status_operasi.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 // --- Mock ---

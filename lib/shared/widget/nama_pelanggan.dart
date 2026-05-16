@@ -1,7 +1,7 @@
 // path: lib/shared/widget/nama_pelanggan.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 
 /// Widget yang menampilkan nama pelanggan berdasarkan ID.
 ///

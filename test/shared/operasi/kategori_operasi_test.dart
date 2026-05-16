@@ -8,8 +8,8 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/operasi/category_repository.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
 
 import 'kategori_operasi_test.mocks.dart';
 

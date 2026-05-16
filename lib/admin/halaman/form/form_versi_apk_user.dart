@@ -70,7 +70,7 @@ class _FormVersiApkUserState extends State<FormVersiApkUser> {
     _tautan64Controller = TextEditingController();
 
     if (_isEdit) {
-      _populateControllers(widget.versiApkUser!);
+      _populateControllers(widget.versiApkUser);
     } else {
       unawaited(_muatDataVersiTerakhir());
     }

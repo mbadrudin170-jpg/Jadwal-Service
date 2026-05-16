@@ -10,7 +10,7 @@ import 'package:wifi/admin/halaman/widget/nama_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/status_pembayaran_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Enum untuk opsi pengurutan riwayat aktivasi paket.

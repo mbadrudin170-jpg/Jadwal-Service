@@ -1,7 +1,7 @@
 // path: test/shared/model/status_unggah_model_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/model/status_unggah_model.dart';
+import 'package:wifi/shared/model/upload_status_model.dart';
 
 void main() {
   group('StatusUnggahModel', () {

@@ -1,7 +1,7 @@
 // path: test/shared/services/cek_langganan_kadaluarsa_service_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/services/cek_langganan_kadaluarsa_service.dart';
 
 // --- Mock ---

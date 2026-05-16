@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart';
@@ -222,7 +221,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
             return const Center(child: Text('Data pelanggan tidak ditemukan.'));
           }
 
-          final pelanggan = snapshotPelanggan.data!;
+          final pelanggan = snapshotPelanggan.data;
           Log.info('Data pelanggan berhasil didapatkan.', {
             'nama': pelanggan.nama,
             'id': pelanggan.id,

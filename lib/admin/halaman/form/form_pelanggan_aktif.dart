@@ -11,19 +11,19 @@ import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/model/hasil_simpan_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/hasil_simpan_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/wallet_operasi.dart';
-import 'package:wifi/shared/operasi/category_operasi.dart';
-import 'package:wifi/shared/operasi/package_operasi.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/active_customer_operasi.dart';
+import 'package:wifi/shared/operasi/category_operasi.dart';
 import 'package:wifi/shared/operasi/customer_operasi.dart';
+import 'package:wifi/shared/operasi/package_operasi.dart';
 import 'package:wifi/shared/operasi/transaction_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
 import 'package:wifi/shared/services/pembaruan_data_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -632,7 +632,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             SnackBarUtil.success(context, hasil.pesan);
             if (hasil.data != null) {
               try {
-                await PesanInfoPaket.kirimRincianPaket(hasil.data!);
+                await PesanInfoPaket.kirimRincianPaket(hasil.data);
               } on Exception catch (e) {
                 Log.warning('Gagal mengirim pesan WhatsApp: $e');
                 if (mounted) {

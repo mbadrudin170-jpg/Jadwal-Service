@@ -136,11 +136,13 @@ linter:
     prefer_contains: true
     avoid_multiple_declarations_per_line: true
 
+# /home/user/myapp/analysis_options.yaml
+
 analyzer:
   exclude:
-    - "**/*.g.dart"           # File hasil generate (json_serializable, dsb.)
-    - "**/*.freezed.dart"     # File hasil generate Freezed
-
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    
   errors:
     # ERROR (kritis)
     await_only_futures: error

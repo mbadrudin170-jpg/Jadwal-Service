@@ -3,5 +3,5 @@
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "editor.formatOnPaste": true,
-  "markdown.validate.enabled": true
+  "markdown.validate.enabled": false
 }

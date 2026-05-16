@@ -158,7 +158,7 @@ class _PengaturanAdminState extends State<PengaturanAdmin> {
             );
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            final pengaturan = snapshot.data!;
+            final pengaturan = snapshot.data;
             Log.info('Data pengaturan tersedia, menampilkan detail pengaturan');
             Log.info(
               'Mode pemeliharaan: ${pengaturan.modePemeliharaan ? "Aktif" : "Nonaktif"}, Info: ${pengaturan.infoPemeliharaan.isNotEmpty ? pengaturan.infoPemeliharaan : "(kosong)"}',

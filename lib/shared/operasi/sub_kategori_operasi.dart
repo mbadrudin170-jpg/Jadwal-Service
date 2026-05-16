@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data sub-kategori di database lokal.
 class SubKategoriOperasi {

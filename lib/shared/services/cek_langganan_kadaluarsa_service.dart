@@ -1,7 +1,7 @@
 // path: lib/shared/services/cek_langganan_kadaluarsa_service.dart// diubah: Menyederhanakan logika dengan memanggil fungsi arsipkan yang sudah ada.
 import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
 
 /// Service ini bertanggung jawab untuk memeriksa dan mengarsipkan
 /// langganan pelanggan aktif yang telah kedaluwarsa secara berkala.

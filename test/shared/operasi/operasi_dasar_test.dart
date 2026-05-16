@@ -4,8 +4,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
-import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/upload_status_operasi.dart';
 
 import 'operasi_dasar_test.mocks.dart';
 

@@ -12,20 +12,40 @@ import 'package:wifi/shared/model/has_id.dart';
 class PackageModel implements HasId {
   @override
   final String id;
+
+  /// The name of the package.
   final String name;
+
+  /// The price of the package.
   final int price;
+
+  /// The duration of the package.
   final int duration;
+
+  /// The type of duration for the package.
   final DurationType type;
+
+  /// The number of points given as a reward for purchasing this package.
   final int rewardPoints;
+
+  /// The number of points required to redeem this package.
   final int redemptionPoints;
+
+  /// The status of whether this package is public or not.
   final bool isPublic;
+
+  /// The last time the data was updated.
   final DateTime? updatedAt;
+
+  /// The status of whether this package has been deleted (soft delete).
   final bool isDeleted;
+
+  /// The time this package was archived.
   final DateTime? archivedAt;
 
   /// Constructor for `PackageModel`.
   PackageModel({
-    String? id,
+    final String? id,
     required this.name,
     required this.price,
     required this.duration,
@@ -42,17 +62,17 @@ class PackageModel implements HasId {
 
   /// Creates a copy of this [PackageModel] with modified values.
   PackageModel copyWith({
-    String? id,
-    String? name,
-    int? price,
-    int? duration,
-    DurationType? type,
-    int? rewardPoints,
-    int? redemptionPoints,
-    bool? isPublic,
-    DateTime? updatedAt,
-    bool? isDeleted,
-    DateTime? archivedAt,
+    final String? id,
+    final String? name,
+    final int? price,
+    final int? duration,
+    final DurationType? type,
+    final int? rewardPoints,
+    final int? redemptionPoints,
+    final bool? isPublic,
+    final DateTime? updatedAt,
+    final bool? isDeleted,
+    final DateTime? archivedAt,
   }) {
     return PackageModel(
       id: id ?? this.id,
@@ -70,32 +90,32 @@ class PackageModel implements HasId {
   }
 
   /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(dynamic value) {
+  static DateTime? _parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
-    if (value is String) return DateTime.tryParse(value);
     if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    if (value is String) return DateTime.tryParse(value);
     return null;
   }
 
   /// Helper to parse boolean from various formats.
-  static bool _parseBool(Object? value) {
+  static bool _parseBool(final Object? value) {
     if (value == true || value == 1) return true;
     if (value is String) return value.toLowerCase() == 'true';
     return false;
   }
 
   /// Helper to parse DurationType from a string.
-  static DurationType _parseType(dynamic value) {
+  static DurationType _parseType(final dynamic value) {
     return DurationType.values.firstWhere(
-      (e) => e.name == value,
+      (final e) => e.name == value,
       orElse: () => DurationType.days, // Default value
     );
   }
 
   /// Creates a `PackageModel` instance from SQLite map data.
-  factory PackageModel.fromSqlite(Map<String, dynamic> map) {
+  factory PackageModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating PackageModel from SQLite: ${map[ColumnNames.id]}');
     return PackageModel(
       id: map[ColumnNames.id] as String?,
@@ -130,7 +150,8 @@ class PackageModel implements HasId {
   }
 
   /// Creates a `PackageModel` instance from Firebase map data.
-  factory PackageModel.fromFirebase(String id, Map<String, dynamic> data) {
+  factory PackageModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     Log.info('Creating PackageModel from Firebase: $id');
     return PackageModel(
       id: id,

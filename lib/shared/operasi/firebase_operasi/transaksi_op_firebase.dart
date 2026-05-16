@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/transaction_model.dart' show TransactionModel;
 import 'package:wifi/shared/model/transaksi_model.dart';
 
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.

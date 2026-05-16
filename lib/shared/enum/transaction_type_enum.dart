@@ -1,7 +1,7 @@
 // path: lib/shared/enum/transaction_type_enum.dart
 
 /// Enum untuk tipe-tipe transaksi.
-enum TransactionTypeEnum {
+enum TransactionType {
   /// Untuk transaksi pemasukan.
   income,
 

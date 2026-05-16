@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/pelanggan_operasi.dart
+// path: lib/shared/operasi/customer_operation.dart
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 // diubah: Menambahkan konstruktor untuk dependency injection (DI) agar bisa di-test.
 
@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pelanggan di database lokal.
 class PelangganOperasi {

@@ -5,7 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
+import 'package:wifi/shared/operasi/upload_status_operasi.dart';
 
 import 'status_unggah_operasi_test.mocks.dart';
 

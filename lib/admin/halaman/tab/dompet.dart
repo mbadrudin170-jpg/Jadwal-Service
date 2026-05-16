@@ -9,8 +9,8 @@ import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
 import 'package:wifi/admin/halaman/form/form_dompet.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 

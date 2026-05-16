@@ -124,13 +124,13 @@ abstract final class ColumnNames {
   static const String latestBuildNumber = 'latest_build_number';
 
   /// Nama kolom untuk tautan unduhan.
-  static const String downloadLink = 'download_link';
+  static const String downloadLinks = 'download_links';
 
   /// Nama kolom untuk versi terbaru.
   static const String latestVersion = 'latest_version';
 
   /// Nama kolom untuk status pembaruan paksa.
-  static const String forceUpdate = 'force_update';
+  static const String isUpdateRequired = 'is_update_required';
 
   /// Nama kolom untuk tautan tutorial YouTube.
   static const String youtubeTutorial = 'youtube_tutorial';

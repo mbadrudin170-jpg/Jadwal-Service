@@ -8,8 +8,8 @@ import 'dart:async' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/shared/export/model.dart' as _i6;
-import 'package:wifi/shared/operasi/operasi_dasar.dart' as _i3;
-import 'package:wifi/shared/operasi/transaksi_operasi.dart' as _i4;
+import 'package:wifi/shared/operasi/base_operation.dart' as _i3;
+import 'package:wifi/shared/operasi/transaction_operation.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

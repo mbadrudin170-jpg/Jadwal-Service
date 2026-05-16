@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/pesanan_operasi.dart';
 
 import 'pesanan_operasi_test.mocks.dart';

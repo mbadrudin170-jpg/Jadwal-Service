@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.

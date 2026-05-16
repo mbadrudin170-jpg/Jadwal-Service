@@ -10,17 +10,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/shared/data/sync/download%20data.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/category_repository.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/pengaturan_operasi.dart';
 import 'package:wifi/shared/operasi/pesanan_operasi.dart';
 import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 // --- Mocks ---

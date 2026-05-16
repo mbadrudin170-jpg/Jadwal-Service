@@ -5,8 +5,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 
 // --- Mock untuk dependensi database ---
 class MockDatabaseHelper extends Mock implements DatabaseHelper {}

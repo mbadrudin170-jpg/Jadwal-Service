@@ -12,19 +12,37 @@ import 'package:wifi/shared/model/has_id.dart';
 class ActiveCustomerModel implements HasId {
   @override
   final String id;
+
+  /// The ID of the customer associated with this entry.
   final String customerId;
+
+  /// The ID of the package purchased by the customer.
   final String packageId;
+
+  /// The ID of the transaction associated with the package purchase.
   final String? transactionId;
+
+  /// The start date of the package activation.
   final DateTime startDate;
+
+  /// The end date of the package.
   final DateTime endDate;
+
+  /// The payment status of the package.
   final PaymentStatus status;
+
+  /// The last time the data was updated.
   final DateTime? updatedAt;
+
+  /// The status of whether this entry has been deleted (soft delete).
   final bool isDeleted;
+
+  /// The time this entry was archived.
   final DateTime? archivedAt;
 
   /// Constructor for `ActiveCustomerModel`.
   ActiveCustomerModel({
-    String? id,
+    final String? id,
     required this.customerId,
     required this.packageId,
     this.transactionId,
@@ -40,16 +58,16 @@ class ActiveCustomerModel implements HasId {
 
   /// Creates a copy of this `ActiveCustomerModel` with some modified values.
   ActiveCustomerModel copyWith({
-    String? id,
-    String? customerId,
-    String? packageId,
-    String? transactionId,
-    DateTime? startDate,
-    DateTime? endDate,
-    PaymentStatus? status,
-    DateTime? updatedAt,
-    bool? isDeleted,
-    DateTime? archivedAt,
+    final String? id,
+    final String? customerId,
+    final String? packageId,
+    final String? transactionId,
+    final DateTime? startDate,
+    final DateTime? endDate,
+    final PaymentStatus? status,
+    final DateTime? updatedAt,
+    final bool? isDeleted,
+    final DateTime? archivedAt,
   }) {
     return ActiveCustomerModel(
       id: id ?? this.id,
@@ -66,7 +84,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(dynamic value) {
+  static DateTime? _parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -77,7 +95,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Helper to parse boolean from various formats.
-  static bool _parseBool(dynamic value) {
+  static bool _parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -87,7 +105,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Creates an `ActiveCustomerModel` instance from SQLite map data.
-  factory ActiveCustomerModel.fromSqlite(Map<String, dynamic> map) {
+  factory ActiveCustomerModel.fromSqlite(final Map<String, dynamic> map) {
     try {
       final startDate = _parseDateTime(map[ColumnNames.startDate]);
       final endDate = _parseDateTime(map[ColumnNames.endDate]);
@@ -107,7 +125,7 @@ class ActiveCustomerModel implements HasId {
         startDate: startDate,
         endDate: endDate,
         status: PaymentStatus.values.firstWhere(
-          (e) => e.name == map[ColumnNames.status],
+          (final e) => e.name == map[ColumnNames.status],
           orElse: () => PaymentStatus.paid,
         ),
         updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
@@ -140,8 +158,8 @@ class ActiveCustomerModel implements HasId {
 
   /// Creates an `ActiveCustomerModel` instance from Firebase map data.
   factory ActiveCustomerModel.fromFirebase(
-    String id,
-    Map<String, dynamic> data,
+    final String id,
+    final Map<String, dynamic> data,
   ) {
     try {
       final startDate = _parseDateTime(data[ColumnNames.startDate]);
@@ -162,7 +180,7 @@ class ActiveCustomerModel implements HasId {
         startDate: startDate,
         endDate: endDate,
         status: PaymentStatus.values.firstWhere(
-          (e) => e.name == data[ColumnNames.status],
+          (final e) => e.name == data[ColumnNames.status],
           orElse: () => PaymentStatus.paid,
         ),
         updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
@@ -179,7 +197,7 @@ class ActiveCustomerModel implements HasId {
 
   /// Converts `ActiveCustomerModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
-    Log.info('Preparing toFirebase for ActiveCustomerModel ${this.id}');
+    Log.info('Preparing toFirebase for ActiveCustomerModel $id');
     return {
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,

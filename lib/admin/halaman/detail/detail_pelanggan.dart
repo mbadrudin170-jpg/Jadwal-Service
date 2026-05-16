@@ -9,8 +9,8 @@ import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/admin/halaman/pembantu/halaman_poin_admin.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/detail_pelanggan_ui.dart';
 
@@ -133,11 +133,11 @@ MAC : ${pelanggan.macAddress}
     }
 
     return DetailPelangganUI(
-      pelanggan: pelanggan!,
+      pelanggan: pelanggan,
       totalPoin: totalPoin,
       onEdit: _editPelanggan,
       onNavigateToPoin: _navigateToPoin,
-      onCopyAll: () => _salinSemuaInfo(pelanggan!),
+      onCopyAll: () => _salinSemuaInfo(pelanggan),
     );
   }
 }

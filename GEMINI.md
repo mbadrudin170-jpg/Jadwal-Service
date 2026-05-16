@@ -2,7 +2,7 @@
 
 # Aturan Wajib
 Bahasa Percakapan
-AI wajib merespons dalam bahasa Indonesia untuk semua diskusi, tanya jawab, dan penjelasan.
+AI wajib merespons dalam bahasa Indonesia untuk semua diskusi,komentar di file, tanya jawab, dan penjelasan.
 
 Komentar Kode
 Semua komentar (//, ///, /* */) wajib ditulis dalam bahasa Indonesia, menjelaskan maksud kode dengan singkat.
@@ -236,3 +236,4 @@ linter:
     use_string_buffers: true
     prefer_contains: true
     avoid_multiple_declarations_per_line: true
+

@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/wallet_operasi.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/category_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/sub_category_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.

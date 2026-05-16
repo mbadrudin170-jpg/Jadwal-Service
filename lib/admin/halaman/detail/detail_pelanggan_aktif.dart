@@ -14,9 +14,9 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -448,7 +448,7 @@ class _DetailPelangganAktifState extends State<DetailPelangganAktif> {
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (final context) =>
-                                          DetailPaketPage(paket: _paket!),
+                                          DetailPaketPage(paket: _paket),
                                     ),
                                   );
                                 } else {

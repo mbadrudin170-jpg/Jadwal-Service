@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/wallet_operasi.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/category_operasi.dart';
 import 'package:wifi/shared/operasi/transaction_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengubah data transaksi.
@@ -85,7 +85,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         Log.info(
           'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaksi!.id}',
         );
-        final trx = widget.transaksi!;
+        final trx = widget.transaksi;
         _tipe = trx.type;
         _keteranganController.text = trx.description;
         _jumlahController.text = trx.amount.abs().toString();

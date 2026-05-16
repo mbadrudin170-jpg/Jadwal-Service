@@ -4,8 +4,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 
 // --- Mock untuk dependensi database ---
 class MockDatabaseHelper extends Mock implements DatabaseHelper {}

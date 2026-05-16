@@ -11,17 +11,34 @@ import 'package:wifi/shared/model/has_id.dart';
 class CustomerModel implements HasId {
   @override
   final String id;
+
+  /// The name of the customer.
   final String name;
+
+  /// The phone number of the customer.
   final String phone;
+
+  /// The address of the customer.
   final String address;
+
+  /// The password for the customer's account.
   final String password;
+
+  /// The MAC address of the customer's device.
   final String macAddress;
+
+  /// A flag indicating if the customer has been soft-deleted.
   final bool isDeleted;
+
+  /// The timestamp of the last update.
   final DateTime? updatedAt;
+
+  /// The timestamp of when the customer was archived.
   final DateTime? archivedAt;
 
+  /// Creates a new instance of the [CustomerModel].
   CustomerModel({
-    String? id,
+    final String? id,
     required this.name,
     required this.phone,
     required this.address,
@@ -34,16 +51,17 @@ class CustomerModel implements HasId {
     Log.info('CustomerModel created: $id, name: $name');
   }
 
+  /// Creates a copy of the [CustomerModel] with updated fields.
   CustomerModel copyWith({
-    String? id,
-    String? name,
-    String? phone,
-    String? address,
-    String? password,
-    String? macAddress,
-    bool? isDeleted,
-    DateTime? updatedAt,
-    DateTime? archivedAt,
+    final String? id,
+    final String? name,
+    final String? phone,
+    final String? address,
+    final String? password,
+    final String? macAddress,
+    final bool? isDeleted,
+    final DateTime? updatedAt,
+    final DateTime? archivedAt,
   }) {
     return CustomerModel(
       id: id ?? this.id,
@@ -58,7 +76,8 @@ class CustomerModel implements HasId {
     );
   }
 
-  static DateTime? _parseDateTime(dynamic value) {
+  /// Parses a dynamic value into a [DateTime] object.
+  static DateTime? _parseDateTime(final dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -68,7 +87,8 @@ class CustomerModel implements HasId {
     return null;
   }
 
-  static bool _parseBool(dynamic value) {
+  /// Parses a dynamic value into a boolean.
+  static bool _parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
@@ -77,7 +97,8 @@ class CustomerModel implements HasId {
     return false;
   }
 
-  factory CustomerModel.fromSqlite(Map<String, dynamic> map) {
+  /// Creates a [CustomerModel] from a SQLite map.
+  factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[ColumnNames.id]}');
     return CustomerModel(
       id: map[ColumnNames.id] as String? ?? '',
@@ -92,6 +113,7 @@ class CustomerModel implements HasId {
     );
   }
 
+  /// Converts the [CustomerModel] to a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
@@ -106,7 +128,8 @@ class CustomerModel implements HasId {
     };
   }
 
-  factory CustomerModel.fromFirebase(String id, Map<String, dynamic> data) {
+  /// Creates a [CustomerModel] from a Firebase document.
+  factory CustomerModel.fromFirebase(final String id, final Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
     return CustomerModel(
       id: id,
@@ -121,6 +144,7 @@ class CustomerModel implements HasId {
     );
   }
 
+  /// Converts the [CustomerModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       ColumnNames.name: name,

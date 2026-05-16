@@ -1,7 +1,7 @@
 // path: lib/admin/halaman/widget/nama_paket.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
 
 /// Sebuah widget untuk menampilkan nama paket berdasarkan ID paket.
 class NamaPaketWidget extends StatelessWidget {
@@ -34,7 +34,7 @@ class NamaPaketWidget extends StatelessWidget {
           );
         }
 
-        final paket = snapshot.data!;
+        final paket = snapshot.data;
         return Text(paket.nama, style: style);
       },
     );

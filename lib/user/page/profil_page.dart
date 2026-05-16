@@ -188,7 +188,7 @@ class _ProfilPageState extends State<ProfilPage> {
           );
         }
 
-        final pelanggan = snapshot.data!;
+        final pelanggan = snapshot.data;
         Log.info(
           'Data pelanggan berhasil dimuat untuk: ${pelanggan.nama}. Merender UI utama.',
         );

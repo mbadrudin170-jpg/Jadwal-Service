@@ -1,281 +1,1415 @@
-# Rangkuman Pekerjaan
 
-Berikut adalah rangkuman pekerjaan yang telah dilakukan oleh AI:
-
-## Perbaikan Total `build_runner` dan Konflik Dependensi
-
-### Latar Belakang
-Proses pengembangan terhenti total karena `build_runner` tidak dapat berjalan, yang mengakibatkan berkas-berkas penting (`.g.dart`) tidak dibuat. Perintah `flutter analyze` juga melaporkan banyak sekali error, seperti `uri_has_not_been_generated`, yang semuanya merupakan gejala dari kegagalan `build_runner`.
-
-### Rangkuman Perubahan
-Proses perbaikan ini melibatkan serangkaian langkah pemecahan masalah yang sistematis dan mendalam:
-
-1.  **Identifikasi Masalah Awal**: Analisis `pubspec.yaml` menunjukkan bahwa dependensi krusial `hive_generator` tidak ada di `dev_dependencies`.
-2.  **Pemecahan Konflik Dependensi**:
-    *   Setelah menambahkan `hive_generator`, `flutter pub get` gagal karena konflik versi antara `build_runner` dan `hive_generator`.
-    *   Masalah ini diatasi dengan melonggarkan batasan versi `build_runner` (mengubah `^2.15.0` menjadi `any`).
-    *   Konflik baru muncul antara `mockito` dan `hive_generator`. Sesuai saran dari `pub`, versi `mockito` diturunkan ke `^5.4.4`, yang akhirnya memungkinkan `flutter pub get` berjalan sukses.
-3.  **Mengatasi Kegagalan Skrip Build `build_runner`**:
-    *   Meskipun dependensi sudah benar, `build_runner` tetap gagal dengan error `Failed to compile build script`. Ini menandakan adanya artefak build yang korup.
-    *   **Percobaan 1: Perbaikan Cache Pub (`flutter pub cache repair`)**: Upaya pertama untuk memperbaiki cache global `pub` tidak berhasil menyelesaikan masalah.
-    *   **Percobaan 2: Pembersihan Total Proyek (`flutter clean`)**: Solusi akhirnya adalah menjalankan `flutter clean` untuk menghapus direktori `build` dan `.dart_tool` yang korup. Setelah itu, `flutter pub get` dijalankan kembali untuk membangun ulang artefak dari awal.
-4.  **Verifikasi Akhir**:
-    *   Setelah pembersihan total, `flutter pub run build_runner build --delete-conflicting-outputs` akhirnya berhasil dijalankan tanpa error.
-    *   Verifikasi terakhir dengan `flutter analyze` menunjukkan **"No issues found!"**, mengonfirmasi bahwa semua masalah telah teratasi.
-
-### Proses dan Tantangan
-*   **Debug Berlapis**: Masalah ini adalah contoh klasik dari "debug berlapis", di mana memperbaiki satu error akan mengungkap error lain yang lebih dalam.
-*   **Pentingnya Kebersihan Lingkungan**: Kasus ini membuktikan bahwa cache yang rusak atau artefak build yang tidak konsisten dapat menyebabkan error yang sangat membingungkan. Perintah `flutter clean` adalah alat yang sangat ampuh untuk mengatasi masalah semacam ini.
-*   **Manajemen Dependensi**: Kesulitan dalam menemukan versi paket yang kompatibel menyoroti betapa rumitnya manajemen dependensi dalam proyek modern.
-
-Dengan selesainya pekerjaan ini, sistem build proyek telah pulih sepenuhnya, dan pengembangan dapat dilanjutkan di atas fondasi yang stabil.
-
----
-
-## Peningkatan Cakupan Pengujian dan Verifikasi Log untuk `DompetPage`
-
-### Latar Belakang
-Pengguna mengidentifikasi bahwa saat menjalankan `flutter test` pada `test/admin/halaman/tab/dompet_test.dart`, tidak semua `Log.info` yang ada di dalam `lib/admin/halaman/tab/dompet.dart` muncul. Hal ini menunjukkan bahwa cakupan pengujian awal tidak memadai untuk memverifikasi semua jalur eksekusi kode. Sesuai dengan aturan proyek, setiap `Log` harus dapat diverifikasi melalui pengujian.
-
-### Rangkuman Perubahan
-Untuk mengatasi hal ini, serangkaian pengujian baru telah ditambahkan secara bertahap untuk mencakup lebih banyak skenario:
-
-1.  **Pengujian Skenario "Ada Data"**:
-    *   Sebuah pengujian baru ditambahkan untuk mensimulasikan kondisi di mana `DompetOperasi` mengembalikan daftar dompet.
-    *   **Tantangan**: Selama implementasi, terjadi dua kegagalan tes:
-        1.  `Error: The argument type \'\'\'int\'\'\' can\'\'\'t be assigned to the parameter type \'\'\'String?\'\'\''`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
-        2.  `Expected: exactly one matching candidate ... Actual: ... <Found 2 widgets>`. Ini terjadi karena pencarian teks (`find.textContaining`) terlalu umum. Ini diperbaiki dengan menggunakan pencari yang lebih spesifik (`find.ancestor` dan `find.descendant`) untuk memvalidasi saldo di dalam `Card` yang benar.
-    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\\'Berhasil memuat ... dompet\\'`.
-
-2.  **Pengujian Interaksi Pengguna (Navigasi)**:
-    *   Pengujian ditambahkan untuk mensimulasikan pengguna menekan `FloatingActionButton`.
-    *   **Hasil**: Berhasil memverifikasi bahwa aplikasi menavigasi ke `FormDompet`, yang secara implisit membuktikan bahwa log `\\\'Navigasi ke halaman tambah dompet.\\\'` telah dieksekusi.
-
-3.  **Pengujian Interaksi Pengguna (Memuat Ulang Data)**:
-    *   Pengujian terakhir ditambahkan untuk mensimulasikan halaman `FormDompet` yang ditutup dan mengembalikan hasil `true`.
-    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\\\'Berhasil menambahkan dompet baru, memuat ulang data.\\\'`.\
-
-### Proses dan Tantangan
-*   **Pengembangan Berbasis Umpan Balik (Feedback-Driven Development)**: Proses dimulai dari observasi sederhana (log tidak muncul), yang kemudian mendorong analisis dan penambahan pengujian secara iteratif.
-*   **Pentingnya Pengujian yang Kuat**: Kegagalan tes yang tidak terduga menyoroti pentingnya menulis *finder* yang spesifik dan tidak ambigu, serta memastikan tipe data yang benar saat membuat data *mock*.
-*   **Verifikasi Implisit vs. Eksplisit**: Meskipun log tidak selalu terlihat di output `flutter test`, keberhasilan pengujian fungsional (seperti navigasi atau pemanggilan ulang metode) dapat digunakan sebagai bukti kuat bahwa log tersebut telah dieksekusi.
-
-Dengan selesainya pekerjaan ini, file `dompet_test.dart` sekarang memiliki cakupan yang jauh lebih baik, mencakup render statis (kosong dan ada data) serta interaksi pengguna dasar, memastikan lebih banyak logika dan pernyataan log di `dompet.dart` telah terverifikasi.
-
----
-
-## Perbaikan Build Runner dan Berkas Pengujian
-
-### Latar Belakang
-
-Setelah beberapa perubahan pada basis kode, `build_runner` gagal dijalankan, yang menandakan adanya masalah pada berkas-berkas yang dihasilkan atau pada berkas pengujian itu sendiri. Hal ini menghalangi proses *build* dan pengujian lebih lanjut.
-
-### Rangkuman Perubahan
-
-1.  **Analisis dan Perbaikan Awal**: Analisis awal menunjukkan beberapa *error* linting di `test/shared/operasi/kategori_operasi_test.dart`, termasuk:
-    *   `prefer_final_parameters`: Parameter fungsi tidak ditandai sebagai `final`.
-    *   `avoid_redundant_argument_values`: Argumen yang sama dengan nilai *default* digunakan secara eksplisit.
-    *   `inference_failure_on_function_invocation`: Tipe argumen pada pemanggilan fungsi `jalankanOperasiKompleks` tidak dapat diinferensikan secara otomatis.
-    Semua masalah ini telah diperbaiki dengan menambahkan `final`, menghapus argumen yang tidak perlu, dan menambahkan argumen tipe eksplisit.
-
-2.  **Perbaikan Berkas Pengujian yang Rusak**: Setelah perbaikan awal, `build_runner` masih gagal. Investigasi lebih lanjut menemukan masalah di beberapa berkas pengujian lainnya:
-    *   `test/shared/operasi/sub_kategori_operasi_test.dart`: Anotasi `@GenerateMocks` tidak valid, dependensi *mock* tidak disuntikkan, dan verifikasi *mock* tidak benar. Berkas ini ditulis ulang untuk memperbaiki masalah-masalah ini.
-    *   `test/shared/operasi/operasi_dasar_test.dart`: Terdapat kesalahan ketik (`mockSta` bukan `mockStatusUnggah`) dan kode yang tidak perlu. Berkas ini telah dibersihkan dan diperbaiki.
-    *   `test/shared/operasi/pelanggan_operasi_test.dart`: Mengalami masalah serupa dengan berkas pengujian lainnya dan telah diperbaiki untuk memastikan konsistensi dan kebenaran.
-
-3.  **Penyelesaian Masalah `Unterminated string literal`**: Selama proses perbaikan, terjadi kesalahan di mana seluruh konten berkas `test/shared/operasi/sub_kategori_operasi_test.dart` secara tidak sengaja terbungkus dalam tanda kutip tiga (`\\\"\\\"\\\"`), yang menyebabkan *error* `Unterminated string literal`. Masalah ini telah diidentifikasi dan diperbaiki dengan menghapus tanda kutip yang tidak perlu.
-
-### Proses dan Tantangan
-
-*   **Kesalahan `build_runner` yang Bertingkat**: Awalnya, `build_runner` melaporkan *error* di satu berkas, tetapi setelah diperbaiki, *error* baru muncul di berkas lain. Ini menunjukkan bahwa beberapa masalah tersembunyi dan hanya muncul setelah masalah yang lebih awal diperbaiki.
-*   **Pentingnya Verifikasi Berulang**: Setiap perubahan diverifikasi dengan menjalankan kembali `build_runner` untuk memastikan tidak ada masalah baru yang muncul. Proses ini sangat penting untuk memastikan bahwa semua *error* telah teratasi sepenuhnya.
-
-Dengan selesainya perbaikan ini, `build_runner` sekarang berjalan dengan sukses, yang memungkinkan proses pengembangan dan pengujian untuk dilanjutkan.
-
----
-
-## Refaktorisasi Layanan Firestore dan Perbaikan Halaman Edit Profil
-
-Baru-baru ini, sebuah refaktorisasi besar telah dilakukan untuk memodernisasi dan menyederhanakan interaksi dengan Firestore, khususnya untuk operasi terkait data pelanggan.
-
-### Latar Belakang
-
-Sebelumnya, proyek menggunakan sebuah file utilitas bernama `firestore_service.dart` yang berisi logika untuk berinteraksi dengan Firestore. Seiring berkembangnya proyek, pendekatan ini menjadi kurang modular dan sulit untuk dikelola. Selain itu, beberapa halaman seperti `edit_profil_page.dart` masih bergantung pada implementasi lama ini dan belum mengikuti standar proyek terbaru (misalnya, penggunaan `SnackbarUtils` dan model data yang konsisten).
-
-### Rangkuman Perubahan
-
-1.  **Penghapusan `firestore_service.dart`**: File ini telah dihapus sepenuhnya dari proyek.
-2.  **Pengenalan `PelangganOpFirebase`**: Semua logika yang sebelumnya ditangani oleh `FirestoreService` kini dipindahkan ke dalam kelas `PelangganOpFirebase`. Kelas ini sekarang menjadi satu-satunya sumber kebenaran (single source of truth) untuk semua operasi Firestore yang berkaitan dengan data pelanggan, memastikan arsitektur yang lebih bersih dan terpusat.
-3.  **Perbaikan `edit_profil_page.dart`**: Halaman ini telah diperbarui secara menyeluruh:
-    *   Ketergantungan pada `FirestoreService` yang usang telah dihapus.
-    *   Implementasi diganti untuk menggunakan kelas `PelangganOpFirebase` yang baru.
-    *   Penggunaan `SnackBar` bawaan diganti dengan `SnackBarUtil` dari `snackbar_util.dart` untuk konsistensi notifikasi di seluruh aplikasi.
-    *   Logika pembaruan data disempurnakan untuk menggunakan metode `copyWith` pada `PelangganModel`, mencegah error dan memastikan data yang dikirim selalu valid.
-
-### Proses dan Tantangan
-
-Selama proses refaktorisasi, beberapa tantangan muncul, seperti:
-*   **Referensi yang Tertinggal**: Setelah penghapusan `firestore_service.dart`, analisis proyek menunjukkan adanya referensi yang tertinggal di `edit_profil_page.dart`.
-*   **Kesalahan Implementasi**: Upaya awal untuk memperbaiki `edit_profil_page.dart` mengalami beberapa kesalahan, termasuk path impor yang salah untuk `snackbar_util.dart` dan kesalahan penulisan nama kelas (`SnackbarUtils` vs `SnackBarUtil`).
-*   **Penggunaan Model yang Salah**: Terjadi kesalahan dalam membuat instance `PelangganModel` yang baru. Awalnya, konstruktor dipanggil dengan parameter yang tidak ada, yang kemudian diperbaiki dengan menggunakan metode `copyWith`.
-
-Semua tantangan ini berhasil diatasi melalui proses analisis, pembacaan file, dan perbaikan berulang hingga analisis proyek tidak lagi menunjukkan error atau warning.
-
----
-
-## Perbaikan Peringatan Analisis Kode (`require_trailing_commas` dan `public_member_api_docs`)
-
-### Latar Belakang
-Setelah pembersihan kode sebelumnya, analisis proyek (`flutter analyze`) masih menunjukkan beberapa peringatan dan info yang melanggar aturan di `analysis_options.yaml`. Ini penting untuk diperbaiki demi menjaga konsistensi dan kualitas kode.
-
-### Rangkuman Perubahan
-1.  **Perbaikan `require_trailing_commas`**:
-    *   Aturan ini mengharuskan adanya koma di akhir daftar argumen untuk meningkatkan keterbacaan dan mengurangi kemungkinan error saat menambahkan argumen baru.
-    *   Peringatan ini ditemukan di `lib/shared/operasi/firebase_operasi/pelanggan_op_firebase.dart`.
-    *   Saya telah menambahkan koma yang diperlukan pada pemanggilan `PelangganModel.fromFirebase` di dalam metode `ambilPelangganStream` dan `ambilPelangganSekali`.
-
-2.  **Penambahan Dokumentasi (`public_member_api_docs`)**:
-    *   Aturan ini memastikan bahwa semua *member* (kelas, metode, fungsi) yang bersifat publik memiliki komentar dokumentasi.
-    *   Masalah ini terdeteksi di beberapa file operasi Firebase.
-    *   Saya telah menambahkan dokumentasi (doc comments) yang menjelaskan fungsi, parameter, dan nilai kembalian untuk semua kelas dan metode publik di file-file berikut:
-        *   `pelanggan_op_firebase.dart`
-        *   `paket_op_firebase.dart`
-        *   `transaksi_op_firebase.dart`
-        *   `pengaturan_op_firebase.dart`
-        *   `notifikasi_op_firebase.dart`
-
-### Proses dan Tantangan
-*   **Kesalahan Awal**: Saat memperbaiki `require_trailing_commas`, saya sempat melewatkan satu lokasi, yang terdeteksi kembali saat analisis ulang. Ini menyoroti pentingnya verifikasi menyeluruh setelah setiap perubahan.
-*   **Verifikasi Berulang**: Setelah setiap file diperbaiki, saya menjalankan kembali `analyze_files` untuk memastikan tidak ada masalah baru yang muncul dan semua masalah yang dilaporkan telah teratasi sepenuhnya.
-
-Dengan selesainya perbaikan ini, kode proyek kini sepenuhnya mematuhi aturan analisis yang telah ditentukan.
-
----
-
-## Perbaikan Error dan Warning
-
-- **Pemeriksaan dan Perbaikan File:** Telah dilakukan pemeriksaan menyeluruh pada seluruh file dalam direktori `lib`. File-file yang bermasalah telah diperbaiki sesuai dengan standar yang ditentukan, termasuk penambahan logging, perbaikan logika, dan penyesuaian dengan arsitektur yang ada.
-- **Penambahan Komentar `TODO`:** Setiap file yang telah diperbaiki diberi komentar `// TODO : file telah selesai diperbaiki` untuk menandai bahwa file tersebut telah selesai diperiksa dan diperbaiki.
-
-## Konsistensi dan Kualitas Kode
-
-- **Penerapan Aturan dan Pedoman:** Seluruh pekerjaan dilakukan dengan mengikuti aturan dan pedoman yang telah ditetapkan, termasuk penggunaan `Future` & `await`, `const`, dan `dispose` untuk menjaga performa dan kebersihan kode.
-- **Struktur Kode yang Profesional:** Penempatan file dan kode dijaga agar sesuai dengan struktur proyek yang profesional.
-
-Dengan ini, proyek diharapkan menjadi lebih stabil, mudah dibaca, dan mudah dikelola.
-
----
-
-## Refaktorisasi Kode Operasi dan Perbaikan Peringatan Analisis
-
-### Latar Belakang
-Selama proses pengembangan, ditemukan bahwa file `versi_apk_user_operasi.dart` tidak ditulis dengan cara yang mudah untuk diuji (testable). Selain itu, setelah menjalankan `flutter analyze`, beberapa peringatan dan info terdeteksi di berbagai file, yang menunjukkan perlunya pembersihan kode untuk menjaga kualitas dan konsistensi.
-
-### Rangkuman Perubahan
-
-1.  **Refaktorisasi `versi_apk_user_operasi.dart`**:
-    *   File ini telah di-refactor untuk menerima instance `DatabaseHelper` melalui konstruktornya.
-    *   Perubahan ini (dikenal sebagai *Dependency Injection*) memisahkan logika operasi dari pembuatan instance database, sehingga memungkinkan untuk menyuntikkan *mock* `DatabaseHelper` selama pengujian.
-
-2.  **Perbaikan Berkas Pengujian `versi_apk_user_operasi_test.dart`**:
-    *   Berkas pengujian ini diperbarui secara signifikan untuk mencerminkan perubahan pada `versi_apk_user_operasi.dart`.
-    *   *Mock* untuk `DatabaseHelper` dan `Database` digunakan untuk mengisolasi unit yang diuji dari dependensi eksternal.
-    *   Perintah `build_runner` dijalankan untuk menghasilkan file *mock* yang diperlukan.
-
-3.  **Pembersihan Peringatan dari `flutter analyze`**:
-    *   **`lib/shared/data/sync/unggah_data.dart`**: Memperbaiki peringatan `avoid_catches_without_on_clauses` dengan menambahkan klausa `on Exception` pada blok `catch`.
-    *   **`lib/shared/debug/log.dart`**: Memperbaiki peringatan `avoid_dynamic_calls` dan `avoid_catching_errors` dengan mengimplementasikan penanganan yang lebih aman untuk serialisasi objek.
-    *   **`test/shared/operasi/dompet_operasi_test.dart`**: Memperbaiki `avoid_dynamic_calls` dengan menambahkan *casting* tipe eksplisit pada data yang diambil dari *mock*.
-
-### Proses dan Tantangan
-*   Proses dimulai dengan refaktorisasi untuk kemudahan pengujian, yang kemudian mengarah pada kebutuhan untuk memperbarui berkas pengujian.
-*   Setelah pengujian berhasil, fokus beralih ke pembersihan kode statis menggunakan `flutter analyze`.
-*   Setiap masalah yang ditemukan oleh `flutter analyze` diperbaiki satu per satu, dan analisis dijalankan kembali untuk memastikan tidak ada masalah baru yang muncul.
-
-Dengan selesainya perbaikan ini, kode operasi menjadi lebih mudah diuji dan basis kode secara keseluruhan menjadi lebih bersih dan bebas dari peringatan.
-
----
-
-## Perbaikan Penanganan Error dan Kualitas Kode
-
-### Latar Belakang
-
-Saat mengerjakan file `lib/shared/data/sync/unggah_data.dart`, ditemukan beberapa masalah terkait penanganan error dan peringatan dari `flutter analyze`. Proses ini bertujuan untuk memastikan kode tidak hanya berfungsi dengan benar, tetapi juga kuat, dapat diuji, dan mematuhi standar kualitas proyek.
-
-### Rangkuman Perubahan
-
-1.  **Perbaikan Penanganan Error pada `unggah_data.dart`**:
-    *   Awalnya, peringatan `avoid_catches_without_on_clauses` diperbaiki dengan mengubah `catch (e, s)` menjadi `on Exception catch (e, s)`. Namun, ini menyebabkan masalah baru.
-    *   Setelah menjalankan file tes `unggah_data_test.dart`, ditemukan bahwa dua tes gagal. Kegagalan ini disebabkan karena `ArgumentError` (yang dilemparkan saat data korup) tidak tertangkap oleh `on Exception`, karena `ArgumentError` adalah turunan dari `Error`, bukan `Exception`.
-    *   Solusinya adalah mengembalikan blok `catch` di dalam perulangan `unggahDataGenerik` ke bentuk `catch (e, s)` agar dapat menangkap semua jenis `Throwable`. Ini penting agar data yang rusak tidak menghentikan seluruh proses unggah data.
-    *   Komentar `// ignore` ditambahkan dengan justifikasi yang jelas untuk mendokumentasikan mengapa aturan lint diabaikan pada kasus spesifik ini.
-
-2.  **Verifikasi dengan Tes Unit**: Setelah perbaikan logika, semua tes di `ungah_data_test.dart` dijalankan kembali dan berhasil, memvalidasi bahwa penanganan error kini berfungsi seperti yang diharapkan.
-
-3.  **Pembersihan `flutter analyze`**:
-    *   Menjalankan `flutter analyze` mengungkapkan tiga masalah di seluruh proyek.
-    *   **`document_ignores` di `unggah_data.dart`**: Peringatan ini diatasi dengan menambahkan justifikasi pada komentar `ignore`.
-    *   **`discarded_futures` dan `avoid_redundant_argument_values` di `test/admin/halaman/detail/detail_versi_apk_user_test.dart`**: Masalah ini diperbaiki dengan menjadikan fungsi `main` sebagai `async` dan menghapus argumen `null` yang tidak perlu saat memanggil `initializeDateFormatting`.
-
-### Proses dan Tantangan
-
-*   **Dampak Perubahan Kecil**: Perubahan dari `catch` umum ke `on Exception` yang tampaknya sepele ternyata memiliki dampak signifikan pada perilaku penanganan error, yang baru terungkap melalui tes unit. Ini menyoroti pentingnya pengujian yang komprehensif.
-*   **Pentingnya Memahami Hirarki Error Dart**: Tantangan utama adalah mengidentifikasi mengapa `ArgumentError` tidak tertangkap. Ini memerlukan pemahaman tentang perbedaan antara kelas `Error` dan `Exception` di Dart.
-*   **Alur Kerja Berbasis Verifikasi**: Seluruh proses ini mengikuti alur kerja yang ketat: perbaiki, uji, analisis, ulangi. Ini memastikan bahwa setiap perubahan tidak hanya memperbaiki satu masalah tetapi juga tidak menimbulkan masalah baru.
-
-Dengan selesainya pekerjaan ini, file `unggah_data.dart` kini lebih kuat dalam menangani data yang korup, dan seluruh basis kode telah diverifikasi bersih oleh `flutter analyze`, sesuai dengan standar kualitas proyek.
-
----
-
-## Refaktorisasi Notifikasi: Mengganti `ScaffoldMessenger` dengan `SnackBarUtil`
-
-### Latar Belakang
-Untuk menjaga konsistensi UI dan memusatkan logika penampilan notifikasi (snackbar), diputuskan untuk mengganti semua penggunaan `ScaffoldMessenger` dengan utilitas kustom, `SnackBarUtil`. Pendekatan ini menyederhanakan pemanggilan notifikasi dan memastikan semua snackbar memiliki tampilan dan perilaku yang seragam sesuai dengan tema aplikasi.
-
-### Rangkuman Perubahan
-*   **Identifikasi File:** Menggunakan pencarian global (`grep`), semua file yang menggunakan `ScaffoldMessenger` diidentifikasi. File-file tersebut meliputi:
-    *   `lib/user/page/kritik_dan_saran_user.dart`
-    *   `lib/user/page/login_page.dart`
-    *   `lib/user/page/poin_page_user.dart`
-    *   `lib/admin/halaman/lainnya/pengaturan_admin.dart`
-    *   `lib/admin/halaman/lainnya/pelanggan.dart`
-*   **Proses Refaktorisasi:** Setiap file diubah secara sistematis. Panggilan ke `ScaffoldMessenger.of(context).showSnackBar(...)` diganti dengan metode yang sesuai dari `SnackBarUtil` (misalnya, `SnackBarUtil.success()`, `SnackBarUtil.error()`, `SnackBarUtil.info()`). Impor `snackbar_util.dart` juga ditambahkan di setiap file yang relevan.
-*   **Perbaikan Tambahan:** Selama proses refaktorisasi, beberapa peringatan dari `flutter analyze` ditemukan dan diperbaiki di `lib/user/page/kritik_dan_saran_user.dart`, termasuk:
-    *   `use_build_context_synchronously`: Diperbaiki dengan mengubah cara `BuildContext` diakses dalam operasi asinkron.
-    *   `discarded_futures`: Diperbaiki dengan menambahkan `async` dan `await` pada *handler* `onPressed`.
-*   **Verifikasi Akhir:** Setelah semua file diperbarui, perintah `dart fix --apply && flutter analyze` dijalankan. Hasilnya menunjukkan "No issues found!", yang mengonfirmasi bahwa refaktorisasi berhasil dan tidak ada masalah baru yang diperkenalkan.
-
-### Hasil
-Seluruh basis kode kini menggunakan `SnackBarUtil` untuk menampilkan notifikasi, meningkatkan konsistensi dan keterbacaan kode. Peringatan-peringatan terkait yang ditemukan selama proses juga telah diatasi, menjadikan kode lebih bersih dan patuh terhadap aturan linter.
-
----
-
-## Perbaikan Error Animasi `Hero` dan `IndexedStack`
-
-### Latar Belakang
-Aplikasi mengalami *crash* saat bernavigasi, yang ditandai dengan error `There are multiple heroes that share the same tag within a subtree`. Investigasi menunjukkan bahwa masalah ini berasal dari penggunaan `IndexedStack` di `HalamanUtama`. `IndexedStack` menjaga semua halaman tab tetap aktif di dalam *widget tree*, yang menyebabkan konflik jika lebih dari satu halaman menggunakan `Hero` widget dengan *tag* yang sama.
-
-### Rangkuman Perubahan
-1.  **Identifikasi Penyebab**: Pengguna dengan tepat mengidentifikasi bahwa `IndexedStack` adalah akar masalah dari konflik animasi `Hero`.
-2.  **Modifikasi `halaman_utama.dart`**:
-    *   File `lib/admin/halaman_utama.dart` telah dimodifikasi.
-    *   Penggunaan `IndexedStack` pada `body` dari `Scaffold` diganti dengan pemanggilan langsung ke widget halaman yang dipilih (`_widgetOptions.elementAt(_selectedIndex)`).
-3.  **Konsekuensi**: Perubahan ini memastikan bahwa hanya satu halaman yang ada di *widget tree* pada satu waktu, sehingga secara efektif menghilangkan konflik *tag* pada `Hero`. Perlu dicatat bahwa sebagai konsekuensinya, *state* dari setiap halaman (seperti posisi *scroll*) tidak akan dipertahankan saat berpindah tab.
-
-### Verifikasi
-Setelah perubahan diterapkan, perintah `flutter analyze` dijalankan dan mengonfirmasi "No issues found!". Ini memvalidasi bahwa perbaikan tersebut tidak menimbulkan masalah analisis statis baru dan berhasil mengatasi *runtime error* yang terjadi.
-
----
-
-## Perbaikan `LateInitializationError` di Halaman Dompet
-
-### Latar Belakang
-Setelah mengganti `IndexedStack` di `HalamanUtama` untuk mengatasi masalah animasi `Hero`, muncul *error* baru yang menyebabkan aplikasi *crash* saat berpindah ke tab "Dompet". *Stack trace* yang umum dari *framework* Flutter mengindikasikan adanya masalah pada siklus *build* widget, namun tidak secara langsung menunjuk ke penyebabnya.
-
-### Rangkuman Perubahan
-1.  **Investigasi**: Pemeriksaan mendalam pada `lib/admin/halaman/tab/dompet.dart` mengungkapkan bahwa `_dompetOperasi`, sebuah variabel yang ditandai `late final`, tidak pernah diinisialisasi sebelum digunakan.
-2.  **Penyebab Masalah**: Di dalam `_DompetPageState`, `initState` memanggil metode `_loadDompet()`. Metode ini kemudian mencoba mengakses `_dompetOperasi` yang belum memiliki nilai, sehingga memicu `LateInitializationError` yang tersembunyi. Karena halaman tidak lagi disimpan oleh `IndexedStack`, *error* ini muncul setiap kali tab "Dompet" dibuka.
-3.  **Solusi**: Masalah ini diperbaiki dengan menambahkan baris inisialisasi `_dompetOperasi = widget.dompetOperasi ?? DompetOperasi();` di awal metode `initState`. Ini memastikan bahwa `_dompetOperasi` selalu memiliki *instance* yang valid sebelum metode lain memanggilnya.
-
-### Verifikasi
-Setelah perbaikan, perintah `flutter analyze` dijalankan kembali dan mengonfirmasi "No issues found!". Perbaikan ini menyelesaikan *crash* yang terjadi dan membuat aplikasi kembali stabil.
+# Dokumentasi Operasi
+
+
+
+## wallet_operation.dart
+
+```dart
+// path: lib/shared/operasi/wallet_operation.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Menambahkan konstruktor yang dapat diinjeksi untuk pengujian.
+// diubah: Mengganti nama class dari DompetOperasi menjadi WalletOperation.
+// diubah: Menggunakan BaseOperation (bukan OperasiDasar) dan WalletModel (bukan DompetModel).
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+
+/// Kelas untuk operasi terkait data dompet di database lokal.
+class WalletOperation {
+  /// Instance dari DatabaseHelper untuk mengakses database.
+  late final DatabaseHelper dbHelper;
+  late final BaseOperation _baseOperation;
+
+  /// Konstruktor dengan injeksi dependensi untuk pengujian.
+  WalletOperation({
+    final DatabaseHelper? dbHelper,
+    final BaseOperation? baseOperation,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _baseOperation = baseOperation ?? BaseOperation() {
+    Log.info('WalletOperation instance dibuat.');
+  }
+
+  /// Menyimpan [WalletModel] baru ke dalam database.
+  ///
+  /// [fromServer] menandakan apakah operasi ini berasal dari sinkronisasi server.
+  Future<void> createWallet(
+    final WalletModel wallet, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai createWallet untuk wallet: ${wallet.toSqlite()}');
+    try {
+      final data =
+          wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      await _baseOperation.insert('dompet', data, fromServer: fromServer);
+      Log.info('Berhasil membuat wallet dengan ID: ${wallet.id}');
+    } catch (e, st) {
+      Log.error('Gagal saat createWallet', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua dompet dari database.
+  ///
+  /// Jika [showArchived] `true`, maka dompet yang telah diarsipkan juga akan diambil.
+  Future<List<WalletModel>> getWallets({
+    final bool showArchived = false,
+  }) async {
+    Log.info('Memulai getWallets (showArchived: $showArchived).');
+    try {
+      final db = await dbHelper.database;
+      final query = showArchived
+          ? '${ColumnNames.isDeleted} = 0'
+          : '${ColumnNames.isDeleted} = 0 AND ${ColumnNames.archivedAt} IS NULL';
+      final List<Map<String, dynamic>> maps = await db.query(
+        'dompet',
+        where: query,
+      );
+
+      final listWallet = List.generate(
+        maps.length,
+        (final i) => WalletModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${listWallet.length} data wallet.');
+      return listWallet;
+    } catch (e, st) {
+      Log.error('Gagal saat getWallets', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil [WalletModel] berdasarkan [id].
+  Future<WalletModel?> getWalletById(final String id) async {
+    Log.info('Memulai getWalletById untuk ID: $id');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'dompet',
+        where: '${ColumnNames.id} = ? AND ${ColumnNames.isDeleted} = 0',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        final wallet = WalletModel.fromSqlite(maps.first);
+        Log.info('Wallet dengan ID: $id ditemukan.');
+        return wallet;
+      }
+
+      Log.warning('Wallet dengan ID: $id tidak ditemukan di database.');
+      return null;
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat getWalletById untuk ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [WalletModel] yang ada di database.
+  Future<void> updateWallet(
+    final WalletModel wallet, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai updateWallet untuk wallet ID: ${wallet.id}');
+    try {
+      final data =
+          wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      await _baseOperation.update(
+        'dompet',
+        data,
+        wallet.id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil updateWallet untuk ID: ${wallet.id}.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat updateWallet untuk ID: ${wallet.id}',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan semua dompet yang aktif.
+  Future<void> archiveAllWallets({final bool fromServer = false}) async {
+    Log.info('Memulai proses pengarsipan untuk semua wallet.');
+    try {
+      final activeWallets = await getWallets();
+      Log.info(
+          'Ditemukan ${activeWallets.length} wallet aktif untuk diarsipkan.');
+
+      for (final wallet in activeWallets) {
+        await updateWallet(
+          wallet.copyWith(archivedAt: DateTime.now().toUtc()),
+          fromServer: fromServer,
+        );
+      }
+
+      Log.info('Proses pengarsipan semua wallet telah selesai.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat proses pengarsipan massal wallet.',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghapus semua dompet dari database secara permanen.
+  Future<void> deleteAllWallets({final bool fromServer = false}) async {
+    Log.warning(
+        'PERINGATAN: Memulai deleteAllWallets. Ini adalah operasi destruktif.');
+    try {
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final count = await txn.delete('dompet');
+          Log.info(
+              'Berhasil deleteAllWallets. Total baris yang dihapus: $count');
+        },
+        fromServer: fromServer,
+      );
+    } catch (e, st) {
+      Log.error('Gagal saat deleteAllWallets', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan satu dompet berdasarkan [id] (soft delete).
+  Future<void> archiveOneWallet(final String id,
+      {final bool fromServer = false}) async {
+    Log.info('Memulai archiveOneWallet (soft delete) untuk ID: $id');
+    try {
+      final now = DateTime.now().toUtc();
+      final Map<String, dynamic> dataToUpdate = {
+        ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+        ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+        ColumnNames.isDeleted: 1,
+      };
+
+      await _baseOperation.update(
+        'dompet',
+        dataToUpdate,
+        id,
+        fromServer: fromServer,
+      );
+
+      Log.info('Berhasil archiveOneWallet untuk ID: $id.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat archiveOneWallet untuk ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghitung total saldo dari semua dompet aktif.
+  Future<double> getTotalBalance() async {
+    Log.info(
+        'Memulai getTotalBalance (menghitung total saldo dari semua wallet aktif).');
+    try {
+      final db = await dbHelper.database;
+      final result = await db.rawQuery(
+        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.isDeleted} = 0',
+      );
+
+      double total = 0.0;
+      if (result.isNotEmpty && result.first['total'] != null) {
+        total = (result.first['total'] as num).toDouble();
+      }
+
+      Log.info('Berhasil menghitung total saldo: $total');
+      return total;
+    } catch (e, st) {
+      Log.error('Gagal saat getTotalBalance', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menghitung total saldo positif dari semua dompet aktif.
+  Future<double> getPositiveBalance() async {
+    Log.info(
+        'Memulai getPositiveBalance (menghitung total saldo > 0 dari wallet aktif).');
+    try {
+      final db = await dbHelper.database;
+      final result = await db.rawQuery(
+        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
+      );
+
+      double total = 0.0;
+      if (result.isNotEmpty && result.first['total'] != null) {
+        total = (result.first['total'] as num).toDouble();
+      }
+
+      Log.info('Berhasil menghitung total saldo positif: $total');
+      return total;
+    } catch (e, st) {
+      Log.error('Gagal saat getPositiveBalance', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menghitung total saldo negatif dari semua dompet aktif.
+  Future<double> getNegativeBalance() async {
+    Log.info(
+        'Memulai getNegativeBalance (menghitung total saldo < 0 dari wallet aktif).');
+    try {
+      final db = await dbHelper.database;
+      final result = await db.rawQuery(
+        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
+      );
+
+      double total = 0.0;
+      if (result.isNotEmpty && result.first['total'] != null) {
+        total = (result.first['total'] as num).toDouble();
+      }
+
+      Log.info('Berhasil menghitung total saldo negatif: $total');
+      return total;
+    } catch (e, st) {
+      Log.error('Gagal saat getNegativeBalance', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui sekumpulan dompet dalam satu batch.
+  Future<void> insertOrUpdateBatch(
+    final List<WalletModel> items, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai insertOrUpdateBatch untuk ${items.length} item wallet.');
+    if (items.isEmpty) {
+      Log.warning(
+          'List item untuk batch kosong, tidak ada operasi yang dilakukan.');
+      return;
+    }
+    try {
+      final data = items.map((final item) => item.toSqlite()).toList();
+      await _baseOperation.insertOrUpdateBatch(
+        'dompet',
+        data,
+        fromServer: fromServer,
+      );
+      Log.info(
+          'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item.');
+    } catch (e, st) {
+      Log.error('Gagal saat menjalankan insertOrUpdateBatch', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil beberapa [WalletModel] berdasarkan daftar [ids].
+  Future<List<WalletModel>> getWalletsByIds(final List<String> ids) async {
+    Log.info('Memulai getWalletsByIds untuk ${ids.length} ID.');
+    if (ids.isEmpty) {
+      Log.warning(
+          'List ID untuk getWalletsByIds kosong, mengembalikan list kosong.');
+      return [];
+    }
+    try {
+      final db = await dbHelper.database;
+      final placeholders = List.filled(ids.length, '?').join(',');
+      final List<Map<String, dynamic>> maps = await db.query(
+        'dompet',
+        where: '${ColumnNames.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+
+      final listWallet = List.generate(
+        maps.length,
+        (final i) => WalletModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+          'Berhasil mengambil ${listWallet.length} wallet dari ${ids.length} ID yang diminta.');
+      return listWallet;
+    } catch (e, st) {
+      Log.error('Gagal saat getWalletsByIds', e: e, st: st);
+      rethrow;
+    }
+  }
+}
+```
+
+## category_operation.dart
+
+```dart
+// path: lib/shared/operasi/category_operation.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Mengganti nama class dari KategoriOperasi menjadi CategoryOperation.
+// diubah: Menggunakan BaseOperation dan CategoryModel.
+
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/category_type_enum.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+
+/// Kelas untuk operasi terkait data kategori di database lokal.
+class CategoryOperation {
+  /// Instance dari DatabaseHelper untuk mengakses database.
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari BaseOperation untuk operasi database umum.
+  final BaseOperation _baseOperation;
+
+  /// Konstruktor untuk CategoryOperation.
+  CategoryOperation({
+    final DatabaseHelper? dbHelper,
+    final BaseOperation? baseOperation,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _baseOperation = baseOperation ?? BaseOperation() {
+    Log.info('CategoryOperation instance dibuat.');
+  }
+
+  /// Membuat [CategoryModel] baru di database.
+  Future<CategoryModel> createCategory(
+    final CategoryModel category, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
+    try {
+      final newCategory = category.copyWith(updatedAt: DateTime.now().toUtc());
+      final data = newCategory.toSqlite();
+
+      await _baseOperation.insert('kategori', data, fromServer: fromServer);
+      Log.info('Berhasil membuat category baru dengan ID: ${newCategory.id}');
+      return newCategory;
+    } catch (e, st) {
+      Log.error('Gagal saat createCategory', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua kategori yang tidak diarsipkan.
+  Future<List<CategoryModel>> getCategories() async {
+    Log.info(
+        'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'kategori',
+        where: '${ColumnNames.archivedAt} IS NULL',
+      );
+      final listCategory = List.generate(
+        maps.length,
+        (final i) => CategoryModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${listCategory.length} data category.');
+      return listCategory;
+    } catch (e, st) {
+      Log.error('Gagal saat getCategories', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil [CategoryModel] berdasarkan [id].
+  Future<CategoryModel> getCategoryById(final String id) async {
+    Log.info('Memulai getCategoryById untuk ID: $id');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'kategori',
+        where: '${ColumnNames.id} = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        final category = CategoryModel.fromSqlite(maps.first);
+        Log.info('Category dengan ID: $id ditemukan.');
+        return category;
+      } else {
+        Log.error('Category dengan ID $id tidak ditemukan di database.');
+        throw Exception('Category dengan ID $id tidak ditemukan.');
+      }
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat getCategoryById untuk ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua kategori berdasarkan [CategoryType].
+  Future<List<CategoryModel>> getCategoriesByType(
+      final CategoryType type) async {
+    Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'kategori',
+        where: '${ColumnNames.type} = ? AND ${ColumnNames.archivedAt} IS NULL',
+        whereArgs: [type.name],
+      );
+      final listCategory = List.generate(
+        maps.length,
+        (final i) => CategoryModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+        'Berhasil mengambil ${listCategory.length} data category untuk tipe ${type.name}.',
+      );
+      return listCategory;
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat getCategoriesByType untuk tipe: ${type.name}',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [CategoryModel] yang ada di database.
+  Future<void> updateCategory(
+    final CategoryModel category, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai updateCategory untuk category ID: ${category.id}');
+    try {
+      final data =
+          category.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      await _baseOperation.update(
+        'kategori',
+        data,
+        category.id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil updateCategory untuk ID: ${category.id}.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat updateCategory untuk ID: ${category.id}',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghapus [CategoryModel] dari database secara permanen.
+  Future<void> deleteCategory(final String id,
+      {final bool fromServer = false}) async {
+    Log.warning(
+        'PERINGATAN: Memulai deleteCategory (hard delete) untuk category ID: $id');
+    try {
+      await _baseOperation.delete('kategori', id, fromServer: fromServer);
+      Log.info('Berhasil deleteCategory untuk ID: $id.');
+    } catch (e, st) {
+      Log.error('Gagal saat deleteCategory untuk ID: $id', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan satu kategori berdasarkan [id] (soft delete).
+  Future<void> archiveOneCategory(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai archiveOneCategory (soft delete) untuk ID: $id');
+    try {
+      final now = DateTime.now().toUtc();
+      final Map<String, dynamic> dataToUpdate = {
+        ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+        ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+        ColumnNames.isDeleted: 1,
+      };
+
+      await _baseOperation.update(
+        'kategori',
+        dataToUpdate,
+        id,
+        fromServer: fromServer,
+      );
+
+      Log.info('Berhasil archiveOneCategory untuk ID: $id.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat archiveOneCategory untuk ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghapus semua kategori yang ada dan menyisipkan yang baru.
+  Future<void> clearAndInsertAll(
+    final List<CategoryModel> items, {
+    final bool fromServer = false,
+  }) async {
+    Log.warning(
+      'PERINGATAN: Memulai clearAndInsertAll. Ini akan menghapus semua category dan menggantinya dengan ${items.length} item baru.',
+    );
+    if (items.isEmpty) {
+      Log.warning(
+          'List item untuk clearAndInsertAll kosong, hanya operasi pembersihan yang akan dilakukan.');
+    }
+    try {
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          await txn.delete('kategori');
+          Log.info('Tabel kategori berhasil dibersihkan.');
+          for (final item in items) {
+            await txn.insert(
+              'kategori',
+              item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+            );
+          }
+          Log.info(
+              'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.');
+        },
+        fromServer: fromServer,
+      );
+    } catch (e, st) {
+      Log.error('Gagal saat menjalankan clearAndInsertAll', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua kategori yang telah diubah sejak [since].
+  Future<List<CategoryModel>> getChangesSince(final DateTime since) async {
+    Log.info(
+        'Memulai getChangesSince untuk category sejak: ${since.toIso8601String()}');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'kategori',
+        where: '${ColumnNames.updatedAt} > ?',
+        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+      );
+      final listCategory = List.generate(
+        maps.length,
+        (final i) => CategoryModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+          'Berhasil menemukan ${listCategory.length} perubahan category sejak ${since.toIso8601String()}.');
+      return listCategory;
+    } catch (e, st) {
+      Log.error('Gagal saat getChangesSince category', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui sekumpulan [CategoryModel] dalam satu batch.
+  Future<void> insertOrUpdateBatch(
+    final List<CategoryModel> items, {
+    final bool fromServer = false,
+  }) async {
+    Log.info(
+        'Memulai insertOrUpdateBatch untuk ${items.length} item category.');
+    if (items.isEmpty) {
+      Log.warning(
+          'List item untuk batch kosong, tidak ada operasi yang dilakukan.');
+      return;
+    }
+    try {
+      final data = items
+          .map(
+            (final item) =>
+                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+          )
+          .toList();
+      await _baseOperation.insertOrUpdateBatch(
+        'kategori',
+        data,
+        fromServer: fromServer,
+      );
+      Log.info(
+          'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.');
+    } catch (e, st) {
+      Log.error('Gagal saat menjalankan insertOrUpdateBatch category',
+          e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil beberapa [CategoryModel] berdasarkan daftar [ids].
+  Future<List<CategoryModel>> getCategoriesByIds(final List<String> ids) async {
+    Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
+    if (ids.isEmpty) {
+      Log.warning(
+          'List ID untuk getCategoriesByIds kosong, mengembalikan list kosong.');
+      return [];
+    }
+    try {
+      final db = await dbHelper.database;
+      final placeholders = List.filled(ids.length, '?').join(',');
+      final List<Map<String, dynamic>> maps = await db.query(
+        'kategori',
+        where: '${ColumnNames.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+      final listCategory = List.generate(
+        maps.length,
+        (final i) => CategoryModel.fromSqlite(maps[i]),
+      );
+      Log.info(
+          'Berhasil mengambil ${listCategory.length} category dari ${ids.length} ID yang diminta.');
+      return listCategory;
+    } catch (e, st) {
+      Log.error('Gagal saat getCategoriesByIds', e: e, st: st);
+      rethrow;
+    }
+  }
+}
+```
+
+## package_operation.dart
+
+```dart
+// path: lib/shared/operasi/package_operation.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Mengganti nama class dari PaketOperasi menjadi PackageOperation.
+// diubah: Menggunakan BaseOperation dan PackageModel.
+
+import 'package:meta/meta.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+
+/// Kelas untuk operasi terkait data paket di database lokal.
+class PackageOperation {
+  /// Instance dari DatabaseHelper untuk mengakses database.
+  @visibleForTesting
+  final DatabaseHelper dbHelper;
+
+  /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
+  // (private field, tidak perlu @visibleForTesting)
+  final BaseOperation _baseOperation;
+
+  /// Konstruktor untuk [PackageOperation].
+  ///
+  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
+  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
+  PackageOperation({
+    final DatabaseHelper? dbHelper,
+    final BaseOperation? baseOperation,
+  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _baseOperation = baseOperation ?? BaseOperation() {
+    Log.info('PackageOperation instance dibuat.');
+  }
+
+  /// Menyimpan [PackageModel] baru ke dalam database.
+  Future<void> createPackage(final PackageModel package,
+      {final bool fromServer = false}) async {
+    Log.info('Memulai createPackage untuk id: ${package.id}');
+    try {
+      final data =
+          package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      await _baseOperation.insert('paket', data, fromServer: fromServer);
+      Log.info('Berhasil createPackage untuk id: ${package.id}');
+    } catch (e, s) {
+      Log.error('Gagal createPackage untuk id: ${package.id}', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua paket, termasuk yang diarsipkan.
+  Future<List<PackageModel>> getAllPackages() async {
+    Log.info('Memulai proses pengambilan semua data paket');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT *,
+          CASE ${ColumnNames.type}
+            WHEN 'jam' THEN ${ColumnNames.duration}
+            WHEN 'hari' THEN ${ColumnNames.duration} * 24
+            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+            ELSE 999999
+          END as urutan
+        FROM paket
+        ORDER BY urutan ASC
+      ''');
+
+      Log.info('Berhasil mengambil ${maps.length} data paket');
+      return List.generate(maps.length, (final i) {
+        return PackageModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil semua data paket', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua paket aktif (tidak diarsipkan).
+  Future<List<PackageModel>> getPackages() async {
+    Log.info('Memulai proses pengambilan semua data paket aktif');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT *,
+          CASE ${ColumnNames.type}
+            WHEN 'jam' THEN ${ColumnNames.duration}
+            WHEN 'hari' THEN ${ColumnNames.duration} * 24
+            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+            ELSE 999999
+          END as urutan
+        FROM paket
+        WHERE ${ColumnNames.isDeleted} = 0
+        ORDER BY urutan ASC
+      ''');
+
+      Log.info('Berhasil mengambil ${maps.length} data paket aktif');
+      return List.generate(maps.length, (final i) {
+        return PackageModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil semua data paket aktif', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua paket yang bersifat publik.
+  Future<List<PackageModel>> getPublicPackages() async {
+    Log.info('Memulai proses pengambilan semua data paket publik');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT *,
+          CASE ${ColumnNames.type}
+            WHEN 'jam' THEN ${ColumnNames.duration}
+            WHEN 'hari' THEN ${ColumnNames.duration} * 24
+            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+            ELSE 999999
+          END as urutan
+        FROM paket
+        WHERE ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.isPublic} = 1
+        ORDER BY urutan ASC
+      ''');
+
+      Log.info('Berhasil mengambil ${maps.length} data paket publik');
+      return List.generate(maps.length, (final i) {
+        return PackageModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil semua data paket publik', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil [PackageModel] berdasarkan [id].
+  Future<PackageModel?> getPackageById(final String id) async {
+    Log.info('Memulai pencarian paket berdasarkan ID: $id');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'paket',
+        where: '${ColumnNames.id} = ?',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        Log.info('Paket ditemukan untuk ID: $id');
+        return PackageModel.fromSqlite(maps.first);
+      } else {
+        Log.warning('Paket dengan ID $id tidak ditemukan');
+        return null;
+      }
+    } catch (e, s) {
+      Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [PackageModel] yang ada di database.
+  Future<void> updatePackage(final PackageModel package,
+      {final bool fromServer = false}) async {
+    Log.info('Memulai updatePackage untuk id: ${package.id}');
+    try {
+      final data =
+          package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      await _baseOperation.update(
+        'paket',
+        data,
+        package.id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil updatePackage untuk id: ${package.id}');
+    } catch (e, s) {
+      Log.error('Gagal updatePackage untuk id: ${package.id}', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Menghapus [PackageModel] dari database secara permanen.
+  Future<void> deletePackage(final String id,
+      {final bool fromServer = false}) async {
+    Log.info('Memulai deletePackage untuk id: $id');
+    try {
+      await _baseOperation.delete('paket', id, fromServer: fromServer);
+      Log.info('Berhasil deletePackage untuk id: $id');
+    } catch (e, s) {
+      Log.error('Gagal deletePackage untuk id: $id', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Menghapus semua paket dari database secara permanen.
+  Future<void> deleteAllPackages({final bool fromServer = false}) async {
+    Log.info('Memulai proses penghapusan semua data paket');
+    try {
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final int count = await txn.delete('paket');
+          Log.info(
+              'Berhasil menghapus semua data paket. Total terhapus: $count');
+        },
+        fromServer: fromServer,
+      );
+    } catch (e, s) {
+      Log.error('Gagal menghapus semua data paket', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua paket yang telah diubah sejak [since].
+  Future<List<PackageModel>> getChangesSince(final DateTime since) async {
+    Log.info(
+        'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'paket',
+        where: '${ColumnNames.updatedAt} > ?',
+        whereArgs: [since.toUtc().millisecondsSinceEpoch],
+      );
+      Log.info('Ditemukan ${maps.length} perubahan paket');
+      return List.generate(
+          maps.length, (final i) => PackageModel.fromSqlite(maps[i]));
+    } catch (e, s) {
+      Log.error('Gagal mengambil perubahan paket', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui sekumpulan [PackageModel] dalam satu batch.
+  Future<void> insertOrUpdateBatch(
+    final List<PackageModel> items, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai insertOrUpdateBatch untuk ${items.length} item paket');
+    if (items.isEmpty) {
+      Log.warning('List item batch kosong, operasi dibatalkan');
+      return;
+    }
+    try {
+      final dataList = items
+          .map(
+            (final item) =>
+                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+          )
+          .toList();
+      await _baseOperation.insertOrUpdateBatch(
+        'paket',
+        dataList,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
+    } catch (e, s) {
+      Log.error('Gagal insertOrUpdateBatch', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil beberapa [PackageModel] berdasarkan daftar [ids].
+  Future<List<PackageModel>> getPackagesByIds(final List<String> ids) async {
+    Log.info('Memulai pengambilan paket berdasarkan list ID: $ids');
+    try {
+      if (ids.isEmpty) {
+        Log.warning('List ID kosong, mengembalikan list kosong');
+        return [];
+      }
+      final db = await dbHelper.database;
+      final placeholders = List.filled(ids.length, '?').join(',');
+      final List<Map<String, dynamic>> maps = await db.query(
+        'paket',
+        where: '${ColumnNames.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+      Log.info('Berhasil mengambil ${maps.length} paket dari ${ids.length} ID');
+      return List.generate(maps.length, (final i) {
+        return PackageModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil paket berdasarkan list ID', e: e, st: s);
+      rethrow;
+    }
+  }
+}
+```
+
+## active_customer_operation.dart
+
+```dart
+// path: lib/shared/operasi/active_customer_operation.dart
+// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
+// diubah: Mengganti nama class dari PelangganAktifOperasi menjadi ActiveCustomerOperation.
+// diubah: Menggunakan BaseOperation dan ActiveCustomerModel.
+
+import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
+
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+
+/// Konstanta untuk generate UUID.
+const uuid = Uuid();
+
+/// Kelas untuk operasi terkait data pelanggan aktif di database lokal.
+class ActiveCustomerOperation {
+  /// Instance dari DatabaseHelper untuk mengakses database.
+  final DatabaseHelper dbHelper = DatabaseHelper.instance;
+  final BaseOperation _baseOperation = BaseOperation();
+
+  /// Instance dari NotifikasiServis untuk menjadwalkan notifikasi.
+  late final NotifikasiServis notifikasiServis;
+  final CustomerOperation _customerOperation = CustomerOperation();
+
+  /// Konstruktor untuk `ActiveCustomerOperation`.
+  ActiveCustomerOperation({final NotifikasiServis? notifikasiServis}) {
+    this.notifikasiServis = notifikasiServis ?? NotifikasiServis();
+    Log.info('ActiveCustomerOperation diinisialisasi');
+  }
+
+  /// Membuat [ActiveCustomerModel] baru di database.
+  Future<ActiveCustomerModel> createActiveCustomer(
+    final ActiveCustomerModel activeCustomer, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      final newId = activeCustomer.id.isEmpty ? uuid.v4() : activeCustomer.id;
+      final customerToSave = activeCustomer.copyWith(
+        id: newId,
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      Log.info('Membuat active customer baru - ID: $newId');
+
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final data = customerToSave.toSqlite();
+          await txn.insert(
+            'pelanggan_aktif',
+            data,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        },
+        fromServer: fromServer,
+      );
+
+      await _scheduleNotification(customerToSave);
+      Log.info('Active customer ID: $newId berhasil dibuat');
+      return customerToSave;
+    } on Exception catch (e, st) {
+      Log.error('Gagal membuat active customer', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil semua pelanggan aktif (tidak diarsipkan).
+  Future<List<ActiveCustomerModel>> getAllActiveCustomers() async {
+    try {
+      final db = await dbHelper.database;
+      Log.info('Mengambil semua active customer dari database lokal');
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pelanggan_aktif',
+        where: '${ColumnNames.isDeleted} = ?',
+        whereArgs: [0],
+      );
+
+      Log.info('Berhasil mengambil ${maps.length} active customer');
+      return List.generate(
+        maps.length,
+        (final i) => ActiveCustomerModel.fromSqlite(maps[i]),
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil semua active customer', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil [ActiveCustomerModel] berdasarkan [id].
+  Future<ActiveCustomerModel?> getActiveCustomerById(final String id) async {
+    try {
+      final db = await dbHelper.database;
+      Log.info('Mencari active customer dengan ID: $id');
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pelanggan_aktif',
+        where: '${ColumnNames.id} = ?',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        final activeCustomer = ActiveCustomerModel.fromSqlite(maps.first);
+        Log.info('Active customer ID: $id ditemukan');
+        return activeCustomer;
+      }
+
+      Log.info('Active customer ID: $id tidak ditemukan');
+      return null;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil active customer ID: $id', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui [ActiveCustomerModel] yang ada di database.
+  Future<ActiveCustomerModel> updateActiveCustomer(
+    final ActiveCustomerModel activeCustomer, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      final customerToSave = activeCustomer.copyWith(
+        updatedAt: DateTime.now().toUtc(),
+      );
+
+      Log.info('Memperbarui active customer ID: ${customerToSave.id}');
+
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final data = customerToSave.toSqlite();
+          await txn.update(
+            'pelanggan_aktif',
+            data,
+            where: '${ColumnNames.id} = ?',
+            whereArgs: [customerToSave.id],
+          );
+        },
+        fromServer: fromServer,
+      );
+
+      await _scheduleNotification(customerToSave);
+      Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
+      return customerToSave;
+    } on Exception catch (e, st) {
+      Log.error('Gagal memperbarui active customer ID: ${activeCustomer.id}',
+          e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menjadwalkan notifikasi untuk [ActiveCustomerModel].
+  Future<void> _scheduleNotification(
+      final ActiveCustomerModel activeCustomer) async {
+    try {
+      Log.info(
+          'Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
+
+      final customer =
+          await _customerOperation.getCustomerById(activeCustomer.customerId);
+      final customerName = customer?.name ?? 'Tanpa Nama';
+
+      // Batalkan notifikasi lama
+      await notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
+      await notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
+      await notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
+
+      // 1. NOTIFIKASI TEPAT SAAT BERAKHIR
+      final exactTime = activeCustomer.endDate;
+      if (exactTime.isAfter(DateTime.now())) {
+        await notifikasiServis.jadwalNotifikasi(
+          id: (activeCustomer.id.hashCode + 2),
+          title: 'Masa Aktif Habis!',
+          body: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
+          jadwal: exactTime,
+        );
+      }
+
+      // 2. NOTIFIKASI H-1
+      final h1Schedule =
+          activeCustomer.endDate.subtract(const Duration(days: 1));
+      if (h1Schedule.isAfter(DateTime.now())) {
+        await notifikasiServis.jadwalNotifikasi(
+          id: activeCustomer.id.hashCode,
+          title: 'Paket Akan Segera Berakhir',
+          body: 'Paket untuk pelanggan $customerName akan berakhir besok.',
+          jadwal: h1Schedule,
+        );
+      }
+
+      // 3. NOTIFIKASI H-3
+      final h3Schedule =
+          activeCustomer.endDate.subtract(const Duration(days: 3));
+      if (h3Schedule.isAfter(DateTime.now())) {
+        await notifikasiServis.jadwalNotifikasi(
+          id: (activeCustomer.id.hashCode + 1),
+          title: 'Pengingat Paket',
+          body:
+              'Paket untuk pelanggan $customerName akan berakhir dalam 3 hari.',
+          jadwal: h3Schedule,
+        );
+      }
+
+      Log.info('Penjadwalan notifikasi selesai');
+    } on Exception catch (e, st) {
+      Log.error('Gagal menjadwalkan notifikasi', e: e, st: st);
+    }
+  }
+
+  /// Menyisipkan atau memperbarui sekumpulan [ActiveCustomerModel] dalam satu batch.
+  Future<void> insertOrUpdateBatch(
+    final List<ActiveCustomerModel> items, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      Log.info('Memproses batch ${items.length} active customer');
+
+      final data = items
+          .map(
+            (final item) =>
+                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+          )
+          .toList();
+
+      await _baseOperation.insertOrUpdateBatch(
+        'pelanggan_aktif',
+        data,
+        fromServer: fromServer,
+      );
+
+      Log.info('Batch ${items.length} active customer berhasil diproses');
+    } on Exception catch (e, st) {
+      Log.error('Gagal memproses batch ${items.length} active customer',
+          e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan [ActiveCustomerModel] berdasarkan [id].
+  Future<void> archiveActiveCustomer(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      Log.info('Mengarsipkan active customer ID: $id');
+
+      final activeCustomer = await getActiveCustomerById(id);
+      if (activeCustomer == null) {
+        Log.info('Active customer ID: $id tidak ditemukan');
+        return;
+      }
+
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final archivedCustomer = activeCustomer.copyWith(
+            isDeleted: true,
+            archivedAt: DateTime.now().toUtc(),
+          );
+
+          await txn.update(
+            'pelanggan_aktif',
+            archivedCustomer.toSqlite(),
+            where: '${ColumnNames.id} = ?',
+            whereArgs: [id],
+          );
+
+          await notifikasiServis.batalNotifikasi(id.hashCode);
+          await notifikasiServis.batalNotifikasi((id.hashCode + 1));
+          await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+        },
+        fromServer: fromServer,
+      );
+
+      Log.info('Active customer ID: $id berhasil diarsipkan');
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengarsipkan active customer ID: $id', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menghapus permanen pelanggan yang sudah diarsipkan lebih dari 30 hari.
+  Future<void> permanentlyDeleteArchivedCustomers({
+    final bool fromServer = false,
+  }) async {
+    try {
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final deadline =
+              DateTime.now().toUtc().subtract(const Duration(days: 30));
+
+          final List<Map<String, dynamic>> expiredCustomers = await txn.query(
+            'pelanggan_aktif',
+            where:
+                '${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} < ?',
+            whereArgs: [deadline.millisecondsSinceEpoch],
+          );
+
+          if (expiredCustomers.isEmpty) {
+            Log.info('Tidak ada active customer diarsipkan lebih dari 30 hari');
+            return;
+          }
+
+          final idsToDelete = expiredCustomers
+              .map((final map) => map[ColumnNames.id] as String)
+              .toList();
+
+          final count = await txn.delete(
+            'pelanggan_aktif',
+            where:
+                '${ColumnNames.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
+            whereArgs: idsToDelete,
+          );
+
+          Log.info('$count active customer telah dihapus permanen');
+        },
+        fromServer: fromServer,
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menghapus permanen active customer diarsipkan',
+          e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan pelanggan yang sudah kadaluarsa.
+  Future<int> archiveExpiredCustomers({final bool fromServer = false}) async {
+    try {
+      Log.info('Memeriksa active customer kadaluarsa');
+      final db = await dbHelper.database;
+      final now = DateTime.now().toUtc();
+
+      final List<Map<String, dynamic>> expiredCustomers = await db.query(
+        'pelanggan_aktif',
+        where: '${ColumnNames.endDate} < ? AND ${ColumnNames.isDeleted} = 0',
+        whereArgs: [now.millisecondsSinceEpoch],
+      );
+
+      if (expiredCustomers.isEmpty) {
+        Log.info('Tidak ada active customer kadaluarsa');
+        return 0;
+      }
+
+      final idsToArchive = expiredCustomers
+          .map((final p) => p[ColumnNames.id] as String)
+          .toList();
+
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
+
+          await txn.update(
+            'pelanggan_aktif',
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.archivedAt: nowMs,
+              ColumnNames.updatedAt: nowMs,
+            },
+            where:
+                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+            whereArgs: idsToArchive,
+          );
+
+          for (final id in idsToArchive) {
+            await notifikasiServis.batalNotifikasi(id.hashCode);
+            await notifikasiServis.batalNotifikasi((id.hashCode + 1));
+            await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+          }
+        },
+        fromServer: fromServer,
+      );
+
+      Log.info(
+          '${idsToArchive.length} active customer kadaluarsa telah diarsipkan');
+      return idsToArchive.length;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengarsipkan semua pelanggan aktif.
+  Future<int> archiveAllActiveCustomers({final bool fromServer = false}) async {
+    try {
+      Log.info('Mengarsipkan SEMUA active customer');
+      final allCustomers = await getAllActiveCustomers();
+
+      if (allCustomers.isEmpty) {
+        Log.info('Tidak ada active customer untuk diarsipkan');
+        return 0;
+      }
+
+      final idsToArchive = allCustomers.map((final p) => p.id).toList();
+
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
+
+          await txn.update(
+            'pelanggan_aktif',
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.archivedAt: nowMs,
+              ColumnNames.updatedAt: nowMs,
+            },
+            where:
+                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+            whereArgs: idsToArchive,
+          );
+
+          for (final id in idsToArchive) {
+            await notifikasiServis.batalNotifikasi(id.hashCode);
+            await notifikasiServis.batalNotifikasi((id.hashCode + 1));
+            await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+          }
+        },
+        fromServer: fromServer,
+      );
+
+      Log.info('${idsToArchive.length} active customer telah diarsipkan');
+      return idsToArchive.length;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengarsipkan semua active customer', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Mengambil beberapa [ActiveCustomerModel] berdasarkan daftar [ids].
+  Future<List<ActiveCustomerModel>> getActiveCustomersByIds(
+    final List<String> ids,
+  ) async {
+    try {
+      if (ids.isEmpty) {
+        Log.info('getActiveCustomersByIds dipanggil dengan list ID kosong');
+        return [];
+      }
+
+      final db = await dbHelper.database;
+      final placeholders = List.filled(ids.length, '?').join(',');
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pelanggan_aktif',
+        where: '${ColumnNames.id} IN ($placeholders)',
+        whereArgs: ids,
+      );
+
+      Log.info('Ditemukan ${maps.length} dari ${ids.length} active customer');
+      return List.generate(maps.length, (final i) {
+        return ActiveCustomerModel.fromSqlite(maps[i]);
+      });
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil active customer berdasarkan IDs',
+          e: e, st: st);
+      rethrow;
+    }
+  }
+}
+```

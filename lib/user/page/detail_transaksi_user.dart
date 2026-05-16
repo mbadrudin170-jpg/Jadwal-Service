@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/paket_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart' show TransactionModel;
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 

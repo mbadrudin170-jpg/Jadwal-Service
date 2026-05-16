@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
-import 'package:wifi/shared/operasi/operasi_dasar.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pesanan di database lokal.
 class PesananOperasi {

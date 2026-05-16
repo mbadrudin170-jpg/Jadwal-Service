@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/model/transaction_model.dart' show TransactionModel;
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/category_repository.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).

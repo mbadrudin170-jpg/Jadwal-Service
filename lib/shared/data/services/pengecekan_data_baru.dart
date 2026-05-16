@@ -1,7 +1,7 @@
 // path: lib/data/services/pengecekan_data_baru.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/status_unggah_operasi.dart';
+import 'package:wifi/shared/operasi/upload_status_operasi.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk memeriksa apakah ada data baru di SQLite atau Firebase.

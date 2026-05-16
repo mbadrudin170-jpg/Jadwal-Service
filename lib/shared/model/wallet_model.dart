@@ -3,7 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/database_column_name.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/model/has_id.dart';
 
 /// Data model for a wallet entity in the application.

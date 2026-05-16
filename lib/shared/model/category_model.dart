@@ -11,18 +11,30 @@ import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 
-/// Model yang merepresentasikan sebuah kategori transaksi.
+/// Model that represents a transaction category.
 class CategoryModel implements HasId {
   @override
   final String id;
+
+  /// The name of the category.
   final String name;
+
+  /// The type of the category (e.g., expense, income).
   final CategoryType type;
+
+  /// A list of sub-categories under this category.
   final List<SubCategoryModel> subCategories;
+
+  /// The last time the data was updated.
   final DateTime? updatedAt;
+
+  /// The status of whether this category has been deleted (soft delete).
   final bool isDeleted;
+
+  /// The time this category was archived.
   final DateTime? archivedAt;
 
-  /// Konstruktor utama untuk [CategoryModel].
+  /// Main constructor for [CategoryModel].
   CategoryModel({
     final String? id,
     required this.name,
@@ -32,10 +44,10 @@ class CategoryModel implements HasId {
     this.isDeleted = false,
     this.archivedAt,
   }) : id = id ?? const Uuid().v4() {
-    Log.info('CategoryModel dibuat: $id, nama: $name');
+    Log.info('CategoryModel created: $id, name: $name');
   }
 
-  /// Membuat salinan [CategoryModel] dengan beberapa field yang diperbarui.
+  /// Creates a copy of [CategoryModel] with some updated fields.
   CategoryModel copyWith({
     final String? id,
     final String? name,
@@ -56,7 +68,7 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Helper untuk mem-parsing nilai tanggal dari berbagai format.
+  /// Helper to parse date values from various formats.
   static DateTime? _parseDateTime(final dynamic dateValue) {
     if (dateValue == null) return null;
     if (dateValue is Timestamp) return dateValue.toDate();
@@ -68,21 +80,24 @@ class CategoryModel implements HasId {
     return null;
   }
 
-  /// Helper aman untuk mem-parsing enum dari string.
+  /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
     final dynamic name,
   ) {
-    if (name == null) return null;
-    try {
-      return values.firstWhere((final e) => e.name == name as String);
-    } catch (e) {
-      Log.warning('Gagal mem-parsing enum: $name');
+    if (name == null || name is! String) {
       return null;
     }
+    for (final value in values) {
+      if (value.name == name) {
+        return value;
+      }
+    }
+    Log.warning('Failed to parse enum for type $T', name);
+    return null;
   }
 
-  /// Helper untuk mem-parsing boolean dari berbagai format.
+  /// Helper to parse boolean from various formats.
   static bool _parseBool(final dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
@@ -91,30 +106,26 @@ class CategoryModel implements HasId {
     return false;
   }
 
-  /// Factory constructor untuk membuat [CategoryModel] dari data SQLite.
+  /// Factory constructor to create [CategoryModel] from SQLite data.
   factory CategoryModel.fromSqlite(final Map<String, dynamic> map) {
     List<SubCategoryModel> parseSubCategories(final dynamic data) {
       if (data == null) return [];
       try {
-        List<dynamic> list;
         if (data is String && data.isNotEmpty) {
-          list = jsonDecode(data) as List<dynamic>;
-        } else if (data is List) {
-          list = data;
-        } else {
-          return [];
+          final list = jsonDecode(data) as List<dynamic>;
+          return list
+              .map((final item) {
+                if (item is Map<String, dynamic>) {
+                  return SubCategoryModel.fromSqlite(item);
+                }
+                return null;
+              })
+              .whereType<SubCategoryModel>()
+              .toList();
         }
-        return list
-            .map((final item) {
-              if (item is Map<String, dynamic>) {
-                return SubCategoryModel.fromSqlite(item);
-              }
-              return null;
-            })
-            .whereType<SubCategoryModel>()
-            .toList();
-      } on Exception catch (e, st) {
-        Log.warning('Gagal mem-parsing subkategori dari JSON', e: e, st: st);
+        return [];
+      } on FormatException catch (e, st) {
+        Log.error('Failed to parse subcategories from JSON', e: e, st: st);
         return [];
       }
     }
@@ -131,7 +142,7 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Mengonversi [CategoryModel] menjadi Map untuk penyimpanan SQLite.
+  /// Converts [CategoryModel] to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     final data = {
       ColumnNames.id: id,
@@ -144,11 +155,10 @@ class CategoryModel implements HasId {
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
-    Log.info('CategoryModel.toSqlite: ${jsonEncode(data)}');
     return data;
   }
 
-  /// Factory constructor untuk membuat [CategoryModel] dari data Firebase.
+  /// Factory constructor to create [CategoryModel] from Firebase data.
   factory CategoryModel.fromFirebase(
     final String id,
     final Map<String, dynamic> data,
@@ -182,20 +192,19 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Mengonversi [CategoryModel] menjadi Map untuk penyimpanan Firebase.
+  /// Converts [CategoryModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     final data = {
       ColumnNames.name: name,
       ColumnNames.type: type.name,
       ColumnNames.subCategoryId:
           subCategories.map((final sub) => sub.toFirebase()).toList(),
-      ColumnNames.isDeleted: isDeleted, // <-- Typo diperbaiki di sini
+      ColumnNames.isDeleted: isDeleted,
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
-    Log.info('CategoryModel.toFirebase: ${jsonEncode(data, toEncodable: (o) => o.toString())}');
     return data;
   }
 }
