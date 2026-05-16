@@ -101,6 +101,8 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/consta
 
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/customer_name.dart
 
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/struktur_project.md
+
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/tab/lainnya.dart
 
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/data/services/sync_check_service.dart
