@@ -24,10 +24,10 @@ import 'package:wifi/shared/debug/log.dart';
 ///
 /// Mengembalikan widget Column yang berisi label dan amount terformat.
 Widget buildFinancialSummaryInfo({
-  required BuildContext context,
-  required String label,
-  required double amount,
-  Color? color,
+  required final BuildContext context,
+  required final String label,
+  required final double amount,
+  final Color? color,
 }) {
   Log.info(
       'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $amount');
@@ -91,6 +91,7 @@ class FinancialSummaryWidget extends StatelessWidget {
   /// Callback saat tombol refresh ditekan
   final VoidCallback? onRefresh;
 
+  /// Konstruktor untuk FinancialSummaryWidget.
   const FinancialSummaryWidget({
     super.key,
     required this.income,
@@ -102,7 +103,7 @@ class FinancialSummaryWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Log.info(
         'Membangun FinancialSummaryWidget: income=$income, expense=$expense, total=$total, isLoading=$isLoading');
 
@@ -119,7 +120,7 @@ class FinancialSummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(final BuildContext context) {
     // Jika ada error message, tampilkan pesan error dengan tombol refresh
     if (errorMessage != null && errorMessage!.isNotEmpty) {
       Log.warning(
@@ -190,9 +191,9 @@ class FinancialSummaryWidget extends StatelessWidget {
 extension FinancialSummaryExtension on BuildContext {
   /// Menampilkan snackbar info ringkasan keuangan.
   void showFinancialSummarySnackbar({
-    required double income,
-    required double expense,
-    required double total,
+    required final double income,
+    required final double expense,
+    required final double total,
   }) {
     Log.info(
         'Menampilkan snackbar ringkasan keuangan: income=$income, expense=$expense, total=$total');

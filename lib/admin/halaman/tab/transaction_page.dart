@@ -3,6 +3,8 @@
 // diubah: Refactor total ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
 // diubah: Memperbaiki import path yang salah.
 // diubah: Menerapkan caching state & memperbaiki peringatan linter.
+// diubah: Memperbaiki pemanggilan FormTransaksiPage (nama class asli dari transaction_form.dart).
+// diubah: Memperbaiki pemanggilan deleteAllTransactions (method yang tersedia di TransactionOperation).
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
@@ -19,7 +21,7 @@ import 'package:wifi/shared/widget/transaction_list_widgets.dart';
 //   - lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Transaksi)
 //
 // 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/transaction_form.dart (TransactionFormPage)
+//   - lib/admin/halaman/form/transaction_form.dart (FormTransaksiPage)
 //   - lib/shared/enum/transaction_type_enum.dart (TransactionType)
 //   - lib/shared/model/transaction_model.dart (TransactionModel)
 //   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
@@ -180,11 +182,12 @@ class _TransactionPageState extends State<TransactionPage> {
 
   /// Membuka halaman form untuk menambah transaksi baru.
   Future<void> _addTransaction() async {
-    Log.info('Membuka TransactionFormPage untuk menambah entri baru.');
+    Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
+    // PERBAIKAN: Menggunakan nama class asli FormTransaksiPage
     final result = await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => const TransactionFormPage(),
+        builder: (final context) => const FormTransaksiPage(),
       ),
     );
     if (result ?? false) {
@@ -227,7 +230,8 @@ class _TransactionPageState extends State<TransactionPage> {
 
       if (confirmed ?? false) {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
-        await _transactionOperation.deleteAllTransactions();
+        // PERBAIKAN: Menggunakan method yang tersedia (archiveAllTransactions)
+        await _transactionOperation.archiveAllTransactions();
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
         await _loadData(reload: true);

@@ -99,6 +99,16 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operas
 # column_names
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/constant/column_names.dart
 
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/customer_name.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/tab/lainnya.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/data/services/sync_check_service.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/app_admin.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/services/expired_subscription_check_service.dart
+
 # wallet_form.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/wallet_form.dart
 
