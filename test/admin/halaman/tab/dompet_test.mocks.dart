@@ -3,16 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
+import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
-import 'package:wifi/shared/export/model.dart' as _i9;
-import 'package:wifi/shared/model/dompet_model.dart' as _i7;
-import 'package:wifi/shared/operasi/dompet_operasi.dart' as _i5;
+import 'package:wifi/shared/export/model.dart' as _i8;
+import 'package:wifi/shared/model/dompet_model.dart' as _i6;
+import 'package:wifi/shared/operasi/dompet_operasi.dart' as _i4;
 import 'package:wifi/shared/operasi/operasi_dasar.dart' as _i3;
-import 'package:wifi/shared/operasi/transaksi_operasi.dart' as _i8;
-import 'package:wifi/shared/services/cache_service.dart' as _i4;
+import 'package:wifi/shared/operasi/transaksi_operasi.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -48,20 +47,10 @@ class _FakeOperasiDasar_1 extends _i1.SmartFake implements _i3.OperasiDasar {
         );
 }
 
-class _FakeCacheService_2 extends _i1.SmartFake implements _i4.CacheService {
-  _FakeCacheService_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [DompetOperasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
+class MockDompetOperasi extends _i1.Mock implements _i4.DompetOperasi {
   MockDompetOperasi() {
     _i1.throwOnMissingStub(this);
   }
@@ -85,8 +74,8 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
       );
 
   @override
-  _i6.Future<void> createDompet(
-    _i7.DompetModel? dompet, {
+  _i5.Future<void> createDompet(
+    _i6.DompetModel? dompet, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -95,12 +84,12 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
           [dompet],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<List<_i7.DompetModel>> getDompet(
+  _i5.Future<List<_i6.DompetModel>> getDompet(
           {bool? tampilkanDiarsipkan = false}) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -109,21 +98,21 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
           {#tampilkanDiarsipkan: tampilkanDiarsipkan},
         ),
         returnValue:
-            _i6.Future<List<_i7.DompetModel>>.value(<_i7.DompetModel>[]),
-      ) as _i6.Future<List<_i7.DompetModel>>);
+            _i5.Future<List<_i6.DompetModel>>.value(<_i6.DompetModel>[]),
+      ) as _i5.Future<List<_i6.DompetModel>>);
 
   @override
-  _i6.Future<_i7.DompetModel?> getDompetById(String? id) => (super.noSuchMethod(
+  _i5.Future<_i6.DompetModel?> getDompetById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getDompetById,
           [id],
         ),
-        returnValue: _i6.Future<_i7.DompetModel?>.value(),
-      ) as _i6.Future<_i7.DompetModel?>);
+        returnValue: _i5.Future<_i6.DompetModel?>.value(),
+      ) as _i5.Future<_i6.DompetModel?>);
 
   @override
-  _i6.Future<void> updateDompet(
-    _i7.DompetModel? dompet, {
+  _i5.Future<void> updateDompet(
+    _i6.DompetModel? dompet, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -132,36 +121,36 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
           [dompet],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<void> arsipSemuaDompet({bool? dariServer = false}) =>
+  _i5.Future<void> arsipSemuaDompet({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #arsipSemuaDompet,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<void> hapusSemuaDompet({bool? dariServer = false}) =>
+  _i5.Future<void> hapusSemuaDompet({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusSemuaDompet,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<void> arsipkanSatuDompet(
+  _i5.Future<void> arsipkanSatuDompet(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -171,40 +160,40 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<double> getTotalSaldo() => (super.noSuchMethod(
+  _i5.Future<double> getTotalSaldo() => (super.noSuchMethod(
         Invocation.method(
           #getTotalSaldo,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<double> getTotalSaldoPositif() => (super.noSuchMethod(
+  _i5.Future<double> getTotalSaldoPositif() => (super.noSuchMethod(
         Invocation.method(
           #getTotalSaldoPositif,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<double> getTotalSaldoNegatif() => (super.noSuchMethod(
+  _i5.Future<double> getTotalSaldoNegatif() => (super.noSuchMethod(
         Invocation.method(
           #getTotalSaldoNegatif,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i7.DompetModel>? items, {
+  _i5.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i6.DompetModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -213,26 +202,26 @@ class MockDompetOperasi extends _i1.Mock implements _i5.DompetOperasi {
           [items],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<List<_i7.DompetModel>> getDompetByIds(List<String>? ids) =>
+  _i5.Future<List<_i6.DompetModel>> getDompetByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getDompetByIds,
           [ids],
         ),
         returnValue:
-            _i6.Future<List<_i7.DompetModel>>.value(<_i7.DompetModel>[]),
-      ) as _i6.Future<List<_i7.DompetModel>>);
+            _i5.Future<List<_i6.DompetModel>>.value(<_i6.DompetModel>[]),
+      ) as _i5.Future<List<_i6.DompetModel>>);
 }
 
 /// A class which mocks [TransaksiOperasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
+class MockTransaksiOperasi extends _i1.Mock implements _i7.TransaksiOperasi {
   MockTransaksiOperasi() {
     _i1.throwOnMissingStub(this);
   }
@@ -256,17 +245,8 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
       ) as _i3.OperasiDasar);
 
   @override
-  _i4.CacheService get cacheService => (super.noSuchMethod(
-        Invocation.getter(#cacheService),
-        returnValue: _FakeCacheService_2(
-          this,
-          Invocation.getter(#cacheService),
-        ),
-      ) as _i4.CacheService);
-
-  @override
-  _i6.Future<int> tambahTransaksi(
-    _i9.TransaksiModel? transaksi, {
+  _i5.Future<int> tambahTransaksi(
+    _i8.TransaksiModel? transaksi, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -275,32 +255,32 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           [transaksi],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<int>.value(0),
-      ) as _i6.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i6.Future<List<_i9.TransaksiModel>> ambilSemuaTransaksi() =>
+  _i5.Future<List<_i8.TransaksiModel>> ambilSemuaTransaksi() =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilSemuaTransaksi,
           [],
         ),
         returnValue:
-            _i6.Future<List<_i9.TransaksiModel>>.value(<_i9.TransaksiModel>[]),
-      ) as _i6.Future<List<_i9.TransaksiModel>>);
+            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
+      ) as _i5.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i6.Future<_i9.TransaksiModel?> getTransaksiById(String? id) =>
+  _i5.Future<_i8.TransaksiModel?> getTransaksiById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiById,
           [id],
         ),
-        returnValue: _i6.Future<_i9.TransaksiModel?>.value(),
-      ) as _i6.Future<_i9.TransaksiModel?>);
+        returnValue: _i5.Future<_i8.TransaksiModel?>.value(),
+      ) as _i5.Future<_i8.TransaksiModel?>);
 
   @override
-  _i6.Future<List<_i9.TransaksiModel>> ambilTransaksiByPelangganId(
+  _i5.Future<List<_i8.TransaksiModel>> ambilTransaksiByPelangganId(
           String? pelangganId) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -308,11 +288,11 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           [pelangganId],
         ),
         returnValue:
-            _i6.Future<List<_i9.TransaksiModel>>.value(<_i9.TransaksiModel>[]),
-      ) as _i6.Future<List<_i9.TransaksiModel>>);
+            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
+      ) as _i5.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i6.Future<List<_i9.TransaksiModel>> ambilTransaksiByDompetId(
+  _i5.Future<List<_i8.TransaksiModel>> ambilTransaksiByDompetId(
           String? dompetId) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -320,24 +300,24 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           [dompetId],
         ),
         returnValue:
-            _i6.Future<List<_i9.TransaksiModel>>.value(<_i9.TransaksiModel>[]),
-      ) as _i6.Future<List<_i9.TransaksiModel>>);
+            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
+      ) as _i5.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i6.Future<List<_i9.TransaksiModel>> getTransaksiByAktivasiPaket() =>
+  _i5.Future<List<_i8.TransaksiModel>> getTransaksiByAktivasiPaket() =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiByAktivasiPaket,
           [],
         ),
         returnValue:
-            _i6.Future<List<_i9.TransaksiModel>>.value(<_i9.TransaksiModel>[]),
-      ) as _i6.Future<List<_i9.TransaksiModel>>);
+            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
+      ) as _i5.Future<List<_i8.TransaksiModel>>);
 
   @override
-  _i6.Future<void> updateTransaksi(
+  _i5.Future<void> updateTransaksi(
     String? id,
-    _i9.TransaksiModel? transaksiBaru, {
+    _i8.TransaksiModel? transaksiBaru, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -349,12 +329,12 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           ],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<void> arsipkanTransaksi(
+  _i5.Future<void> arsipkanTransaksi(
     String? id, {
     bool? dariServer = false,
   }) =>
@@ -364,81 +344,81 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           [id],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<void> hapusSemuaTransaksi({bool? dariServer = false}) =>
+  _i5.Future<void> hapusSemuaTransaksi({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #hapusSemuaTransaksi,
           [],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<double> getTotalPemasukan() => (super.noSuchMethod(
+  _i5.Future<double> getTotalPemasukan() => (super.noSuchMethod(
         Invocation.method(
           #getTotalPemasukan,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<double> getTotalPengeluaran() => (super.noSuchMethod(
+  _i5.Future<double> getTotalPengeluaran() => (super.noSuchMethod(
         Invocation.method(
           #getTotalPengeluaran,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<double> getNetTotal() => (super.noSuchMethod(
+  _i5.Future<double> getNetTotal() => (super.noSuchMethod(
         Invocation.method(
           #getNetTotal,
           [],
         ),
-        returnValue: _i6.Future<double>.value(0.0),
-      ) as _i6.Future<double>);
+        returnValue: _i5.Future<double>.value(0.0),
+      ) as _i5.Future<double>);
 
   @override
-  _i6.Future<int> getPoinYangDihasilkan(String? idPelanggan) =>
+  _i5.Future<int> getPoinYangDihasilkan(String? idPelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPoinYangDihasilkan,
           [idPelanggan],
         ),
-        returnValue: _i6.Future<int>.value(0),
-      ) as _i6.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i6.Future<int> getPoinYangDigunakan(String? idPelanggan) =>
+  _i5.Future<int> getPoinYangDigunakan(String? idPelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPoinYangDigunakan,
           [idPelanggan],
         ),
-        returnValue: _i6.Future<int>.value(0),
-      ) as _i6.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i6.Future<int> getTotalPoin(String? idPelanggan) => (super.noSuchMethod(
+  _i5.Future<int> getTotalPoin(String? idPelanggan) => (super.noSuchMethod(
         Invocation.method(
           #getTotalPoin,
           [idPelanggan],
         ),
-        returnValue: _i6.Future<int>.value(0),
-      ) as _i6.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i6.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i9.TransaksiModel>? items, {
+  _i5.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i8.TransaksiModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -447,18 +427,18 @@ class MockTransaksiOperasi extends _i1.Mock implements _i8.TransaksiOperasi {
           [items],
           {#dariServer: dariServer},
         ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
-  _i6.Future<List<_i9.TransaksiModel>> getTransaksiByIds(List<String>? ids) =>
+  _i5.Future<List<_i8.TransaksiModel>> getTransaksiByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiByIds,
           [ids],
         ),
         returnValue:
-            _i6.Future<List<_i9.TransaksiModel>>.value(<_i9.TransaksiModel>[]),
-      ) as _i6.Future<List<_i9.TransaksiModel>>);
+            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
+      ) as _i5.Future<List<_i8.TransaksiModel>>);
 }

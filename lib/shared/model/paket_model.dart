@@ -1,29 +1,21 @@
 // path: lib/shared/model/paket_model.dart
 // diubah: Menambahkan anotasi Hive dan file part untuk TipeDurasi.
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
 
-part 'paket_model.g.dart';
-
 /// Enum untuk tipe durasi paket.
-@HiveType(typeId: 4) // typeId unik untuk enum ini
 enum TipeDurasi {
   /// Durasi dalam hitungan menit.
-  @HiveField(0)
   menit,
 
   /// Durasi dalam hitungan jam.
-  @HiveField(1)
   jam,
 
   /// Durasi dalam hitungan hari.
-  @HiveField(2)
   hari,
 
   /// Durasi dalam hitungan bulan.
-  @HiveField(3)
   bulan;
 
   /// Mendapatkan nama tampilan untuk setiap tipe durasi.

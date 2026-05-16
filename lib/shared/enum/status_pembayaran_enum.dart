@@ -1,24 +1,17 @@
 // path: lib/shared/enum/status_pembayaran_enum.dart
-// diubah: Menambahkan anotasi Hive dan mempertahankan getter displayName.
+// diubah: Menghapus referensi ke Hive dan mempertahankan getter displayName.
 
-import 'package:hive/hive.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-part 'status_pembayaran_enum.g.dart';
-
 /// Enum untuk status pembayaran transaksi.
-@HiveType(typeId: 2) // ID tipe unik, 0 & 1 sudah dipakai.
 enum StatusPembayaranEnum {
   /// Pembayaran sudah lunas.
-  @HiveField(0)
   lunas,
 
   /// Pembayaran belum lunas.
-  @HiveField(1)
   belumLunas,
 
   /// Pembayaran tertunda atau menunggu konfirmasi.
-  @HiveField(2)
   pending;
 
   /// Nama tampilan untuk status pembayaran.

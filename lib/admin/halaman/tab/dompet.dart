@@ -10,7 +10,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
-import 'package:wifi/shared/services/pembaruan_data_service.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 
@@ -35,47 +34,23 @@ class DompetPage extends StatefulWidget {
   State<DompetPage> createState() => _DompetPageState();
 }
 
-class _DompetPageState extends State<DompetPage>
-    with AutomaticKeepAliveClientMixin {
+class _DompetPageState extends State<DompetPage> {
   late final DompetOperasi _dompetOperasi;
-  final GlobalKey<_RingkasanKeuanganState> _ringkasanKey = GlobalKey();
   late Future<List<DompetModel>> _listaDompetFuture;
-  StreamSubscription<void>? _pembaruanSubscription;
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _dompetOperasi = widget.dompetOperasi ?? DompetOperasi();
     Log.info('Halaman Dompet sedang diinisialisasi.');
-
-    _pembaruanSubscription =
-        PembaruanDataService.instance.stream.listen((final _) {
-      Log.info('Menerima notifikasi pembaruan data, memuat ulang dompet...');
-      if (mounted) {
-        _loadDompet();
-      }
-    });
-
     _loadDompet();
-  }
-
-  @override
-  void dispose() {
-    unawaited(_pembaruanSubscription?.cancel());
-    super.dispose();
   }
 
   void _loadDompet() {
     Log.info('Memulai pemuatan data dompet dan ringkasan keuangan.');
-    if (mounted) {
-      setState(() {
-        _listaDompetFuture = _dompetOperasi.getDompet();
-        _ringkasanKey.currentState?.refresh();
-      });
-    }
+    setState(() {
+      _listaDompetFuture = _dompetOperasi.getDompet();
+    });
+
     Log.info('Pemuatan data dompet dan ringkasan keuangan telah dijadwalkan.');
   }
 
@@ -226,7 +201,6 @@ class _DompetPageState extends State<DompetPage>
 
   @override
   Widget build(final BuildContext context) {
-    super.build(context);
     Log.info('Membangun UI untuk Halaman Dompet.');
     return Scaffold(
       appBar: AppBar(
@@ -241,7 +215,6 @@ class _DompetPageState extends State<DompetPage>
       ),
       body: Column(
         children: [
-          RingkasanKeuangan(key: _ringkasanKey, dompetOperasi: _dompetOperasi),
           Expanded(
             child: FutureBuilder<List<DompetModel>>(
               future: _listaDompetFuture,
@@ -300,7 +273,6 @@ class _DompetPageState extends State<DompetPage>
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: 'fab_dompet',
         onPressed: _tambahDompet,
         tooltip: 'Tambah Dompet',
         child: const Icon(Icons.add),

@@ -1,6 +1,5 @@
 // path: lib/admin/halaman_utama.dart
-// diubah: Menghapus lambda yang tidak perlu untuk mengatasi error unnecessary_lambdas.
-// diubah: Menambahkan await untuk mengatasi error discarded_futures.
+// diubah: Mengganti IndexedStack dengan widget langsung untuk mengatasi konflik Hero.
 
 import 'dart:async';
 
@@ -15,10 +14,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/cek_langganan_kadaluarsa_service.dart';
 
 /// Halaman utama aplikasi admin yang menampilkan navigasi tab.
-///
-/// Menyediakan akses ke halaman [PelangganAktifPage], [DompetPage],
-/// [TransaksiPage], dan [LainnyaPage] melalui bottom navigation bar.
-/// Mendukung mode offline dan sinkronisasi data otomatis saat online.
 class HalamanUtama extends StatefulWidget {
   /// Menandakan apakah aplikasi sedang berjalan dalam mode offline.
   ///
@@ -34,13 +29,9 @@ class HalamanUtama extends StatefulWidget {
   State<HalamanUtama> createState() => _HalamanUtamaState();
 }
 
-class _HalamanUtamaState extends State<HalamanUtama>
-    with WidgetsBindingObserver {
-  // ditambah: Listener untuk memantau perubahan koneksi internet.
+class _HalamanUtamaState extends State<HalamanUtama> {
   late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
-  // diubah: Menggunakan satu service orkestrasi utama.
   final PengecekanWaktuSyncService _syncService = PengecekanWaktuSyncService();
-  // diubah: Penanda untuk mencegah sinkronisasi ganda.
   bool _sedangSinkronisasi = false;
 
   int _selectedIndex = 0;
@@ -59,10 +50,8 @@ class _HalamanUtamaState extends State<HalamanUtama>
 
     if (_selectedIndex == index) {
       Log.info(
-        // diubah: dari warning ke info karena ini bukan kondisi error
         'Index yang ditekan sama dengan halaman aktif saat ini. Tidak ada perubahan state.',
       );
-
       return;
     }
 
@@ -70,7 +59,6 @@ class _HalamanUtamaState extends State<HalamanUtama>
       Log.info(
         'Mengubah selected index dari $_selectedIndex menjadi $index.',
       );
-
       _selectedIndex = index;
     });
   }
@@ -78,31 +66,20 @@ class _HalamanUtamaState extends State<HalamanUtama>
   @override
   void initState() {
     super.initState();
-
     Log.info(
       'Memulai inisialisasi halaman utama. Status offline: ${widget.isOffline}.',
     );
-
-    // ditambah: Daftarkan observer untuk memantau siklus hidup aplikasi (resume, pause).
-    WidgetsBinding.instance.addObserver(this);
-
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       Log.info(
         'Frame pertama selesai dirender.',
       );
-
       _cekDanTampilkanPesanOffline();
-
       Log.info(
         'Menjalankan proses pengecekan langganan kadaluarsa.',
       );
       await CekLanggananKadaluarsaService().prosesLanggananKadaluarsa();
-
-      // ditambah: Memulai sinkronisasi data pertama kali saat halaman dimuat.
       await _sinkronisasiDataSaatOnline();
     });
-
-    // ditambah: Mulai mendengarkan perubahan status konektivitas.
     _koneksiSubscription =
         Connectivity().onConnectivityChanged.listen(_onKoneksiBerubah);
   }
@@ -110,24 +87,10 @@ class _HalamanUtamaState extends State<HalamanUtama>
   @override
   Future<void> dispose() async {
     Log.info('Menutup HalamanUtama, membersihkan semua listener.');
-    // ditambah: Hentikan pemantauan siklus hidup aplikasi.
-    WidgetsBinding.instance.removeObserver(this);
-    // ditambah: Hentikan pemantauan koneksi untuk mencegah memory leak.
     await _koneksiSubscription.cancel();
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(final AppLifecycleState state) {
-    // ditambah: Logika ini akan berjalan setiap kali state aplikasi berubah.
-    if (state == AppLifecycleState.resumed) {
-      Log.info('Aplikasi kembali aktif (resumed), memicu sinkronisasi data.');
-      // ditambah: Saat pengguna kembali ke aplikasi, panggil sinkronisasi untuk memastikan data terbaru.
-      unawaited(_sinkronisasiDataSaatOnline());
-    }
-  }
-
-  // ditambah: Callback yang akan dieksekusi setiap kali status koneksi berubah.
   Future<void> _onKoneksiBerubah(final List<ConnectivityResult> hasil) async {
     final terkoneksi = hasil.contains(ConnectivityResult.mobile) ||
         hasil.contains(ConnectivityResult.wifi);
@@ -141,13 +104,11 @@ class _HalamanUtamaState extends State<HalamanUtama>
     }
   }
 
-  // ditambah: Metode utama untuk orkestrasi proses sinkronisasi.
   Future<void> _sinkronisasiDataSaatOnline() async {
     if (_sedangSinkronisasi) return;
 
     if (mounted) setState(() => _sedangSinkronisasi = true);
     try {
-      // diubah: Memanggil satu fungsi orkestrasi utama yang sudah ada.
       await _syncService.jalankanPengecekanDanSinkronisasi();
     } finally {
       if (mounted) setState(() => _sedangSinkronisasi = false);
@@ -158,7 +119,6 @@ class _HalamanUtamaState extends State<HalamanUtama>
     Log.info(
       'Memeriksa status koneksi aplikasi.',
     );
-
     if (widget.isOffline) {
       Log.warning(
         'Aplikasi berjalan dalam mode offline. Menampilkan snackbar peringatan.',
@@ -171,7 +131,6 @@ class _HalamanUtamaState extends State<HalamanUtama>
           duration: Duration(seconds: 5),
         ),
       );
-
       Log.info(
         'Snackbar offline berhasil ditampilkan.',
       );
@@ -187,11 +146,8 @@ class _HalamanUtamaState extends State<HalamanUtama>
     Log.info(
       'Membangun UI halaman utama dengan selected index: $_selectedIndex.',
     );
-
     return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+      body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[

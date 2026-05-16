@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/transaksi_operasi.dart
-// diubah: Mengintegrasikan CacheService untuk caching data transaksi.
+// diubah: Menghapus CacheService dan semua referensinya.
 
 import 'package:sqflite/sqflite.dart';
 
@@ -8,7 +8,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
-import 'package:wifi/shared/services/cache_service.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransaksiOperasi {
@@ -18,20 +17,15 @@ class TransaksiOperasi {
   /// Instance dari `OperasiDasar` untuk operasi CRUD umum.
   final OperasiDasar operasiDasar;
 
-  /// Instance dari `CacheService` untuk mengelola cache Hive.
-  final CacheService cacheService;
-
   /// Konstruktor untuk `TransaksiOperasi`.
   ///
-  /// Menerima instance `DatabaseHelper`, `OperasiDasar`, dan `CacheService`
+  /// Menerima instance `DatabaseHelper` dan `OperasiDasar`
   /// secara opsional untuk kemudahan pengujian (dependency injection).
   TransaksiOperasi({
     final DatabaseHelper? dbHelper,
     final OperasiDasar? operasiDasar,
-    final CacheService? cacheService,
   })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
-        operasiDasar = operasiDasar ?? OperasiDasar(),
-        cacheService = cacheService ?? CacheService();
+        operasiDasar = operasiDasar ?? OperasiDasar();
 
   Future<Database> get _db async => await dbHelper.database;
 
@@ -141,9 +135,6 @@ class TransaksiOperasi {
       Log.info(
         'Seluruh proses tambah transaksi ID: ${transaksi.id} berhasil diselesaikan - method: tambahTransaksi',
       );
-      // Hapus cache setelah data berubah
-      await cacheService.clearTransaksi();
-      Log.info('Cache transaksi dibersihkan setelah penambahan.');
       return id;
     } on Exception catch (e, st) {
       Log.error(
@@ -155,18 +146,10 @@ class TransaksiOperasi {
     }
   }
 
-  /// Mengambil semua transaksi dari database, dengan fallback ke cache.
+  /// Mengambil semua transaksi dari database.
   Future<List<TransaksiModel>> ambilSemuaTransaksi() async {
     try {
-      // 1. Cek cache terlebih dahulu
-      final isCacheEmpty = await cacheService.isTransaksiCacheEmpty();
-      if (!isCacheEmpty) {
-        Log.info('Mengambil data semua transaksi dari CACHE - method: ambilSemuaTransaksi');
-        return await cacheService.getTransaksi();
-      }
-
-      // 2. Jika cache kosong, ambil dari SQLite
-      Log.info('Cache kosong. Mengambil data semua transaksi dari SQLITE - method: ambilSemuaTransaksi');
+      Log.info('Mengambil data semua transaksi dari SQLITE - method: ambilSemuaTransaksi');
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         'transaksi',
@@ -179,11 +162,6 @@ class TransaksiOperasi {
       final transaksiDariDb = List.generate(maps.length, (final i) {
         return TransaksiModel.fromSqlite(maps[i]);
       });
-
-      // 3. Simpan hasil dari SQLite ke cache untuk request berikutnya
-      if (transaksiDariDb.isNotEmpty) {
-        await cacheService.saveTransaksi(transaksiDariDb);
-      }
 
       return transaksiDariDb;
     } on Exception catch (e, st) {
@@ -328,9 +306,6 @@ class TransaksiOperasi {
         dariServer: dariServer,
       );
       Log.info('Proses updateTransaksi ID: $id selesai - method: updateTransaksi');
-      // Hapus cache setelah data berubah
-      await cacheService.clearTransaksi();
-      Log.info('Cache transaksi dibersihkan setelah pembaruan.');
     } on Exception catch (e, st) {
       Log.error('Gagal update transaksi ID: $id. Error: $e - method: updateTransaksi', e: e, st: st);
       rethrow;
@@ -371,9 +346,6 @@ class TransaksiOperasi {
         dariServer: dariServer,
       );
       Log.info('Transaksi ID: $id berhasil diarsipkan - method: arsipkanTransaksi');
-      // Hapus cache setelah data berubah
-      await cacheService.clearTransaksi();
-      Log.info('Cache transaksi dibersihkan setelah pengarsipan.');
     } on Exception catch (e, st) {
       Log.error('Gagal mengarsipkan transaksi ID: $id. Error: $e - method: arsipkanTransaksi', e: e, st: st);
       rethrow;
@@ -402,9 +374,6 @@ class TransaksiOperasi {
         // Setelah semua transaksi dihapus, saldo semua dompet harus menjadi 0.
         await txn.update('dompet', {'saldo': 0});
       }, dariServer: dariServer);
-      // Hapus cache setelah data berubah
-      await cacheService.clearTransaksi();
-      Log.info('Cache transaksi dibersihkan setelah hapus semua.');
     } on Exception catch (e, st) {
       Log.error('Gagal menghapus semua transaksi. Error: $e - method: hapusSemuaTransaksi', e: e, st: st);
       rethrow;
@@ -530,9 +499,6 @@ class TransaksiOperasi {
         dariServer: dariServer,
       );
       Log.info('Proses Batch transaksi berhasil sepenuhnya - method: sisipkanAtauPerbaruiBatch');
-      // Hapus cache setelah data berubah
-      await cacheService.clearTransaksi();
-      Log.info('Cache transaksi dibersihkan setelah batch update.');
     } on Exception catch (e, st) {
       Log.error('Gagal menjalankan Batch transaksi. Error: $e - method: sisipkanAtauPerbaruiBatch', e: e, st: st);
       rethrow;

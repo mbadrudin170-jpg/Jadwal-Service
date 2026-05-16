@@ -1,6 +1,6 @@
 // path: lib/shared/model/memiliki_id.dart
 
-///// Interface untuk model yang memiliki properti ID.
+/// Interface untuk model yang memiliki properti ID.
 ///
 /// Semua model dalam aplikasi yang memerlukan identitas unik
 /// harus mengimplementasikan interface ini.

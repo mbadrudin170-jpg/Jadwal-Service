@@ -43,9 +43,9 @@ Untuk mengatasi hal ini, serangkaian pengujian baru telah ditambahkan secara ber
 1.  **Pengujian Skenario "Ada Data"**:
     *   Sebuah pengujian baru ditambahkan untuk mensimulasikan kondisi di mana `DompetOperasi` mengembalikan daftar dompet.
     *   **Tantangan**: Selama implementasi, terjadi dua kegagalan tes:
-        1.  `Error: The argument type \'\'\'int\'\'\' can\'\'\'t be assigned to the parameter type \'\'\'String?\'\'\'`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
+        1.  `Error: The argument type \'\'\'int\'\'\' can\'\'\'t be assigned to the parameter type \'\'\'String?\'\'\''`. Ini diperbaiki setelah memeriksa `DompetModel` dan mengubah `id` dari `int` ke `String` pada data dummy pengujian.
         2.  `Expected: exactly one matching candidate ... Actual: ... <Found 2 widgets>`. Ini terjadi karena pencarian teks (`find.textContaining`) terlalu umum. Ini diperbaiki dengan menggunakan pencari yang lebih spesifik (`find.ancestor` dan `find.descendant`) untuk memvalidasi saldo di dalam `Card` yang benar.
-    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\\\'Berhasil memuat ... dompet\\\'`.
+    *   **Hasil**: Berhasil memverifikasi bahwa `DompetCard` ditampilkan dengan benar dan memicu log `\\'Berhasil memuat ... dompet\\'`.
 
 2.  **Pengujian Interaksi Pengguna (Navigasi)**:
     *   Pengujian ditambahkan untuk mensimulasikan pengguna menekan `FloatingActionButton`.
@@ -53,7 +53,7 @@ Untuk mengatasi hal ini, serangkaian pengujian baru telah ditambahkan secara ber
 
 3.  **Pengujian Interaksi Pengguna (Memuat Ulang Data)**:
     *   Pengujian terakhir ditambahkan untuk mensimulasikan halaman `FormDompet` yang ditutup dan mengembalikan hasil `true`.
-    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\\\'Berhasil menambahkan dompet baru, memuat ulang data.\\\'`.\\\
+    *   **Hasil**: Menggunakan `verify` dari `Mockito`, pengujian ini memastikan bahwa fungsi untuk memuat ulang data (`_loadDompet`) dipanggil kembali. Ini secara efektif memverifikasi eksekusi log `\\\'Berhasil menambahkan dompet baru, memuat ulang data.\\\'`.\
 
 ### Proses dan Tantangan
 *   **Pengembangan Berbasis Umpan Balik (Feedback-Driven Development)**: Proses dimulai dari observasi sederhana (log tidak muncul), yang kemudian mendorong analisis dan penambahan pengujian secara iteratif.
@@ -247,3 +247,20 @@ Untuk menjaga konsistensi UI dan memusatkan logika penampilan notifikasi (snackb
 
 ### Hasil
 Seluruh basis kode kini menggunakan `SnackBarUtil` untuk menampilkan notifikasi, meningkatkan konsistensi dan keterbacaan kode. Peringatan-peringatan terkait yang ditemukan selama proses juga telah diatasi, menjadikan kode lebih bersih dan patuh terhadap aturan linter.
+
+---
+
+## Perbaikan Error Animasi `Hero` dan `IndexedStack`
+
+### Latar Belakang
+Aplikasi mengalami *crash* saat bernavigasi, yang ditandai dengan error `There are multiple heroes that share the same tag within a subtree`. Investigasi menunjukkan bahwa masalah ini berasal dari penggunaan `IndexedStack` di `HalamanUtama`. `IndexedStack` menjaga semua halaman tab tetap aktif di dalam *widget tree*, yang menyebabkan konflik jika lebih dari satu halaman menggunakan `Hero` widget dengan *tag* yang sama.
+
+### Rangkuman Perubahan
+1.  **Identifikasi Penyebab**: Pengguna dengan tepat mengidentifikasi bahwa `IndexedStack` adalah akar masalah dari konflik animasi `Hero`.
+2.  **Modifikasi `halaman_utama.dart`**:
+    *   File `lib/admin/halaman_utama.dart` telah dimodifikasi.
+    *   Penggunaan `IndexedStack` pada `body` dari `Scaffold` diganti dengan pemanggilan langsung ke widget halaman yang dipilih (`_widgetOptions.elementAt(_selectedIndex)`).
+3.  **Konsekuensi**: Perubahan ini memastikan bahwa hanya satu halaman yang ada di *widget tree* pada satu waktu, sehingga secara efektif menghilangkan konflik *tag* pada `Hero`. Perlu dicatat bahwa sebagai konsekuensinya, *state* dari setiap halaman (seperti posisi *scroll*) tidak akan dipertahankan saat berpindah tab.
+
+### Verifikasi
+Setelah perubahan diterapkan, perintah `flutter analyze` dijalankan dan mengonfirmasi "No issues found!". Ini memvalidasi bahwa perbaikan tersebut tidak menimbulkan masalah analisis statis baru dan berhasil mengatasi *runtime error* yang terjadi.
