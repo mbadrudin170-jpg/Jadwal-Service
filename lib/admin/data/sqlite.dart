@@ -1,7 +1,7 @@
 // path: lib/admin/data/sqlite.dart
 // diubah: Menaikkan versi DB ke 48, menambahkan kolom `diperbarui` ke `status_aplikasi`.
 // ditambah: Menambahkan dokumentasi untuk anggota publik untuk memperbaiki peringatan analisis.
-
+// TODO: apakah bisa ke baca
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
