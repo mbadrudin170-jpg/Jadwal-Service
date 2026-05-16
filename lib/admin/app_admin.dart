@@ -61,7 +61,7 @@ class AppAdmin extends StatelessWidget {
       builder: (final context, final snapshot) {
         if (!snapshot.hasData) {
           return const MaterialApp(
-            home: SplashScreen(loadingMessage: 'Memuat...'),
+            home: SplashScreen(),
           );
         }
         final prefs = snapshot.data!;

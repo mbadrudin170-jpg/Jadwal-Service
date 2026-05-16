@@ -1,20 +1,22 @@
-// path: lib/user/page/form_kritik_dan_saran_user.dart
+// path: lib/user/page/user_feedback_form.dart
+// diubah: Mengganti perbaruiKritikSaran → updateFeedback,
+//         buatKritikSaranBaru → createFeedback.
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
 //   - lib/user/page/feedback_history_user.dart
 //
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/feedback_model.dart (FeedbackModel)
+//   - lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart (FeedbackOpFirebase)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/user/data/operasi/kritik_saran_operasi_user.dart (KritikSaranOperasiUser)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/kritik_saran_operasi_user.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormKritikDanSaran extends StatefulWidget {
@@ -30,8 +32,8 @@ class FormKritikDanSaran extends StatefulWidget {
 
   /// Konstruktor untuk [FormKritikDanSaran].
   ///
-  /// Membutuhkan [userId] dan secara opsional menerima [kritikId] dan [initialValue]
-  /// untuk mode edit.
+  /// Membutuhkan [userId] dan secara opsional menerima [kritikId] dan
+  /// [initialValue] untuk mode edit.
   const FormKritikDanSaran({
     super.key,
     required this.userId,
@@ -47,8 +49,8 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  final KritikSaranOperasiUser _operation =
-      KritikSaranOperasiUser(FirebaseFirestore.instance);
+  final FeedbackOpFirebase _operation =
+      FeedbackOpFirebase(FirebaseFirestore.instance);
 
   @override
   void initState() {
@@ -64,14 +66,14 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
 
       try {
         if (widget.kritikId != null) {
-          await _operation.perbaruiKritikSaran(
+          await _operation.updateFeedback(
               widget.kritikId!, _feedbackController.text);
         } else {
           final newFeedback = FeedbackModel(
             content: _feedbackController.text,
             userId: widget.userId,
           );
-          await _operation.buatKritikSaranBaru(newFeedback);
+          await _operation.createFeedback(newFeedback);
         }
 
         if (mounted) {

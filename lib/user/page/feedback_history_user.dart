@@ -1,13 +1,8 @@
 // path: lib/user/page/feedback_history_user.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman riwayat kritik dan saran untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/feedback_model.dart (FeedbackModel)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/user/data/operasi/kritik_saran_operasi_user.dart (KritikSaranOperasiUser)
-//   - lib/user/page/form_kritik_dan_saran_user.dart (FormKritikDanSaran)
+// diubah: Mengganti KritikSaranOperasiUser menjadi FeedbackOpFirebase,
+//         hapusKritikSaran → deleteFeedback,
+//         bacaSemuaKritikSaran → getFeedbacksByUser.
+// diubah: Mengurutkan import directives.
 
 import 'dart:async';
 
@@ -15,11 +10,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/kritik_saran_operasi_user.dart';
-import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
+import 'package:wifi/user/page/user_feedback_form.dart';
 
-/// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim oleh pengguna.
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Navigasi dari halaman profil atau menu user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/feedback_model.dart (FeedbackModel)
+//   - lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart (FeedbackOpFirebase)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/user/page/form_kritik_dan_saran_user.dart (FormKritikDanSaran)
+
+/// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim
+/// oleh pengguna.
 class FeedbackHistoryPage extends StatefulWidget {
   /// ID pengguna untuk memfilter riwayat kritik dan saran.
   final String userId;
@@ -32,8 +38,8 @@ class FeedbackHistoryPage extends StatefulWidget {
 }
 
 class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
-  final KritikSaranOperasiUser _operation =
-      KritikSaranOperasiUser(FirebaseFirestore.instance);
+  final FeedbackOpFirebase _operation =
+      FeedbackOpFirebase(FirebaseFirestore.instance);
 
   Future<void> _showOptionsDialog(final FeedbackModel feedback) async {
     await showDialog<void>(
@@ -99,7 +105,7 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
 
     if (shouldDelete ?? false) {
       try {
-        await _operation.hapusKritikSaran(docId);
+        await _operation.deleteFeedback(docId);
         if (!mounted) return;
         SnackBarUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {
@@ -117,7 +123,7 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
         centerTitle: true,
       ),
       body: StreamBuilder<List<FeedbackModel>>(
-        stream: _operation.bacaSemuaKritikSaran(widget.userId),
+        stream: _operation.getFeedbacksByUser(widget.userId),
         builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
