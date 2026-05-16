@@ -15,7 +15,7 @@ import 'package:wifi/admin/halaman/lainnya/pelanggan.dart';
 import 'package:wifi/admin/halaman/lainnya/pengaturan_admin.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
-import 'package:wifi/admin/halaman/lainnya/versi_apk_user.dart';
+import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
