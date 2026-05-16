@@ -77,3 +77,30 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operas
 
 # feedback_model.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/model/feedback_model.dart
+
+# profile_page.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/user/page/profile_page.dart
+
+# wallet_operation
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/wallet_operation.dart
+
+# transaction_operation
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/transaction_operation.dart
+
+# wallet_model
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/model/wallet_model.dart
+
+# wallet_detail
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/detail/wallet_detail.dart
+
+# base_operation
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/base_operation.dart
+
+# sqlite
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/data/sqlite.dart
+
+# column_names
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/constant/column_names.dart
+
+# wallet_form.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/

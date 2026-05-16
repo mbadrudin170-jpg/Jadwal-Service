@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/form_dompet.dart
+// path: lib/admin/halaman/form/wallet_form.dart
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';

@@ -1,26 +1,40 @@
 // path: lib/admin/halaman/tab/lainnya.dart
-// Fitur: Lainnya (Admin)
-// Tujuan: Menampilkan menu-menu lain yang tersedia untuk admin.
-// diubah: Menambahkan menu Keluar dan dialog konfirmasi.
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai tab "Lainnya" di navigasi admin.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/lainnya/admin_settings.dart (SettingsAdminPage)
+//   - lib/admin/halaman/lainnya/apk_version_page.dart (ApkVersionPage)
+//   - lib/admin/halaman/lainnya/category.dart (CategoryPage)
+//   - lib/admin/halaman/lainnya/customer.dart (CustomerPage)
+//   - lib/admin/halaman/lainnya/feedback.dart (FeedbackPage)
+//   - lib/admin/halaman/lainnya/halaman_migrasi.dart (HalamanMigrasi)
+//   - lib/admin/halaman/lainnya/package.dart (PackagePage)
+//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
+//   - lib/admin/halaman/lainnya/tentang_aplikasi.dart (TentangAplikasiPage)
+//   - lib/shared/debug/log.dart (Log)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wifi/admin/halaman/lainnya/halaman_migrasi.dart';
-import 'package:wifi/admin/halaman/lainnya/kategori.dart';
-import 'package:wifi/admin/halaman/lainnya/kritik_saran.dart';
-import 'package:wifi/admin/halaman/lainnya/paket.dart';
-import 'package:wifi/admin/halaman/lainnya/pelanggan.dart';
-import 'package:wifi/admin/halaman/lainnya/pengaturan_admin.dart';
-import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
-import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
+import 'package:wifi/admin/halaman/lainnya/admin_settings.dart';
 import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
+import 'package:wifi/admin/halaman/lainnya/category.dart';
+import 'package:wifi/admin/halaman/lainnya/customer.dart';
+import 'package:wifi/admin/halaman/lainnya/feedback.dart';
+import 'package:wifi/admin/halaman/lainnya/halaman_migrasi.dart';
+import 'package:wifi/admin/halaman/lainnya/package.dart';
+import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
+import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
 class LainnyaPage extends StatefulWidget {
-  /// Membuat instance dari [LainnyaPage].
+  /// Konstruktor untuk LainnyaPage.
   const LainnyaPage({super.key});
 
   @override
@@ -28,10 +42,9 @@ class LainnyaPage extends StatefulWidget {
 }
 
 class _LainnyaPageState extends State<LainnyaPage> {
-  // ditambah: Method untuk menampilkan dialog konfirmasi keluar.
+  /// Menampilkan dialog konfirmasi sebelum keluar dari aplikasi.
   Future<void> _showLogoutConfirmationDialog() async {
     Log.info('Menampilkan dialog konfirmasi keluar.');
-    // ditambah: Menggunakan await untuk menunggu hasil dari dialog.
     final bool? shouldLogout = await showDialog<bool>(
       context: context,
       builder: (final BuildContext context) {
@@ -58,11 +71,25 @@ class _LainnyaPageState extends State<LainnyaPage> {
       },
     );
 
-    // ditambah: Memeriksa hasil dialog sebelum keluar dari aplikasi.
     if (shouldLogout ?? false) {
       Log.info('Keluar dari aplikasi.');
-      // Keluar dari aplikasi.
       await SystemNavigator.pop();
+    }
+  }
+
+  Future<void> _navigateTo(final Widget page, final String pageName) async {
+    Log.info('Navigasi ke halaman $pageName.');
+    try {
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(builder: (final context) => page),
+      );
+      Log.info('Kembali dari halaman $pageName.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal navigasi ke halaman $pageName.', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.error(context, 'Gagal membuka halaman $pageName.');
+      }
     }
   }
 
@@ -70,147 +97,78 @@ class _LainnyaPageState extends State<LainnyaPage> {
   Widget build(final BuildContext context) {
     Log.info('Membangun halaman Lainnya untuk admin.');
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu Lainnya'),
-      ),
+      appBar: AppBar(title: const Text('Menu Lainnya')),
       body: ListView(
         children: [
           _buildMenuItem(
             context: context,
             icon: Icons.people,
             title: 'Data Pelanggan',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Data Pelanggan.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const PelangganPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const CustomerPage(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,
             icon: Icons.wifi,
             title: 'Data Paket',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Data Paket.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const PaketPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const PackagePage(), 'Data Paket'),
           ),
           _buildMenuItem(
             context: context,
             icon: Icons.category,
             title: 'Data Kategori',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Data Kategori.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const KategoriPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const CategoryPage(), 'Data Kategori'),
           ),
           const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.history,
             title: 'Riwayat Langganan',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Riwayat Aktivasi Paket.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const RiwayatAktivasiPaketPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(
+                const PackageActivationHistoryPage(), 'Riwayat Langganan'),
           ),
           const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.cloud_upload,
             title: 'Versi APK User',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Versi APK User.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const VersiApkUserPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const ApkVersionPage(), 'Versi APK User'),
           ),
           _buildMenuItem(
             context: context,
             icon: Icons.feedback,
             title: 'Kritik dan Saran',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Kritik dan Saran.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const KritikSaranPage(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.storage,
             title: 'Migrasi Database',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Migrasi Database.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const HalamanMigrasi(),
-                ),
-              );
-            },
+            onTap: () =>
+                _navigateTo(const HalamanMigrasi(), 'Migrasi Database'),
           ),
           _buildMenuItem(
             context: context,
             icon: Icons.settings,
             title: 'Pengaturan',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Pengaturan Admin.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const PengaturanAdmin(),
-                ),
-              );
-            },
+            onTap: () => _navigateTo(const SettingsAdminPage(), 'Pengaturan'),
           ),
           _buildMenuItem(
             context: context,
             icon: Icons.info,
             title: 'Tentang Aplikasi',
-            onTap: () async {
-              Log.info('Navigasi ke halaman Tentang Aplikasi.');
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (final context) => const TentangAplikasiPage(),
-                ),
-              );
-            },
+            onTap: () =>
+                _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
           ),
-          // ditambah: Menu untuk keluar dari aplikasi
           const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.exit_to_app,
             title: 'Keluar',
-            onTap: () async => await _showLogoutConfirmationDialog(), // diubah: Memanggil dialog konfirmasi
+            onTap: () async {
+              Log.info('Tombol Keluar ditekan.');
+              await _showLogoutConfirmationDialog();
+            },
           ),
         ],
       ),

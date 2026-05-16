@@ -19,7 +19,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
-import 'package:wifi/admin/halaman/pembantu/halaman_poin_admin.dart';
+import 'package:wifi/admin/halaman/pembantu/admin_points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';

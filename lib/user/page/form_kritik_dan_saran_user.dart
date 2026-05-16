@@ -1,27 +1,37 @@
 // path: lib/user/page/form_kritik_dan_saran_user.dart
-// diubah: Mengintegrasikan kelas KritikSaranOperasiUser untuk memisahkan logika UI dan data.
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/user/page/feedback_history_user.dart
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/feedback_model.dart (FeedbackModel)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/user/data/operasi/kritik_saran_operasi_user.dart (KritikSaranOperasiUser)
+//   - lib/shared/debug/log.dart (Log)
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart'; // diubah: path import diperbarui
+import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
-///
-/// Jika [kritikId] disediakan, formulir akan berada dalam mode edit.
-/// Jika tidak, formulir akan membuat entri baru.
 class FormKritikDanSaran extends StatefulWidget {
-  /// ID pengguna yang mengirimkan masukan.
+  /// ID unik pengguna yang memberikan masukan.
   final String userId;
 
-  /// ID kritik yang ada (jika dalam mode edit).
+  /// ID kritik/saran jika dalam mode edit.
+  /// Jika null, berarti formulir dalam mode pembuatan baru.
   final String? kritikId;
 
-  /// Nilai awal untuk kolom teks (jika dalam mode edit).
+  /// Nilai awal teks untuk kolom masukan, digunakan saat mengedit.
   final String? initialValue;
 
-  /// Membuat instance dari [FormKritikDanSaran].
+  /// Konstruktor untuk [FormKritikDanSaran].
+  ///
+  /// Membutuhkan [userId] dan secara opsional menerima [kritikId] dan [initialValue]
+  /// untuk mode edit.
   const FormKritikDanSaran({
     super.key,
     required this.userId,
@@ -35,39 +45,33 @@ class FormKritikDanSaran extends StatefulWidget {
 
 class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
-  final _kritikController = TextEditingController();
+  final _feedbackController = TextEditingController();
   bool _isLoading = false;
-
-  // ditambah: Membuat instance dari kelas operasi data.
-  final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser(
-      FirebaseFirestore.instance); // diubah: nama kelas diperbarui
+  final KritikSaranOperasiUser _operation =
+      KritikSaranOperasiUser(FirebaseFirestore.instance);
 
   @override
   void initState() {
     super.initState();
     if (widget.initialValue != null) {
-      _kritikController.text = widget.initialValue!;
+      _feedbackController.text = widget.initialValue!;
     }
   }
 
-  Future<void> _kirimKritik() async {
+  Future<void> _submitFeedback() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       try {
         if (widget.kritikId != null) {
-          await _operasi.perbaruiKritikSaran(
-            widget.kritikId!,
-            _kritikController.text,
-          );
+          await _operation.perbaruiKritikSaran(
+              widget.kritikId!, _feedbackController.text);
         } else {
-          final kritikBaru = FeedbackModel(
-            isi: _kritikController.text,
+          final newFeedback = FeedbackModel(
+            content: _feedbackController.text,
             userId: widget.userId,
           );
-          await _operasi.buatKritikSaranBaru(kritikBaru);
+          await _operation.buatKritikSaranBaru(newFeedback);
         }
 
         if (mounted) {
@@ -76,27 +80,19 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
           Navigator.of(context).pop();
         }
       } on Exception catch (e, s) {
-        Log.error(
-          'Gagal mengirim kritik dan saran',
-          e: e,
-          st: s,
-        );
+        Log.error('Gagal mengirim kritik dan saran', e: e, st: s);
         if (mounted) {
           SnackBarUtil.error(context, 'Gagal mengirim masukan: $e');
         }
       } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
 
   @override
   void dispose() {
-    _kritikController.dispose();
+    _feedbackController.dispose();
     super.dispose();
   }
 
@@ -115,7 +111,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
-                controller: _kritikController,
+                controller: _feedbackController,
                 decoration: const InputDecoration(
                   labelText: 'Tulis masukan Anda di sini',
                   border: OutlineInputBorder(),
@@ -131,14 +127,12 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _isLoading ? null : _kirimKritik,
+                onPressed: _isLoading ? null : _submitFeedback,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        widget.kritikId != null
-                            ? 'Simpan Perubahan'
-                            : 'Kirim Masukan',
-                      ),
+                    : Text(widget.kritikId != null
+                        ? 'Simpan Perubahan'
+                        : 'Kirim Masukan'),
               ),
             ],
           ),
