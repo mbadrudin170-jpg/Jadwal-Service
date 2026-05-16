@@ -4,7 +4,7 @@
 //   - Digunakan sebagai halaman detail transaksi dari daftar transaksi.
 //
 // 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/transaction_form.dart (TransactionForm)
+//   - lib/admin/halaman/form/transaction_form.dart (FormTransaksiPage)
 //   - lib/shared/model/category_model.dart (CategoryModel)
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/model/package_model.dart (PackageModel)
@@ -62,102 +62,55 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
     super.initState();
     _currentTransaction = widget.transaction;
     Log.info('Membuka halaman Detail Transaksi ID: ${_currentTransaction.id}');
-    Log.info(
-      'Ringkasan transaksi - Tipe: ${_currentTransaction.type.name}, Jumlah: ${_currentTransaction.amount}, Tanggal: ${_currentTransaction.date.toIso8601String()}, Status: ${_currentTransaction.paymentStatus.name}',
-    );
-    Log.info(
-      'Relasi transaksi - Dompet: ${_currentTransaction.walletId}, Kategori: ${_currentTransaction.categoryId}, SubKategori: ${_currentTransaction.subCategoryId ?? "N/A"}, Pelanggan: ${_currentTransaction.customerId ?? "N/A"}, Paket: ${_currentTransaction.packageId ?? "N/A"}',
-    );
   }
 
   Future<String?> _getName(
     final Future<dynamic> Function(String) getModel,
     final String id,
-    final String context_,
+    final String label,
   ) async {
-    if (id.isEmpty) {
-      Log.info('ID $context_ kosong, mengembalikan null');
-      return null;
-    }
+    if (id.isEmpty) return null;
 
     try {
-      Log.info('Mengambil data $context_ dengan ID: $id');
       final model = await getModel(id);
-
       if (model != null) {
         String? name;
-        if (model is WalletModel) {
-          name = model.name;
-        } else if (model is CategoryModel) {
-          name = model.name;
-        } else if (model is SubCategoryModel) {
-          name = model.name;
-        } else if (model is CustomerModel) {
-          name = model.name;
-        } else if (model is PackageModel) {
-          name = model.name;
-        }
-
-        if (name != null) {
-          Log.info('Data $context_ ID: $id ditemukan: $name');
-          return name;
-        } else {
-          Log.warning(
-            'Model untuk $context_ ID: $id ditemukan, tetapi properti nama yang relevan tidak dapat diakses atau null. Tipe model: ${model.runtimeType}',
-          );
-          return 'Nama tidak tersedia';
-        }
+        if (model is WalletModel) name = model.name;
+        if (model is CategoryModel) name = model.name;
+        if (model is SubCategoryModel) name = model.name;
+        if (model is CustomerModel) name = model.name;
+        if (model is PackageModel) name = model.name;
+        return name ?? 'Nama tidak tersedia';
       }
-
-      Log.warning('Data $context_ dengan ID: $id tidak ditemukan di database');
       return 'Data tidak ditemukan';
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil data $context_ dengan ID: $id',
-        e: e,
-        st: st,
-      );
+    } on Exception {
       return 'Error Memuat';
     }
   }
 
   Future<void> _openEditForm() async {
-    Log.info(
-      'Navigasi ke TransactionForm mode edit untuk ID: ${_currentTransaction.id}',
-    );
     final updatedTransaction = await Navigator.push<TransactionModel?>(
       context,
       MaterialPageRoute<TransactionModel?>(
         builder: (final context) =>
-            TransactionForm(transaksi: _currentTransaction),
+            FormTransaksiPage(transaksi: _currentTransaction),
       ),
     );
     if (updatedTransaction != null) {
-      Log.info('Kembali dari form edit, data telah berubah. Memperbarui UI.');
-      setState(() {
-        _currentTransaction = updatedTransaction;
-      });
-    } else {
-      Log.info('Kembali dari form edit, tidak ada perubahan data.');
+      setState(() => _currentTransaction = updatedTransaction);
     }
   }
 
   @override
   Widget build(final BuildContext context) {
     final transaction = _currentTransaction;
-    Log.info('Membangun UI Detail Transaksi ID: ${transaction.id}');
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Transaksi'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Log.info(
-              'Kembali ke halaman sebelumnya dari Detail Transaksi ID: ${transaction.id}',
-            );
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
@@ -245,13 +198,9 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               transaction.paymentStatus.name.toUpperCase(),
             ),
             _buildDetailRow(
-              'Poin Dihasilkan',
-              transaction.earnedPoints.toString(),
-            ),
+                'Poin Dihasilkan', transaction.earnedPoints.toString()),
             _buildDetailRow(
-              'Poin Digunakan',
-              transaction.usedPoints.toString(),
-            ),
+                'Poin Digunakan', transaction.usedPoints.toString()),
             if (transaction.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
@@ -294,8 +243,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         if (snapshot.hasError) {
           return _buildDetailRow(label, 'Error Data');
         }
-        final data = snapshot.data ?? '-';
-        return _buildDetailRow(label, data);
+        return _buildDetailRow(label, snapshot.data ?? '-');
       },
     );
   }
