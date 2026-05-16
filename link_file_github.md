@@ -36,3 +36,16 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget
 
 # transaction_form.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/transaction_form.dart
+
+# info_paket.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/whatsapp/info_paket.dart
+
+# feedback_detail.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/detail/feedback_detail.dart
+
+
+# package.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/lainnya/package.dart
+
+# data_cleaning_operation.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/data_cleaning_operation.dart

@@ -113,7 +113,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         if (packageId.isNotEmpty)
           packageOperation.getPackageById(packageId)
         else
-          Future<PackageModel?>.value(null),
+          Future<PackageModel?>.value(),
       ]);
 
       if (mounted) {
@@ -166,7 +166,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () async => _navigateToEdit(),
+            onPressed: _navigateToEdit,
           ),
         ],
       ),
@@ -190,17 +190,18 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                           children: [
                             Center(
                               child: TextButton(
-                                onPressed: () async {
-                                  if (_customer != null) {
-                                    await Navigator.push<void>(
+                                onPressed: () {
+                                  final customer = _customer;
+                                  if (customer != null) {
+                                    unawaited(Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
                                         builder: (final context) =>
                                             CustomerDetailPage(
-                                          customerId: _customer!.id,
+                                          customerId: customer.id,
                                         ),
                                       ),
-                                    );
+                                    ));
                                   }
                                 },
                                 child: Text(
@@ -220,16 +221,16 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               _customer?.phone ?? 'Tidak ditemukan',
                             ),
                             InkWell(
-                              onTap: () async {
+                              onTap: () {
                                 final pkg = _package;
                                 if (pkg != null) {
-                                  await Navigator.push<void>(
+                                  unawaited(Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
                                       builder: (final context) =>
                                           PackageDetailPage(package: pkg),
                                     ),
-                                  );
+                                  ));
                                 }
                               },
                               child: _buildInfoRow(
@@ -277,9 +278,9 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                             ElevatedButton.icon(
                               icon: const Icon(Icons.send_to_mobile),
                               label: const Text('Kirim Info via WhatsApp'),
-                              onPressed: () async {
-                                await PesanInfoPaket.kirimRincianPaket(
-                                    _activeCustomer);
+                              onPressed: () {
+                                unawaited(PesanInfoPaket.kirimRincianPaket(
+                                    _activeCustomer));
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
@@ -303,8 +304,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     );
   }
 
-  Widget _buildInfoRow(final String label, final String value,
-      {final bool isLink = false}) {
+  Widget _buildInfoRow(final String label, final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -318,7 +318,6 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isLink ? Colors.blue : null,
                   ),
             ),
           ),
@@ -335,7 +334,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           InkWell(
-            onTap: () async => _launchWhatsApp(value),
+            onTap: () => _launchWhatsApp(value),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(

@@ -1,10 +1,23 @@
 // path: lib/shared/whatsapp/info_paket.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/detail/active_customer_detail.dart
+//   - lib/admin/halaman/form/active_customer_form.dart
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -14,63 +27,59 @@ class PesanInfoPaket {
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu secara otomatis mengirimkannya melalui WhatsApp.
   ///
-  /// [pelangganAktif]: Objek PelangganAktifModel yang baru saja dibuat atau diperbarui.
+  /// [activeCustomer]: Objek ActiveCustomerModel yang baru saja dibuat atau diperbarui.
   static Future<void> kirimRincianPaket(
-    final PelangganAktifModel pelangganAktif,
+    final ActiveCustomerModel activeCustomer,
   ) async {
     Log.info(
-      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${pelangganAktif.id}',
+      'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${activeCustomer.id}',
     );
-    final pelangganOperasi = PelangganOperasi();
-    final paketOperasi = PaketOperasi();
+    final customerOperation = CustomerOperation();
+    final packageOperation = PackageOperation();
 
     try {
-      // 1. Ambil data lengkap pelanggan dan paket dari database lokal.
       Log.info(
-        'Mengambil data pelanggan dengan ID: ${pelangganAktif.idPelanggan}',
+        'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}',
       );
-      final PelangganModel? pelanggan = await pelangganOperasi.getPelangganById(
-        pelangganAktif.idPelanggan,
+      final CustomerModel? customer = await customerOperation.getCustomerById(
+        activeCustomer.customerId,
       );
-      Log.info('Mengambil data paket dengan ID: ${pelangganAktif.idPaket}');
-      final PaketModel? paket = await paketOperasi.getPaketById(
-        pelangganAktif.idPaket,
+      Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');
+      final PackageModel? package = await packageOperation.getPackageById(
+        activeCustomer.packageId,
       );
 
-      if (pelanggan == null) {
+      if (customer == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${pelangganAktif.idPelanggan} tidak ditemukan di database lokal.',
+          'Pengiriman pesan dibatalkan. Pelanggan dengan ID ${activeCustomer.customerId} tidak ditemukan di database lokal.',
         );
         return;
       }
-      if (paket == null) {
+      if (package == null) {
         Log.warning(
-          'Pengiriman pesan dibatalkan. Paket dengan ID ${pelangganAktif.idPaket} tidak ditemukan di database lokal.',
+          'Pengiriman pesan dibatalkan. Paket dengan ID ${activeCustomer.packageId} tidak ditemukan di database lokal.',
         );
         return;
       }
 
       Log.info(
-        'Berhasil menemukan data pelanggan: ${pelanggan.nama} dan paket: ${paket.nama}',
+        'Berhasil menemukan data pelanggan: ${customer.name} dan paket: ${package.name}',
       );
 
-      // 2. Dapatkan status pembayaran langsung dari model PelangganAktif.
-      final String statusPembayaran = pelangganAktif.status.displayName;
-      Log.info('Status pembayaran yang akan dikirim: $statusPembayaran');
+      final String paymentStatus = activeCustomer.status.name;
+      Log.info('Status pembayaran yang akan dikirim: $paymentStatus');
 
-      // 3. Buat string pesan yang akan dikirim.
       Log.info('Membuat konten pesan WhatsApp.');
-      final String pesan = _buatPesan(
-        pelanggan,
-        paket,
-        pelangganAktif,
-        statusPembayaran,
+      final String message = _buildMessage(
+        customer,
+        package,
+        activeCustomer,
+        paymentStatus,
       );
 
-      // 4. Kirim pesan yang sudah diformat ke nomor telepon pelanggan via WhatsApp.
-      Log.info('Memulai proses pengiriman ke nomor: ${pelanggan.telepon}.');
-      await _kirimViaWhatsApp(pelanggan.telepon, pesan);
-    } on Exception catch  (e, s) {
+      Log.info('Memulai proses pengiriman ke nomor: ${customer.phone}.');
+      await _sendViaWhatsApp(customer.phone, message);
+    } on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan fatal saat proses kirimRincianPaket.',
         e: e,
@@ -79,59 +88,55 @@ class PesanInfoPaket {
     }
   }
 
-  static String _buatPesan(
-    final PelangganModel pelanggan,
-    final PaketModel paket,
-    final PelangganAktifModel pelangganAktif,
-    final String statusPembayaran,
+  static String _buildMessage(
+    final CustomerModel customer,
+    final PackageModel package,
+    final ActiveCustomerModel activeCustomer,
+    final String paymentStatus,
   ) {
-    final namaPelanggan = pelanggan.nama;
-    final namaPaket = paket.nama;
-    final hargaPaket = FormatUang.formatMataUang(paket.harga.toDouble());
-    final tanggalMulai = FormatTanggal.formatTanggalDanJam(
-      pelangganAktif.tanggalMulai,
-    );
-    final tanggalBerakhir = FormatTanggal.formatTanggalDanJam(
-      pelangganAktif.tanggalBerakhir,
-    );
+    final customerName = customer.name;
+    final packageName = package.name;
+    final packagePrice =
+        CurrencyFormat.formatCurrency(package.price.toDouble());
+    final startDate = FormatUtil.formatDateAndTime(activeCustomer.startDate);
+    final endDate = FormatUtil.formatDateAndTime(activeCustomer.endDate);
 
-    final pesanDibuat = '''
+    final message = '''
 *-- Rincian Aktivasi Paket --*
 
-Halo, *$namaPelanggan*.
+Halo, *$customerName*.
 Terima kasih telah melakukan aktivasi.
 
 Berikut adalah detail paket Anda:
 -----------------------------------
 📦 *Paket:*
-  $namaPaket
+  $packageName
 
 💰 *Harga:*
-  $hargaPaket
+  $packagePrice
 
 ▶️ *Mulai Aktif:*
-  $tanggalMulai
+  $startDate
 
 ⏹️ *Berakhir Pada:*
-  $tanggalBerakhir
+  $endDate
 
 ✅ *Status Pembayaran:*
-  $statusPembayaran
+  $paymentStatus
 -----------------------------------
 
 Semoga harimu menyenangkan!
 ''';
-    Log.info('Konten pesan berhasil dibuat:\n$pesanDibuat');
-    return pesanDibuat;
+    Log.info('Konten pesan berhasil dibuat:\n$message');
+    return message;
   }
 
-  static Future<void> _kirimViaWhatsApp(
-    final String nomorTelepon,
-    final String pesan,
+  static Future<void> _sendViaWhatsApp(
+    final String phoneNumber,
+    final String message,
   ) async {
-    // 1. Format nomor telepon ke standar internasional (misal: 62812...)
-    Log.info('Memformat nomor telepon: $nomorTelepon');
-    String formattedNumber = nomorTelepon.replaceAll(RegExp(r'[^0-9]'), '');
+    Log.info('Memformat nomor telepon: $phoneNumber');
+    String formattedNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
     if (formattedNumber.startsWith('0')) {
       formattedNumber = '62${formattedNumber.substring(1)}';
     } else if (!formattedNumber.startsWith('62')) {
@@ -139,16 +144,14 @@ Semoga harimu menyenangkan!
     }
     Log.info('Nomor telepon setelah diformat: $formattedNumber');
 
-    // 2. Buat URI untuk WhatsApp
     final whatsappUri = Uri(
       scheme: 'https',
       host: 'wa.me',
       path: formattedNumber,
-      queryParameters: {'text': pesan},
+      queryParameters: {'text': message},
     );
     Log.info('Membuat URI WhatsApp: $whatsappUri');
 
-    // 3. Coba luncurkan URL dengan penanganan error
     try {
       if (await canLaunchUrl(whatsappUri)) {
         Log.info('Membuka WhatsApp dengan URL...');
@@ -156,10 +159,10 @@ Semoga harimu menyenangkan!
         Log.info('Berhasil membuka aplikasi WhatsApp.');
       } else {
         Log.error(
-          'Tidak dapat membuka URL WhatsApp. Kemungkinan aplikasi WhatsApp tidak terinstal atau ada masalah konfigurasi di AndroidManifest.xml (queries).',
+          'Tidak dapat membuka URL WhatsApp. Kemungkinan aplikasi WhatsApp tidak terinstal.',
         );
       }
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal total saat mencoba meluncurkan URL WhatsApp.',
         e: e,
