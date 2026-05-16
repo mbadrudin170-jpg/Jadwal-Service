@@ -174,12 +174,14 @@ class _PelangganPageState extends State<PelangganPage> {
       switch (option) {
         case OpsiUrut.namaAZ:
           _filteredPelanggan.sort(
-            (final a, final b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+            (final a, final b) =>
+                a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
           );
           break;
         case OpsiUrut.namaZA:
           _filteredPelanggan.sort(
-            (final a, final b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+            (final a, final b) =>
+                b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
           );
           break;
       }
@@ -281,7 +283,8 @@ class _PelangganPageState extends State<PelangganPage> {
                   await Navigator.push<void>(
                     context,
                     MaterialPageRoute(
-                      builder: (final context) => FormPelanggan(pelanggan: pelanggan),
+                      builder: (final context) =>
+                          FormPelanggan(pelanggan: pelanggan),
                     ),
                   );
                   await _refreshPelangganList();
@@ -425,6 +428,7 @@ class _PelangganPageState extends State<PelangganPage> {
                       DetailPelangganPage(idPelanggan: pelanggan.id),
                 ),
               );
+              await _refreshPelangganList();
             },
             onLongPress: () async {
               Log.info(
