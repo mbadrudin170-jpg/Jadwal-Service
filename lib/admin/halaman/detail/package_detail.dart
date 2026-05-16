@@ -1,5 +1,13 @@
 // path: lib/admin/halaman/detail/package_detail.dart
-// digunakan oleh: lib/admin/halaman/lainnya/package.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/lainnya/package.dart
+//   - lib/admin/halaman/detail/subscription_history_detail.dart (DetailLanggananTransaksiPage)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/form/package_form.dart (PackageForm)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
@@ -29,7 +37,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
     super.initState();
     Log.info('Membuka halaman detail paket.');
     _package = widget.package;
-    Log.info('Data paket berhasil dimuat: ${_package.name}, ID: ${_package.id}.');
+    Log.info(
+        'Data paket berhasil dimuat: ${_package.name}, ID: ${_package.id}.');
   }
 
   Future<void> _editPackage() async {
@@ -37,7 +46,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => PackageForm(paket: _package),
+        builder: (final context) => PackageForm(package: _package),
       ),
     );
 
@@ -70,7 +79,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
         padding: const EdgeInsets.all(16.0),
         child: Card(
           elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -92,7 +102,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 const SizedBox(height: 20),
                 _buildDetailRow('Nama Paket', _package.name),
                 _buildDetailRow('Harga Sewa', 'Rp ${_package.price}'),
-                _buildDetailRow('Masa Aktif', '${_package.duration} ${_package.type.name}'),
+                _buildDetailRow(
+                    'Masa Aktif', '${_package.duration} ${_package.type.name}'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -112,7 +123,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 const SizedBox(height: 12),
                 _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
                     subTitle: 'Didapat saat beli paket'),
-                _buildDetailRow('Poin Penukaran', '${_package.redemptionPoints} Poin',
+                _buildDetailRow(
+                    'Poin Penukaran', '${_package.redemptionPoints} Poin',
                     subTitle: 'Syarat tukar gratis'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -121,7 +133,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 _buildDetailRow(
                   'Status Publik',
                   _package.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor: _package.isPublic ? Colors.green : Colors.red,
+                  customValueColor:
+                      _package.isPublic ? Colors.green : Colors.red,
                 ),
               ],
             ),
@@ -147,11 +160,14 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(label,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
                 if (subTitle != null)
                   Text(subTitle,
                       style: const TextStyle(
-                          color: Colors.black38, fontSize: 11, fontStyle: FontStyle.italic)),
+                          color: Colors.black38,
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic)),
               ],
             ),
           ),
