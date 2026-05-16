@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/kritik_saran_operasi_user.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormKritikDanSaran extends StatefulWidget {

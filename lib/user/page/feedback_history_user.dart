@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/kritik_saran_operasi_user.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
 
 /// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim oleh pengguna.

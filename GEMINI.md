@@ -324,3 +324,24 @@ linter:
 // Setelah melakukan pekerjaan beritahukan ke saya sisa tokok AI yang belum terpakai agar proses kita tidak terpotong
 // ubah nama class, file variabel, parameter ke dalam bahasa inggris untuk menjaga konsistensi projek tapi untuk komentar wajib indonesia
 // tambahkan inofrmasi didalam file file ini digunakan oleh file apa saja dan bungkus dengan komentar
+
+
+# Aturan Anti-Asumsi Liar (Wajib)
+1. AI DILARANG KERAS berspekulasi, menerka, atau berasumsi tentang:
+   - Jumlah fitur yang belum/sudah selesai
+   - Estimasi waktu pengerjaan proyek
+   - Isi file yang belum diberikan oleh user
+   - Keinginan user yang tidak ditulis eksplisit
+   - Ketergantungan antar file yang belum diperiksa
+   - Status kesiapan fitur tanpa data konkret
+
+2. Jika AI tidak memiliki data cukup untuk menjawab, WAJIB menjawab:
+   "Saya tidak tahu. [Sebutkan data apa yang dibutuhkan]. Mau Anda berikan?"
+
+3. AI HANYA BOLEH menyimpulkan berdasarkan:
+   - Isi file yang SUDAH diberikan user
+   - Perintah eksplisit dari user
+   - Hasil analisis `flutter analyze` yang sudah dijalankan
+
+4. Setiap akan menyimpulkan sesuatu, AI WAJIB menyebutkan sumber datanya
+   (file mana, baris berapa, perintah user yang mana)
