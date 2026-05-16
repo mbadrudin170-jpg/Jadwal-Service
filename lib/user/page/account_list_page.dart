@@ -1,50 +1,54 @@
-// path: lib/user/page/daftar_akun_page.dart
-// diubah: Memperbaiki unawaited future dan mengubah void function menjadi Future<void> async.
-// ditambah: Menggunakan tipe eksplisit <void> untuk MaterialPageRoute dan showDialog untuk memperbaiki inference failure.
+// path: lib/user/page/account_list_page.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman daftar akun untuk user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/theme/app_colors.dart (AppColors)
+//   - lib/user/page/login_page.dart (LoginPage)
+//   - lib/user/page/main_page.dart (MainPage)
+//   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Typedef untuk membangun halaman utama.
-///
-/// Digunakan untuk dependency injection pada halaman ini agar lebih mudah diuji.
 typedef MainPageBuilder = Widget Function(
   String userId,
   LocalStorageService localStorageService,
 );
 
 /// Halaman untuk menampilkan daftar akun yang pernah login di perangkat.
-///
-/// Pengguna dapat memilih akun untuk login, menghapus akun dari daftar,
-/// atau keluar dari semua akun.
-class DaftarAkunPage extends StatefulWidget {
+class AccountListPage extends StatefulWidget {
   /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService? localStorageService;
 
   /// Builder untuk membuat halaman utama setelah login berhasil.
   final MainPageBuilder? mainPageBuilder;
 
-  /// Membuat instance dari [DaftarAkunPage].
-  const DaftarAkunPage({
+  /// Membuat instance dari [AccountListPage].
+  const AccountListPage({
     super.key,
     this.localStorageService,
     this.mainPageBuilder,
   });
 
   @override
-  State<DaftarAkunPage> createState() => _DaftarAkunPageState();
+  State<AccountListPage> createState() => _AccountListPageState();
 }
 
-class _DaftarAkunPageState extends State<DaftarAkunPage> {
-  late Future<List<PelangganModel>> _futureDaftarAkun;
+class _AccountListPageState extends State<AccountListPage> {
+  late Future<List<CustomerModel>> _accountListFuture;
   late LocalStorageService _localStorageService;
   bool _isLocalStorageInitialized = false;
 
@@ -58,11 +62,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     if (widget.localStorageService != null) {
       _localStorageService = widget.localStorageService!;
       if (mounted) {
-        setState(() {
-          _isLocalStorageInitialized = true;
-        });
+        setState(() => _isLocalStorageInitialized = true);
       }
-      _muatDaftarAkun();
+      _loadAccountList();
     } else {
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {
@@ -70,31 +72,29 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
           _localStorageService = LocalStorageService(prefs: prefs);
           _isLocalStorageInitialized = true;
         });
-        _muatDaftarAkun();
+        _loadAccountList();
       }
     }
   }
 
-  void _muatDaftarAkun() {
-    if (_isLocalStorageInitialized) {
-      if (mounted) {
-        setState(() {
-          _futureDaftarAkun = _localStorageService.ambilDaftarAkun();
-        });
-      }
+  void _loadAccountList() {
+    if (_isLocalStorageInitialized && mounted) {
+      setState(() {
+        _accountListFuture = _localStorageService.getAccountList();
+      });
     }
   }
 
-  Future<void> _pilihAkun(final PelangganModel pelanggan) async {
+  Future<void> _selectAccount(final CustomerModel customer) async {
     if (!_isLocalStorageInitialized) return;
     final navigator = Navigator.of(context);
-    await _localStorageService.simpanAkun(pelanggan);
+    await _localStorageService.saveAccount(customer);
 
     if (!mounted) return;
     final page = widget.mainPageBuilder != null
-        ? widget.mainPageBuilder!(pelanggan.id, _localStorageService)
+        ? widget.mainPageBuilder!(customer.id, _localStorageService)
         : MainPage(
-            userId: pelanggan.id,
+            userId: customer.id,
             localStorageService: _localStorageService,
           );
 
@@ -103,16 +103,16 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     );
   }
 
-  Future<void> _tampilkanDialogHapus(
+  Future<void> _showDeleteDialog(
     final BuildContext context,
-    final PelangganModel pelanggan,
+    final CustomerModel customer,
   ) async {
     await showDialog<void>(
       context: context,
       builder: (final BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Hapus Akun'),
-          content: Text('Anda yakin ingin menghapus akun ${pelanggan.nama}?'),
+          content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
@@ -121,20 +121,17 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
             TextButton(
               child: const Text('Hapus'),
               onPressed: () async {
-                // Ambil navigator dan context SEBELUM await
                 final dialogNavigator = Navigator.of(dialogContext);
                 final pageContext = context;
 
                 if (!_isLocalStorageInitialized) return;
-                final akunSaatIni =
-                    await _localStorageService.ambilAkunSaatIni();
+                final currentAccount =
+                    await _localStorageService.getCurrentAccount();
 
-                // Cek apakah widget masih ada di tree SEBELUM menggunakan context
-                if (!dialogContext.mounted) return; // ✅
-                if (akunSaatIni?.id == pelanggan.id) {
-                  dialogNavigator.pop(); // Tutup dialog pertama
+                if (!dialogContext.mounted) return;
+                if (currentAccount?.id == customer.id) {
+                  dialogNavigator.pop();
 
-                  // Tampilkan dialog konfirmasi
                   await showDialog<void>(
                     context: pageContext,
                     builder: (final BuildContext confirmDialogContext) {
@@ -155,19 +152,14 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                               style: TextStyle(color: AppColors.errorColor),
                             ),
                             onPressed: () async {
-                              // 1. Ambil navigator SEBELUM await
-                              final navigator = Navigator.of(
-                                context,
-                              ); // Gunakan context halaman, bukan dialog
+                              final navigator = Navigator.of(context);
 
                               await _localStorageService
-                                  .hapusAkun(pelanggan.id);
-                              await _localStorageService.hapusAkunSaatIni();
+                                  .deleteAccount(customer.id);
+                              await _localStorageService.deleteCurrentAccount();
 
-                              // 2. Cek apakah halaman utama masih ada di screen
                               if (!context.mounted) return;
 
-                              // 3. Eksekusi navigasi
                               await navigator.pushNamedAndRemoveUntil(
                                 '/login',
                                 (final route) => false,
@@ -179,10 +171,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                     },
                   );
                 } else {
-                  // Logika asli jika bukan akun yang sedang login
-                  await _localStorageService.hapusAkun(pelanggan.id);
+                  await _localStorageService.deleteAccount(customer.id);
                   dialogNavigator.pop();
-                  _muatDaftarAkun(); // Refresh daftar setelah hapus
+                  _loadAccountList();
                 }
               },
             ),
@@ -192,7 +183,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
     );
   }
 
-  Future<void> _tampilkanDialogKeluar(final BuildContext context) async {
+  Future<void> _showExitDialog(final BuildContext context) async {
     await showDialog<void>(
       context: context,
       builder: (final dialogContext) => AlertDialog(
@@ -203,11 +194,11 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
             onPressed: () async {
               final navigator = Navigator.of(dialogContext);
               if (!_isLocalStorageInitialized) return;
-              final akun = await _localStorageService.ambilAkunSaatIni();
-              if (akun != null) {
-                await _localStorageService.hapusAkun(akun.id);
+              final account = await _localStorageService.getCurrentAccount();
+              if (account != null) {
+                await _localStorageService.deleteAccount(account.id);
               }
-              await _localStorageService.hapusAkunSaatIni();
+              await _localStorageService.deleteCurrentAccount();
               await navigator.pushNamedAndRemoveUntil(
                 '/login',
                 (final route) => false,
@@ -217,9 +208,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
               backgroundColor: AppColors.errorColor.withAlpha(25),
               foregroundColor: AppColors.textOnDark,
             ),
-            child: const Text(
-              'Keluar/Hapus Akun',
-            ),
+            child: const Text('Keluar/Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
@@ -232,12 +221,11 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
 
               if (!_isLocalStorageInitialized) return;
 
-              await _localStorageService.hapusTokenLogin();
+              await _localStorageService.deleteLoginToken();
               Log.info('Token login berhasil dihapus');
 
               if (!context.mounted) return;
 
-              // Ganti dengan ini untuk memastikan semua route dihapus
               await pageNavigator.pushAndRemoveUntil(
                 MaterialPageRoute<void>(
                   builder: (final context) => const LoginPage(),
@@ -245,9 +233,7 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                 (final route) => false,
               );
             },
-            child: const Text(
-              'Keluar',
-            ),
+            child: const Text('Keluar'),
           ),
         ],
       ),
@@ -272,26 +258,26 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<PelangganModel>>(
-              future: _futureDaftarAkun, // Perbaikan salah ketik di sini
+            child: FutureBuilder<List<CustomerModel>>(
+              future: _accountListFuture,
               builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final daftar = snapshot.data ?? [];
+                final accountList = snapshot.data ?? [];
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                if (daftar.isEmpty) {
+                if (accountList.isEmpty) {
                   return const Center(
                     child: Text('Belum ada riwayat login di perangkat ini.'),
                   );
                 }
                 return ListView.builder(
-                  itemCount: daftar.length,
+                  itemCount: accountList.length,
                   itemBuilder: (final context, final index) {
-                    final p = daftar[index];
+                    final account = accountList[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -299,11 +285,12 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          child: Text(p.nama.isNotEmpty ? p.nama[0] : ''),
+                          child: Text(
+                              account.name.isNotEmpty ? account.name[0] : ''),
                         ),
-                        title: Text(p.nama),
-                        onTap: () => _pilihAkun(p),
-                        onLongPress: () => _tampilkanDialogHapus(context, p),
+                        title: Text(account.name),
+                        onTap: () => _selectAccount(account),
+                        onLongPress: () => _showDeleteDialog(context, account),
                       ),
                     );
                   },
@@ -316,10 +303,9 @@ class _DaftarAkunPageState extends State<DaftarAkunPage> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => _tampilkanDialogKeluar(context),
+                onPressed: () => _showExitDialog(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.errorColor.withAlpha(200), // Lebih solid
+                  backgroundColor: AppColors.errorColor.withAlpha(200),
                   foregroundColor: Colors.white,
                   elevation: 2,
                   padding: const EdgeInsets.symmetric(vertical: 14),

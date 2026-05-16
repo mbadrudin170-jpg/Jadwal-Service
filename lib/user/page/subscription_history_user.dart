@@ -43,14 +43,25 @@ import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
+  /// Urutkan berdasarkan tanggal berakhir terbaru.
   endDateNewest,
+
+  /// Urutkan berdasarkan tanggal berakhir terlama.
   endDateOldest,
+
+  /// Urutkan berdasarkan status lunas.
   statusPaid,
+
+  /// Urutkan berdasarkan status belum lunas.
   statusUnpaid,
 }
 
+/// Halaman untuk menampilkan riwayat langganan pengguna.
 class SubscriptionHistoryPage extends StatefulWidget {
+  /// ID pengguna yang sedang login.
   final String userId;
+
+  /// Membuat instance dari [SubscriptionHistoryPage].
   const SubscriptionHistoryPage({super.key, required this.userId});
 
   @override
@@ -67,18 +78,20 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
       NotificationOpFirebase();
   final InfoPerangkatService _infoPerangkatService =
       InfoPerangkatService(DeviceInfoPlugin());
+
+  /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
 
   @override
   void initState() {
     super.initState();
     unawaited(_checkDeviceArchitecture());
-    _notificationOpFirebase.sinkronkanJadwalNotifikasi(widget.userId);
+    _notificationOpFirebase.syncNotificationSchedule(widget.userId);
   }
 
   @override
   void dispose() {
-    _notificationOpFirebase.hentikanSinkronisasiJadwal();
+    unawaited(_notificationOpFirebase.stopSyncSchedule());
     super.dispose();
   }
 
@@ -226,9 +239,9 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                             onTap: () async {
                               final package = await packageFuture;
                               if (context.mounted) {
-                                await Navigator.push(
+                                await Navigator.push<void>(
                                     context,
-                                    MaterialPageRoute(
+                                    MaterialPageRoute<void>(
                                       builder: (final context) =>
                                           TransactionDetailPage(
                                               transaction: tx,

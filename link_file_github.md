@@ -68,3 +68,12 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operas
 
 # notification_op_firebase.dart
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/firebase_operasi/notification_op_firebase.dart
+
+# settings_op_firebase.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/firebase_operasi/settings_op_firebase.dart
+
+# order_operation.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/order_operation.dart
+
+# feedback_model.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/model/feedback_model.dart

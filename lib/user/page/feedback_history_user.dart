@@ -1,6 +1,14 @@
-// path: lib/user/page/kritik_dan_saran_user.dart
-// diperbaiki: Mengatasi peringatan 'use_build_context_synchronously' dengan refactoring.
-// diperbaiki: Mengatasi peringatan 'discarded_futures' dengan menambahkan async/await.
+// path: lib/user/page/feedback_history_user.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman riwayat kritik dan saran untuk user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/feedback_model.dart (FeedbackModel)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/user/data/operasi/kritik_saran_operasi_user.dart (KritikSaranOperasiUser)
+//   - lib/user/page/form_kritik_dan_saran_user.dart (FormKritikDanSaran)
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,28 +20,24 @@ import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
 
 /// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim oleh pengguna.
-///
-/// Pengguna dapat melihat, mengedit, atau menghapus masukan mereka.
-class RiwayatKritikDanSaranPage extends StatefulWidget {
+class FeedbackHistoryPage extends StatefulWidget {
   /// ID pengguna untuk memfilter riwayat kritik dan saran.
   final String userId;
 
-  /// Membuat instance dari [RiwayatKritikDanSaranPage].
-  const RiwayatKritikDanSaranPage({super.key, required this.userId});
+  /// Membuat instance dari [FeedbackHistoryPage].
+  const FeedbackHistoryPage({super.key, required this.userId});
 
   @override
-  State<RiwayatKritikDanSaranPage> createState() =>
-      _RiwayatKritikDanSaranPageState();
+  State<FeedbackHistoryPage> createState() => _FeedbackHistoryPageState();
 }
 
-class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
-  final KritikSaranOperasiUser _operasi =
+class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
+  final KritikSaranOperasiUser _operation =
       KritikSaranOperasiUser(FirebaseFirestore.instance);
 
-  /// Menampilkan dialog dengan pilihan untuk mengedit atau menghapus kritik.
-  Future<void> _showOptionsDialog(final FeedbackModel kritik) async {
+  Future<void> _showOptionsDialog(final FeedbackModel feedback) async {
     await showDialog<void>(
-      context: context, // Menggunakan context dari State
+      context: context,
       builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Pilih Aksi'),
@@ -41,23 +45,21 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
             TextButton(
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
-                Navigator.of(dialogContext).pop(); // Tutup dialog pilihan
-                await _showDeleteConfirmationAndExecute(
-                  kritik.id,
-                ); // Tampilkan dialog konfirmasi
+                Navigator.of(dialogContext).pop();
+                await _showDeleteConfirmationAndExecute(feedback.id);
               },
             ),
             TextButton(
               child: const Text('Edit'),
               onPressed: () async {
-                Navigator.of(dialogContext).pop(); // Tutup dialog pilihan
+                Navigator.of(dialogContext).pop();
                 await Navigator.push<void>(
-                  context, // Gunakan context dari State untuk navigasi
+                  context,
                   MaterialPageRoute<void>(
                     builder: (final _) => FormKritikDanSaran(
                       userId: widget.userId,
-                      kritikId: kritik.id,
-                      initialValue: kritik.isi,
+                      kritikId: feedback.id,
+                      initialValue: feedback.content,
                     ),
                   ),
                 );
@@ -73,10 +75,9 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
     );
   }
 
-  /// Menampilkan dialog konfirmasi dan mengeksekusi penghapusan jika disetujui.
   Future<void> _showDeleteConfirmationAndExecute(final String docId) async {
     final bool? shouldDelete = await showDialog<bool>(
-      context: context, // Menggunakan context dari State
+      context: context,
       builder: (final dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
@@ -98,8 +99,8 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
 
     if (shouldDelete ?? false) {
       try {
-        await _operasi.hapusKritikSaran(docId);
-        if (!mounted) return; // Pemeriksaan mounted sekarang valid
+        await _operation.hapusKritikSaran(docId);
+        if (!mounted) return;
         SnackBarUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {
         if (!mounted) return;
@@ -116,7 +117,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
         centerTitle: true,
       ),
       body: StreamBuilder<List<FeedbackModel>>(
-        stream: _operasi.bacaSemuaKritikSaran(widget.userId),
+        stream: _operation.bacaSemuaKritikSaran(widget.userId),
         builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -130,27 +131,26 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
             );
           }
 
-          final kritiks = snapshot.data!;
+          final feedbacks = snapshot.data!;
 
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            itemCount: kritiks.length,
+            itemCount: feedbacks.length,
             itemBuilder: (final context, final index) {
-              final kritik = kritiks[index];
-              final formattedDate = kritik.tanggal != null
-                  ? DateFormat.yMMMMd('id_ID').add_jm().format(kritik.tanggal!)
+              final feedback = feedbacks[index];
+              final formattedDate = feedback.date != null
+                  ? DateFormat.yMMMMd('id_ID').add_jm().format(feedback.date!)
                   : 'Tanggal tidak tersedia';
 
-              final formattedUpdatedDate = kritik.diperbarui != null
-                  ? ' (diperbarui: ${DateFormat.yMMMMd('id_ID').add_jm().format(kritik.diperbarui!)})'
+              final formattedUpdatedDate = feedback.updatedAt != null
+                  ? ' (diperbarui: ${DateFormat.yMMMMd('id_ID').add_jm().format(feedback.updatedAt!)})'
                   : '';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  onTap: () => _showOptionsDialog(
-                      kritik), // Panggilan yang sudah direfaktor
-                  title: Text(kritik.isi),
+                  onTap: () => _showOptionsDialog(feedback),
+                  title: Text(feedback.content),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
