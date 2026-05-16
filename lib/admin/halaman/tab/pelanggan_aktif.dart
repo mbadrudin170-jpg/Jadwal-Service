@@ -16,7 +16,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/pelanggan_aktif_sorter.dart';
+import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/widget/package_name.dart';

@@ -1,34 +1,40 @@
-// path: lib/user/page/detail_transaksi_user.dart
-// diubah: Konstruktor diubah untuk menerima objek PaketModel.
-// diubah: Menampilkan nama paket langsung dari model, bukan dari widget.
+// path: lib/user/page/transaction_detail_user.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman detail transaksi untuk user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart' show TransactionModel;
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 // TODO: rencana selanjutnya adalah menggunakan detail riwayat langganan seperti admin
 /// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
 ///
 /// Menampilkan semua informasi yang relevan dari [TransactionModel] dan
-/// [PaketModel] yang terkait.
-class DetailTransaksiPage extends StatelessWidget {
+/// [PackageModel] yang terkait.
+class TransactionDetailPage extends StatelessWidget {
   /// Data transaksi yang akan ditampilkan.
-  final TransactionModel transaksi;
+  final TransactionModel transaction;
 
   /// Data paket yang terkait dengan transaksi (jika ada).
-  // diubah: Menerima PaketModel yang bisa null.
-  final PaketModel? paket;
+  final PackageModel? package;
 
-  /// Membuat instance dari [DetailTransaksiPage].
-  const DetailTransaksiPage({super.key, required this.transaksi, this.paket});
+  /// Membuat instance dari [TransactionDetailPage].
+  const TransactionDetailPage(
+      {super.key, required this.transaction, this.package});
 
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun halaman DetailTransaksiPage untuk transaksi ID: ${transaksi.id}',
+      'Membangun halaman TransactionDetailPage untuk transaksi ID: ${transaction.id}',
     );
     return Scaffold(
       appBar: AppBar(
@@ -41,40 +47,39 @@ class DetailTransaksiPage extends StatelessWidget {
           children: [
             _buildInfoRow(
               'Tanggal:',
-              FormatTanggal.formatTanggalDanJam(transaksi.tanggal),
+              FormatUtil.formatDateAndTime(transaction.date),
             ),
-            _buildInfoRow('Keterangan:', transaksi.keterangan),
+            _buildInfoRow('Keterangan:', transaction.description),
             _buildInfoRow(
               'Jumlah:',
-              FormatUang.formatMataUang(transaksi.jumlah),
+              CurrencyFormat.formatCurrency(transaction.amount),
             ),
-            _buildInfoRow('Tipe:', transaksi.tipe.name),
-            // diubah: Menampilkan nama paket dari objek yang diterima.
-            if (paket != null)
-              _buildInfoRow('Paket:', paket!.nama)
-            else if (transaksi.idPaket != null)
+            _buildInfoRow('Tipe:', transaction.type.name),
+            if (package != null)
+              _buildInfoRow('Paket:', package!.name)
+            else if (transaction.packageId != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
               'Status Pembayaran:',
-              transaksi.statusPembayaran.name,
+              transaction.paymentStatus.name,
             ),
-            if (transaksi.tanggalMulai != null)
+            if (transaction.startDate != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                FormatTanggal.formatTanggalBasic(transaksi.tanggalMulai!),
+                FormatUtil.formatDateBasic(transaction.startDate!),
               ),
-            if (transaksi.tanggalBerakhir != null)
+            if (transaction.endDate != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatTanggal.formatTanggalBasic(transaksi.tanggalBerakhir!),
+                FormatUtil.formatDateBasic(transaction.endDate!),
               ),
             _buildInfoRow(
               'Poin didapat:',
-              transaksi.poinYangDihasilkan.toString(),
+              transaction.earnedPoints.toString(),
             ),
             _buildInfoRow(
               'Poin digunakan:',
-              transaksi.poinYangDigunakan.toString(),
+              transaction.usedPoints.toString(),
             ),
           ],
         ),

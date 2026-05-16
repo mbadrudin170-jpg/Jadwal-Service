@@ -10,7 +10,7 @@ import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/widget/customer_detail_ui.dart';
-import 'package:wifi/user/page/edit_profil_page.dart';
+import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/page/poin_page_user.dart';
 
 // Kelas untuk menggabungkan data yang dibutuhkan oleh UI
@@ -101,7 +101,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       context,
       MaterialPageRoute<bool>(
         builder: (final context) =>
-            EditProfilPage(pelanggan: customer, userId: widget.userId),
+            EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
     if (result ?? false) {

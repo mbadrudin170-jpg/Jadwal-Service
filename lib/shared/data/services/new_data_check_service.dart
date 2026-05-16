@@ -1,29 +1,38 @@
 // path: lib/shared/data/services/new_data_check_service.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai service pengecekan data baru untuk sinkronisasi.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/operasi/upload_status_operation.dart (UploadStatusOperation)
+//   - lib/shared/utils/sync_manager.dart (SyncManager)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/upload_status_operasi.dart';
+import 'package:wifi/shared/operasi/upload_status_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk memeriksa apakah ada data baru di SQLite atau Firebase.
 class NewDataCheckService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-  final UploadStatusOperasi _uploadStatusOperasi;
+  final UploadStatusOperation _uploadStatusOperation;
 
   /// Konstruktor untuk NewDataCheckService.
   ///
-  /// Menginisialisasi [_firestore], [_syncManager], dan [_uploadStatusOperasi].
+  /// Menginisialisasi [_firestore], [_syncManager], dan [_uploadStatusOperation].
   /// Jika tidak ada instance yang diberikan, maka akan membuat instance baru.
   NewDataCheckService({
     final FirebaseFirestore? firestore,
     final SyncManager? syncManager,
-    final UploadStatusOperasi? uploadStatusOperasi,
+    final UploadStatusOperation? uploadStatusOperation,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
         _syncManager = syncManager ?? SyncManager(),
-        _uploadStatusOperasi = uploadStatusOperasi ?? UploadStatusOperasi() {
+        _uploadStatusOperation =
+            uploadStatusOperation ?? UploadStatusOperation() {
     Log.info(
-      'Inisialisasi NewDataCheckService berhasil. Komponen FirebaseFirestore untuk akses cloud, SyncManager untuk manajemen waktu lokal, dan UploadStatusOperasi untuk akses bendera SQLite telah siap digunakan.',
+      'Inisialisasi NewDataCheckService berhasil. Komponen FirebaseFirestore untuk akses cloud, SyncManager untuk manajemen waktu lokal, dan UploadStatusOperation untuk akses bendera SQLite telah siap digunakan.',
     );
   }
 
@@ -37,9 +46,9 @@ class NewDataCheckService {
 
     try {
       Log.info(
-        'Mengakses UploadStatusOperasi untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
+        'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool result = await _uploadStatusOperasi.getNeedUpload();
+      final bool result = await _uploadStatusOperation.getNeedUpload();
 
       if (result) {
         Log.info(
@@ -65,7 +74,7 @@ class NewDataCheckService {
   Future<void> resetNeedUpload() async {
     Log.info('Mereset bendera need_upload menjadi false.');
     try {
-      await _uploadStatusOperasi.resetNeedUpload();
+      await _uploadStatusOperation.resetNeedUpload();
       Log.info('Bendera need_upload berhasil direset.');
     } on Exception catch (e, s) {
       Log.error(

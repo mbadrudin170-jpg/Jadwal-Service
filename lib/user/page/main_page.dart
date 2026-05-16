@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/page/pengaturan_user.dart';
-import 'package:wifi/user/page/profil_page.dart';
-import 'package:wifi/user/page/riwayat_langganan_user.dart';
+import 'package:wifi/user/page/profile_page.dart';
+import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.

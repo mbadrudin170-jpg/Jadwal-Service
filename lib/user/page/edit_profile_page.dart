@@ -1,8 +1,18 @@
-// path: lib/user/page/edit_profil_page.dart
+// path: lib/user/page/edit_profile_page.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman edit profil untuk user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
+//   - lib/shared/theme/app_colors.dart (AppColors)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -10,63 +20,60 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 /// Halaman untuk mengedit profil pengguna.
 ///
 /// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
-class EditProfilPage extends StatefulWidget {
+class EditProfilePage extends StatefulWidget {
   /// Data pelanggan yang akan diedit.
-  final PelangganModel pelanggan;
+  final CustomerModel customer;
 
   /// ID unik pengguna yang sedang login.
   final String userId;
 
-  /// Membuat instance dari [EditProfilPage].
-  const EditProfilPage({
+  /// Membuat instance dari [EditProfilePage].
+  const EditProfilePage({
     super.key,
-    required this.pelanggan,
+    required this.customer,
     required this.userId,
   });
 
   @override
-  State<EditProfilPage> createState() => _EditPageState();
+  State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditPageState extends State<EditProfilPage> {
+class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _namaController;
-  late TextEditingController _teleponController;
-  late TextEditingController _passwordController; // Controller untuk password
-  final _pelangganOpFirebase = PelangganOpFirebase();
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+  late TextEditingController _passwordController;
+  final _customerOpFirebase = CustomerOpFirebase();
 
-  bool _apakahPasswordTerlihat = false; // State untuk visibilitas password
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
-    _namaController = TextEditingController(text: widget.pelanggan.nama);
-    _teleponController = TextEditingController(text: widget.pelanggan.telepon);
+    _nameController = TextEditingController(text: widget.customer.name);
+    _phoneController = TextEditingController(text: widget.customer.phone);
     _passwordController = TextEditingController(
-      text: widget.pelanggan.password,
+      text: widget.customer.password,
     );
   }
 
-  Future<void> _simpanPerubahan() async {
+  Future<void> _saveChanges() async {
     if (_formKey.currentState?.validate() ?? false) {
       final navigator = Navigator.of(context);
 
       try {
-        // Gunakan copyWith untuk membuat instance baru dengan data yang diperbarui
-        final pelangganYangDiperbarui = widget.pelanggan.copyWith(
-          nama: _namaController.text,
-          telepon: _teleponController.text,
+        final updatedCustomer = widget.customer.copyWith(
+          name: _nameController.text,
+          phone: _phoneController.text,
           password: _passwordController.text,
         );
 
-        await _pelangganOpFirebase.perbaruiPelanggan(pelangganYangDiperbarui);
+        await _customerOpFirebase.updateCustomer(updatedCustomer);
 
         if (!mounted) return;
 
-        // Gunakan SnackBarUtil untuk notifikasi sukses
         SnackBarUtil.success(context, 'Profil berhasil diperbarui.');
 
-        // Langsung kembali ke halaman sebelumnya dengan hasil true
         navigator.pop(true);
       } on Exception catch (e, st) {
         Log.error(
@@ -82,9 +89,9 @@ class _EditPageState extends State<EditProfilPage> {
 
   @override
   void dispose() {
-    _namaController.dispose();
-    _teleponController.dispose();
-    _passwordController.dispose(); // Jangan lupa dispose controller password
+    _nameController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -99,7 +106,7 @@ class _EditPageState extends State<EditProfilPage> {
           child: ListView(
             children: [
               TextFormField(
-                controller: _namaController,
+                controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Nama Lengkap'),
                 validator: (final value) {
                   if (value == null || value.isEmpty) {
@@ -110,7 +117,7 @@ class _EditPageState extends State<EditProfilPage> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _teleponController,
+                controller: _phoneController,
                 decoration: const InputDecoration(labelText: 'No. HP'),
                 keyboardType: TextInputType.phone,
                 validator: (final value) {
@@ -121,24 +128,20 @@ class _EditPageState extends State<EditProfilPage> {
                 },
               ),
               const SizedBox(height: 16),
-              // Form Field untuk Password
               TextFormField(
                 controller: _passwordController,
-                obscureText:
-                    !_apakahPasswordTerlihat, // Sembunyikan atau tampilkan teks
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   suffixIcon: IconButton(
                     icon: Icon(
-                      // Ganti ikon berdasarkan state visibilitas
-                      _apakahPasswordTerlihat
+                      _isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
                     ),
                     onPressed: () {
-                      // Ubah state untuk toggle visibilitas password
                       setState(() {
-                        _apakahPasswordTerlihat = !_apakahPasswordTerlihat;
+                        _isPasswordVisible = !_isPasswordVisible;
                       });
                     },
                   ),
@@ -152,7 +155,7 @@ class _EditPageState extends State<EditProfilPage> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _simpanPerubahan,
+                onPressed: _saveChanges,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,

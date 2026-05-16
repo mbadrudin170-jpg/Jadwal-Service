@@ -1,0 +1,255 @@
+// path: lib/user/page/subscription_history_user.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman riwayat langganan untuk user.
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
+//   - lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart (TransactionOpFirebase)
+//   - lib/shared/operasi/firebase_operasi/package_op_firebase.dart (PackageOpFirebase)
+//   - lib/shared/operasi/firebase_operasi/notification_op_firebase.dart (NotificationOpFirebase)
+//   - lib/shared/services/info_perangkat_service.dart (InfoPerangkatService)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
+//   - lib/shared/utils/format_util.dart (FormatUtil)
+//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
+//   - lib/shared/widget/package_name.dart (PackageNameWidget)
+//   - lib/user/page/transaction_detail_user.dart (TransactionDetailPage)
+//   - lib/user/widget/ads/banner_ad_widget.dart (BannerAdWidget)
+//   - lib/shared/debug/log.dart (Log)
+
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notification_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/services/info_perangkat_service.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/package_name.dart';
+import 'package:wifi/user/page/transaction_detail_user.dart';
+import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
+
+/// Enum untuk mode pengurutan riwayat langganan.
+enum SortMode {
+  endDateNewest,
+  endDateOldest,
+  statusPaid,
+  statusUnpaid,
+}
+
+class SubscriptionHistoryPage extends StatefulWidget {
+  final String userId;
+  const SubscriptionHistoryPage({super.key, required this.userId});
+
+  @override
+  State<SubscriptionHistoryPage> createState() =>
+      _SubscriptionHistoryPageState();
+}
+
+class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
+  final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
+  final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
+  final PackageOpFirebase _packageOpFirebase =
+      PackageOpFirebase(FirebaseFirestore.instance);
+  final NotificationOpFirebase _notificationOpFirebase =
+      NotificationOpFirebase();
+  final InfoPerangkatService _infoPerangkatService =
+      InfoPerangkatService(DeviceInfoPlugin());
+  SortMode _sortMode = SortMode.endDateNewest;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_checkDeviceArchitecture());
+    _notificationOpFirebase.sinkronkanJadwalNotifikasi(widget.userId);
+  }
+
+  @override
+  void dispose() {
+    _notificationOpFirebase.hentikanSinkronisasiJadwal();
+    super.dispose();
+  }
+
+  Future<void> _checkDeviceArchitecture() async {
+    try {
+      await _infoPerangkatService.dapatkanArsitekturPerangkat();
+    } on Exception catch (e, st) {
+      Log.error('Gagal mendapatkan arsitektur perangkat.', e: e, st: st);
+    }
+  }
+
+  List<TransactionModel> _sortHistory(final List<TransactionModel> history) {
+    switch (_sortMode) {
+      case SortMode.endDateNewest:
+        history.sort((final a, final b) {
+          if (a.endDate == null && b.endDate == null) return 0;
+          if (a.endDate == null) return 1;
+          if (b.endDate == null) return -1;
+          return b.endDate!.compareTo(a.endDate!);
+        });
+      case SortMode.endDateOldest:
+        history.sort((final a, final b) {
+          if (a.endDate == null && b.endDate == null) return 0;
+          if (a.endDate == null) return 1;
+          if (b.endDate == null) return -1;
+          return a.endDate!.compareTo(b.endDate!);
+        });
+      case SortMode.statusPaid:
+        history.sort((final a, final b) {
+          final statusA = a.paymentStatus == PaymentStatus.paid ? 0 : 1;
+          final statusB = b.paymentStatus == PaymentStatus.paid ? 0 : 1;
+          return statusA.compareTo(statusB);
+        });
+      case SortMode.statusUnpaid:
+        history.sort((final a, final b) {
+          final statusA = a.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
+          final statusB = b.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
+          return statusA.compareTo(statusB);
+        });
+    }
+    return history;
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Riwayat Langganan'),
+        actions: [
+          PopupMenuButton<SortMode>(
+            onSelected: (final SortMode result) =>
+                setState(() => _sortMode = result),
+            itemBuilder: (final BuildContext context) => [
+              const PopupMenuItem(
+                  value: SortMode.endDateNewest,
+                  child: Text('Tanggal Berakhir (Terbaru)')),
+              const PopupMenuItem(
+                  value: SortMode.endDateOldest,
+                  child: Text('Tanggal Berakhir (Terlama)')),
+              const PopupMenuItem(
+                  value: SortMode.statusPaid, child: Text('Status: Lunas')),
+              const PopupMenuItem(
+                  value: SortMode.statusUnpaid,
+                  child: Text('Status: Belum Lunas')),
+            ],
+            icon: const Icon(Icons.sort),
+          ),
+        ],
+      ),
+      body: StreamBuilder<CustomerModel?>(
+        stream: _customerOpFirebase.getCustomerStream(widget.userId),
+        builder: (final context, final customerSnapshot) {
+          if (customerSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (customerSnapshot.hasError) {
+            return Center(child: Text('Error: ${customerSnapshot.error}'));
+          }
+          if (!customerSnapshot.hasData || customerSnapshot.data == null) {
+            return const Center(child: Text('Data pelanggan tidak ditemukan.'));
+          }
+          final customer = customerSnapshot.data!;
+          return Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<TransactionModel>>(
+                  future: _transactionOpFirebase
+                      .getFullSubscriptionHistory(customer.id),
+                  builder: (final context, final historySnapshot) {
+                    if (historySnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (historySnapshot.hasError) {
+                      return Center(
+                          child:
+                              Text('Gagal memuat: ${historySnapshot.error}'));
+                    }
+                    if (!historySnapshot.hasData ||
+                        historySnapshot.data!.isEmpty) {
+                      return const Center(child: Text('Tidak ada riwayat.'));
+                    }
+                    final sorted =
+                        _sortHistory(List.from(historySnapshot.data!));
+                    return ListView.builder(
+                      itemCount: sorted.length,
+                      itemBuilder: (final context, final index) {
+                        final tx = sorted[index];
+                        final packageFuture = tx.packageId != null
+                            ? _packageOpFirebase
+                                .getPackageModelById(tx.packageId!)
+                            : Future<PackageModel?>.value();
+                        final activeText = tx.endDate != null
+                            ? CalculationUtil.getRemainingActivePeriodText(
+                                tx.endDate!)
+                            : 'N/A';
+                        final activeColor = tx.endDate != null
+                            ? CalculationUtil.getRemainingActivePeriodColor(
+                                tx.endDate!)
+                            : Colors.grey;
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.receipt_long),
+                            title:
+                                PackageNameWidget(packageFuture: packageFuture),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (tx.endDate != null)
+                                  Text(
+                                      'Berakhir - ${FormatUtil.formatDateAndTime(tx.endDate!)}'),
+                                Text('Status: ${tx.paymentStatus.name}',
+                                    style: TextStyle(
+                                        color: tx.paymentStatus ==
+                                                PaymentStatus.paid
+                                            ? Colors.green
+                                            : Colors.red)),
+                                Text('Masa Aktif: $activeText',
+                                    style: TextStyle(color: activeColor)),
+                              ],
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () async {
+                              final package = await packageFuture;
+                              if (context.mounted) {
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (final context) =>
+                                          TransactionDetailPage(
+                                              transaction: tx,
+                                              package: package),
+                                    ));
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              const Center(
+                  child: BannerAdWidget(
+                      adUnitId: 'ca-app-pub-3940256099942544/6300978111')),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

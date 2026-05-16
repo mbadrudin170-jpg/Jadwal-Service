@@ -18,7 +18,7 @@ import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/services/pembersihan_data_service.dart';
+import 'package:wifi/shared/services/data_cleaning_operation.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
