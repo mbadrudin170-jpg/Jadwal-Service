@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/detail_kritik_saran.dart
+// path: lib/admin/halaman/detail/feedback_detail.dart
 // Fitur: Detail Kritik dan Saran
 // Tujuan: Menampilkan detail dari satu item kritik dan saran, dan menyediakan opsi untuk menghapusnya.
 //

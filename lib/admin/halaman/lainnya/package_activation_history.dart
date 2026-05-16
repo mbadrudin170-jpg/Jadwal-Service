@@ -1,252 +1,48 @@
-// path: lib/admin/halaman/lainnya/package_activation_history.dart// diubah: Memperbaiki unawaited future.
-// === ANALISIS FILE DAN RELASI MENDALAM (TRACE BERANTAI) ===
+// path: lib/admin/halaman/lainnya/package_activation_history.dart
 //
-// Saya ingin kamu menganalisis file berikut secara MENDALAM dan MENYELURUH:
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - Digunakan sebagai halaman dalam navigasi admin (tab Lainnya).
 //
-// --- FILE UTAMA ---
-// Nama file: package_activation_history.dart
-// Path: ~/myapp/lib/admin/halaman/lainnya/package_activation_history.dart
-//
-// Isi file:
-// ```dart
-// [{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "uri_does_not_exist",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/uri_does_not_exist",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "Target of URI doesn't exist: 'package:wifi/admin/halaman/detail/subscription_history_detail.dart'.\nTry creating the file referenced by the URI, or try using a URI for a file that does exist.",
-	"source": "dart",
-	"startLineNumber": 6,
-	"startColumn": 8,
-	"endLineNumber": 6,
-	"endColumn": 76
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "uri_does_not_exist",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/uri_does_not_exist",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "Target of URI doesn't exist: 'package:wifi/admin/halaman/widget/package_name.dart'.\nTry creating the file referenced by the URI, or try using a URI for a file that does exist.",
-	"source": "dart",
-	"startLineNumber": 7,
-	"startColumn": 8,
-	"endLineNumber": 7,
-	"endColumn": 61
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "uri_does_not_exist",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/uri_does_not_exist",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "Target of URI doesn't exist: 'package:wifi/admin/halaman/widget/customer_name.dart'.\nTry creating the file referenced by the URI, or try using a URI for a file that does exist.",
-	"source": "dart",
-	"startLineNumber": 8,
-	"startColumn": 8,
-	"endLineNumber": 8,
-	"endColumn": 62
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "undefined_method",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/undefined_method",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "The method 'SubscriptionHistoryDetailPage' isn't defined for the type '_PackageActivationHistoryPageState'.\nTry correcting the name to the name of an existing method, or defining a method named 'SubscriptionHistoryDetailPage'.",
-	"source": "dart",
-	"startLineNumber": 349,
-	"startColumn": 31,
-	"endLineNumber": 349,
-	"endColumn": 60
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "undefined_method",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/undefined_method",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "The method 'CustomerNameWidget' isn't defined for the type '_PackageActivationHistoryPageState'.\nTry correcting the name to the name of an existing method, or defining a method named 'CustomerNameWidget'.",
-	"source": "dart",
-	"startLineNumber": 365,
-	"startColumn": 28,
-	"endLineNumber": 365,
-	"endColumn": 46
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "undefined_method",
-		"target": {
-			"$mid": 1,
-			"path": "/diagnostics/undefined_method",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 8,
-	"message": "The method 'PackageNameWidget' isn't defined for the type '_PackageActivationHistoryPageState'.\nTry correcting the name to the name of an existing method, or defining a method named 'PackageNameWidget'.",
-	"source": "dart",
-	"startLineNumber": 372,
-	"startColumn": 25,
-	"endLineNumber": 372,
-	"endColumn": 42
-},{
-	"resource": "/home/user/myapp/lib/admin/halaman/lainnya/package_activation_history.dart",
-	"owner": "_generated_diagnostic_collection_name_#3",
-	"code": {
-		"value": "directives_ordering",
-		"target": {
-			"$mid": 1,
-			"path": "/lints/directives_ordering",
-			"scheme": "https",
-			"authority": "dart.dev"
-		}
-	},
-	"severity": 4,
-	"message": "Sort directive sections alphabetically.\nTry sorting the directives.",
-	"source": "dart",
-	"startLineNumber": 8,
-	"startColumn": 1,
-	"endLineNumber": 8,
-	"endColumn": 63
-}]
-// ```
-//
-// --- ATURAN PENTING (WAJIB DIPATUHI) ---
-//
-// ATURAN TRACE BERANTAI:
-// - Jika file ini import/reference/memanggil file B, kamu WAJIB menanyakan isi file B
-// - Jika file B ternyata juga import/reference/memanggil file C, kamu WAJIB menanyakan isi file C
-// - Jika file C import file D, tanyakan file D, begitu seterusnya sampai AKAR
-// - Jangan berhenti sebelum SEMUA rantai dependency terlacak
-// - Jangan berspekulasi atau menebak isi file lain, WAJIB minta isinya padaku
-// - Kalau kamu butuh isi file terkait, TANYAKAN dengan format: 'Tolong paste isi file [nama_file]'
-//
-// ATURAN DUA ARAH:
-// - Selain file yang di-import, kamu juga WAJIB menanyakan file yang meng-import file utama ini
-// - Trace dua arah: ke atas (parent/caller) dan ke bawah (child/dependency)
-//
-// --- TUGAS KAMU ---
-//
-// 1. IDENTIFIKASI SEMUA IMPORT & DEPENDENCY
-//    - Sebutkan SATU PER SATU import yang ada di file ini
-//    - Untuk SETIAP import, sebutkan nama file dan path-nya
-//    - Jelaskan kegunaan masing-masing import
-//
-// 2. TRACE BERANTAI KE BAWAH (FILE YANG DI-IMPORT)
-//    - Untuk SETIAP file yang di-import, WAJIB minta isinya padaku
-//    - Format: 'Tolong paste isi file [nama_file] di path [path_file]'
-//    - Kalau di file import itu ada import lagi, ulangi terus sampai ke akar
-//    - Tampilkan dependency chain lengkap: File A → File B → File C → ... → File Akar
-//
-// 3. TRACE BERANTAI KE ATAS (FILE YANG MENG-IMPORT FILE INI)
-//    - WAJIB tanyakan file-file yang meng-import file utama ini
-//    - Format: 'Apakah ada file lain yang meng-import package_activation_history.dart? Tolong paste isinya'
-//    - Kalau ada, trace terus ke atas: File X → File Y → ... → File Utama
-//
-// 4. ANALISIS MASALAH DI SETIAP LEVEL RANTAI
-//    - Di setiap file dalam rantai, analisis potensi error
-//    - Cek apakah error di file utama disebabkan oleh file import
-//    - Cek sampai ke akar penyebab, jangan cuma di permukaan
-//    - Siapa yang pertama kali menyebabkan masalah di rantai ini?
-//
-// 5. DAMPAK PERUBAHAN SEPANJANG RANTAI
-//    - Kalau file utama diubah, trace dampaknya ke SEMUA file di rantai
-//    - Kalau file akar diubah, trace dampaknya ke file utama
-//    - Di setiap level, sebutkan apa yang akan error/terpengaruh
-//
-// 6. VISUALISASI RANTAI DEPENDENCY
-//    - Gambarkan diagram rantai lengkap: File A → File B → File C → File D
-//    - Tandai file mana yang bermasalah
-//    - Tandai arah aliran data/dependency
-//
-// 7. KONTEKS PROJECT
-//    - Di folder mana file ini berada?
-//    - Apa peran file ini dalam arsitektur project?
-//    - File apa saja yang satu folder/feature?
-//
-// 8. POTENSI MASALAH DI SELURUH RANTAI
-//    - Circular dependency?
-//    - Import tidak digunakan?
-//    - Best practice dilanggar?
-//    - Potensi bug dari relasi?
-//
-// 9. REKOMENDASI PERBAIKAN
-//    - Perbaikan untuk file utama
-//    - Perbaikan untuk file-file di rantai (kalau perlu)
-//    - Saran restruktur dependency kalau diperlukan
-//
-// --- FORMAT JAWABAN ---
-// 1. Mulai dengan identifikasi import file utama
-// 2. TANYAKAN padaku SATU PER SATU file yang dibutuhkan
-// 3. Tunggu aku berikan isinya, baru lanjut analisis
-// 4. JANGAN LANGSUNG menyimpulkan sebelum SEMUA file di rantai diperiksa
-// 5. Tampilkan dependency chain lengkap di akhir
-// Setelah melakukan perbaikan list semua file yang telah diperbaiki dari awal kita mualai hingga saat ini
-// Setelah melakukan pekerjaan beritahukan ke saya sisa tokok AI yang belum terpakai agar proses kita tidak terpotong
-// ubah nama class, file variabel, parameter ke dalam bahasa inggris untuk menjaga konsistensi projek tapi untuk komentar wajib indonesia
-// tambahkan inofrmasi didalam file file ini digunakan oleh file apa saja dan bungkus dengan komentar
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/detail/subscription_history_detail.dart (DetailLanggananTransaksiPage)
+//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
+//   - lib/shared/widget/package_name.dart (PackageNameWidget)
+//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation) — untuk PackageNameWidget
+//   - lib/shared/utils/format_util.dart (FormatUtil)
+//   - lib/shared/debug/log.dart (Log)
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
-import 'package:wifi/admin/halaman/widget/package_name.dart';
-import 'package:wifi/admin/halaman/widget/customer_name.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/widget/customer_name.dart';
+import 'package:wifi/shared/widget/package_name.dart';
 
 /// Enum untuk opsi pengurutan riwayat aktivasi paket.
-enum OpsiUrutkan {
+enum SortOption {
   /// Urutkan berdasarkan paket yang akan berakhir hari ini.
-  berakhirHariIni,
+  endingToday,
 
   /// Urutkan berdasarkan transaksi terbaru.
-  terbaru,
+  newest,
 
   /// Urutkan berdasarkan transaksi terlama.
-  terlama,
+  oldest,
 
   /// Tampilkan transaksi lunas di bagian atas.
-  lunas,
+  paid,
 
   /// Tampilkan transaksi yang belum lunas di bagian atas.
-  belumLunas
+  unpaid,
 }
 
 /// Halaman untuk menampilkan riwayat aktivasi paket langganan.
@@ -262,10 +58,12 @@ class PackageActivationHistoryPage extends StatefulWidget {
       _PackageActivationHistoryPageState();
 }
 
-class _PackageActivationHistoryPageState extends State<PackageActivationHistoryPage> {
+class _PackageActivationHistoryPageState
+    extends State<PackageActivationHistoryPage> {
   final TransactionOperation _transactionOperation = TransactionOperation();
+  final PackageOperation _packageOperation = PackageOperation();
   late Future<List<TransactionModel>> _transactionListFuture;
-  OpsiUrutkan _urutanAktif = OpsiUrutkan.terbaru;
+  SortOption _activeSort = SortOption.newest;
 
   @override
   void initState() {
@@ -277,42 +75,43 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
   Future<void> _loadHistory() async {
     Log.info('Memuat data transaksi aktivasi paket dari database');
     setState(() {
-      _transactionListFuture =
-          _transactionOperation.getTransactionsByPackageActivation().then((final list) {
+      _transactionListFuture = _transactionOperation
+          .getTransactionsByPackageActivation()
+          .then((final list) {
         Log.info(
           'Berhasil memuat ${list.length} data transaksi aktivasi paket',
         );
 
         // Log ringkasan setiap transaksi
-        int jumlahLunas = 0;
-        int jumlahBelumLunas = 0;
-        int jumlahBerakhirHariIni = 0;
-        final sekarang = DateTime.now();
+        int paidCount = 0;
+        int unpaidCount = 0;
+        int endingTodayCount = 0;
+        final now = DateTime.now();
 
-        for (var transaksi in list) {
-          if (transaksi.paymentStatus == PaymentStatus.paid) {
-            jumlahLunas++;
+        for (var transaction in list) {
+          if (transaction.paymentStatus == PaymentStatus.paid) {
+            paidCount++;
           } else {
-            jumlahBelumLunas++;
+            unpaidCount++;
           }
 
-          if (transaksi.endDate != null &&
-              transaksi.endDate!.year == sekarang.year &&
-              transaksi.endDate!.month == sekarang.month &&
-              transaksi.endDate!.day == sekarang.day) {
-            jumlahBerakhirHariIni++;
+          if (transaction.endDate != null &&
+              transaction.endDate!.year == now.year &&
+              transaction.endDate!.month == now.month &&
+              transaction.endDate!.day == now.day) {
+            endingTodayCount++;
           }
 
           Log.info(
-            'Transaksi ID: ${transaksi.id} - Pelanggan ID: ${transaksi.customerId ?? "N/A"}, Paket ID: ${transaksi.packageId ?? "N/A"}, Status: ${transaksi.paymentStatus.name}, Mulai: ${transaksi.startDate != null ? FormatUtil.formatDateBasic(transaksi.startDate!) : "N/A"}, Berakhir: ${transaksi.endDate != null ? FormatUtil.formatDateBasic(transaksi.endDate!) : "N/A"}',
+            'Transaksi ID: ${transaction.id} - Pelanggan ID: ${transaction.customerId ?? "N/A"}, Paket ID: ${transaction.packageId ?? "N/A"}, Status: ${transaction.paymentStatus.name}, Mulai: ${transaction.startDate != null ? FormatUtil.formatDateBasic(transaction.startDate!) : "N/A"}, Berakhir: ${transaction.endDate != null ? FormatUtil.formatDateBasic(transaction.endDate!) : "N/A"}',
           );
         }
 
         Log.info(
-          'Ringkasan transaksi - Total: ${list.length}, Lunas: $jumlahLunas, Belum Lunas: $jumlahBelumLunas, Berakhir Hari Ini: $jumlahBerakhirHariIni',
+          'Ringkasan transaksi - Total: ${list.length}, Lunas: $paidCount, Belum Lunas: $unpaidCount, Berakhir Hari Ini: $endingTodayCount',
         );
 
-        _urutkanList(list, _urutanAktif);
+        _sortList(list, _activeSort);
         return list;
       }).catchError((final Object error, final StackTrace st) {
         Log.error(
@@ -325,85 +124,84 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
     });
   }
 
-  void _urutkanList(
-      final List<TransactionModel> list, final OpsiUrutkan pilihan) {
+  void _sortList(final List<TransactionModel> list, final SortOption option) {
     Log.info(
-      'Mengurutkan ${list.length} data transaksi berdasarkan: ${pilihan.name}',
+      'Mengurutkan ${list.length} data transaksi berdasarkan: ${option.name}',
     );
     int Function(TransactionModel, TransactionModel) comparator;
 
-    switch (pilihan) {
-      case OpsiUrutkan.terbaru:
+    switch (option) {
+      case SortOption.newest:
         comparator = (final a, final b) =>
             (b.updatedAt ?? b.date).compareTo(a.updatedAt ?? a.date);
         Log.info('Pengurutan: Terbaru (berdasarkan waktu update/tanggal)');
         break;
-      case OpsiUrutkan.terlama:
+      case SortOption.oldest:
         comparator = (final a, final b) =>
             (a.updatedAt ?? a.date).compareTo(b.updatedAt ?? b.date);
         Log.info('Pengurutan: Terlama (berdasarkan waktu update/tanggal)');
         break;
-      case OpsiUrutkan.lunas:
+      case SortOption.paid:
         comparator = (final a, final b) {
-          final isLunasA = a.paymentStatus == PaymentStatus.paid;
-          final isLunasB = b.paymentStatus == PaymentStatus.paid;
-          if (isLunasA == isLunasB) {
+          final isPaidA = a.paymentStatus == PaymentStatus.paid;
+          final isPaidB = b.paymentStatus == PaymentStatus.paid;
+          if (isPaidA == isPaidB) {
             Log.info(
-              'Status sama (${isLunasA ? "lunas" : "belum lunas"}), posisi tidak berubah',
+              'Status sama (${isPaidA ? "lunas" : "belum lunas"}), posisi tidak berubah',
             );
             return 0;
           }
-          final result = isLunasA ? -1 : 1;
+          final result = isPaidA ? -1 : 1;
           Log.info(
-            'Memindahkan transaksi ${isLunasA ? "lunas" : "belum lunas"} ke ${isLunasA ? "atas" : "bawah"}',
+            'Memindahkan transaksi ${isPaidA ? "lunas" : "belum lunas"} ke ${isPaidA ? "atas" : "bawah"}',
           );
           return result;
         };
         Log.info('Pengurutan: Lunas di atas, Belum Lunas di bawah');
         break;
-      case OpsiUrutkan.belumLunas:
+      case SortOption.unpaid:
         comparator = (final a, final b) {
-          final isLunasA = a.paymentStatus == PaymentStatus.paid;
-          final isLunasB = b.paymentStatus == PaymentStatus.paid;
-          if (isLunasA == isLunasB) {
+          final isPaidA = a.paymentStatus == PaymentStatus.paid;
+          final isPaidB = b.paymentStatus == PaymentStatus.paid;
+          if (isPaidA == isPaidB) {
             Log.info(
-              'Status sama (${isLunasA ? "lunas" : "belum lunas"}), posisi tidak berubah',
+              'Status sama (${isPaidA ? "lunas" : "belum lunas"}), posisi tidak berubah',
             );
             return 0;
           }
-          final result = isLunasA ? 1 : -1;
+          final result = isPaidA ? 1 : -1;
           Log.info(
-            'Memindahkan transaksi ${isLunasA ? "lunas" : "belum lunas"} ke ${isLunasA ? "bawah" : "atas"}',
+            'Memindahkan transaksi ${isPaidA ? "lunas" : "belum lunas"} ke ${isPaidA ? "bawah" : "atas"}',
           );
           return result;
         };
         Log.info('Pengurutan: Belum Lunas di atas, Lunas di bawah');
         break;
-      case OpsiUrutkan.berakhirHariIni:
+      case SortOption.endingToday:
         comparator = (final a, final b) {
-          final sekarang = DateTime.now();
-          final tanggalSekarangStr = FormatUtil.formatDateBasic(sekarang);
+          final now = DateTime.now();
+          final todayStr = FormatUtil.formatDateBasic(now);
 
-          bool isHariIni(final DateTime? tanggal) {
-            if (tanggal == null) return false;
-            return tanggal.year == sekarang.year &&
-                tanggal.month == sekarang.month &&
-                tanggal.day == sekarang.day;
+          bool isToday(final DateTime? date) {
+            if (date == null) return false;
+            return date.year == now.year &&
+                date.month == now.month &&
+                date.day == now.day;
           }
 
-          final aHariIni = isHariIni(a.endDate);
-          final bHariIni = isHariIni(b.endDate);
+          final aIsToday = isToday(a.endDate);
+          final bIsToday = isToday(b.endDate);
 
-          if (aHariIni == bHariIni) {
+          if (aIsToday == bIsToday) {
             Log.info(
-              'Status berakhir hari ini sama ($aHariIni), posisi tidak berubah',
+              'Status berakhir hari ini sama ($aIsToday), posisi tidak berubah',
             );
             return 0;
           }
 
-          final result = aHariIni ? -1 : 1;
+          final result = aIsToday ? -1 : 1;
           Log.info(
-            'Transaksi ${aHariIni ? "berakhir $tanggalSekarangStr" : "tidak berakhir hari ini"} dipindahkan ke ${aHariIni ? "atas" : "bawah"}',
+            'Transaksi ${aIsToday ? "berakhir $todayStr" : "tidak berakhir hari ini"} dipindahkan ke ${aIsToday ? "atas" : "bawah"}',
           );
           return result;
         };
@@ -416,7 +214,7 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
     list.sort(comparator);
 
     // Log 5 data teratas setelah pengurutan
-    Log.info('5 data teratas setelah pengurutan ${pilihan.name}:');
+    Log.info('5 data teratas setelah pengurutan ${option.name}:');
     for (int i = 0; i < (list.length < 5 ? list.length : 5); i++) {
       final t = list[i];
       Log.info(
@@ -427,19 +225,19 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
     Log.info('Proses pengurutan selesai, ${list.length} data telah diurutkan');
   }
 
-  Future<void> _showUrutkanDialog() async {
+  Future<void> _showSortDialog() async {
     Log.info(
-      'Menampilkan dialog opsi pengurutan, urutan saat ini: ${_urutanAktif.name}',
+      'Menampilkan dialog opsi pengurutan, urutan saat ini: ${_activeSort.name}',
     );
-    final OpsiUrutkan? pilihan = await showDialog<OpsiUrutkan>(
+    final SortOption? selected = await showDialog<SortOption>(
       context: context,
       builder: (final BuildContext context) {
-        Widget buildOption(final String text, final OpsiUrutkan value) {
-          final bool isSelected = _urutanAktif == value;
+        Widget buildOption(final String text, final SortOption value) {
+          final bool isSelected = _activeSort == value;
           return SimpleDialogOption(
             onPressed: () {
               Log.info(
-                'User memilih opsi urutkan: ${value.name} (${isSelected ? "sudah aktif" : "berubah"} dari ${_urutanAktif.name})',
+                'User memilih opsi urutkan: ${value.name} (${isSelected ? "sudah aktif" : "berubah"} dari ${_activeSort.name})',
               );
               Navigator.pop(context, value);
             },
@@ -455,30 +253,30 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Berakhir Hari Ini', OpsiUrutkan.berakhirHariIni),
-            buildOption('Terbaru', OpsiUrutkan.terbaru),
-            buildOption('Terlama', OpsiUrutkan.terlama),
-            buildOption('Status (Lunas di Atas)', OpsiUrutkan.lunas),
-            buildOption('Status (Belum Lunas di Atas)', OpsiUrutkan.belumLunas),
+            buildOption('Berakhir Hari Ini', SortOption.endingToday),
+            buildOption('Terbaru', SortOption.newest),
+            buildOption('Terlama', SortOption.oldest),
+            buildOption('Status (Lunas di Atas)', SortOption.paid),
+            buildOption('Status (Belum Lunas di Atas)', SortOption.unpaid),
           ],
         );
       },
     );
 
-    if (pilihan != null && pilihan != _urutanAktif) {
+    if (selected != null && selected != _activeSort) {
       Log.info(
-        'Menerapkan perubahan urutan dari ${_urutanAktif.name} ke ${pilihan.name}',
+        'Menerapkan perubahan urutan dari ${_activeSort.name} ke ${selected.name}',
       );
       final list = await _transactionListFuture;
       setState(() {
-        _urutanAktif = pilihan;
-        _urutkanList(list, pilihan);
+        _activeSort = selected;
+        _sortList(list, selected);
         _transactionListFuture = Future.value(list);
       });
-      Log.info('Urutan berhasil diubah ke ${pilihan.name}');
-    } else if (pilihan == _urutanAktif) {
+      Log.info('Urutan berhasil diubah ke ${selected.name}');
+    } else if (selected == _activeSort) {
       Log.info(
-        'User memilih urutan yang sama (${_urutanAktif.name}), tidak ada perubahan',
+        'User memilih urutan yang sama (${_activeSort.name}), tidak ada perubahan',
       );
     } else {
       Log.info('Dialog urutkan ditutup tanpa memilih opsi');
@@ -488,7 +286,7 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun UI halaman Riwayat Aktivasi Paket, urutan aktif: ${_urutanAktif.name}',
+      'Membangun UI halaman Riwayat Aktivasi Paket, urutan aktif: ${_activeSort.name}',
     );
     return Scaffold(
       appBar: AppBar(
@@ -505,7 +303,7 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
         actions: [
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: _showUrutkanDialog,
+            onPressed: _showSortDialog,
             tooltip: 'Urutkan',
           ),
         ],
@@ -541,14 +339,14 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
             return ListView.builder(
               itemCount: dataLength,
               itemBuilder: (final context, final index) {
-                final transaksi = snapshot.data![index];
+                final transaction = snapshot.data![index];
                 final paymentStatusColor =
-                    transaksi.paymentStatus == PaymentStatus.paid
+                    transaction.paymentStatus == PaymentStatus.paid
                         ? Colors.green
                         : Colors.red;
 
                 Log.info(
-                  'Membangun item ke-${index + 1} dari $dataLength - ID: ${transaksi.id}, Pelanggan: ${transaksi.customerId ?? "N/A"}, Status: ${transaksi.paymentStatus.name}',
+                  'Membangun item ke-${index + 1} dari $dataLength - ID: ${transaction.id}, Pelanggan: ${transaction.customerId ?? "N/A"}, Status: ${transaction.paymentStatus.name}',
                 );
 
                 return Card(
@@ -559,52 +357,53 @@ class _PackageActivationHistoryPageState extends State<PackageActivationHistoryP
                   child: ListTile(
                     onTap: () async {
                       Log.info(
-                        'Navigasi ke halaman Detail Transaksi ID: ${transaksi.id}, Pelanggan ID: ${transaksi.customerId ?? "N/A"}',
+                        'Navigasi ke halaman Detail Transaksi ID: ${transaction.id}, Pelanggan ID: ${transaction.customerId ?? "N/A"}',
                       );
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (final context) =>
-                              SubscriptionHistoryDetailPage(
-                            transactionId: transaksi.id,
+                              DetailLanggananTransaksiPage(
+                            idTransaksi: transaction.id,
                           ),
                         ),
                       );
                       if (result ?? false) {
                         Log.info(
-                          'Kembali dari Detail Transaksi ID: ${transaksi.id} dengan perubahan data, menyegarkan daftar',
+                          'Kembali dari Detail Transaksi ID: ${transaction.id} dengan perubahan data, menyegarkan daftar',
                         );
                         await _loadHistory();
                       } else {
                         Log.info(
-                          'Kembali dari Detail Transaksi ID: ${transaksi.id} tanpa perubahan data',
+                          'Kembali dari Detail Transaksi ID: ${transaction.id} tanpa perubahan data',
                         );
                       }
                     },
                     title: CustomerNameWidget(
-                      customerId: transaksi.customerId ?? ' ',
+                      customerId: transaction.customerId ?? ' ',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         PackageNameWidget(
-                          packageId: transaksi.packageId ?? '',
+                          packageFuture: _packageOperation
+                              .getPackageById(transaction.packageId ?? ''),
                           style: TextStyle(color: paymentStatusColor),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Status: ${transaksi.paymentStatus.name}',
+                          'Status: ${transaction.paymentStatus.name}',
                           style: TextStyle(
                             color: paymentStatusColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        if (transaksi.startDate != null &&
-                            transaksi.endDate != null)
+                        if (transaction.startDate != null &&
+                            transaction.endDate != null)
                           Text(
-                            'Aktif: ${FormatUtil.formatDateBasic(transaksi.startDate!)} - ${FormatUtil.formatDateBasic(transaksi.endDate!)}',
+                            'Aktif: ${FormatUtil.formatDateBasic(transaction.startDate!)} - ${FormatUtil.formatDateBasic(transaction.endDate!)}',
                           ),
                       ],
                     ),

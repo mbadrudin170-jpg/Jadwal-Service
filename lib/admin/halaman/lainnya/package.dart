@@ -1,4 +1,5 @@
-// path: lib/admin/halaman/lainnya/paket.dart
+// path: lib/admin/halaman/lainnya/package.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';

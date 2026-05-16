@@ -1,12 +1,32 @@
-// path: lib/admin/halaman/detail/detail_riwayat_langganan.dart
+// path: lib/admin/halaman/detail/subscription_history_detail.dart
+//
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/detail/detail_pelanggan.dart (DetailPelangganPage)
+//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/model/customer_model.dart (CustomerModel)
+//   - lib/shared/model/package_model.dart (PackageModel)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
+//   - lib/shared/operasi/package_operation.dart (PackageOperation)
+//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
+//   - lib/shared/debug/log.dart (Log)
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/operasi.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail transaksi langganan.
@@ -24,11 +44,11 @@ class DetailLanggananTransaksiPage extends StatefulWidget {
 
 class _DetailLanggananTransaksiPageState
     extends State<DetailLanggananTransaksiPage> {
-  final TransaksiOperasi _transaksiOperasi = TransaksiOperasi();
-  final PaketOperasi _paketOperasi = PaketOperasi();
-  final PelangganOperasi _pelangganOperasi = PelangganOperasi();
+  final TransactionOperation _transactionOperation = TransactionOperation();
+  final PackageOperation _packageOperation = PackageOperation();
+  final CustomerOperation _customerOperation = CustomerOperation();
 
-  late Future<TransactionModel?> _transaksiFuture;
+  late Future<TransactionModel?> _transactionFuture;
 
   @override
   void initState() {
@@ -38,7 +58,8 @@ class _DetailLanggananTransaksiPageState
       'Memulai inisialisasi halaman detail langganan untuk ID transaksi: ${widget.idTransaksi}.',
     );
 
-    _transaksiFuture = _transaksiOperasi.getTransaksiById(widget.idTransaksi);
+    _transactionFuture =
+        _transactionOperation.getTransactionById(widget.idTransaksi);
 
     Log.info(
       'Future transaksi berhasil dibuat untuk proses pengambilan data transaksi.',
@@ -51,10 +72,11 @@ class _DetailLanggananTransaksiPageState
 
     return Scaffold(
       appBar: AppBar(
-          title: const Text(
-              'Detail Langganan')), // TODO: rencana selanjutnya adalah menambahkan tombol edit
+        title: const Text('Detail Langganan'),
+        // TODO: rencana selanjutnya adalah menambahkan tombol edit
+      ),
       body: FutureBuilder<TransactionModel?>(
-        future: _transaksiFuture,
+        future: _transactionFuture,
         builder: (final context, final snapshot) {
           Log.info(
             'FutureBuilder transaksi dijalankan dengan state: ${snapshot.connectionState}.',
@@ -73,39 +95,39 @@ class _DetailLanggananTransaksiPageState
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final transaksi = snapshot.data;
+          final transaction = snapshot.data;
 
-          if (transaksi == null) {
+          if (transaction == null) {
             Log.warning('Data transaksi tidak ditemukan di database.');
             return const Center(child: Text('Transaksi tidak ditemukan'));
           }
 
           Log.info(
-            'Berhasil memuat data transaksi dengan ID: ${transaksi.id}.',
+            'Berhasil memuat data transaksi dengan ID: ${transaction.id}.',
           );
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: ListView(
               children: <Widget>[
-                if (transaksi.idPelanggan != null)
-                  _buildFutureInfoCard<PelangganModel>(
+                if (transaction.customerId != null)
+                  _buildFutureInfoCard<CustomerModel>(
                     'Informasi Pelanggan',
-                    _pelangganOperasi.getPelangganById(transaksi.idPelanggan!),
+                    _customerOperation.getCustomerById(transaction.customerId!),
                     'Pelanggan',
-                    (final pelanggan) => [
+                    (final customer) => [
                       _buildDetailRow(
                         'Nama Pelanggan',
-                        pelanggan?.nama ?? 'Tidak Diketahui',
+                        customer?.name ?? 'Tidak Diketahui',
                       ),
                     ],
-                    onTap: (final pelanggan) {
-                      if (pelanggan != null) {
+                    onTap: (final customer) {
+                      if (customer != null) {
                         unawaited(Navigator.push<void>(
                           context,
                           MaterialPageRoute<void>(
                             builder: (final context) => DetailPelangganPage(
-                              idPelanggan: pelanggan.id,
+                              idPelanggan: customer.id,
                             ),
                           ),
                         ));
@@ -113,32 +135,33 @@ class _DetailLanggananTransaksiPageState
                     },
                   ),
                 const SizedBox(height: 16),
-                if (transaksi.idPaket != null)
-                  _buildFutureInfoCard<PaketModel>(
+                if (transaction.packageId != null)
+                  _buildFutureInfoCard<PackageModel>(
                     'Informasi Paket',
-                    _paketOperasi.getPaketById(transaksi.idPaket!),
+                    _packageOperation.getPackageById(transaction.packageId!),
                     'Paket',
-                    (final paket) => [
+                    (final package) => [
                       _buildDetailRow(
                         'Nama Paket',
-                        paket?.nama ?? 'Tidak Diketahui',
-                      ), // Info nama paket
+                        package?.name ?? 'Tidak Diketahui',
+                      ),
                       _buildDetailRow(
                         'Harga',
-                        FormatUang.formatMataUang(paket?.harga.toDouble() ?? 0),
-                      ), // info harga paket
+                        CurrencyFormat.formatCurrency(
+                            (package?.price ?? 0).toDouble()),
+                      ),
                       _buildDetailRow(
                         'Durasi',
-                        '${paket?.durasi ?? 0} ${paket?.tipe.name ?? ""}',
+                        '${package?.duration ?? 0} ${package?.type.name ?? ""}',
                       ),
-                    ], // info durasi paket
-                    onTap: (final paket) {
-                      if (paket != null) {
+                    ],
+                    onTap: (final package) {
+                      if (package != null) {
                         unawaited(Navigator.push<void>(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (final context) => DetailPaketPage(
-                              paket: paket,
+                            builder: (final context) => PackageDetailPage(
+                              package: package,
                             ),
                           ),
                         ));
@@ -146,29 +169,25 @@ class _DetailLanggananTransaksiPageState
                     },
                   ),
                 const SizedBox(height: 16),
-                _buildInfoPoin(transaksi),
+                _buildInfoPoints(transaction),
                 const SizedBox(height: 16),
-                if (transaksi.tanggalMulai != null &&
-                    transaksi.tanggalBerakhir != null)
+                if (transaction.startDate != null &&
+                    transaction.endDate != null)
                   _buildInfoCard('Waktu Langganan', [
                     _buildDetailRow(
                       'Tanggal Mulai',
-                      FormatTanggal.formatTanggalDanJam(
-                        transaksi.tanggalMulai!,
-                      ),
+                      FormatUtil.formatDateAndTime(transaction.startDate!),
                     ),
                     _buildDetailRow(
                       'Tanggal Berakhir',
-                      FormatTanggal.formatTanggalDanJam(
-                        transaksi.tanggalBerakhir!,
-                      ),
+                      FormatUtil.formatDateAndTime(transaction.endDate!),
                     ),
                   ]),
                 const SizedBox(height: 16),
                 _buildInfoCard('Status', [
                   _buildDetailRow(
                     'Status Pembayaran',
-                    transaksi.statusPembayaran.name.toUpperCase(),
+                    transaction.paymentStatus.name.toUpperCase(),
                   ),
                 ]),
               ],
@@ -179,43 +198,41 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
-  Widget _buildInfoPoin(final TransactionModel transaksi) {
+  Widget _buildInfoPoints(final TransactionModel transaction) {
     Log.info('Membangun widget informasi poin transaksi.');
 
-    if (transaksi.poinYangDihasilkan == 0 && transaksi.poinYangDigunakan == 0) {
+    if (transaction.earnedPoints == 0 && transaction.usedPoints == 0) {
       Log.info('Tidak ada perubahan poin pada transaksi ini.');
       return const SizedBox.shrink();
     }
 
-    final isPenambahan =
-        transaksi.poinYangDihasilkan > transaksi.poinYangDigunakan;
-    final selisihPoin =
-        transaksi.poinYangDihasilkan - transaksi.poinYangDigunakan;
+    final isAddition = transaction.earnedPoints > transaction.usedPoints;
+    final pointDifference = transaction.earnedPoints - transaction.usedPoints;
 
     Log.info(
-      'Poin dihasilkan: ${transaksi.poinYangDihasilkan}, '
-      'Poin digunakan: ${transaksi.poinYangDigunakan}, '
-      'Selisih: $selisihPoin poin (${isPenambahan ? "PENAMBAHAN" : "PENGURANGAN"}).',
+      'Poin dihasilkan: ${transaction.earnedPoints}, '
+      'Poin digunakan: ${transaction.usedPoints}, '
+      'Selisih: $pointDifference poin (${isAddition ? "PENAMBAHAN" : "PENGURANGAN"}).',
     );
 
     return _buildInfoCard('Informasi Poin', [
       _buildDetailRowWithColor(
         'Poin Dihasilkan',
-        '+${transaksi.poinYangDihasilkan} Poin',
-        transaksi.poinYangDihasilkan > 0 ? Colors.green : null,
-        transaksi.poinYangDihasilkan > 0 ? FontWeight.bold : FontWeight.normal,
+        '+${transaction.earnedPoints} Poin',
+        transaction.earnedPoints > 0 ? Colors.green : null,
+        transaction.earnedPoints > 0 ? FontWeight.bold : FontWeight.normal,
       ),
       _buildDetailRowWithColor(
         'Poin Digunakan',
-        '-${transaksi.poinYangDigunakan} Poin',
-        transaksi.poinYangDigunakan > 0 ? Colors.red : null,
-        transaksi.poinYangDigunakan > 0 ? FontWeight.bold : FontWeight.normal,
+        '-${transaction.usedPoints} Poin',
+        transaction.usedPoints > 0 ? Colors.red : null,
+        transaction.usedPoints > 0 ? FontWeight.bold : FontWeight.normal,
       ),
       const Divider(height: 16),
       _buildDetailRowWithColor(
-        isPenambahan ? 'Total Poin Bertambah' : 'Total Poin Berkurang',
-        '${selisihPoin >= 0 ? "+" : ""}$selisihPoin Poin',
-        isPenambahan ? Colors.green : Colors.red,
+        isAddition ? 'Total Poin Bertambah' : 'Total Poin Berkurang',
+        '${pointDifference >= 0 ? "+" : ""}$pointDifference Poin',
+        isAddition ? Colors.green : Colors.red,
         FontWeight.bold,
         fontSize: 16,
       ),

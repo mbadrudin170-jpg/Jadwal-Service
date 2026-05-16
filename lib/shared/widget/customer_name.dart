@@ -1,5 +1,4 @@
 // path: lib/shared/widget/customer_name.dart
-// digunakan oleh: lib/admin/halaman/widget/nama_pelanggan.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/customer_model.dart';
