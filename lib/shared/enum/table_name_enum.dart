@@ -44,4 +44,10 @@ enum TableName {
 
   /// Tabel status aplikasi.
   appStatus,
+
+  /// Tabel token FCM.
+  fcmToken,
+
+  /// Tabel notifikasi.
+  notification,
 }

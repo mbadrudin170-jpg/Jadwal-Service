@@ -1,10 +1,9 @@
 // path: lib/admin/data/sqlite.dart
-// diubah: Menaikkan versi DB ke 49, menambahkan migrasi _migrateToV49
-//         untuk mengganti semua nama kolom ke snake_case Inggris agar
-//         konsisten dengan ColumnNames dan semua Model.
-//         Data lama AMAN karena menggunakan ALTER TABLE RENAME COLUMN.
-// diubah: Memperbarui semua definisi tabel CREATE TABLE ke nama kolom baru.
-// ditambah: Menambahkan dokumentasi untuk anggota publik.
+// diubah: Menaikkan versi DB ke 50, menambahkan migrasi _migrateToV50
+//         untuk rename semua nama tabel ke snake_case Inggris.
+//         Data tetap AMAN karena menggunakan ALTER TABLE RENAME TO.
+// diubah: Semua definisi CREATE TABLE menggunakan nama tabel snake_case.
+// diubah: Semua index menggunakan nama tabel baru.
 
 import 'dart:io';
 
@@ -19,8 +18,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // diubah: Versi dinaikkan ke 49 untuk rename semua kolom ke snake_case Inggris.
-  static const int _databaseVersion = 49;
+  // diubah: Versi dinaikkan ke 50 untuk rename tabel ke snake_case.
+  static const int _databaseVersion = 50;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -104,23 +103,30 @@ class DatabaseHelper {
 
     if (oldVersion < 47) {
       Log.info(
-        '[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran` (destruktif).',
+        '[MIGRASI v47] Memulai migrasi skema destruktif.',
       );
       await _migrateToV47(db);
     }
 
     if (oldVersion < 48) {
       Log.info(
-        '[MIGRASI v48] Menambahkan kolom `diperbarui` ke tabel `status_aplikasi`.',
+        '[MIGRASI v48] Menambahkan kolom `diperbarui` ke `status_aplikasi`.',
       );
       await _migrateToV48(db);
     }
 
     if (oldVersion < 49) {
       Log.info(
-        '[MIGRASI v49] Rename semua kolom ke snake_case Inggris agar konsisten dengan ColumnNames.',
+        '[MIGRASI v49] Rename semua kolom ke snake_case Inggris.',
       );
       await _migrateToV49(db);
+    }
+
+    if (oldVersion < 50) {
+      Log.info(
+        '[MIGRASI v50] Rename semua nama tabel ke snake_case Inggris.',
+      );
+      await _migrateToV50(db);
     }
 
     Log.info('========================================');
@@ -132,18 +138,14 @@ class DatabaseHelper {
   }
 
   Future<void> _migrateToV45(final Database db) async {
-    Log.info(
-      '[MIGRASI v45] Menangani tabel "pengaturan" untuk memastikan PRIMARY KEY.',
-    );
+    Log.info('[MIGRASI v45] Menangani tabel "pengaturan".');
     await db.execute('DROP TABLE IF EXISTS pengaturan');
-    await db.execute(_tabelPengaturan);
+    await db.execute(_tabelPengaturanV45);
     Log.info('[MIGRASI v45] Tabel `pengaturan` berhasil dibuat ulang.');
   }
 
   Future<void> _migrateToV47(final Database db) async {
-    Log.info(
-      '[MIGRASI v47] Memulai migrasi skema destruktif untuk memperbaiki schema.',
-    );
+    Log.info('[MIGRASI v47] Migrasi skema destruktif.');
     final batch = db.batch();
     final List<String> daftarTabel = [
       'kategori',
@@ -162,43 +164,23 @@ class DatabaseHelper {
       'status_aplikasi',
     ];
 
-    Log.warning(
-      '[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel.',
-    );
-
     for (final namaTabel in daftarTabel) {
       batch.execute('DROP TABLE IF EXISTS $namaTabel');
-      Log.info('[MIGRASI v47] Jadwalkan DROP TABLE untuk `$namaTabel`.');
     }
-
-    // Gunakan definisi tabel v47 (nama kolom lama)
     _createAllTablesV47(batch);
     await batch.commit(noResult: true);
-    Log.info('[MIGRASI v47] Tabel berhasil dibuat ulang dengan skema v47.');
+    Log.info('[MIGRASI v47] Selesai.');
   }
 
   Future<void> _migrateToV48(final Database db) async {
-    Log.info(
-      '[MIGRASI v48] Menambahkan kolom `diperbarui` ke tabel `status_aplikasi`.',
-    );
     await db.execute(
       'ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER',
     );
-    Log.info('[MIGRASI v48] Kolom `diperbarui` berhasil ditambahkan.');
   }
 
   Future<void> _migrateToV49(final Database db) async {
-    Log.info(
-      '[MIGRASI v49] Memulai rename semua kolom ke snake_case Inggris.',
-    );
-    Log.warning(
-      '[MIGRASI v49] Data tetap AMAN. Hanya nama kolom yang diubah.',
-    );
+    Log.info('[MIGRASI v49] Rename kolom ke snake_case...');
 
-    // ============================================================
-    // TABEL: dompet
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `dompet`...');
     await db.execute('ALTER TABLE dompet RENAME COLUMN namaDompet TO name');
     await db.execute('ALTER TABLE dompet RENAME COLUMN saldo TO balance');
     await db
@@ -206,10 +188,6 @@ class DatabaseHelper {
     await db
         .execute('ALTER TABLE dompet RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: kategori
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `kategori`...');
     await db.execute('ALTER TABLE kategori RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE kategori RENAME COLUMN tipe TO type');
     await db.execute(
@@ -219,10 +197,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE kategori RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: sub_kategori
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `sub_kategori`...');
     await db.execute('ALTER TABLE sub_kategori RENAME COLUMN nama TO name');
     await db.execute(
         'ALTER TABLE sub_kategori RENAME COLUMN id_kategori TO category_id');
@@ -231,10 +205,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE sub_kategori RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: paket
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `paket`...');
     await db.execute('ALTER TABLE paket RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE paket RENAME COLUMN harga TO price');
     await db.execute('ALTER TABLE paket RENAME COLUMN durasi TO duration');
@@ -250,10 +220,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE paket RENAME COLUMN poin_penukaran TO redemption_points');
 
-    // ============================================================
-    // TABEL: pelanggan
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `pelanggan`...');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN nama TO name');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN telepon TO phone');
     await db.execute('ALTER TABLE pelanggan RENAME COLUMN alamat TO address');
@@ -262,10 +228,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE pelanggan RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: pelanggan_aktif
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `pelanggan_aktif`...');
     await db.execute(
         'ALTER TABLE pelanggan_aktif RENAME COLUMN id_pelanggan TO customer_id');
     await db.execute(
@@ -281,10 +243,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE pelanggan_aktif RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: transaksi
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `transaksi`...');
     await db.execute(
         'ALTER TABLE transaksi RENAME COLUMN keterangan TO description');
     await db.execute('ALTER TABLE transaksi RENAME COLUMN jumlah TO amount');
@@ -323,10 +281,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE transaksi RENAME COLUMN aktivasi_paket TO is_activated');
 
-    // ============================================================
-    // TABEL: kritik_saran
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `kritik_saran`...');
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE kritik_saran RENAME COLUMN tanggal TO date');
     await db.execute(
@@ -334,10 +288,6 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE kritik_saran RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: pesanan
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `pesanan`...');
     await db.execute(
         'ALTER TABLE pesanan RENAME COLUMN id_pelanggan TO customer_id');
     await db
@@ -348,10 +298,6 @@ class DatabaseHelper {
     await db
         .execute('ALTER TABLE pesanan RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: versi_apk_user
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `versi_apk_user`...');
     await db.execute(
         'ALTER TABLE versi_apk_user RENAME COLUMN catatan_rilis TO release_notes');
     await db.execute(
@@ -363,16 +309,10 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE versi_apk_user RENAME COLUMN wajib_update TO is_update_required');
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME COLUMN youtube_tutorial TO youtube_tutorial');
-    await db.execute(
         'ALTER TABLE versi_apk_user RENAME COLUMN diperbarui TO updated_at');
     await db.execute(
         'ALTER TABLE versi_apk_user RENAME COLUMN diarsipkan TO archived_at');
 
-    // ============================================================
-    // TABEL: pengaturan
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `pengaturan`...');
     await db.execute(
         'ALTER TABLE pengaturan RENAME COLUMN interval_sinkronisasi_otomatis TO auto_sync_interval');
     await db.execute(
@@ -384,89 +324,88 @@ class DatabaseHelper {
     await db.execute(
         'ALTER TABLE pengaturan RENAME COLUMN info_pemeliharaan TO maintenance_info');
 
-    // ============================================================
-    // TABEL: status_unggah
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `status_unggah`...');
     await db
         .execute('ALTER TABLE status_unggah RENAME COLUMN tabel TO table_name');
-    await db
-        .execute('ALTER TABLE status_unggah RENAME COLUMN status TO status');
-    await db.execute('ALTER TABLE status_unggah RENAME COLUMN ids TO ids');
     await db.execute(
         'ALTER TABLE status_unggah RENAME COLUMN diperbarui TO updated_at');
 
-    // ============================================================
-    // TABEL: status_aplikasi
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `status_aplikasi`...');
-    await db
-        .execute('ALTER TABLE status_aplikasi RENAME COLUMN value TO value');
     await db.execute(
         'ALTER TABLE status_aplikasi RENAME COLUMN diperbarui TO updated_at');
 
-    // ============================================================
-    // TABEL: pesan
-    // ============================================================
-    Log.info('[MIGRASI v49] Rename kolom tabel `pesan`...');
     await db.execute('ALTER TABLE pesan RENAME COLUMN isi TO content');
     await db.execute('ALTER TABLE pesan RENAME COLUMN tanggal TO date');
-    await db.execute('ALTER TABLE pesan RENAME COLUMN status TO status');
 
     Log.info('[MIGRASI v49] Semua rename kolom selesai.');
   }
 
-  /// Membuat tabel-tabel database (untuk database baru, versi 49).
+  Future<void> _migrateToV50(final Database db) async {
+    Log.info('[MIGRASI v50] Rename tabel ke snake_case...');
+    Log.warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
+
+    await db.execute('ALTER TABLE dompet RENAME TO wallet');
+    await db.execute('ALTER TABLE kategori RENAME TO category');
+    await db.execute('ALTER TABLE sub_kategori RENAME TO sub_category');
+    await db.execute('ALTER TABLE paket RENAME TO package');
+    await db.execute('ALTER TABLE pelanggan RENAME TO customer');
+    await db.execute('ALTER TABLE pelanggan_aktif RENAME TO active_customer');
+    await db.execute('ALTER TABLE transaksi RENAME TO transaction');
+    await db.execute('ALTER TABLE kritik_saran RENAME TO feedback');
+    await db.execute('ALTER TABLE pesanan RENAME TO order');
+    await db.execute('ALTER TABLE versi_apk_user RENAME TO user_apk_version');
+    await db.execute('ALTER TABLE pengaturan RENAME TO setting');
+    await db.execute('ALTER TABLE status_unggah RENAME TO upload_status');
+    await db.execute('ALTER TABLE pesan RENAME TO message');
+    await db.execute('ALTER TABLE status_aplikasi RENAME TO app_status');
+
+    Log.info('[MIGRASI v50] Semua rename tabel selesai.');
+  }
+
+  /// Membuat tabel-tabel database (untuk database baru).
   Future<void> createTables(final Database db, final int version) async {
     Log.info('========================================');
     Log.info(
-      'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version',
-    );
+        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
     final batch = db.batch();
     _createAllTables(batch);
     try {
       await batch.commit(noResult: true);
-      Log.info('========================================');
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
-      Log.info('========================================');
     } on Exception catch (e, st) {
       Log.error('Gagal total saat membuat tabel atau index.', e: e, st: st);
       rethrow;
     }
   }
 
-  /// Membuat semua tabel dengan nama kolom snake_case Inggris (v49).
   void _createAllTables(final Batch batch) {
-    batch.execute(_tabelKategori);
-    batch.execute(_tabelSubKategori);
-    batch.execute(_tabelPaket);
-    batch.execute(_tabelPelanggan);
-    batch.execute(_tabelPelangganAktif);
-    batch.execute(_tabelTransaksi);
-    batch.execute(_tabelDompet);
-    batch.execute(_tabelKritikSaran);
-    batch.execute(_tabelPesanan);
-    batch.execute(_tabelVersiApkUser);
-    batch.execute(_tabelPengaturan);
-    batch.execute(_tabelStatusUnggah);
-    batch.execute(_tabelStatusAplikasi);
-    batch.execute(_tabelPesan);
-    Log.info('Semua 14 definisi tabel (v49) ditambahkan ke batch.');
+    batch.execute(_tabelCategory);
+    batch.execute(_tabelSubCategory);
+    batch.execute(_tabelPackage);
+    batch.execute(_tabelCustomer);
+    batch.execute(_tabelActiveCustomer);
+    batch.execute(_tabelTransaction);
+    batch.execute(_tabelWallet);
+    batch.execute(_tabelFeedback);
+    batch.execute(_tabelOrder);
+    batch.execute(_tabelUserApkVersion);
+    batch.execute(_tabelSetting);
+    batch.execute(_tabelUploadStatus);
+    batch.execute(_tabelAppStatus);
+    batch.execute(_tabelMessage);
+    Log.info('Semua 14 definisi tabel (v50) ditambahkan ke batch.');
 
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaksi_wallet_id ON transaksi(wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON transaction(wallet_id)',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaksi_destination_wallet_id ON transaksi(destination_wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON transaction(destination_wallet_id)',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaksi_is_deleted ON transaksi(is_deleted)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON transaction(is_deleted)',
     );
-    Log.info('Semua 3 definisi index (v49) ditambahkan ke batch.');
+    Log.info('Semua 3 definisi index (v50) ditambahkan ke batch.');
   }
 
-  /// Membuat semua tabel dengan nama kolom lama (v47, untuk migrasi destruktif).
   void _createAllTablesV47(final Batch batch) {
     batch.execute(_tabelKategoriV47);
     batch.execute(_tabelSubKategoriV47);
@@ -478,19 +417,18 @@ class DatabaseHelper {
     batch.execute(_tabelKritikSaranV47);
     batch.execute(_tabelPesananV47);
     batch.execute(_tabelVersiApkUserV47);
-    batch.execute(_tabelPengaturanV47);
+    batch.execute(_tabelPengaturanV45);
     batch.execute(_tabelStatusUnggahV47);
     batch.execute(_tabelStatusAplikasiV47);
     batch.execute(_tabelPesanV47);
-    Log.info('Semua 14 definisi tabel (v47) ditambahkan ke batch.');
   }
 
   // ============================================================
-  // DEFINISI TABEL v49 (snake_case Inggris)
+  // DEFINISI TABEL v50 (snake_case nama tabel + nama kolom)
   // ============================================================
 
-  static const String _tabelDompet = '''
-    CREATE TABLE dompet(
+  static const String _tabelWallet = '''
+    CREATE TABLE wallet(
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       balance REAL NOT NULL,
@@ -500,8 +438,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelTransaksi = '''
-    CREATE TABLE transaksi(
+  static const String _tabelTransaction = '''
+    CREATE TABLE transaction(
       id TEXT PRIMARY KEY,
       description TEXT NOT NULL,
       amount REAL NOT NULL,
@@ -527,8 +465,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelVersiApkUser = '''
-    CREATE TABLE versi_apk_user(
+  static const String _tabelUserApkVersion = '''
+    CREATE TABLE user_apk_version(
       id TEXT PRIMARY KEY,
       release_notes TEXT NOT NULL,
       latest_build_number TEXT NOT NULL,
@@ -542,8 +480,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelStatusUnggah = '''
-    CREATE TABLE status_unggah(
+  static const String _tabelUploadStatus = '''
+    CREATE TABLE upload_status(
       table_name TEXT PRIMARY KEY,
       status INTEGER NOT NULL,
       ids TEXT NOT NULL,
@@ -551,16 +489,16 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelStatusAplikasi = '''
-    CREATE TABLE status_aplikasi(
+  static const String _tabelAppStatus = '''
+    CREATE TABLE app_status(
       id TEXT PRIMARY KEY,
       value TEXT NOT NULL,
       updated_at INTEGER
     )
   ''';
 
-  static const String _tabelPesan = '''
-    CREATE TABLE pesan(
+  static const String _tabelMessage = '''
+    CREATE TABLE message(
       id TEXT PRIMARY KEY,
       content TEXT NOT NULL,
       date INTEGER NOT NULL,
@@ -568,8 +506,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelPengaturan = '''
-    CREATE TABLE pengaturan(
+  static const String _tabelSetting = '''
+    CREATE TABLE setting(
       id TEXT PRIMARY KEY,
       auto_sync_interval INTEGER NOT NULL DEFAULT 24,
       auto_delete_archive_days INTEGER NOT NULL DEFAULT 30,
@@ -579,8 +517,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelKategori = '''
-    CREATE TABLE kategori(
+  static const String _tabelCategory = '''
+    CREATE TABLE category(
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       type TEXT NOT NULL,
@@ -591,20 +529,20 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelSubKategori = '''
-    CREATE TABLE sub_kategori(
+  static const String _tabelSubCategory = '''
+    CREATE TABLE sub_category(
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       category_id TEXT NOT NULL,
       updated_at INTEGER,
       is_deleted INTEGER NOT NULL DEFAULT 0,
       archived_at INTEGER,
-      FOREIGN KEY (category_id) REFERENCES kategori (id) ON DELETE CASCADE
+      FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
     )
   ''';
 
-  static const String _tabelPaket = '''
-    CREATE TABLE paket(
+  static const String _tabelPackage = '''
+    CREATE TABLE package(
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       price INTEGER NOT NULL,
@@ -620,8 +558,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelPelanggan = '''
-    CREATE TABLE pelanggan(
+  static const String _tabelCustomer = '''
+    CREATE TABLE customer(
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       phone TEXT NOT NULL,
@@ -635,8 +573,8 @@ class DatabaseHelper {
     )
   ''';
 
-  static const String _tabelPelangganAktif = '''
-    CREATE TABLE pelanggan_aktif(
+  static const String _tabelActiveCustomer = '''
+    CREATE TABLE active_customer(
       id TEXT PRIMARY KEY,
       customer_id TEXT NOT NULL,
       package_id TEXT NOT NULL,
@@ -647,14 +585,14 @@ class DatabaseHelper {
       updated_at INTEGER,
       is_deleted INTEGER NOT NULL DEFAULT 0,
       archived_at INTEGER,
-      FOREIGN KEY (customer_id) REFERENCES pelanggan (id) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (package_id) REFERENCES paket (id) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (transaction_id) REFERENCES transaksi (id) ON DELETE SET NULL
+      FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (package_id) REFERENCES package (id) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (transaction_id) REFERENCES transaction (id) ON DELETE SET NULL
     )
   ''';
 
-  static const String _tabelKritikSaran = '''
-    CREATE TABLE kritik_saran(
+  static const String _tabelFeedback = '''
+    CREATE TABLE feedback(
       id TEXT PRIMARY KEY,
       content TEXT NOT NULL,
       date INTEGER NOT NULL,
@@ -662,12 +600,12 @@ class DatabaseHelper {
       updated_at INTEGER,
       is_deleted INTEGER NOT NULL DEFAULT 0,
       archived_at INTEGER,
-      FOREIGN KEY (user_id) REFERENCES pelanggan (id) ON DELETE CASCADE
+      FOREIGN KEY (user_id) REFERENCES customer (id) ON DELETE CASCADE
     )
   ''';
 
-  static const String _tabelPesanan = '''
-    CREATE TABLE pesanan(
+  static const String _tabelOrder = '''
+    CREATE TABLE "order"(
       id TEXT PRIMARY KEY,
       customer_id TEXT NOT NULL,
       package_id TEXT NOT NULL,
@@ -676,172 +614,110 @@ class DatabaseHelper {
       updated_at INTEGER,
       is_deleted INTEGER NOT NULL DEFAULT 0,
       archived_at INTEGER,
-      FOREIGN KEY (customer_id) REFERENCES pelanggan (id) ON DELETE CASCADE,
-      FOREIGN KEY (package_id) REFERENCES paket (id) ON DELETE CASCADE
+      FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE,
+      FOREIGN KEY (package_id) REFERENCES package (id) ON DELETE CASCADE
     )
   ''';
 
   // ============================================================
-  // DEFINISI TABEL v47 (nama kolom lama, untuk migrasi destruktif)
+  // DEFINISI TABEL v47 (lama, untuk migrasi destruktif)
   // ============================================================
 
   static const String _tabelDompetV47 = '''
     CREATE TABLE dompet(
-      id TEXT PRIMARY KEY,
-      namaDompet TEXT NOT NULL,
-      saldo REAL NOT NULL,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      diarsipkan INTEGER
+      id TEXT PRIMARY KEY, namaDompet TEXT NOT NULL, saldo REAL NOT NULL,
+      diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0, diarsipkan INTEGER
     )
   ''';
 
   static const String _tabelTransaksiV47 = '''
     CREATE TABLE transaksi(
-      id TEXT PRIMARY KEY,
-      keterangan TEXT NOT NULL,
-      jumlah REAL NOT NULL,
-      tanggal INTEGER NOT NULL,
-      tipe TEXT NOT NULL,
-      id_dompet TEXT,
-      id_kategori TEXT,
-      id_sub_kategori TEXT,
-      id_pelanggan TEXT,
-      id_paket TEXT,
-      diperbarui INTEGER,
-      diarsipkan INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      id_dompet_tujuan TEXT,
-      poin_yang_dihasilkan INTEGER NOT NULL DEFAULT 0,
-      poin_yang_digunakan INTEGER NOT NULL DEFAULT 0,
-      status_pembayaran TEXT,
-      durasi_paket INTEGER,
-      tipe_durasi_paket TEXT,
-      tanggal_mulai INTEGER,
-      tanggal_berakhir INTEGER,
-      aktivasi_paket INTEGER DEFAULT 0
+      id TEXT PRIMARY KEY, keterangan TEXT NOT NULL, jumlah REAL NOT NULL,
+      tanggal INTEGER NOT NULL, tipe TEXT NOT NULL, id_dompet TEXT,
+      id_kategori TEXT, id_sub_kategori TEXT, id_pelanggan TEXT, id_paket TEXT,
+      diperbarui INTEGER, diarsipkan INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0,
+      id_dompet_tujuan TEXT, poin_yang_dihasilkan INTEGER NOT NULL DEFAULT 0,
+      poin_yang_digunakan INTEGER NOT NULL DEFAULT 0, status_pembayaran TEXT,
+      durasi_paket INTEGER, tipe_durasi_paket TEXT, tanggal_mulai INTEGER,
+      tanggal_berakhir INTEGER, aktivasi_paket INTEGER DEFAULT 0
     )
   ''';
 
   static const String _tabelVersiApkUserV47 = '''
     CREATE TABLE versi_apk_user(
-      id TEXT PRIMARY KEY,
-      catatan_rilis TEXT NOT NULL,
-      nomor_build_terbaru TEXT NOT NULL,
-      tautan_unduhan TEXT NOT NULL,
-      versi_terbaru TEXT NOT NULL,
-      wajib_update INTEGER NOT NULL,
-      youtube_tutorial TEXT NOT NULL,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      diarsipkan INTEGER,
-      diperbarui INTEGER
+      id TEXT PRIMARY KEY, catatan_rilis TEXT NOT NULL, nomor_build_terbaru TEXT NOT NULL,
+      tautan_unduhan TEXT NOT NULL, versi_terbaru TEXT NOT NULL, wajib_update INTEGER NOT NULL,
+      youtube_tutorial TEXT NOT NULL, isDeleted INTEGER NOT NULL DEFAULT 0,
+      diarsipkan INTEGER, diperbarui INTEGER
     )
   ''';
 
   static const String _tabelStatusUnggahV47 = '''
     CREATE TABLE status_unggah(
-      tabel TEXT PRIMARY KEY,
-      status INTEGER NOT NULL,
-      ids TEXT NOT NULL,
-      diperbarui INTEGER
+      tabel TEXT PRIMARY KEY, status INTEGER NOT NULL, ids TEXT NOT NULL, diperbarui INTEGER
     )
   ''';
 
   static const String _tabelStatusAplikasiV47 = '''
     CREATE TABLE status_aplikasi(
-      id TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      diperbarui INTEGER
+      id TEXT PRIMARY KEY, value TEXT NOT NULL, diperbarui INTEGER
     )
   ''';
 
   static const String _tabelPesanV47 = '''
     CREATE TABLE pesan(
-      id TEXT PRIMARY KEY,
-      isi TEXT NOT NULL,
-      tanggal INTEGER NOT NULL,
-      status TEXT NOT NULL
+      id TEXT PRIMARY KEY, isi TEXT NOT NULL, tanggal INTEGER NOT NULL, status TEXT NOT NULL
     )
   ''';
 
-  static const String _tabelPengaturanV47 = '''
+  static const String _tabelPengaturanV45 = '''
     CREATE TABLE pengaturan(
-      id TEXT PRIMARY KEY,
-      interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
-      hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30,
-      diperbarui INTEGER,
-      mode_pemeliharaan INTEGER NOT NULL DEFAULT 0,
-      info_pemeliharaan TEXT
+      id TEXT PRIMARY KEY, interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
+      hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30, diperbarui INTEGER,
+      mode_pemeliharaan INTEGER NOT NULL DEFAULT 0, info_pemeliharaan TEXT
     )
   ''';
 
   static const String _tabelKategoriV47 = '''
     CREATE TABLE kategori(
-      id TEXT PRIMARY KEY,
-      nama TEXT NOT NULL,
-      tipe TEXT NOT NULL,
-      id_sub_kategori TEXT,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
+      id TEXT PRIMARY KEY, nama TEXT NOT NULL, tipe TEXT NOT NULL,
+      id_sub_kategori TEXT, diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0,
       diarsipkan INTEGER
     )
   ''';
 
   static const String _tabelSubKategoriV47 = '''
     CREATE TABLE sub_kategori(
-      id TEXT PRIMARY KEY,
-      nama TEXT NOT NULL,
-      id_kategori TEXT NOT NULL,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      diarsipkan INTEGER,
+      id TEXT PRIMARY KEY, nama TEXT NOT NULL, id_kategori TEXT NOT NULL,
+      diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0, diarsipkan INTEGER,
       FOREIGN KEY (id_kategori) REFERENCES kategori (id) ON DELETE CASCADE
     )
   ''';
 
   static const String _tabelPaketV47 = '''
     CREATE TABLE paket(
-      id TEXT PRIMARY KEY,
-      nama TEXT NOT NULL,
-      harga INTEGER NOT NULL,
-      durasi INTEGER NOT NULL,
-      tipe TEXT NOT NULL,
-      jumlahPoin INTEGER NOT NULL DEFAULT 0,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      diarsipkan INTEGER,
-      poin_hadiah INTEGER NOT NULL DEFAULT 0,
-      poin_penukaran INTEGER NOT NULL DEFAULT 0,
+      id TEXT PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL,
+      durasi INTEGER NOT NULL, tipe TEXT NOT NULL, jumlahPoin INTEGER NOT NULL DEFAULT 0,
+      diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0, diarsipkan INTEGER,
+      poin_hadiah INTEGER NOT NULL DEFAULT 0, poin_penukaran INTEGER NOT NULL DEFAULT 0,
       isPublic INTEGER NOT NULL DEFAULT 1
     )
   ''';
 
   static const String _tabelPelangganV47 = '''
     CREATE TABLE pelanggan(
-      id TEXT PRIMARY KEY,
-      nama TEXT NOT NULL,
-      telepon TEXT NOT NULL,
-      alamat TEXT NOT NULL,
-      password TEXT NOT NULL,
-      mac_address TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'aktif',
-      diperbarui INTEGER,
-      diarsipkan INTEGER,
+      id TEXT PRIMARY KEY, nama TEXT NOT NULL, telepon TEXT NOT NULL,
+      alamat TEXT NOT NULL, password TEXT NOT NULL, mac_address TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'aktif', diperbarui INTEGER, diarsipkan INTEGER,
       isDeleted INTEGER NOT NULL DEFAULT 0
     )
   ''';
 
   static const String _tabelPelangganAktifV47 = '''
     CREATE TABLE pelanggan_aktif(
-      id TEXT PRIMARY KEY,
-      id_pelanggan TEXT NOT NULL,
-      id_paket TEXT NOT NULL,
-      id_transaksi TEXT,
-      tanggal_mulai INTEGER,
-      tanggal_berakhir INTEGER,
-      status TEXT NOT NULL,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
+      id TEXT PRIMARY KEY, id_pelanggan TEXT NOT NULL, id_paket TEXT NOT NULL,
+      id_transaksi TEXT, tanggal_mulai INTEGER, tanggal_berakhir INTEGER,
+      status TEXT NOT NULL, diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0,
       diarsipkan INTEGER,
       FOREIGN KEY (id_pelanggan) REFERENCES pelanggan (id) ON DELETE CASCADE ON UPDATE CASCADE,
       FOREIGN KEY (id_paket) REFERENCES paket (id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -851,12 +727,8 @@ class DatabaseHelper {
 
   static const String _tabelKritikSaranV47 = '''
     CREATE TABLE kritik_saran(
-      id TEXT PRIMARY KEY,
-      isi TEXT NOT NULL,
-      tanggal INTEGER NOT NULL,
-      userId TEXT NOT NULL,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
+      id TEXT PRIMARY KEY, isi TEXT NOT NULL, tanggal INTEGER NOT NULL,
+      userId TEXT NOT NULL, diperbarui INTEGER, isDeleted INTEGER NOT NULL DEFAULT 0,
       diarsipkan INTEGER,
       FOREIGN KEY (userId) REFERENCES pelanggan (id) ON DELETE CASCADE
     )
@@ -864,14 +736,9 @@ class DatabaseHelper {
 
   static const String _tabelPesananV47 = '''
     CREATE TABLE pesanan(
-      id TEXT PRIMARY KEY,
-      id_pelanggan TEXT NOT NULL,
-      id_paket TEXT NOT NULL,
-      tanggal INTEGER NOT NULL,
-      status TEXT,
-      diperbarui INTEGER,
-      isDeleted INTEGER NOT NULL DEFAULT 0,
-      diarsipkan INTEGER,
+      id TEXT PRIMARY KEY, id_pelanggan TEXT NOT NULL, id_paket TEXT NOT NULL,
+      tanggal INTEGER NOT NULL, status TEXT, diperbarui INTEGER,
+      isDeleted INTEGER NOT NULL DEFAULT 0, diarsipkan INTEGER,
       FOREIGN KEY (id_pelanggan) REFERENCES pelanggan (id) ON DELETE CASCADE,
       FOREIGN KEY (id_paket) REFERENCES paket (id) ON DELETE CASCADE
     )

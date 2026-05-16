@@ -1,11 +1,16 @@
 // path: lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart
 // Fitur: Logika Bisnis untuk Kritik dan Saran (GLOBAL - Firebase)
 // Tujuan: Memisahkan operasi data (CRUD) dari UI, mengelola semua interaksi
-//          dengan Firestore untuk koleksi kritik_saran.
+//          dengan Firestore untuk koleksi feedback.
 //          Digunakan oleh sisi admin maupun user.
+// diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
+//         koleksi dan kolom.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 
 // === INFORMASI DEPENDENCY ===
@@ -15,46 +20,40 @@ import 'package:wifi/shared/model/feedback_model.dart';
 //
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/feedback_model.dart (FeedbackModel)
+//   - lib/shared/constant/column_names.dart (ColumnNames)
+//   - lib/shared/constant/table_name_value.dart (TableNameValue)
 
 /// Kelas untuk mengelola operasi CRUD (Create, Read, Update, Delete)
-/// terkait data kritik dan saran di Firestore.
+/// terkait data feedback di Firestore.
 class FeedbackOpFirebase {
   /// Instance Firestore yang akan digunakan. Dapat diganti saat pengujian.
   final FirebaseFirestore firestore;
 
   /// Konstruktor untuk membuat instance [FeedbackOpFirebase].
-  /// Membutuhkan instance [FeedbackOpFirebase].
   FeedbackOpFirebase(this.firestore);
 
-  /// Mendapatkan referensi ke koleksi 'kritik_saran'.
-  CollectionReference get _feedbackCollection =>
-      firestore.collection('kritik_saran');
+  /// Mendapatkan referensi ke koleksi feedback.
+  CollectionReference get _collection =>
+      firestore.collection(TableNameValue.get(TableName.feedback));
 
   /// Menyimpan [feedback] baru ke Firestore.
-  ///
-  /// Melemparkan [Exception] jika terjadi kegagalan.
   Future<void> createFeedback(final FeedbackModel feedback) async {
-    Log.info('[FeedbackOpFirebase] Menyimpan kritik saran baru...');
+    Log.info('[FeedbackOpFirebase] Menyimpan feedback baru...');
     try {
-      await _feedbackCollection.add(feedback.toFirebase());
-      Log.info('[FeedbackOpFirebase] Kritik saran berhasil disimpan.');
+      await _collection.add(feedback.toFirebase());
+      Log.info('[FeedbackOpFirebase] Feedback berhasil disimpan.');
     } catch (e) {
-      Log.error('[FeedbackOpFirebase] Gagal menyimpan kritik saran.', e: e);
-      throw Exception('Gagal membuat kritik dan saran: $e');
+      Log.error('[FeedbackOpFirebase] Gagal menyimpan feedback.', e: e);
+      throw Exception('Gagal membuat feedback: $e');
     }
   }
 
-  /// Membaca semua kritik dan saran yang dikirim oleh pengguna tertentu.
-  ///
-  /// Mengembalikan [Stream] dari daftar [FeedbackModel] yang diurutkan
-  /// berdasarkan tanggal pembaruan terbaru.
+  /// Membaca semua feedback oleh pengguna tertentu.
   Stream<List<FeedbackModel>> getFeedbacksByUser(final String userId) {
-    Log.info(
-      '[FeedbackOpFirebase] Memuat kritik saran untuk userId: $userId',
-    );
-    return _feedbackCollection
-        .where('userId', isEqualTo: userId)
-        .orderBy('diperbarui', descending: true)
+    Log.info('[FeedbackOpFirebase] Memuat feedback untuk userId: $userId');
+    return _collection
+        .where(ColumnNames.userId, isEqualTo: userId)
+        .orderBy(ColumnNames.updatedAt, descending: true)
         .snapshots()
         .map((final snapshot) {
       final feedbacks = snapshot.docs.map((final doc) {
@@ -63,50 +62,39 @@ class FeedbackOpFirebase {
           doc.data() as Map<String, dynamic>,
         );
       }).toList();
-      Log.info(
-        '[FeedbackOpFirebase] Ditemukan ${feedbacks.length} kritik saran.',
-      );
+      Log.info('[FeedbackOpFirebase] Ditemukan ${feedbacks.length} feedback.');
       return feedbacks;
     });
   }
 
-  /// Memperbarui isi dari kritik dan saran yang sudah ada.
-  ///
-  /// [docId] adalah ID dokumen yang akan diperbarui.
-  /// [newContent] adalah konten baru dari kritik atau saran.
+  /// Memperbarui isi feedback.
   Future<void> updateFeedback(
     final String docId,
     final String newContent,
   ) async {
-    Log.info('[FeedbackOpFirebase] Memperbarui kritik saran: $docId');
+    Log.info('[FeedbackOpFirebase] Memperbarui feedback: $docId');
     try {
-      final dataToUpdate = {
-        'isi': newContent,
-        'diperbarui': FieldValue.serverTimestamp(),
-      };
-      await _feedbackCollection.doc(docId).update(dataToUpdate);
-      Log.info('[FeedbackOpFirebase] Kritik saran berhasil diperbarui.');
+      await _collection.doc(docId).update({
+        ColumnNames.content: newContent,
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('[FeedbackOpFirebase] Feedback berhasil diperbarui.');
     } catch (e) {
-      Log.error(
-        '[FeedbackOpFirebase] Gagal memperbarui kritik saran.',
-        e: e,
-      );
-      throw Exception('Gagal memperbarui kritik dan saran: $e');
+      Log.error('[FeedbackOpFirebase] Gagal memperbarui feedback.', e: e);
+      throw Exception('Gagal memperbarui feedback: $e');
     }
   }
 
-  // TODO: rencana selanjutnya adalah merubah hapus kritik saran menjadi soft
-  //       delete dengan mengubah isDeleted menjadi true dan memperbarui kolom
-  //       archivedAt ke timestamp saat ini.
-  /// Menghapus kritik dan saran dari Firestore berdasarkan [docId].
+  // TODO: Ubah ke soft delete dengan is_deleted = true + archived_at
+  /// Menghapus feedback dari Firestore.
   Future<void> deleteFeedback(final String docId) async {
-    Log.info('[FeedbackOpFirebase] Menghapus kritik saran: $docId');
+    Log.info('[FeedbackOpFirebase] Menghapus feedback: $docId');
     try {
-      await _feedbackCollection.doc(docId).delete();
-      Log.info('[FeedbackOpFirebase] Kritik saran berhasil dihapus.');
+      await _collection.doc(docId).delete();
+      Log.info('[FeedbackOpFirebase] Feedback berhasil dihapus.');
     } catch (e) {
-      Log.error('[FeedbackOpFirebase] Gagal menghapus kritik saran.', e: e);
-      throw Exception('Gagal menghapus kritik dan saran: $e');
+      Log.error('[FeedbackOpFirebase] Gagal menghapus feedback.', e: e);
+      throw Exception('Gagal menghapus feedback: $e');
     }
   }
 }

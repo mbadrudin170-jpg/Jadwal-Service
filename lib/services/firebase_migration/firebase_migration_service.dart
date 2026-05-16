@@ -1,7 +1,10 @@
 // path: lib/services/firebase_migration/firebase_migration_service.dart
+// diubah: Ganti TableName.xxx.name → TableNameValue.get(TableName.xxx),
+//         perbaiki mapping jumlahPoin ke earned_points.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
@@ -9,55 +12,54 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 class FirebaseMigrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Enum TableName tidak memiliki entri untuk 'riwayat_langganan'.
   final List<String> _isDeletedCollections = [
-    TableName.wallet.name,
-    TableName.category.name,
-    TableName.package.name,
-    TableName.activeCustomer.name,
-    TableName.customer.name,
-    TableName.order.name,
-    TableName.subCategory.name,
-    TableName.transaction.name,
-    TableName.userApkVersion.name,
-    TableName.feedback.name,
+    TableNameValue.get(TableName.wallet),
+    TableNameValue.get(TableName.category),
+    TableNameValue.get(TableName.package),
+    TableNameValue.get(TableName.activeCustomer),
+    TableNameValue.get(TableName.customer),
+    TableNameValue.get(TableName.order),
+    TableNameValue.get(TableName.subCategory),
+    TableNameValue.get(TableName.transaction),
+    TableNameValue.get(TableName.userApkVersion),
+    TableNameValue.get(TableName.feedback),
   ];
 
   /// Daftar mapping nama kolom lama ke nama kolom baru.
   /// Format: {nama_koleksi: {kolom_lama: kolom_baru}}
   final Map<String, Map<String, String>> _columnMigrations = {
-    TableName.wallet.name: {
+    TableNameValue.get(TableName.wallet): {
       'namaDompet': ColumnNames.name,
       'saldo': ColumnNames.balance,
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.category.name: {
+    TableNameValue.get(TableName.category): {
       'nama': ColumnNames.name,
       'tipe': ColumnNames.type,
       'id_sub_kategori': ColumnNames.subCategoryId,
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.subCategory.name: {
+    TableNameValue.get(TableName.subCategory): {
       'nama': ColumnNames.name,
       'id_kategori': ColumnNames.categoryId,
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.package.name: {
+    TableNameValue.get(TableName.package): {
       'nama': ColumnNames.name,
       'harga': ColumnNames.price,
       'durasi': ColumnNames.duration,
       'tipe': ColumnNames.type,
-      'jumlahPoin': ColumnNames.rewardPoints,
+      'jumlahPoin': ColumnNames.earnedPoints,
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
       'poin_hadiah': ColumnNames.rewardPoints,
       'poin_penukaran': ColumnNames.redemptionPoints,
       'isPublic': ColumnNames.isPublic,
     },
-    TableName.customer.name: {
+    TableNameValue.get(TableName.customer): {
       'nama': ColumnNames.name,
       'telepon': ColumnNames.phone,
       'alamat': ColumnNames.address,
@@ -67,7 +69,7 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.activeCustomer.name: {
+    TableNameValue.get(TableName.activeCustomer): {
       'id_pelanggan': ColumnNames.customerId,
       'id_paket': ColumnNames.packageId,
       'id_transaksi': ColumnNames.transactionId,
@@ -77,7 +79,7 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.transaction.name: {
+    TableNameValue.get(TableName.transaction): {
       'keterangan': ColumnNames.description,
       'jumlah': ColumnNames.amount,
       'tanggal': ColumnNames.date,
@@ -99,14 +101,14 @@ class FirebaseMigrationService {
       'tanggal_berakhir': ColumnNames.endDate,
       'aktivasi_paket': ColumnNames.isActivated,
     },
-    TableName.feedback.name: {
+    TableNameValue.get(TableName.feedback): {
       'isi': ColumnNames.content,
       'tanggal': ColumnNames.date,
       'userId': ColumnNames.userId,
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.order.name: {
+    TableNameValue.get(TableName.order): {
       'id_pelanggan': ColumnNames.customerId,
       'id_paket': ColumnNames.packageId,
       'tanggal': ColumnNames.date,
@@ -114,7 +116,7 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.userApkVersion.name: {
+    TableNameValue.get(TableName.userApkVersion): {
       'catatan_rilis': ColumnNames.releaseNotes,
       'nomor_build_terbaru': ColumnNames.latestBuildNumber,
       'tautan_unduhan': ColumnNames.downloadLinks,
@@ -124,18 +126,18 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableName.setting.name: {
+    TableNameValue.get(TableName.setting): {
       'interval_sinkronisasi_otomatis': ColumnNames.autoSyncInterval,
       'hapus_otomatis_data_arsip': ColumnNames.autoDeleteArchiveDays,
       'mode_pemeliharaan': ColumnNames.maintenanceMode,
       'info_pemeliharaan': ColumnNames.maintenanceInfo,
       'diperbarui': ColumnNames.updatedAt,
     },
-    TableName.uploadStatus.name: {
+    TableNameValue.get(TableName.uploadStatus): {
       'value': ColumnNames.value,
       'diperbarui': ColumnNames.updatedAt,
     },
-    TableName.message.name: {
+    TableNameValue.get(TableName.message): {
       'isi': ColumnNames.content,
       'tanggal': ColumnNames.date,
       'status': ColumnNames.status,
@@ -171,7 +173,8 @@ class FirebaseMigrationService {
         '  - [isDeleted] $migratedCount dokumen akan dimigrasi di `$collectionName`.',
       );
       Log.info(
-          'Migrasi isDeleted untuk $collectionName: $migratedCount dokumen');
+        'Migrasi isDeleted untuk $collectionName: $migratedCount dokumen',
+      );
     }
   }
 
@@ -184,7 +187,6 @@ class FirebaseMigrationService {
   ) async {
     Log.info('Memulai migrasi nama kolom untuk koleksi: $collectionName');
 
-    // Cek apakah koleksi ada di Firestore
     final collectionRef = _firestore.collection(collectionName);
     final QuerySnapshot snapshot;
     try {
@@ -200,7 +202,6 @@ class FirebaseMigrationService {
       return;
     }
 
-    // Ambil semua dokumen untuk migrasi penuh
     final allDocs = await collectionRef.get();
     int totalRenamedCount = 0;
     final Map<String, int> renamedCountPerColumn = {};
@@ -214,11 +215,9 @@ class FirebaseMigrationService {
         final oldColumnName = entry.key;
         final newColumnName = entry.value;
 
-        // Cek apakah kolom lama ada di dokumen
         if (data.containsKey(oldColumnName)) {
           final oldValue = data[oldColumnName];
 
-          // Hanya migrasi jika kolom baru belum ada
           if (!data.containsKey(newColumnName)) {
             updateData[newColumnName] = oldValue;
             deleteData[oldColumnName] = FieldValue.delete();
@@ -226,7 +225,6 @@ class FirebaseMigrationService {
                 (renamedCountPerColumn[oldColumnName] ?? 0) + 1;
             totalRenamedCount++;
           } else {
-            // Kolom baru sudah ada, hapus kolom lama saja
             deleteData[oldColumnName] = FieldValue.delete();
           }
         }
@@ -235,13 +233,12 @@ class FirebaseMigrationService {
       if (updateData.isNotEmpty || deleteData.isNotEmpty) {
         final Map<String, dynamic> finalUpdateData = {
           ...updateData,
-          ...deleteData
+          ...deleteData,
         };
         batch.update(doc.reference, finalUpdateData);
       }
     }
 
-    // Catat hasil migrasi per kolom
     for (final entry in renamedCountPerColumn.entries) {
       logs.add(
         '  - [${entry.key} -> ${columnMapping[entry.key]}] ${entry.value} dokumen dimigrasi di `$collectionName`.',
@@ -253,7 +250,8 @@ class FirebaseMigrationService {
         '  Total: $totalRenamedCount perubahan nama kolom di `$collectionName`.',
       );
       Log.info(
-          'Migrasi kolom untuk $collectionName: $totalRenamedCount perubahan');
+        'Migrasi kolom untuk $collectionName: $totalRenamedCount perubahan',
+      );
     }
   }
 
@@ -263,17 +261,16 @@ class FirebaseMigrationService {
     final List<String> logs,
   ) async {
     Log.info('Memulai migrasi isPublic ke is_public di koleksi package');
+    final collectionName = TableNameValue.get(TableName.package);
     final QuerySnapshot snapshot =
-        await _firestore.collection(TableName.package.name).get();
+        await _firestore.collection(collectionName).get();
     int migratedCount = 0;
 
     for (final doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
 
-      // Cek apakah kolom 'isPublic' ada
       if (data.containsKey('isPublic')) {
         final currentValue = data['isPublic'];
-        // Cek apakah kolom 'is_public' sudah ada
         if (!data.containsKey(ColumnNames.isPublic)) {
           batch.update(doc.reference, {
             ColumnNames.isPublic: currentValue,
@@ -281,7 +278,6 @@ class FirebaseMigrationService {
           });
           migratedCount++;
         } else {
-          // Kolom is_public sudah ada, hapus isPublic saja
           batch.update(doc.reference, {
             'isPublic': FieldValue.delete(),
           });
@@ -291,7 +287,7 @@ class FirebaseMigrationService {
 
     if (migratedCount > 0) {
       logs.add(
-        '  - [isPublic -> ${ColumnNames.isPublic}] $migratedCount dokumen akan dimigrasi di `${TableName.package.name}`.',
+        '  - [isPublic -> ${ColumnNames.isPublic}] $migratedCount dokumen akan dimigrasi di `$collectionName`.',
       );
       Log.info('Migrasi isPublic: $migratedCount dokumen');
     }
@@ -299,10 +295,13 @@ class FirebaseMigrationService {
 
   /// Migrasi untuk field di koleksi `user_apk_version`
   Future<void> _migrateUserApkVersion(
-      final WriteBatch batch, final List<String> logs) async {
-    Log.info('Memulai migrasi versi_apk_user');
+    final WriteBatch batch,
+    final List<String> logs,
+  ) async {
+    Log.info('Memulai migrasi user_apk_version');
+    final collectionName = TableNameValue.get(TableName.userApkVersion);
     final QuerySnapshot snapshot =
-        await _firestore.collection(TableName.userApkVersion.name).get();
+        await _firestore.collection(collectionName).get();
     int migratedBuildCount = 0;
     int migratedLinkCount = 0;
     int migratedBuildAndLinkCount = 0;
@@ -318,7 +317,6 @@ class FirebaseMigrationService {
       bool buildNeedMigration = false;
       bool linkNeedMigration = false;
 
-      // Migrasi nomor_build_terbaru (cek apakah masih dalam format lama)
       if (oldBuildNumber != null && oldBuildNumber is! Map) {
         buildNeedMigration = true;
 
@@ -344,7 +342,6 @@ class FirebaseMigrationService {
         }
       }
 
-      // Migrasi tautan_unduhan (cek apakah masih dalam format lama)
       if (oldDownloadLink != null && oldDownloadLink is! Map) {
         linkNeedMigration = true;
 
@@ -396,9 +393,9 @@ class FirebaseMigrationService {
         migratedBuildCount + migratedLinkCount + migratedBuildAndLinkCount;
     if (totalMigrated > 0) {
       logs.add(
-        '  Total: $totalMigrated dokumen di `${TableName.userApkVersion.name}` akan dimigrasi.',
+        '  Total: $totalMigrated dokumen di `$collectionName` akan dimigrasi.',
       );
-      Log.info('Migrasi versi_apk_user: $totalMigrated dokumen');
+      Log.info('Migrasi user_apk_version: $totalMigrated dokumen');
     }
   }
 
@@ -408,8 +405,9 @@ class FirebaseMigrationService {
     final List<String> logs,
   ) async {
     Log.info('Memulai migrasi value di koleksi upload_status');
+    final collectionName = TableNameValue.get(TableName.uploadStatus);
     final QuerySnapshot snapshot =
-        await _firestore.collection(TableName.uploadStatus.name).get();
+        await _firestore.collection(collectionName).get();
     int migratedCount = 0;
 
     for (final doc in snapshot.docs) {
@@ -418,14 +416,12 @@ class FirebaseMigrationService {
       if (data.containsKey(ColumnNames.value)) {
         final currentValue = data[ColumnNames.value];
 
-        // Jika value masih berupa string '0' atau '1', konversi ke boolean
         if (currentValue is String &&
             (currentValue == '0' || currentValue == '1')) {
           final bool newValue = currentValue == '1';
           batch.update(doc.reference, {ColumnNames.value: newValue});
           migratedCount++;
         }
-        // Jika value masih berupa int 0 atau 1, konversi ke boolean
         if (currentValue is int && (currentValue == 0 || currentValue == 1)) {
           final bool newValue = currentValue == 1;
           batch.update(doc.reference, {ColumnNames.value: newValue});
@@ -436,7 +432,7 @@ class FirebaseMigrationService {
 
     if (migratedCount > 0) {
       logs.add(
-        '  - [value] $migratedCount dokumen akan dimigrasi di `${TableName.uploadStatus.name}` (string/int ke boolean).',
+        '  - [value] $migratedCount dokumen akan dimigrasi di `$collectionName` (string/int ke boolean).',
       );
       Log.info('Migrasi upload_status value: $migratedCount dokumen');
     }
@@ -444,16 +440,7 @@ class FirebaseMigrationService {
 
   /// Menganalisis dan menjalankan semua migrasi data Firebase yang diperlukan.
   ///
-  /// Ini termasuk:
-  /// - Mengkonversi `isDeleted` dari `int` ke `bool` di berbagai koleksi.
-  /// - Merestrukturisasi `nomor_build_terbaru` dan `tautan_unduhan` di `user_apk_version`.
-  /// - Mengganti nama kolom sesuai dengan `ColumnNames`.
-  /// - Mengkonversi `value` di `upload_status` dari string/int ke boolean.
-  ///
-  /// Sebuah [WriteBatch] digunakan untuk melakukan semua perubahan sekaligus.
-  /// Callback [onProgress] memberikan umpan balik real-time tentang status migrasi.
-  ///
-  /// Melempar [Exception] jika ada langkah migrasi yang gagal, untuk menghentikan proses.
+  /// Melempar [Exception] jika ada langkah migrasi yang gagal.
   /// Mengembalikan daftar pesan log yang merinci operasi yang dilakukan.
   Future<List<String>> runAllMigrations(
     final void Function(String message) onProgress,
@@ -464,7 +451,6 @@ class FirebaseMigrationService {
     final List<String> logs = [];
     int totalMigrations = 0;
 
-    // 1. Migrasi isDeleted (int ke bool)
     onProgress('Menganalisis migrasi `isDeleted`...');
     for (final collectionName in _isDeletedCollections) {
       try {
@@ -479,14 +465,12 @@ class FirebaseMigrationService {
             'Error saat menganalisis migrasi isDeleted untuk $collectionName: $e';
         Log.error(message, e: e, st: s);
         onProgress(message);
-        // Tidak throw, lanjutkan ke koleksi berikutnya
       }
     }
     if (totalMigrations == 0) {
       logs.add('Tidak ada migrasi `isDeleted` yang perlu dilakukan.');
     }
 
-    // 2. Migrasi nama kolom berdasarkan ColumnNames
     totalMigrations = 0;
     onProgress('Menganalisis migrasi nama kolom...');
     for (final entry in _columnMigrations.entries) {
@@ -509,14 +493,12 @@ class FirebaseMigrationService {
             'Error saat menganalisis migrasi kolom untuk $collectionName: $e';
         Log.error(message, e: e, st: s);
         onProgress(message);
-        // Tidak throw, lanjutkan ke koleksi berikutnya
       }
     }
     if (totalMigrations == 0) {
       logs.add('Tidak ada migrasi nama kolom yang perlu dilakukan.');
     }
 
-    // 3. Migrasi user_apk_version (restrukturisasi)
     int userApkVersionMigrations = 0;
     onProgress('Menganalisis migrasi `user_apk_version`...');
     try {
@@ -530,13 +512,11 @@ class FirebaseMigrationService {
       final message = 'Error saat menganalisis migrasi user_apk_version: $e';
       Log.error(message, e: e, st: s);
       onProgress(message);
-      // Tidak throw, lanjutkan
     }
     if (userApkVersionMigrations == 0) {
       logs.add('Tidak ada migrasi `user_apk_version` yang perlu dilakukan.');
     }
 
-    // 4. Migrasi isPublic (khusus package)
     int isPublicMigrations = 0;
     onProgress('Menganalisis migrasi `isPublic` di koleksi package...');
     try {
@@ -550,13 +530,11 @@ class FirebaseMigrationService {
       final message = 'Error saat menganalisis migrasi isPublic: $e';
       Log.error(message, e: e, st: s);
       onProgress(message);
-      // Tidak throw, lanjutkan
     }
     if (isPublicMigrations == 0) {
       logs.add('Tidak ada migrasi `isPublic` yang perlu dilakukan.');
     }
 
-    // 5. Migrasi upload_status value (string/int ke boolean)
     int uploadStatusMigrations = 0;
     onProgress('Menganalisis migrasi `value` di koleksi upload_status...');
     try {
@@ -570,13 +548,11 @@ class FirebaseMigrationService {
       final message = 'Error saat menganalisis migrasi upload_status value: $e';
       Log.error(message, e: e, st: s);
       onProgress(message);
-      // Tidak throw, lanjutkan
     }
     if (uploadStatusMigrations == 0) {
       logs.add('Tidak ada migrasi `upload_status value` yang perlu dilakukan.');
     }
 
-    // Commit semua perubahan
     if (logs.isNotEmpty) {
       onProgress('Menjalankan semua perubahan...');
       try {
@@ -585,11 +561,7 @@ class FirebaseMigrationService {
         Log.info('Semua migrasi Firebase berhasil di-commit');
       } on Exception catch (e, s) {
         final message = 'Gagal melakukan commit perubahan: $e';
-        Log.error(
-          message,
-          e: e,
-          st: s,
-        );
+        Log.error(message, e: e, st: s);
         onProgress(message);
         throw Exception('Gagal menyimpan perubahan ke Firestore.');
       }
