@@ -1,53 +1,51 @@
-// path: lib/shared/enum/table_name_enum.dart
-
 /// Enum yang merepresentasikan nama-nama tabel dalam database.
 /// Digunakan untuk sinkronisasi dan operasi terkait database lainnya.
 enum TableName {
-  /// Tabel kategori.
+  /// Tabel kategori produk atau layanan.
   category,
 
-  /// Tabel sub-kategori.
+  /// Tabel sub-kategori untuk pengelompokan yang lebih spesifik.
   subCategory,
 
-  /// Tabel paket.
+  /// Tabel paket layanan atau produk.
   package,
 
-  /// Tabel pelanggan.
+  /// Tabel data pelanggan.
   customer,
 
-  /// Tabel pelanggan aktif.
+  /// Tabel data pelanggan yang sedang aktif.
   activeCustomer,
 
-  /// Tabel transaksi.
-  transaction,
+  /// Tabel transaksi (diubah menjadi bentuk jamak agar konsisten).
+  transactions,
 
-  /// Tabel dompet.
+  /// Tabel dompet digital atau saldo pengguna.
   wallet,
 
-  /// Tabel kritik dan saran.
+  /// Tabel masukan atau feedback dari pengguna.
   feedback,
 
-  /// Tabel pesanan.
+  /// Tabel pesanan atau order.
   order,
 
-  /// Tabel versi APK pengguna.
+  /// Tabel versi APK yang digunakan oleh pengguna.
   userApkVersion,
 
-  /// Tabel pengaturan.
+  /// Tabel pengaturan aplikasi.
   setting,
 
-  /// Tabel status unggah.
+  /// Tabel status unggahan data.
   uploadStatus,
 
-  /// Tabel pesan.
+  /// Tabel pesan atau chat.
   message,
 
-  /// Tabel status aplikasi.
+  /// Tabel status operasional aplikasi.
   appStatus,
 
-  /// Tabel token FCM.
+  /// Tabel token Firebase Cloud Messaging untuk notifikasi.
   fcmToken,
 
-  /// Tabel notifikasi.
+  /// Tabel riwayat notifikasi.
   notification,
 }

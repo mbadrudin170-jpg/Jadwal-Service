@@ -3,11 +3,6 @@
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// Mapping nama tabel dari [TableName] ke format snake_case.
-///
-/// 🛡️ ATURAN: Gunakan [TableNameValue.get] untuk nama koleksi Firestore/SQLite.
-///    JANGAN gunakan [TableName] karena menghasilkan camelCase.
-///    Contoh benar: TableNameValue.get(TableName.activeCustomer) → 'active_customer'
-///    Contoh salah: TableName.activeCustomer.name → 'activeCustomer'
 abstract final class TableNameValue {
   static const Map<TableName, String> _map = {
     TableName.category: 'category',
@@ -15,7 +10,10 @@ abstract final class TableNameValue {
     TableName.package: 'package',
     TableName.customer: 'customer',
     TableName.activeCustomer: 'active_customer',
-    TableName.transaction: 'transaction',
+
+    // KONSISTEN: Menggunakan enum jamak dan string jamak
+    TableName.transactions: 'transactions',
+
     TableName.wallet: 'wallet',
     TableName.feedback: 'feedback',
     TableName.order: 'order',

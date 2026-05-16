@@ -4,6 +4,7 @@
 //         Data tetap AMAN karena menggunakan ALTER TABLE RENAME TO.
 // diubah: Semua definisi CREATE TABLE menggunakan nama tabel snake_case.
 // diubah: Semua index menggunakan nama tabel baru.
+// diperbaiki: Escaping reserved keywords ("transaction" & "order") untuk mencegah SQLITE_ERROR.
 
 import 'dart:io';
 
@@ -348,9 +349,13 @@ class DatabaseHelper {
     await db.execute('ALTER TABLE paket RENAME TO package');
     await db.execute('ALTER TABLE pelanggan RENAME TO customer');
     await db.execute('ALTER TABLE pelanggan_aktif RENAME TO active_customer');
-    await db.execute('ALTER TABLE transaksi RENAME TO transaction');
+
+    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction
+    await db.execute('ALTER TABLE transaksi RENAME TO "transaction"');
     await db.execute('ALTER TABLE kritik_saran RENAME TO feedback');
-    await db.execute('ALTER TABLE pesanan RENAME TO order');
+
+    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order
+    await db.execute('ALTER TABLE pesanan RENAME TO "order"');
     await db.execute('ALTER TABLE versi_apk_user RENAME TO user_apk_version');
     await db.execute('ALTER TABLE pengaturan RENAME TO setting');
     await db.execute('ALTER TABLE status_unggah RENAME TO upload_status');
@@ -394,14 +399,15 @@ class DatabaseHelper {
     batch.execute(_tabelMessage);
     Log.info('Semua 14 definisi tabel (v50) ditambahkan ke batch.');
 
+    // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction"
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON transaction(wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON "transaction"(wallet_id)',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON transaction(destination_wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON "transaction"(destination_wallet_id)',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON transaction(is_deleted)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON "transaction"(is_deleted)',
     );
     Log.info('Semua 3 definisi index (v50) ditambahkan ke batch.');
   }
@@ -438,8 +444,9 @@ class DatabaseHelper {
     )
   ''';
 
+  // diperbaiki: Nama tabel utama dibungkus menggunakan kata kunci "transaction"
   static const String _tabelTransaction = '''
-    CREATE TABLE transaction(
+    CREATE TABLE "transaction"(
       id TEXT PRIMARY KEY,
       description TEXT NOT NULL,
       amount REAL NOT NULL,
@@ -573,6 +580,7 @@ class DatabaseHelper {
     )
   ''';
 
+  // diperbaiki: Foreign key ke references "transaction" wajib menggunakan double quotes
   static const String _tabelActiveCustomer = '''
     CREATE TABLE active_customer(
       id TEXT PRIMARY KEY,
@@ -587,7 +595,7 @@ class DatabaseHelper {
       archived_at INTEGER,
       FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE ON UPDATE CASCADE,
       FOREIGN KEY (package_id) REFERENCES package (id) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (transaction_id) REFERENCES transaction (id) ON DELETE SET NULL
+      FOREIGN KEY (transaction_id) REFERENCES "transaction" (id) ON DELETE SET NULL
     )
   ''';
 

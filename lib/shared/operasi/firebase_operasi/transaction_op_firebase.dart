@@ -18,7 +18,7 @@ class TransactionOpFirebase {
 
   /// Mendapatkan referensi ke koleksi transaction.
   CollectionReference get _collection =>
-      _db.collection(TableNameValue.get(TableName.transaction));
+      _db.collection(TableNameValue.get(TableName.transactions));
 
   /// Mengambil riwayat langganan untuk seorang pelanggan.
   Future<List<TransactionModel>> getSubscriptionHistory(

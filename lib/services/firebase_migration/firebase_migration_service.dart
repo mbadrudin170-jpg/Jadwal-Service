@@ -1,6 +1,4 @@
 // path: lib/services/firebase_migration/firebase_migration_service.dart
-// diubah: Ganti TableName.xxx.name → TableNameValue.get(TableName.xxx),
-//         perbaiki mapping jumlahPoin ke earned_points.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -20,7 +18,8 @@ class FirebaseMigrationService {
     TableNameValue.get(TableName.customer),
     TableNameValue.get(TableName.order),
     TableNameValue.get(TableName.subCategory),
-    TableNameValue.get(TableName.transaction),
+    TableNameValue.get(
+        TableName.transactions), // KONSISTEN: Menggunakan bentuk jamak
     TableNameValue.get(TableName.userApkVersion),
     TableNameValue.get(TableName.feedback),
   ];
@@ -52,7 +51,8 @@ class FirebaseMigrationService {
       'harga': ColumnNames.price,
       'durasi': ColumnNames.duration,
       'tipe': ColumnNames.type,
-      'jumlahPoin': ColumnNames.earnedPoints,
+      'jumlahPoin':
+          ColumnNames.earnedPoints, // DISINKRONKAN: Diarahkan ke earnedPoints
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
       'poin_hadiah': ColumnNames.rewardPoints,
@@ -79,7 +79,8 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableNameValue.get(TableName.transaction): {
+    TableNameValue.get(TableName.transactions): {
+      // KONSISTEN: Menggunakan bentuk jamak
       'keterangan': ColumnNames.description,
       'jumlah': ColumnNames.amount,
       'tanggal': ColumnNames.date,
