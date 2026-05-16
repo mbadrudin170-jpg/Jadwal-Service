@@ -18,7 +18,7 @@ class SettingsOpFirebase {
 
   /// Mendapatkan referensi ke koleksi setting.
   CollectionReference get _collection =>
-      _db.collection(TableNameValue.get(TableName.setting));
+      _db.collection(TableNameValue.get(TableName.settings));
 
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {

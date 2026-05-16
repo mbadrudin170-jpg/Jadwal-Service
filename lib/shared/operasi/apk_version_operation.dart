@@ -1,8 +1,12 @@
 // path: lib/shared/operasi/apk_version_operation.dart
+// diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi v50.
+// diubah: Menggunakan DateTime.now().toUtc() pada pengarsipan agar konsisten dengan BaseOperation.
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -11,7 +15,8 @@ class ApkVersionOperation {
   /// Instance dari DatabaseHelper untuk berinteraksi dengan database.
   final DatabaseHelper dbHelper;
 
-  static const String _tableName = 'versi_apk_user';
+  // DIUBAH: Menggunakan TableNameValue untuk nama tabel userApkVersion
+  final String _tableName = TableNameValue.get(TableName.userApkVersion);
 
   final BaseOperation _baseOperation;
 
@@ -40,6 +45,7 @@ class ApkVersionOperation {
     );
 
     try {
+      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.insert(
         _tableName,
         apkVersion.toSqlite(),
@@ -68,6 +74,7 @@ class ApkVersionOperation {
     );
 
     try {
+      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.update(
         _tableName,
         apkVersion.toSqlite(),
@@ -106,9 +113,10 @@ class ApkVersionOperation {
           'Data ditemukan - Versi: ${model.latestVersion}, isDeleted: ${model.isDeleted}',
         );
 
+        // DIUBAH: Menggunakan DateTime.now().toUtc() untuk konsistensi zona waktu
         final archivedModel = model.copyWith(
           isDeleted: true,
-          archivedAt: DateTime.now(),
+          archivedAt: DateTime.now().toUtc(),
         );
 
         await updateApkVersion(archivedModel, fromServer: fromServer);
@@ -147,6 +155,7 @@ class ApkVersionOperation {
 
     try {
       final mapList = modelList.map((final model) => model.toSqlite()).toList();
+      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.insertOrUpdateBatch(
         _tableName,
         mapList,
@@ -281,7 +290,8 @@ class ApkVersionOperation {
         return model;
       } else {
         Log.info(
-            'Tidak ada versi APK aktif yang ditemukan di tabel $_tableName');
+          'Tidak ada versi APK aktif yang ditemukan di tabel $_tableName',
+        );
         return null;
       }
     } on Exception catch (e, st) {
@@ -301,7 +311,7 @@ class ApkVersionOperation {
     try {
       final db = await dbHelper.database;
       Log.info(
-        'Query: SELECT * FROM $_tableName WHERE id = $id AND isDeleted = 0',
+        'Query: SELECT * FROM $_tableName WHERE id = ? AND isDeleted = 0',
       );
 
       final maps = await db.query(

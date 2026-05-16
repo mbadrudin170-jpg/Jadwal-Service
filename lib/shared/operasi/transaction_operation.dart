@@ -1,12 +1,11 @@
 // path: lib/shared/operasi/transaction_operation.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Mengganti nama class dari TransaksiOperasi menjadi TransactionOperation.
-// diubah: Menggunakan BaseOperation dan TransactionModel.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
@@ -44,6 +43,7 @@ class TransactionOperation {
     try {
       Log.info('Memulai hitung ulang saldo untuk Wallet ID: $walletId');
 
+      // DIUBAH: Menggunakan TableName.transactions (Jamak) sesuai pembaruan enum v50
       final totalResult = await txn.rawQuery(
         '''
         SELECT
@@ -68,7 +68,7 @@ class TransactionOperation {
               ELSE 0
             END
           ), 0) as total
-        FROM transaksi
+        FROM ${TableNameValue.get(TableName.transactions)}
         WHERE ${ColumnNames.isDeleted} = 0 AND (${ColumnNames.walletId} = ? OR ${ColumnNames.destinationWalletId} = ?)
         ''',
         [walletId, walletId, walletId, walletId, walletId, walletId],
@@ -78,7 +78,7 @@ class TransactionOperation {
           (totalResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
       await txn.update(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         {
           ColumnNames.balance: totalBalance,
           ColumnNames.updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
@@ -110,8 +110,9 @@ class TransactionOperation {
           Log.info('Memulai transaksi database untuk addTransaction');
           final data = transaction.copyWith(updatedAt: DateTime.now().toUtc());
 
+          // DIUBAH: Menggunakan TableName.transactions (Jamak)
           final newId = await txn.insert(
-            'transaksi',
+            TableNameValue.get(TableName.transactions),
             data.toSqlite(),
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -143,8 +144,9 @@ class TransactionOperation {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where: '${ColumnNames.isDeleted} = ?',
         whereArgs: [0],
         orderBy: '${ColumnNames.date} DESC',
@@ -162,11 +164,12 @@ class TransactionOperation {
 
   /// Mengambil [TransactionModel] berdasarkan [id].
   Future<TransactionModel?> getTransactionById(final String id) async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Mencari transaksi berdasarkan ID: $id');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
         limit: 1,
@@ -189,11 +192,12 @@ class TransactionOperation {
   Future<List<TransactionModel>> getTransactionsByCustomerId(
     final String customerId,
   ) async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Mengambil transaksi untuk Customer ID: $customerId');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where: '${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [customerId, 0],
         orderBy: '${ColumnNames.date} DESC',
@@ -212,11 +216,12 @@ class TransactionOperation {
   /// Mengambil semua transaksi yang terkait dengan [walletId].
   Future<List<TransactionModel>> getTransactionsByWalletId(
       final String walletId) async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Mengambil transaksi terkait Wallet ID: $walletId');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where:
             '(${ColumnNames.walletId} = ? OR ${ColumnNames.destinationWalletId} = ?) AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [walletId, walletId, 0],
@@ -234,11 +239,12 @@ class TransactionOperation {
 
   /// Mengambil semua transaksi yang merupakan aktivasi paket.
   Future<List<TransactionModel>> getTransactionsByPackageActivation() async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Mengambil transaksi dengan status isActivated = 1');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where:
             '${ColumnNames.isActivated} = ? AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [1, 0],
@@ -264,15 +270,20 @@ class TransactionOperation {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai update transaksi database ID: $id');
-          final maps = await txn.query('transaksi',
-              where: '${ColumnNames.id} = ?', whereArgs: [id]);
+          // DIUBAH: Menggunakan TableName.transactions (Jamak)
+          final maps = await txn.query(
+              TableNameValue.get(TableName.transactions),
+              where: '${ColumnNames.id} = ?',
+              whereArgs: [id]);
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransactionModel.fromSqlite(maps.first);
             final updateData =
                 newTransaction.copyWith(updatedAt: DateTime.now().toUtc());
 
-            await txn.update('transaksi', updateData.toSqlite(),
+            // DIUBAH: Menggunakan TableName.transactions (Jamak)
+            await txn.update(TableNameValue.get(TableName.transactions),
+                updateData.toSqlite(),
                 where: '${ColumnNames.id} = ?', whereArgs: [id]);
             Log.info('Data transaksi ID: $id diperbarui');
 
@@ -311,14 +322,18 @@ class TransactionOperation {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai proses pengarsipan (Soft Delete) ID: $id');
-          final maps = await txn.query('transaksi',
-              where: '${ColumnNames.id} = ?', whereArgs: [id]);
+          // DIUBAH: Menggunakan TableName.transactions (Jamak)
+          final maps = await txn.query(
+              TableNameValue.get(TableName.transactions),
+              where: '${ColumnNames.id} = ?',
+              whereArgs: [id]);
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransactionModel.fromSqlite(maps.first);
             final now = DateTime.now().toUtc();
+            // DIUBAH: Menggunakan TableName.transactions (Jamak)
             await txn.update(
-              'transaksi',
+              TableNameValue.get(TableName.transactions),
               {
                 ColumnNames.isDeleted: 1,
                 ColumnNames.updatedAt: now.millisecondsSinceEpoch,
@@ -356,8 +371,9 @@ class TransactionOperation {
         (final Transaction txn) async {
           Log.warning('Memulai penghapusan semua transaksi (soft delete)');
           final now = DateTime.now().toUtc();
+          // DIUBAH: Menggunakan TableName.transactions (Jamak)
           final rowsAffected = await txn.update(
-            'transaksi',
+            TableNameValue.get(TableName.transactions),
             {
               ColumnNames.isDeleted: 1,
               ColumnNames.updatedAt: now.millisecondsSinceEpoch,
@@ -368,7 +384,15 @@ class TransactionOperation {
           );
 
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
-          await txn.update('dompet', {ColumnNames.balance: 0});
+          
+          // DIUBAH & DISEMPURNAKAN: Menambahkan updatedAt agar sinkronisasi mendeteksi perubahan dompet lokal
+          await txn.update(
+            TableNameValue.get(TableName.wallet),
+            {
+              ColumnNames.balance: 0,
+              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+            },
+          );
         },
         fromServer: fromServer,
       );
@@ -380,11 +404,12 @@ class TransactionOperation {
 
   /// Mendapatkan total pemasukan dari semua transaksi.
   Future<double> getTotalIncome() async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Menghitung total seluruh pemasukan');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final result = await db.rawQuery(
-          "SELECT SUM(${ColumnNames.amount}) as total FROM transaksi WHERE ${ColumnNames.type} = 'income' AND ${ColumnNames.isDeleted} = 0");
+          "SELECT SUM(${ColumnNames.amount}) as total FROM ${TableNameValue.get(TableName.transactions)} WHERE ${ColumnNames.type} = 'income' AND ${ColumnNames.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -399,11 +424,12 @@ class TransactionOperation {
 
   /// Mendapatkan total pengeluaran dari semua transaksi.
   Future<double> getTotalExpense() async {
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Menghitung total seluruh pengeluaran');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final result = await db.rawQuery(
-          "SELECT SUM(${ColumnNames.amount}) as total FROM transaksi WHERE ${ColumnNames.type} = 'expense' AND ${ColumnNames.isDeleted} = 0");
+          "SELECT SUM(${ColumnNames.amount}) as total FROM ${TableNameValue.get(TableName.transactions)} WHERE ${ColumnNames.type} = 'expense' AND ${ColumnNames.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -428,11 +454,12 @@ class TransactionOperation {
 
   /// Mendapatkan total poin yang dihasilkan oleh [customerId].
   Future<int> getEarnedPoints(final String customerId) async {
-    final db = await dbHelper.database;
     try {
+      final db = await dbHelper.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.earnedPoints}) as total FROM transaksi WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
+          'SELECT SUM(${ColumnNames.earnedPoints}) as total FROM ${TableNameValue.get(TableName.transactions)} WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
           [customerId]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
@@ -445,11 +472,12 @@ class TransactionOperation {
 
   /// Mendapatkan total poin yang digunakan oleh [customerId].
   Future<int> getUsedPoints(final String customerId) async {
-    final db = await dbHelper.database;
     try {
+      final db = await dbHelper.database;
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.usedPoints}) as total FROM transaksi WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
+          'SELECT SUM(${ColumnNames.usedPoints}) as total FROM ${TableNameValue.get(TableName.transactions)} WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
           [customerId]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
@@ -475,6 +503,10 @@ class TransactionOperation {
     final List<TransactionModel> items, {
     final bool fromServer = false,
   }) async {
+    if (items.isEmpty) {
+      Log.warning('Batch dibatalkan karena daftar transaksi kosong');
+      return;
+    }
     final Set<String> affectedWallets = {};
 
     try {
@@ -484,8 +516,9 @@ class TransactionOperation {
               'Memulai proses Batch insert/update untuk ${items.length} item');
           final batch = txn.batch();
           for (final item in items) {
+            // DIUBAH: Menggunakan TableName.transactions (Jamak)
             batch.insert(
-              'transaksi',
+              TableNameValue.get(TableName.transactions),
               item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -518,12 +551,13 @@ class TransactionOperation {
       Log.warning('Pencarian Batch ID dibatalkan karena list ID kosong');
       return [];
     }
-    final db = await _db;
     try {
+      final db = await _db;
       Log.info('Mengambil transaksi berdasarkan list ID: $ids');
       final placeholders = List.filled(ids.length, '?').join(',');
+      // DIUBAH: Menggunakan TableName.transactions (Jamak)
       final List<Map<String, dynamic>> maps = await db.query(
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

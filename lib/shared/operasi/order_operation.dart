@@ -32,38 +32,57 @@ class OrderOperation {
     final bool fromServer = false,
   }) async {
     Log.info('Menyimpan pesanan baru ID: ${order.id}');
-    final orderToSave = order.copyWith(
-      updatedAt: DateTime.now().toUtc(),
-    );
-    await baseOperation.insert(
-      'pesanan',
-      orderToSave.toSqlite(),
-      fromServer: fromServer,
-    );
+    try {
+      final orderToSave = order.copyWith(
+        updatedAt: DateTime.now().toUtc(),
+      );
+      await baseOperation.insert(
+        'pesanan',
+        orderToSave.toSqlite(),
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menyimpan pesanan.', e: e, st: s);
+      rethrow;
+    }
   }
 
   /// Mengambil semua pesanan dari database.
   Future<List<OrderModel>> getAllOrders() async {
     Log.info('Mengambil semua pesanan dari database.');
-    final db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'pesanan',
-      orderBy: 'tanggal DESC',
-    );
-    return maps.map(OrderModel.fromSqlite).toList();
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pesanan',
+        orderBy: 'tanggal DESC',
+      );
+      Log.info('Berhasil mengambil ${maps.length} data pesanan.');
+      return maps.map(OrderModel.fromSqlite).toList();
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengambil semua pesanan.', e: e, st: s);
+      rethrow;
+    }
   }
 
   /// Mengambil pesanan berdasarkan [status].
   Future<List<OrderModel>> getOrdersByStatus(final String status) async {
     Log.info('Mengambil pesanan dengan status: $status');
-    final db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'pesanan',
-      where: 'status = ?',
-      whereArgs: [status],
-      orderBy: 'tanggal DESC',
-    );
-    return maps.map(OrderModel.fromSqlite).toList();
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pesanan',
+        where: 'status = ?',
+        whereArgs: [status],
+        orderBy: 'tanggal DESC',
+      );
+      Log.info(
+          'Berhasil mengambil ${maps.length} data pesanan berstatus $status.');
+      return maps.map(OrderModel.fromSqlite).toList();
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, st: s);
+      rethrow;
+    }
   }
 
   /// Memperbarui status [OrderModel] berdasarkan [id].
@@ -73,32 +92,37 @@ class OrderOperation {
     final bool fromServer = false,
   }) async {
     Log.info('Memperbarui status pesanan ID: $id menjadi $status');
-    final db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'pesanan',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      final oldOrder = OrderModel.fromSqlite(maps.first);
-      final newOrder = oldOrder.copyWith(
-        status: status,
-        updatedAt: DateTime.now().toUtc(),
-      );
-      await baseOperation.update(
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
         'pesanan',
-        newOrder.toSqlite(),
-        id,
-        fromServer: fromServer,
+        where: 'id = ?',
+        whereArgs: [id],
       );
-      Log.info(
-        'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
-      );
-    } else {
-      Log.warning(
-        'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.',
-      );
+
+      if (maps.isNotEmpty) {
+        final oldOrder = OrderModel.fromSqlite(maps.first);
+        final newOrder = oldOrder.copyWith(
+          status: status,
+          updatedAt: DateTime.now().toUtc(),
+        );
+        await baseOperation.update(
+          'pesanan',
+          newOrder.toSqlite(),
+          id,
+          fromServer: fromServer,
+        );
+        Log.info(
+          'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
+        );
+      } else {
+        Log.warning(
+          'Gagal memperbarui status: Pesanan dengan ID: $id tidak ditemukan.',
+        );
+      }
+    } on Exception catch (e, s) {
+      Log.error('Gagal memperbarui status pesanan.', e: e, st: s);
+      rethrow;
     }
   }
 
@@ -107,8 +131,14 @@ class OrderOperation {
     final String id, {
     final bool fromServer = false,
   }) async {
-    Log.info('Menghapus pesanan ID: $id');
-    await baseOperation.delete('pesanan', id, fromServer: fromServer);
+    Log.warning('Menghapus pesanan ID: $id');
+    try {
+      await baseOperation.delete('pesanan', id, fromServer: fromServer);
+      Log.info('Berhasil menghapus pesanan dengan ID: $id.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus pesanan.', e: e, st: s);
+      rethrow;
+    }
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [OrderModel] dalam satu batch.
@@ -117,35 +147,52 @@ class OrderOperation {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} pesanan.');
-    if (items.isEmpty) return;
-    final data = items
-        .map(
-          (final item) =>
-              item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
-        )
-        .toList();
-    await baseOperation.insertOrUpdateBatch(
-      'pesanan',
-      data,
-      fromServer: fromServer,
-    );
-    Log.info('Batch pesanan selesai.');
+    if (items.isEmpty) {
+      Log.warning('List item kosong, menghentikan batch pesanan.');
+      return;
+    }
+    try {
+      final data = items
+          .map(
+            (final item) =>
+                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+          )
+          .toList();
+      await baseOperation.insertOrUpdateBatch(
+        'pesanan',
+        data,
+        fromServer: fromServer,
+      );
+      Log.info('Batch pesanan selesai diproses.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menjalankan operasi batch pesanan.', e: e, st: s);
+      rethrow;
+    }
   }
 
   /// Mengambil beberapa [OrderModel] berdasarkan daftar [ids].
   Future<List<OrderModel>> getOrdersByIds(final List<String> ids) async {
+    Log.info('Mengambil pesanan untuk ${ids.length} ID.');
     if (ids.isEmpty) {
+      Log.warning('List ID kosong, mengembalikan list kosong.');
       return [];
     }
-    Log.info('Mengambil pesanan untuk ${ids.length} ID.');
-    final db = await dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'pesanan',
-      where: 'id IN (${List.filled(ids.length, '?').join(',')})',
-      whereArgs: ids,
-    );
-    return List.generate(maps.length, (final i) {
-      return OrderModel.fromSqlite(maps[i]);
-    });
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'pesanan',
+        where: 'id IN (${List.filled(ids.length, '?').join(',')})',
+        whereArgs: ids,
+      );
+      Log.info(
+          'Berhasil mengambil ${maps.length} data pesanan berdasarkan daftar ID.');
+      return List.generate(maps.length, (final i) {
+        return OrderModel.fromSqlite(maps[i]);
+      });
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengambil data pesanan berdasarkan daftar ID.',
+          e: e, st: s);
+      rethrow;
+    }
   }
 }

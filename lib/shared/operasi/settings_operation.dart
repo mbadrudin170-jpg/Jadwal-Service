@@ -1,34 +1,38 @@
 // path: lib/shared/operasi/settings_operation.dart
 
-import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pengaturan di database lokal.
 class SettingsOperation {
-  static const String _tableName = 'pengaturan';
-
+  final DatabaseHelper _dbHelper;
   final BaseOperation _baseOperation;
 
   /// Konstruktor untuk [SettingsOperation].
   ///
-  /// Memungkinkan injeksi dependensi untuk [_baseOperation] guna memfasilitasi pengujian.
-  SettingsOperation({@visibleForTesting final BaseOperation? baseOperation})
-      : _baseOperation = baseOperation ?? BaseOperation();
+  /// Memungkinkan injeksi dependensi untuk [_dbHelper] dan [_baseOperation] guna memfasilitasi pengujian.
+  SettingsOperation({
+    final DatabaseHelper? dbHelper,
+    final BaseOperation? baseOperation,
+  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
+        _baseOperation = baseOperation ?? BaseOperation();
 
   /// Mengambil data pengaturan dari database.
   /// Jika tidak ada, akan membuat pengaturan default.
   Future<SettingsModel> getSettings() async {
     try {
       Log.info(
-        'Memulai proses pengambilan data pengaturan dari database - method: getSettings, tabel: $_tableName',
+        'Memulai proses pengambilan data pengaturan dari database - method: getSettings, tabel: ${TableNameValue.get(TableName.settings)}',
       );
-      final db = await DatabaseHelper.instance.database;
+      final db = await _dbHelper.database;
 
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       final result = await db.query(
-        _tableName,
+        TableNameValue.get(TableName.settings),
         where: 'id = ?',
         whereArgs: [globalSettingsId],
       );
@@ -74,8 +78,9 @@ class SettingsOperation {
       Log.info(
         'Memulai proses simpan/perbarui untuk pengaturan dengan ID: ${settingsToSave.id}',
       );
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.insert(
-        _tableName,
+        TableNameValue.get(TableName.settings),
         settingsToSave.toSqlite(),
         fromServer: fromServer,
       );
@@ -104,14 +109,15 @@ class SettingsOperation {
         'Memulai proses update parsial untuk pengaturan dengan ID: $globalSettingsId',
       );
 
-      // Selalu tambahkan timestamp `updated_at` pada setiap operasi tulis.
+      // Selalu tambahkan timestamp `updated_at` pada setiap operasi tulis dalam bentuk epoch millisecond.
       final dataToUpdate = {
         ...data,
         'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
       };
 
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.update(
-        _tableName,
+        TableNameValue.get(TableName.settings),
         dataToUpdate,
         globalSettingsId,
         fromServer: fromServer,
@@ -142,8 +148,10 @@ class SettingsOperation {
         updatedAt: DateTime.now().toUtc(),
       );
       final settingsData = settingsToSave.toSqlite();
+
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.insertOrUpdateBatch(
-        _tableName,
+        TableNameValue.get(TableName.settings),
         [settingsData],
         fromServer: fromServer,
       );

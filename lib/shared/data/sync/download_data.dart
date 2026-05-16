@@ -1,7 +1,14 @@
 // path: lib/shared/data/sync/download_data.dart
+// File ini digunakan oleh:
+// - SyncService (untuk sinkronisasi data dari server)
+// - InitialDataLoader (untuk unduh data pertama kali)
+// - BackgroundSyncManager (untuk sinkronisasi latar belakang)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
@@ -133,17 +140,22 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [SETTINGS]');
     try {
       final lastDownloadTime = await _syncManager.getLastDownload();
-      final docRef = _firestore.collection('pengaturan').doc('global_settings');
+      // Menggunakan konstanta TableName.settings untuk nama koleksi
+      final collectionName = TableNameValue.get(TableName.settings);
+      // Menggunakan globalSettingsId dari settings_model.dart
+      final docRef =
+          _firestore.collection(collectionName).doc(globalSettingsId);
       final doc = await docRef.get(const GetOptions(source: Source.server));
 
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        if (data.containsKey('diperbarui')) {
-          final dynamic fieldValue = data['diperbarui'];
+        // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
+        if (data.containsKey(ColumnNames.updatedAt)) {
+          final dynamic fieldValue = data[ColumnNames.updatedAt];
 
           if (fieldValue is! Timestamp) {
             Log.error(
-                'Inkompatibilitas Tipe: Field "diperbarui" bukan Timestamp.');
+                'Inkompatibilitas Tipe: Field "${ColumnNames.updatedAt}" bukan Timestamp.');
             return;
           }
 
@@ -161,7 +173,8 @@ class DownloadDataService {
             Log.info('Data pengaturan lokal sudah sinkron.');
           }
         } else {
-          Log.warning('Dokumen pengaturan tidak memiliki field "diperbarui".');
+          Log.warning(
+              'Dokumen pengaturan tidak memiliki field "${ColumnNames.updatedAt}".');
         }
       } else {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
@@ -177,7 +190,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<WalletModel>(
-      collectionName: 'dompet',
+      collectionName: TableNameValue.get(TableName.wallet),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: WalletModel.fromFirebase,
       batchOperation: (final data) =>
@@ -190,7 +203,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CategoryModel>(
-      collectionName: 'kategori',
+      collectionName: TableNameValue.get(TableName.category),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -203,7 +216,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<PackageModel>(
-      collectionName: 'paket',
+      collectionName: TableNameValue.get(TableName.package),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PackageModel.fromFirebase,
       batchOperation: (final data) =>
@@ -216,7 +229,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CustomerModel>(
-      collectionName: 'pelanggan',
+      collectionName: TableNameValue.get(TableName.customer),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CustomerModel.fromFirebase,
       batchOperation: (final data) =>
@@ -229,7 +242,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ActiveCustomerModel>(
-      collectionName: 'pelanggan_aktif',
+      collectionName: TableNameValue.get(TableName.activeCustomer),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ActiveCustomerModel.fromFirebase,
       batchOperation: (final data) =>
@@ -242,7 +255,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<TransactionModel>(
-      collectionName: 'transaksi',
+      collectionName: TableNameValue.get(TableName.transactions),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransactionModel.fromFirebase,
       batchOperation: (final data) =>
@@ -255,7 +268,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<FeedbackModel>(
-      collectionName: 'kritik_saran',
+      collectionName: TableNameValue.get(TableName.feedback),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: FeedbackModel.fromFirebase,
       batchOperation: (final data) =>
@@ -268,7 +281,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<OrderModel>(
-      collectionName: 'pesan',
+      collectionName: TableNameValue.get(TableName.order),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
@@ -281,7 +294,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<SubCategoryModel>(
-      collectionName: 'sub_kategori',
+      collectionName: TableNameValue.get(TableName.subCategory),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: SubCategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -294,7 +307,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ApkVersionModel>(
-      collectionName: 'versi_apk_user',
+      collectionName: TableNameValue.get(TableName.userApkVersion),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ApkVersionModel.fromFirebase,
       batchOperation: (final data) =>
@@ -314,9 +327,10 @@ class DownloadDataService {
       'Sinkronisasi Koleksi: Memeriksa [$collectionName] untuk data baru sejak $lastDownloadTime.',
     );
     try {
+      // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
       final snapshot = await _firestore
           .collection(collectionName)
-          .where('diperbarui', isGreaterThan: lastDownloadTime)
+          .where(ColumnNames.updatedAt, isGreaterThan: lastDownloadTime)
           .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isNotEmpty) {

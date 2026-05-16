@@ -1,13 +1,12 @@
 // path: lib/shared/operasi/category_operation.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Mengganti nama class dari KategoriOperasi menjadi CategoryOperation.
-// diubah: Menggunakan BaseOperation dan CategoryModel.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -38,7 +37,12 @@ class CategoryOperation {
       final newCategory = category.copyWith(updatedAt: DateTime.now().toUtc());
       final data = newCategory.toSqlite();
 
-      await _baseOperation.insert('kategori', data, fromServer: fromServer);
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
+      await _baseOperation.insert(
+        TableNameValue.get(TableName.category),
+        data,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil membuat category baru dengan ID: ${newCategory.id}');
       return newCategory;
     } catch (e, st) {
@@ -53,8 +57,9 @@ class CategoryOperation {
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       final List<Map<String, dynamic>> maps = await db.query(
-        'kategori',
+        TableNameValue.get(TableName.category),
         where: '${ColumnNames.archivedAt} IS NULL',
       );
       final listCategory = List.generate(
@@ -74,8 +79,9 @@ class CategoryOperation {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       final List<Map<String, dynamic>> maps = await db.query(
-        'kategori',
+        TableNameValue.get(TableName.category),
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -103,8 +109,9 @@ class CategoryOperation {
     Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       final List<Map<String, dynamic>> maps = await db.query(
-        'kategori',
+        TableNameValue.get(TableName.category),
         where: '${ColumnNames.type} = ? AND ${ColumnNames.archivedAt} IS NULL',
         whereArgs: [type.name],
       );
@@ -135,8 +142,9 @@ class CategoryOperation {
     try {
       final data =
           category.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       await _baseOperation.update(
-        'kategori',
+        TableNameValue.get(TableName.category),
         data,
         category.id,
         fromServer: fromServer,
@@ -158,7 +166,12 @@ class CategoryOperation {
     Log.warning(
         'PERINGATAN: Memulai deleteCategory (hard delete) untuk category ID: $id');
     try {
-      await _baseOperation.delete('kategori', id, fromServer: fromServer);
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
+      await _baseOperation.delete(
+        TableNameValue.get(TableName.category),
+        id,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil deleteCategory untuk ID: $id.');
     } catch (e, st) {
       Log.error('Gagal saat deleteCategory untuk ID: $id', e: e, st: st);
@@ -180,8 +193,9 @@ class CategoryOperation {
         ColumnNames.isDeleted: 1,
       };
 
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       await _baseOperation.update(
-        'kategori',
+        TableNameValue.get(TableName.category),
         dataToUpdate,
         id,
         fromServer: fromServer,
@@ -198,7 +212,7 @@ class CategoryOperation {
     }
   }
 
-  /// Menghapus semua kategori yang ada dan menyisipkan yang baru.
+  /// Menghapus semua kategori yang ada dan menyisipkan yang baru secara atomik.
   Future<void> clearAndInsertAll(
     final List<CategoryModel> items, {
     final bool fromServer = false,
@@ -213,14 +227,26 @@ class CategoryOperation {
     try {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          await txn.delete('kategori');
-          Log.info('Tabel kategori berhasil dibersihkan.');
+          // Buat objek batch di dalam transaksi aktif
+          final batch = txn.batch();
+
+          // DIUBAH: Menggunakan TableNameValue untuk nama tabel category saat delete
+          batch.delete(TableNameValue.get(TableName.category));
+          Log.info('Antrean hapus tabel kategori ditambahkan ke batch.');
+
+          // Masukkan semua data baru ke dalam antrean batch
           for (final item in items) {
-            await txn.insert(
-              'kategori',
+            batch.insert(
+              TableNameValue.get(TableName.category),
               item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+              conflictAlgorithm: ConflictAlgorithm.replace,
             );
           }
+
+          // Eksekusi seluruh batch sekaligus dalam satu siklus I/O database
+          Log.info('Menjalankan commit batch untuk clearAndInsertAll...');
+          await batch.commit(noResult: true);
+
           Log.info(
               'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.');
         },
@@ -238,8 +264,9 @@ class CategoryOperation {
         'Memulai getChangesSince untuk category sejak: ${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       final List<Map<String, dynamic>> maps = await db.query(
-        'kategori',
+        TableNameValue.get(TableName.category),
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -275,8 +302,9 @@ class CategoryOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       await _baseOperation.insertOrUpdateBatch(
-        'kategori',
+        TableNameValue.get(TableName.category),
         data,
         fromServer: fromServer,
       );
@@ -300,8 +328,9 @@ class CategoryOperation {
     try {
       final db = await dbHelper.database;
       final placeholders = List.filled(ids.length, '?').join(',');
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel category
       final List<Map<String, dynamic>> maps = await db.query(
-        'kategori',
+        TableNameValue.get(TableName.category),
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

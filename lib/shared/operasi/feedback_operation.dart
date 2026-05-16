@@ -1,9 +1,13 @@
 // path: lib/shared/operasi/feedback_operation.dart
+
+// Menyembunyikan Transaction milik Firestore agar tidak konflik dengan sqflite
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -37,8 +41,9 @@ class FeedbackOperation {
       final data =
           feedback.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await baseOperation.insert(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         data,
         fromServer: fromServer,
       );
@@ -56,8 +61,9 @@ class FeedbackOperation {
     );
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         orderBy: 'tanggal DESC',
       );
       final feedbackList = List.generate(
@@ -77,8 +83,9 @@ class FeedbackOperation {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         where: 'id = ?',
         whereArgs: [id],
       );
@@ -110,8 +117,9 @@ class FeedbackOperation {
     );
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         where: 'diperbarui > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
@@ -154,8 +162,9 @@ class FeedbackOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await baseOperation.insertOrUpdateBatch(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         data,
         fromServer: fromServer,
       );
@@ -173,13 +182,20 @@ class FeedbackOperation {
   }
 
   /// Menghapus [FeedbackModel] dari database secara permanen.
-  Future<void> deleteFeedback(final String id,
-      {final bool fromServer = false}) async {
+  Future<void> deleteFeedback(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
     Log.warning(
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );
     try {
-      await baseOperation.delete('kritik_saran', id, fromServer: fromServer);
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      await baseOperation.delete(
+        TableNameValue.get(TableName.feedback),
+        id,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil menghapus permanen kritik_saran dengan ID: $id.');
     } on Exception catch (e, st) {
       Log.error(
@@ -199,7 +215,10 @@ class FeedbackOperation {
     try {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
-          final int count = await txn.delete('kritik_saran');
+          // DIUBAH: Menggunakan TableNameValue berbasis v50
+          final int count = await txn.delete(
+            TableNameValue.get(TableName.feedback),
+          );
           Log.info(
             'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
           );
@@ -214,16 +233,19 @@ class FeedbackOperation {
   }
 
   /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
-  Future<void> deleteByUserId(final String userId,
-      {final bool fromServer = false}) async {
+  Future<void> deleteByUserId(
+    final String userId, {
+    final bool fromServer = false,
+  }) async {
     Log.warning(
       'PERINGATAN: Memulai deleteByUserId (hard delete) untuk userId: $userId',
     );
     try {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
+          // DIUBAH: Menggunakan TableNameValue berbasis v50
           final int deletedCount = await txn.delete(
-            'kritik_saran',
+            TableNameValue.get(TableName.feedback),
             where: 'userId = ?',
             whereArgs: [userId],
           );
@@ -284,8 +306,9 @@ class FeedbackOperation {
     }
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );

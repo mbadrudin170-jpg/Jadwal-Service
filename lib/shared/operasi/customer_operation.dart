@@ -2,11 +2,14 @@
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 // diubah: Mengganti nama class dari PelangganOperasi menjadi CustomerOperation.
 // diubah: Menggunakan BaseOperation dan CustomerModel.
+// diubah: Mengganti string literal 'pelanggan' dengan TableNameValue.get(TableName.customer) sesuai v50.
 
 import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -43,7 +46,12 @@ class CustomerOperation {
       );
       final data = customerToSave.toSqlite();
 
-      await _baseOperation.insert('pelanggan', data, fromServer: fromServer);
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      await _baseOperation.insert(
+        TableNameValue.get(TableName.customer),
+        data,
+        fromServer: fromServer,
+      );
 
       Log.info(
           'Customer (ID: ${customerToSave.id}) berhasil dibuat di database lokal.');
@@ -59,8 +67,9 @@ class CustomerOperation {
         'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         where:
             '${ColumnNames.archivedAt} IS NULL AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [0],
@@ -81,7 +90,10 @@ class CustomerOperation {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
       final db = await dbHelper.database;
-      final List<Map<String, dynamic>> maps = await db.query('pelanggan');
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final List<Map<String, dynamic>> maps = await db.query(
+        TableNameValue.get(TableName.customer),
+      );
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
       return List.generate(maps.length, (final i) {
@@ -98,8 +110,9 @@ class CustomerOperation {
     Log.info('Mencari customer berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -126,8 +139,9 @@ class CustomerOperation {
       final data =
           customer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.update(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         data,
         customer.id,
         fromServer: fromServer,
@@ -153,8 +167,9 @@ class CustomerOperation {
         'Memulai proses penghapusan untuk customer ID: $id (softDelete: $softDelete)');
     try {
       if (softDelete) {
+        // DIUBAH: Menggunakan TableNameValue berbasis v50
         await _baseOperation.update(
-          'pelanggan',
+          TableNameValue.get(TableName.customer),
           {
             ColumnNames.isDeleted: 1,
             ColumnNames.updatedAt:
@@ -165,7 +180,12 @@ class CustomerOperation {
         );
         Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
       } else {
-        await _baseOperation.delete('pelanggan', id, fromServer: fromServer);
+        // DIUBAH: Menggunakan TableNameValue berbasis v50
+        await _baseOperation.delete(
+          TableNameValue.get(TableName.customer),
+          id,
+          fromServer: fromServer,
+        );
         Log.warning('Berhasil melakukan hard delete pada customer ID: $id.');
       }
     } catch (e, s) {
@@ -179,8 +199,9 @@ class CustomerOperation {
     Log.info('Mengambil perubahan customer sejak: ${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -197,13 +218,16 @@ class CustomerOperation {
   }
 
   /// Mengarsipkan [CustomerModel] berdasarkan [id].
-  Future<void> archiveCustomer(final String id,
-      {final bool fromServer = false}) async {
+  Future<void> archiveCustomer(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
     Log.info('Mengarsipkan customer ID: $id');
     try {
       final now = DateTime.now().toUtc();
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.update(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         {
           ColumnNames.isDeleted: 1,
           ColumnNames.archivedAt: now.millisecondsSinceEpoch,
@@ -234,8 +258,9 @@ class CustomerOperation {
         return item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.insertOrUpdateBatch(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         data,
         fromServer: fromServer,
       );
@@ -257,8 +282,9 @@ class CustomerOperation {
     try {
       final db = await dbHelper.database;
       final placeholders = List.filled(ids.length, '?').join(',');
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

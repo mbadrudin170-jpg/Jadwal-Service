@@ -18,7 +18,7 @@ abstract final class TableNameValue {
     TableName.feedback: 'feedback',
     TableName.order: 'order',
     TableName.userApkVersion: 'user_apk_version',
-    TableName.setting: 'setting',
+    TableName.settings: 'settings',
     TableName.uploadStatus: 'upload_status',
     TableName.message: 'message',
     TableName.appStatus: 'app_status',

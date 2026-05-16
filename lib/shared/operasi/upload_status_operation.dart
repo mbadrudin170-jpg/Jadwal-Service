@@ -3,7 +3,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/upload_status_model.dart';
 
 /// Kelas ini mengelola satu flag tunggal di database: apakah ada
@@ -23,61 +25,86 @@ class UploadStatusOperation {
     final Transaction? transaction,
   }) async {
     Log.info('Memulai setNeedUpload: needUpload=$needUpload');
-    final db = transaction ?? await _dbHelper.database;
-    final model = UploadStatusModel(
-      id: UploadStatusModel.idNeedUpload,
-      needUpload: needUpload,
-      updatedAt: DateTime.now().toUtc(),
-    );
-    await db.insert(
-      UploadStatusModel.tableName,
-      model.toSqlite(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    Log.info('setNeedUpload berhasil: needUpload=$needUpload');
+    try {
+      final db = transaction ?? await _dbHelper.database;
+      final model = UploadStatusModel(
+        id: UploadStatusModel.idNeedUpload,
+        needUpload: needUpload,
+        updatedAt: DateTime.now().toUtc(),
+      );
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      await db.insert(
+        TableNameValue.get(TableName.uploadStatus),
+        model.toSqlite(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      Log.info('setNeedUpload berhasil: needUpload=$needUpload');
+    } on Exception catch (e, st) {
+      Log.error('Gagal setNeedUpload: $e', e: e, st: st);
+      rethrow;
+    }
   }
 
   /// Membaca status `needUpload`.
   /// Mengembalikan true jika flag diatur, selain itu false.
   Future<bool> getNeedUpload() async {
     Log.info('Memulai getNeedUpload');
-    final db = await _dbHelper.database;
-    final result = await db.query(
-      UploadStatusModel.tableName,
-      where: 'id = ?',
-      whereArgs: [UploadStatusModel.idNeedUpload],
-    );
-    if (result.isNotEmpty) {
-      final needUpload = UploadStatusModel.fromSqlite(result.first).needUpload;
-      Log.info('getNeedUpload berhasil: needUpload=$needUpload');
-      return needUpload;
+    try {
+      final db = await _dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final result = await db.query(
+        TableNameValue.get(TableName.uploadStatus),
+        where: 'id = ?',
+        whereArgs: [UploadStatusModel.idNeedUpload],
+      );
+      if (result.isNotEmpty) {
+        final needUpload =
+            UploadStatusModel.fromSqlite(result.first).needUpload;
+        Log.info('getNeedUpload berhasil: needUpload=$needUpload');
+        return needUpload;
+      }
+      Log.info('getNeedUpload: tidak ada data, mengembalikan false');
+      return false;
+    } on Exception catch (e, st) {
+      Log.error('Gagal getNeedUpload: $e', e: e, st: st);
+      return false;
     }
-    Log.info('getNeedUpload: tidak ada data, mengembalikan false');
-    return false;
   }
 
   /// Mereset status `needUpload` menjadi false setelah unggah berhasil.
   Future<void> resetNeedUpload() async {
     Log.info('Memulai resetNeedUpload');
-    await setNeedUpload(false);
-    Log.info('resetNeedUpload berhasil');
+    try {
+      await setNeedUpload(false);
+      Log.info('resetNeedUpload berhasil');
+    } on Exception catch (e, st) {
+      Log.error('Gagal resetNeedUpload: $e', e: e, st: st);
+      rethrow;
+    }
   }
 
   /// Mendapatkan model UploadStatusModel lengkap, termasuk waktu terakhir diperbarui.
   Future<UploadStatusModel?> getUploadStatusModel() async {
     Log.info('Memulai getUploadStatusModel');
-    final db = await _dbHelper.database;
-    final result = await db.query(
-      UploadStatusModel.tableName,
-      where: 'id = ?',
-      whereArgs: [UploadStatusModel.idNeedUpload],
-    );
-    if (result.isNotEmpty) {
-      final model = UploadStatusModel.fromSqlite(result.first);
-      Log.info('getUploadStatusModel berhasil: needUpload=${model.needUpload}');
-      return model;
+    try {
+      final db = await _dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue berbasis v50
+      final result = await db.query(
+        TableNameValue.get(TableName.uploadStatus),
+        where: 'id = ?',
+        whereArgs: [UploadStatusModel.idNeedUpload],
+      );
+      if (result.isNotEmpty) {
+        final model = UploadStatusModel.fromSqlite(result.first);
+        Log.info(
+            'getUploadStatusModel berhasil: needUpload=${model.needUpload}');
+        return model;
+      }
+      Log.info('getUploadStatusModel: tidak ada data, mengembalikan null');
+      return null;
+    } on Exception catch (e, st) {
+      Log.error('Gagal getUploadStatusModel: $e', e: e, st: st);
+      return null;
     }
-    Log.info('getUploadStatusModel: tidak ada data, mengembalikan null');
-    return null;
   }
 }

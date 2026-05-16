@@ -1,13 +1,12 @@
 // path: lib/shared/operasi/package_operation.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Mengganti nama class dari PaketOperasi menjadi PackageOperation.
-// diubah: Menggunakan BaseOperation dan PackageModel.
 
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -18,13 +17,9 @@ class PackageOperation {
   final DatabaseHelper dbHelper;
 
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  // (private field, tidak perlu @visibleForTesting)
   final BaseOperation _baseOperation;
 
   /// Konstruktor untuk [PackageOperation].
-  ///
-  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
-  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   PackageOperation({
     final DatabaseHelper? dbHelper,
     final BaseOperation? baseOperation,
@@ -40,7 +35,12 @@ class PackageOperation {
     try {
       final data =
           package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await _baseOperation.insert('paket', data, fromServer: fromServer);
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
+      await _baseOperation.insert(
+        TableNameValue.get(TableName.package),
+        data,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil createPackage untuk id: ${package.id}');
     } catch (e, s) {
       Log.error('Gagal createPackage untuk id: ${package.id}', e: e, st: s);
@@ -53,6 +53,8 @@ class PackageOperation {
     Log.info('Memulai proses pengambilan semua data paket');
     try {
       final db = await dbHelper.database;
+      final String packageTable = TableNameValue.get(TableName.package);
+      // DIUBAH: Menggunakan nama tabel dinamis di dalam rawQuery
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${ColumnNames.type}
@@ -61,7 +63,7 @@ class PackageOperation {
             WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM paket
+        FROM $packageTable
         ORDER BY urutan ASC
       ''');
 
@@ -80,6 +82,8 @@ class PackageOperation {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await dbHelper.database;
+      final String packageTable = TableNameValue.get(TableName.package);
+      // DIUBAH: Menggunakan nama tabel dinamis di dalam rawQuery
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${ColumnNames.type}
@@ -88,7 +92,7 @@ class PackageOperation {
             WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM paket
+        FROM $packageTable
         WHERE ${ColumnNames.isDeleted} = 0
         ORDER BY urutan ASC
       ''');
@@ -108,6 +112,8 @@ class PackageOperation {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await dbHelper.database;
+      final String packageTable = TableNameValue.get(TableName.package);
+      // DIUBAH: Menggunakan nama tabel dinamis di dalam rawQuery
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${ColumnNames.type}
@@ -116,7 +122,7 @@ class PackageOperation {
             WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM paket
+        FROM $packageTable
         WHERE ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.isPublic} = 1
         ORDER BY urutan ASC
       ''');
@@ -136,8 +142,9 @@ class PackageOperation {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'paket',
+        TableNameValue.get(TableName.package),
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -162,8 +169,9 @@ class PackageOperation {
     try {
       final data =
           package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
       await _baseOperation.update(
-        'paket',
+        TableNameValue.get(TableName.package),
         data,
         package.id,
         fromServer: fromServer,
@@ -180,7 +188,12 @@ class PackageOperation {
       {final bool fromServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
-      await _baseOperation.delete('paket', id, fromServer: fromServer);
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
+      await _baseOperation.delete(
+        TableNameValue.get(TableName.package),
+        id,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil deletePackage untuk id: $id');
     } catch (e, s) {
       Log.error('Gagal deletePackage untuk id: $id', e: e, st: s);
@@ -194,7 +207,10 @@ class PackageOperation {
     try {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final int count = await txn.delete('paket');
+          // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
+          final int count = await txn.delete(
+            TableNameValue.get(TableName.package),
+          );
           Log.info(
               'Berhasil menghapus semua data paket. Total terhapus: $count');
         },
@@ -212,8 +228,9 @@ class PackageOperation {
         'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'paket',
+        TableNameValue.get(TableName.package),
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -243,8 +260,9 @@ class PackageOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
       await _baseOperation.insertOrUpdateBatch(
-        'paket',
+        TableNameValue.get(TableName.package),
         dataList,
         fromServer: fromServer,
       );
@@ -265,8 +283,9 @@ class PackageOperation {
       }
       final db = await dbHelper.database;
       final placeholders = List.filled(ids.length, '?').join(',');
+      // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        'paket',
+        TableNameValue.get(TableName.package),
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

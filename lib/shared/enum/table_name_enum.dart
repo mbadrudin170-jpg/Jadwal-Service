@@ -32,7 +32,7 @@ enum TableName {
   userApkVersion,
 
   /// Tabel pengaturan aplikasi.
-  setting,
+  settings,
 
   /// Tabel status unggahan data.
   uploadStatus,

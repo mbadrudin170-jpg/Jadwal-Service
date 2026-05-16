@@ -175,8 +175,11 @@ class BaseOperation {
   }
 
   /// Menghapus data dari [table] berdasarkan [id].
-  Future<void> delete(final String table, final String id,
-      {final bool fromServer = false}) async {
+  Future<void> delete(
+    final String table,
+    final String id, {
+    final bool fromServer = false,
+  }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
       await _runInTransaction(
@@ -231,6 +234,7 @@ class BaseOperation {
         (final txn) async {
           final batch = txn.batch();
           int validCount = 0;
+
           for (int i = 0; i < dataList.length; i++) {
             final data = dataList[i];
             if (data.isNotEmpty) {

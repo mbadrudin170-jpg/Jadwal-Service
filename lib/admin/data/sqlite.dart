@@ -1,9 +1,12 @@
 // path: lib/admin/data/sqlite.dart
+// diubah: Mengintegrasikan ColumnNames dan TableNameValue untuk mendefinisikan skema v50.
 // diubah: Menaikkan versi DB ke 50, menambahkan migrasi _migrateToV50
 //         untuk rename semua nama tabel ke snake_case Inggris.
 //         Data tetap AMAN karena menggunakan ALTER TABLE RENAME TO.
-// diubah: Semua definisi CREATE TABLE menggunakan nama tabel snake_case.
-// diubah: Semua index menggunakan nama tabel baru.
+// diubah: Semua definisi CREATE TABLE menggunakan nama tabel & kolom berbasis konstanta.
+// diubah: Semua index menggunakan nama tabel baru dari TableNameValue.
+// diperbaiki: Urutan direktif import (directives_ordering) diatur secara alfabetis.
+// diperbaiki: Menambahkan kembali konstanta _tabelPengaturanV45 yang hilang untuk mengatasi undefined_identifier.
 // diperbaiki: Escaping reserved keywords ("transaction" & "order") untuk mencegah SQLITE_ERROR.
 
 import 'dart:io';
@@ -11,7 +14,10 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// Kelas pembantu untuk mengelola database SQLite.
 class DatabaseHelper {
@@ -343,24 +349,38 @@ class DatabaseHelper {
     Log.info('[MIGRASI v50] Rename tabel ke snake_case...');
     Log.warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
 
-    await db.execute('ALTER TABLE dompet RENAME TO wallet');
-    await db.execute('ALTER TABLE kategori RENAME TO category');
-    await db.execute('ALTER TABLE sub_kategori RENAME TO sub_category');
-    await db.execute('ALTER TABLE paket RENAME TO package');
-    await db.execute('ALTER TABLE pelanggan RENAME TO customer');
-    await db.execute('ALTER TABLE pelanggan_aktif RENAME TO active_customer');
+    await db.execute(
+        'ALTER TABLE dompet RENAME TO ${TableNameValue.get(TableName.wallet)}');
+    await db.execute(
+        'ALTER TABLE kategori RENAME TO ${TableNameValue.get(TableName.category)}');
+    await db.execute(
+        'ALTER TABLE sub_kategori RENAME TO ${TableNameValue.get(TableName.subCategory)}');
+    await db.execute(
+        'ALTER TABLE paket RENAME TO ${TableNameValue.get(TableName.package)}');
+    await db.execute(
+        'ALTER TABLE pelanggan RENAME TO ${TableNameValue.get(TableName.customer)}');
+    await db.execute(
+        'ALTER TABLE pelanggan_aktif RENAME TO ${TableNameValue.get(TableName.activeCustomer)}');
 
-    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction
-    await db.execute('ALTER TABLE transaksi RENAME TO "transaction"');
-    await db.execute('ALTER TABLE kritik_saran RENAME TO feedback');
+    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction via TableNameValue
+    await db.execute(
+        'ALTER TABLE transaksi RENAME TO "${TableNameValue.get(TableName.transactions)}"');
+    await db.execute(
+        'ALTER TABLE kritik_saran RENAME TO ${TableNameValue.get(TableName.feedback)}');
 
-    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order
-    await db.execute('ALTER TABLE pesanan RENAME TO "order"');
-    await db.execute('ALTER TABLE versi_apk_user RENAME TO user_apk_version');
-    await db.execute('ALTER TABLE pengaturan RENAME TO setting');
-    await db.execute('ALTER TABLE status_unggah RENAME TO upload_status');
-    await db.execute('ALTER TABLE pesan RENAME TO message');
-    await db.execute('ALTER TABLE status_aplikasi RENAME TO app_status');
+    // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
+    await db.execute(
+        'ALTER TABLE pesanan RENAME TO "${TableNameValue.get(TableName.order)}"');
+    await db.execute(
+        'ALTER TABLE versi_apk_user RENAME TO ${TableNameValue.get(TableName.userApkVersion)}');
+    await db.execute(
+        'ALTER TABLE pengaturan RENAME TO ${TableNameValue.get(TableName.settings)}');
+    await db.execute(
+        'ALTER TABLE status_unggah RENAME TO ${TableNameValue.get(TableName.uploadStatus)}');
+    await db.execute(
+        'ALTER TABLE pesan RENAME TO ${TableNameValue.get(TableName.message)}');
+    await db.execute(
+        'ALTER TABLE status_aplikasi RENAME TO ${TableNameValue.get(TableName.appStatus)}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
   }
@@ -399,15 +419,16 @@ class DatabaseHelper {
     batch.execute(_tabelMessage);
     Log.info('Semua 14 definisi tabel (v50) ditambahkan ke batch.');
 
-    // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction"
+    // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
+    final String trxTable = '"${TableNameValue.get(TableName.transactions)}"';
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON "transaction"(wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${ColumnNames.walletId})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON "transaction"(destination_wallet_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${ColumnNames.destinationWalletId})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON "transaction"(is_deleted)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${ColumnNames.isDeleted})',
     );
     Log.info('Semua 3 definisi index (v50) ditambahkan ke batch.');
   }
@@ -430,206 +451,212 @@ class DatabaseHelper {
   }
 
   // ============================================================
-  // DEFINISI TABEL v50 (snake_case nama tabel + nama kolom)
+  // DEFINISI TABEL v50 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
-  static const String _tabelWallet = '''
-    CREATE TABLE wallet(
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      balance REAL NOT NULL,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER
+  static final String _tabelWallet = '''
+    CREATE TABLE ${TableNameValue.get(TableName.wallet)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.name} TEXT NOT NULL,
+      ${ColumnNames.balance} REAL NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER
     )
   ''';
 
-  // diperbaiki: Nama tabel utama dibungkus menggunakan kata kunci "transaction"
-  static const String _tabelTransaction = '''
-    CREATE TABLE "transaction"(
-      id TEXT PRIMARY KEY,
-      description TEXT NOT NULL,
-      amount REAL NOT NULL,
-      date INTEGER NOT NULL,
-      type TEXT NOT NULL,
-      wallet_id TEXT,
-      category_id TEXT,
-      sub_category_id TEXT,
-      customer_id TEXT,
-      package_id TEXT,
-      updated_at INTEGER,
-      archived_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      destination_wallet_id TEXT,
-      earned_points INTEGER NOT NULL DEFAULT 0,
-      used_points INTEGER NOT NULL DEFAULT 0,
-      payment_status TEXT,
-      package_duration INTEGER,
-      duration_type TEXT,
-      start_date INTEGER,
-      end_date INTEGER,
-      is_activated INTEGER DEFAULT 0
+  static final String _tabelTransaction = '''
+    CREATE TABLE "${TableNameValue.get(TableName.transactions)}"(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.description} TEXT NOT NULL,
+      ${ColumnNames.amount} REAL NOT NULL,
+      ${ColumnNames.date} INTEGER NOT NULL,
+      ${ColumnNames.type} TEXT NOT NULL,
+      ${ColumnNames.walletId} TEXT,
+      ${ColumnNames.categoryId} TEXT,
+      ${ColumnNames.subCategoryId} TEXT,
+      ${ColumnNames.customerId} TEXT,
+      ${ColumnNames.packageId} TEXT,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.archivedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.destinationWalletId} TEXT,
+      ${ColumnNames.earnedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.usedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.paymentStatus} TEXT,
+      ${ColumnNames.packageDuration} INTEGER,
+      ${ColumnNames.durationType} TEXT,
+      ${ColumnNames.startDate} INTEGER,
+      ${ColumnNames.endDate} INTEGER,
+      ${ColumnNames.isActivated} INTEGER DEFAULT 0
     )
   ''';
 
-  static const String _tabelUserApkVersion = '''
-    CREATE TABLE user_apk_version(
-      id TEXT PRIMARY KEY,
-      release_notes TEXT NOT NULL,
-      latest_build_number TEXT NOT NULL,
-      download_links TEXT NOT NULL,
-      latest_version TEXT NOT NULL,
-      is_update_required INTEGER NOT NULL,
-      youtube_tutorial TEXT NOT NULL,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      updated_at INTEGER
+  static final String _tabelUserApkVersion = '''
+    CREATE TABLE ${TableNameValue.get(TableName.userApkVersion)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.releaseNotes} TEXT NOT NULL,
+      ${ColumnNames.latestBuildNumber} TEXT NOT NULL,
+      ${ColumnNames.downloadLinks} TEXT NOT NULL,
+      ${ColumnNames.latestVersion} TEXT NOT NULL,
+      ${ColumnNames.isUpdateRequired} INTEGER NOT NULL,
+      ${ColumnNames.youtubeTutorial} TEXT NOT NULL,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      ${ColumnNames.updatedAt} INTEGER
     )
   ''';
 
-  static const String _tabelUploadStatus = '''
-    CREATE TABLE upload_status(
-      table_name TEXT PRIMARY KEY,
-      status INTEGER NOT NULL,
-      ids TEXT NOT NULL,
-      updated_at INTEGER
+  static final String _tabelUploadStatus = '''
+    CREATE TABLE ${TableNameValue.get(TableName.uploadStatus)}(
+      ${ColumnNames.tableName} TEXT PRIMARY KEY,
+      ${ColumnNames.status} INTEGER NOT NULL,
+      ${ColumnNames.ids} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER
     )
   ''';
 
-  static const String _tabelAppStatus = '''
-    CREATE TABLE app_status(
-      id TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at INTEGER
+  static final String _tabelAppStatus = '''
+    CREATE TABLE ${TableNameValue.get(TableName.appStatus)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.value} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER
     )
   ''';
 
-  static const String _tabelMessage = '''
-    CREATE TABLE message(
-      id TEXT PRIMARY KEY,
-      content TEXT NOT NULL,
-      date INTEGER NOT NULL,
-      status TEXT NOT NULL
+  static final String _tabelMessage = '''
+    CREATE TABLE ${TableNameValue.get(TableName.message)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.content} TEXT NOT NULL,
+      ${ColumnNames.date} INTEGER NOT NULL,
+      ${ColumnNames.status} TEXT NOT NULL
     )
   ''';
 
-  static const String _tabelSetting = '''
-    CREATE TABLE setting(
-      id TEXT PRIMARY KEY,
-      auto_sync_interval INTEGER NOT NULL DEFAULT 24,
-      auto_delete_archive_days INTEGER NOT NULL DEFAULT 30,
-      updated_at INTEGER,
-      maintenance_mode INTEGER NOT NULL DEFAULT 0,
-      maintenance_info TEXT
+  static final String _tabelSetting = '''
+    CREATE TABLE ${TableNameValue.get(TableName.settings)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.autoSyncInterval} INTEGER NOT NULL DEFAULT 24,
+      ${ColumnNames.autoDeleteArchiveDays} INTEGER NOT NULL DEFAULT 30,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.maintenanceMode} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.maintenanceInfo} TEXT
     )
   ''';
 
-  static const String _tabelCategory = '''
-    CREATE TABLE category(
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL,
-      sub_category_id TEXT,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER
+  static final String _tabelCategory = '''
+    CREATE TABLE ${TableNameValue.get(TableName.category)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.name} TEXT NOT NULL,
+      ${ColumnNames.type} TEXT NOT NULL,
+      ${ColumnNames.subCategoryId} TEXT,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER
     )
   ''';
 
-  static const String _tabelSubCategory = '''
-    CREATE TABLE sub_category(
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      category_id TEXT NOT NULL,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      FOREIGN KEY (category_id) REFERENCES category (id) ON DELETE CASCADE
+  static final String _tabelSubCategory = '''
+    CREATE TABLE ${TableNameValue.get(TableName.subCategory)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.name} TEXT NOT NULL,
+      ${ColumnNames.categoryId} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      FOREIGN KEY (${ColumnNames.categoryId}) REFERENCES ${TableNameValue.get(TableName.category)} (${ColumnNames.id}) ON DELETE CASCADE
     )
   ''';
 
-  static const String _tabelPackage = '''
-    CREATE TABLE package(
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      price INTEGER NOT NULL,
-      duration INTEGER NOT NULL,
-      type TEXT NOT NULL,
-      earned_points INTEGER NOT NULL DEFAULT 0,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      reward_points INTEGER NOT NULL DEFAULT 0,
-      redemption_points INTEGER NOT NULL DEFAULT 0,
-      is_public INTEGER NOT NULL DEFAULT 1
+  static final String _tabelPackage = '''
+    CREATE TABLE ${TableNameValue.get(TableName.package)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.name} TEXT NOT NULL,
+      ${ColumnNames.price} INTEGER NOT NULL,
+      ${ColumnNames.duration} INTEGER NOT NULL,
+      ${ColumnNames.type} TEXT NOT NULL,
+      ${ColumnNames.earnedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      ${ColumnNames.rewardPoints} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.redemptionPoints} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.isPublic} INTEGER NOT NULL DEFAULT 1
     )
   ''';
 
-  static const String _tabelCustomer = '''
-    CREATE TABLE customer(
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      address TEXT NOT NULL,
-      password TEXT NOT NULL,
-      mac_address TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'aktif',
-      updated_at INTEGER,
-      archived_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0
+  static final String _tabelCustomer = '''
+    CREATE TABLE ${TableNameValue.get(TableName.customer)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.name} TEXT NOT NULL,
+      ${ColumnNames.phone} TEXT NOT NULL,
+      ${ColumnNames.address} TEXT NOT NULL,
+      ${ColumnNames.password} TEXT NOT NULL,
+      ${ColumnNames.macAddress} TEXT NOT NULL,
+      ${ColumnNames.status} TEXT NOT NULL DEFAULT 'aktif',
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.archivedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0
     )
   ''';
 
-  // diperbaiki: Foreign key ke references "transaction" wajib menggunakan double quotes
-  static const String _tabelActiveCustomer = '''
-    CREATE TABLE active_customer(
-      id TEXT PRIMARY KEY,
-      customer_id TEXT NOT NULL,
-      package_id TEXT NOT NULL,
-      transaction_id TEXT,
-      start_date INTEGER,
-      end_date INTEGER,
-      status TEXT NOT NULL,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (package_id) REFERENCES package (id) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (transaction_id) REFERENCES "transaction" (id) ON DELETE SET NULL
+  static final String _tabelActiveCustomer = '''
+    CREATE TABLE ${TableNameValue.get(TableName.activeCustomer)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.customerId} TEXT NOT NULL,
+      ${ColumnNames.packageId} TEXT NOT NULL,
+      ${ColumnNames.transactionId} TEXT,
+      ${ColumnNames.startDate} INTEGER,
+      ${ColumnNames.endDate} INTEGER,
+      ${ColumnNames.status} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      FOREIGN KEY (${ColumnNames.customerId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${ColumnNames.packageId}) REFERENCES ${TableNameValue.get(TableName.package)} (${ColumnNames.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${ColumnNames.transactionId}) REFERENCES "${TableNameValue.get(TableName.transactions)}" (${ColumnNames.id}) ON DELETE SET NULL
     )
   ''';
 
-  static const String _tabelFeedback = '''
-    CREATE TABLE feedback(
-      id TEXT PRIMARY KEY,
-      content TEXT NOT NULL,
-      date INTEGER NOT NULL,
-      user_id TEXT NOT NULL,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      FOREIGN KEY (user_id) REFERENCES customer (id) ON DELETE CASCADE
+  static final String _tabelFeedback = '''
+    CREATE TABLE ${TableNameValue.get(TableName.feedback)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.content} TEXT NOT NULL,
+      ${ColumnNames.date} INTEGER NOT NULL,
+      ${ColumnNames.userId} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      FOREIGN KEY (${ColumnNames.userId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE
     )
   ''';
 
-  static const String _tabelOrder = '''
-    CREATE TABLE "order"(
-      id TEXT PRIMARY KEY,
-      customer_id TEXT NOT NULL,
-      package_id TEXT NOT NULL,
-      date INTEGER NOT NULL,
-      status TEXT,
-      updated_at INTEGER,
-      is_deleted INTEGER NOT NULL DEFAULT 0,
-      archived_at INTEGER,
-      FOREIGN KEY (customer_id) REFERENCES customer (id) ON DELETE CASCADE,
-      FOREIGN KEY (package_id) REFERENCES package (id) ON DELETE CASCADE
+  static final String _tabelOrder = '''
+    CREATE TABLE "${TableNameValue.get(TableName.order)}"(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.customerId} TEXT NOT NULL,
+      ${ColumnNames.packageId} TEXT NOT NULL,
+      ${ColumnNames.date} INTEGER NOT NULL,
+      ${ColumnNames.status} TEXT,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER,
+      FOREIGN KEY (${ColumnNames.customerId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE,
+      FOREIGN KEY (${ColumnNames.packageId}) REFERENCES ${TableNameValue.get(TableName.package)} (${ColumnNames.id}) ON DELETE CASCADE
     )
   ''';
 
   // ============================================================
-  // DEFINISI TABEL v47 (lama, untuk migrasi destruktif)
+  // DEFINISI TABEL LAMA (Tetap Konstan untuk Jalur Migrasi Sinkron)
   // ============================================================
+
+  static const String _tabelPengaturanV45 = '''
+    CREATE TABLE pengaturan(
+      id TEXT PRIMARY KEY, interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
+      hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30, diperbarui INTEGER,
+      mode_pemeliharaan INTEGER NOT NULL DEFAULT 0, info_pemeliharaan TEXT
+    )
+  ''';
 
   static const String _tabelDompetV47 = '''
     CREATE TABLE dompet(
@@ -675,14 +702,6 @@ class DatabaseHelper {
   static const String _tabelPesanV47 = '''
     CREATE TABLE pesan(
       id TEXT PRIMARY KEY, isi TEXT NOT NULL, tanggal INTEGER NOT NULL, status TEXT NOT NULL
-    )
-  ''';
-
-  static const String _tabelPengaturanV45 = '''
-    CREATE TABLE pengaturan(
-      id TEXT PRIMARY KEY, interval_sinkronisasi_otomatis INTEGER NOT NULL DEFAULT 24,
-      hapus_otomatis_data_arsip INTEGER NOT NULL DEFAULT 30, diperbarui INTEGER,
-      mode_pemeliharaan INTEGER NOT NULL DEFAULT 0, info_pemeliharaan TEXT
     )
   ''';
 

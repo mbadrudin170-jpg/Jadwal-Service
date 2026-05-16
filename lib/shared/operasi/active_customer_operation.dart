@@ -1,4 +1,5 @@
 // path: lib/shared/operasi/active_customer_operation.dart
+// diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi skema v50.
 // diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
 // diubah: Mengganti nama class dari PelangganAktifOperasi menjadi ActiveCustomerOperation.
 // diubah: Menggunakan BaseOperation dan ActiveCustomerModel.
@@ -8,7 +9,9 @@ import 'package:uuid/uuid.dart';
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
@@ -23,6 +26,9 @@ class ActiveCustomerOperation {
   final DatabaseHelper dbHelper = DatabaseHelper.instance;
   final BaseOperation _baseOperation = BaseOperation();
 
+  // DIUBAH: Menggunakan TableNameValue dinamis untuk konsistensi migrasi v50
+  final String _tableName = TableNameValue.get(TableName.activeCustomer);
+
   /// Instance dari NotifikasiServis untuk menjadwalkan notifikasi.
   late final NotifikasiServis notifikasiServis;
   final CustomerOperation _customerOperation = CustomerOperation();
@@ -30,7 +36,7 @@ class ActiveCustomerOperation {
   /// Konstruktor untuk `ActiveCustomerOperation`.
   ActiveCustomerOperation({final NotifikasiServis? notifikasiServis}) {
     this.notifikasiServis = notifikasiServis ?? NotifikasiServis();
-    Log.info('ActiveCustomerOperation diinisialisasi');
+    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 
   /// Membuat [ActiveCustomerModel] baru di database.
@@ -51,7 +57,7 @@ class ActiveCustomerOperation {
         (final Transaction txn) async {
           final data = customerToSave.toSqlite();
           await txn.insert(
-            'pelanggan_aktif',
+            _tableName,
             data,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -60,7 +66,7 @@ class ActiveCustomerOperation {
       );
 
       await _scheduleNotification(customerToSave);
-      Log.info('Active customer ID: $newId berhasil dibuat');
+      Log.info('Active customer ID: $newId berhasil dibuat di $_tableName');
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error('Gagal membuat active customer', e: e, st: st);
@@ -72,10 +78,10 @@ class ActiveCustomerOperation {
   Future<List<ActiveCustomerModel>> getAllActiveCustomers() async {
     try {
       final db = await dbHelper.database;
-      Log.info('Mengambil semua active customer dari database lokal');
+      Log.info('Mengambil semua active customer dari tabel $_tableName');
 
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan_aktif',
+        _tableName,
         where: '${ColumnNames.isDeleted} = ?',
         whereArgs: [0],
       );
@@ -95,10 +101,10 @@ class ActiveCustomerOperation {
   Future<ActiveCustomerModel?> getActiveCustomerById(final String id) async {
     try {
       final db = await dbHelper.database;
-      Log.info('Mencari active customer dengan ID: $id');
+      Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
 
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan_aktif',
+        _tableName,
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -133,7 +139,7 @@ class ActiveCustomerOperation {
         (final Transaction txn) async {
           final data = customerToSave.toSqlite();
           await txn.update(
-            'pelanggan_aktif',
+            _tableName,
             data,
             where: '${ColumnNames.id} = ?',
             whereArgs: [customerToSave.id],
@@ -216,7 +222,8 @@ class ActiveCustomerOperation {
     final bool fromServer = false,
   }) async {
     try {
-      Log.info('Memproses batch ${items.length} active customer');
+      Log.info(
+          'Memproses batch ${items.length} active customer di $_tableName');
 
       final data = items
           .map(
@@ -225,8 +232,9 @@ class ActiveCustomerOperation {
           )
           .toList();
 
+      // DIUBAH: Meneruskan TableName enum ke baseOperation untuk konsistensi internal
       await _baseOperation.insertOrUpdateBatch(
-        'pelanggan_aktif',
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -261,7 +269,7 @@ class ActiveCustomerOperation {
           );
 
           await txn.update(
-            'pelanggan_aktif',
+            _tableName,
             archivedCustomer.toSqlite(),
             where: '${ColumnNames.id} = ?',
             whereArgs: [id],
@@ -292,7 +300,7 @@ class ActiveCustomerOperation {
               DateTime.now().toUtc().subtract(const Duration(days: 30));
 
           final List<Map<String, dynamic>> expiredCustomers = await txn.query(
-            'pelanggan_aktif',
+            _tableName,
             where:
                 '${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} < ?',
             whereArgs: [deadline.millisecondsSinceEpoch],
@@ -308,13 +316,14 @@ class ActiveCustomerOperation {
               .toList();
 
           final count = await txn.delete(
-            'pelanggan_aktif',
+            _tableName,
             where:
                 '${ColumnNames.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
             whereArgs: idsToDelete,
           );
 
-          Log.info('$count active customer telah dihapus permanen');
+          Log.info(
+              '$count active customer telah dihapus permanen dari $_tableName');
         },
         fromServer: fromServer,
       );
@@ -333,7 +342,7 @@ class ActiveCustomerOperation {
       final now = DateTime.now().toUtc();
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
-        'pelanggan_aktif',
+        _tableName,
         where: '${ColumnNames.endDate} < ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [now.millisecondsSinceEpoch],
       );
@@ -352,9 +361,10 @@ class ActiveCustomerOperation {
           final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
 
           await txn.update(
-            'pelanggan_aktif',
+            _tableName,
             {
-              ColumnNames.isDeleted: 1,
+              ColumnNames.isDeleted:
+                  1, // Berupa integer 1 untuk penanda true di SQLite
               ColumnNames.archivedAt: nowMs,
               ColumnNames.updatedAt: nowMs,
             },
@@ -399,7 +409,7 @@ class ActiveCustomerOperation {
           final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
 
           await txn.update(
-            'pelanggan_aktif',
+            _tableName,
             {
               ColumnNames.isDeleted: 1,
               ColumnNames.archivedAt: nowMs,
@@ -440,7 +450,7 @@ class ActiveCustomerOperation {
       final db = await dbHelper.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        'pelanggan_aktif',
+        _tableName,
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

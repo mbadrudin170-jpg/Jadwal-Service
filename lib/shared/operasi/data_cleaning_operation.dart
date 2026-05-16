@@ -9,7 +9,9 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal.
 class DataCleaningOperation {
@@ -20,27 +22,28 @@ class DataCleaningOperation {
       : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   /// Fungsi utama untuk menghapus semua data arsip
-  /// yang sudah lebih tua dari [retentionDays] di semua tabel yang relevan.
-  Future<int> deleteAllExpiredArchivedData(
-      {required final int retentionDays}) async {
+  /// yang sudah lebih tua dari [retentionDays] di semua tabel yang relevan secara atomik.
+  Future<int> deleteAllExpiredArchivedData({
+    required final int retentionDays,
+  }) async {
     Log.info(
       'Memulai proses pembersihan data arsip yang lebih tua dari $retentionDays hari.',
     );
 
     final db = await _dbHelper.database;
-    int totalDeleted = 0;
 
+    // DIUBAH: Menggunakan TableNameValue untuk mendefinisikan daftar nama tabel
     final List<String> tableList = [
-      'pelanggan',
-      'pelanggan_aktif',
-      'paket',
-      'kategori',
-      'sub_kategori',
-      'transaksi',
-      'dompet',
-      'pesanan',
-      'versi_apk_user',
-      'kritik_saran',
+      TableNameValue.get(TableName.customer),       // pelanggan
+      TableNameValue.get(TableName.activeCustomer), // pelanggan_aktif
+      TableNameValue.get(TableName.package),        // paket
+      TableNameValue.get(TableName.category),       // kategori
+      TableNameValue.get(TableName.subCategory),    // sub_kategori
+      TableNameValue.get(TableName.transactions),    // transaksi
+      TableNameValue.get(TableName.wallet),         // dompet
+      TableNameValue.get(TableName.order),          // pesanan
+      TableNameValue.get(TableName.userApkVersion), // versi_apk_user
+      TableNameValue.get(TableName.feedback),       // kritik_saran
     ];
 
     // Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.
@@ -51,28 +54,39 @@ class DataCleaningOperation {
       'Batas waktu untuk penghapusan arsip diatur ke: ${timeLimit.toIso8601String()} (UTC) / $timeLimitEpoch (Epoch)',
     );
 
-    for (final table in tableList) {
-      try {
+    try {
+      // Menggunakan Batch agar semua proses berjalan cepat dalam satu transaksi tunggal.
+      final batch = db.batch();
+
+      for (final table in tableList) {
         final query =
             'DELETE FROM $table WHERE diarsipkan IS NOT NULL AND diarsipkan <= ?';
-        final result = await db.rawDelete(query, [timeLimitEpoch]);
+        batch.rawDelete(query, [timeLimitEpoch]);
+      }
 
-        if (result > 0) {
+      Log.info('Melakukan commit batch pembersihan data...');
+      // batch.commit() mengembalikan list berisi baris yang terpengaruh untuk setiap query.
+      final results = await batch.commit(noResult: false);
+
+      // Menghitung total baris yang berhasil dihapus
+      int totalDeleted = 0;
+      for (int i = 0; i < results.length; i++) {
+        final result = results[i];
+        if (result is int && result > 0) {
+          totalDeleted += result;
           Log.info(
-            '[$table] Dihapus $result baris yang diarsipkan lebih dari $retentionDays hari (sebelum ${timeLimit.toIso8601String()}).',
+            '[${tableList[i]}] Berhasil menghapus $result baris data kadaluarsa.',
           );
         }
-
-        totalDeleted += result;
-      } on Exception catch (e, s) {
-        Log.error('Gagal membersihkan tabel $table.', e: e, st: s);
-        continue;
       }
-    }
 
-    Log.info(
-      'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database.',
-    );
-    return totalDeleted;
+      Log.info(
+        'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database.',
+      );
+      return totalDeleted;
+    } catch (e, s) {
+      Log.error('Gagal menjalankan batch pembersihan data data.', e: e, st: s);
+      rethrow;
+    }
   }
 }

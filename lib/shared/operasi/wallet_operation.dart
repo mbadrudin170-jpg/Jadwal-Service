@@ -1,21 +1,19 @@
 // path: lib/shared/operasi/wallet_operation.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Menambahkan konstruktor yang dapat diinjeksi untuk pengujian.
-// diubah: Mengganti nama class dari DompetOperasi menjadi WalletOperation.
-// diubah: Menggunakan BaseOperation (bukan OperasiDasar) dan WalletModel (bukan DompetModel).
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class WalletOperation {
-  /// Instance dari DatabaseHelper untuk mengakses database.
-  late final DatabaseHelper dbHelper;
-  late final BaseOperation _baseOperation;
+  /// Instance dari DatabaseHelper dan BaseOperation untuk mengakses database.
+  final DatabaseHelper dbHelper;
+  final BaseOperation _baseOperation;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   WalletOperation({
@@ -33,13 +31,18 @@ class WalletOperation {
     final WalletModel wallet, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memulai createWallet untuk wallet: ${wallet.toSqlite()}');
+    Log.info('Memulai createWallet untuk wallet: ${wallet.id}');
     try {
       final data =
           wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await _baseOperation.insert('dompet', data, fromServer: fromServer);
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
+      await _baseOperation.insert(
+        TableNameValue.get(TableName.wallet),
+        data,
+        fromServer: fromServer,
+      );
       Log.info('Berhasil membuat wallet dengan ID: ${wallet.id}');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat createWallet', e: e, st: st);
       rethrow;
     }
@@ -57,8 +60,9 @@ class WalletOperation {
       final query = showArchived
           ? '${ColumnNames.isDeleted} = 0'
           : '${ColumnNames.isDeleted} = 0 AND ${ColumnNames.archivedAt} IS NULL';
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       final List<Map<String, dynamic>> maps = await db.query(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         where: query,
       );
 
@@ -68,7 +72,7 @@ class WalletOperation {
       );
       Log.info('Berhasil mengambil ${listWallet.length} data wallet.');
       return listWallet;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat getWallets', e: e, st: st);
       rethrow;
     }
@@ -79,8 +83,9 @@ class WalletOperation {
     Log.info('Memulai getWalletById untuk ID: $id');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       final List<Map<String, dynamic>> maps = await db.query(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         where: '${ColumnNames.id} = ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [id],
       );
@@ -93,7 +98,7 @@ class WalletOperation {
 
       Log.warning('Wallet dengan ID: $id tidak ditemukan di database.');
       return null;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal saat getWalletById untuk ID: $id',
         e: e,
@@ -112,14 +117,15 @@ class WalletOperation {
     try {
       final data =
           wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.update(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         data,
         wallet.id,
         fromServer: fromServer,
       );
       Log.info('Berhasil updateWallet untuk ID: ${wallet.id}.');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal saat updateWallet untuk ID: ${wallet.id}',
         e: e,
@@ -145,7 +151,7 @@ class WalletOperation {
       }
 
       Log.info('Proses pengarsipan semua wallet telah selesai.');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal saat proses pengarsipan massal wallet.',
         e: e,
@@ -162,13 +168,14 @@ class WalletOperation {
     try {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final count = await txn.delete('dompet');
+          // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
+          final count = await txn.delete(TableNameValue.get(TableName.wallet));
           Log.info(
               'Berhasil deleteAllWallets. Total baris yang dihapus: $count');
         },
         fromServer: fromServer,
       );
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat deleteAllWallets', e: e, st: st);
       rethrow;
     }
@@ -186,15 +193,16 @@ class WalletOperation {
         ColumnNames.isDeleted: 1,
       };
 
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.update(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         dataToUpdate,
         id,
         fromServer: fromServer,
       );
 
       Log.info('Berhasil archiveOneWallet untuk ID: $id.');
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal saat archiveOneWallet untuk ID: $id',
         e: e,
@@ -210,8 +218,9 @@ class WalletOperation {
         'Memulai getTotalBalance (menghitung total saldo dari semua wallet aktif).');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -221,7 +230,7 @@ class WalletOperation {
 
       Log.info('Berhasil menghitung total saldo: $total');
       return total;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat getTotalBalance', e: e, st: st);
       rethrow;
     }
@@ -233,8 +242,9 @@ class WalletOperation {
         'Memulai getPositiveBalance (menghitung total saldo > 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -244,7 +254,7 @@ class WalletOperation {
 
       Log.info('Berhasil menghitung total saldo positif: $total');
       return total;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat getPositiveBalance', e: e, st: st);
       rethrow;
     }
@@ -256,8 +266,9 @@ class WalletOperation {
         'Memulai getNegativeBalance (menghitung total saldo < 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
+      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM dompet WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -267,7 +278,7 @@ class WalletOperation {
 
       Log.info('Berhasil menghitung total saldo negatif: $total');
       return total;
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal saat getNegativeBalance', e: e, st: st);
       rethrow;
     }
@@ -278,53 +289,27 @@ class WalletOperation {
     final List<WalletModel> items, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memulai insertOrUpdateBatch untuk ${items.length} item wallet.');
+    Log.info('Memulai batch insert/update untuk ${items.length} data dompet.');
     if (items.isEmpty) {
-      Log.warning(
-          'List item untuk batch kosong, tidak ada operasi yang dilakukan.');
+      Log.warning('Daftar dompet kosong, membatalkan operasi batch.');
       return;
     }
     try {
-      final data = items.map((final item) => item.toSqlite()).toList();
+      final data = items
+          .map(
+            (final item) =>
+                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+          )
+          .toList();
+      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.insertOrUpdateBatch(
-        'dompet',
+        TableNameValue.get(TableName.wallet),
         data,
         fromServer: fromServer,
       );
-      Log.info(
-          'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item.');
-    } catch (e, st) {
-      Log.error('Gagal saat menjalankan insertOrUpdateBatch', e: e, st: st);
-      rethrow;
-    }
-  }
-
-  /// Mengambil beberapa [WalletModel] berdasarkan daftar [ids].
-  Future<List<WalletModel>> getWalletsByIds(final List<String> ids) async {
-    Log.info('Memulai getWalletsByIds untuk ${ids.length} ID.');
-    if (ids.isEmpty) {
-      Log.warning(
-          'List ID untuk getWalletsByIds kosong, mengembalikan list kosong.');
-      return [];
-    }
-    try {
-      final db = await dbHelper.database;
-      final placeholders = List.filled(ids.length, '?').join(',');
-      final List<Map<String, dynamic>> maps = await db.query(
-        'dompet',
-        where: '${ColumnNames.id} IN ($placeholders)',
-        whereArgs: ids,
-      );
-
-      final listWallet = List.generate(
-        maps.length,
-        (final i) => WalletModel.fromSqlite(maps[i]),
-      );
-      Log.info(
-          'Berhasil mengambil ${listWallet.length} wallet dari ${ids.length} ID yang diminta.');
-      return listWallet;
-    } catch (e, st) {
-      Log.error('Gagal saat getWalletsByIds', e: e, st: st);
+      Log.info('Batch dompet selesai diproses.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal menjalankan batch dompet', e: e, st: st);
       rethrow;
     }
   }

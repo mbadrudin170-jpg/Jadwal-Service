@@ -127,7 +127,7 @@ class FirebaseMigrationService {
       'diperbarui': ColumnNames.updatedAt,
       'diarsipkan': ColumnNames.archivedAt,
     },
-    TableNameValue.get(TableName.setting): {
+    TableNameValue.get(TableName.settings): {
       'interval_sinkronisasi_otomatis': ColumnNames.autoSyncInterval,
       'hapus_otomatis_data_arsip': ColumnNames.autoDeleteArchiveDays,
       'mode_pemeliharaan': ColumnNames.maintenanceMode,
