@@ -3,14 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
 class FormDompet extends StatefulWidget {
   /// Model dompet yang akan diedit. Jika null, maka form akan membuat dompet baru.
-  final DompetModel? dompet;
+  final WalletModel? dompet;
 
   /// Konstruktor untuk FormDompet.
   const FormDompet({super.key, this.dompet});
@@ -22,7 +22,7 @@ class FormDompet extends StatefulWidget {
 class _FormDompetState extends State<FormDompet> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  final DompetOperasi _dompetOperasi = DompetOperasi();
+  final WalletOperation _dompetOperasi = WalletOperation();
 
   late FocusNode _namaFocusNode;
 
@@ -34,7 +34,7 @@ class _FormDompetState extends State<FormDompet> {
     final isEditMode = widget.dompet != null;
     Log.info(
       'Membuat state untuk FormDompet. '
-      'Mode: ${isEditMode ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.namaDompet}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}',
+      'Mode: ${isEditMode ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.name}, Saldo: ${widget.dompet!.balance})" : "TAMBAH BARU"}',
     );
 
     Log.info('========================================');
@@ -48,16 +48,16 @@ class _FormDompetState extends State<FormDompet> {
     if (_isEditMode) {
       Log.info('MODE EDIT terdeteksi. Data dompet yang akan diedit:');
       Log.info('  - ID: ${widget.dompet!.id}');
-      Log.info('  - Nama Lama: ${widget.dompet!.namaDompet}');
-      Log.info('  - Saldo: ${widget.dompet!.saldo}');
-      Log.info('  - Diperbarui: ${widget.dompet!.diperbarui}');
+      Log.info('  - Nama Lama: ${widget.dompet!.name}');
+      Log.info('  - Saldo: ${widget.dompet!.balance}');
+      Log.info('  - Diperbarui: ${widget.dompet!.updatedAt}');
       Log.info('  - isDeleted: ${widget.dompet!.isDeleted}');
-      Log.info('  - Diarsipkan: ${widget.dompet!.diarsipkan ?? "NULL"}');
+      Log.info('  - Diarsipkan: ${widget.dompet!.archivedAt ?? "NULL"}');
 
       Log.info(
-        'Mengisi TextEditingController dengan nama dompet lama: "${widget.dompet!.namaDompet}"',
+        'Mengisi TextEditingController dengan nama dompet lama: "${widget.dompet!.name}"',
       );
-      _namaController.text = widget.dompet!.namaDompet;
+      _namaController.text = widget.dompet!.name;
       Log.info(
         'TextEditingController berhasil diisi. Teks saat ini: "${_namaController.text}"',
       );
@@ -113,27 +113,27 @@ class _FormDompetState extends State<FormDompet> {
           Log.info('========================================');
           Log.info('Data dompet sebelum update:');
           Log.info('  - ID: ${widget.dompet!.id}');
-          Log.info('  - Nama Lama: ${widget.dompet!.namaDompet}');
+          Log.info('  - Nama Lama: ${widget.dompet!.name}');
           Log.info('  - Nama Baru: ${_namaController.text}');
           Log.info(
-            '  - Saldo Tetap: ${widget.dompet!.saldo} (saldo tidak berubah)',
+            '  - Saldo Tetap: ${widget.dompet!.balance} (saldo tidak berubah)',
           );
           Log.info('  - Diperbarui: Akan diupdate ke DateTime.now()');
 
           Log.info(
-            'Membuat objek DompetModel baru dengan data yang diperbarui.',
+            'Membuat objek WalletModel baru dengan data yang diperbarui.',
           );
-          final updatedDompet = DompetModel(
+          final updatedDompet = WalletModel(
             id: widget.dompet!.id,
-            namaDompet: _namaController.text,
-            saldo: widget.dompet!.saldo,
+            name: _namaController.text,
+            balance: widget.dompet!.balance,
           );
 
-          Log.info('Objek DompetModel berhasil dibuat:');
+          Log.info('Objek WalletModel berhasil dibuat:');
           Log.info('  - ID: ${updatedDompet.id}');
-          Log.info('  - Nama: ${updatedDompet.namaDompet}');
-          Log.info('  - Saldo: ${updatedDompet.saldo}');
-          Log.info('  - Diperbarui: ${updatedDompet.diperbarui}');
+          Log.info('  - Nama: ${updatedDompet.name}');
+          Log.info('  - Saldo: ${updatedDompet.balance}');
+          Log.info('  - Diperbarui: ${updatedDompet.updatedAt}');
 
           Log.info(
             'Memanggil _dompetOperasi.updateDompet() untuk menyimpan perubahan ke database.',
@@ -144,7 +144,7 @@ class _FormDompetState extends State<FormDompet> {
             'Update dompet BERHASIL. Data dompet telah diperbarui di database.',
           );
           Log.info(
-            'Nama dompet berubah dari "${widget.dompet!.namaDompet}" menjadi "${_namaController.text}"',
+            'Nama dompet berubah dari "${widget.dompet!.name}" menjadi "${_namaController.text}"',
           );
 
           if (!mounted) {
@@ -176,20 +176,20 @@ class _FormDompetState extends State<FormDompet> {
           final newId = const Uuid().v4();
           Log.info('UUID berhasil digenerate: $newId');
 
-          Log.info('Membuat objek DompetModel baru dengan data:');
+          Log.info('Membuat objek WalletModel baru dengan data:');
           Log.info('  - ID: $newId');
           Log.info('  - Nama: ${_namaController.text}');
           Log.info('  - Saldo Awal: 0.0');
           Log.info('  - Diperbarui: DateTime.now()');
 
-          final nuevoDompet = DompetModel(
+          final nuevoDompet = WalletModel(
             id: newId,
-            namaDompet: _namaController.text,
-            saldo: 0.0,
-            diperbarui: DateTime.now(),
+            name: _namaController.text,
+            balance: 0.0,
+            updatedAt: DateTime.now(),
           );
 
-          Log.info('Objek DompetModel berhasil dibuat.');
+          Log.info('Objek WalletModel berhasil dibuat.');
           Log.info(
             'Memanggil _dompetOperasi.createDompet() untuk menyimpan dompet baru ke database.',
           );
@@ -198,9 +198,9 @@ class _FormDompetState extends State<FormDompet> {
           Log.info('Dompet baru BERHASIL disimpan ke database.');
           Log.info('Detail dompet yang disimpan:');
           Log.info('  - ID: ${nuevoDompet.id}');
-          Log.info('  - Nama: ${nuevoDompet.namaDompet}');
-          Log.info('  - Saldo: ${nuevoDompet.saldo}');
-          Log.info('  - Diperbarui: ${nuevoDompet.diperbarui}');
+          Log.info('  - Nama: ${nuevoDompet.name}');
+          Log.info('  - Saldo: ${nuevoDompet.balance}');
+          Log.info('  - Diperbarui: ${nuevoDompet.updatedAt}');
 
           if (!mounted) {
             Log.warning(

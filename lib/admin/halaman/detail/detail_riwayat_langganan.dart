@@ -28,7 +28,7 @@ class _DetailLanggananTransaksiPageState
   final PaketOperasi _paketOperasi = PaketOperasi();
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
 
-  late Future<TransaksiModel?> _transaksiFuture;
+  late Future<TransactionModel?> _transaksiFuture;
 
   @override
   void initState() {
@@ -50,8 +50,10 @@ class _DetailLanggananTransaksiPageState
     Log.info('Membangun UI halaman detail langganan transaksi.');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail Langganan')), // TODO: rencana selanjutnya adalah menambahkan tombol edit
-      body: FutureBuilder<TransaksiModel?>(
+      appBar: AppBar(
+          title: const Text(
+              'Detail Langganan')), // TODO: rencana selanjutnya adalah menambahkan tombol edit
+      body: FutureBuilder<TransactionModel?>(
         future: _transaksiFuture,
         builder: (final context, final snapshot) {
           Log.info(
@@ -120,7 +122,7 @@ class _DetailLanggananTransaksiPageState
                       _buildDetailRow(
                         'Nama Paket',
                         paket?.nama ?? 'Tidak Diketahui',
-                      ),// Info nama paket
+                      ), // Info nama paket
                       _buildDetailRow(
                         'Harga',
                         FormatUang.formatMataUang(paket?.harga.toDouble() ?? 0),
@@ -177,7 +179,7 @@ class _DetailLanggananTransaksiPageState
     );
   }
 
-  Widget _buildInfoPoin(final TransaksiModel transaksi) {
+  Widget _buildInfoPoin(final TransactionModel transaksi) {
     Log.info('Membangun widget informasi poin transaksi.');
 
     if (transaksi.poinYangDihasilkan == 0 && transaksi.poinYangDigunakan == 0) {

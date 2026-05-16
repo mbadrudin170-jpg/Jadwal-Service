@@ -1,4 +1,4 @@
-// path: lib/shared/model/versi_apk_user_model.dart
+// path: lib/shared/model/user_apk_version_model.dart
 // diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
 // diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, impor enum diperbaiki, dan mengimplementasikan MemilikiId.
 import 'dart:convert';
@@ -6,10 +6,10 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/memiliki_id.dart';
+import 'package:wifi/shared/model/has_id.dart';
 
 /// Model yang merepresentasikan informasi versi aplikasi untuk pengguna.
-class VersiApkUserModel implements MemilikiId {
+class VersiApkUserModel implements HasId {
   /// ID unik untuk setiap entri versi.
   @override
   final String id;
@@ -63,10 +63,10 @@ class VersiApkUserModel implements MemilikiId {
     return {
       'id': id,
       'catatanRilis': catatanRilis,
-      'nomorBuildTerbaru':
-          nomorBuildTerbaru.map((final key, final value) => MapEntry(key.name, value)),
-      'tautanUnduhan':
-          tautanUnduhan.map((final key, final value) => MapEntry(key.name, value)),
+      'nomorBuildTerbaru': nomorBuildTerbaru
+          .map((final key, final value) => MapEntry(key.name, value)),
+      'tautanUnduhan': tautanUnduhan
+          .map((final key, final value) => MapEntry(key.name, value)),
       'versiTerbaru': versiTerbaru,
       'wajibUpdate': wajibUpdate,
       'youtubeTutorial': youtubeTutorial,
@@ -105,10 +105,12 @@ class VersiApkUserModel implements MemilikiId {
       'diarsipkan': diarsipkan?.millisecondsSinceEpoch,
       'diperbarui': diperbarui?.millisecondsSinceEpoch,
       'nomor_build_terbaru': jsonEncode(
-        nomorBuildTerbaru.map((final key, final value) => MapEntry(key.name, value)),
+        nomorBuildTerbaru
+            .map((final key, final value) => MapEntry(key.name, value)),
       ),
       'tautan_unduhan': jsonEncode(
-        tautanUnduhan.map((final key, final value) => MapEntry(key.name, value)),
+        tautanUnduhan
+            .map((final key, final value) => MapEntry(key.name, value)),
       ),
       'wajib_update': wajibUpdate ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
@@ -119,7 +121,8 @@ class VersiApkUserModel implements MemilikiId {
   // FIREBASE
   // =========================
   /// Factory constructor untuk membuat `VersiApkUserModel` dari data Firebase.
-  factory VersiApkUserModel.fromFirebase(final String id, final Map<String, dynamic> map) {
+  factory VersiApkUserModel.fromFirebase(
+      final String id, final Map<String, dynamic> map) {
     return VersiApkUserModel(
       id: id,
       catatanRilis: map['catatan_rilis'] as String? ?? '',

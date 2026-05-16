@@ -83,29 +83,43 @@ class DatabaseHelper {
     }
   }
 
-  Future<void> _onUpgrade(final Database db, final int oldVersion, final int newVersion) async {
+  Future<void> _onUpgrade(
+      final Database db, final int oldVersion, final int newVersion) async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UPGRADE DATABASE (IDEMPOTEN)');
     Log.info('Versi database lama: $oldVersion');
     Log.info('Versi database baru: $newVersion');
     Log.info('========================================');
-    
+
     final batch = db.batch();
 
     if (oldVersion < 45) {
-       Log.info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
-       await _migrateToV45(db);
+      Log.info('[MIGRASI v45] Menjalankan migrasi untuk versi < 45.');
+      await _migrateToV45(db);
     }
 
     if (oldVersion < 47) {
-      Log.info('[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran` (destruktif).');
+      Log.info(
+          '[MIGRASI v47] Memulai migrasi skema untuk memperbaiki tabel `kritik_saran` (destruktif).');
       final List<String> daftarTabel = [
-        'kategori', 'sub_kategori', 'paket', 'pelanggan', 'pelanggan_aktif',
-        'transaksi', 'dompet', 'kritik_saran', 'pesanan', 'versi_apk_user',
-        'pengaturan', 'status_unggah', 'pesan', 'status_aplikasi',
+        'kategori',
+        'sub_kategori',
+        'paket',
+        'pelanggan',
+        'pelanggan_aktif',
+        'transaksi',
+        'dompet',
+        'kritik_saran',
+        'pesanan',
+        'versi_apk_user',
+        'pengaturan',
+        'status_unggah',
+        'pesan',
+        'status_aplikasi',
       ];
-      
-      Log.warning('[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel. Data lokal akan direset.');
+
+      Log.warning(
+          '[MIGRASI v47] Proses ini akan menghapus dan membuat ulang tabel. Data lokal akan direset.');
 
       for (final namaTabel in daftarTabel) {
         batch.execute('DROP TABLE IF EXISTS $namaTabel');
@@ -113,19 +127,23 @@ class DatabaseHelper {
       }
 
       _createAllTables(batch);
-      Log.info('[MIGRASI v47] Menjadwalkan pembuatan ulang semua tabel dengan skema baru.');
+      Log.info(
+          '[MIGRASI v47] Menjadwalkan pembuatan ulang semua tabel dengan skema baru.');
     }
 
     if (oldVersion < 48) {
-      Log.info('[MIGRASI v48] Menambahkan kolom `diperbarui` ke tabel `status_aplikasi`.');
-      batch.execute('ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER');
+      Log.info(
+          '[MIGRASI v48] Menambahkan kolom `diperbarui` ke tabel `status_aplikasi`.');
+      batch
+          .execute('ALTER TABLE status_aplikasi ADD COLUMN diperbarui INTEGER');
     }
 
     try {
       await batch.commit(noResult: true);
       Log.info('========================================');
       Log.info('PROSES UPGRADE DATABASE SELESAI');
-      Log.info('Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
+      Log.info(
+          'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
       Log.info('========================================');
     } on Exception catch (e, st) {
       Log.error(
@@ -149,7 +167,8 @@ class DatabaseHelper {
   /// Membuat tabel-tabel database.
   Future<void> createTables(final Database db, final int version) async {
     Log.info('========================================');
-    Log.info('MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
+    Log.info(
+        'MEMULAI PEMBUATAN TABEL DATABASE (onCreate) UNTUK VERSI $version');
     Log.info('========================================');
     final batch = db.batch();
     _createAllTables(batch);
@@ -181,9 +200,12 @@ class DatabaseHelper {
     batch.execute(_tabelPesan);
     Log.info('Semua 14 definisi tabel ditambahkan ke batch.');
 
-    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_dompet ON transaksi(id_dompet)');
-    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
-    batch.execute('CREATE INDEX IF NOT EXISTS idx_transaksi_isDeleted ON transaksi(isDeleted)');
+    batch.execute(
+        'CREATE INDEX IF NOT EXISTS idx_transaksi_dompet ON transaksi(id_dompet)');
+    batch.execute(
+        'CREATE INDEX IF NOT EXISTS idx_transaksi_dompet_tujuan ON transaksi(id_dompet_tujuan)');
+    batch.execute(
+        'CREATE INDEX IF NOT EXISTS idx_transaksi_isDeleted ON transaksi(isDeleted)');
     Log.info('Semua 3 definisi index ditambahkan ke batch.');
   }
 

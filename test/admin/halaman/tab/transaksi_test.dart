@@ -38,8 +38,8 @@ void main() {
   }
 
   // Data transaksi dummy untuk pengujian
-  final List<TransaksiModel> dummyTransaksiList = [
-    TransaksiModel(
+  final List<TransactionModel> dummyTransaksiList = [
+    TransactionModel(
       id: '1',
       keterangan: 'Gaji Bulan Mei',
       jumlah: 5000000,
@@ -48,7 +48,7 @@ void main() {
       idDompet: 'dompet1',
       idKategori: 'gaji',
     ),
-    TransaksiModel(
+    TransactionModel(
       id: '2',
       keterangan: 'Bayar Listrik',
       jumlah: 350000,
@@ -61,7 +61,7 @@ void main() {
 
   // Fungsi helper untuk mock pemanggilan data
   void mockGetData({
-    final List<TransaksiModel> transaksi = const [],
+    final List<TransactionModel> transaksi = const [],
     final double pemasukan = 0.0,
     final double pengeluaran = 0.0,
     final double total = 0.0,

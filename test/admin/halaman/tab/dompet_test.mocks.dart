@@ -246,7 +246,7 @@ class MockTransaksiOperasi extends _i1.Mock implements _i7.TransaksiOperasi {
 
   @override
   _i5.Future<int> tambahTransaksi(
-    _i8.TransaksiModel? transaksi, {
+    _i8.TransactionModel? transaksi, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -259,65 +259,65 @@ class MockTransaksiOperasi extends _i1.Mock implements _i7.TransaksiOperasi {
       ) as _i5.Future<int>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilSemuaTransaksi() =>
+  _i5.Future<List<_i8.TransactionModel>> ambilSemuaTransaksi() =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilSemuaTransaksi,
           [],
         ),
-        returnValue:
-            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
-      ) as _i5.Future<List<_i8.TransaksiModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
-  _i5.Future<_i8.TransaksiModel?> getTransaksiById(String? id) =>
+  _i5.Future<_i8.TransactionModel?> getTransaksiById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiById,
           [id],
         ),
-        returnValue: _i5.Future<_i8.TransaksiModel?>.value(),
-      ) as _i5.Future<_i8.TransaksiModel?>);
+        returnValue: _i5.Future<_i8.TransactionModel?>.value(),
+      ) as _i5.Future<_i8.TransactionModel?>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilTransaksiByPelangganId(
+  _i5.Future<List<_i8.TransactionModel>> ambilTransaksiByPelangganId(
           String? pelangganId) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilTransaksiByPelangganId,
           [pelangganId],
         ),
-        returnValue:
-            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
-      ) as _i5.Future<List<_i8.TransaksiModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> ambilTransaksiByDompetId(
+  _i5.Future<List<_i8.TransactionModel>> ambilTransaksiByDompetId(
           String? dompetId) =>
       (super.noSuchMethod(
         Invocation.method(
           #ambilTransaksiByDompetId,
           [dompetId],
         ),
-        returnValue:
-            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
-      ) as _i5.Future<List<_i8.TransaksiModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> getTransaksiByAktivasiPaket() =>
+  _i5.Future<List<_i8.TransactionModel>> getTransaksiByAktivasiPaket() =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiByAktivasiPaket,
           [],
         ),
-        returnValue:
-            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
-      ) as _i5.Future<List<_i8.TransaksiModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
   _i5.Future<void> updateTransaksi(
     String? id,
-    _i8.TransaksiModel? transaksiBaru, {
+    _i8.TransactionModel? transaksiBaru, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -418,7 +418,7 @@ class MockTransaksiOperasi extends _i1.Mock implements _i7.TransaksiOperasi {
 
   @override
   _i5.Future<void> sisipkanAtauPerbaruiBatch(
-    List<_i8.TransaksiModel>? items, {
+    List<_i8.TransactionModel>? items, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
@@ -432,13 +432,13 @@ class MockTransaksiOperasi extends _i1.Mock implements _i7.TransaksiOperasi {
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i8.TransaksiModel>> getTransaksiByIds(List<String>? ids) =>
+  _i5.Future<List<_i8.TransactionModel>> getTransaksiByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransaksiByIds,
           [ids],
         ),
-        returnValue:
-            _i5.Future<List<_i8.TransaksiModel>>.value(<_i8.TransaksiModel>[]),
-      ) as _i5.Future<List<_i8.TransaksiModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 }

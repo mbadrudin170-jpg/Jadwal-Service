@@ -12,9 +12,9 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/shared/operasi/category_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
@@ -31,9 +31,9 @@ class KategoriPage extends StatefulWidget {
 }
 
 class _KategoriPageState extends State<KategoriPage> {
-  final KategoriOperasi _kategoriOperasi = KategoriOperasi();
-  late Future<List<KategoriModel>> _listaKategoriFuture;
-  TipeKategori _selectedTipe = TipeKategori.pemasukan;
+  final CategoryOperation _kategoriOperasi = CategoryOperation();
+  late Future<List<CategoryModel>> _listaKategoriFuture;
+  CategoryType _selectedTipe = CategoryType.income;
   bool _isEdit = false;
   bool _isArsipMode = false;
 
@@ -47,17 +47,17 @@ class _KategoriPageState extends State<KategoriPage> {
   void _loadKategori() {
     Log.info('Memuat data kategori dari database');
     setState(() {
-      _listaKategoriFuture = _kategoriOperasi.getKategori().then((final data) {
+      _listaKategoriFuture = _kategoriOperasi.getCategories().then((final data) {
         final int totalSubKategori = data.fold(
           0,
-          (final sum, final kat) => sum + kat.subKategori.length,
+          (final sum, final kat) => sum + kat.subCategories.length,
         );
         Log.info(
           'Berhasil memuat ${data.length} kategori utama dengan total $totalSubKategori sub-kategori',
         );
         for (var kat in data) {
           Log.info(
-            'Kategori: ${kat.nama} (ID: ${kat.id}, Tipe: ${kat.tipe.name}, Sub: ${kat.subKategori.length}, Diarsipkan: ${kat.diarsipkan != null ? "Ya" : "Tidak"})',
+            'Kategori: ${kat.name} (ID: ${kat.id}, Tipe: ${kat.type.name}, Sub: ${kat.subCategories.length}, Diarsipkan: ${kat.archivedAt != null ? "Ya" : "Tidak"})',
           );
         }
         return data;
@@ -128,29 +128,29 @@ class _KategoriPageState extends State<KategoriPage> {
     return konfirmasi ?? false;
   }
 
-  Future<void> _arsipkanKategoriUtama(final KategoriModel kategori) async {
+  Future<void> _arsipkanKategoriUtama(final CategoryModel kategori) async {
     Log.info(
-      'Memproses pengarsipan kategori utama: ${kategori.nama} (ID: ${kategori.id})',
+      'Memproses pengarsipan kategori utama: ${kategori.name} (ID: ${kategori.id})',
     );
     final bool konfirmasi = await _tampilkanDialogKonfirmasi(
       'Arsipkan Kategori',
-      'Anda yakin ingin mengarsipkan "${kategori.nama}"? Kategori ini tidak akan bisa digunakan lagi.',
+      'Anda yakin ingin mengarsipkan "${kategori.name}"? Kategori ini tidak akan bisa digunakan lagi.',
     );
     if (!mounted || !konfirmasi) {
       Log.info(
-        'Pengarsipan kategori ${kategori.nama} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
+        'Pengarsipan kategori ${kategori.name} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
       );
       return;
     }
 
     try {
       Log.info(
-        'Mengarsipkan kategori utama ID: ${kategori.id}, nama: ${kategori.nama}',
+        'Mengarsipkan kategori utama ID: ${kategori.id}, nama: ${kategori.name}',
       );
-      final kategoriDiperbarui = kategori.copyWith(diarsipkan: DateTime.now());
-      await _kategoriOperasi.update(kategoriDiperbarui);
+      final kategoriDiperbarui = kategori.copyWith(archivedAt: DateTime.now());
+      await _kategoriOperasi.updateCategory(kategoriDiperbarui);
       Log.info(
-        'Kategori ${kategori.nama} (ID: ${kategori.id}) berhasil diarsipkan pada ${kategoriDiperbarui.diarsipkan}',
+        'Kategori ${kategori.name} (ID: ${kategori.id}) berhasil diarsipkan pada ${kategoriDiperbarui.archivedAt}',
       );
 
       if (!mounted) return;
@@ -158,7 +158,7 @@ class _KategoriPageState extends State<KategoriPage> {
       _loadKategori();
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.nama}',
+        'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.name}',
         e: e,
         st: st,
       );
@@ -168,41 +168,41 @@ class _KategoriPageState extends State<KategoriPage> {
   }
 
   Future<void> _arsipkanSubKategori(
-    final KategoriModel kategoriInduk,
-    final SubKategoriModel subKategori,
+    final CategoryModel kategoriInduk,
+    final SubCategoryModel subKategori,
   ) async {
     Log.info(
-      'Memproses pengarsipan sub-kategori: ${subKategori.nama} (ID: ${subKategori.id}) dari kategori induk: ${kategoriInduk.nama}',
+      'Memproses pengarsipan sub-kategori: ${subKategori.name} (ID: ${subKategori.id}) dari kategori induk: ${kategoriInduk.name}',
     );
     final bool konfirmasi = await _tampilkanDialogKonfirmasi(
       'Arsipkan Sub-Kategori',
-      'Anda yakin ingin mengarsipkan sub-kategori "${subKategori.nama}"?',
+      'Anda yakin ingin mengarsipkan sub-kategori "${subKategori.name}"?',
     );
     if (!mounted || !konfirmasi) {
       Log.info(
-        'Pengarsipan sub-kategori ${subKategori.nama} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
+        'Pengarsipan sub-kategori ${subKategori.name} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
       );
       return;
     }
 
     try {
       Log.info(
-        'Mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.nama}',
+        'Mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.name}',
       );
       final subKategoriDiperbarui = subKategori.copyWith(
-        diarsipkan: DateTime.now(),
+        archivedAt: DateTime.now(),
       );
-      final daftarSubKategoriBaru = kategoriInduk.subKategori.map((final sub) {
+      final daftarSubKategoriBaru = kategoriInduk.subCategories.map((final sub) {
         return sub.id == subKategori.id ? subKategoriDiperbarui : sub;
       }).toList();
       final kategoriIndukDiperbarui = kategoriInduk.copyWith(
-        subKategori: daftarSubKategoriBaru,
-        diperbarui: DateTime.now(),
+        subCategories: daftarSubKategoriBaru,
+        updatedAt: DateTime.now(),
       );
 
-      await _kategoriOperasi.update(kategoriIndukDiperbarui);
+      await _kategoriOperasi.updateCategory(kategoriIndukDiperbarui);
       Log.info(
-        'Sub-kategori ${subKategori.nama} (ID: ${subKategori.id}) berhasil diarsipkan, kategori induk ${kategoriInduk.nama} diperbarui',
+        'Sub-kategori ${subKategori.name} (ID: ${subKategori.id}) berhasil diarsipkan, kategori induk ${kategoriInduk.name} diperbarui',
       );
 
       if (!mounted) return;
@@ -210,7 +210,7 @@ class _KategoriPageState extends State<KategoriPage> {
       _loadKategori();
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.nama}',
+        'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.name}',
         e: e,
         st: st,
       );
@@ -268,10 +268,10 @@ class _KategoriPageState extends State<KategoriPage> {
               ElevatedButton(
                 onPressed: () {
                   Log.info('Filter tipe diubah ke PEMASUKAN');
-                  setState(() => _selectedTipe = TipeKategori.pemasukan);
+                  setState(() => _selectedTipe = CategoryType.income);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedTipe == TipeKategori.pemasukan
+                  backgroundColor: _selectedTipe == CategoryType.income
                       ? Colors.green
                       : Colors.grey,
                 ),
@@ -280,10 +280,10 @@ class _KategoriPageState extends State<KategoriPage> {
               ElevatedButton(
                 onPressed: () {
                   Log.info('Filter tipe diubah ke PENGELUARAN');
-                  setState(() => _selectedTipe = TipeKategori.pengeluaran);
+                  setState(() => _selectedTipe = CategoryType.expense);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedTipe == TipeKategori.pengeluaran
+                  backgroundColor: _selectedTipe == CategoryType.expense
                       ? Colors.red
                       : Colors.grey,
                 ),
@@ -292,7 +292,7 @@ class _KategoriPageState extends State<KategoriPage> {
             ],
           ),
           Expanded(
-            child: FutureBuilder<List<KategoriModel>>(
+            child: FutureBuilder<List<CategoryModel>>(
               future: _listaKategoriFuture,
               builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -314,7 +314,7 @@ class _KategoriPageState extends State<KategoriPage> {
                 } else {
                   final filteredKategori = snapshot.data!
                       .where(
-                        (final k) => k.tipe == _selectedTipe && k.diarsipkan == null,
+                        (final k) => k.type == _selectedTipe && k.archivedAt == null,
                       )
                       .toList();
 
@@ -329,12 +329,12 @@ class _KategoriPageState extends State<KategoriPage> {
                       return Card(
                         margin: const EdgeInsets.all(8.0),
                         child: ExpansionTile(
-                          title: Text(kategori.nama),
+                          title: Text(kategori.name),
                           trailing: _isEdit
                               ? IconButton(
                                   onPressed: () async {
                                     Log.info(
-                                      'Navigasi ke Form Edit Kategori Utama: ${kategori.nama} (ID: ${kategori.id})',
+                                      'Navigasi ke Form Edit Kategori Utama: ${kategori.name} (ID: ${kategori.id})',
                                     );
                                     // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
                                     // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
@@ -348,7 +348,7 @@ class _KategoriPageState extends State<KategoriPage> {
                                     );
                                     if (result ?? false) {
                                       Log.info(
-                                        'Kategori ${kategori.nama} berhasil diedit, menyegarkan daftar',
+                                        'Kategori ${kategori.name} berhasil diedit, menyegarkan daftar',
                                       );
                                       _loadKategori();
                                     } else {
@@ -366,16 +366,16 @@ class _KategoriPageState extends State<KategoriPage> {
                                       icon: const Icon(Icons.archive),
                                     )
                                   : null,
-                          children: kategori.subKategori
-                              .where((final sub) => sub.diarsipkan == null)
+                          children: kategori.subCategories
+                              .where((final sub) => sub.archivedAt == null)
                               .map((final sub) {
                             return ListTile(
-                              title: Text(sub.nama),
+                              title: Text(sub.name),
                               trailing: _isEdit
                                   ? IconButton(
                                       onPressed: () async {
                                         Log.info(
-                                          'Navigasi ke Form Edit Sub-Kategori: ${sub.nama} (ID: ${sub.id})',
+                                          'Navigasi ke Form Edit Sub-Kategori: ${sub.name} (ID: ${sub.id})',
                                         );
                                         // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
                                         // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
@@ -392,7 +392,7 @@ class _KategoriPageState extends State<KategoriPage> {
                                         );
                                         if (result ?? false) {
                                           Log.info(
-                                            'Sub-kategori ${sub.nama} berhasil diedit, menyegarkan daftar',
+                                            'Sub-kategori ${sub.name} berhasil diedit, menyegarkan daftar',
                                           );
                                           _loadKategori();
                                         } else {

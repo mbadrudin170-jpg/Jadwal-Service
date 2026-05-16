@@ -46,7 +46,7 @@ class RiwayatAktivasiPaketPage extends StatefulWidget {
 
 class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
   final TransaksiOperasi _transaksiOperasi = TransaksiOperasi();
-  late Future<List<TransaksiModel>> _listTransaksiFuture;
+  late Future<List<TransactionModel>> _listTransaksiFuture;
   OpsiUrutkan _urutanAktif = OpsiUrutkan.terbaru;
 
   @override
@@ -108,11 +108,11 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
   }
 
   void _urutkanList(
-      final List<TransaksiModel> list, final OpsiUrutkan pilihan) {
+      final List<TransactionModel> list, final OpsiUrutkan pilihan) {
     Log.info(
       'Mengurutkan ${list.length} data transaksi berdasarkan: ${pilihan.name}',
     );
-    int Function(TransaksiModel, TransaksiModel) comparator;
+    int Function(TransactionModel, TransactionModel) comparator;
 
     switch (pilihan) {
       case OpsiUrutkan.terbaru:
@@ -292,7 +292,7 @@ class _RiwayatAktivasiPaketPageState extends State<RiwayatAktivasiPaketPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<TransaksiModel>>(
+      body: FutureBuilder<List<TransactionModel>>(
         future: _listTransaksiFuture,
         builder: (final context, final snapshot) {
           Log.info('FutureBuilder status: ${snapshot.connectionState}');

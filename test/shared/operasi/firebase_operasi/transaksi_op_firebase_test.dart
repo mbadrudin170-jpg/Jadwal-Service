@@ -15,7 +15,7 @@ void main() {
     const pelangganId1 = 'pelanggan_1';
     const pelangganId2 = 'pelanggan_2';
 
-    final transaksi1 = TransaksiModel(
+    final transaksi1 = TransactionModel(
       id: 'transaksi_1',
       idPelanggan: pelangganId1,
       tanggal: waktuSekarang,
@@ -26,7 +26,7 @@ void main() {
       idKategori: 'kategori_1',
     );
 
-    final transaksi2 = TransaksiModel(
+    final transaksi2 = TransactionModel(
       id: 'transaksi_2',
       idPelanggan: pelangganId1,
       tanggal: waktuSekarang.subtract(const Duration(days: 30)),
@@ -38,7 +38,7 @@ void main() {
     );
 
     // Transaksi untuk pelanggan lain, untuk memastikan filter berfungsi
-    final transaksi3 = TransaksiModel(
+    final transaksi3 = TransactionModel(
       id: 'transaksi_3',
       idPelanggan: pelangganId2,
       tanggal: waktuSekarang,
@@ -74,18 +74,28 @@ void main() {
           'harus mengembalikan daftar transaksi yang benar dan terurut untuk pelanggan',
           () async {
         // Act: Panggil fungsi yang diuji
-        final hasil = await transaksiOpFirebase.ambilRiwayatLangganan(pelangganId1);
+        final hasil =
+            await transaksiOpFirebase.ambilRiwayatLangganan(pelangganId1);
 
         // Assert: Verifikasi hasilnya
-        expect(hasil, isA<List<TransaksiModel>>());
-        expect(hasil.length, 2,
-            reason: 'Harusnya ada 2 transaksi untuk pelanggan 1',);
+        expect(hasil, isA<List<TransactionModel>>());
+        expect(
+          hasil.length,
+          2,
+          reason: 'Harusnya ada 2 transaksi untuk pelanggan 1',
+        );
 
         // Verifikasi urutan (tanggal terbaru di awal)
-        expect(hasil.first.id, transaksi1.id,
-            reason: 'Transaksi terbaru harusnya yang pertama',);
-        expect(hasil.last.id, transaksi2.id,
-            reason: 'Transaksi lebih lama harusnya yang terakhir',);
+        expect(
+          hasil.first.id,
+          transaksi1.id,
+          reason: 'Transaksi terbaru harusnya yang pertama',
+        );
+        expect(
+          hasil.last.id,
+          transaksi2.id,
+          reason: 'Transaksi lebih lama harusnya yang terakhir',
+        );
 
         // Pastikan semua transaksi yang dikembalikan milik pelanggan yang benar
         expect(hasil.every((final t) => t.idPelanggan == pelangganId1), isTrue);
@@ -99,9 +109,12 @@ void main() {
             await transaksiOpFirebase.ambilRiwayatLangganan('pelanggan_X');
 
         // Assert: Verifikasi hasilnya
-        expect(hasil, isA<List<TransaksiModel>>());
-        expect(hasil, isEmpty,
-            reason: 'Daftar harusnya kosong untuk pelanggan tanpa transaksi',);
+        expect(hasil, isA<List<TransactionModel>>());
+        expect(
+          hasil,
+          isEmpty,
+          reason: 'Daftar harusnya kosong untuk pelanggan tanpa transaksi',
+        );
       });
     });
 
@@ -109,8 +122,8 @@ void main() {
       test('harus mengembalikan hasil yang sama dengan ambilRiwayatLangganan',
           () async {
         // Act: Panggil kedua fungsi
-        final hasilLengkap =
-            await transaksiOpFirebase.ambilRiwayatLanggananLengkap(pelangganId1);
+        final hasilLengkap = await transaksiOpFirebase
+            .ambilRiwayatLanggananLengkap(pelangganId1);
         final hasilBiasa =
             await transaksiOpFirebase.ambilRiwayatLangganan(pelangganId1);
 
@@ -120,12 +133,12 @@ void main() {
         expect(hasilLengkap.last.id, hasilBiasa.last.id);
       });
 
-       test(
+      test(
           'harus mengembalikan daftar kosong untuk pelanggan tanpa riwayat lengkap',
           () async {
         // Act
-        final hasil =
-            await transaksiOpFirebase.ambilRiwayatLanggananLengkap('pelanggan_Y');
+        final hasil = await transaksiOpFirebase
+            .ambilRiwayatLanggananLengkap('pelanggan_Y');
 
         // Assert
         expect(hasil, isEmpty);

@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 
 void main() {
   group('KritikSaranModel', () {
@@ -11,7 +11,7 @@ void main() {
 
     // 1. Uji Konstruktor
     test('Konstruktor harus membuat ID jika tidak disediakan', () {
-      final kritik = KritikSaranModel(isi: 'Bagus!', userId: userId);
+      final kritik = FeedbackModel(isi: 'Bagus!', userId: userId);
       expect(kritik.id, isNotNull);
       expect(kritik.isi, 'Bagus!');
       expect(kritik.userId, userId);
@@ -19,7 +19,7 @@ void main() {
     });
 
     test('Konstruktor harus menggunakan nilai yang disediakan', () {
-      final kritik = KritikSaranModel(
+      final kritik = FeedbackModel(
         id: 'kritik-1',
         isi: 'Perlu perbaikan',
         userId: userId,
@@ -35,7 +35,7 @@ void main() {
 
     // 2. Uji copyWith
     test('copyWith harus memperbarui field yang ditentukan', () {
-      final kritikAsli = KritikSaranModel(isi: 'Lama', userId: 'user-lama');
+      final kritikAsli = FeedbackModel(isi: 'Lama', userId: 'user-lama');
       final tanggalBaru = DateTime(2025);
       final kritikBaru = kritikAsli.copyWith(
         isi: 'Baru',
@@ -60,16 +60,18 @@ void main() {
       };
 
       test('fromSqlite harus membuat model dengan benar', () {
-        final kritik = KritikSaranModel.fromSqlite(sqliteMap);
+        final kritik = FeedbackModel.fromSqlite(sqliteMap);
         expect(kritik.id, 'sqlite-1');
         expect(kritik.isi, 'Tes SQLite');
         expect(kritik.userId, userId);
-        expect(kritik.tanggal?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
-        expect(kritik.diperbarui?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
+        expect(
+            kritik.tanggal?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
+        expect(kritik.diperbarui?.millisecondsSinceEpoch,
+            now.millisecondsSinceEpoch);
       });
 
       test('toSqlite harus membuat map dengan benar', () {
-        final kritik = KritikSaranModel(
+        final kritik = FeedbackModel(
           id: 'sqlite-1',
           isi: 'Tes SQLite',
           userId: userId,
@@ -91,7 +93,7 @@ void main() {
           'userId': null,
           'tanggal': null,
         };
-        final kritik = KritikSaranModel.fromSqlite(mapKosong);
+        final kritik = FeedbackModel.fromSqlite(mapKosong);
         expect(kritik.id, 'id-kosong');
         expect(kritik.isi, '');
         expect(kritik.userId, '');
@@ -102,7 +104,8 @@ void main() {
     // 4. Uji Konversi Firebase
     group('Konversi Firebase', () {
       final firebaseData = {
-        'id': 'fb-1', // ID diabaikan di fromFirebase, tapi disertakan untuk kelengkapan
+        'id':
+            'fb-1', // ID diabaikan di fromFirebase, tapi disertakan untuk kelengkapan
         'isi': 'Tes Firebase',
         'userId': userId,
         'tanggal': Timestamp.fromDate(now),
@@ -110,16 +113,18 @@ void main() {
       };
 
       test('fromFirebase harus membuat model dengan benar', () {
-        final kritik = KritikSaranModel.fromFirebase('fb-1', firebaseData);
+        final kritik = FeedbackModel.fromFirebase('fb-1', firebaseData);
         expect(kritik.id, 'fb-1');
         expect(kritik.isi, 'Tes Firebase');
         expect(kritik.userId, userId);
-        expect(kritik.tanggal?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
-        expect(kritik.diperbarui?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
+        expect(
+            kritik.tanggal?.millisecondsSinceEpoch, now.millisecondsSinceEpoch);
+        expect(kritik.diperbarui?.millisecondsSinceEpoch,
+            now.millisecondsSinceEpoch);
       });
 
       test('toFirebase harus membuat map dengan benar (dengan tanggal)', () {
-        final kritik = KritikSaranModel(
+        final kritik = FeedbackModel(
           id: 'fb-1',
           isi: 'Tes Firebase',
           userId: userId,
@@ -133,8 +138,9 @@ void main() {
         expect(hasilMap['diperbarui'], isA<FieldValue>());
       });
 
-      test('toFirebase harus menggunakan server timestamp jika tanggal null', () {
-        final kritik = KritikSaranModel(
+      test('toFirebase harus menggunakan server timestamp jika tanggal null',
+          () {
+        final kritik = FeedbackModel(
           id: 'fb-2',
           isi: 'Tes tanpa tanggal',
           userId: userId,
@@ -144,18 +150,18 @@ void main() {
         expect(hasilMap['tanggal'], FieldValue.serverTimestamp());
       });
 
-       test('fromFirebase harus menangani nilai null dan default', () {
+      test('fromFirebase harus menangani nilai null dan default', () {
         final dataKosong = {
           'isi': null,
           'userId': null,
           'tanggal': null,
         };
-        final kritik = KritikSaranModel.fromFirebase('kosong-fb', dataKosong);
+        final kritik = FeedbackModel.fromFirebase('kosong-fb', dataKosong);
         expect(kritik.id, 'kosong-fb');
         expect(kritik.isi, '');
         expect(kritik.userId, '');
         // Default ke DateTime.now() jika tanggal null
-        expect(kritik.tanggal, isA<DateTime>()); 
+        expect(kritik.tanggal, isA<DateTime>());
       });
     });
   });

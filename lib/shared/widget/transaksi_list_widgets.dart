@@ -7,18 +7,18 @@ import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/category_repository.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
 ///
 /// Mengembalikan [Map] dengan kunci [DateTime] (hanya tahun, bulan, hari)
-/// dan nilai berupa [List] dari [TransaksiModel] pada tanggal tersebut.
-Map<DateTime, List<TransaksiModel>> groupTransaksiByDate(
-  final List<TransaksiModel> transaksi,
+/// dan nilai berupa [List] dari [TransactionModel] pada tanggal tersebut.
+Map<DateTime, List<TransactionModel>> groupTransaksiByDate(
+  final List<TransactionModel> transaksi,
 ) {
-  final Map<DateTime, List<TransaksiModel>> grouped = {};
+  final Map<DateTime, List<TransactionModel>> grouped = {};
   for (final t in transaksi) {
     final date = DateTime(t.tanggal.year, t.tanggal.month, t.tanggal.day);
     if (grouped[date] == null) {
@@ -61,7 +61,7 @@ Widget bangunHeaderSeksi(final DateTime tanggal, final double total) {
 /// Mendukung tap untuk melihat detail, long-press untuk edit/hapus.
 class TransaksiTile extends StatefulWidget {
   /// Data transaksi yang ditampilkan.
-  final TransaksiModel transaksi;
+  final TransactionModel transaksi;
 
   /// Callback saat data berubah (setelah edit/hapus).
   final VoidCallback onDataChanged;
@@ -221,7 +221,7 @@ class _TransaksiTileState extends State<TransaksiTile> {
 /// Fungsi convenience untuk membuat tile transaksi.
 Widget bangunItemTransaksi(
   final BuildContext context,
-  final TransaksiModel transaksi,
+  final TransactionModel transaksi,
   final VoidCallback onDataChanged,
   final TransaksiOperasi transaksiOperasi,
 ) {

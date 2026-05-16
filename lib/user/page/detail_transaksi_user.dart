@@ -11,11 +11,11 @@ import 'package:wifi/shared/utils/format_util.dart';
 // TODO: rencana selanjutnya adalah menggunakan detail riwayat langganan seperti admin
 /// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
 ///
-/// Menampilkan semua informasi yang relevan dari [TransaksiModel] dan
+/// Menampilkan semua informasi yang relevan dari [TransactionModel] dan
 /// [PaketModel] yang terkait.
 class DetailTransaksiPage extends StatelessWidget {
   /// Data transaksi yang akan ditampilkan.
-  final TransaksiModel transaksi;
+  final TransactionModel transaksi;
 
   /// Data paket yang terkait dengan transaksi (jika ada).
   // diubah: Menerima PaketModel yang bisa null.

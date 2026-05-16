@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
 

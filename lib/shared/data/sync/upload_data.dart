@@ -4,7 +4,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
@@ -13,7 +13,7 @@ import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk mengunggah data dari database lokal (SQLite) ke Firestore.
@@ -168,10 +168,10 @@ class LayananUnggahData {
         'Waktu sinkronisasi terakhir untuk kritik_saran: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await unggahDataGenerik<KritikSaranModel>(
+      await unggahDataGenerik<FeedbackModel>(
         'kritik_saran',
         'kritik_saran',
-        KritikSaranModel.fromSqlite,
+        FeedbackModel.fromSqlite,
         (final m) => m.toFirebase(),
         waktu,
       );
@@ -323,10 +323,10 @@ class LayananUnggahData {
         'Waktu sinkronisasi terakhir untuk transaksi: ${waktu.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await unggahDataGenerik<TransaksiModel>(
+      await unggahDataGenerik<TransactionModel>(
         'transaksi',
         'transaksi',
-        TransaksiModel.fromSqlite,
+        TransactionModel.fromSqlite,
         (final m) => m.toFirebase(),
         waktu,
       );

@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart'; // diubah: path import diperbarui
 
@@ -39,8 +39,8 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   bool _isLoading = false;
 
   // ditambah: Membuat instance dari kelas operasi data.
-  final KritikSaranOperasiUser _operasi =
-      KritikSaranOperasiUser(FirebaseFirestore.instance); // diubah: nama kelas diperbarui
+  final KritikSaranOperasiUser _operasi = KritikSaranOperasiUser(
+      FirebaseFirestore.instance); // diubah: nama kelas diperbarui
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
             _kritikController.text,
           );
         } else {
-          final kritikBaru = KritikSaranModel(
+          final kritikBaru = FeedbackModel(
             isi: _kritikController.text,
             userId: widget.userId,
           );

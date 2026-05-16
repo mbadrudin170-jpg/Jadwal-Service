@@ -44,7 +44,7 @@ class _ProfilPageState extends State<ProfilPage> {
   final PaketOpFirebase _paketOp = PaketOpFirebase(FirebaseFirestore.instance);
 
   Future<PelangganModel?>? _futurePelanggan;
-  Future<List<TransaksiModel>>? _riwayatLanggananFuture;
+  Future<List<TransactionModel>>? _riwayatLanggananFuture;
 
   Future<String>? _futureNamaPaket;
   String? _cacheIdPaket;
@@ -214,7 +214,7 @@ class _ProfilPageState extends State<ProfilPage> {
                       trailingIcon: Icons.chevron_right,
                       onTap: () => unawaited(_navigasiKeDetail(pelanggan.id)),
                     ),
-                    FutureBuilder<List<TransaksiModel>>(
+                    FutureBuilder<List<TransactionModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (final context, final snapshotRiwayat) {
                         Log.info(
@@ -287,7 +287,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   title: 'Informasi Paket Aktif',
                   icon: Icons.wifi,
                   children: [
-                    FutureBuilder<List<TransaksiModel>>(
+                    FutureBuilder<List<TransactionModel>>(
                       future: _riwayatLanggananFuture,
                       builder: (final context, final snapshotRiwayat) {
                         // Log sudah ada di FutureBuilder sebelumnya, tidak perlu diulang
@@ -327,7 +327,7 @@ class _ProfilPageState extends State<ProfilPage> {
                             )
                             .toList();
 
-                        final TransaksiModel? langgananTerakhir;
+                        final TransactionModel? langgananTerakhir;
                         if (langgananAktif.isNotEmpty) {
                           langgananTerakhir = langgananAktif.reduce(
                             (final a, final b) =>

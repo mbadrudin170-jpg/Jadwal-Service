@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
@@ -29,12 +29,13 @@ class KritikSaranOperasi {
   })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
         operasiDasar = operasiDasar ?? OperasiDasar();
 
-  /// Menyimpan [KritikSaranModel] baru ke dalam database.
+  /// Menyimpan [FeedbackModel] baru ke dalam database.
   Future<void> createKritikSaran(
-    final KritikSaranModel kritikSaran, {
+    final FeedbackModel kritikSaran, {
     final bool dariServer = false,
   }) async {
-    Log.info('Memulai createKritikSaran untuk data: \${kritikSaran.toSqlite()}');
+    Log.info(
+        'Memulai createKritikSaran untuk data: \${kritikSaran.toSqlite()}');
     try {
       final data =
           kritikSaran.copyWith(diperbarui: DateTime.now().toUtc()).toSqlite();
@@ -52,7 +53,7 @@ class KritikSaranOperasi {
   }
 
   /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
-  Future<List<KritikSaranModel>> getKritikSaran() async {
+  Future<List<FeedbackModel>> getKritikSaran() async {
     Log.info(
       'Memulai getKritikSaran (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
@@ -64,7 +65,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (final i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil \${listKritik.length} data kritik_saran.');
       return listKritik;
@@ -74,8 +75,8 @@ class KritikSaranOperasi {
     }
   }
 
-  /// Mengambil [KritikSaranModel] berdasarkan [id].
-  Future<KritikSaranModel> getKritikSaranById(final String id) async {
+  /// Mengambil [FeedbackModel] berdasarkan [id].
+  Future<FeedbackModel> getKritikSaranById(final String id) async {
     Log.info('Memulai getKritikSaranById untuk ID: \$id');
     try {
       final db = await dbHelper.database;
@@ -86,7 +87,7 @@ class KritikSaranOperasi {
       );
 
       if (maps.isNotEmpty) {
-        final data = KritikSaranModel.fromSqlite(maps.first);
+        final data = FeedbackModel.fromSqlite(maps.first);
         Log.info(
           'Kritik & saran dengan ID: \$id ditemukan. Data: \${data.toSqlite()}',
         );
@@ -106,7 +107,7 @@ class KritikSaranOperasi {
   }
 
   /// Mengambil semua kritik dan saran yang telah diubah sejak [lastSync].
-  Future<List<KritikSaranModel>> getPerubahan(final DateTime lastSync) async {
+  Future<List<FeedbackModel>> getPerubahan(final DateTime lastSync) async {
     Log.info(
       'Memulai getPerubahan kritik_saran sejak: \${lastSync.toIso8601String()}',
     );
@@ -119,7 +120,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (final i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Ditemukan \${listKritik.length} perubahan kritik_saran sejak \${lastSync.toIso8601String()}',
@@ -135,9 +136,9 @@ class KritikSaranOperasi {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [KritikSaranModel] dalam satu batch.
+  /// Menyisipkan atau memperbarui sekumpulan [FeedbackModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    final List<KritikSaranModel> daftarKritikSaran, {
+    final List<FeedbackModel> daftarKritikSaran, {
     final bool dariServer = false,
   }) async {
     Log.info(
@@ -174,8 +175,9 @@ class KritikSaranOperasi {
     }
   }
 
-  /// Menghapus [KritikSaranModel] dari database secara permanen.
-  Future<void> hapusKritikSaran(final String id, {final bool dariServer = false}) async {
+  /// Menghapus [FeedbackModel] dari database secara permanen.
+  Future<void> hapusKritikSaran(final String id,
+      {final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusKritikSaran (hard delete) untuk ID: \$id',
     );
@@ -215,7 +217,8 @@ class KritikSaranOperasi {
   }
 
   /// Menghapus semua kritik dan saran dari seorang pengguna berdasarkan [userId].
-  Future<void> hapusByUserId(final String userId, {final bool dariServer = false}) async {
+  Future<void> hapusByUserId(final String userId,
+      {final bool dariServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai hapusByUserId (hard delete) untuk userId: \$userId',
     );
@@ -245,14 +248,14 @@ class KritikSaranOperasi {
   }
 
   /// Mengunduh semua data kritik dan saran dari Firebase.
-  static Future<List<KritikSaranModel>> unduhDataDariFirebase() async {
+  static Future<List<FeedbackModel>> unduhDataDariFirebase() async {
     Log.info('Memulai pengunduhan data dari Firestore koleksi: kritik_saran.');
     try {
       final QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('kritik_saran').get();
-      final List<KritikSaranModel> data = snapshot.docs
+      final List<FeedbackModel> data = snapshot.docs
           .map(
-            (final doc) => KritikSaranModel.fromFirebase(
+            (final doc) => FeedbackModel.fromFirebase(
               doc.id,
               doc.data() as Map<String, dynamic>,
             ),
@@ -263,7 +266,7 @@ class KritikSaranOperasi {
         'Berhasil mengunduh \${data.length} data kritik dan saran dari Firebase.',
       );
       return data;
-    }on Exception catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
         'Gagal mengunduh data kritik dan saran dari Firebase',
         e: e,
@@ -273,8 +276,9 @@ class KritikSaranOperasi {
     }
   }
 
-  /// Mengambil beberapa [KritikSaranModel] berdasarkan daftar [ids].
-  Future<List<KritikSaranModel>> getKritikSaranByIds(final List<String> ids) async {
+  /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
+  Future<List<FeedbackModel>> getKritikSaranByIds(
+      final List<String> ids) async {
     Log.info('Memulai getKritikSaranByIds untuk \${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -291,7 +295,7 @@ class KritikSaranOperasi {
       );
       final listKritik = List.generate(
         maps.length,
-        (final i) => KritikSaranModel.fromSqlite(maps[i]),
+        (final i) => FeedbackModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil \${listKritik.length} data kritik_saran dari \${ids.length} ID yang diminta.',

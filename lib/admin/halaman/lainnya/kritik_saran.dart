@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_kritik_saran.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
@@ -27,8 +27,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
   final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
 
-  List<KritikSaranModel> _semuaKritikSaran = [];
-  List<KritikSaranModel> _hasilFilter = [];
+  List<FeedbackModel> _semuaKritikSaran = [];
+  List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
   bool _isLoading = true;
   bool _isSearching = false;
@@ -76,8 +76,8 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
         _pelangganOperasi.getPelanggan(),
       ]);
 
-      final List<KritikSaranModel> kritikSaranList =
-          results[0] as List<KritikSaranModel>;
+      final List<FeedbackModel> kritikSaranList =
+          results[0] as List<FeedbackModel>;
       final List<PelangganModel> pelangganList =
           results[1] as List<PelangganModel>;
 
@@ -106,7 +106,7 @@ class _KritikSaranPageState extends State<KritikSaranPage> {
     }
   }
 
-  Future<void> _hapusKritikSaran(final KritikSaranModel item) async {
+  Future<void> _hapusKritikSaran(final FeedbackModel item) async {
     final konfirmasi = await showDialog<bool>(
       context: context,
       builder: (final context) => AlertDialog(

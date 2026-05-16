@@ -71,3 +71,22 @@
   - `lib/admin/halaman/lainnya/pengaturan_admin.dart`
   - `lib/admin/halaman/lainnya/pelanggan.dart`
 - **Hasil**: Notifikasi di seluruh aplikasi admin sekarang memiliki tampilan dan perilaku yang seragam, dikelola dari satu sumber kebenaran (`SnackBarUtil`), yang membuat kode lebih bersih dan lebih mudah dipelihara.
+
+---
+
+## Perbaikan Konflik Animasi `Hero` dengan Mengganti `IndexedStack`
+
+- **File**: `lib/admin/halaman_utama.dart`
+- **Masalah**: Aplikasi mengalami *crash* dengan error `multiple heroes that share the same tag` saat bernavigasi antar tab. Analisis menunjukkan bahwa `IndexedStack`, yang digunakan untuk mempertahankan *state* setiap halaman, menyebabkan konflik karena beberapa halaman yang aktif secara bersamaan di dalam *widget tree* memiliki `Hero` widget dengan *tag* yang identik.
+- **Solusi**: Atas arahan pengguna, `IndexedStack` telah diganti. Alih-alih menumpuk semua widget, `body` dari `Scaffold` sekarang secara dinamis membangun hanya widget yang dipilih (`_widgetOptions.elementAt(_selectedIndex)`).
+- **Hasil**: Perubahan ini secara efektif menyelesaikan masalah konflik `Hero` dengan memastikan hanya satu halaman (dan satu set `Hero` widget) yang ada di dalam *widget tree* pada satu waktu. Sebagai konsekuensi yang telah dipertimbangkan, *state* halaman (seperti posisi *scroll*) tidak lagi dipertahankan saat berpindah tab, yang merupakan trade-off yang dapat diterima untuk mengatasi *runtime error* kritis ini.
+
+---
+
+## Perbaikan `LateInitializationError` di `DompetPage`
+
+- **File**: `lib/admin/halaman/tab/dompet.dart`
+- **Masalah**: Setelah refaktorisasi `HalamanUtama` (menghilangkan `IndexedStack`), aplikasi mengalami *crash* saat membuka tab "Dompet". Investigasi mengungkapkan adanya `LateInitializationError` yang tersembunyi.
+- **Penyebab**: Variabel `_dompetOperasi` di `_DompetPageState` ditandai sebagai `late final` tetapi tidak pernah diinisialisasi. Karena tab tidak lagi dijaga oleh `IndexedStack`, *state* halaman dibuat ulang setiap kali dibuka, dan upaya untuk mengakses `_dompetOperasi` yang belum diinisialisasi menyebabkan *crash*.
+- **Solusi**: Variabel `_dompetOperasi` sekarang diinisialisasi dengan benar di dalam metode `initState` menggunakan `_dompetOperasi = widget.dompetOperasi ?? DompetOperasi();`. Ini memastikan bahwa *instance* `DompetOperasi` selalu tersedia sebelum metode lain membutuhkannya.
+- **Hasil**: *Crash* berhasil diatasi. Halaman Dompet sekarang dapat dibangun kembali dengan andal setiap kali pengguna menavigasi ke tab tersebut, menjadikan aplikasi stabil.

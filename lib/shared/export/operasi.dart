@@ -1,7 +1,7 @@
 // path: lib/shared/export/operasi.dart
 
 export 'package:wifi/shared/operasi/dompet_operasi.dart';
-export 'package:wifi/shared/operasi/kategori_operasi.dart';
+export 'package:wifi/shared/operasi/category_repository.dart';
 export 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 export 'package:wifi/shared/operasi/operasi_dasar.dart';
 export 'package:wifi/shared/operasi/paket_operasi.dart';

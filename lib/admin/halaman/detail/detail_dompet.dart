@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_dompet.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
 import 'package:wifi/shared/operasi/transaksi_operasi.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
@@ -14,10 +14,10 @@ import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
 /// Kelas data untuk detail dompet.
 class DetailDompetData {
   /// Model dompet.
-  final DompetModel dompet;
+  final WalletModel dompet;
 
   /// Daftar transaksi.
-  final List<TransaksiModel> transaksi;
+  final List<TransactionModel> transaksi;
 
   /// Total pemasukan.
   final double totalPemasukan;
@@ -37,10 +37,10 @@ class DetailDompetData {
 /// Halaman detail untuk dompet.
 class DetailDompet extends StatefulWidget {
   /// Model dompet.
-  final DompetModel dompet;
+  final WalletModel dompet;
 
   /// Operasi dompet.
-  final DompetOperasi? dompetOperasi;
+  final WalletOperation? dompetOperasi;
 
   /// Operasi transaksi.
   final TransaksiOperasi? transaksiOperasi;
@@ -59,7 +59,7 @@ class DetailDompet extends StatefulWidget {
 
 class _DetailDompetState extends State<DetailDompet> {
   late Future<DetailDompetData> _futureDetailData;
-  late final DompetOperasi _dompetOperasi;
+  late final WalletOperation _dompetOperasi;
   late final TransaksiOperasi _transaksiOperasi;
 
   String? _namaDompetTerbaru;
@@ -68,21 +68,21 @@ class _DetailDompetState extends State<DetailDompet> {
   void initState() {
     super.initState();
     Log.info(
-      'Membuat state untuk DetailDompet. ID Dompet: ${widget.dompet.id}, Nama Dompet: ${widget.dompet.namaDompet}',
+      'Membuat state untuk DetailDompet. ID Dompet: ${widget.dompet.id}, Nama Dompet: ${widget.dompet.name}',
     );
 
     Log.info('========================================');
     Log.info('LIFECYCLE: initState() - Halaman DetailDompet');
     Log.info('ID Dompet yang akan ditampilkan: ${widget.dompet.id}');
-    Log.info('Nama Dompet awal: ${widget.dompet.namaDompet}');
+    Log.info('Nama Dompet awal: ${widget.dompet.name}');
     Log.info('========================================');
 
     Log.info(
-      'Menginisialisasi DompetOperasi. Menggunakan instance dari widget jika tersedia, jika tidak membuat instance baru.',
+      'Menginisialisasi WalletOperation. Menggunakan instance dari widget jika tersedia, jika tidak membuat instance baru.',
     );
-    _dompetOperasi = widget.dompetOperasi ?? DompetOperasi();
+    _dompetOperasi = widget.dompetOperasi ?? WalletOperation();
     Log.info(
-      'DompetOperasi berhasil diinisialisasi. Instance: ${_dompetOperasi.hashCode}',
+      'WalletOperation berhasil diinisialisasi. Instance: ${_dompetOperasi.hashCode}',
     );
 
     Log.info(
@@ -106,7 +106,7 @@ class _DetailDompetState extends State<DetailDompet> {
     Log.info('========================================');
     Log.info('MEMULAI PROSES PEMUATAN DATA DETAIL DOMPET');
     Log.info('ID Dompet: ${widget.dompet.id}');
-    Log.info('Nama Dompet (widget): ${widget.dompet.namaDompet}');
+    Log.info('Nama Dompet (widget): ${widget.dompet.name}');
     Log.info('========================================');
 
     try {
@@ -125,11 +125,11 @@ class _DetailDompetState extends State<DetailDompet> {
 
       Log.info('Kedua query selesai dijalankan. Memproses hasil...');
 
-      final dompetTerbaru = results[0] as DompetModel?;
-      final daftarTransaksi = results[1] as List<TransaksiModel>;
+      final dompetTerbaru = results[0] as WalletModel?;
+      final daftarTransaksi = results[1] as List<TransactionModel>;
 
       Log.info(
-        'Hasil query 1 (Dompet): ${dompetTerbaru != null ? "Ditemukan (Nama: ${dompetTerbaru.namaDompet}, Saldo: ${dompetTerbaru.saldo})" : "NULL - Dompet tidak ditemukan"}',
+        'Hasil query 1 (Dompet): ${dompetTerbaru != null ? "Ditemukan (Nama: ${dompetTerbaru.name}, Saldo: ${dompetTerbaru.balance})" : "NULL - Dompet tidak ditemukan"}',
       );
       Log.info(
         'Hasil query 2 (Transaksi): ${daftarTransaksi.length} transaksi ditemukan',
@@ -147,10 +147,10 @@ class _DetailDompetState extends State<DetailDompet> {
       );
       if (mounted) {
         Log.info(
-          'Widget masih mounted. Melakukan setState untuk memperbarui _namaDompetTerbaru dari "${_namaDompetTerbaru ?? "null"}" menjadi "${dompetTerbaru.namaDompet}".',
+          'Widget masih mounted. Melakukan setState untuk memperbarui _namaDompetTerbaru dari "${_namaDompetTerbaru ?? "null"}" menjadi "${dompetTerbaru.name}".',
         );
         setState(() {
-          _namaDompetTerbaru = dompetTerbaru.namaDompet;
+          _namaDompetTerbaru = dompetTerbaru.name;
         });
         Log.info(
           'setState berhasil dijalankan. _namaDompetTerbaru sekarang: $_namaDompetTerbaru',
@@ -183,8 +183,8 @@ class _DetailDompetState extends State<DetailDompet> {
       }
 
       Log.info('Perhitungan selesai. Ringkasan keuangan dompet:');
-      Log.info('  - Nama Dompet: ${dompetTerbaru.namaDompet}');
-      Log.info('  - Saldo Saat Ini: ${dompetTerbaru.saldo}');
+      Log.info('  - Nama Dompet: ${dompetTerbaru.name}');
+      Log.info('  - Saldo Saat Ini: ${dompetTerbaru.balance}');
       Log.info('  - Total Pemasukan: $pemasukan');
       Log.info('  - Total Pengeluaran: $pengeluaran');
       Log.info(
@@ -257,13 +257,13 @@ class _DetailDompetState extends State<DetailDompet> {
     Log.info('========================================');
     Log.info('LIFECYCLE: build() - Membangun UI DetailDompet');
     Log.info(
-      'Nama Dompet di AppBar: ${_namaDompetTerbaru ?? widget.dompet.namaDompet}',
+      'Nama Dompet di AppBar: ${_namaDompetTerbaru ?? widget.dompet.name}',
     );
     Log.info('========================================');
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_namaDompetTerbaru ?? widget.dompet.namaDompet),
+        title: Text(_namaDompetTerbaru ?? widget.dompet.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -300,16 +300,16 @@ class _DetailDompetState extends State<DetailDompet> {
               Log.info(
                 '_namaDompetTerbaru saat ini: ${_namaDompetTerbaru ?? "null"}',
               );
-              Log.info('Nama dompet dari widget: ${widget.dompet.namaDompet}');
+              Log.info('Nama dompet dari widget: ${widget.dompet.name}');
 
               final dompetUntukEdit = _namaDompetTerbaru != null
-                  ? widget.dompet.copyWith(namaDompet: _namaDompetTerbaru)
+                  ? widget.dompet.copyWith(name: _namaDompetTerbaru)
                   : widget.dompet;
 
               Log.info('Data dompet yang akan dikirim ke FormDompet:');
               Log.info('  - ID: ${dompetUntukEdit.id}');
-              Log.info('  - Nama: ${dompetUntukEdit.namaDompet}');
-              Log.info('  - Saldo: ${dompetUntukEdit.saldo}');
+              Log.info('  - Nama: ${dompetUntukEdit.name}');
+              Log.info('  - Saldo: ${dompetUntukEdit.balance}');
 
               Log.info(
                 'Membuka halaman FormDompet dengan Navigator.push. Menunggu hasil kembalian dari FormDompet setelah user selesai mengedit.',
@@ -318,7 +318,8 @@ class _DetailDompetState extends State<DetailDompet> {
               final result = await Navigator.push(
                 context,
                 MaterialPageRoute<bool>(
-                  builder: (final context) => FormDompet(dompet: dompetUntukEdit),
+                  builder: (final context) =>
+                      FormDompet(dompet: dompetUntukEdit),
                 ),
               );
 
@@ -395,8 +396,8 @@ class _DetailDompetState extends State<DetailDompet> {
           Log.info('MEMBANGUN UI DENGAN DATA TERBARU');
           Log.info('FutureBuilder: Status SUCCESS. Data berhasil dimuat.');
           Log.info('Detail data yang akan ditampilkan:');
-          Log.info('  - Nama Dompet: ${data.dompet.namaDompet}');
-          Log.info('  - Saldo: ${data.dompet.saldo}');
+          Log.info('  - Nama Dompet: ${data.dompet.name}');
+          Log.info('  - Saldo: ${data.dompet.balance}');
           Log.info('  - Total Pemasukan: ${data.totalPemasukan}');
           Log.info('  - Total Pengeluaran: ${data.totalPengeluaran}');
           Log.info('  - Jumlah Transaksi: ${data.transaksi.length}');
@@ -425,8 +426,9 @@ class _DetailDompetState extends State<DetailDompet> {
                     bangunInfoRingkasan(
                       context: context,
                       label: 'Saldo',
-                      jumlah: data.dompet.saldo,
-                      warna: data.dompet.saldo >= 0 ? Colors.blue : Colors.red,
+                      jumlah: data.dompet.balance,
+                      warna:
+                          data.dompet.balance >= 0 ? Colors.blue : Colors.red,
                     ),
                   ],
                 ),
@@ -444,7 +446,7 @@ class _DetailDompetState extends State<DetailDompet> {
     );
   }
 
-  Widget _buildTransaksiList(final List<TransaksiModel> transaksiData) {
+  Widget _buildTransaksiList(final List<TransactionModel> transaksiData) {
     Log.info(
       'Membangun daftar transaksi yang dikelompokkan berdasarkan tanggal.',
     );

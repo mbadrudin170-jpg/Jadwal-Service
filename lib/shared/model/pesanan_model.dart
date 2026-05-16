@@ -1,6 +1,5 @@
 // path: lib/shared/model/pesanan_model.dart
-// diubah: Memperbaiki toFirebase agar tidak selalu mengirim ServerTimestamp.
-// diubah: Penamaan metode diseragamkan, logika Firebase disesuaikan, dan mengimplementasikan MemilikiId.
+// diubah: Menyeragamkan logika toFirebase untuk konsistensi data tanggal (UTC).
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
@@ -123,22 +122,16 @@ class PesananModel implements MemilikiId {
 
   /// Mengonversi `PesananModel` ke format Map untuk disimpan di Firebase.
   Map<String, dynamic> toFirebase() {
-    final Map<String, dynamic> data = {
+    return {
       'id': id,
       'id_pelanggan': idPelanggan,
       'id_paket': idPaket,
-      'tanggal': Timestamp.fromDate(tanggal),
+      'tanggal': Timestamp.fromDate(tanggal.toUtc()),
       'status': status,
-      'diperbarui': diperbarui != null
-          ? Timestamp.fromDate(diperbarui!)
-          : FieldValue.serverTimestamp(),
+      'diperbarui': Timestamp.fromDate((diperbarui ?? DateTime.now()).toUtc()),
       'isDeleted': isDeleted,
+      'diarsipkan':
+          diarsipkan != null ? Timestamp.fromDate(diarsipkan!.toUtc()) : null,
     };
-
-    if (diarsipkan != null) {
-      data['diarsipkan'] = Timestamp.fromDate(diarsipkan!);
-    }
-
-    return data;
   }
 }

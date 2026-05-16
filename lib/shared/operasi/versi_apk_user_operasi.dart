@@ -4,7 +4,7 @@
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.

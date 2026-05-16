@@ -1,9 +1,8 @@
-
 // path: test/user/data/operasi/kritik_saran_operasi_user_test.dart
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 
 void main() {
@@ -16,8 +15,9 @@ void main() {
       operasi = KritikSaranOperasiUser(fakeFirestore);
     });
 
-    test('buatKritikSaranBaru berhasil menambahkan data ke Firestore', () async {
-      final model = KritikSaranModel(
+    test('buatKritikSaranBaru berhasil menambahkan data ke Firestore',
+        () async {
+      final model = FeedbackModel(
         id: '1',
         userId: 'user123',
         isi: 'Ini adalah kritik pertama.',
@@ -57,7 +57,7 @@ void main() {
       expect(
         stream,
         emitsInOrder([
-          (final List<KritikSaranModel> list) =>
+          (final List<FeedbackModel> list) =>
               list.length == 2 && list.first.isi == 'Kritik 2',
         ]),
       );

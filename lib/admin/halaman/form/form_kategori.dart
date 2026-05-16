@@ -2,21 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/data/sync/unggah_data.dart';
+import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/sub_kategori_model.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/shared/operasi/category_operasi.dart';
 import 'package:wifi/shared/services/cek_koneksi_internet.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
 class FormKategoriPage extends StatefulWidget {
   /// Model kategori yang akan diedit. Jika null, maka form akan membuat kategori baru.
-  final KategoriModel? kategori;
+  final CategoryModel? kategori;
 
   /// Model sub-kategori yang akan diedit.
-  final SubKategoriModel? subKategori;
+  final SubCategoryModel? subKategori;
 
   /// ID kategori induk untuk membuat sub-kategori baru.
   final String? idKategoriInduk;
@@ -35,10 +35,10 @@ class FormKategoriPage extends StatefulWidget {
 
 class _FormKategoriPageState extends State<FormKategoriPage> {
   final _formKey = GlobalKey<FormState>();
-  final KategoriOperasi _kategoriOperasi = KategoriOperasi();
+  final CategoryOperation _kategoriOperasi = CategoryOperation();
   final LayananUnggahData _layananUnggahData = LayananUnggahData();
 
-  late TipeKategori _tipe;
+  late CategoryType _tipe;
   late TextEditingController _namaController;
   final _namaFocusNode = FocusNode();
 
@@ -58,7 +58,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         widget.subKategori != null || widget.idKategoriInduk != null;
 
     Log.info(
-      '''Membuat state untuk FormKategoriPage. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.nama} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.nama} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
+      '''Membuat state untuk FormKategoriPage. Mode: ${isEditMode ? "EDIT" : "TAMBAH BARU"}, Jenis: ${isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}, ${widget.kategori != null ? "Kategori: ${widget.kategori!.name} (ID: ${widget.kategori!.id})" : ""}${widget.subKategori != null ? "Sub-Kategori: ${widget.subKategori!.name} (ID: ${widget.subKategori!.id})" : ""}${widget.idKategoriInduk != null ? "ID Kategori Induk: ${widget.idKategoriInduk}" : ""}''',
     );
 
     Log.info('========================================');
@@ -80,46 +80,46 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
       Log.info('MODE EDIT KATEGORI UTAMA terdeteksi.');
       Log.info('Data kategori yang akan diedit:');
       Log.info('  - ID: ${widget.kategori!.id}');
-      Log.info('  - Nama: ${widget.kategori!.nama}');
-      Log.info('  - Tipe: ${widget.kategori!.tipe}');
+      Log.info('  - Nama: ${widget.kategori!.name}');
+      Log.info('  - Tipe: ${widget.kategori!.type}');
       Log.info(
-        '  - Jumlah Sub-Kategori: ${widget.kategori!.subKategori.length}',
+        '  - Jumlah Sub-Kategori: ${widget.kategori!.subCategories.length}',
       );
-      Log.info('  - Diperbarui: ${widget.kategori!.diperbarui}');
+      Log.info('  - Diperbarui: ${widget.kategori!.updatedAt}');
       Log.info('  - isDeleted: ${widget.kategori!.isDeleted}');
-      Log.info('  - Diarsipkan: ${widget.kategori!.diarsipkan ?? "NULL"}');
+      Log.info('  - Diarsipkan: ${widget.kategori!.archivedAt ?? "NULL"}');
 
       Log.info(
-        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.nama}"',
+        'Mengisi TextEditingController dengan nama kategori: "${widget.kategori!.name}"',
       );
-      _namaController.text = widget.kategori!.nama;
-      _tipe = widget.kategori!.tipe;
-      Log.info('Tipe kategori diatur ke: ${widget.kategori!.tipe}');
+      _namaController.text = widget.kategori!.name;
+      _tipe = widget.kategori!.type;
+      Log.info('Tipe kategori diatur ke: ${widget.kategori!.type}');
     } else if (widget.subKategori != null) {
       Log.info('MODE EDIT SUB-KATEGORI terdeteksi.');
       Log.info('Data sub-kategori yang akan diedit:');
       Log.info('  - ID: ${widget.subKategori!.id}');
-      Log.info('  - Nama: ${widget.subKategori!.nama}');
-      Log.info('  - ID Kategori Induk: ${widget.subKategori!.idKategori}');
-      Log.info('  - Diperbarui: ${widget.subKategori!.diperbarui}');
+      Log.info('  - Nama: ${widget.subKategori!.name}');
+      Log.info('  - ID Kategori Induk: ${widget.subKategori!.categoryId}');
+      Log.info('  - Diperbarui: ${widget.subKategori!.updatedAt}');
 
       Log.info(
-        'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.nama}"',
+        'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.name}"',
       );
-      _namaController.text = widget.subKategori!.nama;
+      _namaController.text = widget.subKategori!.name;
     } else {
       Log.info(
         'MODE TAMBAH BARU terdeteksi.',
       );
       Log.info('Form akan membuat kategori baru dengan:');
       Log.info('  - ID: Akan digenerate otomatis menggunakan UUID v4');
-      Log.info('  - Tipe Default: pemasukan');
+      Log.info('  - Tipe Default: income');
       Log.info('  - Nama: Dari input pengguna');
       Log.info('  - Sub-Kategori: Opsional, bisa ditambahkan multiple');
       Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data');
 
-      Log.info('Mengatur tipe default ke pemasukan.');
-      _tipe = TipeKategori.pemasukan;
+      Log.info('Mengatur tipe default ke income.');
+      _tipe = CategoryType.income;
       Log.info('Tipe kategori diatur ke: $_tipe');
 
       Log.info('Menambahkan field input sub-kategori pertama secara default.');
@@ -229,7 +229,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
           Log.info('Data sub-kategori sebelum update:');
           Log.info('  - ID: ${widget.subKategori!.id}');
-          Log.info('  - Nama Lama: ${widget.subKategori!.nama}');
+          Log.info('  - Nama Lama: ${widget.subKategori!.name}');
           Log.info('  - Nama Baru: ${_namaController.text}');
           Log.info('  - ID Kategori Induk: ${widget.idKategoriInduk}');
 
@@ -245,46 +245,49 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           Log.info(
             'Mengambil data kategori induk dengan ID: ${widget.idKategoriInduk}',
           );
-          final kategoriInduk =
-              await _kategoriOperasi.getKategoriById(widget.idKategoriInduk!);
+          final kategoriInduk = await _kategoriOperasi.getCategoryById(widget.idKategoriInduk!) as CategoryModel?;
+
+          if (kategoriInduk == null) {
+            throw Exception('Kategori induk tidak ditemukan.');
+          }
 
           Log.info(
-            'Kategori induk ditemukan: ${kategoriInduk.nama} (memiliki ${kategoriInduk.subKategori.length} sub-kategori).',
+            'Kategori induk ditemukan: ${kategoriInduk.name} (memiliki ${kategoriInduk.subCategories.length} sub-kategori).',
           );
           Log.info(
             'Mencari index sub-kategori dengan ID: ${widget.subKategori!.id} dalam daftar sub-kategori.',
           );
 
-          final subKategoriIndex = kategoriInduk.subKategori
+          final subKategoriIndex = kategoriInduk.subCategories
               .indexWhere((final s) => s.id == widget.subKategori!.id);
 
           if (subKategoriIndex != -1) {
             Log.info('Sub-kategori ditemukan pada index: $subKategoriIndex');
             Log.info(
-              'Nama sub-kategori sebelum update: "${kategoriInduk.subKategori[subKategoriIndex].nama}"',
+              'Nama sub-kategori sebelum update: "${kategoriInduk.subCategories[subKategoriIndex].name}"',
             );
 
             Log.info(
               'Membuat salinan sub-kategori dengan nama baru.',
             );
             final subKategoriDiperbarui =
-                kategoriInduk.subKategori[subKategoriIndex].copyWith(
-              nama: _namaController.text,
+                kategoriInduk.subCategories[subKategoriIndex].copyWith(
+              name: _namaController.text,
             );
 
             Log.info(
               'Mengganti sub-kategori pada index $subKategoriIndex dengan data baru.',
             );
-            kategoriInduk.subKategori[subKategoriIndex] = subKategoriDiperbarui;
+            kategoriInduk.subCategories[subKategoriIndex] = subKategoriDiperbarui;
 
             Log.info(
-              'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan kategori induk.',
+              'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
             );
-            await _kategoriOperasi.update(kategoriInduk);
+            await _kategoriOperasi.updateCategory(kategoriInduk);
 
             Log.info('Update sub-kategori BERHASIL.');
             Log.info(
-              'Nama sub-kategori berubah dari "${widget.subKategori!.nama}" menjadi "${_namaController.text}"',
+              'Nama sub-kategori berubah dari "${widget.subKategori!.name}" menjadi "${_namaController.text}"',
             );
           } else {
             Log.error(
@@ -299,33 +302,33 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
           Log.info('Data kategori sebelum update:');
           Log.info('  - ID: ${widget.kategori!.id}');
-          Log.info('  - Nama Lama: ${widget.kategori!.nama}');
+          Log.info('  - Nama Lama: ${widget.kategori!.name}');
           Log.info('  - Nama Baru: ${_namaController.text}');
-          Log.info('  - Tipe Lama: ${widget.kategori!.tipe}');
+          Log.info('  - Tipe Lama: ${widget.kategori!.type}');
           Log.info('  - Tipe Baru: $_tipe');
           Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
 
           final kategoriDiperbarui = widget.kategori!.copyWith(
-            nama: _namaController.text,
-            tipe: _tipe,
+            name: _namaController.text,
+            type: _tipe,
           );
 
-          Log.info('Objek KategoriModel baru (tanpa timestamp):');
+          Log.info('Objek CategoryModel baru (tanpa timestamp):');
           Log.info('  - ID: ${kategoriDiperbarui.id}');
-          Log.info('  - Nama: ${kategoriDiperbarui.nama}');
-          Log.info('  - Tipe: ${kategoriDiperbarui.tipe}');
+          Log.info('  - Nama: ${kategoriDiperbarui.name}');
+          Log.info('  - Tipe: ${kategoriDiperbarui.type}');
 
           Log.info(
-            'Memanggil _kategoriOperasi.update() untuk menyimpan perubahan.',
+            'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
           );
-          await _kategoriOperasi.update(kategoriDiperbarui);
+          await _kategoriOperasi.updateCategory(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
           Log.info(
-            'Nama kategori berubah dari "${widget.kategori!.nama}" menjadi "${_namaController.text}"',
+            'Nama kategori berubah dari "${widget.kategori!.name}" menjadi "${_namaController.text}"',
           );
           Log.info(
-            'Tipe kategori berubah dari "${widget.kategori!.tipe}" menjadi "$_tipe"',
+            'Tipe kategori berubah dari "${widget.kategori!.type}" menjadi "$_tipe"',
           );
         } else {
           Log.info('========================================');
@@ -343,7 +346,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
           int subKategoriKosong = 0;
           int subKategoriTerisi = 0;
 
-          final List<SubKategoriModel> subKategoriList =
+          final List<SubCategoryModel> subKategoriList =
               _subKategoriControllers.where((final controller) {
             final isEmpty = controller.text.isEmpty;
             if (isEmpty) {
@@ -359,9 +362,9 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             }
             return !isEmpty;
           }).map((final controller) {
-            return SubKategoriModel(
-              nama: controller.text,
-              idKategori: kategoriId,
+            return SubCategoryModel(
+              name: controller.text,
+              categoryId: kategoriId,
             );
           }).toList();
 
@@ -369,29 +372,27 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
             'Ringkasan sub-kategori: $subKategoriTerisi akan disimpan, $subKategoriKosong diabaikan.',
           );
 
-          Log.info('Membuat objek KategoriModel baru.');
-          final kategoriBaru = KategoriModel(
+          Log.info('Membuat objek CategoryModel baru.');
+          final kategoriBaru = CategoryModel(
             id: kategoriId,
-            nama: _namaController.text,
-            tipe: _tipe,
-            subKategori: subKategoriList,
+            name: _namaController.text,
+            type: _tipe,
+            subCategories: subKategoriList,
           );
 
-          Log.info('Objek KategoriModel berhasil dibuat:');
+          Log.info('Objek CategoryModel berhasil dibuat:');
           Log.info('  - ID: ${kategoriBaru.id}');
-          Log.info('  - Nama: ${kategoriBaru.nama}');
-          Log.info('  - Tipe: ${kategoriBaru.tipe}');
+          Log.info('  - Nama: ${kategoriBaru.name}');
+          Log.info('  - Tipe: ${kategoriBaru.type}');
           Log.info(
-            '  - Jumlah Sub-Kategori: ${kategoriBaru.subKategori.length}',
+            '  - Jumlah Sub-Kategori: ${kategoriBaru.subCategories.length}',
           );
           Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
 
           Log.info(
-            'Memanggil _kategoriOperasi.createKategori() untuk menyimpan kategori baru.',
+            'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
           );
-          await _kategoriOperasi.createKategori(kategoriBaru);
-
-          Log.info('Kategori baru BERHASIL disimpan ke database lokal.');
+          await _kategoriOperasi.createCategory(kategoriBaru);
         }
 
         Log.info('========================================');
@@ -428,9 +429,9 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
 
         Log.info('Widget masih mounted. Menampilkan SnackBar sukses.');
         SnackBarUtil.success(
-            context,
-            '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
-          );
+          context,
+          '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
+        );
         Log.info('SnackBar sukses telah ditampilkan.');
 
         Log.info(
@@ -458,7 +459,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-       SnackBarUtil.error(context, 'Gagal menyimpan: $e');
+        SnackBarUtil.error(context, 'Gagal menyimpan: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {
@@ -551,16 +552,16 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                 ),
                 const SizedBox(height: 16),
                 if (!_isEditMode && !_isSubKategoriMode) ...[
-                  DropdownButtonFormField<TipeKategori>(
+                  DropdownButtonFormField<CategoryType>(
                     initialValue: _tipe,
                     decoration: const InputDecoration(
                       labelText: 'Tipe',
                       border: OutlineInputBorder(),
                     ),
-                    items: TipeKategori.values
-                        .where((final tipe) => tipe != TipeKategori.transfer)
-                        .map((final TipeKategori tipe) {
-                      return DropdownMenuItem<TipeKategori>(
+                    items: CategoryType.values
+                        .where((final tipe) => tipe != CategoryType.transfer)
+                        .map((final CategoryType tipe) {
+                      return DropdownMenuItem<CategoryType>(
                         value: tipe,
                         child: Text(
                           tipe.name.substring(0, 1).toUpperCase() +
@@ -568,7 +569,7 @@ class _FormKategoriPageState extends State<FormKategoriPage> {
                         ),
                       );
                     }).toList(),
-                    onChanged: (final TipeKategori? newValue) {
+                    onChanged: (final CategoryType? newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
                         Log.info('  - Tipe Lama: $_tipe');

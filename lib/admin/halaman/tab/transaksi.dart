@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/transaction_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
 import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
@@ -71,7 +71,7 @@ class RingkasanTransaksi extends StatelessWidget {
 /// Halaman untuk menampilkan dan mengelola daftar transaksi.
 class TransaksiPage extends StatefulWidget {
   /// Operasi transaksi untuk injeksi dependensi saat testing.
-  final TransaksiOperasi? transaksiOperasi;
+  final TransactionOperation? transaksiOperasi;
 
   /// Konstruktor untuk TransaksiPage.
   const TransaksiPage({super.key, this.transaksiOperasi});
@@ -81,7 +81,7 @@ class TransaksiPage extends StatefulWidget {
 }
 
 class _TransaksiPageState extends State<TransaksiPage> {
-  late TransaksiOperasi _transaksiOperasi;
+  late TransactionOperation _transaksiOperasi;
   
   // Variabel state untuk caching
   Map<String, dynamic>? _cachedData;
@@ -92,9 +92,9 @@ class _TransaksiPageState extends State<TransaksiPage> {
   void initState() {
     super.initState();
     Log.info('Halaman Transaksi sedang diinisialisasi (initState).');
-    _transaksiOperasi = widget.transaksiOperasi ?? TransaksiOperasi();
+    _transaksiOperasi = widget.transaksiOperasi ?? TransactionOperation();
     Log.info(
-      'TransaksiOperasi telah disiapkan. Memulai pengambilan data awal.',
+      'TransactionOperation telah disiapkan. Memulai pengambilan data awal.',
     );
     _initialLoadFuture = _muatData();
   }
@@ -106,12 +106,12 @@ class _TransaksiPageState extends State<TransaksiPage> {
     );
     try {
       final results = await Future.wait([
-        _transaksiOperasi.ambilSemuaTransaksi(),
-        _transaksiOperasi.getTotalPemasukan(),
-        _transaksiOperasi.getTotalPengeluaran(),
+        _transaksiOperasi.getAllTransactions(),
+        _transaksiOperasi.getTotalIncome(),
+        _transaksiOperasi.getTotalExpense(),
         _transaksiOperasi.getNetTotal(),
       ]);
-      final transaksi = results[0] as List<TransaksiModel>;
+      final transaksi = results[0] as List<TransactionModel>;
       Log.info(
         'Berhasil mengambil ${transaksi.length} item transaksi dari database.',
       );
@@ -150,8 +150,8 @@ class _TransaksiPageState extends State<TransaksiPage> {
           _cachedData = data;
         });
       }
-    } on Exception catch (e, st) {
-      Log.error('Gagal memuat data.', e: e, st: st);
+    } on Exception catch (e, s) {
+      Log.error('Gagal memuat data.', e: e, st: s);
       if (mounted) {
         setState(() {
           _error = e;
@@ -207,7 +207,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
 
       if (konfirmasi ?? false) {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
-        await _transaksiOperasi.hapusSemuaTransaksi();
+        await _transaksiOperasi.deleteAllTransactions();
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
         // Panggil metode untuk memuat ulang data dengan loading
@@ -250,7 +250,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
       final pemasukan = (data['pemasukan'] as num?)?.toDouble() ?? 0.0;
       final pengeluaran = (data['pengeluaran'] as num?)?.toDouble() ?? 0.0;
       final total = (data['total'] as num?)?.toDouble() ?? 0.0;
-      final transaksiData = data['transaksi'] as List<TransaksiModel>;
+      final transaksiData = data['transaksi'] as List<TransactionModel>;
       Log.info(
         'Membangun UI dari cache. Memiliki ${transaksiData.length} transaksi.',
       );
@@ -308,7 +308,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   /// Membangun daftar transaksi yang dikelompokkan berdasarkan tanggal.
-  Widget _bangunDaftarTransaksi(final List<TransaksiModel> transaksiData) {
+  Widget _bangunDaftarTransaksi(final List<TransactionModel> transaksiData) {
     Log.info(
       'Membangun daftar transaksi (_bangunDaftarTransaksi) dengan ${transaksiData.length} item.',
     );
@@ -323,9 +323,9 @@ class _TransaksiPageState extends State<TransaksiPage> {
           0.0,
           (final sum, final item) =>
               sum +
-              (item.tipe == TipeTransaksiEnum.pemasukan
-                  ? item.jumlah
-                  : -item.jumlah),
+              (item.type == TipeTransaksiEnum.pemasukan
+                  ? item.amount
+                  : -item.amount),
         );
 
         return Column(

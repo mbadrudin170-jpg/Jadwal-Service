@@ -5,8 +5,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/data/sync/unduh_data.dart';
-import 'package:wifi/shared/data/sync/unduhan_awal.dart';
+import 'package:wifi/shared/data/sync/download%20data.dart';
+import 'package:wifi/shared/data/sync/initial_download.dart';
 
 @GenerateMocks([DatabaseHelper, Database, LayananUnduhData])
 import 'unduhan_awal_test.mocks.dart';

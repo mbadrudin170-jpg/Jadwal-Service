@@ -4,23 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/sub_kategori_model.dart';
+import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
+import 'package:wifi/shared/operasi/category_operasi.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/sub_kategori_operasi.dart';
+import 'package:wifi/shared/operasi/sub_category_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
 class DetailTransaksiPage extends StatefulWidget {
   /// Model transaksi yang akan ditampilkan.
-  final TransaksiModel transaksi;
+  final TransactionModel transaksi;
 
   /// Konstruktor untuk DetailTransaksiPage.
   const DetailTransaksiPage({super.key, required this.transaksi});
@@ -30,13 +30,13 @@ class DetailTransaksiPage extends StatefulWidget {
 }
 
 class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
-  final DompetOperasi _dompetOperasi = DompetOperasi();
-  final KategoriOperasi _kategoriOperasi = KategoriOperasi();
+  final WalletOperation _dompetOperasi = WalletOperation();
+  final CategoryOperation _kategoriOperasi = CategoryOperation();
   final PelangganOperasi _pelangganOperasi = PelangganOperasi();
   final PaketOperasi _paketOperasi = PaketOperasi();
-  final SubKategoriOperasi _subKategoriOperasi = SubKategoriOperasi();
+  final SubCategoryOperation _subKategoriOperasi = SubCategoryOperation();
 
-  late TransaksiModel
+  late TransactionModel
       _transaksiSaatIni; // ditambah: Variabel state untuk menampung data transaksi
 
   @override
@@ -46,10 +46,10 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
         widget.transaksi; // ditambah: Inisialisasi dengan data awal
     Log.info('Membuka halaman Detail Transaksi ID: ${_transaksiSaatIni.id}');
     Log.info(
-      'Ringkasan transaksi - Tipe: ${_transaksiSaatIni.tipe.name}, Jumlah: ${_transaksiSaatIni.jumlah}, Tanggal: ${_transaksiSaatIni.tanggal.toIso8601String()}, Status: ${_transaksiSaatIni.statusPembayaran.name}',
+      'Ringkasan transaksi - Tipe: ${_transaksiSaatIni.type.name}, Jumlah: ${_transaksiSaatIni.amount}, Tanggal: ${_transaksiSaatIni.date.toIso8601String()}, Status: ${_transaksiSaatIni.paymentStatus.name}',
     );
     Log.info(
-      'Relasi transaksi - Dompet: ${_transaksiSaatIni.idDompet}, Kategori: ${_transaksiSaatIni.idKategori}, SubKategori: ${_transaksiSaatIni.idSubKategori ?? "N/A"}, Pelanggan: ${_transaksiSaatIni.idPelanggan ?? "N/A"}, Paket: ${_transaksiSaatIni.idPaket ?? "N/A"}',
+      'Relasi transaksi - Dompet: ${_transaksiSaatIni.walletId}, Kategori: ${_transaksiSaatIni.categoryId}, SubKategori: ${_transaksiSaatIni.subCategoryId ?? "N/A"}, Pelanggan: ${_transaksiSaatIni.customerId ?? "N/A"}, Paket: ${_transaksiSaatIni.packageId ?? "N/A"}',
     );
   }
 
@@ -71,12 +71,12 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
       if (model != null) {
         String? nama;
         // diubah: Menggunakan pengecekan tipe eksplisit (is) untuk keamanan akses properti.
-        if (model is DompetModel) {
-          nama = model.namaDompet;
-        } else if (model is KategoriModel) {
-          nama = model.nama;
-        } else if (model is SubKategoriModel) {
-          nama = model.nama;
+        if (model is WalletModel) {
+          nama = model.name;
+        } else if (model is CategoryModel) {
+          nama = model.name;
+        } else if (model is SubCategoryModel) {
+          nama = model.name;
         } else if (model is PelangganModel) {
           nama = model.nama;
         } else if (model is PaketModel) {
@@ -111,10 +111,11 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     Log.info(
       'Navigasi ke FormTransaksiPage mode edit untuk ID: ${_transaksiSaatIni.id}',
     );
-    final transaksiYangDiperbarui = await Navigator.push<TransaksiModel?>(
+    final transaksiYangDiperbarui = await Navigator.push<TransactionModel?>(
       context,
-      MaterialPageRoute<TransaksiModel?>(
-        builder: (final context) => FormTransaksiPage(transaksi: _transaksiSaatIni),
+      MaterialPageRoute<TransactionModel?>(
+        builder: (final context) =>
+            FormTransaksiPage(transaksi: _transaksiSaatIni),
       ),
     );
     if (transaksiYangDiperbarui != null) {
@@ -129,7 +130,7 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
 
   @override
   Widget build(final BuildContext context) {
-    final TransaksiModel transaksi =
+    final TransactionModel transaksi =
         _transaksiSaatIni; // diubah: Menggunakan data dari state
     Log.info('Membangun UI Detail Transaksi ID: ${transaksi.id}');
 
@@ -158,34 +159,34 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildDetailRow('Keterangan', transaksi.keterangan),
+            _buildDetailRow('Keterangan', transaksi.description),
             _buildDetailRow(
               'Tanggal',
-              FormatTanggal.formatTanggalDanJam(transaksi.tanggal),
+              FormatTanggal.formatTanggalDanJam(transaksi.date),
             ),
             _buildDetailRow(
               'Jumlah',
               NumberFormat.currency(
                 locale: 'id_ID',
                 symbol: 'Rp ',
-              ).format(transaksi.jumlah),
+              ).format(transaksi.amount),
             ),
-            _buildDetailRow('Tipe', transaksi.tipe.name.toUpperCase()),
+            _buildDetailRow('Tipe', transaksi.type.name.toUpperCase()),
             _buildFutureDetailRow(
               'Dompet',
               _getNama(
                 _dompetOperasi.getDompetById,
-                transaksi.idDompet,
+                transaksi.walletId,
                 'Dompet',
               ),
             ),
-            if (transaksi.idDompetTujuan != null &&
-                transaksi.idDompetTujuan!.isNotEmpty)
+            if (transaksi.destinationWalletId != null &&
+                transaksi.destinationWalletId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getNama(
                   _dompetOperasi.getDompetById,
-                  transaksi.idDompetTujuan!,
+                  transaksi.destinationWalletId!,
                   'Dompet Tujuan',
                 ),
               ),
@@ -193,60 +194,60 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
               'Kategori',
               _getNama(
                 _kategoriOperasi.getKategoriById,
-                transaksi.idKategori,
+                transaksi.categoryId,
                 'Kategori',
               ),
             ),
-            if (transaksi.idSubKategori != null &&
-                transaksi.idSubKategori!.isNotEmpty)
+            if (transaksi.subCategoryId != null &&
+                transaksi.subCategoryId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Sub Kategori',
                 _getNama(
                   _subKategoriOperasi.getSubKategoriById,
-                  transaksi.idSubKategori!,
+                  transaksi.subCategoryId!,
                   'Sub-Kategori',
                 ),
               ),
-            if (transaksi.idPelanggan != null &&
-                transaksi.idPelanggan!.isNotEmpty)
+            if (transaksi.customerId != null &&
+                transaksi.customerId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getNama(
                   _pelangganOperasi.getPelangganById,
-                  transaksi.idPelanggan!,
+                  transaksi.customerId!,
                   'Pelanggan',
                 ),
               ),
-            if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty)
+            if (transaksi.packageId != null && transaksi.packageId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Paket',
                 _getNama(
                   _paketOperasi.getPaketById,
-                  transaksi.idPaket!,
+                  transaksi.packageId!,
                   'Paket',
                 ),
               ),
             _buildDetailRow(
               'Status Pembayaran',
-              transaksi.statusPembayaran.name.toUpperCase(),
+              transaksi.paymentStatus.name.toUpperCase(),
             ),
             _buildDetailRow(
               'Poin Dihasilkan',
-              transaksi.poinYangDihasilkan.toString(),
+              transaksi.earnedPoints.toString(),
             ),
             _buildDetailRow(
               'Poin Digunakan',
-              transaksi.poinYangDigunakan.toString(),
+              transaksi.usedPoints.toString(),
             ),
-            if (transaksi.tanggalMulai != null)
+            if (transaksi.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-                FormatTanggal.formatTanggalDanJam(transaksi.tanggalMulai!),
+                FormatTanggal.formatTanggalDanJam(transaksi.startDate!),
               ),
-            if (transaksi.tanggalBerakhir != null)
+            if (transaksi.endDate != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatTanggal.formatTanggalDanJam(transaksi.tanggalBerakhir!),
+                FormatTanggal.formatTanggalDanJam(transaksi.endDate!),
               ),
           ],
         ),
@@ -270,7 +271,8 @@ class _DetailTransaksiPageState extends State<DetailTransaksiPage> {
     );
   }
 
-  Widget _buildFutureDetailRow(final String label, final Future<String?> future) {
+  Widget _buildFutureDetailRow(
+      final String label, final Future<String?> future) {
     Log.info('Membangun FutureBuilder untuk: $label');
     return FutureBuilder<String?>(
       future: future,

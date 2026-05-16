@@ -114,10 +114,11 @@ void main() {
         whereArgs: any(named: 'whereArgs'),
       ),
     ).thenAnswer((final _) async => <Map<String, dynamic>>[]);
-    when(() => mockTransaction.rawQuery(any(), any()))
-        .thenAnswer((final _) async => [
-              {'total': 0.0},
-            ],);
+    when(() => mockTransaction.rawQuery(any(), any())).thenAnswer(
+      (final _) async => [
+        {'total': 0.0},
+      ],
+    );
 
     transaksiOperasi = TransaksiOperasi(
       dbHelper: mockDbHelper,
@@ -126,11 +127,11 @@ void main() {
   });
 
   // Helper dummy
-  TransaksiModel dummyTransaksi(
+  TransactionModel dummyTransaksi(
     final String id, {
     final TipeTransaksiEnum tipe = TipeTransaksiEnum.pemasukan,
   }) =>
-      TransaksiModel(
+      TransactionModel(
         id: id,
         idPelanggan: 'pel-$id',
         idDompet: 'dompet-$id',
@@ -144,7 +145,7 @@ void main() {
             tipe == TipeTransaksiEnum.transfer ? 'dompet-tujuan-$id' : null,
       );
 
-  Map<String, dynamic> dummyMap(final TransaksiModel t) => t.toSqlite();
+  Map<String, dynamic> dummyMap(final TransactionModel t) => t.toSqlite();
 
   // ============ tambahTransaksi ============
   group('tambahTransaksi', () {
@@ -362,7 +363,8 @@ void main() {
   // ============ arsipkanTransaksi ============
   group('arsipkanTransaksi', () {
     test('berhasil mengarsipkan dan update saldo', () async {
-      final transaksiLama = dummyTransaksi('t1', tipe: TipeTransaksiEnum.transfer);
+      final transaksiLama =
+          dummyTransaksi('t1', tipe: TipeTransaksiEnum.transfer);
       when(
         () => mockTransaction.query(
           'transaksi',
@@ -411,9 +413,11 @@ void main() {
         () => mockDatabase.rawQuery(
           "SELECT SUM(jumlah) as jumlah FROM transaksi WHERE tipe = 'pemasukan' AND isDeleted = 0",
         ),
-      ).thenAnswer((final _) async => [
-            {'jumlah': 50000.0},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'jumlah': 50000.0},
+        ],
+      );
       final total = await transaksiOperasi.getTotalPemasukan();
       expect(total, 50000.0);
     });
@@ -432,9 +436,11 @@ void main() {
         () => mockDatabase.rawQuery(
           "SELECT SUM(jumlah) as jumlah FROM transaksi WHERE tipe = 'pengeluaran' AND isDeleted = 0",
         ),
-      ).thenAnswer((final _) async => [
-            {'jumlah': 20000.0},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'jumlah': 20000.0},
+        ],
+      );
       final total = await transaksiOperasi.getTotalPengeluaran();
       expect(total, 20000.0);
     });
@@ -447,16 +453,20 @@ void main() {
         () => mockDatabase.rawQuery(
           "SELECT SUM(jumlah) as jumlah FROM transaksi WHERE tipe = 'pemasukan' AND isDeleted = 0",
         ),
-      ).thenAnswer((final _) async => [
-            {'jumlah': 50000.0},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'jumlah': 50000.0},
+        ],
+      );
       when(
         () => mockDatabase.rawQuery(
           "SELECT SUM(jumlah) as jumlah FROM transaksi WHERE tipe = 'pengeluaran' AND isDeleted = 0",
         ),
-      ).thenAnswer((final _) async => [
-            {'jumlah': 20000.0},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'jumlah': 20000.0},
+        ],
+      );
       final net = await transaksiOperasi.getNetTotal();
       expect(net, 30000.0);
     });
@@ -470,9 +480,11 @@ void main() {
           'SELECT SUM(poin_yang_dihasilkan) as total FROM transaksi WHERE id_pelanggan = ? AND isDeleted = 0',
           ['p1'],
         ),
-      ).thenAnswer((final _) async => [
-            {'total': 100},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'total': 100},
+        ],
+      );
       final poin = await transaksiOperasi.getPoinYangDihasilkan('p1');
       expect(poin, 100);
     });
@@ -492,9 +504,11 @@ void main() {
           'SELECT SUM(poin_yang_digunakan) as total FROM transaksi WHERE id_pelanggan = ? AND isDeleted = 0',
           ['p1'],
         ),
-      ).thenAnswer((final _) async => [
-            {'total': 50},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'total': 50},
+        ],
+      );
       final poin = await transaksiOperasi.getPoinYangDigunakan('p1');
       expect(poin, 50);
     });
@@ -507,17 +521,21 @@ void main() {
           'SELECT SUM(poin_yang_dihasilkan) as total FROM transaksi WHERE id_pelanggan = ? AND isDeleted = 0',
           any(),
         ),
-      ).thenAnswer((final _) async => [
-            {'total': 100},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'total': 100},
+        ],
+      );
       when(
         () => mockDatabase.rawQuery(
           'SELECT SUM(poin_yang_digunakan) as total FROM transaksi WHERE id_pelanggan = ? AND isDeleted = 0',
           any(),
         ),
-      ).thenAnswer((final _) async => [
-            {'total': 30},
-          ],);
+      ).thenAnswer(
+        (final _) async => [
+          {'total': 30},
+        ],
+      );
       final saldo = await transaksiOperasi.getTotalPoin('p1');
       expect(saldo, 70);
     });

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah versi APK.
 class DetailVersiApkUser extends StatelessWidget {

@@ -12,7 +12,7 @@ void main() {
     final tanggalSekarang = DateTime.now();
 
     // Data dasar untuk transaksi umum
-    final transaksiDasar = TransaksiModel(
+    final transaksiDasar = TransactionModel(
       id: 'trans-001',
       tanggal: tanggalSekarang,
       keterangan: 'Beli pulsa',
@@ -23,7 +23,7 @@ void main() {
     );
 
     // Data untuk transaksi langganan
-    final transaksiLangganan = TransaksiModel(
+    final transaksiLangganan = TransactionModel(
       id: 'trans-002',
       tanggal: tanggalSekarang,
       keterangan: 'Aktivasi Paket Internet 1 Bulan',
@@ -65,8 +65,10 @@ void main() {
       expect(diperbarui.jumlah, 155000);
       expect(diperbarui.keterangan, contains('Update'));
       expect(diperbarui.isDeleted, isTrue);
-      expect(diperbarui.tipe,
-          TipeTransaksiEnum.pemasukan,); // VERIFIKASI: tipe tetap sama
+      expect(
+        diperbarui.tipe,
+        TipeTransaksiEnum.pemasukan,
+      ); // VERIFIKASI: tipe tetap sama
       expect(diperbarui.tipeDurasiPaket, TipeDurasi.hari);
       expect(diperbarui.tanggalMulai, transaksiLangganan.tanggalMulai);
     });
@@ -101,7 +103,7 @@ void main() {
       };
 
       test('fromSqlite harus membuat model dengan benar', () {
-        final model = TransaksiModel.fromSqlite(sqliteMap);
+        final model = TransactionModel.fromSqlite(sqliteMap);
 
         expect(model.id, 'sqlite-trans-1');
         expect(model.jumlah, 250000.0);
@@ -119,7 +121,7 @@ void main() {
       });
 
       test('toSqlite harus menghasilkan map dengan benar', () {
-        final model = TransaksiModel.fromSqlite(sqliteMap);
+        final model = TransactionModel.fromSqlite(sqliteMap);
         final hasilMap = model.toSqlite();
         expect(hasilMap, sqliteMap);
       });
@@ -133,10 +135,12 @@ void main() {
           'id_dompet': 'd',
           'id_kategori': 'k',
         };
-        final model = TransaksiModel.fromSqlite(mapKosong);
+        final model = TransactionModel.fromSqlite(mapKosong);
         expect(model.tipe, TipeTransaksiEnum.pengeluaran); // Default
         expect(
-            model.statusPembayaran, StatusPembayaranEnum.belumLunas,); // Default
+          model.statusPembayaran,
+          StatusPembayaranEnum.belumLunas,
+        ); // Default
         expect(model.durasiPaket, isNull);
       });
     });
@@ -164,7 +168,7 @@ void main() {
       };
 
       test('fromFirebase harus membuat model dengan benar', () {
-        final model = TransaksiModel.fromFirebase('fb-trans-1', firebaseData);
+        final model = TransactionModel.fromFirebase('fb-trans-1', firebaseData);
 
         expect(model.id, 'fb-trans-1');
         expect(model.jumlah, 500000.0);
@@ -174,7 +178,7 @@ void main() {
       });
 
       test('toFirebase harus menghasilkan map dengan benar', () {
-        final model = TransaksiModel(
+        final model = TransactionModel(
           id: 'fb-trans-2',
           tanggal: tanggalMulai,
           keterangan: 'Sewa Hosting',

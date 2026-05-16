@@ -10,7 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -38,7 +38,7 @@ class DetailKritikSaranPage extends StatefulWidget {
 class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
   final KritikSaranOperasi _kritikSaranOperasi = KritikSaranOperasi();
 
-  late Future<KritikSaranModel> _kritikSaranFuture;
+  late Future<FeedbackModel> _kritikSaranFuture;
 
   @override
   void initState() {
@@ -234,7 +234,7 @@ class _DetailKritikSaranPageState extends State<DetailKritikSaranPage> {
           ),
         ],
       ),
-      body: FutureBuilder<KritikSaranModel>(
+      body: FutureBuilder<FeedbackModel>(
         future: _kritikSaranFuture,
         builder: (final context, final snapshot) {
           Log.info(

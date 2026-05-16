@@ -264,3 +264,18 @@ Aplikasi mengalami *crash* saat bernavigasi, yang ditandai dengan error `There a
 
 ### Verifikasi
 Setelah perubahan diterapkan, perintah `flutter analyze` dijalankan dan mengonfirmasi "No issues found!". Ini memvalidasi bahwa perbaikan tersebut tidak menimbulkan masalah analisis statis baru dan berhasil mengatasi *runtime error* yang terjadi.
+
+---
+
+## Perbaikan `LateInitializationError` di Halaman Dompet
+
+### Latar Belakang
+Setelah mengganti `IndexedStack` di `HalamanUtama` untuk mengatasi masalah animasi `Hero`, muncul *error* baru yang menyebabkan aplikasi *crash* saat berpindah ke tab "Dompet". *Stack trace* yang umum dari *framework* Flutter mengindikasikan adanya masalah pada siklus *build* widget, namun tidak secara langsung menunjuk ke penyebabnya.
+
+### Rangkuman Perubahan
+1.  **Investigasi**: Pemeriksaan mendalam pada `lib/admin/halaman/tab/dompet.dart` mengungkapkan bahwa `_dompetOperasi`, sebuah variabel yang ditandai `late final`, tidak pernah diinisialisasi sebelum digunakan.
+2.  **Penyebab Masalah**: Di dalam `_DompetPageState`, `initState` memanggil metode `_loadDompet()`. Metode ini kemudian mencoba mengakses `_dompetOperasi` yang belum memiliki nilai, sehingga memicu `LateInitializationError` yang tersembunyi. Karena halaman tidak lagi disimpan oleh `IndexedStack`, *error* ini muncul setiap kali tab "Dompet" dibuka.
+3.  **Solusi**: Masalah ini diperbaiki dengan menambahkan baris inisialisasi `_dompetOperasi = widget.dompetOperasi ?? DompetOperasi();` di awal metode `initState`. Ini memastikan bahwa `_dompetOperasi` selalu memiliki *instance* yang valid sebelum metode lain memanggilnya.
+
+### Verifikasi
+Setelah perbaikan, perintah `flutter analyze` dijalankan kembali dan mengonfirmasi "No issues found!". Perbaikan ini menyelesaikan *crash* yang terjadi dan membuat aplikasi kembali stabil.

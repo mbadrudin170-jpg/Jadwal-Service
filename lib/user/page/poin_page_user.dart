@@ -33,7 +33,7 @@ class _PoinPageUserState extends State<PoinPageUser> {
 
   int _totalPoin = 0;
   List<PaketModel> _daftarHadiah = [];
-  List<TransaksiModel> _riwayatTransaksi = [];
+  List<TransactionModel> _riwayatTransaksi = [];
   bool _isLoading = false;
   bool _isLoadingRiwayat = false;
   String? _errorMessage;
@@ -91,7 +91,8 @@ class _PoinPageUserState extends State<PoinPageUser> {
       final riwayatTransaksi = await _transaksiOperasi
           .ambilTransaksiByPelangganId(widget.idPelanggan);
       final transaksiPoin = riwayatTransaksi
-          .where((final t) => t.poinYangDihasilkan > 0 || t.poinYangDigunakan > 0)
+          .where(
+              (final t) => t.poinYangDihasilkan > 0 || t.poinYangDigunakan > 0)
           .toList();
 
       if (!mounted) return;
@@ -191,8 +192,10 @@ class _PoinPageUserState extends State<PoinPageUser> {
               onPressed: cukupPoin
                   ? () {
                       // TODO: Implementasi logika penukaran poin
-                      SnackBarUtil.info(context,
-                          'Fitur penukaran untuk ${hadiah.nama} belum tersedia.',);
+                      SnackBarUtil.info(
+                        context,
+                        'Fitur penukaran untuk ${hadiah.nama} belum tersedia.',
+                      );
                     }
                   : null,
               child: const Text('Tukar'),

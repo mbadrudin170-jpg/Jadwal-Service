@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/operasi/customer_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar pelanggan.
@@ -32,12 +32,12 @@ class PelangganPage extends StatefulWidget {
 }
 
 class _PelangganPageState extends State<PelangganPage> {
-  final PelangganOperasi _pelangganOperasi = PelangganOperasi();
+  final CustomerOperation _pelangganOperasi = CustomerOperation();
 
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
-  List<PelangganModel> _allPelanggan = [];
-  List<PelangganModel> _filteredPelanggan = [];
+  List<CustomerModel> _allPelanggan = [];
+  List<CustomerModel> _filteredPelanggan = [];
   bool _isLoading = true;
 
   OpsiUrut _opsiUrutSaatIni = OpsiUrut.namaAZ;
@@ -120,28 +120,22 @@ class _PelangganPageState extends State<PelangganPage> {
 
             return AlertDialog(
               title: const Text('Urutkan Berdasarkan'),
-              content: RadioGroup<OpsiUrut>(
-                groupValue: groupValue,
-                onChanged: handleRadioValueChanged,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      title: const Text('Nama (A-Z)'),
-                      leading: const Radio<OpsiUrut>(
-                        value: OpsiUrut.namaAZ,
-                      ),
-                      onTap: () => handleRadioValueChanged(OpsiUrut.namaAZ),
-                    ),
-                    ListTile(
-                      title: const Text('Nama (Z-A)'),
-                      leading: const Radio<OpsiUrut>(
-                        value: OpsiUrut.namaZA,
-                      ),
-                      onTap: () => handleRadioValueChanged(OpsiUrut.namaZA),
-                    ),
-                  ],
-                ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  RadioListTile<OpsiUrut>(
+                    title: const Text('Nama (A-Z)'),
+                    value: OpsiUrut.namaAZ,
+                    groupValue: groupValue,
+                    onChanged: handleRadioValueChanged,
+                  ),
+                  RadioListTile<OpsiUrut>(
+                    title: const Text('Nama (Z-A)'),
+                    value: OpsiUrut.namaZA,
+                    groupValue: groupValue,
+                    onChanged: handleRadioValueChanged,
+                  ),
+                ],
               ),
               actions: <Widget>[
                 TextButton(
@@ -175,13 +169,13 @@ class _PelangganPageState extends State<PelangganPage> {
         case OpsiUrut.namaAZ:
           _filteredPelanggan.sort(
             (final a, final b) =>
-                a.nama.toLowerCase().compareTo(b.nama.toLowerCase()),
+                a.name.toLowerCase().compareTo(b.name.toLowerCase()),
           );
           break;
         case OpsiUrut.namaZA:
           _filteredPelanggan.sort(
             (final a, final b) =>
-                b.nama.toLowerCase().compareTo(a.nama.toLowerCase()),
+                b.name.toLowerCase().compareTo(a.name.toLowerCase()),
           );
           break;
       }
@@ -195,7 +189,7 @@ class _PelangganPageState extends State<PelangganPage> {
     if (mounted) setState(() => _isLoading = true);
 
     try {
-      final list = await _pelangganOperasi.getPelanggan();
+      final list = await _pelangganOperasi.getCustomers();
       Log.info('Berhasil mengambil ${list.length} data pelanggan.');
 
       if (mounted) {
@@ -231,7 +225,7 @@ class _PelangganPageState extends State<PelangganPage> {
 
     setState(() {
       _filteredPelanggan = _allPelanggan
-          .where((final p) => p.nama.toLowerCase().contains(query))
+          .where((final p) => p.name.toLowerCase().contains(query))
           .toList();
       _applySort(_opsiUrutSaatIni); // Terapkan kembali urutan setelah filter
       Log.info(
@@ -260,15 +254,15 @@ class _PelangganPageState extends State<PelangganPage> {
     }
   }
 
-  Future<void> _showDialogOpsi(final PelangganModel pelanggan) async {
+  Future<void> _showDialogOpsi(final CustomerModel pelanggan) async {
     Log.info(
-      'Menampilkan dialog opsi (Edit/Arsipkan) untuk pelanggan: ${pelanggan.nama} (ID: ${pelanggan.id}).',
+      'Menampilkan dialog opsi (Edit/Arsipkan) untuk pelanggan: ${pelanggan.name} (ID: ${pelanggan.id}).',
     );
     await showDialog<void>(
       context: context,
       builder: (final BuildContext dialogContext) {
         return AlertDialog(
-          title: Text(pelanggan.nama),
+          title: Text(pelanggan.name),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -308,9 +302,9 @@ class _PelangganPageState extends State<PelangganPage> {
     );
   }
 
-  Future<void> _showDialogArsipkan(final PelangganModel pelanggan) async {
+  Future<void> _showDialogArsipkan(final CustomerModel pelanggan) async {
     Log.info(
-      'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${pelanggan.nama}".',
+      'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${pelanggan.name}".',
     );
     await showDialog<void>(
       context: context,
@@ -318,7 +312,7 @@ class _PelangganPageState extends State<PelangganPage> {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
-            'Apakah Anda yakin ingin mengarsipkan pelanggan "${pelanggan.nama}"?',
+            'Apakah Anda yakin ingin mengarsipkan pelanggan "${pelanggan.name}"?',
           ),
           actions: <Widget>[
             TextButton(
@@ -350,7 +344,7 @@ class _PelangganPageState extends State<PelangganPage> {
   Future<void> _arsipkanPelanggan(final String id) async {
     Log.info('Memulai proses pengarsipan untuk ID pelanggan: $id.');
     try {
-      await _pelangganOperasi.arsipkanPelanggan(id);
+      await _pelangganOperasi.archiveCustomer(id);
       Log.info(
         'Berhasil mengarsipkan pelanggan dengan ID: $id. Memuat ulang daftar dan menampilkan SnackBar.',
       );
@@ -413,13 +407,13 @@ class _PelangganPageState extends State<PelangganPage> {
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: ListTile(
             title: Text(
-              pelanggan.nama,
+              pelanggan.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(pelanggan.macAddress),
             onTap: () async {
               Log.info(
-                'ListTile untuk pelanggan "${pelanggan.nama}" ditekan. Menavigasi ke DetailPelangganPage.',
+                'ListTile untuk pelanggan "${pelanggan.name}" ditekan. Menavigasi ke DetailPelangganPage.',
               );
               await Navigator.push<void>(
                 context,
@@ -432,7 +426,7 @@ class _PelangganPageState extends State<PelangganPage> {
             },
             onLongPress: () async {
               Log.info(
-                'ListTile untuk pelanggan "${pelanggan.nama}" ditekan lama (long press). Memanggil _showDialogOpsi.',
+                'ListTile untuk pelanggan "${pelanggan.name}" ditekan lama (long press). Memanggil _showDialogOpsi.',
               );
               await _showDialogOpsi(pelanggan);
             },

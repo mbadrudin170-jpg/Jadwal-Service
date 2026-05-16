@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/data/sync/unggah_data.dart';
+import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/model/memiliki_id.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 

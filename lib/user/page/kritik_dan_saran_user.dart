@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/data/operasi/kritik_saran_operasi_user.dart';
 import 'package:wifi/user/page/form_kritik_dan_saran_user.dart';
@@ -31,7 +31,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
       KritikSaranOperasiUser(FirebaseFirestore.instance);
 
   /// Menampilkan dialog dengan pilihan untuk mengedit atau menghapus kritik.
-  Future<void> _showOptionsDialog(final KritikSaranModel kritik) async {
+  Future<void> _showOptionsDialog(final FeedbackModel kritik) async {
     await showDialog<void>(
       context: context, // Menggunakan context dari State
       builder: (final dialogContext) {
@@ -115,7 +115,7 @@ class _RiwayatKritikDanSaranPageState extends State<RiwayatKritikDanSaranPage> {
         title: const Text('Riwayat Masukan'),
         centerTitle: true,
       ),
-      body: StreamBuilder<List<KritikSaranModel>>(
+      body: StreamBuilder<List<FeedbackModel>>(
         stream: _operasi.bacaSemuaKritikSaran(widget.userId),
         builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

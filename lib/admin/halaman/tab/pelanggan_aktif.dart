@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
-import 'package:wifi/shared/data/sync/unggah_data.dart';
+import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';

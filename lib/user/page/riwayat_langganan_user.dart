@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -115,7 +114,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
     }
   }
 
-  List<TransaksiModel> _urutkanRiwayat(final List<TransaksiModel> riwayat) {
+  List<TransactionModel> _urutkanRiwayat(final List<TransactionModel> riwayat) {
     switch (_sortMode) {
       case SortMode.tanggalBerakhirTerbaru:
         riwayat.sort((final a, final b) {
@@ -170,7 +169,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                 _sortMode = result;
               });
             },
-            itemBuilder: (final BuildContext context) => <PopupMenuEntry<SortMode>>[
+            itemBuilder: (final BuildContext context) =>
+                <PopupMenuEntry<SortMode>>[
               const PopupMenuItem<SortMode>(
                 value: SortMode.tanggalBerakhirTerbaru,
                 child: Text('Tanggal Berakhir (Terbaru)'),
@@ -232,7 +232,7 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: FutureBuilder<List<TransaksiModel>>(
+                child: FutureBuilder<List<TransactionModel>>(
                   future: _transaksiOpFirebase
                       .ambilRiwayatLanggananLengkap(pelanggan.id),
                   builder: (final context, final snapshotRiwayat) {
@@ -364,7 +364,8 @@ class _TampilanRiwayatLanggananState extends State<_TampilanRiwayatLangganan> {
                                 await Navigator.push(
                                   context,
                                   MaterialPageRoute<void>(
-                                    builder: (final context) => DetailTransaksiPage(
+                                    builder: (final context) =>
+                                        DetailTransaksiPage(
                                       transaksi: tx,
                                       paket: paket,
                                     ),

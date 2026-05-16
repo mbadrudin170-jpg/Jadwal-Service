@@ -5,7 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/operasi/operasi_dasar.dart';
 
@@ -32,7 +32,7 @@ void main() {
   });
 
   group('KritikSaranOperasi Unit Tests', () {
-    final tKritikSaran = KritikSaranModel(
+    final tKritikSaran = FeedbackModel(
       id: 'ks_001',
       userId: 'user_123',
       isi: 'Aplikasi sangat membantu!',
@@ -45,41 +45,53 @@ void main() {
 
       await kritikSaranOperasi.createKritikSaran(tKritikSaran);
 
-      verify(mockOperasiDasar.sisipkan(
-        'kritik_saran',
-        any,
-      ),).called(1);
+      verify(
+        mockOperasiDasar.sisipkan(
+          'kritik_saran',
+          any,
+        ),
+      ).called(1);
     });
 
     test('getKritikSaran harus mengembalikan list data dari SQLite', () async {
-      when(mockDatabase.query(
-        'kritik_saran',
-        orderBy: anyNamed('orderBy'),
-      ),).thenAnswer((final _) async => [
-            {
-              'id': 'ks_001',
-              'userId': 'user_123',
-              'isi': 'Bagus!',
-              'tanggal': DateTime.now().millisecondsSinceEpoch,
-              'diperbarui': DateTime.now().millisecondsSinceEpoch,
-            },
-          ],);
+      when(
+        mockDatabase.query(
+          'kritik_saran',
+          orderBy: anyNamed('orderBy'),
+        ),
+      ).thenAnswer(
+        (final _) async => [
+          {
+            'id': 'ks_001',
+            'userId': 'user_123',
+            'isi': 'Bagus!',
+            'tanggal': DateTime.now().millisecondsSinceEpoch,
+            'diperbarui': DateTime.now().millisecondsSinceEpoch,
+          },
+        ],
+      );
 
       final result = await kritikSaranOperasi.getKritikSaran();
 
-      expect(result, isA<List<KritikSaranModel>>());
+      expect(result, isA<List<FeedbackModel>>());
       expect(result.first.id, 'ks_001');
-      verify(mockDatabase.query(
-        'kritik_saran',
-        orderBy: 'tanggal DESC',
-      ),).called(1);
+      verify(
+        mockDatabase.query(
+          'kritik_saran',
+          orderBy: 'tanggal DESC',
+        ),
+      ).called(1);
     });
 
     test('getKritikSaranById harus melempar Exception jika ID tidak ditemukan',
         () {
-      when(mockDatabase.query(any,
-              where: anyNamed('where'), whereArgs: anyNamed('whereArgs'),),)
-          .thenAnswer((final _) async => []);
+      when(
+        mockDatabase.query(
+          any,
+          where: anyNamed('where'),
+          whereArgs: anyNamed('whereArgs'),
+        ),
+      ).thenAnswer((final _) async => []);
 
       expect(
         () => kritikSaranOperasi.getKritikSaranById('999'),
@@ -108,10 +120,12 @@ void main() {
 
       await kritikSaranOperasi.sisipkanAtauPerbaruiBatch([tKritikSaran]);
 
-      verify(mockOperasiDasar.sisipkanAtauPerbaruiBatch(
-        'kritik_saran',
-        any,
-      ),).called(1);
+      verify(
+        mockOperasiDasar.sisipkanAtauPerbaruiBatch(
+          'kritik_saran',
+          any,
+        ),
+      ).called(1);
     });
   });
 }

@@ -3,7 +3,7 @@
 // Tujuan: Memisahkan operasi data (CRUD) dari UI, mengelola semua interaksi dengan Firestore.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 
 /// Kelas untuk mengelola operasi CRUD (Create, Read, Update, Delete)
 /// terkait data kritik dan saran dari pengguna di Firestore.
@@ -22,7 +22,7 @@ class KritikSaranOperasiUser {
   /// Menyimpan [kritikSaran] baru ke Firestore.
   ///
   /// Melemparkan [Exception] jika terjadi kegagalan.
-  Future<void> buatKritikSaranBaru(final KritikSaranModel kritikSaran) async {
+  Future<void> buatKritikSaranBaru(final FeedbackModel kritikSaran) async {
     try {
       await _kritikSaranCollection.add(kritikSaran.toFirebase());
     } catch (e) {
@@ -32,16 +32,16 @@ class KritikSaranOperasiUser {
 
   /// Membaca semua kritik dan saran yang dikirim oleh pengguna tertentu.
   ///
-  /// Mengembalikan [Stream] dari daftar [KritikSaranModel] yang diurutkan
+  /// Mengembalikan [Stream] dari daftar [FeedbackModel] yang diurutkan
   /// berdasarkan tanggal pembaruan terbaru.
-  Stream<List<KritikSaranModel>> bacaSemuaKritikSaran(final String userId) {
+  Stream<List<FeedbackModel>> bacaSemuaKritikSaran(final String userId) {
     return _kritikSaranCollection
         .where('userId', isEqualTo: userId)
         .orderBy('diperbarui', descending: true)
         .snapshots()
         .map((final snapshot) {
       return snapshot.docs.map((final doc) {
-        return KritikSaranModel.fromFirebase(
+        return FeedbackModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,
         );

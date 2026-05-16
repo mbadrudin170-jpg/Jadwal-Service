@@ -1,12 +1,12 @@
-// path: lib/shared/enum/arsitektur_apk_enum.dart
+// path: lib/shared/enum/apk_architecture_enum.dart
 
 /// Jenis arsitektur aplikasi yang didukung.
-enum ArsitekturApkEnum {
+enum ApkArchitectureEnum {
   /// Aplikasi 32-bit.
-  bit_32,
+  bit32,
 
   /// Aplikasi 64-bit.
-  bit_64,
+  bit64,
 
   /// Aplikasi universal (mendukung 32-bit dan 64-bit).
   universal,

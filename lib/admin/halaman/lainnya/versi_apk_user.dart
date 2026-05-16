@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/detail/detail_versi_apk_user.dart';
 import 'package:wifi/admin/halaman/form/form_versi_apk_user.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/arsitektur_apk_enum.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/operasi/versi_apk_user_operasi.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 

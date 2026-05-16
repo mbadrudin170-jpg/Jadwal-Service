@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/tab/dompet.dart
+// diubah: Memperbaiki LateInitializationError dengan menginisialisasi _dompetOperasi di initState.
 
 import 'dart:async';
 
@@ -42,6 +43,7 @@ class _DompetPageState extends State<DompetPage> {
   void initState() {
     super.initState();
     Log.info('Halaman Dompet sedang diinisialisasi.');
+    _dompetOperasi = widget.dompetOperasi ?? DompetOperasi();
     _loadDompet();
   }
 
@@ -215,6 +217,9 @@ class _DompetPageState extends State<DompetPage> {
       ),
       body: Column(
         children: [
+          RingkasanKeuangan(
+            dompetOperasi: _dompetOperasi,
+          ),
           Expanded(
             child: FutureBuilder<List<DompetModel>>(
               future: _listaDompetFuture,

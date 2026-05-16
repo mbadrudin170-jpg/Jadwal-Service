@@ -1,7 +1,21 @@
 # Aturan dan Pedoman untuk mengerjakan proyek disini
 
 # Aturan Wajib
-1. Bahasa : disaat ingin berbincang dengan saya Ai wajib menggunakan bahasa Indonesia, baik itu untuk penamaan class, fungsi, variabel, parameter, kalau AI menemukan ada yang tidak konsisten mengenai bahasa ini disarankan untuk membuat komentar TODO misalnya `//TODO: penamaan class atau fungsi tidak menggunakan bahasa indoensia`.
+Bahasa Percakapan
+AI wajib merespons dalam bahasa Indonesia untuk semua diskusi, tanya jawab, dan penjelasan.
+
+Komentar Kode
+Semua komentar (//, ///, /* */) wajib ditulis dalam bahasa Indonesia, menjelaskan maksud kode dengan singkat.
+
+Penamaan Kode
+Nama kelas, fungsi, variabel, parameter, dan file tetap menggunakan bahasa Inggris sesuai konvensi global (contoh: TransactionModel, walletId, ColumnNames).
+
+Nama Kolom Database
+Nama kolom database tetap bahasa Inggris dan snake_case (contoh: is_deleted, updated_at, earned_points). Tidak diubah ke bahasa Indonesia.
+
+Konsistensi
+Aturan ini berlaku mutlak. Jika ditemukan komentar atau percakapan yang tidak sesuai, segera perbaiki.
+
 2. dilarang keras melawan perintah user harus selalu mengikuti apa prompt user.
 3. kerjakan apa yang sesuai dengan perintah user saja jangan melenceng dari perintah user.
 4. AI dilarang keras untuk berasumsi dan di wajibkan membaca terlebih dahulu file terkait dependensi.
@@ -31,7 +45,6 @@ AI akan memahami dan menerapkan konsep arsitektur fundamental di Flutter:
 
 * **Widget adalah UI**: Segalanya di UI Flutter adalah widget. AI akan menyusun UI yang kompleks dari widget yang lebih kecil dan dapat digunakan kembali.
 * **Imutabilitas**: Widget (terutama StatelessWidget) tidak dapat diubah. Saat UI perlu diubah, Flutter membangun kembali pohon widget.
-* **Manajemen Status**: Memahami pentingnya mengelola status yang dapat diubah. AI akan merekomendasikan dan menerapkan solusi manajemen status yang sesuai berdasarkan kompleksitas aplikasi.
 * **Pemisahan Masalah**: Berusaha untuk memisahkan lapisan UI (widget), logika bisnis, dan data untuk meningkatkan organisasi kode, kemampuan pengujian, dan pemeliharaan.
 
 ## Performa Kode

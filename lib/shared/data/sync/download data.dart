@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/kritik_saran_model.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/model/paket_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/pelanggan_model.dart';
@@ -11,9 +11,9 @@ import 'package:wifi/shared/model/pengaturan_model.dart';
 import 'package:wifi/shared/model/pesanan_model.dart';
 import 'package:wifi/shared/model/sub_kategori_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/model/versi_apk_user_model.dart';
+import 'package:wifi/shared/model/user_apk_version_model.dart';
 import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
+import 'package:wifi/shared/operasi/category_repository.dart';
 import 'package:wifi/shared/operasi/kritik_saran_operasi.dart';
 import 'package:wifi/shared/operasi/paket_operasi.dart';
 import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
@@ -243,10 +243,10 @@ class LayananUnduhData {
   /// Mengunduh data transaksi dari Firebase.
   Future<void> unduhDataTransaksi() async {
     final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<TransaksiModel>(
+    await sinkronisasiKoleksi<TransactionModel>(
       namaKoleksi: 'transaksi',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: TransaksiModel.fromFirebase,
+      fromFirebase: TransactionModel.fromFirebase,
       operasiBatch: (final data) =>
           _transaksiOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
@@ -255,10 +255,10 @@ class LayananUnduhData {
   /// Mengunduh data kritik dan saran dari Firebase.
   Future<void> unduhDataKritikSaran() async {
     final waktu = await _syncManager.getTerakhirUnduh();
-    await sinkronisasiKoleksi<KritikSaranModel>(
+    await sinkronisasiKoleksi<FeedbackModel>(
       namaKoleksi: 'kritik_saran',
       waktuUnduhTerakhir: waktu,
-      fromFirebase: KritikSaranModel.fromFirebase,
+      fromFirebase: FeedbackModel.fromFirebase,
       operasiBatch: (final data) =>
           _kritikSaranOperasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );

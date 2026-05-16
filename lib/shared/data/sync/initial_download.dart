@@ -2,7 +2,7 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/data/sync/unduh_data.dart';
+import 'package:wifi/shared/data/sync/download%20data.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// [UnduhanAwalService] bertanggung jawab untuk mengisi database lokal dengan

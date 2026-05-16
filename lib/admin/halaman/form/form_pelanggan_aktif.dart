@@ -11,19 +11,19 @@ import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/hasil_simpan_model.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/model/paket_model.dart';
-import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/model/pelanggan_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/dompet_operasi.dart';
-import 'package:wifi/shared/operasi/kategori_operasi.dart';
-import 'package:wifi/shared/operasi/paket_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_aktif_operasi.dart';
-import 'package:wifi/shared/operasi/pelanggan_operasi.dart';
-import 'package:wifi/shared/operasi/transaksi_operasi.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/wallet_operasi.dart';
+import 'package:wifi/shared/operasi/category_operasi.dart';
+import 'package:wifi/shared/operasi/package_operasi.dart';
+import 'package:wifi/shared/operasi/active_customer_operasi.dart';
+import 'package:wifi/shared/operasi/customer_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operasi.dart';
 import 'package:wifi/shared/services/pembaruan_data_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -32,28 +32,28 @@ import 'package:wifi/shared/whatsapp/info_paket.dart';
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
   final DateTime startDate,
-  final PaketModel paket,
+  final PackageModel paket,
 ) {
   Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
   Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
-  Log.info('  - Nama Paket: ${paket.nama}');
-  Log.info('  - Tipe Durasi: ${paket.tipe.displayName}');
-  Log.info('  - Durasi: ${paket.durasi}');
+  Log.info('  - Nama Paket: ${paket.name}');
+  Log.info('  - Tipe Durasi: ${paket.durationType.displayName}');
+  Log.info('  - Durasi: ${paket.duration}');
 
   DateTime hasil;
-  switch (paket.tipe) {
+  switch (paket.durationType) {
     case TipeDurasi.jam:
-      hasil = startDate.add(Duration(hours: paket.durasi));
+      hasil = startDate.add(Duration(hours: paket.duration));
       break;
     case TipeDurasi.hari:
-      hasil = startDate.add(Duration(days: paket.durasi));
+      hasil = startDate.add(Duration(days: paket.duration));
       break;
     case TipeDurasi.bulan:
       hasil =
-          Jiffy.parseFromDateTime(startDate).add(months: paket.durasi).dateTime;
+          Jiffy.parseFromDateTime(startDate).add(months: paket.duration).dateTime;
       break;
     case TipeDurasi.menit:
-      hasil = startDate.add(Duration(minutes: paket.durasi));
+      hasil = startDate.add(Duration(minutes: paket.duration));
       break;
   }
 
@@ -64,43 +64,43 @@ DateTime hitungTanggalBerakhir(
 /// Form untuk menambah atau mengubah data pelanggan yang sedang aktif.
 class FormPelangganAktif extends StatefulWidget {
   /// Data pelanggan aktif yang akan diedit.
-  final PelangganAktifModel? pelangganAktif;
+  final ActiveCustomerModel? pelangganAktif;
 
   /// Operasi untuk data pelanggan
-  final PelangganOperasi pelangganOperasi;
+  final CustomerOperation pelangganOperasi;
 
   /// Operasi untuk data paket
-  final PaketOperasi paketOperasi;
+  final PackageOperation paketOperasi;
 
   /// Operasi untuk data pelanggan aktif
-  final PelangganAktifOperasi pelangganAktifOperasi;
+  final ActiveCustomerOperation pelangganAktifOperasi;
 
   /// Operasi untuk data transaksi
-  final TransaksiOperasi transaksiOperasi;
+  final TransactionOperation transaksiOperasi;
 
   /// Operasi untuk data dompet
-  final DompetOperasi dompetOperasi;
+  final WalletOperation dompetOperasi;
 
   /// Operasi untuk data kategori
-  final KategoriOperasi kategoriOperasi;
+  final CategoryOperation kategoriOperasi;
 
   /// Konstruktor untuk FormPelangganAktif
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
-    final PelangganOperasi? pelangganOperasi,
-    final PaketOperasi? paketOperasi,
-    final PelangganAktifOperasi? pelangganAktifOperasi,
-    final TransaksiOperasi? transaksiOperasi,
-    final DompetOperasi? dompetOperasi,
-    final KategoriOperasi? kategoriOperasi,
-  })  : pelangganOperasi = pelangganOperasi ?? PelangganOperasi(),
-        paketOperasi = paketOperasi ?? PaketOperasi(),
+    final CustomerOperation? pelangganOperasi,
+    final PackageOperation? paketOperasi,
+    final ActiveCustomerOperation? pelangganAktifOperasi,
+    final TransactionOperation? transaksiOperasi,
+    final WalletOperation? dompetOperasi,
+    final CategoryOperation? kategoriOperasi,
+  })  : pelangganOperasi = pelangganOperasi ?? CustomerOperation(),
+        paketOperasi = paketOperasi ?? PackageOperation(),
         pelangganAktifOperasi =
-            pelangganAktifOperasi ?? PelangganAktifOperasi(),
-        transaksiOperasi = transaksiOperasi ?? TransaksiOperasi(),
-        dompetOperasi = dompetOperasi ?? DompetOperasi(),
-        kategoriOperasi = kategoriOperasi ?? KategoriOperasi();
+            pelangganAktifOperasi ?? ActiveCustomerOperation(),
+        transaksiOperasi = transaksiOperasi ?? TransactionOperation(),
+        dompetOperasi = dompetOperasi ?? WalletOperation(),
+        kategoriOperasi = kategoriOperasi ?? CategoryOperation();
 
   @override
   State<FormPelangganAktif> createState() => _FormPelangganAktifState();
@@ -109,19 +109,19 @@ class FormPelangganAktif extends StatefulWidget {
 class _FormPelangganAktifState extends State<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
-  List<PelangganModel> _pelangganList = [];
-  List<PaketModel> _paketList = [];
-  List<DompetModel> _daftarDompet = [];
-  List<KategoriModel> _kategoriPemasukanList = [];
-  List<KategoriModel> _kategoriPengeluaranList = [];
+  List<CustomerModel> _pelangganList = [];
+  List<PackageModel> _paketList = [];
+  List<WalletModel> _daftarDompet = [];
+  List<CategoryModel> _kategoriPemasukanList = [];
+  List<CategoryModel> _kategoriPengeluaranList = [];
 
-  List<KategoriModel> get _kategoriList =>
+  List<CategoryModel> get _kategoriList =>
       _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
 
-  PelangganModel? _selectedPelanggan;
-  PaketModel? _selectedPaket;
-  DompetModel? _selectedDompet;
-  KategoriModel? _selectedKategori;
+  CustomerModel? _selectedPelanggan;
+  PackageModel? _selectedPaket;
+  WalletModel? _selectedDompet;
+  CategoryModel? _selectedKategori;
 
   bool _isLoading = true;
   bool _gunakanPoin = false;
@@ -138,7 +138,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     if (_selectedPaket == null) {
       return 0;
     }
-    return _gunakanPoin ? _selectedPaket!.poinPenukaran : 0;
+    return _gunakanPoin ? _selectedPaket!.redeemablePoints : 0;
   }
 
   int hitungSisaPoin() {
@@ -158,15 +158,15 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
     try {
       final pa = widget.pelangganAktif;
-      final transaksiTerkaitFuture = pa?.idTransaksi != null
-          ? widget.transaksiOperasi.getTransaksiById(pa!.idTransaksi!)
-          : Future<TransaksiModel?>.value();
+      final transaksiTerkaitFuture = pa?.transactionId != null
+          ? widget.transaksiOperasi.getTransactionById(pa!.transactionId!)
+          : Future<TransactionModel?>.value();
 
       final results = await Future.wait([
-        widget.pelangganOperasi.getPelanggan(),
-        widget.paketOperasi.getPaket(),
-        widget.dompetOperasi.getDompet(),
-        widget.kategoriOperasi.getKategori(),
+        widget.pelangganOperasi.getCustomers(),
+        widget.paketOperasi.getPackages(),
+        widget.dompetOperasi.getWallets(),
+        widget.kategoriOperasi.getCategories(),
         transaksiTerkaitFuture,
       ]);
 
@@ -175,26 +175,26 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       }
 
       setState(() {
-        _pelangganList = (results[0] as List<PelangganModel>)
+        _pelangganList = (results[0] as List<CustomerModel>)
           ..sort((final a, final b) =>
-              a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
-        _paketList = results[1] as List<PaketModel>;
-        _daftarDompet = (results[2] as List<DompetModel>)
+              a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        _paketList = results[1] as List<PackageModel>;
+        _daftarDompet = (results[2] as List<WalletModel>)
             .where((final d) => !d.isDeleted)
             .toList();
-        final semuaKategori = results[3] as List<KategoriModel>;
+        final semuaKategori = results[3] as List<CategoryModel>;
         _kategoriPemasukanList = semuaKategori
             .where(
-                (final k) => k.tipe == TipeKategori.pemasukan && !k.isDeleted)
+                (final k) => k.type == CategoryType.income && !k.isDeleted)
             .toList();
         _kategoriPengeluaranList = semuaKategori
             .where(
-                (final k) => k.tipe == TipeKategori.pengeluaran && !k.isDeleted)
+                (final k) => k.type == CategoryType.expense && !k.isDeleted)
             .toList();
 
         final transaksiTerkait =
-            results.length > 4 && results[4] is TransaksiModel
-                ? results[4] as TransaksiModel?
+            results.length > 4 && results[4] is TransactionModel
+                ? results[4] as TransactionModel?
                 : null;
 
         if (_isEditMode) {
@@ -215,25 +215,25 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
   }
 
-  void _mapEditData(final TransaksiModel? transaksi) {
+  void _mapEditData(final TransactionModel? transaksi) {
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
     _selectedPelanggan =
-        _pelangganList.firstWhereOrNull((final p) => p.id == pa.idPelanggan);
+        _pelangganList.firstWhereOrNull((final p) => p.id == pa.customerId);
     _selectedPaket =
-        _paketList.firstWhereOrNull((final p) => p.id == pa.idPaket);
+        _paketList.firstWhereOrNull((final p) => p.id == pa.packageId);
 
     if (transaksi != null) {
       Log.info(
           'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.');
       _selectedDompet = _daftarDompet
-          .firstWhereOrNull((final d) => d.id == transaksi.idDompet);
-      final kategoriSumber = transaksi.tipe == TipeTransaksiEnum.pemasukan
+          .firstWhereOrNull((final d) => d.id == transaksi.walletId);
+      final kategoriSumber = transaksi.type == TipeTransaksiEnum.pemasukan
           ? _kategoriPemasukanList
           : _kategoriPengeluaranList;
       _selectedKategori = kategoriSumber
-          .firstWhereOrNull((final k) => k.id == transaksi.idKategori);
+          .firstWhereOrNull((final k) => k.id == transaksi.categoryId);
     } else {
       Log.warning(
           'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.');
@@ -243,13 +243,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       }
     }
 
-    _selectedDate = pa.tanggalMulai;
-    _selectedTime = TimeOfDay.fromDateTime(pa.tanggalMulai);
+    _selectedDate = pa.startDate;
+    _selectedTime = TimeOfDay.fromDateTime(pa.startDate);
     _statusPembayaran = pa.status;
 
     if (_selectedPelanggan != null) {
       unawaited(widget.transaksiOperasi
-          .getTotalPoin(_selectedPelanggan!.id)
+          .getTotalPoints(_selectedPelanggan!.id)
           .then((final poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
@@ -270,7 +270,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
     if (_kategoriPemasukanList.isNotEmpty) {
       _selectedKategori = _kategoriPemasukanList.firstWhereOrNull(
-              (final k) => k.nama.toLowerCase() == 'aktivasi paket') ??
+              (final k) => k.name.toLowerCase() == 'aktivasi paket') ??
           _kategoriPemasukanList.first;
     }
   }
@@ -302,7 +302,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
   }
 
-  Future<HasilSimpanModel<PelangganAktifModel>> _saveForm() async {
+  Future<HasilSimpanModel<ActiveCustomerModel>> _saveForm() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return HasilSimpanModel(sukses: false, pesan: 'Data belum lengkap');
     }
@@ -327,50 +327,50 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       final tanggalBerakhir =
           hitungTanggalBerakhir(tanggalMulai, _selectedPaket!);
       final transaksiId =
-          (_isEditMode && widget.pelangganAktif?.idTransaksi != null)
-              ? widget.pelangganAktif!.idTransaksi!
+          (_isEditMode && widget.pelangganAktif?.transactionId != null)
+              ? widget.pelangganAktif!.transactionId!
               : const Uuid().v4();
 
-      final pelangganAktifData = PelangganAktifModel(
+      final pelangganAktifData = ActiveCustomerModel(
           id: _isEditMode ? widget.pelangganAktif!.id : '',
-          idPelanggan: _selectedPelanggan!.id,
-          idPaket: _selectedPaket!.id,
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
+          customerId: _selectedPelanggan!.id,
+          packageId: _selectedPaket!.id,
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
           status: _statusPembayaran,
-          idTransaksi: transaksiId);
+          transactionId: transaksiId);
 
-      final transaksiData = TransaksiModel(
+      final transaksiData = TransactionModel(
           id: transaksiId,
-          tanggal: tanggalMulai,
-          keterangan: 'Aktivasi Paket: ${_selectedPaket!.nama}',
-          jumlah: _gunakanPoin ? 0 : _selectedPaket!.harga.toDouble(),
-          tipe: _gunakanPoin
+          date: tanggalMulai,
+          description: 'Aktivasi Paket: ${_selectedPaket!.name}',
+          amount: _gunakanPoin ? 0 : _selectedPaket!.price.toDouble(),
+          type: _gunakanPoin
               ? TipeTransaksiEnum.pengeluaran
               : TipeTransaksiEnum.pemasukan,
-          idDompet: _selectedDompet!.id,
-          idKategori: _selectedKategori!.id,
-          idPelanggan: _selectedPelanggan!.id,
-          idPaket: _selectedPaket!.id,
-          statusPembayaran: _statusPembayaran,
-          poinYangDihasilkan: _gunakanPoin ? 0 : _selectedPaket!.poinHadiah,
-          poinYangDigunakan: _gunakanPoin ? _selectedPaket!.poinPenukaran : 0,
-          durasiPaket: _selectedPaket!.durasi,
-          tipeDurasiPaket: _selectedPaket!.tipe,
-          tanggalMulai: tanggalMulai,
-          tanggalBerakhir: tanggalBerakhir,
-          aktivasiPaket: true);
+          walletId: _selectedDompet!.id,
+          categoryId: _selectedKategori!.id,
+          customerId: _selectedPelanggan!.id,
+          packageId: _selectedPaket!.id,
+          paymentStatus: _statusPembayaran,
+          earnedPoints: _gunakanPoin ? 0 : _selectedPaket!.rewardPoints,
+          usedPoints: _gunakanPoin ? _selectedPaket!.redeemablePoints : 0,
+          packageDuration: _selectedPaket!.duration,
+          packageDurationType: _selectedPaket!.durationType,
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
+          isPackageActivation: true);
 
-      PelangganAktifModel pelangganAktifHasil;
+      ActiveCustomerModel pelangganAktifHasil;
       if (_isEditMode) {
         pelangganAktifHasil = await widget.pelangganAktifOperasi
-            .updatePelangganAktif(pelangganAktifData);
+            .updateActiveCustomer(pelangganAktifData);
         await widget.transaksiOperasi
-            .updateTransaksi(transaksiId, transaksiData);
+            .updateTransaction(transaksiId, transaksiData);
       } else {
         pelangganAktifHasil = await widget.pelangganAktifOperasi
-            .createPelangganAktif(pelangganAktifData);
-        await widget.transaksiOperasi.tambahTransaksi(transaksiData);
+            .createActiveCustomer(pelangganAktifData);
+        await widget.transaksiOperasi.addTransaction(transaksiData);
       }
 
       PembaruanDataService.instance.picuPembaruan();
@@ -455,20 +455,20 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildPelangganDropdown() {
-    return DropdownButtonFormField<PelangganModel>(
+    return DropdownButtonFormField<CustomerModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
       initialValue: _selectedPelanggan,
       items: _pelangganList
-          .map((final p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .map((final p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
       onChanged: (final newValue) async {
         if (newValue == null) {
           return;
         }
         final saldoPoin =
-            await widget.transaksiOperasi.getTotalPoin(newValue.id);
+            await widget.transaksiOperasi.getTotalPoints(newValue.id);
         if (mounted) {
           setState(() {
             _selectedPelanggan = newValue;
@@ -481,13 +481,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildPaketDropdown() {
-    return DropdownButtonFormField<PaketModel>(
+    return DropdownButtonFormField<PackageModel>(
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Paket', border: OutlineInputBorder()),
       initialValue: _selectedPaket,
       items: _paketList
-          .map((final p) => DropdownMenuItem(value: p, child: Text(p.nama)))
+          .map((final p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
       onChanged: (final newValue) => setState(() => _selectedPaket = newValue),
       validator: (final v) => v == null ? 'Paket tidak boleh kosong' : null,
@@ -495,14 +495,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildDompetDropdown() {
-    return DropdownButtonFormField<DompetModel>(
+    return DropdownButtonFormField<WalletModel>(
       key: const Key('dompet_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
       initialValue: _selectedDompet,
       items: _daftarDompet
           .map((final d) =>
-              DropdownMenuItem(value: d, child: Text(d.namaDompet)))
+              DropdownMenuItem(value: d, child: Text(d.name)))
           .toList(),
       onChanged: (final newValue) => setState(() => _selectedDompet = newValue),
       validator: (final v) => v == null ? 'Dompet tidak boleh kosong' : null,
@@ -510,13 +510,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildKategoriDropdown() {
-    return DropdownButtonFormField<KategoriModel>(
+    return DropdownButtonFormField<CategoryModel>(
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),
       initialValue: _selectedKategori,
       items: _kategoriList
-          .map((final k) => DropdownMenuItem(value: k, child: Text(k.nama)))
+          .map((final k) => DropdownMenuItem(value: k, child: Text(k.name)))
           .toList(),
       onChanged: (final newValue) =>
           setState(() => _selectedKategori = newValue),
