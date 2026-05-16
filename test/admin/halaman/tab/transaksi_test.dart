@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/halaman/tab/transaksi.dart';
+import 'package:wifi/admin/halaman/tab/transaction_page.dart';
 import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';

@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/pelanggan_aktif.dart';
-import 'package:wifi/admin/halaman/tab/transaksi.dart';
+import 'package:wifi/admin/halaman/tab/transaction_page.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 
 // Helper to mock Firebase Core in a test environment

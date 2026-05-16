@@ -251,9 +251,9 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         title: Text('Opsi Versi ${version.latestVersion}'),
         children: [
           SimpleDialogOption(
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(c);
-              await _toEditForm(version);
+              unawaited(_toEditForm(version));
             },
             child: const ListTile(
               leading: Icon(Icons.edit),
@@ -261,9 +261,9 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
             ),
           ),
           SimpleDialogOption(
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(c);
-              await _showArchiveDialog(version);
+              unawaited(_showArchiveDialog(version));
             },
             child: const ListTile(
               leading: Icon(Icons.archive),
@@ -290,9 +290,9 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
           ),
           TextButton(
             child: const Text('Arsipkan'),
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(c);
-              await _archive(version.id);
+              unawaited(_archive(version.id));
             },
           ),
         ],
@@ -340,14 +340,14 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.sort),
-            onPressed: () async => _showSortDialog(),
+            onPressed: _showSortDialog,
             tooltip: 'Urutkan',
           ),
         ],
       ),
       body: _buildContent(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async => _toAddForm(),
+        onPressed: _toAddForm,
         tooltip: 'Tambah Versi APK',
         child: const Icon(Icons.add),
       ),
@@ -392,8 +392,8 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              onTap: () async => _toDetail(apkVersion),
-              onLongPress: () async => _showOptionsDialog(apkVersion),
+              onTap: () => _toDetail(apkVersion),
+              onLongPress: () => _showOptionsDialog(apkVersion),
             ),
           );
         },

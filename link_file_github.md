@@ -96,18 +96,26 @@ https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman
 # base_operation
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/operasi/base_operation.dart
 
-# sqlite
-https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/data/sqlite.dart
-
 # column_names
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/constant/column_names.dart
 
 # wallet_form.dart
-https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/
-
-# wallet_detail.dart
-https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/detail/wallet_detail.dart
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/admin/halaman/form/wallet_form.dart
 
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/utils/snackbar_util.dart
 
 https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/debug/log.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/summary_info_widget.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/model/transaction_model.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/enum/transaction_type_enum.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/transaction_list_widgets.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/thousands_input_formatter.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/teks_pengaman_database_widget.dart
+
+https://github.com/mbadrudin170-jpg/Jadwal-Service/blob/master/lib/shared/widget/poin_page_ui.dart

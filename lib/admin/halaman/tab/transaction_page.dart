@@ -1,39 +1,56 @@
-// path: lib/admin/halaman/tab/transaksi.dart
-// revisi: Menerapkan caching state & memperbaiki peringatan linter.
+// path: lib/admin/halaman/tab/transaction_page.dart
+// digunakan oleh: lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Transaksi)
+// diubah: Refactor total ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
+// diubah: Memperbaiki import path yang salah.
+// diubah: Menerapkan caching state & memperbaiki peringatan linter.
 
 import 'package:flutter/material.dart';
-import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/tipe_transaksi_enum.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/transaction_operasi.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/widget/info_ringkasan_widget.dart';
-import 'package:wifi/shared/widget/transaksi_list_widgets.dart';
+import 'package:wifi/shared/widget/financial_summary_widget.dart';
+import 'package:wifi/shared/widget/transaction_list_widgets.dart';
+
+// === INFORMASI DEPENDENCY ===
+// 📂 FILE INI DIGUNAKAN OLEH:
+//   - lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Transaksi)
+//
+// 📂 FILE INI MENGGUNAKAN:
+//   - lib/admin/halaman/form/transaction_form.dart (TransactionFormPage)
+//   - lib/shared/enum/transaction_type_enum.dart (TransactionType)
+//   - lib/shared/model/transaction_model.dart (TransactionModel)
+//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
+//   - lib/shared/debug/log.dart (Log)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/widget/financial_summary_widget.dart (buildFinancialSummaryInfo)
+//   - lib/shared/widget/transaction_list_widgets.dart (groupTransactionsByDate, buildSectionHeader, buildTransactionItem)
 
 /// Widget untuk menampilkan ringkasan transaksi (pemasukan, pengeluaran, total).
-class RingkasanTransaksi extends StatelessWidget {
+class TransactionSummary extends StatelessWidget {
   /// Jumlah total pemasukan.
-  final double pemasukan;
+  final double income;
 
   /// Jumlah total pengeluaran.
-  final double pengeluaran;
+  final double expense;
 
   /// Total selisih antara pemasukan dan pengeluaran.
   final double total;
 
-  /// Konstruktor untuk RingkasanTransaksi.
-  const RingkasanTransaksi({
+  /// Konstruktor untuk TransactionSummary.
+  const TransactionSummary({
     super.key,
-    required this.pemasukan,
-    required this.pengeluaran,
+    required this.income,
+    required this.expense,
     required this.total,
   });
 
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun UI RingkasanTransaksi dengan data: Pemasukan=${pemasukan.toStringAsFixed(2)}, Pengeluaran=${pengeluaran.toStringAsFixed(2)}, Total=${total.toStringAsFixed(2)}',
+      'Membangun UI TransactionSummary dengan data: Pemasukan=${income.toStringAsFixed(2)}, Pengeluaran=${expense.toStringAsFixed(2)}, Total=${total.toStringAsFixed(2)}',
     );
     return Card(
       margin: const EdgeInsets.all(8.0),
@@ -43,23 +60,23 @@ class RingkasanTransaksi extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            bangunInfoRingkasan(
+            buildFinancialSummaryInfo(
               context: context,
               label: 'Pemasukan',
-              jumlah: pemasukan,
-              warna: Colors.green,
+              amount: income,
+              color: Colors.green,
             ),
-            bangunInfoRingkasan(
+            buildFinancialSummaryInfo(
               context: context,
               label: 'Pengeluaran',
-              jumlah: pengeluaran,
-              warna: Colors.red,
+              amount: expense,
+              color: Colors.red,
             ),
-            bangunInfoRingkasan(
+            buildFinancialSummaryInfo(
               context: context,
               label: 'Total',
-              jumlah: total,
-              warna: total >= 0 ? Colors.blue : Colors.red,
+              amount: total,
+              color: total >= 0 ? Colors.blue : Colors.red,
             ),
           ],
         ),
@@ -69,20 +86,20 @@ class RingkasanTransaksi extends StatelessWidget {
 }
 
 /// Halaman untuk menampilkan dan mengelola daftar transaksi.
-class TransaksiPage extends StatefulWidget {
+class TransactionPage extends StatefulWidget {
   /// Operasi transaksi untuk injeksi dependensi saat testing.
-  final TransactionOperation? transaksiOperasi;
+  final TransactionOperation? transactionOperation;
 
-  /// Konstruktor untuk TransaksiPage.
-  const TransaksiPage({super.key, this.transaksiOperasi});
+  /// Konstruktor untuk TransactionPage.
+  const TransactionPage({super.key, this.transactionOperation});
 
   @override
-  State<TransaksiPage> createState() => _TransaksiPageState();
+  State<TransactionPage> createState() => _TransactionPageState();
 }
 
-class _TransaksiPageState extends State<TransaksiPage> {
-  late TransactionOperation _transaksiOperasi;
-  
+class _TransactionPageState extends State<TransactionPage> {
+  late TransactionOperation _transactionOperation;
+
   // Variabel state untuk caching
   Map<String, dynamic>? _cachedData;
   Object? _error;
@@ -92,38 +109,39 @@ class _TransaksiPageState extends State<TransaksiPage> {
   void initState() {
     super.initState();
     Log.info('Halaman Transaksi sedang diinisialisasi (initState).');
-    _transaksiOperasi = widget.transaksiOperasi ?? TransactionOperation();
+    _transactionOperation =
+        widget.transactionOperation ?? TransactionOperation();
     Log.info(
       'TransactionOperation telah disiapkan. Memulai pengambilan data awal.',
     );
-    _initialLoadFuture = _muatData();
+    _initialLoadFuture = _loadData();
   }
 
   /// Mengambil semua data yang diperlukan dari operasi transaksi.
-  Future<Map<String, dynamic>> _ambilData() async {
+  Future<Map<String, dynamic>> _fetchData() async {
     Log.info(
-      'Memulai proses _ambilData untuk mengambil semua data transaksi dan ringkasan.',
+      'Memulai proses _fetchData untuk mengambil semua data transaksi dan ringkasan.',
     );
     try {
       final results = await Future.wait([
-        _transaksiOperasi.getAllTransactions(),
-        _transaksiOperasi.getTotalIncome(),
-        _transaksiOperasi.getTotalExpense(),
-        _transaksiOperasi.getNetTotal(),
+        _transactionOperation.getAllTransactions(),
+        _transactionOperation.getTotalIncome(),
+        _transactionOperation.getTotalExpense(),
+        _transactionOperation.getNetTotal(),
       ]);
-      final transaksi = results[0] as List<TransactionModel>;
+      final transactions = results[0] as List<TransactionModel>;
       Log.info(
-        'Berhasil mengambil ${transaksi.length} item transaksi dari database.',
+        'Berhasil mengambil ${transactions.length} item transaksi dari database.',
       );
       return {
-        'transaksi': transaksi,
-        'pemasukan': (results[1] as num).toDouble(),
-        'pengeluaran': (results[2] as num).toDouble(),
+        'transactions': transactions,
+        'income': (results[1] as num).toDouble(),
+        'expense': (results[2] as num).toDouble(),
         'total': (results[3] as num).toDouble(),
       };
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal total saat menjalankan _ambilData. Kesalahan terjadi di level Future.wait.',
+        'Gagal total saat menjalankan _fetchData. Kesalahan terjadi di level Future.wait.',
         e: e,
         st: s,
       );
@@ -132,10 +150,10 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   /// Memuat atau memuat ulang data dan memperbarui state.
-  Future<void> _muatData({final bool muatUlang = false}) async {
-    Log.info(muatUlang ? 'Memicu pemuatan ulang data...' : 'Memuat data awal...');
+  Future<void> _loadData({final bool reload = false}) async {
+    Log.info(reload ? 'Memicu pemuatan ulang data...' : 'Memuat data awal...');
 
-    if (muatUlang && mounted) {
+    if (reload && mounted) {
       setState(() {
         // Hapus cache untuk menampilkan indikator loading
         _cachedData = null;
@@ -144,7 +162,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
     }
 
     try {
-      final data = await _ambilData();
+      final data = await _fetchData();
       if (mounted) {
         setState(() {
           _cachedData = data;
@@ -161,19 +179,19 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   /// Membuka halaman form untuk menambah transaksi baru.
-  Future<void> _tambahTransaksi() async {
-    Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
+  Future<void> _addTransaction() async {
+    Log.info('Membuka TransactionFormPage untuk menambah entri baru.');
     final result = await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-          builder: (final context) => const FormTransaksiPage()),
+        builder: (final context) => const TransactionFormPage(),
+      ),
     );
     if (result ?? false) {
       Log.info(
         'Form ditutup dengan hasil sukses (true). Memuat ulang data transaksi.',
       );
-      // Panggil metode untuk memuat ulang data dengan loading
-      await _muatData(muatUlang: true);
+      await _loadData(reload: true);
     } else {
       Log.info(
         'Form ditutup tanpa hasil (false/null). Tidak ada data yang dimuat ulang.',
@@ -182,19 +200,21 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   /// Menampilkan dialog konfirmasi dan menghapus semua transaksi jika disetujui.
-  Future<void> _hapusSemuaTransaksi() async {
+  Future<void> _deleteAllTransactions() async {
     try {
-      final bool? konfirmasi = await showDialog<bool>(
+      final bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (final context) {
           return AlertDialog(
             title: const Text('Konfirmasi'),
             content: const Text(
-                'Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.'),
+              'Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.',
+            ),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Batal')),
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Batal'),
+              ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -205,13 +225,12 @@ class _TransaksiPageState extends State<TransaksiPage> {
         },
       );
 
-      if (konfirmasi ?? false) {
+      if (confirmed ?? false) {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
-        await _transaksiOperasi.deleteAllTransactions();
+        await _transactionOperation.deleteAllTransactions();
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
-        // Panggil metode untuk memuat ulang data dengan loading
-        await _muatData(muatUlang: true);
+        await _loadData(reload: true);
       }
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
@@ -228,7 +247,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
         title: const Text('Transaksi'),
         actions: [
           IconButton(
-            onPressed: _hapusSemuaTransaksi,
+            onPressed: _deleteAllTransactions,
             icon: const Icon(Icons.delete_sweep_outlined),
             tooltip: 'Hapus Semua Transaksi',
           ),
@@ -236,7 +255,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _tambahTransaksi,
+        onPressed: _addTransaction,
         child: const Icon(Icons.add),
       ),
     );
@@ -247,30 +266,28 @@ class _TransaksiPageState extends State<TransaksiPage> {
     // Jika data ada di cache, langsung tampilkan
     if (_cachedData != null) {
       final data = _cachedData!;
-      final pemasukan = (data['pemasukan'] as num?)?.toDouble() ?? 0.0;
-      final pengeluaran = (data['pengeluaran'] as num?)?.toDouble() ?? 0.0;
+      final income = (data['income'] as num?)?.toDouble() ?? 0.0;
+      final expense = (data['expense'] as num?)?.toDouble() ?? 0.0;
       final total = (data['total'] as num?)?.toDouble() ?? 0.0;
-      final transaksiData = data['transaksi'] as List<TransactionModel>;
+      final transactionsData = data['transactions'] as List<TransactionModel>;
       Log.info(
-        'Membangun UI dari cache. Memiliki ${transaksiData.length} transaksi.',
+        'Membangun UI dari cache. Memiliki ${transactionsData.length} transaksi.',
       );
 
       return Column(
         children: [
-          RingkasanTransaksi(
-            key: const Key(
-              'ringkasan_transaksi',
-            ),
-            pemasukan: pemasukan,
-            pengeluaran: pengeluaran,
+          TransactionSummary(
+            key: const Key('transaction_summary'),
+            income: income,
+            expense: expense,
             total: total,
           ),
           Expanded(
-            child: transaksiData.isEmpty
+            child: transactionsData.isEmpty
                 ? const Center(
                     child: Text('Tidak ada transaksi ditemukan.'),
                   )
-                : _bangunDaftarTransaksi(transaksiData),
+                : _buildTransactionList(transactionsData),
           ),
         ],
       );
@@ -288,7 +305,7 @@ class _TransaksiPageState extends State<TransaksiPage> {
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info(
-            'FutureBuilder: Menunggu hasil dari _muatData (awal). Menampilkan CircularProgressIndicator.',
+            'FutureBuilder: Menunggu hasil dari _loadData (awal). Menampilkan CircularProgressIndicator.',
           );
           return const Center(child: CircularProgressIndicator());
         }
@@ -300,7 +317,6 @@ class _TransaksiPageState extends State<TransaksiPage> {
           );
           return Center(child: Text('Terjadi Kesalahan: ${snapshot.error}'));
         }
-        // State ini seharusnya tidak tercapai jika logika benar, tapi sebagai fallback
         Log.warning('FutureBuilder selesai tapi _cachedData masih null.');
         return const Center(child: Text('Tidak ada data ditemukan.'));
       },
@@ -308,22 +324,22 @@ class _TransaksiPageState extends State<TransaksiPage> {
   }
 
   /// Membangun daftar transaksi yang dikelompokkan berdasarkan tanggal.
-  Widget _bangunDaftarTransaksi(final List<TransactionModel> transaksiData) {
+  Widget _buildTransactionList(final List<TransactionModel> transactionsData) {
     Log.info(
-      'Membangun daftar transaksi (_bangunDaftarTransaksi) dengan ${transaksiData.length} item.',
+      'Membangun daftar transaksi (_buildTransactionList) dengan ${transactionsData.length} item.',
     );
-    final groupedTransaksi = groupTransaksiByDate(transaksiData);
+    final groupedTransactions = groupTransactionsByDate(transactionsData);
 
     return ListView.builder(
-      itemCount: groupedTransaksi.length,
+      itemCount: groupedTransactions.length,
       itemBuilder: (final context, final index) {
-        final tanggal = groupedTransaksi.keys.elementAt(index);
-        final transaksiPadaTanggal = groupedTransaksi[tanggal]!;
-        final totalPadaTanggal = transaksiPadaTanggal.fold(
+        final date = groupedTransactions.keys.elementAt(index);
+        final transactionsOnDate = groupedTransactions[date]!;
+        final dailyTotal = transactionsOnDate.fold<double>(
           0.0,
-          (final sum, final item) =>
+          (final double sum, final TransactionModel item) =>
               sum +
-              (item.type == TipeTransaksiEnum.pemasukan
+              (item.type == TransactionType.income
                   ? item.amount
                   : -item.amount),
         );
@@ -331,13 +347,13 @@ class _TransaksiPageState extends State<TransaksiPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            bangunHeaderSeksi(tanggal, totalPadaTanggal),
-            ...transaksiPadaTanggal.map(
-              (final transaksi) => bangunItemTransaksi(
+            buildSectionHeader(date, dailyTotal),
+            ...transactionsOnDate.map(
+              (final transaction) => buildTransactionItem(
                 context,
-                transaksi,
-                () => _muatData(muatUlang: true), // Kirim fungsi untuk muat ulang
-                _transaksiOperasi,
+                transaction,
+                () => _loadData(reload: true),
+                _transactionOperation,
               ),
             ),
           ],
