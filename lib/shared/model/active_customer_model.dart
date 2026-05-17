@@ -1,5 +1,9 @@
 // path: lib/shared/model/active_customer_model.dart
-// new file: Refactored from pelanggan_aktif_model.dart to use English naming conventions.
+// File ini digunakan oleh:
+// - lib/shared/operasi/active_customer_operation.dart
+// - lib/admin/halaman/form/active_customer_form.dart
+// - Dan banyak file UI lainnya yang menampilkan data pelanggan aktif.
+// DIPERBARUI: Menghapus logika fallback untuk nama kolom lama setelah migrasi aktif.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -162,6 +166,7 @@ class ActiveCustomerModel implements HasId {
     final Map<String, dynamic> data,
   ) {
     try {
+      // Setelah migrasi aktif, kita hanya perlu membaca dari nama kolom baru yang standar.
       final startDate = _parseDateTime(data[ColumnNames.startDate]);
       final endDate = _parseDateTime(data[ColumnNames.endDate]);
 
@@ -198,6 +203,7 @@ class ActiveCustomerModel implements HasId {
   /// Converts `ActiveCustomerModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     Log.info('Preparing toFirebase for ActiveCustomerModel $id');
+    // Selalu gunakan nama kolom standar saat menulis data baru/memperbarui.
     return {
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,

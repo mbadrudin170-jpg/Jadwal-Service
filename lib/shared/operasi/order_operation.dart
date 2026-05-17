@@ -1,8 +1,13 @@
 // path: lib/shared/operasi/order_operation.dart
+// diperbaiki: Mengganti string literal 'pesanan' dengan konstanta TableNameValue.get(TableName.customerOrder)
+// diperbaiki: Menambahkan import table_name_value.dart dan enum
 
 import 'package:meta/meta.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
@@ -17,14 +22,14 @@ class OrderOperation {
   final BaseOperation baseOperation;
 
   /// Konstruktor untuk [OrderOperation].
-  ///
-  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
-  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   OrderOperation({
     final DatabaseHelper? dbHelper,
     final BaseOperation? baseOperation,
   })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
         baseOperation = baseOperation ?? BaseOperation();
+
+  /// Mendapatkan nama tabel pesanan dari konstanta.
+  String get _tableName => TableNameValue.get(TableName.customerOrder);
 
   /// Menyimpan [OrderModel] baru ke dalam database.
   Future<void> saveOrder(
@@ -37,7 +42,7 @@ class OrderOperation {
         updatedAt: DateTime.now().toUtc(),
       );
       await baseOperation.insert(
-        'pesanan',
+        _tableName,
         orderToSave.toSqlite(),
         fromServer: fromServer,
       );
@@ -54,8 +59,8 @@ class OrderOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        'pesanan',
-        orderBy: 'tanggal DESC',
+        _tableName,
+        orderBy: '${ColumnNames.date} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan.');
       return maps.map(OrderModel.fromSqlite).toList();
@@ -71,10 +76,10 @@ class OrderOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        'pesanan',
-        where: 'status = ?',
+        _tableName,
+        where: '${ColumnNames.status} = ?',
         whereArgs: [status],
-        orderBy: 'tanggal DESC',
+        orderBy: '${ColumnNames.date} DESC',
       );
       Log.info(
           'Berhasil mengambil ${maps.length} data pesanan berstatus $status.');
@@ -95,8 +100,8 @@ class OrderOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        'pesanan',
-        where: 'id = ?',
+        _tableName,
+        where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
 
@@ -107,7 +112,7 @@ class OrderOperation {
           updatedAt: DateTime.now().toUtc(),
         );
         await baseOperation.update(
-          'pesanan',
+          _tableName,
           newOrder.toSqlite(),
           id,
           fromServer: fromServer,
@@ -133,7 +138,7 @@ class OrderOperation {
   }) async {
     Log.warning('Menghapus pesanan ID: $id');
     try {
-      await baseOperation.delete('pesanan', id, fromServer: fromServer);
+      await baseOperation.delete(_tableName, id, fromServer: fromServer);
       Log.info('Berhasil menghapus pesanan dengan ID: $id.');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus pesanan.', e: e, st: s);
@@ -159,7 +164,7 @@ class OrderOperation {
           )
           .toList();
       await baseOperation.insertOrUpdateBatch(
-        'pesanan',
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -180,8 +185,9 @@ class OrderOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        'pesanan',
-        where: 'id IN (${List.filled(ids.length, '?').join(',')})',
+        _tableName,
+        where:
+            '${ColumnNames.id} IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );
       Log.info(

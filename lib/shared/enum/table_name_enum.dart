@@ -25,8 +25,8 @@ enum TableName {
   /// Tabel masukan atau feedback dari pengguna.
   feedback,
 
-  /// Tabel pesanan atau order.
-  order,
+  /// Tabel pesanan atau customer_order.
+  customerOrder,
 
   /// Tabel versi APK yang digunakan oleh pengguna.
   userApkVersion,
@@ -39,9 +39,6 @@ enum TableName {
 
   /// Tabel pesan atau chat.
   message,
-
-  /// Tabel status operasional aplikasi.
-  appStatus,
 
   /// Tabel token Firebase Cloud Messaging untuk notifikasi.
   fcmToken,

@@ -16,12 +16,11 @@ abstract final class TableNameValue {
 
     TableName.wallet: 'wallet',
     TableName.feedback: 'feedback',
-    TableName.order: 'order',
+    TableName.customerOrder: 'customerOrder',
     TableName.userApkVersion: 'user_apk_version',
     TableName.settings: 'settings',
     TableName.uploadStatus: 'upload_status',
     TableName.message: 'message',
-    TableName.appStatus: 'app_status',
     TableName.fcmToken: 'fcm_token',
     TableName.notification: 'notification',
   };

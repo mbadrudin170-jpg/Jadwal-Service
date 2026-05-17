@@ -1,4 +1,3 @@
-
 // path: lib/shared/constant/column_names.dart
 // Berkas ini berisi daftar nama kolom database untuk konsistensi di seluruh aplikasi.
 
@@ -50,7 +49,7 @@ abstract final class ColumnNames {
 
   /// Nama kolom untuk ID paket.
   static const String packageId = 'package_id';
-  
+
   /// Nama kolom untuk ID transaksi.
   static const String transactionId = 'transaction_id';
 

@@ -182,10 +182,10 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _showSortDialog() async {
+    SortOrder? selectedSort = _currentSort;
     final newSort = await showDialog<SortOrder>(
       context: context,
       builder: (final BuildContext context) {
-        SortOrder? selectedSort = _currentSort;
         return StatefulBuilder(
           builder: (final context, final setDialogState) {
             return AlertDialog(

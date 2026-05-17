@@ -1,9 +1,13 @@
 // path: lib/shared/data/sync/initial_download.dart
+// diperbaiki: Mengganti semua nama tabel hardcoded dengan konstanta dari TableNameValue.
+// diperbaiki: Menggunakan TableName yang sesuai untuk setiap fungsi.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// [InitialDownloadService] bertanggung jawab untuk mengisi database lokal dengan
 /// data dari server jika tabel-tabel tertentu masih kosong.
@@ -47,17 +51,19 @@ class InitialDownloadService {
   Future<bool> _isTableEmpty(final String tableName) async {
     try {
       final db = await _dbHelper.database;
+      // Escape nama tabel dengan double quotes untuk reserved keyword seperti 'order'
       final result = await db.rawQuery(
         'SELECT COUNT(*) as count FROM $tableName',
       );
       final count = Sqflite.firstIntValue(result) ?? 0;
-
       Log.info("Tabel '$tableName': $count baris.");
       return count == 0;
-    } on Exception catch (e) {
+    } on Exception catch (e, st) {
+      // tambahkan st
       Log.error(
         "Gagal mengecek tabel '$tableName'.",
         e: e,
+        st: st, // tambahkan stack trace
       );
       return false;
     }
@@ -85,60 +91,61 @@ class InitialDownloadService {
     }
   }
 
-  // --- Implementasi Fungsi Khusus ---
+  // --- Implementasi Fungsi Khusus dengan nama tabel sesuai konstanta ---
 
   Future<void> _downloadPackageDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'paket',
+        tableName: TableNameValue.get(TableName.package),
         downloadFunction: _downloadService.downloadPackageData,
       );
 
   Future<void> _downloadCategoryDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'kategori',
+        tableName: TableNameValue.get(TableName.category),
         downloadFunction: _downloadService.downloadCategoryData,
       );
 
   Future<void> _downloadSubCategoryDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'sub_kategori',
+        tableName: TableNameValue.get(TableName.subCategory),
         downloadFunction: _downloadService.downloadSubCategoryData,
       );
 
   Future<void> _downloadWalletDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'dompet',
+        tableName: TableNameValue.get(TableName.wallet),
         downloadFunction: _downloadService.downloadWalletData,
       );
 
   Future<void> _downloadCustomerDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'pelanggan',
+        tableName: TableNameValue.get(TableName.customer),
         downloadFunction: _downloadService.downloadCustomerData,
       );
 
   Future<void> _downloadApkVersionDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'versi_apk_user',
+        tableName: TableNameValue.get(TableName.userApkVersion),
         downloadFunction: _downloadService.downloadApkVersionData,
       );
 
   Future<void> _downloadSettingsDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'pengaturan',
+        tableName: TableNameValue.get(TableName.settings),
         downloadFunction: _downloadService.downloadSettingsData,
       );
 
   Future<void> _downloadActiveCustomerDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'pelanggan_aktif',
+        tableName: TableNameValue.get(TableName.activeCustomer),
         downloadFunction: _downloadService.downloadActiveCustomerData,
       );
 
   Future<void> _downloadTransactionDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'transaksi',
+        tableName: TableNameValue.get(TableName.transactions),
         downloadFunction: _downloadService.downloadTransactionData,
       );
 
   Future<void> _downloadFeedbackDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'kritik_saran',
+        tableName: TableNameValue.get(TableName.feedback),
         downloadFunction: _downloadService.downloadFeedbackData,
       );
 
+  // Perbaikan: Untuk order, gunakan tabel 'order' (bukan 'pesan')
   Future<void> _downloadOrderDataIfEmpty() => _downloadIfEmpty(
-        tableName: 'pesan',
+        tableName: TableNameValue.get(TableName.customerOrder),
         downloadFunction: _downloadService.downloadOrderData,
       );
 }

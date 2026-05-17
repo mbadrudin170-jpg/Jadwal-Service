@@ -281,7 +281,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<OrderModel>(
-      collectionName: TableNameValue.get(TableName.order),
+      collectionName: TableNameValue.get(TableName.customerOrder),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>

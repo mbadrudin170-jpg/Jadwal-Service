@@ -9,6 +9,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -34,16 +35,16 @@ class DataCleaningOperation {
 
     // DIUBAH: Menggunakan TableNameValue untuk mendefinisikan daftar nama tabel
     final List<String> tableList = [
-      TableNameValue.get(TableName.customer),       // pelanggan
+      TableNameValue.get(TableName.customer), // pelanggan
       TableNameValue.get(TableName.activeCustomer), // pelanggan_aktif
-      TableNameValue.get(TableName.package),        // paket
-      TableNameValue.get(TableName.category),       // kategori
-      TableNameValue.get(TableName.subCategory),    // sub_kategori
-      TableNameValue.get(TableName.transactions),    // transaksi
-      TableNameValue.get(TableName.wallet),         // dompet
-      TableNameValue.get(TableName.order),          // pesanan
+      TableNameValue.get(TableName.package), // paket
+      TableNameValue.get(TableName.category), // kategori
+      TableNameValue.get(TableName.subCategory), // sub_kategori
+      TableNameValue.get(TableName.transactions), // transaksi
+      TableNameValue.get(TableName.wallet), // dompet
+      TableNameValue.get(TableName.customerOrder), // pesanan
       TableNameValue.get(TableName.userApkVersion), // versi_apk_user
-      TableNameValue.get(TableName.feedback),       // kritik_saran
+      TableNameValue.get(TableName.feedback), // kritik_saran
     ];
 
     // Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.
@@ -60,7 +61,7 @@ class DataCleaningOperation {
 
       for (final table in tableList) {
         final query =
-            'DELETE FROM $table WHERE diarsipkan IS NOT NULL AND diarsipkan <= ?';
+            'DELETE FROM $table WHERE ${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} <= ?';
         batch.rawDelete(query, [timeLimitEpoch]);
       }
 

@@ -370,7 +370,7 @@ class DatabaseHelper {
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
     await db.execute(
-        'ALTER TABLE pesanan RENAME TO "${TableNameValue.get(TableName.order)}"');
+        'ALTER TABLE pesanan RENAME TO "${TableNameValue.get(TableName.customerOrder)}"');
     await db.execute(
         'ALTER TABLE versi_apk_user RENAME TO ${TableNameValue.get(TableName.userApkVersion)}');
     await db.execute(
@@ -379,8 +379,6 @@ class DatabaseHelper {
         'ALTER TABLE status_unggah RENAME TO ${TableNameValue.get(TableName.uploadStatus)}');
     await db.execute(
         'ALTER TABLE pesan RENAME TO ${TableNameValue.get(TableName.message)}');
-    await db.execute(
-        'ALTER TABLE status_aplikasi RENAME TO ${TableNameValue.get(TableName.appStatus)}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
   }
@@ -415,7 +413,6 @@ class DatabaseHelper {
     batch.execute(_tabelUserApkVersion);
     batch.execute(_tabelSetting);
     batch.execute(_tabelUploadStatus);
-    batch.execute(_tabelAppStatus);
     batch.execute(_tabelMessage);
     Log.info('Semua 14 definisi tabel (v50) ditambahkan ke batch.');
 
@@ -507,23 +504,14 @@ class DatabaseHelper {
     )
   ''';
 
-  static final String _tabelUploadStatus = '''
+static final String _tabelUploadStatus = '''
     CREATE TABLE ${TableNameValue.get(TableName.uploadStatus)}(
-      ${ColumnNames.tableName} TEXT PRIMARY KEY,
-      ${ColumnNames.status} INTEGER NOT NULL,
-      ${ColumnNames.ids} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER
-    )
-  ''';
-
-  static final String _tabelAppStatus = '''
-    CREATE TABLE ${TableNameValue.get(TableName.appStatus)}(
       ${ColumnNames.id} TEXT PRIMARY KEY,
       ${ColumnNames.value} TEXT NOT NULL,
       ${ColumnNames.updatedAt} INTEGER
     )
   ''';
-
+  
   static final String _tabelMessage = '''
     CREATE TABLE ${TableNameValue.get(TableName.message)}(
       ${ColumnNames.id} TEXT PRIMARY KEY,
@@ -632,7 +620,7 @@ class DatabaseHelper {
   ''';
 
   static final String _tabelOrder = '''
-    CREATE TABLE "${TableNameValue.get(TableName.order)}"(
+    CREATE TABLE "${TableNameValue.get(TableName.customerOrder)}"(
       ${ColumnNames.id} TEXT PRIMARY KEY,
       ${ColumnNames.customerId} TEXT NOT NULL,
       ${ColumnNames.packageId} TEXT NOT NULL,
