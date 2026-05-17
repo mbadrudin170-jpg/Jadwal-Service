@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
@@ -17,6 +18,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -25,6 +27,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/admin/halaman/detail/customer_detail.dart (CustomerDetailPage)
 //   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
+//   - lib/admin/halaman/form/subscription_history_form.dart (SubscriptionHistoryForm)
 //   - lib/shared/model/transaction_model.dart (TransactionModel)
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/model/package_model.dart (PackageModel)
@@ -32,6 +35,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 //   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
 //   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 /// Halaman untuk menampilkan detail transaksi langganan.
@@ -58,17 +62,40 @@ class _SubscriptionHistoryDetailPageState
   @override
   void initState() {
     super.initState();
+    _loadTransactionDetails();
+  }
 
+  /// Mengambil detail transaksi dari database.
+  void _loadTransactionDetails() {
     Log.info(
-      'Memulai inisialisasi halaman detail langganan untuk ID transaksi: ${widget.transactionId}.',
+      'Memuat detail transaksi untuk ID: ${widget.transactionId}.',
+    );
+    setState(() {
+      _transactionFuture =
+          _transactionOperation.getTransactionById(widget.transactionId);
+    });
+  }
+
+  /// Menavigasi ke halaman edit dan memuat ulang data jika ada perubahan.
+  Future<void> _navigateToEditForm(final TransactionModel transaction) async {
+    Log.info('Navigasi ke form edit untuk transaksi ID: ${transaction.id}');
+    if (!mounted) return;
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (final context) =>
+            SubscriptionHistoryForm(transaction: transaction),
+      ),
     );
 
-    _transactionFuture =
-        _transactionOperation.getTransactionById(widget.transactionId);
-
-    Log.info(
-      'Future transaksi berhasil dibuat untuk proses pengambilan data transaksi.',
-    );
+    if (result ?? false) {
+      Log.info(
+          'Form edit mengembalikan berhasil, memuat ulang detail transaksi.');
+      if (mounted) {
+        SnackBarUtil.success(context, 'Detail transaksi berhasil diperbarui.');
+      }
+      _loadTransactionDetails();
+    }
   }
 
   @override
@@ -78,7 +105,22 @@ class _SubscriptionHistoryDetailPageState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail Langganan'),
-        // TODO: rencana selanjutnya adalah menambahkan tombol edit
+        actions: [
+          FutureBuilder<TransactionModel?>(
+            future: _transactionFuture,
+            builder: (final context, final snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return IconButton(
+                  icon: const Icon(Icons.edit),
+                  tooltip: 'Edit Langganan',
+                  onPressed: () =>
+                      _navigateToEditForm(snapshot.data!),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<TransactionModel?>(
         future: _transactionFuture,
@@ -111,92 +153,96 @@ class _SubscriptionHistoryDetailPageState
             'Berhasil memuat data transaksi dengan ID: ${transaction.id}.',
           );
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: <Widget>[
-                if (transaction.customerId != null)
-                  _buildFutureInfoCard<CustomerModel>(
-                    'Informasi Pelanggan',
-                    _customerOperation.getCustomerById(transaction.customerId!),
-                    'Pelanggan',
-                    (final customer) => [
-                      _buildDetailRow(
-                        'Nama Pelanggan',
-                        customer?.name ?? 'Tidak Diketahui',
-                      ),
-                    ],
-                    // PERBAIKAN: Menggunakan CustomerDetailPage dengan parameter customerId
-                    onTap: (final customer) {
-                      if (customer != null) {
-                        unawaited(Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (final context) => CustomerDetailPage(
-                              customerId: customer.id,
+          return RefreshIndicator(
+            onRefresh: () async => _loadTransactionDetails(),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: <Widget>[
+                  if (transaction.customerId != null)
+                    _buildFutureInfoCard<CustomerModel>(
+                      'Informasi Pelanggan',
+                      _customerOperation.getCustomerById(transaction.customerId!),
+                      'Pelanggan',
+                      (final customer) => [
+                        _buildDetailRow(
+                          'Nama Pelanggan',
+                          customer?.name ?? 'Tidak Diketahui',
+                        ),
+                      ],
+                      onTap: (final customer) {
+                        if (customer != null) {
+                           if (!mounted) return;
+                          unawaited(Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (final context) => CustomerDetailPage(
+                                customerId: customer.id,
+                              ),
                             ),
-                          ),
-                        ));
-                      }
-                    },
-                  ),
-                const SizedBox(height: 16),
-                if (transaction.packageId != null)
-                  _buildFutureInfoCard<PackageModel>(
-                    'Informasi Paket',
-                    _packageOperation.getPackageById(transaction.packageId!),
-                    'Paket',
-                    (final package) => [
-                      _buildDetailRow(
-                        'Nama Paket',
-                        package?.name ?? 'Tidak Diketahui',
-                      ),
-                      _buildDetailRow(
-                        'Harga',
-                        CurrencyFormat.formatCurrency(
-                            (package?.price ?? 0).toDouble()),
-                      ),
-                      _buildDetailRow(
-                        'Durasi',
-                        '${package?.duration ?? 0} ${package?.type.name ?? ""}',
-                      ),
-                    ],
-                    onTap: (final package) {
-                      if (package != null) {
-                        unawaited(Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (final context) => PackageDetailPage(
-                              package: package,
-                            ),
-                          ),
-                        ));
-                      }
-                    },
-                  ),
-                const SizedBox(height: 16),
-                _buildInfoPoints(transaction),
-                const SizedBox(height: 16),
-                if (transaction.startDate != null &&
-                    transaction.endDate != null)
-                  _buildInfoCard('Waktu Langganan', [
-                    _buildDetailRow(
-                      'Tanggal Mulai',
-                      FormatUtil.formatDateAndTime(transaction.startDate!),
+                          ));
+                        }
+                      },
                     ),
+                  const SizedBox(height: 16),
+                  if (transaction.packageId != null)
+                    _buildFutureInfoCard<PackageModel>(
+                      'Informasi Paket',
+                      _packageOperation.getPackageById(transaction.packageId!),
+                      'Paket',
+                      (final package) => [
+                        _buildDetailRow(
+                          'Nama Paket',
+                          package?.name ?? 'Tidak Diketahui',
+                        ),
+                        _buildDetailRow(
+                          'Harga',
+                          CurrencyFormat.formatCurrency(
+                              (package?.price ?? 0).toDouble()),
+                        ),
+                        _buildDetailRow(
+                          'Durasi',
+                          '${package?.duration ?? 0} ${package?.type.name ?? ""}',
+                        ),
+                      ],
+                      onTap: (final package) {
+                        if (package != null) {
+                          if (!mounted) return;
+                          unawaited(Navigator.push<void>(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (final context) => PackageDetailPage(
+                                package: package,
+                              ),
+                            ),
+                          ));
+                        }
+                      },
+                    ),
+                  const SizedBox(height: 16),
+                  _buildInfoPoints(transaction),
+                  const SizedBox(height: 16),
+                  if (transaction.startDate != null &&
+                      transaction.endDate != null)
+                    _buildInfoCard('Waktu Langganan', [
+                      _buildDetailRow(
+                        'Tanggal Mulai',
+                        FormatUtil.formatDateAndTime(transaction.startDate!),
+                      ),
+                      _buildDetailRow(
+                        'Tanggal Berakhir',
+                        FormatUtil.formatDateAndTime(transaction.endDate!),
+                      ),
+                    ]),
+                  const SizedBox(height: 16),
+                  _buildInfoCard('Status', [
                     _buildDetailRow(
-                      'Tanggal Berakhir',
-                      FormatUtil.formatDateAndTime(transaction.endDate!),
+                      'Status Pembayaran',
+                      transaction.paymentStatus.name.toUpperCase(),
                     ),
                   ]),
-                const SizedBox(height: 16),
-                _buildInfoCard('Status', [
-                  _buildDetailRow(
-                    'Status Pembayaran',
-                    transaction.paymentStatus.name.toUpperCase(),
-                  ),
-                ]),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -204,7 +250,6 @@ class _SubscriptionHistoryDetailPageState
     );
   }
 
-  /// Membangun widget untuk menampilkan informasi poin dari transaksi.
   Widget _buildInfoPoints(final TransactionModel transaction) {
     Log.info('Membangun widget informasi poin transaksi.');
 
@@ -246,7 +291,6 @@ class _SubscriptionHistoryDetailPageState
     ]);
   }
 
-  /// Membangun widget kartu informasi dengan judul dan konten.
   Widget _buildInfoCard(final String title, final List<Widget> children,
       {final VoidCallback? onTap}) {
     Log.info('Membangun info card dengan judul: $title.');
@@ -281,7 +325,6 @@ class _SubscriptionHistoryDetailPageState
     }
   }
 
-  /// Membangun kartu informasi yang datanya diambil secara asynchronous.
   Widget _buildFutureInfoCard<T>(
     final String title,
     final Future<T?> future,
@@ -335,7 +378,6 @@ class _SubscriptionHistoryDetailPageState
     );
   }
 
-  /// Membangun baris detail dengan label dan nilai.
   Widget _buildDetailRow(final String label, final String value) {
     Log.info('Membangun detail row dengan label: $label dan value: $value.');
 
@@ -357,7 +399,6 @@ class _SubscriptionHistoryDetailPageState
     );
   }
 
-  /// Membangun baris detail dengan warna dan ketebalan font yang bisa disesuaikan.
   Widget _buildDetailRowWithColor(
     final String label,
     final String value,

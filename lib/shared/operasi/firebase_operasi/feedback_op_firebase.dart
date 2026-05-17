@@ -85,15 +85,24 @@ class FeedbackOpFirebase {
     }
   }
 
-  // TODO: Ubah ke soft delete dengan is_deleted = true + archived_at
-  /// Menghapus feedback dari Firestore.
+  /// Melakukan soft delete pada feedback di Firestore.
+  ///
+  /// Operasi ini tidak menghapus dokumen, melainkan menandainya sebagai
+  /// telah dihapus dengan mengatur `isDeleted = true` dan mencatat
+  /// waktu pengarsipan.
   Future<void> deleteFeedback(final String docId) async {
-    Log.info('[FeedbackOpFirebase] Menghapus feedback: $docId');
+    Log.info('[FeedbackOpFirebase] Melakukan soft delete pada feedback: $docId');
     try {
-      await _collection.doc(docId).delete();
-      Log.info('[FeedbackOpFirebase] Feedback berhasil dihapus.');
+      await _collection.doc(docId).update({
+        ColumnNames.isDeleted: true,
+        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('[FeedbackOpFirebase] Feedback berhasil di-soft-delete.');
     } catch (e) {
-      Log.error('[FeedbackOpFirebase] Gagal menghapus feedback.', e: e);
+      Log.error(
+        '[FeedbackOpFirebase] Gagal melakukan soft delete pada feedback.',
+        e: e,
+      );
       throw Exception('Gagal menghapus feedback: $e');
     }
   }

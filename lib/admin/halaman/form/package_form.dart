@@ -7,6 +7,7 @@
 //   - lib/shared/model/package_model.dart (PackageModel)
 //   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/enum/duration_type_enum.dart (DurationType)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
 class PackageForm extends StatefulWidget {
@@ -219,11 +221,9 @@ class _PackageFormState extends State<PackageForm> {
         Log.info('PENYIMPANAN DATA PAKET BERHASIL');
         Log.info('========================================');
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!'),
-          ),
+        SnackBarUtil.success(
+          context,
+          'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
         );
         Log.info('SnackBar sukses telah ditampilkan.');
 
@@ -262,9 +262,7 @@ class _PackageFormState extends State<PackageForm> {
 
         Log.info(
             'Menampilkan SnackBar error ke pengguna dengan pesan: "$errorMessage"');
-        // TODO: rencana selanjutnya adalah mengganti snakbar dari custom
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(errorMessage)));
+        SnackBarUtil.error(context, errorMessage);
         Log.info('SnackBar error telah ditampilkan.');
       } on Exception catch (e, s) {
         Log.error(
@@ -279,8 +277,7 @@ class _PackageFormState extends State<PackageForm> {
         }
 
         Log.info('Menampilkan SnackBar error umum ke pengguna.');
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+        SnackBarUtil.error(context, 'Terjadi kesalahan: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {

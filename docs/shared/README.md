@@ -1,5 +1,33 @@
 # README Shared
 
+## Perbaikan Linter dan Stabilitas Kode (17 Mei 2026)
+
+Sesi kerja ini berfokus pada perbaikan semua error dan warning yang dilaporkan oleh `flutter analyze` berdasarkan aturan linter yang ketat di `analysis_options.yaml`. Tujuannya adalah untuk meningkatkan kualitas, stabilitas, dan konsistensi kode di seluruh proyek.
+
+### 1. `use_build_context_synchronously`
+
+*   **Masalah:** Penggunaan `BuildContext` setelah operasi `async` (misalnya, setelah `await Navigator.push` atau `await showDialog`) tanpa memeriksa apakah widget masih terpasang (`mounted`). Ini bisa menyebabkan crash jika widget dihapus dari pohon widget saat operasi `async` berjalan.
+*   **Solusi:** Menambahkan pemeriksaan `if (!mounted) return;` sebelum menggunakan `BuildContext` setelah celah `async`. Ini memastikan bahwa kode UI hanya berjalan jika widget masih valid.
+*   **File yang Terkena Dampak:**
+    *   `lib/admin/halaman/detail/subscription_history_detail.dart`
+    *   `lib/admin/halaman/form/subscription_history_form.dart`
+    *   `lib/admin/halaman/lainnya/apk_version_page.dart`
+
+### 2. `deprecated_member_use`
+
+*   **Masalah:** Penggunaan `groupValue` dan `onChanged` pada `RadioListTile`, yang sudah usang. Flutter sekarang merekomendasikan penggunaan widget `RadioGroup` untuk mengelola status grup radio.
+*   **Solusi:** Membungkus beberapa `RadioListTile` di dalam `_SortDialog` (`apk_version_page.dart`) dengan widget `RadioGroup`. Nilai grup dan callback `onChanged` sekarang dikelola oleh `RadioGroup`, sesuai dengan praktik terbaik Flutter terbaru.
+*   **File yang Terkena Dampak:**
+    *   `lib/admin/halaman/lainnya/apk_version_page.dart`
+
+### Hasil Akhir
+
+Setelah semua perbaikan diterapkan, menjalankan `flutter analyze` sekarang menghasilkan: **No issues found!**
+
+Kode proyek sekarang lebih bersih, lebih aman dari error runtime terkait `BuildContext`, dan mematuhi standar linter yang telah ditetapkan.
+
+---
+
 ## Perbaikan Total `build_runner` dan Konflik Dependensi
 
 ### Latar Belakang

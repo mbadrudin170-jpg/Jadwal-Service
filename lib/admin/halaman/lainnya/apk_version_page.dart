@@ -142,6 +142,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _toDetail(final ApkVersionModel apkVersion) async {
+    if (!mounted) return;
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -152,6 +153,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _toEditForm(final ApkVersionModel apkVersion) async {
+    if (!mounted) return;
     final result = await Navigator.push<ApkVersionModel>(
       context,
       MaterialPageRoute(
@@ -168,6 +170,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _toAddForm() async {
+    if (!mounted) return;
     final result = await Navigator.push<ApkVersionModel>(
       context,
       MaterialPageRoute(
@@ -182,44 +185,11 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _showSortDialog() async {
-    SortOrder? selectedSort = _currentSort;
+    if (!mounted) return;
     final newSort = await showDialog<SortOrder>(
       context: context,
-      builder: (final BuildContext context) {
-        return StatefulBuilder(
-          builder: (final context, final setDialogState) {
-            return AlertDialog(
-              title: const Text('Urutkan Berdasarkan'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: SortOrder.values.map((final order) {
-                  return RadioListTile<SortOrder>(
-                    title: Text(_getSortName(order)),
-                    value: order,
-                    groupValue: selectedSort,
-                    onChanged: (final SortOrder? value) {
-                      if (value != null) {
-                        setDialogState(() {
-                          selectedSort = value;
-                        });
-                      }
-                    },
-                  );
-                }).toList(),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Batal'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () => Navigator.of(context).pop(selectedSort),
-                ),
-              ],
-            );
-          },
-        );
+      builder: (final context) {
+        return _SortDialog(currentSort: _currentSort);
       },
     );
 
@@ -231,20 +201,8 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     }
   }
 
-  String _getSortName(final SortOrder order) {
-    switch (order) {
-      case SortOrder.buildZA:
-        return 'Build (Terbaru ke Terlama)';
-      case SortOrder.buildAZ:
-        return 'Build (Terlama ke Terbaru)';
-      case SortOrder.versionZA:
-        return 'Versi (Z-A)';
-      case SortOrder.versionAZ:
-        return 'Versi (A-Z)';
-    }
-  }
-
   Future<void> _showOptionsDialog(final ApkVersionModel version) async {
+    if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (final c) => SimpleDialog(
@@ -276,6 +234,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 
   Future<void> _showArchiveDialog(final ApkVersionModel version) async {
+    if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (final c) => AlertDialog(
@@ -399,5 +358,72 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         },
       ),
     );
+  }
+}
+
+class _SortDialog extends StatefulWidget {
+  const _SortDialog({required this.currentSort});
+  final SortOrder currentSort;
+
+  @override
+  State<_SortDialog> createState() => _SortDialogState();
+}
+
+class _SortDialogState extends State<_SortDialog> {
+  late SortOrder _selectedSort;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSort = widget.currentSort;
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    return AlertDialog(
+      title: const Text('Urutkan Berdasarkan'),
+      content: RadioGroup<SortOrder>(
+        groupValue: _selectedSort,
+        onChanged: (final SortOrder? value) {
+          if (value != null) {
+            setState(() {
+              _selectedSort = value;
+            });
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: SortOrder.values.map((final order) {
+            return RadioListTile<SortOrder>(
+              title: Text(_getSortName(order)),
+              value: order,
+            );
+          }).toList(),
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Batal'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        TextButton(
+          child: const Text('OK'),
+          onPressed: () => Navigator.of(context).pop(_selectedSort),
+        ),
+      ],
+    );
+  }
+}
+
+String _getSortName(final SortOrder order) {
+  switch (order) {
+    case SortOrder.buildZA:
+      return 'Build (Terbaru ke Terlama)';
+    case SortOrder.buildAZ:
+      return 'Build (Terlama ke Terbaru)';
+    case SortOrder.versionZA:
+      return 'Versi (Z-A)';
+    case SortOrder.versionAZ:
+      return 'Versi (A-Z)';
   }
 }
