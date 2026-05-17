@@ -16,7 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
-import 'package:wifi/user/page/user_order_page.dart';
+// import 'package:wifi/user/page/user_order_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
@@ -66,7 +66,7 @@ class _MainPageState extends State<MainPage> {
       ProfilePage(
           userId: widget.userId,
           localStorageService: widget.localStorageService),
-      const UserOrderPage(),
+      // const UserOrderPage(),
       SubscriptionHistoryPage(userId: widget.userId),
       SettingsPageUser(
           userId: widget.userId,
@@ -79,8 +79,8 @@ class _MainPageState extends State<MainPage> {
         type: BottomNavigationBarType.fixed, // Agar semua label terlihat
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long), label: 'Pesanan'),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.receipt_long), label: 'Pesanan'),
           BottomNavigationBarItem(
               icon: Icon(Icons.history_rounded), label: 'Riwayat'),
           BottomNavigationBarItem(

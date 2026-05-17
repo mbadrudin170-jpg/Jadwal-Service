@@ -1,4 +1,4 @@
-// path: lib/shared/export/operasi.dart
+// path: lib/shared/export/operation.dart
 
 export 'package:wifi/shared/operasi/active_customer_operation.dart';
 export 'package:wifi/shared/operasi/apk_version_operation.dart';

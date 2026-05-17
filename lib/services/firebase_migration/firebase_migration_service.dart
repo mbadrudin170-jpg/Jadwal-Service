@@ -11,7 +11,7 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 /// - File ini digunakan oleh: lib/admin/halaman/lainnya/halaman_migrasi.dart
 class FirebaseMigrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+// TODO : migrasi tabel status
   final List<String> _isDeletedCollections = [
     TableNameValue.get(TableName.wallet),
     TableNameValue.get(TableName.category),

@@ -49,6 +49,7 @@ android {
             dimension = "app"
             applicationId = "com.wifi.admin"
             versionNameSuffix = "-admin"
+            resValue("string", "app_name", "Admin Wifi")
         }
 
         // Aplikasi User
@@ -56,6 +57,7 @@ android {
             dimension = "app"
             applicationId = "com.wifi.user"
             versionNameSuffix = "-user"
+            resValue("string", "app_name", "User Wifi")
         }
     }
 

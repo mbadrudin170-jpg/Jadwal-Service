@@ -15,7 +15,6 @@ void main() async {
 
   // Inisialisasi Hive.
 
-
   // Inisialisasi Firebase.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

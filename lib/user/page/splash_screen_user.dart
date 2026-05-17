@@ -70,7 +70,8 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         Log.warning('Pengguna belum login. Navigasi ke LoginPage.');
         await Navigator.pushReplacement(
           context,
-          MaterialPageRoute<void>(builder: (final context) => const LoginPage()),
+          MaterialPageRoute<void>(
+              builder: (final context) => const LoginPage()),
         );
       }
     } on Exception catch (e, s) {
