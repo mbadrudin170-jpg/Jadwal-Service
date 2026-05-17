@@ -116,7 +116,7 @@ class _AppInitializerState extends State<AppInitializer> {
 
       _updateMessage('Mempersiapkan layanan notifikasi...');
       final notifikasiServis = NotifikasiServis();
-      await notifikasiServis.inisialisasi();
+      await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
       await notifikasiServis.requestPermissions();
 
       _updateMessage('Mempersiapkan database lokal...');

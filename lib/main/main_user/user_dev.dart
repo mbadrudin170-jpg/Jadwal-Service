@@ -98,7 +98,7 @@ void main() async {
 
   // 1. Inisialisasi servis notifikasi lokal
   final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi();
+  await notifikasiServis.inisialisasi(iconName: '@mipmap/ic_launcher');
   await notifikasiServis.requestPermissions(); // Meminta izin
 
   final prefs = await SharedPreferences.getInstance();

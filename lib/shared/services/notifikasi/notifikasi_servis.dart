@@ -35,14 +35,14 @@ class NotifikasiServis {
   NotifikasiServis.internal(this.plugin);
 
   /// Menginisialisasi layanan notifikasi.
-  Future<void> inisialisasi() async {
+  Future<void> inisialisasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi pengaturan notifikasi...');
 
     await _setupAndroidChannel();
 
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final android = AndroidInitializationSettings(iconName);
     const ios = DarwinInitializationSettings();
-    const settings = InitializationSettings(android: android, iOS: ios);
+    final settings = InitializationSettings(android: android, iOS: ios);
 
     try {
       await plugin.initialize(
@@ -56,7 +56,7 @@ class NotifikasiServis {
             onDidReceiveBackgroundNotificationResponse,
       );
       Log.info('Layanan Notifikasi berhasil diinisialisasi.');
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal melakukan inisialisasi layanan notifikasi',
         e: e,
@@ -81,7 +81,7 @@ class NotifikasiServis {
       Log.info(
         'Android Notification Channel "Notifikasi Penting" berhasil dibuat.',
       );
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
     }
   }
@@ -102,7 +102,7 @@ class NotifikasiServis {
         await androidPlugin.requestNotificationsPermission();
         Log.info('Permintaan izin notifikasi Android telah diproses.');
       }
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal meminta izin notifikasi',
         e: e,
@@ -163,7 +163,7 @@ class NotifikasiServis {
         payload: payload,
       );
       Log.info('Notifikasi langsung berhasil ditampilkan di layar.');
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal menampilkan notifikasi langsung',
         e: e,
@@ -209,7 +209,7 @@ class NotifikasiServis {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal mendaftarkan jadwal notifikasi',
         e: e,
@@ -246,7 +246,7 @@ class NotifikasiServis {
     try {
       await plugin.cancel(id: id);
       Log.info('Notifikasi ID: $id telah dihapus.');
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Gagal membatalkan notifikasi ID: $id',
         e: e,
@@ -263,7 +263,7 @@ class NotifikasiServis {
     try {
       await plugin.cancelAll();
       Log.info('Seluruh notifikasi berhasil dibersihkan.');
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       Log.error(
         'Terjadi kesalahan saat membersihkan semua notifikasi',
         e: e,

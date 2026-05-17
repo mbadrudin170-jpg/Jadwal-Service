@@ -22,7 +22,7 @@ void main() async {
 
   // ditambah: Inisialisasi servis notifikasi.
   final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi();
+  await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
   // ditambah: Meminta izin notifikasi kepada pengguna.
   await notifikasiServis.requestPermissions();
 
