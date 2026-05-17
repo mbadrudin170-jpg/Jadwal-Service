@@ -12,6 +12,7 @@ export '../model/order_model.dart';
 export '../model/package_model.dart';
 export '../model/save_result_model.dart';
 export '../model/settings_model.dart';
+export '../model/status_model.dart';
 export '../model/sub_category_model.dart';
 export '../model/transaction_model.dart';
 export '../model/upload_status_model.dart';

@@ -1,11 +1,4 @@
 // path: lib/admin/halaman/tab/wallet_page.dart
-// diubah: Refactor total ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
-// diubah: Memperbaiki LateInitializationError dengan menginisialisasi _walletOperation di initState.
-// diubah: Menyesuaikan nama method dengan WalletOperation (getWallets, archiveOneWallet, dll).
-// diubah: Mengganti nama file dari dompet.dart menjadi wallet_page.dart.
-// diubah: Memperbaiki pemanggilan WalletDetailPage menjadi WalletDetail.
-// diubah: Mengganti ScaffoldMessenger.showSnackBar dengan SnackBarUtil.
-// diubah: Menambahkan Log di setiap fungsi.
 
 import 'dart:async';
 
@@ -19,20 +12,6 @@ import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
-
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Dompet)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/wallet_detail.dart (WalletDetail)
-//   - lib/admin/halaman/form/wallet_form.dart (WalletForm)
-//   - lib/shared/model/wallet_model.dart (WalletModel)
-//   - lib/shared/operasi/wallet_operation.dart (WalletOperation)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/shared/widget/financial_summary_widget.dart (buildFinancialSummaryInfo)
 
 /// Halaman untuk menampilkan dan mengelola dompet (wallet).
 ///
@@ -59,6 +38,10 @@ class _WalletPageState extends State<WalletPage> {
   late final WalletOperation _walletOperation;
   late Future<List<WalletModel>> _walletListFuture;
 
+  // State untuk pengurutan
+  String _sortBy = 'name'; // 'name' atau 'balance'
+  bool _sortAscending = true; // true untuk ascending, false untuk descending
+
   @override
   void initState() {
     super.initState();
@@ -68,11 +51,26 @@ class _WalletPageState extends State<WalletPage> {
     _loadWallets();
   }
 
-  /// Memuat ulang data dompet dari database.
+  /// Memuat ulang data dompet dari database dengan pengurutan.
   void _loadWallets() {
-    Log.info('Memulai pemuatan data dompet dan ringkasan keuangan.');
+    Log.info(
+      'Memulai pemuatan data dompet dengan urutan: $_sortBy ${_sortAscending ? 'ASC' : 'DESC'}.',
+    );
     setState(() {
-      _walletListFuture = _walletOperation.getWallets();
+      _walletListFuture = _walletOperation.getWallets().then((final wallets) {
+        wallets.sort((final a, final b) {
+          int compareResult;
+          if (_sortBy == 'name') {
+            compareResult =
+                a.name.toLowerCase().compareTo(b.name.toLowerCase());
+          } else {
+            compareResult = a.balance.compareTo(b.balance);
+          }
+          return _sortAscending ? compareResult : -compareResult;
+        });
+        Log.info('Berhasil mengurutkan ${wallets.length} dompet.');
+        return wallets;
+      });
     });
     Log.info('Pemuatan data dompet dan ringkasan keuangan telah dijadwalkan.');
   }
@@ -225,6 +223,56 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
+  /// Menampilkan dialog untuk memilih opsi pengurutan dompet.
+  Future<void> _showSortDialog() async {
+    Log.info('Menampilkan dialog pengurutan.');
+
+    final Map<String, String> sortOptions = {
+      'name_asc': 'Nama (A-Z)',
+      'name_desc': 'Nama (Z-A)',
+      'balance_asc': 'Saldo (Terkecil)',
+      'balance_desc': 'Saldo (Terbesar)',
+    };
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (final context) {
+        return SimpleDialog(
+          title: const Text('Urutkan Dompet'),
+          children: [
+            RadioGroup<String>(
+              groupValue: '${_sortBy}_${_sortAscending ? 'asc' : 'desc'}',
+              onChanged: (final String? value) {
+                Navigator.pop(context, value);
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: sortOptions.entries.map((final entry) {
+                  return RadioListTile<String>(
+                    value: entry.key,
+                    title: Text(entry.value),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      final parts = result.split('_');
+      setState(() {
+        _sortBy = parts[0];
+        _sortAscending = parts[1] == 'asc';
+      });
+      _loadWallets();
+      Log.info('Pengurutan diubah. Memuat ulang dompet.');
+    } else {
+      Log.info('Dialog pengurutan ditutup tanpa perubahan.');
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI untuk Halaman Wallet.');
@@ -232,6 +280,11 @@ class _WalletPageState extends State<WalletPage> {
       appBar: AppBar(
         title: const Text('Dompet'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sort),
+            onPressed: _showSortDialog,
+            tooltip: 'Urutkan Dompet',
+          ),
           IconButton(
             icon: const Icon(Icons.delete_sweep),
             onPressed: _showDeleteAllDialog,

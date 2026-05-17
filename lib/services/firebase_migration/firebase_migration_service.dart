@@ -1,17 +1,19 @@
 // path: lib/services/firebase_migration/firebase_migration_service.dart
-// Diperbarui: Menambahkan fungsi hapus koleksi lama setelah migrasi berhasil.
+// Diperbarui: Menambahkan migrasi khusus untuk koleksi singleton (status, settings).
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/model/status_model.dart';
 
 /// Layanan untuk menangani migrasi data di Firebase.
 /// - File ini digunakan oleh: lib/admin/halaman/lainnya/halaman_migrasi.dart
 class FirebaseMigrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-// TODO : migrasi tabel status
+
   final List<String> _isDeletedCollections = [
     TableNameValue.get(TableName.wallet),
     TableNameValue.get(TableName.category),
@@ -151,6 +153,9 @@ class FirebaseMigrationService {
       'info_pemeliharaan': ColumnNames.maintenanceInfo,
       'diperbarui': ColumnNames.updatedAt,
     },
+    TableNameValue.get(TableName.statusGlobal): {
+      'diperbarui': ColumnNames.updatedAt,
+    },
     TableNameValue.get(TableName.uploadStatus): {
       'value': ColumnNames.value,
       'diperbarui': ColumnNames.updatedAt,
@@ -161,6 +166,69 @@ class FirebaseMigrationService {
       'status': ColumnNames.status,
     },
   };
+
+  /// Migrasi untuk koleksi yang hanya memiliki satu dokumen dengan ID tetap.
+  Future<void> _migrateSingletonCollection({
+    required final String legacyCollectionName,
+    required final String newCollectionName,
+    required final String newDocId,
+    required final Map<String, String> columnMapping,
+    required final WriteBatch batch,
+    required final List<String> logs,
+  }) async {
+    Log.info(
+        'Memulai migrasi singleton dari "$legacyCollectionName" ke "$newCollectionName" dengan ID "$newDocId"');
+
+    final QuerySnapshot snapshot;
+    try {
+      snapshot =
+          await _firestore.collection(legacyCollectionName).limit(1).get();
+    } on Exception catch (e) {
+      Log.warning(
+          'Koleksi singleton $legacyCollectionName tidak ditemukan, lewati migrasi',
+          e);
+      logs.add(
+          '  - Koleksi singleton `$legacyCollectionName` tidak ditemukan, dilewati.');
+      return;
+    }
+
+    if (snapshot.docs.isEmpty) {
+      Log.info(
+          'Koleksi singleton $legacyCollectionName kosong, akan dihapus nanti.');
+      logs.add(
+          '  - Koleksi singleton `$legacyCollectionName` kosong, dilewati.');
+      return;
+    }
+
+    // Hanya migrasi dokumen pertama yang ditemukan
+    final doc = snapshot.docs.first;
+    final oldData = doc.data() as Map<String, dynamic>;
+    final updateData = <String, dynamic>{};
+
+    updateData.addAll(oldData);
+
+    final Map<String, int> renamedCount = {};
+
+    for (final entry in columnMapping.entries) {
+      final oldField = entry.key;
+      final newField = entry.value;
+      if (oldData.containsKey(oldField)) {
+        updateData[newField] = oldData[oldField];
+        updateData.remove(oldField);
+        renamedCount[oldField] = (renamedCount[oldField] ?? 0) + 1;
+      }
+    }
+
+    final newDocRef = _firestore.collection(newCollectionName).doc(newDocId);
+    batch.set(newDocRef, updateData, SetOptions(merge: true));
+
+    logs.add(
+        '  - [Migrasi Singleton] Dokumen dari `$legacyCollectionName` ke `$newCollectionName/$newDocId` disiapkan.');
+    for (final entry in renamedCount.entries) {
+      logs.add(
+          '    - ${entry.key} -> ${columnMapping[entry.key]} : 1 field akan di-rename.');
+    }
+  }
 
   /// Migrasi data dari koleksi lama ke koleksi baru dengan MERGE (tidak menghapus field lain)
   Future<void> _migrateLegacyCollection({
@@ -473,21 +541,45 @@ class FirebaseMigrationService {
       'pesanan': TableNameValue.get(TableName.customerOrder),
       'versi_apk_user': TableNameValue.get(TableName.userApkVersion),
       'pengaturan': TableNameValue.get(TableName.settings),
+      'status': TableNameValue.get(TableName.statusGlobal),
       'status_unggah': TableNameValue.get(TableName.uploadStatus),
       'pesan': TableNameValue.get(TableName.message),
     };
 
     onProgress('Menganalisis migrasi koleksi lama...');
     for (final entry in legacyToNew.entries) {
-      final mapping = _columnMigrations[entry.value];
+      final legacyName = entry.key;
+      final newName = entry.value;
+      final mapping = _columnMigrations[newName];
+
       if (mapping != null) {
-        await _migrateLegacyCollection(
-          legacyCollectionName: entry.key,
-          newCollectionName: entry.value,
-          columnMapping: mapping,
-          batch: batch,
-          logs: logs,
-        );
+        if (newName == TableNameValue.get(TableName.settings)) {
+          await _migrateSingletonCollection(
+            legacyCollectionName: legacyName,
+            newCollectionName: newName,
+            newDocId: globalSettingsId,
+            columnMapping: mapping,
+            batch: batch,
+            logs: logs,
+          );
+        } else if (newName == TableNameValue.get(TableName.statusGlobal)) {
+          await _migrateSingletonCollection(
+            legacyCollectionName: legacyName,
+            newCollectionName: newName,
+            newDocId: globalStatusId,
+            columnMapping: mapping,
+            batch: batch,
+            logs: logs,
+          );
+        } else {
+          await _migrateLegacyCollection(
+            legacyCollectionName: legacyName,
+            newCollectionName: newName,
+            columnMapping: mapping,
+            batch: batch,
+            logs: logs,
+          );
+        }
       }
     }
 
@@ -496,9 +588,6 @@ class FirebaseMigrationService {
       await _migrateIsDeleted(col, batch, logs);
     }
 
-    // NOTE: Proses rename di-handle di _migrateLegacyCollection,
-    // pemanggilan _migrateColumnNames di sini untuk memastikan konsistensi
-    // pada data yang mungkin sudah ada di koleksi baru.
     onProgress('Menganalisis ulang nama kolom di koleksi tujuan...');
     for (final entry in _columnMigrations.entries) {
       await _migrateColumnNames(entry.key, entry.value, batch, logs);
@@ -511,7 +600,8 @@ class FirebaseMigrationService {
     onProgress('Menganalisis migrasi khusus `upload_status value`...');
     await _migrateUploadStatusValue(batch, logs);
 
-    if (logs.any((final log) => !log.contains('ditemukan, dilewati'))) {
+    if (logs.any((final log) =>
+        !log.contains('ditemukan, dilewati') && !log.contains('kosong'))) {
       onProgress('Menjalankan semua perubahan data...');
       try {
         await batch.commit();

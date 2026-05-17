@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -41,7 +42,6 @@ class FeedbackOperation {
       final data =
           feedback.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await baseOperation.insert(
         TableNameValue.get(TableName.feedback),
         data,
@@ -61,10 +61,9 @@ class FeedbackOperation {
     );
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         TableNameValue.get(TableName.feedback),
-        orderBy: 'tanggal DESC',
+        orderBy: '${ColumnNames.date} DESC',
       );
       final feedbackList = List.generate(
         maps.length,
@@ -83,7 +82,6 @@ class FeedbackOperation {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         TableNameValue.get(TableName.feedback),
         where: 'id = ?',
@@ -117,10 +115,9 @@ class FeedbackOperation {
     );
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         TableNameValue.get(TableName.feedback),
-        where: 'diperbarui > ?',
+        where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
       final feedbackList = List.generate(
@@ -162,7 +159,6 @@ class FeedbackOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await baseOperation.insertOrUpdateBatch(
         TableNameValue.get(TableName.feedback),
         data,
@@ -190,7 +186,6 @@ class FeedbackOperation {
       'PERINGATAN: Memulai deleteFeedback (hard delete) untuk ID: $id',
     );
     try {
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       await baseOperation.delete(
         TableNameValue.get(TableName.feedback),
         id,
@@ -215,7 +210,6 @@ class FeedbackOperation {
     try {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
-          // DIUBAH: Menggunakan TableNameValue berbasis v50
           final int count = await txn.delete(
             TableNameValue.get(TableName.feedback),
           );
@@ -243,10 +237,9 @@ class FeedbackOperation {
     try {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
-          // DIUBAH: Menggunakan TableNameValue berbasis v50
           final int deletedCount = await txn.delete(
             TableNameValue.get(TableName.feedback),
-            where: 'userId = ?',
+            where: '${ColumnNames.userId} = ?',
             whereArgs: [userId],
           );
           Log.info(
@@ -270,8 +263,9 @@ class FeedbackOperation {
   static Future<List<FeedbackModel>> downloadFromFirebase() async {
     Log.info('Memulai pengunduhan data dari Firestore koleksi: kritik_saran.');
     try {
-      final QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('kritik_saran').get();
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection(TableNameValue.get(TableName.feedback))
+          .get();
       final List<FeedbackModel> data = snapshot.docs
           .map(
             (final doc) => FeedbackModel.fromFirebase(
@@ -306,7 +300,6 @@ class FeedbackOperation {
     }
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         TableNameValue.get(TableName.feedback),
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',

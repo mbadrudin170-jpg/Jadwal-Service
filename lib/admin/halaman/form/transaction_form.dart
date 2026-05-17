@@ -23,10 +23,10 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 /// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
 class FormTransaksiPage extends StatefulWidget {
   /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
-  final TransactionModel? transaksi;
+  final TransactionModel? transaction;
 
   /// Membuat instance dari [FormTransaksiPage].
-  const FormTransaksiPage({super.key, this.transaksi});
+  const FormTransaksiPage({super.key, this.transaction});
 
   @override
   State<FormTransaksiPage> createState() => _FormTransaksiPageState();
@@ -52,7 +52,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
   List<WalletModel> _dompetList = [];
   List<CategoryModel> _kategoriFiltered = [];
 
-  bool get _isEditMode => widget.transaksi != null;
+  bool get _isEditMode => widget.transaction != null;
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -84,9 +84,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
 
       if (_isEditMode) {
         Log.info(
-          'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaksi!.id}',
+          'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaction!.id}',
         );
-        final trx = widget.transaksi!;
+        final trx = widget.transaction!;
         _tipe = trx.type;
         _keteranganController.text = trx.description;
         _jumlahController.text = trx.amount.abs().toString();
@@ -250,7 +250,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
       final double jumlah = double.parse(_jumlahController.text).abs();
 
       final transaksi = TransactionModel(
-        id: _isEditMode ? widget.transaksi!.id : const Uuid().v4(),
+        id: _isEditMode ? widget.transaction!.id : const Uuid().v4(),
         description: _keteranganController.text,
         amount: jumlah,
         date: _tanggal,
@@ -271,7 +271,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
           await _transaksiOperasi.updateTransaction(
-            widget.transaksi!.id,
+            widget.transaction!.id,
             transaksi,
           );
         } else {

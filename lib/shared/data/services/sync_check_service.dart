@@ -8,6 +8,7 @@ import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
@@ -78,18 +79,19 @@ class SyncCheckService {
     try {
       await _firestore
           .collection(
-            TableNameValue.get(TableName.status),
+            TableNameValue.get(TableName.statusGlobal),
           )
-          .doc('global')
+          .doc(globalStatusId)
           .set(
         {ColumnNames.updatedAt: FieldValue.serverTimestamp()},
         SetOptions(merge: true),
       );
       Log.info(
-          'Dokumen ${TableNameValue.get(TableName.status)}/global berhasil diperbarui.');
+          'Dokumen ${TableNameValue.get(TableName.statusGlobal)}/global berhasil diperbarui.');
+
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal memperbarui dokumen ${TableNameValue.get(TableName.status)}/global.',
+        'Gagal memperbarui dokumen ${TableNameValue.get(TableName.statusGlobal)}/global.',
         e: e,
         st: s,
       );
@@ -100,8 +102,8 @@ class SyncCheckService {
   Future<void> _checkAndRunDownload() async {
     try {
       final bool hasNewServerData = await _newDataCheck.hasNewFirebaseData(
-        collectionName: TableNameValue.get(TableName.status),
-        documentId: 'global',
+        collectionName: TableNameValue.get(TableName.statusGlobal),
+        documentId: globalStatusId,
       );
 
       if (hasNewServerData) {

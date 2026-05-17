@@ -1,6 +1,5 @@
-
 // path: lib/admin/halaman/lainnya/halaman_migrasi.dart
-// Diperbarui: Memperbaiki semua warning linter.
+// Diperbarui: Tombol dinonaktifkan permanen & snackbar otomatis setelah migrasi.
 
 import 'dart:async';
 
@@ -13,8 +12,6 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 ///
 /// Halaman ini menyediakan antarmuka untuk menjalankan [FirebaseMigrationService],
 /// yang bertanggung jawab untuk memperbarui skema database Firestore ke versi terbaru.
-/// Proses ini melibatkan perubahan nama koleksi dan kolom agar sesuai dengan standar
-/// yang telah ditentukan (snake_case).
 class HalamanMigrasi extends StatefulWidget {
   /// Konstruktor untuk HalamanMigrasi.
   const HalamanMigrasi({super.key});
@@ -26,6 +23,7 @@ class HalamanMigrasi extends StatefulWidget {
 class _HalamanMigrasiState extends State<HalamanMigrasi> {
   final FirebaseMigrationService _migrationService = FirebaseMigrationService();
   bool _isMigrating = false;
+  bool _migrationCompletedSuccessfully = false;
 
   Future<void> _runMigration() async {
     Log.info('Tombol "Jalankan Migrasi Data" ditekan oleh pengguna.');
@@ -40,18 +38,25 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
       _isMigrating = true;
     });
 
-    // Menampilkan dialog progress
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (final BuildContext dialogContext) {
         return _MigrationProgressDialog(
           migrationService: _migrationService,
-          onComplete: () {
-            Log.info('Migrasi selesai, dialog progress ditutup.');
+          onComplete: (final bool hasError) {
+            Log.info(
+                'Migrasi selesai, dialog ditutup. Status error: $hasError');
             if (mounted) {
               setState(() {
                 _isMigrating = false;
+                if (!hasError) {
+                  _migrationCompletedSuccessfully = true;
+                  SnackBarUtil.success(context, 'Migrasi berhasil dilakukan.');
+                } else {
+                  SnackBarUtil.error(
+                      context, 'Migrasi gagal, cek log untuk detail.');
+                }
               });
             }
           },
@@ -63,6 +68,28 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI HalamanMigrasi.');
+
+    final bool isButtonDisabled =
+        _isMigrating || _migrationCompletedSuccessfully;
+
+    Widget buttonIcon;
+    String buttonText;
+
+    if (_migrationCompletedSuccessfully) {
+      buttonIcon = const Icon(Icons.check);
+      buttonText = 'Migrasi Selesai';
+    } else if (_isMigrating) {
+      buttonIcon = const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+      buttonText = 'Sedang bermigrasi...';
+    } else {
+      buttonIcon = const Icon(Icons.sync);
+      buttonText = 'Jalankan Migrasi Data';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alat Migrasi Data Firebase'),
@@ -79,17 +106,9 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: _isMigrating ? null : _runMigration,
-              icon: _isMigrating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.sync),
-              label: Text(_isMigrating
-                  ? 'Sedang bermigrasi...'
-                  : 'Jalankan Migrasi Data'),
+              onPressed: isButtonDisabled ? null : _runMigration,
+              icon: buttonIcon,
+              label: Text(buttonText),
               style: ElevatedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -105,7 +124,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
 /// Dialog progress migrasi.
 class _MigrationProgressDialog extends StatefulWidget {
   final FirebaseMigrationService migrationService;
-  final VoidCallback onComplete;
+  final void Function(bool hasError) onComplete;
 
   const _MigrationProgressDialog({
     required this.migrationService,
@@ -127,7 +146,6 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
   void initState() {
     super.initState();
     Log.info('Dialog progress migrasi dibuka, memulai proses asinkron.');
-    // Tidak perlu await di initState, gunakan unawaited
     unawaited(_startMigration());
   }
 
@@ -149,7 +167,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
         _hasError = true;
       });
     } finally {
-      widget.onComplete();
+      widget.onComplete(_hasError);
     }
   }
 
@@ -208,15 +226,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
       actions: [
         if (_isDone)
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (!_hasError) {
-                SnackBarUtil.success(context, 'Migrasi berhasil dilakukan.');
-              } else {
-                SnackBarUtil.error(
-                    context, 'Migrasi gagal, cek log untuk detail.');
-              }
-            },
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Tutup'),
           ),
       ],

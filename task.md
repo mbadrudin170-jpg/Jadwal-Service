@@ -2,13 +2,16 @@
 
 Sebuah task dianggap selesai jika:
 
-- membaca file GEMINI.md,
-- menjalankan ls -R lib/
-- membaca semua file di folder docs di root.
-- memnanyakan tugas ke user.
-- merencanakan tugas yang akan dikerjakan
-- menegerjakan tugas.
-- mengecek apakah tidak ada error dan warning.
-- bertanya keuser apakah kodenya berjalan.
-- memperbarui file README.md
-- menanyakan tugas selanjutnya.
+- membaca file GEMINI.md di root proyek,
+- mematuhi seluruh aturan di GEMINI.md,
+- menjalankan ls -R lib/ docs/.
+- menanyakan perintah ke user.
+- membaca struktur folder yang relevan dengan task,
+- membaca dokumentasi yang relevan di folder docs/,
+- memahami relasi file sebelum melakukan perubahan,
+- memperbarui dokumentasi file yang diubah,
+- dilarang mengubah dokumentasi file lain yang tidak terkait task,
+- menjalankan flutter analyze,
+- memastikan tidak ada error dan warning baru,
+- meminta user memverifikasi fitur berjalan sesuai harapan,
+- menjelaskan hasil perubahan,

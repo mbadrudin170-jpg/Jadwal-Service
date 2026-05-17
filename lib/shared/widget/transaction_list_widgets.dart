@@ -1,14 +1,12 @@
 // path: lib/shared/widget/transaction_list_widgets.dart
-// digunakan oleh: lib/admin/halaman/detail/wallet_detail.dart
+// Diperbarui: Aksi didelegasikan ke pemanggil melalui callback.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -49,22 +47,29 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
+///
+/// Widget ini bersifat pasif. Semua aksi (tap, edit, hapus) didelegasikan
+/// ke pemanggil melalui parameter callback.
 class TransactionTile extends StatefulWidget {
   /// Data transaksi yang ditampilkan.
   final TransactionModel transaction;
 
-  /// Callback saat data berubah (setelah edit/hapus).
-  final VoidCallback onDataChanged;
+  /// Callback yang dipanggil saat item di-tap.
+  final VoidCallback? onTap;
 
-  /// Operasi transaksi untuk aksi arsipkan.
-  final TransactionOperation transactionOperation;
+  /// Callback yang dipanggil saat tombol "Edit" ditekan.
+  final VoidCallback? onEdit;
+
+  /// Callback yang dipanggil saat tombol "Hapus" ditekan.
+  final VoidCallback? onDelete;
 
   /// Membuat [TransactionTile].
   const TransactionTile({
     super.key,
     required this.transaction,
-    required this.onDataChanged,
-    required this.transactionOperation,
+    this.onTap,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -72,6 +77,7 @@ class TransactionTile extends StatefulWidget {
 }
 
 class _TransactionTileState extends State<TransactionTile> {
+  // Operasi database tetap diperlukan untuk mengambil nama kategori dan dompet.
   final CategoryOperation _categoryOperation = CategoryOperation();
   final WalletOperation _walletOperation = WalletOperation();
 
@@ -97,11 +103,6 @@ class _TransactionTileState extends State<TransactionTile> {
     }
   }
 
-  Future<void> _archiveTransaction() async {
-    await widget.transactionOperation.archiveTransaction(widget.transaction.id);
-    widget.onDataChanged();
-  }
-
   @override
   Widget build(final BuildContext context) {
     final IconData iconData;
@@ -118,11 +119,11 @@ class _TransactionTileState extends State<TransactionTile> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         key: ValueKey(widget.transaction.id),
-        onTap: () {
-          // TODO: Navigate to transaction detail when available
-          Log.info('Tap transaksi: ${widget.transaction.id}');
-        },
+        onTap: widget.onTap,
         onLongPress: () {
+          // Hanya tampilkan dialog jika ada aksi (onEdit atau onDelete).
+          if (widget.onEdit == null && widget.onDelete == null) return;
+
           unawaited(
             showDialog<void>(
               context: context,
@@ -132,20 +133,22 @@ class _TransactionTileState extends State<TransactionTile> {
                   'Apa yang ingin Anda lakukan dengan transaksi ini?',
                 ),
                 actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // TODO: Navigate to transaction form when available
-                    },
-                    child: const Text('Edit'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      await _archiveTransaction();
-                    },
-                    child: const Text('Hapus'),
-                  ),
+                  if (widget.onEdit != null)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.onEdit!();
+                      },
+                      child: const Text('Edit'),
+                    ),
+                  if (widget.onDelete != null)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.onDelete!();
+                      },
+                      child: const Text('Hapus'),
+                    ),
                 ],
               ),
             ),
@@ -189,13 +192,15 @@ class _TransactionTileState extends State<TransactionTile> {
 /// Membangun widget [TransactionTile] dengan parameter yang diberikan.
 Widget buildTransactionItem(
   final BuildContext context,
-  final TransactionModel transaction,
-  final VoidCallback onDataChanged,
-  final TransactionOperation transactionOperation,
-) {
+  final TransactionModel transaction, {
+  final VoidCallback? onTap,
+  final VoidCallback? onEdit,
+  final VoidCallback? onDelete,
+}) {
   return TransactionTile(
     transaction: transaction,
-    onDataChanged: onDataChanged,
-    transactionOperation: transactionOperation,
+    onTap: onTap,
+    onEdit: onEdit,
+    onDelete: onDelete,
   );
 }

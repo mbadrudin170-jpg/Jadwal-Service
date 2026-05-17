@@ -41,7 +41,7 @@ enum TableName {
   message,
 
   /// Tabel status sinkronisasi global.
-  status,
+  statusGlobal,
 
   /// Tabel token Firebase Cloud Messaging untuk notifikasi.
   fcmToken,

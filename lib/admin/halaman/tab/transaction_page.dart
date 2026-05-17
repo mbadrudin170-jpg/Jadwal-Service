@@ -1,12 +1,7 @@
-// path: lib/admin/halaman/tab/transaction_page.dart
-// digunakan oleh: lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Transaksi)
-// diubah: Refactor total ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
-// diubah: Memperbaiki import path yang salah.
-// diubah: Menerapkan caching state & memperbaiki peringatan linter.
-// diubah: Memperbaiki pemanggilan FormTransaksiPage (nama class asli dari transaction_form.dart).
-// diubah: Memperbaiki pemanggilan deleteAllTransactions (method yang tersedia di TransactionOperation).
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
@@ -16,19 +11,20 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 import 'package:wifi/shared/widget/transaction_list_widgets.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/tab/admin_tab_page.dart (sebagai tab Transaksi)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/transaction_form.dart (FormTransaksiPage)
-//   - lib/shared/enum/transaction_type_enum.dart (TransactionType)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/shared/widget/financial_summary_widget.dart (buildFinancialSummaryInfo)
-//   - lib/shared/widget/transaction_list_widgets.dart (groupTransactionsByDate, buildSectionHeader, buildTransactionItem)
+/// Enum untuk opsi pengurutan transaksi.
+enum SortBy {
+  /// Terbaru
+  newest,
+
+  /// Terlama
+  oldest,
+
+  /// Jumlah Tertinggi
+  highestAmount,
+
+  /// Jumlah Terendah
+  lowestAmount,
+}
 
 /// Widget untuk menampilkan ringkasan transaksi (pemasukan, pengeluaran, total).
 class TransactionSummary extends StatelessWidget {
@@ -107,6 +103,9 @@ class _TransactionPageState extends State<TransactionPage> {
   Object? _error;
   late Future<void> _initialLoadFuture;
 
+  // State untuk pengurutan
+  SortBy _currentSortBy = SortBy.newest; // Urutan default
+
   @override
   void initState() {
     super.initState();
@@ -151,6 +150,25 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
+  /// Mengurutkan daftar transaksi berdasarkan [_currentSortBy].
+  void _sortTransactions(final List<TransactionModel> transactions) {
+    Log.info('Mengurutkan daftar transaksi berdasarkan: $_currentSortBy');
+    switch (_currentSortBy) {
+      case SortBy.newest:
+        transactions.sort((final a, final b) => b.date.compareTo(a.date));
+        break;
+      case SortBy.oldest:
+        transactions.sort((final a, final b) => a.date.compareTo(b.date));
+        break;
+      case SortBy.highestAmount:
+        transactions.sort((final a, final b) => b.amount.compareTo(a.amount));
+        break;
+      case SortBy.lowestAmount:
+        transactions.sort((final a, final b) => a.amount.compareTo(b.amount));
+        break;
+    }
+  }
+
   /// Memuat atau memuat ulang data dan memperbarui state.
   Future<void> _loadData({final bool reload = false}) async {
     Log.info(reload ? 'Memicu pemuatan ulang data...' : 'Memuat data awal...');
@@ -165,6 +183,8 @@ class _TransactionPageState extends State<TransactionPage> {
 
     try {
       final data = await _fetchData();
+      // Urutkan data sebelum menyimpannya di cache
+      _sortTransactions(data['transactions'] as List<TransactionModel>);
       if (mounted) {
         setState(() {
           _cachedData = data;
@@ -180,14 +200,42 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
-  /// Membuka halaman form untuk menambah transaksi baru.
-  Future<void> _addTransaction() async {
-    Log.info('Membuka FormTransaksiPage untuk menambah entri baru.');
-    // PERBAIKAN: Menggunakan nama class asli FormTransaksiPage
+  Future<void> _navigateToTransactionDetail(
+      final TransactionModel transaction) async {
+    Log.info(
+      'Navigasi ke TransactionDetailPage untuk transaksi ID: ${transaction.id}',
+    );
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (final context) =>
+            TransactionDetailPage(transaction: transaction),
+      ),
+    );
+
+    if (result ?? false) {
+      Log.info(
+        'Kembali dari halaman detail dengan hasil true. Memuat ulang data.',
+      );
+      await _loadData(reload: true);
+    } else {
+      Log.info('Kembali dari halaman detail tanpa perubahan.');
+    }
+  }
+
+  /// Membuka halaman form untuk menambah atau mengedit transaksi.
+  Future<void> _navigateToTransactionForm({
+    final TransactionModel? transaction,
+  }) async {
+    Log.info(
+      transaction == null
+          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
+          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaction.id}',
+    );
     final result = await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => const FormTransaksiPage(),
+        builder: (final context) => FormTransaksiPage(transaction: transaction),
       ),
     );
     if (result ?? false) {
@@ -230,7 +278,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
       if (confirmed ?? false) {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
-        // PERBAIKAN: Menggunakan method yang tersedia (archiveAllTransactions)
         await _transactionOperation.archiveAllTransactions();
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
@@ -243,6 +290,61 @@ class _TransactionPageState extends State<TransactionPage> {
     }
   }
 
+  String _getSortByName(final SortBy sort) {
+    switch (sort) {
+      case SortBy.newest:
+        return 'Terbaru';
+      case SortBy.oldest:
+        return 'Terlama';
+      case SortBy.highestAmount:
+        return 'Jumlah Tertinggi';
+      case SortBy.lowestAmount:
+        return 'Jumlah Terendah';
+    }
+  }
+
+  Future<void> _showSortDialog() async {
+    final newSort = await showDialog<SortBy>(
+      context: context,
+      builder: (final context) {
+        return SimpleDialog(
+          title: const Text('Urutkan Berdasarkan'),
+          children: [
+            RadioGroup<SortBy>(
+              groupValue: _currentSortBy,
+              onChanged: (final value) {
+                Navigator.pop(context, value);
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: SortBy.values
+                    .map(
+                      (final sort) => RadioListTile<SortBy>(
+                        title: Text(_getSortByName(sort)),
+                        value: sort,
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newSort != null && newSort != _currentSortBy) {
+      Log.info('Opsi urutan diubah ke: $newSort. Memperbarui UI.');
+      setState(() {
+        _currentSortBy = newSort;
+        if (_cachedData != null) {
+          _sortTransactions(
+            _cachedData!['transactions'] as List<TransactionModel>,
+          );
+        }
+      });
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI utama Halaman Transaksi (build method).');
@@ -250,6 +352,11 @@ class _TransactionPageState extends State<TransactionPage> {
       appBar: AppBar(
         title: const Text('Transaksi'),
         actions: [
+          IconButton(
+            onPressed: _showSortDialog,
+            icon: const Icon(Icons.sort),
+            tooltip: 'Urutkan',
+          ),
           IconButton(
             onPressed: _deleteAllTransactions,
             icon: const Icon(Icons.delete_sweep_outlined),
@@ -259,7 +366,8 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addTransaction,
+        onPressed:
+            _navigateToTransactionForm, // Memanggil tanpa argumen untuk mode tambah
         child: const Icon(Icons.add),
       ),
     );
@@ -356,8 +464,19 @@ class _TransactionPageState extends State<TransactionPage> {
               (final transaction) => buildTransactionItem(
                 context,
                 transaction,
-                () => _loadData(reload: true),
-                _transactionOperation,
+                onTap: () {
+                  unawaited(_navigateToTransactionDetail(transaction));
+                },
+                onEdit: () {
+                  unawaited(
+                    _navigateToTransactionForm(transaction: transaction),
+                  );
+                },
+                onDelete: () async {
+                  await _transactionOperation
+                      .archiveTransaction(transaction.id);
+                  await _loadData(reload: true);
+                },
               ),
             ),
           ],

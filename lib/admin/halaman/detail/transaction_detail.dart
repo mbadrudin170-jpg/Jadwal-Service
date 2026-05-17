@@ -56,6 +56,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   final SubCategoryOperation _subCategoryOperation = SubCategoryOperation();
 
   late TransactionModel _currentTransaction;
+  bool _diUpdate = false;
 
   @override
   void initState() {
@@ -89,15 +90,24 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   }
 
   Future<void> _openEditForm() async {
+    Log.info(
+        'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
     final updatedTransaction = await Navigator.push<TransactionModel?>(
       context,
       MaterialPageRoute<TransactionModel?>(
         builder: (final context) =>
-            FormTransaksiPage(transaksi: _currentTransaction),
+            FormTransaksiPage(transaction: _currentTransaction),
       ),
     );
     if (updatedTransaction != null) {
-      setState(() => _currentTransaction = updatedTransaction);
+      Log.info(
+          'Transaksi ${_currentTransaction.id} diperbarui. Memperbarui UI detail dan menandai untuk reload.');
+      setState(() {
+        _currentTransaction = updatedTransaction;
+        _diUpdate = true;
+      });
+    } else {
+      Log.info('Kembali dari form edit tanpa pembaruan.');
     }
   }
 
@@ -110,7 +120,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         title: const Text('Detail Transaksi'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, _diUpdate),
         ),
         actions: [
           IconButton(

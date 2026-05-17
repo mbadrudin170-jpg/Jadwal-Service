@@ -1,7 +1,11 @@
 // path: lib/admin/halaman/detail/wallet_detail.dart
 // digunakan oleh: lib/admin/halaman/tab/wallet.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
+import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -67,7 +71,7 @@ class _WalletDetailState extends State<WalletDetail> {
   @override
   void initState() {
     super.initState();
-    Log.info('Membuat state untuk WalletDetail. ID: \${widget.wallet.id}');
+    Log.info('Membuat state untuk WalletDetail. ID: ${widget.wallet.id}');
     _walletOperation = widget.walletOperation ?? WalletOperation();
     _transactionOperation =
         widget.transactionOperation ?? TransactionOperation();
@@ -75,7 +79,7 @@ class _WalletDetailState extends State<WalletDetail> {
   }
 
   Future<WalletDetailData> _loadData() async {
-    Log.info('Memuat data detail dompet ID: \${widget.wallet.id}');
+    Log.info('Memuat data detail dompet ID: ${widget.wallet.id}');
 
     try {
       final results = await Future.wait([
@@ -120,9 +124,54 @@ class _WalletDetailState extends State<WalletDetail> {
   }
 
   void _reloadData() {
+    Log.info('Memicu pemuatan ulang data untuk WalletDetail.');
     setState(() {
       _futureDetailData = _loadData();
     });
+  }
+
+  Future<void> _navigateToTransactionDetail(
+      final TransactionModel transaction) async {
+    Log.info(
+      'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
+    );
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (final context) => TransactionDetailPage(transaction: transaction),
+      ),
+    );
+
+    if (result ?? false) {
+      Log.info(
+        'Kembali dari halaman detail transaksi dengan sinyal reload. Memuat ulang data dompet.',
+      );
+      _reloadData();
+    } else {
+      Log.info('Kembali dari halaman detail transaksi tanpa perubahan.');
+    }
+  }
+
+  Future<void> _navigateToTransactionForm(
+      {final TransactionModel? transaction}) async {
+    Log.info(
+      'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaction?.id} dari WalletDetail.',
+    );
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (final context) => FormTransaksiPage(transaction: transaction),
+      ),
+    );
+
+    if (result ?? false) {
+      Log.info(
+        'Kembali dari form edit dengan sinyal reload. Memuat ulang data dompet.',
+      );
+      _reloadData();
+    } else {
+      Log.info('Kembali dari form edit tanpa perubahan.');
+    }
   }
 
   @override
@@ -142,7 +191,7 @@ class _WalletDetailState extends State<WalletDetail> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text('Error: \${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData) {
             return const Center(child: Text('Data Kosong'));
@@ -219,8 +268,18 @@ class _WalletDetailState extends State<WalletDetail> {
               (final transaction) => buildTransactionItem(
                 context,
                 transaction,
-                _reloadData,
-                _transactionOperation,
+                onTap: () {
+                  unawaited(_navigateToTransactionDetail(transaction));
+                },
+                onEdit: () {
+                  unawaited(
+                      _navigateToTransactionForm(transaction: transaction));
+                },
+                onDelete: () async {
+                  Log.info('Hapus transaksi: ${transaction.id}');
+                  await _transactionOperation.archiveTransaction(transaction.id);
+                  _reloadData();
+                },
               ),
             ),
           ],
