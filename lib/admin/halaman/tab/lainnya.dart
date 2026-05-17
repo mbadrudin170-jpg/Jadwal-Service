@@ -78,7 +78,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
   }
 
   Future<void> _navigateTo(final Widget page, final String pageName) async {
-    Log.info('Navigasi ke halaman $pageName.');
+    Log.info('Tombol $pageName ditekan');
     try {
       await Navigator.push<void>(
         context,
@@ -108,30 +108,22 @@ class _LainnyaPageState extends State<LainnyaPage> {
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.wifi,
-            title: 'Data Paket',
-            onTap: () => _navigateTo(const PackagePage(), 'Data Paket'),
+            icon: Icons.category,
+            title: 'Kategori',
+            onTap: () => _navigateTo(const CategoryPage(), 'Kategori'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.category,
-            title: 'Data Kategori',
-            onTap: () => _navigateTo(const CategoryPage(), 'Data Kategori'),
+            icon: Icons.inventory_2,
+            title: 'Paket',
+            onTap: () => _navigateTo(const PackagePage(), 'Paket'),
           ),
-          const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.history,
-            title: 'Riwayat Langganan',
-            onTap: () => _navigateTo(
-                const PackageActivationHistoryPage(), 'Riwayat Langganan'),
-          ),
-          const Divider(),
-          _buildMenuItem(
-            context: context,
-            icon: Icons.cloud_upload,
-            title: 'Versi APK User',
-            onTap: () => _navigateTo(const ApkVersionPage(), 'Versi APK User'),
+            title: 'Riwayat Aktivasi Paket',
+            onTap: () =>
+                _navigateTo(const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
           ),
           _buildMenuItem(
             context: context,
@@ -139,13 +131,17 @@ class _LainnyaPageState extends State<LainnyaPage> {
             title: 'Kritik dan Saran',
             onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
-          const Divider(),
+          _buildMenuItem(
+            context: context,
+            icon: Icons.system_update,
+            title: 'Versi Aplikasi',
+            onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
+          ),
           _buildMenuItem(
             context: context,
             icon: Icons.storage,
-            title: 'Migrasi Database',
-            onTap: () =>
-                _navigateTo(const HalamanMigrasi(), 'Migrasi Database'),
+            title: 'Migrasi',
+            onTap: () => _navigateTo(const HalamanMigrasi(), 'Migrasi'),
           ),
           _buildMenuItem(
             context: context,
@@ -160,15 +156,11 @@ class _LainnyaPageState extends State<LainnyaPage> {
             onTap: () =>
                 _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
           ),
-          const Divider(),
           _buildMenuItem(
             context: context,
             icon: Icons.exit_to_app,
             title: 'Keluar',
-            onTap: () async {
-              Log.info('Tombol Keluar ditekan.');
-              await _showLogoutConfirmationDialog();
-            },
+            onTap: _showLogoutConfirmationDialog,
           ),
         ],
       ),
@@ -182,9 +174,8 @@ class _LainnyaPageState extends State<LainnyaPage> {
     required final VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      leading: Icon(icon),
       title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }

@@ -25,10 +25,8 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
-import 'package:wifi/shared/services/pembaruan_data_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -51,7 +49,7 @@ import 'package:wifi/shared/whatsapp/info_paket.dart';
 //   - lib/shared/services/pembaruan_data_service.dart (PembaruanDataService)
 //   - lib/shared/utils/format_util.dart (FormatUtil)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/shared/whatsapp/info_paket.dart (PesanInfoPaket)
+
 
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
@@ -394,7 +392,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         await widget.transaksiOperasi.addTransaction(transaksiData);
       }
 
-      PembaruanDataService.instance.picuPembaruan();
       return SaveResultModel(
           success: true,
           message: 'Berhasil disimpan',
@@ -648,18 +645,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           }
           if (hasil.success) {
             SnackBarUtil.success(context, hasil.message);
-            // PERBAIKAN: Memeriksa apakah hasil.data tidak null sebelum memanggil
-            if (hasil.data != null) {
-              try {
-                await PesanInfoPaket.kirimRincianPaket(hasil.data!);
-              } on Exception catch (e) {
-                Log.warning('Gagal mengirim pesan WhatsApp: $e');
-                if (mounted) {
-                  SnackBarUtil.warning(context,
-                      'Gagal mengirim pesan WhatsApp. Aplikasi tidak terpasang?');
-                }
-              }
-            }
             await Future<void>.delayed(const Duration(milliseconds: 300));
             if (mounted) {
               navigator.pop(true);

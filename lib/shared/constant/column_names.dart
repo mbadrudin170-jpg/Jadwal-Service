@@ -1,7 +1,6 @@
 // path: lib/shared/constant/column_names.dart
 // Berkas ini berisi daftar nama kolom database untuk konsistensi di seluruh aplikasi.
-
-// TODO: Lengkapi semua nama kolom dari setiap tabel di sqlite.dart.
+// Semua nama kolom dari skema database v50 telah didefinisikan di sini.
 
 /// Kelas abstrak yang berisi konstanta untuk nama kolom database.
 abstract final class ColumnNames {
@@ -146,12 +145,12 @@ abstract final class ColumnNames {
   /// Nama kolom untuk informasi pemeliharaan.
   static const String maintenanceInfo = 'maintenance_info';
 
-  /// Nama kolom untuk nama tabel.
+  /// Nama kolom untuk nama tabel (digunakan di tabel status unggah lama).
   static const String tableName = 'table_name';
 
-  /// Nama kolom untuk daftar ID.
+  /// Nama kolom untuk daftar ID (digunakan di tabel status unggah lama).
   static const String ids = 'ids';
 
-  /// Nama kolom untuk nilai generik.
+  /// Nama kolom untuk nilai generik (digunakan di tabel status aplikasi).
   static const String value = 'value';
 }

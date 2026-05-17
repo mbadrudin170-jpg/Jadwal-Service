@@ -179,8 +179,7 @@ class ApkVersionModel implements HasId {
       youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
       isUpdateRequired: (map[ColumnNames.isUpdateRequired] as int? ?? 0) == 1,
       isDeleted: (map[ColumnNames.isDeleted] as int? ?? 0) == 1,
-      latestBuildNumber:
-          _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
+      latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
       downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
       archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
       updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
@@ -197,10 +196,12 @@ class ApkVersionModel implements HasId {
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
       ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
       ColumnNames.latestBuildNumber: jsonEncode(
-        latestBuildNumber.map((final key, final value) => MapEntry(key.name, value)),
+        latestBuildNumber
+            .map((final key, final value) => MapEntry(key.name, value)),
       ),
       ColumnNames.downloadLinks: jsonEncode(
-        downloadLinks.map((final key, final value) => MapEntry(key.name, value)),
+        downloadLinks
+            .map((final key, final value) => MapEntry(key.name, value)),
       ),
       ColumnNames.isUpdateRequired: isUpdateRequired ? 1 : 0,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
@@ -221,8 +222,7 @@ class ApkVersionModel implements HasId {
       youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
       isUpdateRequired: map[ColumnNames.isUpdateRequired] as bool? ?? false,
       isDeleted: map[ColumnNames.isDeleted] as bool? ?? false,
-      latestBuildNumber:
-          _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
+      latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
       downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
       archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
       updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
@@ -232,6 +232,7 @@ class ApkVersionModel implements HasId {
   /// Converts the model to a Map for Firestore.
   Map<String, dynamic> toFirebase() {
     return {
+      id: id,
       ColumnNames.releaseNotes: releaseNotes,
       ColumnNames.latestVersion: latestVersion,
       ColumnNames.youtubeTutorial: youtubeTutorial,

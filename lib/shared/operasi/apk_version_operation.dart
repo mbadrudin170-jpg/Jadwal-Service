@@ -1,8 +1,11 @@
 // path: lib/shared/operasi/apk_version_operation.dart
 // diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi v50.
 // diubah: Menggunakan DateTime.now().toUtc() pada pengarsipan agar konsisten dengan BaseOperation.
+// diperbaiki: Menggunakan konstanta ColumnNames untuk query agar sesuai dengan skema DB v50.
+// diperbaiki: Menambahkan `const` pada variabel final untuk optimasi performa.
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
@@ -15,7 +18,6 @@ class ApkVersionOperation {
   /// Instance dari DatabaseHelper untuk berinteraksi dengan database.
   final DatabaseHelper dbHelper;
 
-  // DIUBAH: Menggunakan TableNameValue untuk nama tabel userApkVersion
   final String _tableName = TableNameValue.get(TableName.userApkVersion);
 
   final BaseOperation _baseOperation;
@@ -31,9 +33,9 @@ class ApkVersionOperation {
     );
   }
 
-  // ==========================
+  // =========================
   // OPERASI TULIS (WRITE)
-  // ==========================
+  // =========================
 
   /// Menambah [ApkVersionModel] baru ke database.
   Future<void> addApkVersion(
@@ -45,7 +47,6 @@ class ApkVersionOperation {
     );
 
     try {
-      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.insert(
         _tableName,
         apkVersion.toSqlite(),
@@ -74,7 +75,6 @@ class ApkVersionOperation {
     );
 
     try {
-      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.update(
         _tableName,
         apkVersion.toSqlite(),
@@ -105,7 +105,8 @@ class ApkVersionOperation {
       final db = await dbHelper.database;
       Log.info('Mencari data versi APK user ID: $id di tabel $_tableName');
 
-      final data = await db.query(_tableName, where: 'id = ?', whereArgs: [id]);
+      const where = 'id = ?';
+      final data = await db.query(_tableName, where: where, whereArgs: [id]);
 
       if (data.isNotEmpty) {
         final model = ApkVersionModel.fromSqlite(data.first);
@@ -113,7 +114,6 @@ class ApkVersionOperation {
           'Data ditemukan - Versi: ${model.latestVersion}, isDeleted: ${model.isDeleted}',
         );
 
-        // DIUBAH: Menggunakan DateTime.now().toUtc() untuk konsistensi zona waktu
         final archivedModel = model.copyWith(
           isDeleted: true,
           archivedAt: DateTime.now().toUtc(),
@@ -155,7 +155,6 @@ class ApkVersionOperation {
 
     try {
       final mapList = modelList.map((final model) => model.toSqlite()).toList();
-      // DIUBAH: Meneruskan TableName enum ke baseOperation
       await _baseOperation.insertOrUpdateBatch(
         _tableName,
         mapList,
@@ -174,9 +173,9 @@ class ApkVersionOperation {
     }
   }
 
-  // ==========================
+  // =========================
   // OPERASI BACA (READ)
-  // ==========================
+  // =========================
 
   /// Mengambil semua versi APK dari database.
   Future<List<ApkVersionModel>> getAllApkVersions() async {
@@ -186,11 +185,12 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      Log.info('Query: SELECT * FROM $_tableName ORDER BY diperbarui DESC');
+      const orderBy = '${ColumnNames.updatedAt} DESC';
+      Log.info('Query: SELECT * FROM $_tableName ORDER BY $orderBy');
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        orderBy: 'diperbarui DESC',
+        orderBy: orderBy,
       );
 
       final result = List.generate(
@@ -225,19 +225,20 @@ class ApkVersionOperation {
   /// Mengambil semua versi APK yang aktif dari database.
   Future<List<ApkVersionModel>> getAllActiveApkVersions() async {
     Log.info(
-      'Mengambil semua versi APK aktif (isDeleted = 0) dari tabel $_tableName',
+      'Mengambil semua versi APK aktif (${ColumnNames.isDeleted} = 0) dari tabel $_tableName',
     );
 
     try {
       final db = await dbHelper.database;
+      const where = '${ColumnNames.isDeleted} = 0';
+      const orderBy = '${ColumnNames.updatedAt} DESC';
       Log.info(
-        'Query: SELECT * FROM $_tableName WHERE isDeleted = 0 ORDER BY diperbarui DESC',
-      );
+          'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy');
 
       final maps = await db.query(
         _tableName,
-        where: 'isDeleted = 0',
-        orderBy: 'diperbarui DESC',
+        where: where,
+        orderBy: orderBy,
       );
 
       final result = List.generate(
@@ -271,14 +272,15 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
+      const where = '${ColumnNames.isDeleted} = 0';
+      const orderBy = '${ColumnNames.updatedAt} DESC';
       Log.info(
-        'Query: SELECT * FROM $_tableName WHERE isDeleted = 0 ORDER BY diperbarui DESC LIMIT 1',
-      );
+          'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy LIMIT 1');
 
       final maps = await db.query(
         _tableName,
-        where: 'isDeleted = 0',
-        orderBy: 'diperbarui DESC',
+        where: where,
+        orderBy: orderBy,
         limit: 1,
       );
 
@@ -310,13 +312,12 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      Log.info(
-        'Query: SELECT * FROM $_tableName WHERE id = ? AND isDeleted = 0',
-      );
+      const where = 'id = ? AND ${ColumnNames.isDeleted} = 0';
+      Log.info('Query: SELECT * FROM $_tableName WHERE $where');
 
       final maps = await db.query(
         _tableName,
-        where: 'id = ? AND isDeleted = 0',
+        where: where,
         whereArgs: [id],
       );
 

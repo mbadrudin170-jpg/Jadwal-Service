@@ -2,7 +2,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
@@ -108,8 +111,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<WalletModel>(
-        'dompet',
-        'dompet',
+        TableNameValue.get(TableName.wallet),
+        TableNameValue.get(TableName.wallet),
         WalletModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -139,8 +142,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<CategoryModel>(
-        'kategori',
-        'kategori',
+        TableNameValue.get(TableName.category),
+        TableNameValue.get(TableName.category),
         CategoryModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -170,8 +173,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<FeedbackModel>(
-        'kritik_saran',
-        'kritik_saran',
+        TableNameValue.get(TableName.feedback),
+        TableNameValue.get(TableName.feedback),
         FeedbackModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -201,8 +204,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<PackageModel>(
-        'paket',
-        'paket',
+        TableNameValue.get(TableName.package),
+        TableNameValue.get(TableName.package),
         PackageModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -232,8 +235,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<ActiveCustomerModel>(
-        'pelanggan_aktif',
-        'pelanggan_aktif',
+        TableNameValue.get(TableName.activeCustomer),
+        TableNameValue.get(TableName.activeCustomer),
         ActiveCustomerModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -263,8 +266,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<CustomerModel>(
-        'pelanggan',
-        'pelanggan',
+        TableNameValue.get(TableName.customer),
+        TableNameValue.get(TableName.customer),
         CustomerModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -294,8 +297,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<OrderModel>(
-        'pesanan',
-        'pesan',
+        TableNameValue.get(TableName.customerOrder),
+        TableNameValue.get(TableName.customerOrder),
         OrderModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -325,8 +328,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<TransactionModel>(
-        'transaksi',
-        'transaksi',
+        TableNameValue.get(TableName.transactions),
+        TableNameValue.get(TableName.transactions),
         TransactionModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -356,8 +359,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<SubCategoryModel>(
-        'sub_kategori',
-        'sub_kategori',
+        TableNameValue.get(TableName.subCategory),
+        TableNameValue.get(TableName.subCategory),
         SubCategoryModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -387,8 +390,8 @@ class UploadDataService {
         'Data pengaturan akan selalu diunggah, jadi waktu ini akan diabaikan pada level query.',
       );
       await uploadGenericData<SettingsModel>(
-        'pengaturan',
-        'pengaturan',
+        TableNameValue.get(TableName.settings),
+        TableNameValue.get(TableName.settings),
         SettingsModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -418,8 +421,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<ApkVersionModel>(
-        'versi_apk_user',
-        'versi_apk_user',
+        TableNameValue.get(TableName.userApkVersion),
+        TableNameValue.get(TableName.userApkVersion),
         ApkVersionModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -469,7 +472,7 @@ class UploadDataService {
 
       List<Map<String, dynamic>> dataToUpload = [];
 
-      if (tableName == 'pengaturan') {
+      if (tableName == TableNameValue.get(TableName.settings)) {
         Log.info(
           'Tabel $tableName adalah tabel khusus. Mengambil semua data tanpa filter waktu.',
         );
@@ -477,11 +480,11 @@ class UploadDataService {
       } else {
         Log.info(
           'Melakukan query pada tabel $tableName dengan kondisi: '
-          'diperbarui > ${lastSyncTime.millisecondsSinceEpoch}',
+          '${ColumnNames.updatedAt} > ${lastSyncTime.millisecondsSinceEpoch}',
         );
         dataToUpload = await db.query(
           tableName,
-          where: 'diperbarui > ?',
+          where: '${ColumnNames.updatedAt} > ?',
           whereArgs: [lastSyncTime.millisecondsSinceEpoch],
         );
       }

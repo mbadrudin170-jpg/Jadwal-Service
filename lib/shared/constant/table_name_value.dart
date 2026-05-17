@@ -10,10 +10,7 @@ abstract final class TableNameValue {
     TableName.package: 'package',
     TableName.customer: 'customer',
     TableName.activeCustomer: 'active_customer',
-
-    // KONSISTEN: Menggunakan enum jamak dan string jamak
     TableName.transactions: 'transactions',
-
     TableName.wallet: 'wallet',
     TableName.feedback: 'feedback',
     TableName.customerOrder: 'customerOrder',

@@ -1,5 +1,7 @@
-// path: lib/admin/halaman/form/form_versi_apk_user.dart
-// diubah: Menambahkan unawaited untuk menangani discarded_futures.
+// path: lib/admin/halaman/form/apk_version_form.dart
+// diubah: Menambahkan FocusNode untuk perpindahan antar form field dengan menekan Enter.
+// diubah: Memperbaiki warning `use_build_context_synchronously` secara final.
+// diubah: Mengganti SnackBar manual dengan SnackBarUtil.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Form untuk mengelola versi APK pengguna.
 ///
@@ -26,7 +29,8 @@ class ApkVersionForm extends StatefulWidget {
   /// Parameter [operasi] bersifat opsional dan akan diinisialisasi
   /// dengan instance default jika tidak disediakan. Ini berguna untuk
   /// injeksi dependensi saat testing.
-  ApkVersionForm({super.key, this.apkVersion, final ApkVersionOperation? operasi})
+  ApkVersionForm(
+      {super.key, this.apkVersion, final ApkVersionOperation? operasi})
       : operasi = operasi ?? ApkVersionOperation();
 
   @override
@@ -49,6 +53,17 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
   late TextEditingController _universalLinkController;
   late TextEditingController _link32Controller;
   late TextEditingController _link64Controller;
+
+  // Tambahkan FocusNode
+  final _latestVersionFocusNode = FocusNode();
+  final _buildUniversalFocusNode = FocusNode();
+  final _build32FocusNode = FocusNode();
+  final _build64FocusNode = FocusNode();
+  final _universalLinkFocusNode = FocusNode();
+  final _link32FocusNode = FocusNode();
+  final _link64FocusNode = FocusNode();
+  final _releaseNotesFocusNode = FocusNode();
+  final _youtubeTutorialFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -83,14 +98,22 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
       final versiTerakhir = await widget.operasi.getLatestApkVersion();
       if (versiTerakhir != null && mounted) {
         _latestVersionController.text = versiTerakhir.latestVersion;
-        final buildBerikutnya =
+        final buildUniversalBerikutnya =
             (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.universal] ??
                     0) +
                 1;
-        _buildUniversalController.text = buildBerikutnya.toString();
+        final buildBit32Berikutnya =
+            (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.bit32] ?? 0) +
+                1;
+        final buildBit64Berikutnya =
+            (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.bit64] ?? 0) +
+                1;
 
+        _buildUniversalController.text = buildUniversalBerikutnya.toString();
+        _build32Controller.text = buildBit32Berikutnya.toString();
+        _build64Controller.text = buildBit64Berikutnya.toString();
         Log.info(
-          'Data rilis sebelumnya ditemukan. Menyarankan build: $buildBerikutnya',
+          'Data rilis sebelumnya ditemukan. Menyarankan build: $buildUniversalBerikutnya',
         );
       }
     } on Exception catch (e, s) {
@@ -124,7 +147,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
 
   @override
   void dispose() {
-    Log.info('Menghapus semua controller (dispose)');
+    Log.info('Menghapus semua controller dan focus node (dispose)');
     _releaseNotesController.dispose();
     _latestVersionController.dispose();
     _youtubeTutorialController.dispose();
@@ -134,12 +157,25 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
     _universalLinkController.dispose();
     _link32Controller.dispose();
     _link64Controller.dispose();
+
+    _latestVersionFocusNode.dispose();
+    _buildUniversalFocusNode.dispose();
+    _build32FocusNode.dispose();
+    _build64FocusNode.dispose();
+    _universalLinkFocusNode.dispose();
+    _link32FocusNode.dispose();
+    _link64FocusNode.dispose();
+    _releaseNotesFocusNode.dispose();
+    _youtubeTutorialFocusNode.dispose();
     super.dispose();
   }
 
-  Future<void> _simpanForm() async {
+  Future<void> _saveForm() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Menampilkan dialog konfirmasi kepada pengguna');
+
+      // Unfocus untuk menyembunyikan keyboard sebelum menampilkan dialog
+      FocusScope.of(context).unfocus();
 
       final konfirmasi = await showDialog<bool>(
         context: context,
@@ -171,6 +207,8 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         Log.info('Pengguna membatalkan proses penyimpanan');
         return;
       }
+
+      if (!mounted) return;
 
       setState(() => _isLoading = true);
       Log.info('Sedang memproses penyimpanan ke database...');
@@ -214,7 +252,8 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         downloadLinks: tautanUnduhan,
       );
 
-      Log.info('Model Versi APK yang akan disimpan: ${dataToSave.toFirebase()}');
+      Log.info(
+          'Model Versi APK yang akan disimpan: ${dataToSave.toFirebase()}');
 
       try {
         if (_isEdit) {
@@ -228,23 +267,13 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         Log.info('Proses penyimpanan berhasil diselesaikan');
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Data berhasil disimpan!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+
+        SnackBarUtil.success(context, 'Data berhasil disimpan!');
         Navigator.of(context).pop(dataToSave);
       } on Exception catch (e, s) {
         Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Gagal menyimpan data: $e'),
-          ),
-        );
+        SnackBarUtil.error(context, 'Gagal menyimpan data: $e');
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
@@ -262,48 +291,84 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
           Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 80.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   TextFormField(
                     controller: _latestVersionController,
+                    focusNode: _latestVersionFocusNode,
+                    textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
                       labelText: 'Versi Terbaru (Contoh: 1.0.0)',
                       prefixIcon: Icon(Icons.info_outline),
                       border: OutlineInputBorder(),
                     ),
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
+                    onFieldSubmitted: (final _) {
+                      FocusScope.of(context)
+                          .requestFocus(_buildUniversalFocusNode);
+                    },
                   ),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Nomor Build'),
                   _buildNumberField(
                     _buildUniversalController,
                     'Build Universal',
+                    _buildUniversalFocusNode,
+                    _build32FocusNode,
                   ),
-                  _buildNumberField(_build32Controller, 'Build 32-bit'),
-                  _buildNumberField(_build64Controller, 'Build 64-bit'),
+                  _buildNumberField(
+                    _build32Controller,
+                    'Build 32-bit',
+                    _build32FocusNode,
+                    _build64FocusNode,
+                  ),
+                  _buildNumberField(
+                    _build64Controller,
+                    'Build 64-bit',
+                    _build64FocusNode,
+                    _universalLinkFocusNode,
+                  ),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Tautan Unduhan'),
                   _buildUrlField(
                     _universalLinkController,
                     'Tautan Universal',
+                    _universalLinkFocusNode,
+                    _link32FocusNode,
                   ),
-                  _buildUrlField(_link32Controller, 'Tautan 32-bit'),
-                  _buildUrlField(_link64Controller, 'Tautan 64-bit'),
+                  _buildUrlField(
+                    _link32Controller,
+                    'Tautan 32-bit',
+                    _link32FocusNode,
+                    _link64FocusNode,
+                  ),
+                  _buildUrlField(
+                    _link64Controller,
+                    'Tautan 64-bit',
+                    _link64FocusNode,
+                    _releaseNotesFocusNode,
+                  ),
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _releaseNotesController,
+                    focusNode: _releaseNotesFocusNode,
+                    textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
                       labelText: 'Catatan Rilis',
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 3,
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
+                    // onFieldSubmitted tidak efektif di sini untuk multiline,
+                    // keyboard akan menampilkan tombol next.
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _youtubeTutorialController,
+                    focusNode: _youtubeTutorialFocusNode,
+                    textInputAction: TextInputAction.done,
                     decoration: const InputDecoration(
                       labelText: 'URL Tutorial YouTube',
                       prefixIcon: Icon(
@@ -312,6 +377,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                       ),
                       border: OutlineInputBorder(),
                     ),
+                    onFieldSubmitted: (final _) => _saveForm(),
                   ),
                   SwitchListTile(
                     title: const Text('Wajib Update'),
@@ -320,14 +386,6 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                       Log.info('Switch Wajib Update diubah ke: $value');
                       setState(() => _isUpdateRequired = value);
                     },
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _simpanForm,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('SIMPAN DATA RILIS'),
                   ),
                 ],
               ),
@@ -349,6 +407,16 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
             ),
         ],
       ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: _isLoading ? null : _saveForm,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          child: const Text('SIMPAN DATA RILIS'),
+        ),
+      ),
     );
   }
 
@@ -366,31 +434,57 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
     );
   }
 
-  Widget _buildNumberField(final TextEditingController controller, final String label) {
+  Widget _buildNumberField(
+    final TextEditingController controller,
+    final String label,
+    final FocusNode focusNode,
+    final FocusNode? nextFocusNode,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: TextFormField(
         controller: controller,
+        focusNode: focusNode,
+        textInputAction:
+            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
         ),
         keyboardType: TextInputType.number,
+        onFieldSubmitted: (final _) {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          }
+        },
       ),
     );
   }
 
-  Widget _buildUrlField(final TextEditingController controller, final String label) {
+  Widget _buildUrlField(
+    final TextEditingController controller,
+    final String label,
+    final FocusNode focusNode,
+    final FocusNode? nextFocusNode,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: TextFormField(
         controller: controller,
+        focusNode: focusNode,
+        textInputAction:
+            nextFocusNode != null ? TextInputAction.next : TextInputAction.done,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
           prefixIcon: const Icon(Icons.link),
         ),
         keyboardType: TextInputType.url,
+        onFieldSubmitted: (final _) {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          }
+        },
       ),
     );
   }

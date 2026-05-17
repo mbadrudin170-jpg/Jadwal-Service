@@ -2,13 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
@@ -37,7 +35,6 @@ class CategoryForm extends StatefulWidget {
 class _CategoryFormState extends State<CategoryForm> {
   final _formKey = GlobalKey<FormState>();
   final CategoryOperation _kategoriOperasi = CategoryOperation();
-  final UploadDataService _uploadDataService = UploadDataService();
 
   late CategoryType _tipe;
   late TextEditingController _namaController;
@@ -48,8 +45,6 @@ class _CategoryFormState extends State<CategoryForm> {
   bool get _isEditMode => widget.kategori != null || widget.subKategori != null;
   bool get _isSubKategoriMode =>
       widget.subKategori != null || widget.idKategoriInduk != null;
-
-  final _internetCheck = InternetConnectionService();
 
   @override
   void initState() {
@@ -207,7 +202,7 @@ class _CategoryFormState extends State<CategoryForm> {
     );
   }
 
-  Future<void> _simpanForm() async {
+  Future<void> _saveForm() async {
     Log.info('========================================');
     Log.info('AKSI: Tombol Simpan Ditekan');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
@@ -399,27 +394,6 @@ class _CategoryFormState extends State<CategoryForm> {
         }
 
         Log.info('========================================');
-        Log.info('MEMERIKSA KONEKSI INTERNET UNTUK SINKRONISASI');
-        Log.info('========================================');
-
-        Log.info('Memeriksa koneksi internet...');
-        final isOnline = await _internetCheck.checkConnection();
-        Log.info('Status koneksi: ${isOnline ? "ONLINE" : "OFFLINE"}');
-
-        if (isOnline) {
-          Log.info(
-            'Koneksi internet tersedia. Melakukan sinkronisasi data kategori ke Firestore.',
-          );
-          await _uploadDataService.uploadCategoryData();
-          Log.info('Sinkronisasi data kategori ke cloud BERHASIL.');
-        } else {
-          Log.info(
-            'Tidak ada koneksi internet. Data hanya disimpan secara lokal.',
-          );
-          Log.info('Sinkronisasi akan dilakukan saat koneksi tersedia nanti.');
-        }
-
-        Log.info('========================================');
         Log.info('PENYIMPANAN DATA BERHASIL');
         Log.info('========================================');
 
@@ -561,17 +535,26 @@ class _CategoryFormState extends State<CategoryForm> {
                       labelText: 'Tipe',
                       border: OutlineInputBorder(),
                     ),
+                    // // path: lib/admin/halaman/form/transaction_form.dart
+// // atau di file form lain yang relevan
+
                     items: CategoryType.values
-                        .where((final tipe) => tipe != CategoryType.transfer)
-                        .map((final CategoryType tipe) {
+                        // Menyaring agar hanya menampilkan opsi pemasukan dan pengeluaran
+                        .where((final type) =>
+                            type == CategoryType.income ||
+                            type == CategoryType.expense)
+                        .map((final CategoryType category) {
+                      // Log untuk memastikan pemetaan berjalan
+                      Log.info(
+                          'Membuat DropdownMenuItem untuk: ${category.displayName}');
+
                       return DropdownMenuItem<CategoryType>(
-                        value: tipe,
-                        child: Text(
-                          tipe.name.substring(0, 1).toUpperCase() +
-                              tipe.name.substring(1),
-                        ),
+                        value: category,
+                        child: Text(category
+                            .displayName), // Menggunakan extension .displayName
                       );
                     }).toList(),
+
                     onChanged: (final CategoryType? newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
@@ -649,7 +632,7 @@ class _CategoryFormState extends State<CategoryForm> {
                 ElevatedButton(
                   onPressed: () async {
                     Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
-                    await _simpanForm();
+                    await _saveForm();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),

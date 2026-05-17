@@ -3,6 +3,7 @@
 Sebuah task dianggap selesai jika:
 
 - membaca file GEMINI.md,
+- menjalankan ls -R lib/
 - membaca semua file di folder docs di root.
 - memnanyakan tugas ke user.
 - merencanakan tugas yang akan dikerjakan

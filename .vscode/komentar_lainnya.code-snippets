@@ -5,5 +5,13 @@
 			"// path: ${RELATIVE_FILEPATH}"
 		],
 		"description": "Sisipkan komentar path file saat ini"
+	},
+	"Komentar TODO": {
+		"prefix": "/todo",
+		"body": [
+			"// TODO : $1"
+		],
+		"description": "Sisipkan Komentar TODO"
 	}
+
 }

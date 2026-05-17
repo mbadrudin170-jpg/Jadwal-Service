@@ -1,370 +1,65 @@
-# 17 Mei 2026 - Rangkuman Perbaikan Linter & Stabilitas Kode
+# Rangkuman Proyek WiFi
 
-Sesi kerja ini berfokus pada perbaikan semua error dan warning yang dilaporkan oleh `flutter analyze` berdasarkan aturan linter yang ketat di `analysis_options.yaml`. Tujuannya adalah untuk meningkatkan kualitas, stabilitas, dan konsistensi kode di seluruh proyek.
-
-## Masalah Utama yang Diatasi
-
-### 1. `use_build_context_synchronously`
-
-*   **Masalah:** Penggunaan `BuildContext` setelah operasi `async` (misalnya, setelah `await Navigator.push` atau `await showDialog`) tanpa memeriksa apakah widget masih terpasang (`mounted`). Ini bisa menyebabkan crash jika widget dihapus dari pohon widget saat operasi `async` berjalan.
-*   **Solusi:** Menambahkan pemeriksaan `if (!mounted) return;` sebelum menggunakan `BuildContext` setelah celah `async`. Ini memastikan bahwa kode UI hanya berjalan jika widget masih valid.
-*   **File yang Terkena Dampak:**
-    *   `lib/admin/halaman/detail/subscription_history_detail.dart`
-    *   `lib/admin/halaman/form/subscription_history_form.dart`
-    *   `lib/admin/halaman/lainnya/apk_version_page.dart`
-
-### 2. `deprecated_member_use`
-
-*   **Masalah:** Penggunaan `groupValue` dan `onChanged` pada `RadioListTile`, yang sudah usang. Flutter sekarang merekomendasikan penggunaan widget `RadioGroup` untuk mengelola status grup radio.
-*   **Solusi:** Membungkus beberapa `RadioListTile` di dalam `_SortDialog` (`apk_version_page.dart`) dengan widget `RadioGroup`. Nilai grup dan callback `onChanged` sekarang dikelola oleh `RadioGroup`, sesuai dengan praktik terbaik Flutter terbaru.
-*   **File yang Terkena Dampak:**
-    *   `lib/admin/halaman/lainnya/apk_version_page.dart`
-
-## Hasil Akhir
-
-Setelah semua perbaikan diterapkan, menjalankan `flutter analyze` sekarang menghasilkan: **No issues found!**
-
-Kode proyek sekarang lebih bersih, lebih aman dari error runtime terkait `BuildContext`, dan mematuhi standar linter yang telah ditetapkan.
+Selamat datang di dokumentasi proyek WiFi. Dokumen ini memberikan ringkasan tentang pekerjaan yang telah dilakukan, tantangan yang dihadapi, dan solusi yang diimplementasikan.
 
 ---
 
-# 17 Mei 2026 00:36
+## 30 Juli 2024 - Pembaruan UI Form Versi APK
 
-Baik, ini semua kode final dari 31 file yang telah diperbaiki. Saya tulis lengkap tanpa dokumentasi perubahannya.
+- **Konteks**: Form untuk menambah atau mengedit versi APK memiliki tombol "SIMPAN DATA RILIS" yang ikut tergulir (scroll) bersama dengan konten form lainnya.
+- **Masalah**: Pengalaman pengguna kurang optimal karena tombol aksi utama tidak selalu terlihat, terutama pada layar kecil.
+- **Solusi**:
+    - **File**: `lib/admin/halaman/form/apk_version_form.dart`
+    - **Tindakan**: Tombol `ElevatedButton` dipindahkan dari dalam `SingleChildScrollView` ke properti `bottomNavigationBar` dari `Scaffold`.
+    - **Manfaat**: Tombol "SIMPAN DATA RILIS" sekarang tetap berada di bagian bawah layar (fixed/sticky), memastikan tombol tersebut selalu dapat diakses oleh pengguna tanpa perlu menggulir ke bagian paling bawah form.
+
+---
+
+## 29 Juli 2024 - Perbaikan Stabilitas & Refaktorisasi Arsitektur
+
+Sesi kerja ini mencakup dua perbaikan utama: mengatasi crash saat sinkronisasi data dan memisahkan tanggung jawab pada form input.
+
+### 1. Perbaikan Sinkronisasi Data: Inkonsistensi Nama Tabel
+
+- **Konteks**: Aplikasi mengalami crash (`DatabaseException: no such table: kategori`) setelah menyimpan data baru. Proses sinkronisasi ke Firestore gagal karena mencoba mengakses tabel dengan nama yang salah.
+- **Akar Masalah**: Terdapat inkonsistensi penamaan antara kode penyimpanan lokal (menggunakan `'category'`) dan kode sinkronisasi (menggunakan `'kategori'`).
+- **Solusi**:
+    - **Refaktorisasi `upload_data.dart`**: Semua nama tabel dan kolom yang ditulis manual (*hardcoded strings*) diganti dengan konstanta terpusat dari `TableNameValue` dan `ColumnNames`.
+    - **Standardisasi Enum UI**: `CategoryType` diubah untuk menampilkan teks terjemahan di UI tanpa mengubah nilai enum di level kode.
+- **Manfaat**: Menghilangkan error, memastikan konsistensi data, dan meningkatkan keterbacaan kode.
+
+### 2. Refaktorisasi Form: Pemisahan Tanggung Jawab
+
+- **Konteks**: Form penyimpanan data (contoh: `category_form.dart`) sebelumnya juga bertanggung jawab untuk memicu sinkronisasi data secara langsung setelah penyimpanan lokal.
+- **Masalah**: Hal ini mencampuradukkan tanggung jawab UI dengan proses latar belakang, membuat form menjadi kurang responsif, dan sulit untuk mengelola proses sinkronisasi secara terpusat.
+- **Solusi**:
+    - **Menghapus Logika Sinkronisasi**: Kode yang berhubungan dengan `UploadDataService` dan pengecekan koneksi internet dihapus sepenuhnya dari `lib/admin/halaman/form/category_form.dart`.
+    - **Fokus pada Penyimpanan Lokal**: Tanggung jawab form kini hanya sebatas validasi input dan penyimpanan data ke database lokal (SQLite).
+- **Manfaat**:
+    - **Pemisahan yang Jelas (*Separation of Concerns*)**: UI (form) tidak lagi dibebani dengan logika sinkronisasi.
+    - **Pengalaman Pengguna Lebih Baik**: Proses penyimpanan di form terasa lebih instan karena tidak lagi menunggu proses sinkronisasi.
+    - **Arsitektur Lebih Kuat**: Proses sinkronisasi data sekarang dapat dikelola oleh mekanisme terpusat yang berjalan di latar belakang, terpisah dari interaksi pengguna langsung.
 
 ---
 
-### 1. `lib/admin/halaman/lainnya/admin_settings.dart`
+## 28 Juli 2024 - Refaktorisasi Notifikasi dan Penghapusan TODO
 
-```dart
-// path: lib/admin/halaman/lainnya/admin_settings.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman dalam navigasi admin (Settings).
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/settings_form.dart (SettingsForm)
-//   - lib/shared/model/settings_model.dart (SettingsModel)
-//   - lib/shared/operasi/settings_operation.dart (SettingsOperation)
-//   - lib/shared/utils/sync_manager.dart (SyncManager)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/shared/debug/log.dart (Log)
-
-import 'package:flutter/material.dart';
-import 'package:wifi/admin/halaman/form/settings_form.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/settings_model.dart';
-import 'package:wifi/shared/operasi/settings_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
-
-/// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
-///
-/// Dari halaman ini, admin dapat melihat pengaturan saat ini, mengeditnya,
-/// dan melakukan aksi terkait seperti mereset waktu sinkronisasi.
-class SettingsAdminPage extends StatefulWidget {
-  /// Membuat instance dari [SettingsAdminPage].
-  const SettingsAdminPage({super.key});
-
-  @override
-  State<SettingsAdminPage> createState() => _SettingsAdminPageState();
-}
-
-class _SettingsAdminPageState extends State<SettingsAdminPage> {
-  final SettingsOperation _settingsOperation = SettingsOperation();
-  late Future<SettingsModel> _futureSettings;
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Menginisialisasi halaman Pengaturan Aplikasi');
-    _loadSettings();
-  }
-
-  // Fungsi untuk memuat data pengaturan dari database.
-  void _loadSettings() {
-    Log.info('Memuat data pengaturan dari database lokal');
-    setState(() {
-      _futureSettings = _settingsOperation.getSettings().then((final data) {
-        Log.info('Data pengaturan berhasil dimuat dari database');
-        Log.info(
-          'Detail pengaturan - Interval sinkronisasi: ${data.autoSyncInterval} jam, Hapus arsip: ${data.autoDeleteArchiveDays} hari, Mode pemeliharaan: ${data.maintenanceMode ? "Aktif" : "Nonaktif"}, Info pemeliharaan: ${data.maintenanceInfo.isNotEmpty ? data.maintenanceInfo : "(kosong)"}',
-        );
-        return data;
-      }).catchError((final Object e, final StackTrace st) {
-        Log.error(
-          'Gagal memuat data pengaturan dari database lokal',
-          e: e,
-          st: st,
-        );
-        throw Exception('Gagal memuat data pengaturan: $e');
-      });
-    });
-  }
-
-  // Fungsi untuk menavigasi ke halaman form edit dan memuat ulang data jika ada perubahan.
-  Future<void> _editSettings(final SettingsModel pengaturan) async {
-    Log.info('Navigasi ke halaman Form Edit Pengaturan');
-    Log.info(
-      'Data pengaturan sebelum edit - Interval: ${pengaturan.autoSyncInterval} jam, Hapus arsip: ${pengaturan.autoDeleteArchiveDays} hari, Mode pemeliharaan: ${pengaturan.maintenanceMode}, Info: ${pengaturan.maintenanceInfo.isNotEmpty ? pengaturan.maintenanceInfo : "(kosong)"}',
-    );
-
-    final hasil = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (final context) => SettingsForm(settings: pengaturan),
-      ),
-    );
-
-    if ((hasil ?? false) && mounted) {
-      Log.info(
-        'Data pengaturan berhasil diperbarui dari Form Edit, menyegarkan tampilan',
-      );
-      _loadSettings();
-    } else if (hasil == false) {
-      Log.info('Kembali dari Form Edit Pengaturan tanpa melakukan perubahan');
-    } else {
-      Log.info('Kembali dari Form Edit Pengaturan (hasil: $hasil)');
-    }
-  }
-
-  // Fungsi untuk mereset waktu sinkronisasi
-  Future<void> _resetSyncTime() async {
-    Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
-    final bool? konfirmasi = await showDialog<bool>(
-      context: context,
-      builder: (final context) => AlertDialog(
-        title: const Text('Konfirmasi Reset'),
-        content: const Text(
-          'Anda yakin ingin mereset waktu sinkronisasi? Tindakan ini akan memaksa aplikasi untuk mengunggah semua data yang dimodifikasi dan mengunduh semua data dari server pada siklus sinkronisasi berikutnya.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Reset'),
-          ),
-        ],
-      ),
-    );
-
-    if (konfirmasi ?? false) {
-      Log.info(
-        'Pengguna mengonfirmasi reset. Memanggil SyncManager().resetSyncTime().',
-      );
-      try {
-        await SyncManager().resetSyncTime();
-        Log.info('Reset waktu sinkronisasi berhasil.');
-        if (mounted) {
-          SnackBarUtil.success(
-            context,
-            'Waktu sinkronisasi berhasil di-reset.',
-          );
-        }
-      } on Exception catch (e, st) {
-        Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
-        if (mounted) {
-          SnackBarUtil.error(
-            context,
-            'Gagal mereset waktu sinkronisasi: $e',
-          );
-        }
-      }
-    }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun UI halaman Pengaturan Aplikasi');
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pengaturan Aplikasi'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Log.info('Kembali ke halaman sebelumnya dari Pengaturan');
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: FutureBuilder<SettingsModel>(
-        future: _futureSettings,
-        builder: (final context, final snapshot) {
-          Log.info('FutureBuilder status: ${snapshot.connectionState}');
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info(
-              'Menampilkan indikator loading, data pengaturan masih dimuat',
-            );
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            Log.error(
-              'FutureBuilder mendeteksi error saat memuat data pengaturan',
-              e: snapshot.error,
-              st: snapshot.stackTrace,
-            );
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final pengaturan = snapshot.data;
-            Log.info('Data pengaturan tersedia, menampilkan detail pengaturan');
-            Log.info(
-              'Mode pemeliharaan: ${pengaturan!.maintenanceMode ? "Aktif" : "Nonaktif"}, Info: ${pengaturan.maintenanceInfo.isNotEmpty ? pengaturan.maintenanceInfo : "(kosong)"}',
-            );
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        _buildInfoCard(
-                          judul: 'Sinkronisasi Otomatis',
-                          nilai: '${pengaturan.autoSyncInterval} Jam',
-                          ikon: Icons.sync,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildInfoCard(
-                          judul: 'Hapus Arsip Otomatis',
-                          nilai: '${pengaturan.autoDeleteArchiveDays} Hari',
-                          ikon: Icons.auto_delete_outlined,
-                        ),
-                        const Divider(height: 24, thickness: 1),
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            children: [
-                              SwitchListTile(
-                                title: const Text(
-                                  'Mode Pemeliharaan',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  pengaturan.maintenanceMode
-                                      ? 'Aplikasi dalam mode pemeliharaan'
-                                      : 'Aplikasi berjalan normal',
-                                ),
-                                value: pengaturan.maintenanceMode,
-                                onChanged: null, // Read-only di halaman ini
-                                secondary: Icon(
-                                  pengaturan.maintenanceMode
-                                      ? Icons.construction
-                                      : Icons.check_circle_outline,
-                                  color: pengaturan.maintenanceMode
-                                      ? Colors.orange
-                                      : Colors.green,
-                                ),
-                              ),
-                              if (pengaturan.maintenanceMode)
-                                ListTile(
-                                  leading: const Icon(Icons.info_outline),
-                                  title: const Text(
-                                    'Info Pemeliharaan',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    pengaturan.maintenanceInfo.isNotEmpty
-                                        ? pengaturan.maintenanceInfo
-                                        : '(Tidak ada pesan diatur)',
-                                  ),
-                                  isThreeLine: true,
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Tombol Reset Waktu Sinkronisasi
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.sync_problem),
-                          label: const Text('Reset Waktu Sinkronisasi'),
-                          onPressed: _resetSyncTime,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit Pengaturan'),
-                    onPressed: () async {
-                      Log.info('Tombol Edit Pengaturan ditekan');
-                      await _editSettings(pengaturan);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            Log.warning(
-              'Data pengaturan tidak tersedia (null), menampilkan pesan kosong',
-            );
-            return const Center(child: Text('Pengaturan tidak ditemukan.'));
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildInfoCard({
-    required final String judul,
-    required final String nilai,
-    required final IconData ikon,
-  }) {
-    Log.info('Membangun kartu info: $judul dengan nilai: $nilai');
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 15,
-        ),
-        leading: Icon(ikon, size: 40, color: Theme.of(context).primaryColor),
-        title: Text(judul, style: const TextStyle(fontWeight: FontWeight.bold)),
-        trailing: Text(
-          nilai,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-}
-```
-
----
-# 28 Juli 2024 - Refaktorisasi Notifikasi dan Penghapusan TODO
-
-## Konteks
-
-Sesi kerja ini difokuskan pada peningkatan kualitas kode dengan mengganti implementasi `SnackBar` manual menjadi `SnackBarUtil` yang terpusat. Hal ini sejalan dengan upaya standardisasi notifikasi di seluruh aplikasi untuk memastikan konsistensi dan kemudahan pemeliharaan.
-
-## Perubahan yang Dilakukan
-
+- **Konteks**: Peningkatan kualitas kode dengan mengganti implementasi `SnackBar` manual menjadi `SnackBarUtil` yang terpusat.
 - **File**: `lib/admin/halaman/form/package_form.dart`
-- **Tindakan**:
-    - Mengganti semua pemanggilan `ScaffoldMessenger.of(context).showSnackBar()` dengan metode yang sesuai dari `SnackBarUtil` (`SnackBarUtil.success()` dan `SnackBarUtil.error()`).
-    - Menghapus komentar `// TODO: rencana selanjutnya adalah mengganti snakbar dari custom` karena tugas tersebut telah diselesaikan.
-    - Menambahkan `snackbar_util.dart` ke dalam daftar file yang digunakan pada dokumentasi di bagian atas file.
-- **Verifikasi**: Perintah `flutter analyze` dijalankan setelah perubahan untuk memastikan tidak ada *error* atau *warning* baru yang diperkenalkan. Hasilnya adalah **"No issues found!"**.
+- **Tindakan**: Mengganti `ScaffoldMessenger` dengan `SnackBarUtil`, menghapus komentar TODO yang sudah selesai, dan memperbarui dokumentasi file.
+- **Manfaat**: Konsistensi UI, kode lebih bersih, dan pemeliharaan terpusat.
 
-## Manfaat
+---
 
-- **Konsistensi UI**: Semua notifikasi di halaman form paket sekarang memiliki tampilan dan nuansa yang sama dengan bagian lain dari aplikasi.
-- **Kode Lebih Bersih**: Kode menjadi lebih ringkas dan mudah dibaca karena logika untuk menampilkan notifikasi telah diabstraksi.
-- **Pemeliharaan Terpusat**: Jika ada kebutuhan untuk mengubah gaya notifikasi di masa mendatang, perubahan hanya perlu dilakukan di satu tempat, yaitu di `snackbar_util.dart`.
+## 17 Mei 2026 - Perbaikan Linter & Stabilitas Kode
+
+Sesi kerja ini berfokus pada perbaikan semua error dan warning yang dilaporkan oleh `flutter analyze` berdasarkan aturan linter yang ketat di `analysis_options.yaml`.
+
+### Masalah Utama yang Diatasi:
+
+1.  **`use_build_context_synchronously`**: Menambahkan pemeriksaan `if (!mounted) return;` setelah operasi `async` untuk mencegah crash.
+2.  **`deprecated_member_use`**: Mengganti penggunaan `RadioListTile` yang usang dengan `RadioGroup`.
+
+---
+
+*Dokumen ini akan terus diperbarui seiring dengan kemajuan proyek.* 
