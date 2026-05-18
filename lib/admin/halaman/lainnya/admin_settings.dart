@@ -13,11 +13,15 @@
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/user/widget/theme_menu_widget.dart (ThemeMenuWidget)
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wifi/admin/halaman/form/settings_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
@@ -201,15 +205,25 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
                           elevation: 2,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
-                          child: const ListTile(
-                            contentPadding: EdgeInsets.symmetric(
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
                                 vertical: 5, horizontal: 15),
                             leading:
-                                Icon(Icons.palette_outlined, size: 40),
-                            title: Text('Mode Tema Aplikasi',
+                                const Icon(Icons.palette_outlined, size: 40),
+                            title: const Text('Mode Tema Aplikasi',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold)),
-                            trailing: ThemeMenuWidget(),
+                            trailing: Consumer<ThemeProvider>(
+                              builder: (final context, final themeProvider,
+                                  final child) {
+                                return ThemeMenuWidget(
+                                  currentThemeMode: themeProvider.themeMode,
+                                  onThemeSelected: (final mode) {
+                                    unawaited(themeProvider.setTheme(mode));
+                                  },
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const Divider(height: 24, thickness: 1),

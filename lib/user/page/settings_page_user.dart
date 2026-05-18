@@ -10,8 +10,12 @@
 //   - lib/user/widget/theme_menu_widget.dart (ThemeMenuWidget)
 //   - lib/shared/debug/log.dart (Log)
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
@@ -46,12 +50,23 @@ class SettingsPageUser extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           const SizedBox(height: 20),
-          const ListTile(
-            leading: Icon(Icons.brightness_6_outlined),
-            title: Text('Tema Aplikasi'),
+          ListTile(
+            leading: const Icon(Icons.brightness_6_outlined),
+            title: const Text('Tema Aplikasi'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [ThemeMenuWidget()],
+              children: [
+                Consumer<ThemeProvider>(
+                  builder: (final context, final themeProvider, final child) {
+                    return ThemeMenuWidget(
+                      currentThemeMode: themeProvider.themeMode,
+                      onThemeSelected: (final mode) {
+                        unawaited(themeProvider.setTheme(mode));
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           const Divider(),
