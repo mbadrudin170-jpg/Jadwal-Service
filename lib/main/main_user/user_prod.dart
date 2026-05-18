@@ -1,13 +1,16 @@
 // path: lib/main/main_user/user_prod.dart
-// diubah: Mengirim instance notifikasiServis ke AppUser.
+// diubah: Logika startup diubah untuk menangani mode offline.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/user/app_user.dart';
@@ -15,92 +18,87 @@ import 'package:wifi/user/firebase_option/firebase_option_user_prod.dart';
 import 'package:wifi/user/maintenance_page.dart';
 
 void main() async {
-  // ditambah: Memastikan semua binding Flutter sudah diinisialisasi
+  // Memastikan semua binding Flutter sudah diinisialisasi
   WidgetsFlutterBinding.ensureInitialized();
-  // ditambah: inisialisasi firebase
+  Log.info('[main] Memulai aplikasi...');
+
+  // Inisialisasi Firebase, wajib dilakukan di awal
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Aktifkan cache offline Firestore
+  // Aktifkan cache offline Firestore agar aplikasi bisa jalan tanpa internet
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
   );
 
-  // ditambah: Pengecekan mode pemeliharaan sebelum menjalankan aplikasi utama
-  try {
-    Log.info('[main] Memeriksa status mode pemeliharaan dari Firestore...');
-    final doc = await FirebaseFirestore.instance
-        .collection('settings')
-        .doc('global_config')
-        .get(
-          const GetOptions(source: Source.server),
-        ); // Paksa ambil dari server
+  // Periksa koneksi internet
+  final internetService = InternetConnectionService();
+  final isConnected = await internetService.checkConnection();
 
-    if (doc.exists && doc.data() != null) {
-      final settings = SettingsModel.fromFirebase(doc.data()!);
-      if (settings.maintenanceMode) {
-        Log.warning(
-          '[main] ⚠️ Mode pemeliharaan AKTIF. Menjalankan MaintenanceApp.',
-        );
-        runApp(
-          MaterialApp(
-            title: 'Aplikasi dalam Perbaikan',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            home: MaintenancePage(
-              maintenanceInfo: settings.maintenanceInfo,
-              onRefresh: () {
-                Log.info(
-                  '[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi untuk memeriksa status terbaru.',
-                );
-              },
-              onExit: SystemNavigator.pop,
+  // Jika terhubung ke internet, periksa status maintenance dari server
+  if (isConnected) {
+    Log.info('[main] ✅ Internet terhubung. Memeriksa status pemeliharaan...');
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(TableNameValue.get(TableName.settings))
+          .doc(globalSettingsId)
+          .get(const GetOptions(source: Source.server)); // Paksa ambil dari server
+
+      if (doc.exists && doc.data() != null) {
+        final settings = SettingsModel.fromFirebase(doc.data()!);
+        if (settings.maintenanceMode) {
+          Log.warning('[main] ⚠️ Mode pemeliharaan AKTIF. Menampilkan halaman perbaikan.');
+          runApp(
+            MaterialApp(
+              title: 'Aplikasi dalam Perbaikan',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              home: MaintenancePage(
+                maintenanceInfo: settings.maintenanceInfo,
+                onRefresh: () => Log.info('[Maintenance] Pengguna harus memulai ulang aplikasi untuk refresh.'),
+                onExit: SystemNavigator.pop,
+              ),
             ),
-          ),
-        );
-        return; // Hentikan eksekusi lebih lanjut
+          );
+          return; // Hentikan eksekusi
+        }
+        Log.info('[main] Mode pemeliharaan NONAKTIF.');
       }
-      Log.info('[main] ✅ Mode pemeliharaan NONAKTIF.');
-    } else {
-      Log.info('[main] Dokumen pengaturan tidak ditemukan di server.');
-    }
-  } on Exception catch (e, st) {
-    Log.error(
-      '[main] ❌ Gagal memeriksa status pemeliharaan. Menampilkan halaman maintenance sebagai fallback.',
-      e: e,
-      st: st,
-    );
-    runApp(
-      MaterialApp(
-        title: 'Gagal Terhubung',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        home: MaintenancePage(
-          maintenanceInfo:
-              'Gagal terhubung ke server untuk memeriksa status. Pastikan koneksi internet Anda stabil dan coba mulai ulang aplikasi.',
-          onRefresh: () {
-            Log.info(
-              '[Maintenance] Tombol refresh ditekan. Pengguna harus memulai ulang aplikasi.',
-            );
-          },
-          onExit: SystemNavigator.pop,
+    } on Exception catch (e, st) {
+      Log.error(
+        '[main] ❌ Gagal memeriksa status pemeliharaan. Menampilkan halaman fallback.',
+        e: e,
+        st: st,
+      );
+      runApp(
+        MaterialApp(
+          title: 'Gagal Terhubung',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          home: MaintenancePage(
+            maintenanceInfo: 'Gagal terhubung ke server. Pastikan koneksi Anda stabil dan coba lagi.',
+            onRefresh: () => Log.info('[Maintenance] Pengguna harus memulai ulang aplikasi untuk refresh.'),
+            onExit: SystemNavigator.pop,
+          ),
         ),
-      ),
-    );
-    return; // Hentikan eksekusi
+      );
+      return; // Hentikan eksekusi
+    }
+  } else {
+    // Jika tidak ada internet, lewati pengecekan dan jalankan dari cache
+    Log.warning('[main] ❗️ Tidak ada koneksi internet. Aplikasi akan berjalan dalam mode offline.');
   }
 
-  // --- Aplikasi Normal Berjalan Dari Sini ---
-  Log.info('[main] Melanjutkan alur startup aplikasi normal.');
-
-  // 1. Inisialisasi servis notifikasi lokal
-  final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon'); // diperbaiki: Nama ikon disesuaikan
-  await notifikasiServis.requestPermissions(); // Meminta izin
+  // --- Aplikasi Normal Berjalan Dari Sini (Baik Online maupun Offline) ---
+  Log.info('[main] Melanjutkan ke aplikasi utama...');
 
   final prefs = await SharedPreferences.getInstance();
+  final notifikasiServis = NotifikasiServis();
+  await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
+  await notifikasiServis.requestPermissions();
+
   runApp(AppUser(prefs: prefs, notifikasiServis: notifikasiServis));
 }

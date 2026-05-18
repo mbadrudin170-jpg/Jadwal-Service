@@ -1,6 +1,4 @@
 // path: lib/shared/widget/card/point_card.dart
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -38,7 +36,7 @@ class TotalPointCard extends StatelessWidget {
     final formattedPoints = NumberFormatter.formatWithSeparator(points);
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         // Latar belakang gradien untuk nuansa modern.
         gradient: LinearGradient(
@@ -53,13 +51,13 @@ class TotalPointCard extends StatelessWidget {
         // Bayangan berlapis untuk efek kedalaman yang lebih halus.
         boxShadow: [
           BoxShadow(
-            color: themeColor.withOpacity(0.3),
+            color: themeColor.withAlpha(77), // Menggunakan withAlpha
             blurRadius: 15,
             spreadRadius: -5,
             offset: const Offset(0, 5),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withAlpha(38), // Menggunakan withAlpha
             blurRadius: 25,
             offset: const Offset(0, 15),
           ),
@@ -72,8 +70,8 @@ class TotalPointCard extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            splashColor: Colors.white.withOpacity(0.1),
-            highlightColor: Colors.white.withOpacity(0.05),
+            splashColor: Colors.white.withAlpha(26), // Menggunakan withAlpha
+            highlightColor: Colors.white.withAlpha(13), // Menggunakan withAlpha
             child: Padding(
               // Padding yang lebih luas untuk ruang napas.
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -84,11 +82,11 @@ class TotalPointCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withAlpha(26), // Menggunakan withAlpha
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withAlpha(26), // Menggunakan withAlpha
                           blurRadius: 10,
                         )
                       ],
@@ -107,7 +105,7 @@ class TotalPointCard extends StatelessWidget {
                       Text(
                         'Total Poin',
                         style: textTheme.titleMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withAlpha(204), // Menggunakan withAlpha
                           fontWeight: FontWeight.w500,
                         ),
                       ),

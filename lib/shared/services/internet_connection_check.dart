@@ -1,4 +1,4 @@
-// path: lib/shared/services/cek_koneksi_internet.dart
+// path: lib/shared/services/internet_connection_check.dart
 // File ini menyediakan layanan terpusat untuk memeriksa status koneksi internet.
 
 // ditambah: Menerapkan Dependency Injection agar kelas ini dapat diuji.
