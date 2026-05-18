@@ -24,7 +24,7 @@ import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
-import 'package:wifi/shared/widget/poin_page_ui.dart';
+import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 
 /// Halaman untuk admin mengelola dan melihat poin pelanggan.
 ///
@@ -203,8 +203,7 @@ class _AdminPointsPageState extends State<AdminPointsPage> {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
-            leading: Icon(
-                isAddition ? AppIcons.pointsAdd : AppIcons.pointsRemove,
+            leading: Icon(isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
                 color: isAddition ? Colors.green : Colors.red),
             title: Text(tx.description),
             subtitle: Text(FormatDate.formatDateBasic(tx.date),

@@ -14,7 +14,7 @@ import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/widget/customer_detail_ui.dart';
+import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:

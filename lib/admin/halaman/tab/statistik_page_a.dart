@@ -4,6 +4,7 @@ import 'package:wifi/shared/debug/log.dart';
 
 /// Halaman untuk menampilkan statistik aplikasi.
 class StatistikPageA extends StatefulWidget {
+  /// Halaman untuk menampilkan statistik aplikasi.
   const StatistikPageA({super.key});
 
   @override

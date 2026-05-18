@@ -1,7 +1,6 @@
 // path: lib/shared/export/model.dart
 // Fitur: [Model Export]
 // Tujuan: Mengekspor semua model dari satu file untuk impor yang lebih bersih.
-// TODO : mengubah semua model agar menggunakan parse_utils.dart
 export '../model/active_customer_model.dart';
 export '../model/apk_version_model.dart';
 export '../model/category_model.dart';

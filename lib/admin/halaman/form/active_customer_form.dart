@@ -538,7 +538,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     );
   }
 
-// TODO : merubah tanggal dan waktu jangan menggunakan utc
   Widget _buildDateTimePicker() {
     return Column(children: [
       const Text('Pilih Tanggal & Waktu Aktif:',

@@ -37,6 +37,12 @@ class AppIcons {
   /// Ikon untuk aksi kembali.
   static const IconData back = Icons.arrow_back;
 
+  /// Ikon untuk panah atas.
+  static const IconData arrowUp = Icons.arrow_upward;
+
+  /// Ikon untuk panah bawah.
+  static const IconData arrowDown = Icons.arrow_downward;
+
   /// Ikon untuk aksi filter.
   static const IconData filter = Icons.filter_list;
 
@@ -152,6 +158,12 @@ class AppIcons {
 
   /// Ikon untuk kritik dan saran (feedback).
   static const IconData feedback = Icons.feedback_outlined;
+
+  /// Ikon untuk hadiah atau penukaran.
+  static const IconData gift = Icons.card_giftcard;
+
+  /// Ikon untuk riwayat.
+  static const IconData history = Icons.history;
 
   // --- Sinkronisasi & Data ---
   /// Ikon untuk aksi unggah (upload).

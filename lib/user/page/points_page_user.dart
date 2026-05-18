@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
-import 'package:wifi/shared/widget/poin_page_ui.dart';
+import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 
 /// Halaman untuk pengguna melihat poin mereka.
 ///
@@ -196,7 +196,7 @@ class _UserPointsPageState extends State<UserPointsPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
             leading: Icon(
-              isAddition ? AppIcons.pointsAdd : AppIcons.pointsRemove,
+              isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
               color: isAddition ? Colors.green : Colors.red,
             ),
             title: Text(tx.description),

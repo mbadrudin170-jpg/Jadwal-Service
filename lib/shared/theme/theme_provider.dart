@@ -9,7 +9,6 @@
 // diubah: Menghapus duplikasi kode manajemen tema yang sebelumnya terpisah
 //         antara shared/theme/theme_provider.dart (lama) dan
 //         user/provider/user_theme_provider.dart.
-// TODO : mengatasi admin tidak bisa set manual thema 
 import 'dart:async';
 
 import 'package:flutter/material.dart';

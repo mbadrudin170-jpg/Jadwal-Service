@@ -29,7 +29,7 @@ import 'package:wifi/user/page/user_feedback_form.dart';
 class FeedbackHistoryPage extends StatefulWidget {
   /// ID pengguna untuk memfilter riwayat kritik dan saran.
   final String userId;
-// TODO : mengatasi apk harus membuat index
+
   /// Membuat instance dari [FeedbackHistoryPage].
   const FeedbackHistoryPage({super.key, required this.userId});
 

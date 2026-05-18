@@ -15,7 +15,6 @@ import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-// TODO: rencana selanjutnya adalah menggunakan detail riwayat langganan seperti admin
 /// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
 ///
 /// Menampilkan semua informasi yang relevan dari [TransactionModel] dan

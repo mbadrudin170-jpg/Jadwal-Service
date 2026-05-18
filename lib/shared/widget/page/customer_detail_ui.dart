@@ -1,6 +1,4 @@
-// path: lib/shared/widget/customer_detail_ui.dart
-// digunakan oleh: lib/user/page/user_customer_detail.dart
-
+// path: lib/shared/widget/page/customer_detail_ui.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';

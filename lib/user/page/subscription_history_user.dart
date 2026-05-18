@@ -211,13 +211,13 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                               final package = await packageFuture;
                               if (context.mounted) {
                                 await Navigator.push<void>(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (final context) =>
-                                          TransactionDetailPage(
-                                              transaction: tx,
-                                              package: package),
-                                    ));
+                                  context,
+                                  MaterialPageRoute<void>(
+                                    builder: (final context) =>
+                                        TransactionDetailPage(
+                                            transaction: tx, package: package),
+                                  ),
+                                );
                               }
                             },
                           ),
