@@ -1,5 +1,7 @@
 # Aturan Untuk AI
 - Wajib dipatuhi
+1. Dilarang melawan perintah user,
+2. Dilarang keras tidak mematuhi perintah user.
 
 Komentar Kode
 Semua komentar (//, ///, /* */) wajib ditulis dalam bahasa Indonesia, menjelaskan maksud kode dengan singkat.

@@ -1,10 +1,8 @@
 // path: lib/user/page/profil_page.dart
-// diubah: Menghapus impor yang tidak perlu, mengubah semua nama ke bahasa Inggris.
-// refactor: Menghapus ketergantungan pada FirestoreService dan menggunakan kelas operasi yang sesuai.
+// diubah: Memperbaiki import yang salah.
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -41,8 +39,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
-  final PackageOpFirebase _packageOp =
-      PackageOpFirebase(FirebaseFirestore.instance);
+  final PackageOpFirebase _packageOp = PackageOpFirebase();
   Future<CustomerModel?>? _futureCustomer;
   Future<List<TransactionModel>>? _subscriptionHistoryFuture;
 
@@ -426,7 +423,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             _buildInfoItem(
                               Icons.check_circle_outline,
                               'Status Pembayaran',
-                              lastSubscription.paymentStatus.name
+                              lastSubscription.paymentStatus.displayName
                                   .replaceAll('_', ' ')
                                   .toUpperCase(),
                               valueColor: paymentStatusColor,

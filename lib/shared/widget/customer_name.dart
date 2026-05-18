@@ -1,14 +1,15 @@
 // path: lib/shared/widget/customer_name.dart
+// diubah: Menambahkan parameter useFirebase untuk fleksibilitas data source.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 
-/// Widget yang menampilkan nama pelanggan berdasarkan ID.
+/// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
 ///
-/// Mengambil data pelanggan secara async menggunakan [CustomerOperation].
-/// Menampilkan '...' saat loading, 'Error' jika gagal, atau
-/// 'Pelanggan tidak ditemukan' jika data null.
+/// Secara default, mengambil data dari SQLite. Jika [useFirebase] diatur ke true,
+/// maka akan mengambil data dari Firebase secara real-time.
 class CustomerNameWidget extends StatelessWidget {
   /// ID pelanggan yang akan dicari namanya.
   final String customerId;
@@ -16,40 +17,82 @@ class CustomerNameWidget extends StatelessWidget {
   /// Gaya teks opsional untuk nama yang ditampilkan.
   final TextStyle? style;
 
+  /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
+  final bool useFirebase;
+
   /// Membuat widget [CustomerNameWidget].
-  const CustomerNameWidget({super.key, required this.customerId, this.style});
+  const CustomerNameWidget({
+    super.key,
+    required this.customerId,
+    this.style,
+    this.useFirebase = false, // Default ke SQLite agar tidak merusak admin.
+  });
 
   @override
   Widget build(final BuildContext context) {
-    final CustomerOperation customerOperation = CustomerOperation();
+    // Memilih sumber data berdasarkan flag `useFirebase`.
+    if (useFirebase) {
+      return _buildFromFirebase();
+    }
+    return _buildFromSqlite();
+  }
 
-    return FutureBuilder<CustomerModel?>(
-      future: customerOperation.getCustomerById(customerId),
+  /// Membangun widget menggunakan data dari Firebase (Stream).
+  Widget _buildFromFirebase() {
+    final CustomerOpFirebase customerOpFirebase = CustomerOpFirebase();
+    return StreamBuilder<CustomerModel?>(
+      stream: customerOpFirebase.getCustomerStream(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text(
-            '...',
-            style: style ?? const TextStyle(color: Colors.grey),
-          );
+          return Text('...', style: style);
         }
         if (snapshot.hasError) {
-          return Text(
-            'Error',
-            style: style ??
-                const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
-          );
+          return Text('Error',
+              style: style ??
+                  const TextStyle(
+                      color: Colors.red, fontStyle: FontStyle.italic));
         }
         if (snapshot.hasData && snapshot.data != null) {
           return Text(
             snapshot.data!.name,
-            style: style ?? const TextStyle(fontWeight: FontWeight.bold),
+            style: style,
+            overflow: TextOverflow.ellipsis,
           );
         }
-        return Text(
-          'Pelanggan tidak ditemukan',
-          style: style ??
-              const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-        );
+        return Text('N/A',
+            style: style ??
+                const TextStyle(
+                    color: Colors.grey, fontStyle: FontStyle.italic));
+      },
+    );
+  }
+
+  /// Membangun widget menggunakan data dari SQLite (Future).
+  Widget _buildFromSqlite() {
+    final CustomerOperation customerOperation = CustomerOperation();
+    return FutureBuilder<CustomerModel?>(
+      future: customerOperation.getCustomerById(customerId),
+      builder: (final context, final snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text('...', style: style);
+        }
+        if (snapshot.hasError) {
+          return Text('Error',
+              style: style ??
+                  const TextStyle(
+                      color: Colors.red, fontStyle: FontStyle.italic));
+        }
+        if (snapshot.hasData && snapshot.data != null) {
+          return Text(
+            snapshot.data!.name,
+            style: style,
+            overflow: TextOverflow.ellipsis,
+          );
+        }
+        return Text('Pelanggan tidak ditemukan',
+            style: style ??
+                const TextStyle(
+                    color: Colors.grey, fontStyle: FontStyle.italic));
       },
     );
   }

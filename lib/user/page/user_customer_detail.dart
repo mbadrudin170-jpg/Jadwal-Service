@@ -112,7 +112,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => PointsPageUser(customerId: customerId),
+        builder: (final context) => UserPointsPage(customerId: customerId),
       ),
     );
     _reloadData();

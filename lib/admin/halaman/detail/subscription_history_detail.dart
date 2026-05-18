@@ -11,12 +11,8 @@ import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
@@ -113,8 +109,7 @@ class _SubscriptionHistoryDetailPageState
                 return IconButton(
                   icon: const Icon(Icons.edit),
                   tooltip: 'Edit Langganan',
-                  onPressed: () =>
-                      _navigateToEditForm(snapshot.data!),
+                  onPressed: () => _navigateToEditForm(snapshot.data!),
                 );
               }
               return const SizedBox.shrink();
@@ -162,7 +157,8 @@ class _SubscriptionHistoryDetailPageState
                   if (transaction.customerId != null)
                     _buildFutureInfoCard<CustomerModel>(
                       'Informasi Pelanggan',
-                      _customerOperation.getCustomerById(transaction.customerId!),
+                      _customerOperation
+                          .getCustomerById(transaction.customerId!),
                       'Pelanggan',
                       (final customer) => [
                         _buildDetailRow(
@@ -172,7 +168,7 @@ class _SubscriptionHistoryDetailPageState
                       ],
                       onTap: (final customer) {
                         if (customer != null) {
-                           if (!mounted) return;
+                          if (!mounted) return;
                           unawaited(Navigator.push<void>(
                             context,
                             MaterialPageRoute<void>(
@@ -238,7 +234,7 @@ class _SubscriptionHistoryDetailPageState
                   _buildInfoCard('Status', [
                     _buildDetailRow(
                       'Status Pembayaran',
-                      transaction.paymentStatus.name.toUpperCase(),
+                      transaction.paymentStatus.displayName.toUpperCase(),
                     ),
                   ]),
                 ],

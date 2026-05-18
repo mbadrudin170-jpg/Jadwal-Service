@@ -320,7 +320,8 @@ class TransactionModel implements HasId {
       ColumnNames.durationType: durationType?.name,
       ColumnNames.startDate:
           startDate != null ? Timestamp.fromDate(startDate!) : null,
-      ColumnNames.endDate: endDate != null ? Timestamp.fromDate(endDate!) : null,
+      ColumnNames.endDate:
+          endDate != null ? Timestamp.fromDate(endDate!) : null,
       ColumnNames.isActivated: isActivated,
     };
   }

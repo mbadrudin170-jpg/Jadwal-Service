@@ -205,14 +205,14 @@ class _AccountListPageState extends State<AccountListPage> {
               );
             },
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.errorColor.withAlpha(25),
+              backgroundColor: AppColors.errorColor,
               foregroundColor: AppColors.textOnDark,
             ),
             child: const Text('Keluar/Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.errorColor.withAlpha(25),
+              backgroundColor: AppColors.errorColor,
               foregroundColor: AppColors.textOnDark,
             ),
             onPressed: () async {

@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/pembantu/admin_points_page.dart
+// path: lib/admin/halaman/pembantu/point_page.dart
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
 //   - lib/admin/halaman/detail/customer_detail.dart
@@ -55,7 +55,8 @@ class _AdminPointsPageState extends State<AdminPointsPage> {
   @override
   void initState() {
     super.initState();
-    Log.info('Menginisialisasi AdminPointsPage untuk pelanggan: ${widget.customerId}');
+    Log.info(
+        'Menginisialisasi AdminPointsPage untuk pelanggan: ${widget.customerId}');
     unawaited(_loadPointsData());
   }
 

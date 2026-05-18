@@ -490,7 +490,7 @@ class _PackageFormState extends State<PackageForm> {
                   onChanged: (final DurationType? newValue) {
                     if (newValue != null) {
                       Log.info('DROPDOWN: Tipe durasi diubah.');
-                      Log.info('  - Tipe Lama: ${_selectedType.name}');
+                      Log.info('  - Tipe Lama: ${_selectedType.displayName}');
                       Log.info('  - Tipe Baru: ${newValue.name}');
                       setState(() {
                         _selectedType = newValue;

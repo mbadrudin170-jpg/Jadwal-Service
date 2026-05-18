@@ -1,28 +1,8 @@
 // path: lib/user/page/subscription_history_user.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman riwayat langganan untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
-//   - lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart (TransactionOpFirebase)
-//   - lib/shared/operasi/firebase_operasi/package_op_firebase.dart (PackageOpFirebase)
-//   - lib/shared/operasi/firebase_operasi/notification_op_firebase.dart (NotificationOpFirebase)
-//   - lib/shared/services/info_perangkat_service.dart (InfoPerangkatService)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
-//   - lib/shared/widget/package_name.dart (PackageNameWidget)
-//   - lib/user/page/transaction_detail_user.dart (TransactionDetailPage)
-//   - lib/user/widget/ads/banner_ad_widget.dart (BannerAdWidget)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Menghapus import yang tidak terpakai.
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -72,8 +52,7 @@ class SubscriptionHistoryPage extends StatefulWidget {
 class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
-  final PackageOpFirebase _packageOpFirebase =
-      PackageOpFirebase(FirebaseFirestore.instance);
+  final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
   final NotificationOpFirebase _notificationOpFirebase =
       NotificationOpFirebase();
   final InfoPerangkatService _infoPerangkatService =
@@ -225,7 +204,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                                 if (tx.endDate != null)
                                   Text(
                                       'Berakhir - ${FormatUtil.formatDateAndTime(tx.endDate!)}'),
-                                Text('Status: ${tx.paymentStatus.name}',
+                                Text('Status: ${tx.paymentStatus.displayName}',
                                     style: TextStyle(
                                         color: tx.paymentStatus ==
                                                 PaymentStatus.paid

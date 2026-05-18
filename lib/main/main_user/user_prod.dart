@@ -1,5 +1,5 @@
 // path: lib/main/main_user/user_prod.dart
-// diubah: Mengganti nama import dan kelas dari PengaturanModel menjadi SettingsModel.
+// diubah: Mengganti nama ikon notifikasi dari '@mipmap/ic_launcher' menjadi '@mipmap/launcher_icon'.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -98,7 +98,7 @@ void main() async {
 
   // 1. Inisialisasi servis notifikasi lokal
   final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi(iconName: '@mipmap/ic_launcher');
+  await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon'); // diperbaiki: Nama ikon disesuaikan
   await notifikasiServis.requestPermissions(); // Meminta izin
 
   final prefs = await SharedPreferences.getInstance();

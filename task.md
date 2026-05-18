@@ -1,6 +1,7 @@
 # Definition of Done
 
-Sebuah task dianggap selesai jika:
+Sebuah tugas dianggap selesai jika:
+Seleasikan semua tugas dibawah ini
 
 - membaca file GEMINI.md di root proyek,
 - mematuhi seluruh aturan di GEMINI.md,

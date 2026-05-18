@@ -497,6 +497,10 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    final theme = Theme.of(context);
+    final subtitleColor = wallet.balance < 0
+        ? theme.colorScheme.error
+        : theme.textTheme.bodySmall?.color;
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -516,7 +520,7 @@ class WalletCard extends StatelessWidget {
           'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.balance)}',
           style: TextStyle(
             fontSize: 16,
-            color: wallet.balance < 0 ? Colors.red : Colors.black54,
+            color: subtitleColor,
           ),
         ),
         onTap: onTap,

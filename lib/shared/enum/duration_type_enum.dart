@@ -1,5 +1,5 @@
 // path: lib/shared/enum/duration_type_enum.dart
-// new file: Created to store the DurationType enum.
+// diubah: Menambahkan dokumentasi untuk getter displayName.
 
 /// Enum untuk jenis durasi sebuah paket.
 enum DurationType {
@@ -13,5 +13,19 @@ enum DurationType {
   days,
 
   /// Durasi dalam bulan.
-  months,
+  months;
+
+  /// Merepresentasikan nama dari setiap jenis durasi dalam format yang mudah dibaca.
+  String get displayName {
+    switch (this) {
+      case DurationType.minutes:
+        return 'Menit';
+      case DurationType.hours:
+        return 'Jam';
+      case DurationType.days:
+        return 'Hari';
+      case DurationType.months:
+        return 'Bulan';
+    }
+  }
 }

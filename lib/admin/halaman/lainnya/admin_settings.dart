@@ -1,4 +1,5 @@
 // path: lib/admin/halaman/lainnya/admin_settings.dart
+// diubah: Menggunakan widget ThemeMenuWidget yang sudah ada untuk mengubah tema.
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
 //   - Digunakan sebagai halaman dalam navigasi admin (Settings).
@@ -10,6 +11,7 @@
 //   - lib/shared/utils/sync_manager.dart (SyncManager)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 //   - lib/shared/debug/log.dart (Log)
+//   - lib/user/widget/theme_menu_widget.dart (ThemeMenuWidget)
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/settings_form.dart';
@@ -18,6 +20,7 @@ import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
+import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
 ///
@@ -192,6 +195,22 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
                           judul: 'Hapus Arsip Otomatis',
                           nilai: '${pengaturan.autoDeleteArchiveDays} Hari',
                           ikon: Icons.auto_delete_outlined,
+                        ),
+                        const Divider(height: 24, thickness: 1),
+                        Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: const ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 15),
+                            leading:
+                                Icon(Icons.palette_outlined, size: 40),
+                            title: Text('Mode Tema Aplikasi',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            trailing: ThemeMenuWidget(),
+                          ),
                         ),
                         const Divider(height: 24, thickness: 1),
                         Card(

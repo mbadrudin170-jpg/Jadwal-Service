@@ -3,6 +3,8 @@
 //         menggunakan ThemeProviderImpl dengan LocalStorageService.
 // diubah: Memperbaiki import path dan nama class.
 // diubah: Mengurutkan import directives.
+// diubah: Membungkus MaterialApp sementara pada AppInitializer dengan Consumer<ThemeProvider>
+//         agar splash screen dapat mengikuti tema yang aktif.
 
 import 'dart:async';
 
@@ -60,6 +62,7 @@ class AppAdmin extends StatelessWidget {
       future: SharedPreferences.getInstance(),
       builder: (final context, final snapshot) {
         if (!snapshot.hasData) {
+          // Menampilkan splash screen awal yang sangat singkat
           return const MaterialApp(
             home: SplashScreen(),
           );
@@ -160,8 +163,17 @@ class _AppInitializerState extends State<AppInitializer> {
           final isOnline = snapshot.data ?? false;
           return AppProviders(isOffline: !isOnline);
         }
-        return MaterialApp(
-          home: SplashScreen(loadingMessage: _loadingMessage),
+        // diubah: MaterialApp kini dibungkus Consumer agar tema bisa diterapkan
+        return Consumer<ThemeProvider>(
+          builder: (final context, final themeProvider, final child) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeProvider.themeMode,
+              home: SplashScreen(loadingMessage: _loadingMessage),
+            );
+          },
         );
       },
     );

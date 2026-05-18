@@ -1,5 +1,5 @@
 // path: lib/shared/operasi/firebase_operasi/package_op_firebase.dart
-// diubah: Memperbaiki cast doc.data() ke Map<String, dynamic>.
+// diubah: Menambahkan getPublicPackages dan memperbaiki konstruktor.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -14,11 +14,31 @@ class PackageOpFirebase {
   final FirebaseFirestore db;
 
   /// Konstruktor untuk PackageOpFirebase.
-  PackageOpFirebase(this.db);
+  PackageOpFirebase({final FirebaseFirestore? firestore})
+      : db = firestore ?? FirebaseFirestore.instance;
 
   /// Mendapatkan referensi ke koleksi package.
   CollectionReference get _collection =>
       db.collection(TableNameValue.get(TableName.package));
+
+  /// Mengambil paket publik yang bisa ditukar dengan poin.
+  Future<List<PackageModel>> getPublicPackages() async {
+    try {
+      Log.info('Mengambil paket publik untuk penukaran poin.');
+      final querySnapshot = await _collection
+          .where(ColumnNames.isPublic, isEqualTo: true)
+          .where(ColumnNames.redemptionPoints, isGreaterThan: 0)
+          .get();
+      Log.info('Menemukan ${querySnapshot.docs.length} paket publik.');
+      return querySnapshot.docs.map((final doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return PackageModel.fromFirebase(doc.id, data);
+      }).toList();
+    } on Exception catch (e, s) {
+      Log.error('Error mengambil paket publik: $e', e: e, st: s);
+      return [];
+    }
+  }
 
   /// Mengambil nama paket berdasarkan ID paket.
   Future<String> getPackageName(final String packageId) async {
