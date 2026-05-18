@@ -1,8 +1,7 @@
 name: wifi
 description: "Pengingat service rutin"
 publish_to: 'none'
-
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -53,13 +52,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
   rename: ^3.1.0
 
-  # Testing
-  fake_cloud_firestore: ^4.1.1
 
   # Platform Interfaces
   connectivity_plus_platform_interface: ^2.1.0

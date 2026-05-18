@@ -1,10 +1,11 @@
 // path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
-// diubah: Menambahkan getTotalPoints dan getTransactionsByCustomerId.
+// diubah: Menambahkan getLatestPaidTransactionByUserId.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 
@@ -19,6 +20,41 @@ class TransactionOpFirebase {
   /// Mendapatkan referensi ke koleksi transaction.
   CollectionReference get _collection =>
       _db.collection(TableNameValue.get(TableName.transactions));
+
+  /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
+  /// Digunakan untuk menentukan status langganan aktif di sisi user.
+  Future<TransactionModel?> getLatestPaidTransactionByUserId(
+    final String customerId,
+  ) async {
+    try {
+      Log.info(
+          'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $customerId');
+      final querySnapshot = await _collection
+          .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
+          .orderBy(ColumnNames.endDate, descending: true)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        Log.warning(
+            'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $customerId');
+        return null;
+      }
+
+      final doc = querySnapshot.docs.first;
+      final data = doc.data() as Map<String, dynamic>;
+      Log.info(
+          'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $customerId');
+      return TransactionModel.fromFirebase(doc.id, data);
+    } on Exception catch (e, s) {
+      Log.error(
+          'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $customerId',
+          e: e,
+          st: s);
+      return null;
+    }
+  }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
   Future<List<TransactionModel>> getTransactionsByCustomerId(

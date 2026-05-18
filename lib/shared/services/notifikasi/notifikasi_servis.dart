@@ -1,17 +1,19 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-// diperbaiki: Mengubah tampilkanNotifikasiLangsung untuk selalu menghasilkan ID unik secara internal
-// agar setiap notifikasi memicu notifikasi melayang.
+// diubah: Menghapus parameter uiLocalNotificationDateInterpretation yang tidak lagi didukung.
 
-import 'dart:math'; // ditambah: Impor dart:math untuk menggunakan Random.
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
 
 /// Fungsi ini akan dipanggil ketika notifikasi di-tap saat aplikasi berada di background.
 @pragma('vm:entry-point')
-void onDidReceiveBackgroundNotificationResponse(final NotificationResponse response) {
+void onDidReceiveBackgroundNotificationResponse(
+    final NotificationResponse response) {
   Log.info(
     'Notifikasi background di-tap. Payload: ${response.payload}',
   );
@@ -21,8 +23,7 @@ void onDidReceiveBackgroundNotificationResponse(final NotificationResponse respo
 class NotifikasiServis {
   /// Instance dari `FlutterLocalNotificationsPlugin`.
   final FlutterLocalNotificationsPlugin plugin;
-  final Random _random =
-      Random(); // ditambah: Instance dari Random untuk ID unik.
+  final Random _random = Random();
 
   /// Channel notifikasi untuk notifikasi penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
@@ -34,10 +35,29 @@ class NotifikasiServis {
   @visibleForTesting
   NotifikasiServis.internal(this.plugin);
 
+  Future<void> _inisialisasiZonaWaktu() async {
+    try {
+      Log.info('Menginisialisasi data zona waktu...');
+      tz.initializeTimeZones();
+      final TimezoneInfo zonaWaktuInfo =
+          await FlutterTimezone.getLocalTimezone();
+      final String zonaWaktuLokal = zonaWaktuInfo.identifier;
+      tz.setLocalLocation(tz.getLocation(zonaWaktuLokal));
+      Log.info('Zona waktu lokal berhasil diatur ke: $zonaWaktuLokal');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal menginisialisasi atau mendapatkan zona waktu lokal.',
+        e: e,
+        st: st,
+      );
+    }
+  }
+
   /// Menginisialisasi layanan notifikasi.
   Future<void> inisialisasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi pengaturan notifikasi...');
 
+    await _inisialisasiZonaWaktu();
     await _setupAndroidChannel();
 
     final android = AndroidInitializationSettings(iconName);
@@ -140,9 +160,7 @@ class NotifikasiServis {
       return;
     }
 
-    // ditambah: Hasilkan ID 32-bit integer yang unik dan acak.
     final int id = _random.nextInt(pow(2, 31).toInt());
-
     Log.info('Mengirim notifikasi langsung (ID Unik: $id, Judul: $title)');
 
     final androidDetails = AndroidNotificationDetails(
@@ -206,7 +224,7 @@ class NotifikasiServis {
         scheduledDate: tz.TZDateTime.from(jadwal, tz.local),
         notificationDetails: notificationDetails,
         payload: payload,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
       Log.info('Notifikasi terjadwal berhasil didaftarkan ke sistem.');
     } on Exception catch (e, s) {

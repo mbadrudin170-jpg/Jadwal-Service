@@ -4,7 +4,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // ditambah
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -12,7 +11,6 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -436,49 +434,49 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
                 // ditambah: Kartu untuk fitur tes notifikasi.
-                _buildInfoCard(
-                  context,
-                  title: 'Pengaturan & Tes',
-                  icon: Icons.developer_mode,
-                  children: [
-                    Center(
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.notifications_active_outlined),
-                        label: const Text('Tampilkan Notifikasi Tes'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () {
-                          Log.info('Tombol tes notifikasi ditekan.');
+                // _buildInfoCard(
+                //   context,
+                //   title: 'Pengaturan & Tes',
+                //   icon: Icons.developer_mode,
+                //   children: [
+                //     Center(
+                //       child: ElevatedButton.icon(
+                //         icon: const Icon(Icons.notifications_active_outlined),
+                //         label: const Text('Tampilkan Notifikasi Tes'),
+                //         style: ElevatedButton.styleFrom(
+                //           backgroundColor: Theme.of(context).primaryColor,
+                //           foregroundColor: Colors.white,
+                //         ),
+                //         onPressed: () {
+                //           Log.info('Tombol tes notifikasi ditekan.');
 
-                          // Ambil NotifikasiServis dari Provider, jangan buat instance baru.
-                          final notifikasiServis = Provider.of<NotifikasiServis>(
-                            context,
-                            listen: false,
-                          );
+                //           // Ambil NotifikasiServis dari Provider, jangan buat instance baru.
+                //           final notifikasiServis = Provider.of<NotifikasiServis>(
+                //             context,
+                //             listen: false,
+                //           );
 
-                          // Panggil fungsi untuk menampilkan notifikasi.
-                          unawaited(
-                            notifikasiServis.tampilkanNotifikasiLangsung(
-                              title: '🔔 Tes Notifikasi (Berhasil!)',
-                              body:
-                                  'Notifikasi ini sekarang menggunakan instance yang benar.',
-                            ),
-                          );
+                //           // Panggil fungsi untuk menampilkan notifikasi.
+                //           unawaited(
+                //             notifikasiServis.tampilkanNotifikasiLangsung(
+                //               title: '🔔 Tes Notifikasi (Berhasil!)',
+                //               body:
+                //                   'Notifikasi ini sekarang menggunakan instance yang benar.',
+                //             ),
+                //           );
 
-                          // Beri umpan balik ke pengguna.
-                          SnackBarUtil.info(
-                            context,
-                            'Notifikasi tes telah dikirim! Cek bilah notifikasi Anda.',
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                //           // Beri umpan balik ke pengguna.
+                //           SnackBarUtil.info(
+                //             context,
+                //             'Notifikasi tes telah dikirim! Cek bilah notifikasi Anda.',
+                //           );
+                //         },
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),

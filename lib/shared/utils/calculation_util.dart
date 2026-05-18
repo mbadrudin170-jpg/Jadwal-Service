@@ -16,7 +16,7 @@ class CalculationUtil {
   /// lebih dari 30 hari. [now] dapat digunakan untuk pengujian.
   static String getExpiredPoints(
       {required final DateTime startDate, final DateTime? now}) {
-    final currentDate = now ?? DateTime.now().toUtc();
+    final currentDate = now ?? DateTime.now();
     final dayDifference = currentDate.difference(startDate).inDays;
 
     if (dayDifference > 30) {
@@ -29,7 +29,7 @@ class CalculationUtil {
   /// Mengembalikan jumlah sisa hari dalam bentuk integer.
   /// Jika tanggal berakhir sudah lewat, hasilnya akan menjadi negatif.
   static int remainingDays(final DateTime endDate, {final DateTime? now}) {
-    final currentDate = DateUtils.dateOnly(now ?? DateTime.now().toUtc());
+    final currentDate = DateUtils.dateOnly(now ?? DateTime.now());
     final end = DateUtils.dateOnly(endDate);
     return end.difference(currentDate).inDays;
   }

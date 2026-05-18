@@ -1,10 +1,12 @@
 // path: lib/shared/operasi/transaction_operation.dart
+// diubah: Menambahkan fungsi getLatestPaidTransactionByUserId.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -184,6 +186,41 @@ class TransactionOperation {
       return TransactionModel.fromSqlite(maps.first);
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil transaksi ID: $id', e: e, st: st);
+      return null;
+    }
+  }
+  
+  /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
+  /// Digunakan untuk menentukan status langganan aktif.
+  Future<TransactionModel?> getLatestPaidTransactionByUserId(
+      final String customerId) async {
+    try {
+      final db = await _db;
+      Log.info(
+          'Mencari transaksi lunas terbaru untuk pengguna ID: $customerId');
+
+      final List<Map<String, dynamic>> maps = await db.query(
+        TableNameValue.get(TableName.transactions),
+        where:
+            '${ColumnNames.customerId} = ? AND ${ColumnNames.paymentStatus} = ? AND ${ColumnNames.isDeleted} = ?',
+        whereArgs: [customerId, PaymentStatus.paid.name, 0],
+        orderBy: '${ColumnNames.endDate} DESC',
+        limit: 1,
+      );
+
+      if (maps.isEmpty) {
+        Log.warning(
+            'Tidak ada transaksi lunas yang aktif untuk pengguna ID: $customerId');
+        return null;
+      }
+
+      Log.info('Transaksi lunas terbaru ditemukan untuk pengguna ID: $customerId');
+      return TransactionModel.fromSqlite(maps.first);
+    } on Exception catch (e, st) {
+      Log.error(
+          'Gagal mengambil transaksi lunas terbaru untuk pengguna ID: $customerId',
+          e: e,
+          st: st);
       return null;
     }
   }

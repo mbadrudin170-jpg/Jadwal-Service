@@ -50,7 +50,6 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/utils/format_util.dart (FormatUtil)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 
-
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
   final DateTime startDate,
@@ -309,8 +308,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Future<void> _selectTime(final BuildContext context) async {
-    final initial =
-        _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now().toUtc());
+    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
       context: context,
       initialTime: initial,
@@ -543,6 +541,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     );
   }
 
+// TODO : merubah tanggal dan waktu jangan menggunakan utc
   Widget _buildDateTimePicker() {
     return Column(children: [
       const Text('Pilih Tanggal & Waktu Aktif:',

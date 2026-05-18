@@ -1,11 +1,13 @@
 // path: lib/admin/halaman/form/subscription_history_form.dart
-// File ini digunakan untuk membuat form edit riwayat langganan.
+// diubah: Menyesuaikan jadwal notifikasi agar muncul TEPAT saat masa aktif berakhir.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
@@ -20,6 +22,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/utils/format_util.dart (FormatUtil)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 //   - lib/shared/debug/log.dart (Log)
+//   - lib/shared/services/notifikasi/notifikasi_servis.dart (NotifikasiServis)
 
 /// Halaman form untuk mengedit riwayat langganan (transaksi).
 class SubscriptionHistoryForm extends StatefulWidget {
@@ -105,7 +108,13 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       return;
     }
 
-    Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaction.id}');
+    Log.info(
+        'Menyimpan perubahan untuk transaksi ID: ${widget.transaction.id}');
+
+    final statusSebelumnya = widget.transaction.paymentStatus;
+    final notifikasiServis =
+        Provider.of<NotifikasiServis>(context, listen: false);
+
     try {
       final updatedTransaction = widget.transaction.copyWith(
         startDate: _startDate,
@@ -120,6 +129,13 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       );
       Log.info('Transaksi berhasil diperbarui di database.');
 
+      await _handleExpiryNotification(
+        notifikasiServis: notifikasiServis,
+        statusSebelumnya: statusSebelumnya,
+        statusSekarang: _paymentStatus,
+        endDate: _endDate,
+      );
+
       if (!mounted) return;
       SnackBarUtil.success(context, 'Riwayat langganan berhasil diperbarui.');
       Navigator.of(context).pop(true); // Return true to indicate success
@@ -127,6 +143,43 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       Log.error('Gagal memperbarui riwayat langganan', e: e);
       if (!mounted) return;
       SnackBarUtil.error(context, 'Gagal memperbarui riwayat: ${e.toString()}');
+    }
+  }
+
+  // diubah: Logika disesuaikan untuk notifikasi saat masa aktif berakhir.
+  Future<void> _handleExpiryNotification({
+    required final NotifikasiServis notifikasiServis,
+    required final PaymentStatus statusSebelumnya,
+    required final PaymentStatus statusSekarang,
+    required final DateTime endDate,
+  }) async {
+    final idNotifikasi = widget.transaction.id.hashCode;
+    final wasPaid = statusSebelumnya == PaymentStatus.paid;
+    final isNowPaid = statusSekarang == PaymentStatus.paid;
+
+    // Kondisi: Status berubah menjadi LUNAS atau tanggalnya diperbarui saat masih LUNAS
+    if ((!wasPaid && isNowPaid) || (wasPaid && isNowPaid)) {
+      // Selalu perbarui atau set jadwal baru
+      final jadwal =
+          endDate; // Notifikasi dijadwalkan TEPAT pada tanggal berakhir
+      if (jadwal.isAfter(DateTime.now())) {
+        Log.info(
+            'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal');
+        // Kita gunakan perbaruiJadwalNotifikasi agar jika sudah ada, jadwalnya diperbarui.
+        // Jika belum ada, ia akan membuat yang baru.
+        await notifikasiServis.perbaruiJadwalNotifikasi(
+          id: idNotifikasi,
+          title: 'Langganan Telah Berakhir', // diubah
+          body:
+              'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.', // diubah
+          jadwal: jadwal,
+        );
+      }
+      // Kondisi: Status berubah dari LUNAS menjadi status lain (misal: dibatalkan)
+    } else if (wasPaid && !isNowPaid) {
+      Log.info(
+          'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.');
+      await notifikasiServis.batalNotifikasi(idNotifikasi);
     }
   }
 
@@ -178,7 +231,8 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
                   if (newValue != null) {
                     setState(() {
                       _paymentStatus = newValue;
-                      Log.info('Status pembayaran diubah menjadi: $_paymentStatus');
+                      Log.info(
+                          'Status pembayaran diubah menjadi: $_paymentStatus');
                     });
                   }
                 },
