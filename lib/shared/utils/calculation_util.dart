@@ -40,7 +40,7 @@ class CalculationUtil {
     final DateTime endDate, {
     final DateTime? now,
   }) {
-    final remaining = endDate.difference(now ?? DateTime.now().toUtc());
+    final remaining = endDate.difference(now ?? DateTime.now());
 
     if (remaining.isNegative) {
       return 'Berakhir';

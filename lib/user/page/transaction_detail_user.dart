@@ -47,7 +47,7 @@ class TransactionDetailPage extends StatelessWidget {
           children: [
             _buildInfoRow(
               'Tanggal:',
-              FormatUtil.formatDateAndTime(transaction.date),
+              FormatDateTime.formatDateAndTimeCompact(transaction.date),
             ),
             _buildInfoRow('Keterangan:', transaction.description),
             _buildInfoRow(
@@ -66,12 +66,12 @@ class TransactionDetailPage extends StatelessWidget {
             if (transaction.startDate != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                FormatUtil.formatDateBasic(transaction.startDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
               ),
             if (transaction.endDate != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatUtil.formatDateBasic(transaction.endDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
               ),
             _buildInfoRow(
               'Poin didapat:',

@@ -1,22 +1,12 @@
 // path: lib/admin/app_admin.dart
-// diubah: Import ThemeProvider dari shared/theme/theme_provider.dart (global),
-//         menggunakan ThemeProviderImpl dengan LocalStorageService.
-// diubah: Memperbaiki import path dan nama class.
-// diubah: Mengurutkan import directives.
-// diubah: Membungkus MaterialApp sementara pada AppInitializer dengan Consumer<ThemeProvider>
-//         agar splash screen dapat mengikuti tema yang aktif.
 
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
@@ -30,31 +20,13 @@ import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/main/main_admin/admin_dev.dart (AdminDev)
-//   - lib/main/main_admin/admin_prod.dart (AdminProd)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/data/sqlite.dart (DatabaseHelper)
-//   - lib/admin/firebase_option/firebase_option_admin_dev.dart (DefaultFirebaseOptions)
-//   - lib/admin/halaman_utama.dart (HalamanUtama)
-//   - lib/admin/splash_screen_admin.dart (SplashScreen)
-//   - lib/shared/data/services/navigasi_servis.dart (NavigasiServis)
-//   - lib/shared/data/sync/initial_download.dart (InitialDownloadService)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/operasi/data_cleaning_operation.dart (DataCleaningOperation)
-//   - lib/shared/services/internet_connection_check.dart (InternetConnectionService)
-//   - lib/shared/services/notifikasi/notifikasi_servis.dart (NotifikasiServis)
-//   - lib/shared/theme/app_theme.dart (AppTheme)
-//   - lib/shared/theme/theme_provider.dart (ThemeProvider)
-//   - lib/shared/utils/sync_manager.dart (SyncManager)
-//   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
-
-/// Widget utama aplikasi admin.
+/// Widget utama aplikasi admin, kini menerima NotifikasiServis.
 class AppAdmin extends StatelessWidget {
-  /// Konstruktor untuk AppAdmin.
-  const AppAdmin({super.key});
+  /// Instance NotifikasiServis yang sudah diinisialisasi dari main().
+  final NotifikasiServis notifikasiServis;
+
+  /// Konstruktor untuk AppAdmin, wajib menerima NotifikasiServis.
+  const AppAdmin({super.key, required this.notifikasiServis});
 
   @override
   Widget build(final BuildContext context) {
@@ -62,16 +34,19 @@ class AppAdmin extends StatelessWidget {
       future: SharedPreferences.getInstance(),
       builder: (final context, final snapshot) {
         if (!snapshot.hasData) {
-          // Menampilkan splash screen awal yang sangat singkat
-          return const MaterialApp(
-            home: SplashScreen(),
-          );
+          return const MaterialApp(home: SplashScreen());
         }
         final prefs = snapshot.data!;
         final localStorageService = LocalStorageService(prefs: prefs);
-        return ChangeNotifierProvider<ThemeProvider>(
-          create: (final _) =>
-              ThemeProviderImpl(localStorageService: localStorageService),
+        
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ThemeProvider>(
+              create: (final _) =>
+                  ThemeProviderImpl(localStorageService: localStorageService),
+            ),
+            Provider<NotifikasiServis>.value(value: notifikasiServis),
+          ],
           child: const AppInitializer(),
         );
       },
@@ -79,9 +54,13 @@ class AppAdmin extends StatelessWidget {
   }
 }
 
-/// Widget yang melakukan inisialisasi aplikasi.
+
+/// Widget yang menangani proses inisialisasi sekunder aplikasi.
+///
+/// Proses ini berjalan setelah inisialisasi utama di `main()` dan menampilkan
+/// [SplashScreen] selama berlangsung.
 class AppInitializer extends StatefulWidget {
-  /// Konstruktor untuk AppInitializer.
+  /// Membuat instance [AppInitializer].
   const AppInitializer({super.key});
 
   @override
@@ -92,35 +71,20 @@ class _AppInitializerState extends State<AppInitializer> {
   late Future<bool> _initialization;
   String _loadingMessage = 'Memulai aplikasi...';
 
-  final InternetConnectionService _connectionService =
-      InternetConnectionService();
+  final InternetConnectionService _connectionService = InternetConnectionService();
 
   @override
   void initState() {
     super.initState();
-    Log.info('initState: Memulai inisialisasi aplikasi terpusat.');
+    Log.info('initState: Memulai inisialisasi sekunder aplikasi.');
     _initialization = _initializeAndNavigate();
   }
 
   Future<bool> _initializeAndNavigate() async {
-    Log.info('Memulai urutan inisialisasi aplikasi.');
+    Log.info('Memulai urutan inisialisasi sekunder.');
     try {
-      _updateMessage('Menginisialisasi layanan Google...');
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      }
-
       _updateMessage('Mengonfigurasi pengaturan lokal...');
-      tz.initializeTimeZones();
-      tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
       await initializeDateFormatting('id_ID');
-
-      _updateMessage('Mempersiapkan layanan notifikasi...');
-      final notifikasiServis = NotifikasiServis();
-      await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
-      await notifikasiServis.requestPermissions();
 
       _updateMessage('Mempersiapkan database lokal...');
       await DatabaseHelper.instance.database;
@@ -130,8 +94,7 @@ class _AppInitializerState extends State<AppInitializer> {
 
       _updateMessage('Membersihkan data arsip kadaluarsa...');
       final dataCleaningOperation = DataCleaningOperation();
-      await dataCleaningOperation.deleteAllExpiredArchivedData(
-          retentionDays: 30);
+      await dataCleaningOperation.deleteAllExpiredArchivedData(retentionDays: 30);
 
       _updateMessage('Mengecek koneksi internet...');
       final isOnline = await _connectionService.checkConnection();
@@ -141,7 +104,7 @@ class _AppInitializerState extends State<AppInitializer> {
 
       return isOnline;
     } on Exception catch (e, s) {
-      Log.error('Error kritis selama inisialisasi.', e: e, st: s);
+      Log.error('Error kritis selama inisialisasi sekunder.', e: e, st: s);
       _updateMessage('Terjadi error: ${e.toString()}');
       return false;
     }
@@ -163,7 +126,6 @@ class _AppInitializerState extends State<AppInitializer> {
           final isOnline = snapshot.data ?? false;
           return AppProviders(isOffline: !isOnline);
         }
-        // diubah: MaterialApp kini dibungkus Consumer agar tema bisa diterapkan
         return Consumer<ThemeProvider>(
           builder: (final context, final themeProvider, final child) {
             return MaterialApp(
@@ -180,12 +142,15 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 }
 
-/// Widget yang menyediakan provider untuk aplikasi.
+/// Widget yang menyediakan provider-provider penting untuk aplikasi.
+///
+/// Provider yang disediakan di sini akan tersedia untuk semua halaman
+/// setelah proses inisialisasi selesai.
 class AppProviders extends StatelessWidget {
-  /// Status offline.
+  /// Menandakan apakah aplikasi sedang dalam mode offline.
   final bool isOffline;
 
-  /// Konstruktor untuk AppProviders.
+  /// Membuat instance [AppProviders].
   const AppProviders({super.key, required this.isOffline});
 
   @override
@@ -201,12 +166,15 @@ class AppProviders extends StatelessWidget {
   }
 }
 
-/// Widget yang membangun MaterialApp.
+/// Widget yang membangun [MaterialApp] utama aplikasi.
+///
+/// Ini adalah akar dari hierarki widget aplikasi setelah semua
+/// inisialisasi dan penyediaan provider selesai.
 class AppMaterial extends StatelessWidget {
-  /// Status offline.
+  /// Menandakan apakah aplikasi sedang dalam mode offline.
   final bool isOffline;
 
-  /// Konstruktor untuk AppMaterial.
+  /// Membuat instance [AppMaterial].
   const AppMaterial({super.key, required this.isOffline});
 
   @override

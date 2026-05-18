@@ -1,5 +1,4 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-// diubah: Menghapus parameter uiLocalNotificationDateInterpretation yang tidak lagi didukung.
 
 import 'dart:math';
 
@@ -28,6 +27,9 @@ class NotifikasiServis {
   /// Channel notifikasi untuk notifikasi penting.
   AndroidNotificationChannel? channelNotifikasiPenting;
 
+  /// Bendera untuk memastikan inisialisasi zona waktu hanya berjalan sekali.
+  static bool _zonaWaktuTelahDiinisialisasi = false;
+
   /// Konstruktor default untuk `NotifikasiServis`.
   NotifikasiServis() : plugin = FlutterLocalNotificationsPlugin();
 
@@ -35,23 +37,46 @@ class NotifikasiServis {
   @visibleForTesting
   NotifikasiServis.internal(this.plugin);
 
+  /// Menginisialisasi zona waktu lokal untuk penjadwalan notifikasi.
   Future<void> _inisialisasiZonaWaktu() async {
+    if (_zonaWaktuTelahDiinisialisasi) {
+      Log.info(
+          'Inisialisasi zona waktu dilewati karena sudah berhasil dilakukan sebelumnya.');
+      return;
+    }
+
     try {
-      Log.info('Menginisialisasi data zona waktu...');
+      Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
-      final TimezoneInfo zonaWaktuInfo =
-          await FlutterTimezone.getLocalTimezone();
-      final String zonaWaktuLokal = zonaWaktuInfo.identifier;
-      tz.setLocalLocation(tz.getLocation(zonaWaktuLokal));
-      Log.info('Zona waktu lokal berhasil diatur ke: $zonaWaktuLokal');
+
+      final String zonaWaktuLokal =
+          (await FlutterTimezone.getLocalTimezone()).identifier;
+      Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
+
+      tz.Location lokasi;
+      try {
+        lokasi = tz.getLocation(zonaWaktuLokal);
+      } on tz.LocationNotFoundException catch (e) {
+        Log.warning(
+          'Lokasi untuk zona waktu "$zonaWaktuLokal" tidak ditemukan. Menggunakan "UTC" sebagai fallback. Detail: $e',
+        );
+        lokasi = tz.UTC;
+      }
+
+      tz.setLocalLocation(lokasi);
+      Log.info(
+          'Zona waktu lokal berhasil diatur ke: ${lokasi.name}. Inisialisasi selesai.');
+
+      _zonaWaktuTelahDiinisialisasi = true;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal menginisialisasi atau mendapatkan zona waktu lokal.',
+        'Gagal total saat menginisialisasi zona waktu lokal.',
         e: e,
         st: st,
       );
     }
   }
+
 
   /// Menginisialisasi layanan notifikasi.
   Future<void> inisialisasi({required final String iconName}) async {
@@ -78,7 +103,7 @@ class NotifikasiServis {
       Log.info('Layanan Notifikasi berhasil diinisialisasi.');
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal melakukan inisialisasi layanan notifikasi',
+        'Gagal melakukan inisialisasi plugin notifikasi',
         e: e,
         st: s,
       );
@@ -119,8 +144,8 @@ class NotifikasiServis {
           plugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
       if (androidPlugin != null) {
-        await androidPlugin.requestNotificationsPermission();
-        Log.info('Permintaan izin notifikasi Android telah diproses.');
+        final bool? granted = await androidPlugin.requestNotificationsPermission();
+        Log.info('Izin notifikasi diberikan oleh pengguna: ${granted ?? false}');
       }
     } on Exception catch (e, s) {
       Log.error(
@@ -138,7 +163,7 @@ class NotifikasiServis {
 
     if (details != null && details.didNotificationLaunchApp) {
       Log.info(
-        'Aplikasi diluncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}',
+        'Aplikasi diluncuruncurkan dari notifikasi dengan ID: ${details.notificationResponse?.id}',
       );
     } else {
       Log.info('Aplikasi diluncurkan secara normal (bukan dari notifikasi).');

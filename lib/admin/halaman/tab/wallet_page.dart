@@ -10,6 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
@@ -281,12 +282,12 @@ class _WalletPageState extends State<WalletPage> {
         title: const Text('Dompet'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.sort),
+            icon: const Icon(AppIcons.filter),
             onPressed: _showSortDialog,
             tooltip: 'Urutkan Dompet',
           ),
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
+            icon: const Icon(AppIcons.delete),
             onPressed: _showDeleteAllDialog,
             tooltip: 'Hapus Semua Dompet',
           ),
@@ -359,7 +360,7 @@ class _WalletPageState extends State<WalletPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addWallet,
         tooltip: 'Tambah Dompet',
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
     );
   }

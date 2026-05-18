@@ -1,5 +1,5 @@
 // path: lib/user/page/subscription_history_user.dart
-// diubah: Menghapus semua referensi ke NotificationOpFirebase yang telah dihapus.
+// diubah: Menggunakan ikon dari AppIcons untuk konsistensi UI.
 
 import 'dart:async';
 
@@ -14,10 +14,12 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_user.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
@@ -126,7 +128,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                   value: SortMode.statusUnpaid,
                   child: Text('Status: Belum Lunas')),
             ],
-            icon: const Icon(Icons.sort),
+            icon: const Icon(AppIcons.sort),
           ),
         ],
       ),
@@ -185,7 +187,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                           margin: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
                           child: ListTile(
-                            leading: const Icon(Icons.receipt_long),
+                            leading: const Icon(AppIcons.receiptLong),
                             title:
                                 PackageNameWidget(packageFuture: packageFuture),
                             subtitle: Column(
@@ -193,7 +195,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                               children: [
                                 if (tx.endDate != null)
                                   Text(
-                                      'Berakhir - ${FormatUtil.formatDateAndTime(tx.endDate!)}'),
+                                      'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
                                 Text('Status: ${tx.paymentStatus.displayName}',
                                     style: TextStyle(
                                         color: tx.paymentStatus ==
@@ -204,7 +206,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                                     style: TextStyle(color: activeColor)),
                               ],
                             ),
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: const Icon(AppIcons.chevronRight),
                             onTap: () async {
                               final package = await packageFuture;
                               if (context.mounted) {
@@ -225,9 +227,9 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                   },
                 ),
               ),
-              const Center(
-                  child: BannerAdWidget(
-                      adUnitId: 'ca-app-pub-3940256099942544/6300978111')),
+              Center(
+                child: BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId),
+              ),
             ],
           );
         },

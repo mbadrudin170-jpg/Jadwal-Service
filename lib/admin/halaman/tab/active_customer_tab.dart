@@ -36,6 +36,7 @@ import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -188,8 +189,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               child: const Text('Batal')),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child:
-                  const Text('Arsipkan', style: TextStyle(color: Colors.red))),
+              child: const Text('Arsipkan', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -314,7 +314,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         actions: _isSearching
             ? [
                 IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(AppIcons.close),
                     onPressed: () {
                       setState(() => _isSearching = false);
                       _searchController.clear();
@@ -322,12 +322,12 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               ]
             : [
                 IconButton(
-                    icon: const Icon(Icons.search),
+                    icon: const Icon(AppIcons.search),
                     onPressed: () => setState(() => _isSearching = true)),
                 IconButton(
-                    icon: const Icon(Icons.sort), onPressed: _showSortDialog),
+                    icon: const Icon(AppIcons.filter), onPressed: _showSortDialog),
                 IconButton(
-                    icon: const Icon(Icons.more_vert),
+                    icon: const Icon(AppIcons.settings),
                     onPressed: _advancedOptions),
               ],
       ),
@@ -387,7 +387,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                                                   .getRemainingActivePeriodColor(
                                                       c.endDate))),
                                       Text(
-                                          'Berakhir: ${FormatUtil.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
+                                          'Berakhir: ${FormatDate.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
                                     ],
                                   ),
                                   trailing: const Icon(Icons.chevron_right),
@@ -398,7 +398,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                         ),
             ),
       floatingActionButton: FloatingActionButton(
-          onPressed: _addActiveCustomer, child: const Icon(Icons.add)),
+          onPressed: _addActiveCustomer, child: const Icon(AppIcons.add)),
     );
   }
 }

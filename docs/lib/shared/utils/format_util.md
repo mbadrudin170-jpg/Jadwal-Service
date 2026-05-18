@@ -4,24 +4,11 @@ File ini adalah pusat utilitas untuk semua kebutuhan pemformatan data seperti ta
 
 ---
 
-## Kelas `FormatUtil`
+## Kelas `FormatDateTime`
 
-Kelas ini khusus menangani pemformatan yang berhubungan dengan **tanggal**. Semua metode di dalamnya bersifat statis.
+Kelas ini berisi metode statis untuk pemformatan yang melibatkan **tanggal dan waktu** secara bersamaan.
 
-### `FormatUtil.formatDateBasic(DateTime date)`
-
-Mengubah objek `DateTime` menjadi string tanggal dengan format `d MMM yyyy`.
-
-- **Parameter:**
-  - `date` (DateTime): Objek tanggal yang akan diformat.
-- **Hasil:** String (contoh: "17 Agu 2024").
-- **Contoh Penggunaan:**
-  '''dart
-  String tanggal = FormatUtil.formatDateBasic(DateTime.now());
-  // tanggal -> "17 Agu 2024" (jika hari ini 17 Agustus 2024)
-  '''
-
-### `FormatUtil.formatDateAndTime(DateTime date)`
+### `FormatDateTime.formatDateAndTime(DateTime date)`
 
 Mengubah objek `DateTime` menjadi string tanggal dan waktu dengan format `d MMM yyyy, HH:mm`.
 
@@ -30,11 +17,43 @@ Mengubah objek `DateTime` menjadi string tanggal dan waktu dengan format `d MMM 
 - **Hasil:** String (contoh: "17 Agu 2024, 10:30").
 - **Contoh Penggunaan:**
   '''dart
-  String tanggalWaktu = FormatUtil.formatDateAndTime(DateTime.now());
+  String tanggalWaktu = FormatDateTime.formatDateAndTime(DateTime.now());
   // tanggalWaktu -> "17 Agu 2024, 10:30"
   '''
 
-### `FormatUtil.formatDateCompact(DateTime date)`
+### `FormatDateTime.formatDateAndTimeCompact(DateTime date)`
+
+Mengubah objek `DateTime` menjadi string tanggal dan waktu ringkas dengan format `E, d MMM yy, HH:mm`.
+
+- **Parameter:**
+  - `date` (DateTime): Objek tanggal yang akan diformat.
+- **Hasil:** String (contoh: "Sel, 20 Agu 26, 10:00").
+- **Contoh Penggunaan:**
+  '''dart
+  String tanggalWaktuRingkas = FormatDateTime.formatDateAndTimeCompact(DateTime.now());
+  // tanggalWaktuRingkas -> "Sel, 20 Agu 26, 10:00"
+  '''
+
+---
+
+## Kelas `FormatDate`
+
+Kelas ini khusus menangani pemformatan yang berhubungan dengan **tanggal**.
+
+### `FormatDate.formatDateBasic(DateTime date)`
+
+Mengubah objek `DateTime` menjadi string tanggal dengan format `d MMM yyyy`.
+
+- **Parameter:**
+  - `date` (DateTime): Objek tanggal yang akan diformat.
+- **Hasil:** String (contoh: "17 Agu 2024").
+- **Contoh Penggunaan:**
+  '''dart
+  String tanggal = FormatDate.formatDateBasic(DateTime.now());
+  // tanggal -> "17 Agu 2024" (jika hari ini 17 Agustus 2024)
+  '''
+
+### `FormatDate.formatDateCompact(DateTime date)`
 
 Mengubah objek `DateTime` menjadi string tanggal ringkas dengan format `E, d MMM yy`.
 
@@ -43,7 +62,7 @@ Mengubah objek `DateTime` menjadi string tanggal ringkas dengan format `E, d MMM
 - **Hasil:** String (contoh: "Sel, 17 Agu 24").
 - **Contoh Penggunaan:**
   '''dart
-  String tanggalRingkas = FormatUtil.formatDateCompact(DateTime.now());
+  String tanggalRingkas = FormatDate.formatDateCompact(DateTime.now());
   // tanggalRingkas -> "Sel, 17 Agu 24"
   '''
 

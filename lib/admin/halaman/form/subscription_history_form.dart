@@ -265,7 +265,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
         side: BorderSide(color: Colors.grey.shade400),
       ),
       title: Text(label),
-      subtitle: Text(FormatUtil.formatDateAndTime(date)),
+      subtitle: Text(FormatDateTime.formatDateAndTimeCompact(date)),
       trailing: const Padding(
         padding: EdgeInsets.only(right: 8.0),
         child: Icon(Icons.calendar_month_outlined),

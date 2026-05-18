@@ -1,5 +1,4 @@
 // path: lib/user/app_user.dart
-// diubah: Menerima NotifikasiServis dan menyediakannya melalui Provider.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +39,6 @@ class AppUser extends StatelessWidget {
           create: (final _) =>
               ThemeProviderImpl(localStorageService: localStorageService),
         ),
-        // Daftarkan instance NotifikasiServis yang sudah ada.
         Provider<NotifikasiServis>.value(value: notifikasiServis),
       ],
       child: Consumer<ThemeProvider>(

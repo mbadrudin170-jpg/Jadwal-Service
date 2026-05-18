@@ -98,8 +98,8 @@ class PesanInfoPaket {
     final packageName = package.name;
     final packagePrice =
         CurrencyFormat.formatCurrency(package.price.toDouble());
-    final startDate = FormatUtil.formatDateAndTime(activeCustomer.startDate);
-    final endDate = FormatUtil.formatDateAndTime(activeCustomer.endDate);
+    final startDate =FormatDateTime.formatDateAndTimeCompact(activeCustomer.startDate);
+    final endDate = FormatDateTime.formatDateAndTimeCompact(activeCustomer.endDate);
 
     final message = '''
 *-- Rincian Aktivasi Paket --*

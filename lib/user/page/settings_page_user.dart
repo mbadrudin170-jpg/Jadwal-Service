@@ -1,20 +1,12 @@
 // path: lib/user/page/settings_page_user.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/user/page/main_page.dart
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/user/page/account_list_page.dart (AccountListPage)
-//   - lib/user/page/feedback_history_user.dart (FeedbackHistoryPage)
-//   - lib/user/page/info_apk_page_user.dart (InfoApkPage)
-//   - lib/user/widget/theme_menu_widget.dart (ThemeMenuWidget)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Menggunakan ikon terpusat dari AppIcons.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
@@ -51,7 +43,7 @@ class SettingsPageUser extends StatelessWidget {
         children: <Widget>[
           const SizedBox(height: 20),
           ListTile(
-            leading: const Icon(Icons.brightness_6_outlined),
+            leading: const Icon(AppIcons.theme),
             title: const Text('Tema Aplikasi'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -71,7 +63,7 @@ class SettingsPageUser extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.feedback_outlined),
+            leading: const Icon(AppIcons.feedback),
             title: const Text('Kritik dan Saran'),
             onTap: () async {
               Log.info('Navigasi ke halaman riwayat masukan.');
@@ -86,7 +78,7 @@ class SettingsPageUser extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.info_outline),
+            leading: const Icon(AppIcons.infoOutlined),
             title: const Text('Info Aplikasi & Perangkat'),
             onTap: () async {
               Log.info('Navigasi ke halaman info aplikasi.');
@@ -100,7 +92,7 @@ class SettingsPageUser extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: Icon(Icons.logout, color: colorScheme.error),
+            leading: Icon(AppIcons.logout, color: colorScheme.error),
             title: Text('Ganti Akun/Keluar',
                 style: TextStyle(color: colorScheme.error)),
             onTap: () async {

@@ -1,5 +1,5 @@
-// path: lib/user/page/profil_page.dart
-// diubah: Menggunakan Provider untuk mendapatkan NotifikasiServis yang sudah diinisialisasi.
+// path: lib/user/page/profile_page.dart
+// diubah: Menggunakan ikon terpusat dari AppIcons dan menambahkan navigasi ke halaman poin.
 
 import 'dart:async';
 
@@ -11,11 +11,15 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/user/page/points_page_user.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
+import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends StatefulWidget {
@@ -134,354 +138,352 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<void> _navigateToPointsPage(final String customerId) async {
+    Log.info('Menavigasi ke UserPointsPage untuk customerId: $customerId');
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (final context) => UserPointsPage(customerId: customerId),
+      ),
+    );
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI untuk ProfilePage.');
-    if (_futureCustomer == null) {
-      Log.info(
-        'Future pelanggan masih null, menampilkan indikator loading awal.',
-      );
-      return Scaffold(
-        appBar: AppBar(title: const Text('Memuat Profil...')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
 
-    return FutureBuilder<CustomerModel?>(
-      future: _futureCustomer,
-      builder: (final context, final snapshot) {
-        Log.info(
-          'FutureBuilder<Customer>: Menerima status koneksi: ${snapshot.connectionState}.',
-        );
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Memuat Profil...')),
-            body: const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          Log.error(
-            'FutureBuilder<Customer> mendeteksi error: ${snapshot.error}.',
-            e: snapshot.error,
-            st: snapshot.stackTrace,
-          );
-          return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
-            body: Center(child: Text('Terjadi Error: ${snapshot.error}')),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          Log.warning(
-            'FutureBuilder<Customer>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
-          );
-          return Scaffold(
-            appBar: AppBar(title: const Text('Profil Tidak Ditemukan')),
-            body: Center(
-              child: Text('Gagal memuat data untuk ID: ${widget.userId}'),
-            ),
-          );
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profil Pelanggan'),
+      ),
+      body: _futureCustomer == null
+          ? const Center(child: CircularProgressIndicator())
+          : FutureBuilder<CustomerModel?>(
+              future: _futureCustomer,
+              builder: (final context, final snapshot) {
+                Log.info(
+                  'FutureBuilder<Customer>: Menerima status koneksi: ${snapshot.connectionState}.',
+                );
 
-        final customer = snapshot.data!;
-        Log.info(
-          'Data pelanggan berhasil dimuat untuk: ${customer.name}. Merender UI utama.',
-        );
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Profil Pelanggan'),
-          ),
-          body: RefreshIndicator(
-            onRefresh: _reloadData,
-            child: ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: [
-                _buildInfoCard(
-                  context,
-                  title: 'Informasi Pribadi',
-                  icon: Icons.person,
+                if (snapshot.hasError) {
+                  Log.error(
+                    'FutureBuilder<Customer> mendeteksi error: ${snapshot.error}.',
+                    e: snapshot.error,
+                    st: snapshot.stackTrace,
+                  );
+                  return Center(
+                      child: Text('Terjadi Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || snapshot.data == null) {
+                  Log.warning(
+                    'FutureBuilder<Customer>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
+                  );
+                  return Center(
+                    child: Text(
+                        'Profil untuk ID: ${widget.userId} tidak ditemukan.'),
+                  );
+                }
+
+                final customer = snapshot.data!;
+                Log.info(
+                  'Data pelanggan berhasil dimuat untuk: ${customer.name}. Merender UI utama.',
+                );
+
+                return Column(
                   children: [
-                    _buildInfoItem(
-                      Icons.person_outline,
-                      'Nama Lengkap',
-                      customer.name,
-                      trailingIcon: Icons.chevron_right,
-                      onTap: () => unawaited(_navigateToDetail(customer.id)),
-                    ),
-                    FutureBuilder<List<TransactionModel>>(
-                      future: _subscriptionHistoryFuture,
-                      builder: (final context, final historySnapshot) {
-                        Log.info(
-                          'FutureBuilder<Riwayat>: Status koneksi: ${historySnapshot.connectionState}.',
-                        );
-                        if (historySnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildInfoItem(
-                            Icons.point_of_sale,
-                            'Poin',
-                            'Menghitung...',
-                          );
-                        }
-
-                        if (historySnapshot.hasError) {
-                          Log.error(
-                            'FutureBuilder<Riwayat>: Gagal menghitung poin.',
-                            e: historySnapshot.error,
-                            st: historySnapshot.stackTrace,
-                          );
-                          return _buildInfoItem(
-                            Icons.point_of_sale,
-                            'Poin',
-                            'Gagal memuat',
-                          );
-                        }
-
-                        if (!historySnapshot.hasData ||
-                            historySnapshot.data!.isEmpty) {
-                          Log.warning(
-                            'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.',
-                          );
-                          return _buildInfoItem(
-                            Icons.point_of_sale,
-                            'Poin',
-                            '0',
-                          );
-                        }
-
-                        final history = historySnapshot.data!;
-                        Log.info(
-                          'Menghitung total poin dari ${history.length} transaksi.',
-                        );
-                        final int earnedPoints = history.fold<int>(
-                          0,
-                          (final total, final item) =>
-                              total + item.earnedPoints,
-                        );
-                        final int usedPoints = history.fold<int>(
-                          0,
-                          (final total, final item) => total + item.usedPoints,
-                        );
-
-                        final int totalPoints = earnedPoints - usedPoints;
-                        Log.info('Total poin dihitung: $totalPoints.');
-
-                        return _buildInfoItem(
-                          Icons.point_of_sale,
-                          'Poin',
-                          totalPoints.toString(),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildInfoCard(
-                  context,
-                  title: 'Informasi Paket Aktif',
-                  icon: Icons.wifi,
-                  children: [
-                    FutureBuilder<List<TransactionModel>>(
-                      future: _subscriptionHistoryFuture,
-                      builder: (final context, final historySnapshot) {
-                        if (historySnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SizedBox(
-                            height: 120,
-                            child: Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          );
-                        }
-
-                        if (historySnapshot.hasError) {
-                          return _buildInfoItem(
-                            Icons.error_outline,
-                            'Error',
-                            'Gagal memuat riwayat langganan.',
-                          );
-                        }
-
-                        if (!historySnapshot.hasData ||
-                            historySnapshot.data!.isEmpty) {
-                          return _buildInfoItem(
-                            Icons.wifi_off,
-                            'Paket Aktif',
-                            'Paket aktif telah berakhir.',
-                          );
-                        }
-
-                        final now = DateTime.now();
-                        final activeSubscriptions = historySnapshot.data!
-                            .where(
-                              (final subscription) =>
-                                  subscription.endDate != null &&
-                                  subscription.endDate!.isAfter(now),
-                            )
-                            .toList();
-
-                        TransactionModel? lastSubscription;
-                        if (activeSubscriptions.isNotEmpty) {
-                          lastSubscription = activeSubscriptions.reduce(
-                            (final a, final b) =>
-                                a.endDate!.isAfter(b.endDate!) ? a : b,
-                          );
-                          Log.info(
-                            'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatUtil.formatDateAndTime(lastSubscription.endDate!)}.',
-                          );
-                        } else {
-                          lastSubscription = null;
-                          Log.info(
-                            'Tidak ada langganan aktif yang ditemukan.',
-                          );
-                        }
-
-                        if (lastSubscription == null ||
-                            lastSubscription.endDate == null) {
-                          return _buildInfoItem(
-                            Icons.wifi_off,
-                            'Paket Aktif',
-                            'Tidak ada paket aktif.',
-                          );
-                        }
-
-                        final String activePeriodText =
-                            CalculationUtil.getRemainingActivePeriodText(
-                          lastSubscription.endDate!,
-                        );
-                        final Color activePeriodColor =
-                            CalculationUtil.getRemainingActivePeriodColor(
-                          lastSubscription.endDate!,
-                        );
-
-                        final Color paymentStatusColor =
-                            lastSubscription.paymentStatus == PaymentStatus.paid
-                                ? Colors.green
-                                : Colors.red;
-
-                        if (lastSubscription.packageId != null &&
-                            _cachePackageId != lastSubscription.packageId) {
-                          Log.info(
-                            'ID Paket berubah. Mengambil nama paket baru untuk ID: ${lastSubscription.packageId!}.',
-                          );
-                          _futurePackageName = _packageOp.getPackageName(
-                            lastSubscription.packageId!,
-                          );
-                          _cachePackageId = lastSubscription.packageId;
-                        }
-
-                        return Column(
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: _reloadData,
+                        child: ListView(
+                          padding: const EdgeInsets.all(16.0),
                           children: [
-                            FutureBuilder<String>(
-                              future: _futurePackageName,
-                              builder: (final context, final packageSnapshot) {
-                                String packageName;
-                                if (packageSnapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  packageName = 'Memuat...';
-                                } else if (packageSnapshot.hasError) {
-                                  packageName = 'Gagal memuat';
-                                  Log.error(
-                                    'FutureBuilder<PackageName>: Gagal mengambil nama paket: ${packageSnapshot.error}',
-                                    e: packageSnapshot.error,
-                                    st: packageSnapshot.stackTrace,
-                                  );
-                                } else {
-                                  packageName =
-                                      packageSnapshot.data ?? 'Tidak tersedia';
-                                  Log.info(
-                                    'Nama paket berhasil dimuat: $packageName',
-                                  );
-                                }
-                                return _buildInfoItem(
-                                  Icons.wifi,
-                                  'Paket',
-                                  packageName,
-                                );
-                              },
-                            ),
-                            if (lastSubscription.startDate != null)
-                              _buildInfoItem(
-                                Icons.date_range_outlined,
-                                'Aktif Sejak',
-                                FormatUtil.formatDateAndTime(
-                                  lastSubscription.startDate!,
+                            _buildInfoCard(
+                              context,
+                              title: 'Informasi Pribadi',
+                              icon: AppIcons.person,
+                              children: [
+                                _buildInfoItem(
+                                  AppIcons.personOutlined,
+                                  'Nama Lengkap',
+                                  customer.name,
+                                  trailingIcon: AppIcons.chevronRight,
+                                  onTap: () =>
+                                      unawaited(_navigateToDetail(customer.id)),
                                 ),
-                              ),
-                            _buildInfoItem(
-                              Icons.date_range_outlined,
-                              'Berakhir Pada',
-                              FormatUtil.formatDateAndTime(
-                                lastSubscription.endDate!,
-                              ),
+                                FutureBuilder<List<TransactionModel>>(
+                                  future: _subscriptionHistoryFuture,
+                                  builder:
+                                      (final context, final historySnapshot) {
+                                    Log.info(
+                                      'FutureBuilder<Riwayat>: Status koneksi: ${historySnapshot.connectionState}.',
+                                    );
+                                    if (historySnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return _buildInfoItem(
+                                        AppIcons.points,
+                                        'Poin',
+                                        'Menghitung...',
+                                      );
+                                    }
+
+                                    if (historySnapshot.hasError) {
+                                      Log.error(
+                                        'FutureBuilder<Riwayat>: Gagal menghitung poin.',
+                                        e: historySnapshot.error,
+                                        st: historySnapshot.stackTrace,
+                                      );
+                                      return _buildInfoItem(
+                                        AppIcons.points,
+                                        'Poin',
+                                        'Gagal memuat',
+                                      );
+                                    }
+
+                                    if (!historySnapshot.hasData ||
+                                        historySnapshot.data!.isEmpty) {
+                                      Log.warning(
+                                        'FutureBuilder<Riwayat>: Tidak ada riwayat transaksi ditemukan.',
+                                      );
+                                      return _buildInfoItem(
+                                        AppIcons.points,
+                                        'Poin',
+                                        '0',
+                                        trailingIcon: AppIcons.chevronRight,
+                                        onTap: () => unawaited(
+                                            _navigateToPointsPage(customer.id)),
+                                      );
+                                    }
+
+                                    final history = historySnapshot.data!;
+                                    Log.info(
+                                      'Menghitung total poin dari ${history.length} transaksi.',
+                                    );
+                                    final int earnedPoints = history.fold<int>(
+                                      0,
+                                      (final total, final item) =>
+                                          total + item.earnedPoints,
+                                    );
+                                    final int usedPoints = history.fold<int>(
+                                      0,
+                                      (final total, final item) =>
+                                          total + item.usedPoints,
+                                    );
+
+                                    final int totalPoints =
+                                        earnedPoints - usedPoints;
+                                    Log.info(
+                                        'Total poin dihitung: $totalPoints.');
+
+                                    return _buildInfoItem(
+                                      AppIcons.points,
+                                      'Poin',
+                                      totalPoints.toString(),
+                                      trailingIcon: AppIcons.chevronRight,
+                                      onTap: () => unawaited(
+                                          _navigateToPointsPage(customer.id)),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                            _buildInfoItem(
-                              Icons.hourglass_bottom,
-                              'Masa Aktif',
-                              activePeriodText,
-                              valueColor: activePeriodColor,
-                            ),
-                            _buildInfoItem(
-                              Icons.check_circle_outline,
-                              'Status Pembayaran',
-                              lastSubscription.paymentStatus.displayName
-                                  .replaceAll('_', ' ')
-                                  .toUpperCase(),
-                              valueColor: paymentStatusColor,
+                            const SizedBox(height: 16),
+                            _buildInfoCard(
+                              context,
+                              title: 'Informasi Paket Aktif',
+                              icon: AppIcons.wifi,
+                              children: [
+                                FutureBuilder<List<TransactionModel>>(
+                                  future: _subscriptionHistoryFuture,
+                                  builder:
+                                      (final context, final historySnapshot) {
+                                    if (historySnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const SizedBox(
+                                        height: 120,
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        ),
+                                      );
+                                    }
+
+                                    if (historySnapshot.hasError) {
+                                      return _buildInfoItem(
+                                        AppIcons.errorOutlined,
+                                        'Error',
+                                        'Gagal memuat riwayat langganan.',
+                                      );
+                                    }
+
+                                    if (!historySnapshot.hasData ||
+                                        historySnapshot.data!.isEmpty) {
+                                      return _buildInfoItem(
+                                        AppIcons.noWifi,
+                                        'Paket Aktif',
+                                        'Paket aktif telah berakhir.',
+                                      );
+                                    }
+
+                                    final now = DateTime.now();
+                                    final activeSubscriptions = historySnapshot
+                                        .data!
+                                        .where(
+                                          (final subscription) =>
+                                              subscription.endDate != null &&
+                                              subscription.endDate!
+                                                  .isAfter(now),
+                                        )
+                                        .toList();
+
+                                    TransactionModel? lastSubscription;
+                                    if (activeSubscriptions.isNotEmpty) {
+                                      lastSubscription =
+                                          activeSubscriptions.reduce(
+                                        (final a, final b) =>
+                                            a.endDate!.isAfter(b.endDate!)
+                                                ? a
+                                                : b,
+                                      );
+                                      Log.info(
+                                        'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatDateTime.formatDateAndTimeCompact(lastSubscription.endDate!)}.',
+                                      );
+                                    } else {
+                                      lastSubscription = null;
+                                      Log.info(
+                                        'Tidak ada langganan aktif yang ditemukan.',
+                                      );
+                                    }
+
+                                    if (lastSubscription == null ||
+                                        lastSubscription.endDate == null) {
+                                      return _buildInfoItem(
+                                        AppIcons.noWifi,
+                                        'Paket Aktif',
+                                        'Tidak ada paket aktif.',
+                                      );
+                                    }
+
+                                    final String activePeriodText =
+                                        CalculationUtil
+                                            .getRemainingActivePeriodText(
+                                      lastSubscription.endDate!,
+                                    );
+                                    final Color activePeriodColor =
+                                        CalculationUtil
+                                            .getRemainingActivePeriodColor(
+                                      lastSubscription.endDate!,
+                                    );
+
+                                    final Color paymentStatusColor =
+                                        lastSubscription.paymentStatus ==
+                                                PaymentStatus.paid
+                                            ? Colors.green
+                                            : Colors.red;
+
+                                    if (lastSubscription.packageId != null &&
+                                        _cachePackageId !=
+                                            lastSubscription.packageId) {
+                                      Log.info(
+                                        'ID Paket berubah. Mengambil nama paket baru untuk ID: ${lastSubscription.packageId!}.',
+                                      );
+                                      _futurePackageName =
+                                          _packageOp.getPackageName(
+                                        lastSubscription.packageId!,
+                                      );
+                                      _cachePackageId =
+                                          lastSubscription.packageId;
+                                    }
+
+                                    return Column(
+                                      children: [
+                                        FutureBuilder<String>(
+                                          future: _futurePackageName,
+                                          builder: (final context,
+                                              final packageSnapshot) {
+                                            String packageName;
+                                            if (packageSnapshot
+                                                    .connectionState ==
+                                                ConnectionState.waiting) {
+                                              packageName = 'Memuat...';
+                                            } else if (packageSnapshot
+                                                .hasError) {
+                                              packageName = 'Gagal memuat';
+                                              Log.error(
+                                                'FutureBuilder<PackageName>: Gagal mengambil nama paket: ${packageSnapshot.error}',
+                                                e: packageSnapshot.error,
+                                                st: packageSnapshot.stackTrace,
+                                              );
+                                            } else {
+                                              packageName =
+                                                  packageSnapshot.data ??
+                                                      'Tidak tersedia';
+                                              Log.info(
+                                                'Nama paket berhasil dimuat: $packageName',
+                                              );
+                                            }
+                                            return _buildInfoItem(
+                                              AppIcons.wifi,
+                                              'Paket',
+                                              packageName,
+                                            );
+                                          },
+                                        ),
+                                        if (lastSubscription.startDate != null)
+                                          _buildInfoItem(
+                                            AppIcons.dateRange,
+                                            'Aktif Sejak',
+                                            FormatDateTime
+                                                .formatDateAndTimeCompact(
+                                              lastSubscription.startDate!,
+                                            ),
+                                          ),
+                                        _buildInfoItem(
+                                          AppIcons.dateRange,
+                                          'Berakhir Pada',
+                                          FormatDateTime
+                                              .formatDateAndTimeCompact(
+                                            lastSubscription.endDate!,
+                                          ),
+                                        ),
+                                        _buildInfoItem(
+                                          AppIcons.hourglass,
+                                          'Masa Aktif',
+                                          activePeriodText,
+                                          valueColor: activePeriodColor,
+                                        ),
+                                        _buildInfoItem(
+                                          AppIcons.successOutlined,
+                                          'Status Pembayaran',
+                                          lastSubscription
+                                              .paymentStatus.displayName
+                                              .replaceAll('_', ' ')
+                                              .toUpperCase(),
+                                          valueColor: paymentStatusColor,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
-                        );
-                      },
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: BannerAdWidget(
+                          adUnitId: AdHelper.profileBannerAdUnitId),
                     ),
                   ],
-                ),
-                // const SizedBox(height: 16),
-                // ditambah: Kartu untuk fitur tes notifikasi.
-                // _buildInfoCard(
-                //   context,
-                //   title: 'Pengaturan & Tes',
-                //   icon: Icons.developer_mode,
-                //   children: [
-                //     Center(
-                //       child: ElevatedButton.icon(
-                //         icon: const Icon(Icons.notifications_active_outlined),
-                //         label: const Text('Tampilkan Notifikasi Tes'),
-                //         style: ElevatedButton.styleFrom(
-                //           backgroundColor: Theme.of(context).primaryColor,
-                //           foregroundColor: Colors.white,
-                //         ),
-                //         onPressed: () {
-                //           Log.info('Tombol tes notifikasi ditekan.');
-
-                //           // Ambil NotifikasiServis dari Provider, jangan buat instance baru.
-                //           final notifikasiServis = Provider.of<NotifikasiServis>(
-                //             context,
-                //             listen: false,
-                //           );
-
-                //           // Panggil fungsi untuk menampilkan notifikasi.
-                //           unawaited(
-                //             notifikasiServis.tampilkanNotifikasiLangsung(
-                //               title: '🔔 Tes Notifikasi (Berhasil!)',
-                //               body:
-                //                   'Notifikasi ini sekarang menggunakan instance yang benar.',
-                //             ),
-                //           );
-
-                //           // Beri umpan balik ke pengguna.
-                //           SnackBarUtil.info(
-                //             context,
-                //             'Notifikasi tes telah dikirim! Cek bilah notifikasi Anda.',
-                //           );
-                //         },
-                //       ),
-                //     ),
-                //   ],
-                // ),
-              ],
+                );
+              },
             ),
-          ),
-        );
-      },
     );
   }
 

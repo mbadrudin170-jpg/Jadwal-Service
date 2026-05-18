@@ -1,5 +1,5 @@
 // path: lib/user/page/points_page_user.dart
-// diubah: Memperbaiki struktur kode yang rusak di _buildRewardList.
+// diubah: Menggunakan ikon terpusat dari AppIcons untuk riwayat poin.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/poin_page_ui.dart';
@@ -195,12 +196,11 @@ class _UserPointsPageState extends State<UserPointsPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
             leading: Icon(
-                isAddition
-                    ? Icons.add_circle_outline
-                    : Icons.remove_circle_outline,
-                color: isAddition ? Colors.green : Colors.red),
+              isAddition ? AppIcons.pointsAdd : AppIcons.pointsRemove,
+              color: isAddition ? Colors.green : Colors.red,
+            ),
             title: Text(tx.description),
-            subtitle: Text(FormatUtil.formatDateBasic(tx.date),
+            subtitle: Text(FormatDate.formatDateBasic(tx.date),
                 style: const TextStyle(fontSize: 12)),
             trailing: Text(pointsStr,
                 style: TextStyle(

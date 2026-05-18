@@ -1,5 +1,7 @@
+
 // path: lib/main/main_admin/admin_dev.dart
 // diubah: Mengurutkan impor dan mendaftarkan adapter Hive.
+// diubah: Menyuntikkan NotifikasiServis ke AppAdmin untuk menghindari inisialisasi ganda.
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,6 @@ void main() async {
   // Memastikan binding Flutter siap.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Hive.
-
   // Inisialisasi Firebase.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -25,6 +25,6 @@ void main() async {
   await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
   await notifikasiServis.requestPermissions();
 
-  // Menjalankan aplikasi.
-  runApp(const AppAdmin());
+  // diubah: Menjalankan AppAdmin dan menyuntikkan NotifikasiServis.
+  runApp(AppAdmin(notifikasiServis: notifikasiServis));
 }

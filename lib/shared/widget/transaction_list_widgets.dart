@@ -31,7 +31,7 @@ Widget buildSectionHeader(final DateTime date, final double total) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          FormatUtil.formatDateBasic(date),
+          FormatDate.formatDateBasic(date),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         Text(

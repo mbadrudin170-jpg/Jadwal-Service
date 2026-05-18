@@ -1,4 +1,5 @@
 // path: lib/user/widget/ads/banner_ad_widget.dart
+// diubah: Menghilangkan placeholder SizedBox saat iklan tidak ada.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -76,9 +77,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           _bannerAd = null;
 
           // optional: retry ringan
-          unawaited(Future.delayed(const Duration(seconds: 3), () async {
-            if (mounted) await _loadBanner();
-          }),);
+          unawaited(
+            Future.delayed(const Duration(seconds: 3), () async {
+              if (mounted) await _loadBanner();
+            }),
+          );
         },
       ),
     );
@@ -96,9 +99,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   Widget build(final BuildContext context) {
     if (!_isLoaded || _bannerAd == null) {
-      return const SizedBox(
-        height: 50, // stabil biar UI gak loncat
-      );
+      return const SizedBox.shrink();
     }
 
     return SizedBox(

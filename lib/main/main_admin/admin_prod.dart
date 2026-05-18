@@ -20,12 +20,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // ditambah: Inisialisasi servis notifikasi.
+  // ditambah: Membuat satu instance NotifikasiServis yang akan digunakan di seluruh aplikasi.
   final notifikasiServis = NotifikasiServis();
   await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
   // ditambah: Meminta izin notifikasi kepada pengguna.
   await notifikasiServis.requestPermissions();
 
-  // diubah: Menjalankan langsung AppAdmin sebagai root widget.
-  runApp(const AppAdmin());
+  // diubah: Menjalankan AppAdmin dan menyuntikkan NotifikasiServis agar hanya ada satu instance.
+  runApp(AppAdmin(notifikasiServis: notifikasiServis));
 }

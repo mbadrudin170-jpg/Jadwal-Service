@@ -223,11 +223,13 @@ class _SubscriptionHistoryDetailPageState
                     _buildInfoCard('Waktu Langganan', [
                       _buildDetailRow(
                         'Tanggal Mulai',
-                        FormatUtil.formatDateAndTime(transaction.startDate!),
+                        FormatDateTime.formatDateAndTimeCompact(
+                            transaction.startDate!),
                       ),
                       _buildDetailRow(
                         'Tanggal Berakhir',
-                        FormatUtil.formatDateAndTime(transaction.endDate!),
+                        FormatDateTime.formatDateAndTimeCompact(
+                            transaction.endDate!),
                       ),
                     ]),
                   const SizedBox(height: 16),

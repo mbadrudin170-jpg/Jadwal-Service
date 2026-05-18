@@ -6,20 +6,32 @@
 
 import 'package:intl/intl.dart';
 
-/// Kelas utilitas untuk semua pemformatan yang terkait dengan tanggal.
-class FormatUtil {
-  // Konstruktor privat untuk mencegah instansiasi.
-  FormatUtil._();
-
-  /// Mengubah [DateTime] menjadi format tanggal "d MMM yyyy" (contoh: "17 Agu 2024").
-  static String formatDateBasic(final DateTime date) {
-    return DateFormat('d MMM yyyy', 'id_ID').format(date);
-  }
+/// Kelas utilitas untuk pemformatan tanggal dan waktu.
+class FormatDateTime {
+  FormatDateTime._();
 
   /// Mengubah [DateTime] menjadi format tanggal dan jam "d MMM yyyy, HH:mm".
   static String formatDateAndTime(final DateTime date) {
     final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
     return format.format(date);
+  }
+
+  /// Mengubah [DateTime] menjadi format tanggal dan jam ringkas "E, d MMM yy, HH:mm".
+  /// Contoh: "Sel, 20 Agu 26, 10:00"
+  static String formatDateAndTimeCompact(final DateTime date) {
+    final format = DateFormat('E, d MMM yy, HH:mm', 'id_ID');
+    return format.format(date);
+  }
+}
+
+/// Kelas utilitas untuk semua pemformatan yang terkait dengan tanggal.
+class FormatDate {
+  // Konstruktor privat untuk mencegah instansiasi.
+  FormatDate._();
+
+  /// Mengubah [DateTime] menjadi format tanggal "d MMM yyyy" (contoh: "17 Agu 2024").
+  static String formatDateBasic(final DateTime date) {
+    return DateFormat('d MMM yyyy', 'id_ID').format(date);
   }
 
   /// Mengubah [DateTime] menjadi format tanggal ringkas "E, d MMM yy" (contoh: "Sel, 17 Agu 26").

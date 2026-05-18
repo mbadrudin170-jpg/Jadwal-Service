@@ -259,7 +259,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                   alignment: Alignment.centerRight,
                                   child: Text(
                                     item.date != null
-                                        ? FormatUtil.formatDateAndTime(
+                                        ? FormatDateTime.formatDateAndTimeCompact(
                                             item.date!,
                                           )
                                         : 'Tanggal tidak tersedia',

@@ -1,3 +1,4 @@
+// path: lib/admin/halaman/tab/transaction_page.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 import 'package:wifi/shared/widget/transaction_list_widgets.dart';
@@ -354,12 +356,12 @@ class _TransactionPageState extends State<TransactionPage> {
         actions: [
           IconButton(
             onPressed: _showSortDialog,
-            icon: const Icon(Icons.sort),
+            icon: const Icon(AppIcons.filter),
             tooltip: 'Urutkan',
           ),
           IconButton(
             onPressed: _deleteAllTransactions,
-            icon: const Icon(Icons.delete_sweep_outlined),
+            icon: const Icon(AppIcons.delete),
             tooltip: 'Hapus Semua Transaksi',
           ),
         ],
@@ -368,7 +370,7 @@ class _TransactionPageState extends State<TransactionPage> {
       floatingActionButton: FloatingActionButton(
         onPressed:
             _navigateToTransactionForm, // Memanggil tanpa argumen untuk mode tambah
-        child: const Icon(Icons.add),
+        child: const Icon(AppIcons.add),
       ),
     );
   }

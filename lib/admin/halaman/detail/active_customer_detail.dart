@@ -250,11 +250,11 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               ),
                             _buildInfoRow(
                               'Mulai',
-                              '${FormatUtil.formatDateBasic(_activeCustomer.startDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.startDate)}',
+                              '${FormatDateTime.formatDateAndTimeCompact(_activeCustomer.startDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.startDate)}',
                             ),
                             _buildInfoRow(
                               'Berakhir',
-                              '${FormatUtil.formatDateBasic(_activeCustomer.endDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.endDate)}',
+                              '${FormatDateTime.formatDateAndTimeCompact(_activeCustomer.endDate)} - ${TimeFormat.formatHourMinute(_activeCustomer.endDate)}',
                             ),
                             const Divider(),
                             const SizedBox(height: 16),

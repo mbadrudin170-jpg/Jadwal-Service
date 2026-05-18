@@ -25,11 +25,11 @@ import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/admin/halaman/lainnya/category.dart';
 import 'package:wifi/admin/halaman/lainnya/customer.dart';
 import 'package:wifi/admin/halaman/lainnya/feedback.dart';
-import 'package:wifi/admin/halaman/lainnya/halaman_migrasi.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
@@ -94,7 +94,8 @@ class _LainnyaPageState extends State<LainnyaPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context)
+   {
     Log.info('Membangun halaman Lainnya untuk admin.');
     return Scaffold(
       appBar: AppBar(title: const Text('Menu Lainnya')),
@@ -102,63 +103,57 @@ class _LainnyaPageState extends State<LainnyaPage> {
         children: [
           _buildMenuItem(
             context: context,
-            icon: Icons.people,
+            icon: AppIcons.customers,
             title: 'Data Pelanggan',
             onTap: () => _navigateTo(const CustomerPage(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.category,
+            icon: AppIcons.filter,
             title: 'Kategori',
             onTap: () => _navigateTo(const CategoryPage(), 'Kategori'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.inventory_2,
+            icon: AppIcons.packages,
             title: 'Paket',
             onTap: () => _navigateTo(const PackagePage(), 'Paket'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.history,
+            icon: AppIcons.clock,
             title: 'Riwayat Aktivasi Paket',
-            onTap: () =>
-                _navigateTo(const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
+            onTap: () => _navigateTo(
+                const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.feedback,
+            icon: AppIcons.help,
             title: 'Kritik dan Saran',
             onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.system_update,
+            icon: AppIcons.report,
             title: 'Versi Aplikasi',
             onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.storage,
-            title: 'Migrasi',
-            onTap: () => _navigateTo(const HalamanMigrasi(), 'Migrasi'),
-          ),
-          _buildMenuItem(
-            context: context,
-            icon: Icons.settings,
+            icon: AppIcons.settings,
             title: 'Pengaturan',
             onTap: () => _navigateTo(const SettingsAdminPage(), 'Pengaturan'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.info,
+            icon: AppIcons.info,
             title: 'Tentang Aplikasi',
             onTap: () =>
                 _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
           ),
           _buildMenuItem(
             context: context,
-            icon: Icons.exit_to_app,
+            icon: AppIcons.logout,
             title: 'Keluar',
             onTap: _showLogoutConfirmationDialog,
           ),

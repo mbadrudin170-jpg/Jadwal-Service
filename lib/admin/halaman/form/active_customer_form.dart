@@ -25,6 +25,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
@@ -282,7 +283,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
 
   void _mapNewData() {
     Log.info('Menginisialisasi form untuk entri baru.');
-    final now = DateTime.now().toUtc();
+    final now = DateTime.now();
     _selectedDate = now;
     _selectedTime = TimeOfDay.fromDateTime(now);
     if (_daftarDompet.isNotEmpty) {
@@ -298,7 +299,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   Future<void> _selectDate(final BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now().toUtc(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
@@ -337,12 +338,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     }
 
     try {
-      final tanggalMulai = DateTime.utc(
-          _selectedDate!.year,
-          _selectedDate!.month,
-          _selectedDate!.day,
-          _selectedTime!.hour,
-          _selectedTime!.minute);
+      final tanggalMulai = DateTime(_selectedDate!.year, _selectedDate!.month,
+          _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
       final tanggalBerakhir =
           hitungTanggalBerakhir(tanggalMulai, _selectedPaket!);
       final transaksiId =
@@ -550,13 +547,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         TextButton.icon(
             onPressed: () => _selectDate(context),
-            icon: const Icon(Icons.calendar_today),
+            icon: const Icon(AppIcons.calendar),
             label: Text(_selectedDate == null
                 ? 'Pilih Tanggal'
-                : FormatUtil.formatDateBasic(_selectedDate!))),
+                : FormatDate.formatDateBasic(_selectedDate!))),
         TextButton.icon(
             onPressed: () => _selectTime(context),
-            icon: const Icon(Icons.access_time),
+            icon: const Icon(AppIcons.clock),
             label: Text(_selectedTime == null
                 ? 'Pilih Jam'
                 : '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}')),
@@ -601,7 +598,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text((_selectedDate == null || _selectedTime == null)
             ? 'Pilih Tanggal & Jam'
-            : FormatUtil.formatDateAndTime(DateTime.utc(
+            : FormatDateTime.formatDateAndTimeCompact(DateTime(
                 _selectedDate!.year,
                 _selectedDate!.month,
                 _selectedDate!.day,
@@ -616,13 +613,13 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           if (_selectedDate != null &&
               _selectedTime != null &&
               _selectedPaket != null) {
-            final startDate = DateTime.utc(
+            final startDate = DateTime(
                 _selectedDate!.year,
                 _selectedDate!.month,
                 _selectedDate!.day,
                 _selectedTime!.hour,
                 _selectedTime!.minute);
-            return FormatUtil.formatDateAndTime(
+            return FormatDateTime.formatDateAndTimeCompact(
                 hitungTanggalBerakhir(startDate, _selectedPaket!));
           } else {
             return 'Pilih paket & tanggal mulai';

@@ -107,7 +107,7 @@ class _PackageActivationHistoryPageState
           }
 
           Log.info(
-            'Transaksi ID: ${transaction.id} - Pelanggan ID: ${transaction.customerId ?? "N/A"}, Paket ID: ${transaction.packageId ?? "N/A"}, Status: ${transaction.paymentStatus.name}, Mulai: ${transaction.startDate != null ? FormatUtil.formatDateBasic(transaction.startDate!) : "N/A"}, Berakhir: ${transaction.endDate != null ? FormatUtil.formatDateBasic(transaction.endDate!) : "N/A"}',
+            'Transaksi ID: ${transaction.id} - Pelanggan ID: ${transaction.customerId ?? "N/A"}, Paket ID: ${transaction.packageId ?? "N/A"}, Status: ${transaction.paymentStatus.name}, Mulai: ${transaction.startDate != null ? FormatDate.formatDateBasic(transaction.startDate!) : "N/A"}, Berakhir: ${transaction.endDate != null ? FormatDate.formatDateBasic(transaction.endDate!) : "N/A"}',
           );
         }
 
@@ -184,7 +184,7 @@ class _PackageActivationHistoryPageState
       case SortOption.endingToday:
         comparator = (final a, final b) {
           final now = DateTime.now();
-          final todayStr = FormatUtil.formatDateBasic(now);
+          final todayStr = FormatDate.formatDateBasic(now);
 
           bool isToday(final DateTime? date) {
             if (date == null) return false;
@@ -210,7 +210,7 @@ class _PackageActivationHistoryPageState
           return result;
         };
         Log.info(
-          'Pengurutan: Berakhir Hari Ini (${FormatUtil.formatDateBasic(DateTime.now())}) di atas',
+          'Pengurutan: Berakhir Hari Ini (${FormatDate.formatDateBasic(DateTime.now())}) di atas',
         );
         break;
     }
@@ -222,7 +222,7 @@ class _PackageActivationHistoryPageState
     for (int i = 0; i < (list.length < 5 ? list.length : 5); i++) {
       final t = list[i];
       Log.info(
-        '  ${i + 1}. ID: ${t.id} - Status: ${t.paymentStatus.name} - Berakhir: ${t.endDate != null ? FormatUtil.formatDateBasic(t.endDate!) : "N/A"}',
+        '  ${i + 1}. ID: ${t.id} - Status: ${t.paymentStatus.name} - Berakhir: ${t.endDate != null ? FormatDate.formatDateBasic(t.endDate!) : "N/A"}',
       );
     }
 
@@ -408,7 +408,7 @@ class _PackageActivationHistoryPageState
                         if (transaction.startDate != null &&
                             transaction.endDate != null)
                           Text(
-                            'Aktif: ${FormatUtil.formatDateBasic(transaction.startDate!)} - ${FormatUtil.formatDateBasic(transaction.endDate!)}',
+                            'Aktif: ${FormatDate.formatDateBasic(transaction.startDate!)} - ${FormatDate.formatDateBasic(transaction.endDate!)}',
                           ),
                       ],
                     ),

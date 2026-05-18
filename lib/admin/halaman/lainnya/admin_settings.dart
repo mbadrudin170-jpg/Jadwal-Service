@@ -211,8 +211,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
                             leading:
                                 const Icon(Icons.palette_outlined, size: 40),
                             title: const Text('Mode Tema Aplikasi',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                             trailing: Consumer<ThemeProvider>(
                               builder: (final context, final themeProvider,
                                   final child) {

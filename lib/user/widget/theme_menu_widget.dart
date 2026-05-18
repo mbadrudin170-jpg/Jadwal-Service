@@ -1,9 +1,9 @@
 // path: lib/user/widget/theme_menu_widget.dart
-// diubah: Dibuat menjadi widget presentasional murni.
-//         Kini menerima `currentThemeMode` dan `onThemeSelected` dari parent,
-//         sehingga tidak lagi bergantung pada Provider secara internal.
+// diubah: Menggunakan ikon terpusat dari kelas AppIcons.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 
 /// Widget untuk menampilkan menu pilihan tema (UI Murni).
 ///
@@ -33,11 +33,11 @@ class ThemeMenuWidget extends StatelessWidget {
     );
     switch (mode) {
       case ThemeMode.light:
-        return Icons.light_mode;
+        return AppIcons.themeLight;
       case ThemeMode.dark:
-        return Icons.dark_mode;
+        return AppIcons.themeDark;
       case ThemeMode.system:
-        return Icons.brightness_auto;
+        return AppIcons.themeAuto;
     }
   }
 
@@ -55,7 +55,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.system,
             child: Row(
               children: [
-                Icon(Icons.settings_brightness_outlined),
+                Icon(AppIcons.themeSystem),
                 SizedBox(width: 10),
                 Text('Otomatis'),
               ],
@@ -65,7 +65,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.light,
             child: Row(
               children: [
-                Icon(Icons.light_mode_outlined),
+                Icon(AppIcons.themeLightOutlined),
                 SizedBox(width: 10),
                 Text('Terang'),
               ],
@@ -75,7 +75,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.dark,
             child: Row(
               children: [
-                Icon(Icons.dark_mode_outlined),
+                Icon(AppIcons.themeDarkOutlined),
                 SizedBox(width: 10),
                 Text('Gelap'),
               ],

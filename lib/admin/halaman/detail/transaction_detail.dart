@@ -137,7 +137,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
             _buildDetailRow('Keterangan', transaction.description),
             _buildDetailRow(
               'Tanggal',
-              FormatUtil.formatDateAndTime(transaction.date),
+            FormatDateTime.formatDateAndTimeCompact(transaction.date),
             ),
             _buildDetailRow(
               'Jumlah',
@@ -214,12 +214,12 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
             if (transaction.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-                FormatUtil.formatDateAndTime(transaction.startDate!),
+            FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
               ),
             if (transaction.endDate != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatUtil.formatDateAndTime(transaction.endDate!),
+             FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
               ),
           ],
         ),
