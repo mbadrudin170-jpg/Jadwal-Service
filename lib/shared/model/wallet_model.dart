@@ -1,10 +1,12 @@
 // path: lib/shared/model/wallet_model.dart
-// new file: Refactored from dompet_model.dart to use English naming conventions.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Data model for a wallet entity in the application.
 class WalletModel implements HasId {
@@ -35,7 +37,9 @@ class WalletModel implements HasId {
     this.updatedAt,
     this.isDeleted = false,
     this.archivedAt,
-  }) : id = id ?? const Uuid().v4();
+  }) : id = id ?? const Uuid().v4() {
+    Log.info('WalletModel created: $id, name: $name');
+  }
 
   /// Creates a copy of [WalletModel] with updated fields.
   WalletModel copyWith({
@@ -56,17 +60,7 @@ class WalletModel implements HasId {
     );
   }
 
-  /// Internal helper to parse a date value from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    return null;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a [WalletModel] instance from a SQLite map.
   factory WalletModel.fromSqlite(final Map<String, dynamic> map) {
@@ -74,9 +68,10 @@ class WalletModel implements HasId {
       id: map[ColumnNames.id] as String?,
       name: (map[ColumnNames.name] as String?) ?? '',
       balance: (map[ColumnNames.balance] as num?)?.toDouble() ?? 0.0,
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: map[ColumnNames.isDeleted] == 1,
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -86,7 +81,8 @@ class WalletModel implements HasId {
       ColumnNames.id: id,
       ColumnNames.name: name,
       ColumnNames.balance: balance,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -98,9 +94,10 @@ class WalletModel implements HasId {
       id: id,
       name: (data[ColumnNames.name] as String?) ?? '',
       balance: (data[ColumnNames.balance] as num?)?.toDouble() ?? 0.0,
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: (data[ColumnNames.isDeleted] as bool?) ?? false,
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -111,8 +108,10 @@ class WalletModel implements HasId {
       ColumnNames.name: name,
       ColumnNames.balance: balance,
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
