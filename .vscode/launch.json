@@ -41,6 +41,12 @@
                 "--flavor",
                 "adminProd"
             ]
+        },
+        {
+            "name": "Uji Fitur",
+            "type": "dart",
+            "request": "launch",
+            "program": "src/uji_fitur/main.dart"
         }
     ]
 }
