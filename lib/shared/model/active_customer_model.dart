@@ -1,16 +1,15 @@
 // path: lib/shared/model/active_customer_model.dart
-// File ini digunakan oleh:
-// - lib/shared/operasi/active_customer_operation.dart
-// - lib/admin/halaman/form/active_customer_form.dart
-// - Dan banyak file UI lainnya yang menampilkan data pelanggan aktif.
-// DIPERBARUI: Menghapus logika fallback untuk nama kolom lama setelah migrasi aktif.
+// diubah: Menghapus parser internal dan menggunakan ParserUtil.
+// diubah: Menambahkan .toUtc() saat menyimpan ke Firebase untuk konsistensi.
+// diubah: Memastikan updatedAt tidak pernah null saat menyimpan ke Firebase.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model for active customer data.
 class ActiveCustomerModel implements HasId {
@@ -87,32 +86,11 @@ class ActiveCustomerModel implements HasId {
     );
   }
 
-  /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(final dynamic value) {
-    if (value == null) return null;
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
-    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
-    if (value is String) return DateTime.tryParse(value);
-    Log.warning('Unrecognized DateTime format: $value');
-    return null;
-  }
-
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    Log.warning('Unrecognized Boolean format, defaulting to false: $value');
-    return false;
-  }
-
   /// Creates an `ActiveCustomerModel` instance from SQLite map data.
   factory ActiveCustomerModel.fromSqlite(final Map<String, dynamic> map) {
     try {
-      final startDate = _parseDateTime(map[ColumnNames.startDate]);
-      final endDate = _parseDateTime(map[ColumnNames.endDate]);
+      final startDate = ParserUtil.parseDateTime(map[ColumnNames.startDate]);
+      final endDate = ParserUtil.parseDateTime(map[ColumnNames.endDate]);
 
       if (startDate == null) {
         throw ArgumentError.notNull('startDate from SQLite');
@@ -132,9 +110,9 @@ class ActiveCustomerModel implements HasId {
           (final e) => e.name == map[ColumnNames.status],
           orElse: () => PaymentStatus.paid,
         ),
-        updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-        isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-        archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+        updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+        isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+        archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
       );
       Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
       return model;
@@ -154,7 +132,7 @@ class ActiveCustomerModel implements HasId {
       ColumnNames.startDate: startDate.millisecondsSinceEpoch,
       ColumnNames.endDate: endDate.millisecondsSinceEpoch,
       ColumnNames.status: status.name,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -166,9 +144,8 @@ class ActiveCustomerModel implements HasId {
     final Map<String, dynamic> data,
   ) {
     try {
-      // Setelah migrasi aktif, kita hanya perlu membaca dari nama kolom baru yang standar.
-      final startDate = _parseDateTime(data[ColumnNames.startDate]);
-      final endDate = _parseDateTime(data[ColumnNames.endDate]);
+      final startDate = ParserUtil.parseDateTime(data[ColumnNames.startDate]);
+      final endDate = ParserUtil.parseDateTime(data[ColumnNames.endDate]);
 
       if (startDate == null) {
         throw ArgumentError.notNull('startDate from Firebase');
@@ -188,9 +165,9 @@ class ActiveCustomerModel implements HasId {
           (final e) => e.name == data[ColumnNames.status],
           orElse: () => PaymentStatus.paid,
         ),
-        updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-        isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-        archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+        updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+        isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+        archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
       );
       Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
       return model;
@@ -203,7 +180,6 @@ class ActiveCustomerModel implements HasId {
   /// Converts `ActiveCustomerModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     Log.info('Preparing toFirebase for ActiveCustomerModel $id');
-    // Selalu gunakan nama kolom standar saat menulis data baru/memperbarui.
     return {
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,
@@ -212,6 +188,7 @@ class ActiveCustomerModel implements HasId {
       ColumnNames.endDate: Timestamp.fromDate(endDate.toUtc()),
       ColumnNames.status: status.name,
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null.
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.archivedAt:

@@ -1,4 +1,6 @@
 // path: lib/admin/halaman_utama.dart
+// diubah: Menggunakan ikon dari AppIcons.
+// diubah: Menambahkan tab Statistik.
 // diubah: Mengganti IndexedStack dengan widget langsung untuk mengatasi konflik Hero.
 // diubah: Memperbaiki import path yang salah.
 // diubah: Mengurutkan import directives.
@@ -11,11 +13,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
+import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 // === INFORMASI DEPENDENCY ===
@@ -28,11 +32,13 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/admin/halaman/tab/active_customer_tab.dart (ActiveCustomerPage)
 //   - lib/admin/halaman/tab/wallet_page.dart (WalletPage)
 //   - lib/admin/halaman/tab/transaction_page.dart (TransactionPage)
+//   - lib/admin/halaman/tab/statistik_page_a.dart (StatistikPageA)
 //   - lib/admin/halaman/tab/lainnya.dart (LainnyaPage)
 //   - lib/shared/data/services/sync_check_service.dart (SyncCheckService)
 //   - lib/shared/services/expired_subscription_check_service.dart (ExpiredSubscriptionCheckService)
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/theme/app_icons.dart (AppIcons)
 
 /// Halaman utama aplikasi admin yang menampilkan navigasi tab.
 class HalamanUtama extends StatefulWidget {
@@ -74,6 +80,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       const ActiveCustomerPage(), // dari active_customer_tab.dart
       const WalletPage(), // dari wallet_page.dart
       const TransactionPage(), // dari transaction_page.dart
+      const StatistikPageA(), // dari statistik_page_a.dart
       const LainnyaPage(), // dari lainnya.dart
     ];
 
@@ -162,19 +169,23 @@ class _HalamanUtamaState extends State<HalamanUtama> {
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_pin_circle),
+            icon: Icon(AppIcons.activeCustomer),
             label: 'Aktif',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
+            icon: Icon(AppIcons.wallet),
             label: 'Dompet',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long),
+            icon: Icon(AppIcons.receiptLong),
             label: 'Transaksi',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.apps),
+            icon: Icon(AppIcons.report),
+            label: 'Statistik',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(AppIcons.apps),
             label: 'Lainnya',
           ),
         ],

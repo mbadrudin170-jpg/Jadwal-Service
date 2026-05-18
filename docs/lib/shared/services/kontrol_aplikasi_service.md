@@ -1,65 +1,57 @@
+# Dokumentasi: `lib/shared/services/kontrol_aplikasi_service.dart`
 
-# Dokumentasi: KontrolAplikasiService
+`KontrolAplikasiService` adalah sebuah layanan terpusat yang berfungsi sebagai "saklar remot" untuk aplikasi. Dengan menggunakan Cloud Firestore sebagai backend, layanan ini memungkinkan administrator untuk mengaktifkan atau menonaktifkan mode pemeliharaan (maintenance) untuk semua pengguna secara *real-time* tanpa perlu merilis pembaruan aplikasi.
 
-## Lokasi File
-`lib/shared/services/kontrol_aplikasi_service.dart`
+---
 
-## Ringkasan
-`KontrolAplikasiService` adalah sebuah layanan backend-as-a-service yang krusial untuk manajemen aplikasi dari jarak jauh. Fungsinya adalah untuk membaca dan menulis konfigurasi status aplikasi yang disimpan di **Cloud Firestore**. Tujuan utamanya adalah untuk mengaktifkan atau menonaktifkan "mode maintenance" di seluruh aplikasi pengguna secara dinamis tanpa perlu merilis pembaruan aplikasi.
+## Tujuan dan Arsitektur
 
-Layanan ini berinteraksi langsung dengan dokumen spesifik di Firestore, yaitu `pengaturan/status_aplikasi`.
+-   **Tujuan Utama**: Memberikan kemampuan untuk menonaktifkan fungsionalitas aplikasi utama dari jarak jauh, biasanya untuk keperluan pemeliharaan database, pembaruan server, atau saat terjadi masalah kritis yang perlu segera diisolasi.
+-   **Backend**: Menggunakan Cloud Firestore, yang merupakan pilihan tepat karena kemampuannya mengirimkan perubahan data secara real-time ke semua klien yang terhubung.
+-   **Struktur Data Firestore**: Layanan ini berinteraksi dengan struktur data yang spesifik:
+    -   **Koleksi**: `pengaturan`
+    -   **Dokumen**: `status_aplikasi`
+    -   **Field**: `sedang_maintenance` (bertipe `boolean`). Jika `true`, aplikasi masuk mode pemeliharaan.
 
-## Arsitektur dan Ketergantungan
--   **cloud_firestore**: Ketergantungan utama. Layanan ini secara langsung menggunakan `FirebaseFirestore.instance` untuk berkomunikasi dengan database.
--   **Hardcoded Path**: Jalur ke dokumen (`pengaturan/status_aplikasi`) ditulis secara langsung di dalam kelas. Ini menyederhanakan implementasi tetapi berarti layanan ini terikat erat dengan struktur database yang telah ditentukan.
--   **Testability**: Tidak seperti layanan lain yang menggunakan *dependency injection*, kelas ini membuat instans `CollectionReference` sendiri. Hal ini membuatnya lebih sulit untuk diuji dalam isolasi (*unit test*) karena pengujian akan selalu mencoba terhubung ke Firestore sungguhan. Pengujian untuk kelas ini lebih cocok dilakukan dengan *integration test*.
+---
 
-## Struktur Data di Firestore
-Layanan ini bergantung pada struktur berikut di dalam Cloud Firestore:
--   **Koleksi**: `pengaturan`
--   **Dokumen**: `status_aplikasi`
--   **Field di dalam dokumen**:
-    -   `sedang_maintenance` (tipe: `Boolean`): Nilai `true` berarti mode maintenance aktif.
-    -   `diperbarui` (tipe: `Timestamp`): Waktu kapan status terakhir kali diubah.
+## Desain dan Pola Kunci
 
-## Metode Utama
+Layanan ini menunjukkan beberapa keputusan desain yang cerdas dan aman:
 
-### `Future<bool> dapatkanStatusMaintenance()`
-Metode ini digunakan oleh aplikasi klien (pengguna) setiap kali aplikasi dimulai.
-1.  **Tujuan**: Untuk mengetahui apakah aplikasi harus masuk ke mode maintenance.
-2.  **Proses**:
-    a.  Mencoba mengambil dokumen `pengaturan/status_aplikasi` dari Firestore.
-    b.  Jika dokumen ada dan berisi field `sedang_maintenance`, metode akan mengembalikan nilai boolean dari field tersebut.
-    c.  **Fail-Safe**: Jika dokumen tidak ada, field tidak ada, atau terjadi error koneksi, metode ini akan selalu mengembalikan `false`. Ini adalah perilaku aman yang memastikan aplikasi tetap dapat diakses jika konfigurasi di server salah atau tidak dapat dijangkau.
-3.  **Output**: `true` jika maintenance, `false` jika tidak.
+1.  **Pola *Fail-Safe* (Aman dari Kegagalan) pada Pembacaan**: Metode `dapatkanStatusMaintenance()` dirancang untuk menjadi sangat tangguh. Ia mengembalikan `false` (artinya, aplikasi **tidak** dalam mode pemeliharaan) dalam beberapa skenario:
+    -   Jika dokumen `status_aplikasi` belum pernah ada di Firestore.
+    -   Jika dokumennya ada, tetapi field `sedang_maintenance` tidak ada di dalamnya.
+    -   Jika terjadi `Exception` saat mencoba berkomunikasi dengan Firestore (misalnya, tidak ada koneksi internet).
 
-### `Future<void> aturStatusMaintenance(bool status)`
-Metode ini ditujukan untuk digunakan di aplikasi admin.
-1.  **Tujuan**: Untuk mengubah status maintenance aplikasi bagi semua pengguna.
-2.  **Proses**:
-    a.  Mengambil nilai `bool` baru sebagai parameter (`status`).
-    b.  Menggunakan `set` dengan `SetOptions(merge: true)` pada dokumen `pengaturan/status_aplikasi`.
-        -   `merge: true` penting agar tidak menimpa field lain yang mungkin ada di dokumen tersebut.
-    c.  Menyimpan dua field: `sedang_maintenance` dengan nilai `status` baru, dan `diperbarui` dengan `FieldValue.serverTimestamp()` untuk mencatat waktu perubahan.
-3.  **Penanganan Error**: Jika terjadi error (misalnya, karena aturan keamanan Firestore atau masalah jaringan), metode ini akan melempar kembali error tersebut (`rethrow`). Ini memungkinkan UI di aplikasi admin untuk menangkap kegagalan dan memberikan umpan balik (misalnya, "Gagal mengubah status, coba lagi.").
+    Ini adalah keputusan desain yang sangat penting untuk keamanan. Ini memastikan bahwa pengguna **tidak akan pernah terkunci** dari aplikasi secara tidak sengaja. Aplikasi hanya akan masuk ke mode pemeliharaan jika status `true` secara eksplisit dan berhasil dibaca dari Firestore.
 
-## Contoh Alur Penggunaan
+2.  **`rethrow` pada Penulisan**: Sebaliknya, metode `aturStatusMaintenance(bool status)` menggunakan `rethrow` di dalam blok `catch`-nya. Ini juga merupakan keputusan yang disengaja dan tepat.
+    -   Saat seorang admin mencoba mengubah status pemeliharaan, itu adalah operasi yang kritis. Jika operasi ini gagal (misalnya, karena aturan keamanan Firestore atau masalah jaringan), kegagalan tersebut **tidak boleh disembunyikan**. 
+    -   Dengan `rethrow`, error tersebut akan dilempar kembali ke pemanggil (misalnya, UI di panel admin). Ini memungkinkan UI untuk bereaksi, seperti dengan menampilkan pesan error ("Gagal mengubah status, coba lagi") dan memastikan admin tahu bahwa perubahan yang mereka inginkan tidak terjadi.
 
-1.  **Admin Mengaktifkan Maintenance**:
-    -   Admin di aplikasi admin menekan tombol "Aktifkan Maintenance".
-    -   UI memanggil `await KontrolAplikasiService().aturStatusMaintenance(true);`.
-    -   Firestore diperbarui: `pengaturan/status_aplikasi` -> `{ sedang_maintenance: true, ... }`.
+3.  **Penggunaan `SetOptions(merge: true)`**: Saat menulis data, `set` dipanggil dengan opsi `merge: true`. Ini adalah praktik yang baik karena mencegah penimpaan data lain yang mungkin ada di dalam dokumen `status_aplikasi`. Ini membuat sistem lebih fleksibel jika di masa depan ada field konfigurasi lain yang ditambahkan ke dokumen yang sama.
 
-2.  **Pengguna Membuka Aplikasi**:
-    -   Aplikasi pengguna baru saja dibuka.
-    -   Di layar splash atau halaman utama, kode memanggil `bool isMaintenance = await KontrolAplikasiService().dapatkanStatusMaintenance();`.
-    -   Hasilnya adalah `true`.
-    -   Aplikasi kemudian menampilkan halaman penuh yang bertuliskan "Aplikasi sedang dalam perbaikan. Silakan coba lagi nanti." dan menghentikan semua fungsionalitas lainnya.
+4.  **Audit Timestamp**: Metode `aturStatusMaintenance` juga memperbarui field `diperbarui` dengan `FieldValue.serverTimestamp()`. Ini mencatat kapan terakhir kali status diubah, yang berguna untuk keperluan audit dan pelacakan.
 
-3.  **Admin Menonaktifkan Maintenance**:
-    -   Admin menekan tombol "Nonaktifkan Maintenance".
-    -   UI memanggil `await KontrolAplikasiService().aturStatusMaintenance(false);`.
-    -   Firestore diperbarui: `pengaturan/status_aplikasi` -> `{ sedang_maintenance: false, ... }`.
-    -   Saat pengguna membuka aplikasi lagi, `dapatkanStatusMaintenance()` akan mengembalikan `false`, dan aplikasi akan berjalan normal.
+---
 
-Dokumentasi ini menggarisbawahi peran `KontrolAplikasiService` sebagai alat administratif yang kuat dan sederhana untuk mengelola keadaan aplikasi secara global dan real-time.
+## Alur Penggunaan
+
+Layanan ini biasanya digunakan dalam dua konteks yang berbeda:
+
+-   **Di Aplikasi Pengguna**: 
+    1.  Saat aplikasi dimulai (misalnya, di `main.dart` atau di *splash screen*).
+    2.  Aplikasi memanggil `await KontrolAplikasiService().dapatkanStatusMaintenance()`.
+    3.  Jika hasilnya `true`, aplikasi akan langsung menavigasi pengguna ke halaman khusus "Sedang Maintenance" dan memblokir akses ke seluruh fitur lainnya.
+
+-   **Di Aplikasi Admin (atau Panel Kontrol)**:
+    1.  Terdapat sebuah tombol atau *switch* dengan label "Aktifkan Mode Maintenance".
+    2.  Saat admin mengaktifkannya, UI memanggil `await KontrolAplikasiService().aturStatusMaintenance(true)` di dalam blok `try-catch`.
+    3.  Jika berhasil, UI menunjukkan konfirmasi. Jika gagal, `catch` akan menangkap error dan menampilkan pesan kegagalan kepada admin.
+
+---
+
+## Kesimpulan
+
+`KontrolAplikasiService` adalah contoh bagus dari pemisahan antara konfigurasi operasional dan kode aplikasi. Ini memberikan fleksibilitas dan kontrol yang sangat dibutuhkan untuk mengelola aplikasi yang sudah berjalan di lapangan, meningkatkan kemampuan tim untuk merespons insiden dan melakukan pemeliharaan terjadwal dengan lebih anggun.

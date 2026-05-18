@@ -1,5 +1,5 @@
 // path: lib/shared/model/apk_version_model.dart
-// new file: Refactored from user_apk_version_model.dart to use English naming and proper structure.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'dart:convert';
 
@@ -7,8 +7,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model representing application version information for the user.
 class ApkVersionModel implements HasId {
@@ -84,18 +85,8 @@ class ApkVersionModel implements HasId {
   }
 
   // =========================
-  // HELPERS
+  // HELPERS (DIHAPUS: _parseDateTime)
   // =========================
-
-  /// Helper to parse `DateTime` from various formats.
-  static DateTime? _parseDateTime(final dynamic date) {
-    if (date == null) return null;
-    if (date is Timestamp) return date.toDate();
-    if (date is DateTime) return date;
-    if (date is String) return DateTime.tryParse(date);
-    if (date is int) return DateTime.fromMillisecondsSinceEpoch(date);
-    return null;
-  }
 
   /// Helper to convert a String to an `ApkArchitectureEnum` enum.
   static ApkArchitectureEnum? _architectureFromString(final String? value) {
@@ -177,12 +168,14 @@ class ApkVersionModel implements HasId {
       releaseNotes: map[ColumnNames.releaseNotes] as String? ?? '',
       latestVersion: map[ColumnNames.latestVersion] as String? ?? '',
       youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
-      isUpdateRequired: (map[ColumnNames.isUpdateRequired] as int? ?? 0) == 1,
-      isDeleted: (map[ColumnNames.isDeleted] as int? ?? 0) == 1,
+      // DIUBAH: Menggunakan ParserUtil
+      isUpdateRequired: ParserUtil.parseBool(map[ColumnNames.isUpdateRequired]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
       downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
 
@@ -193,8 +186,9 @@ class ApkVersionModel implements HasId {
       ColumnNames.releaseNotes: releaseNotes,
       ColumnNames.latestVersion: latestVersion,
       ColumnNames.youtubeTutorial: youtubeTutorial,
+      // DIUBAH: Memastikan konsistensi
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.latestBuildNumber: jsonEncode(
         latestBuildNumber
             .map((final key, final value) => MapEntry(key.name, value)),
@@ -220,26 +214,30 @@ class ApkVersionModel implements HasId {
       releaseNotes: map[ColumnNames.releaseNotes] as String? ?? '',
       latestVersion: map[ColumnNames.latestVersion] as String? ?? '',
       youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
-      isUpdateRequired: map[ColumnNames.isUpdateRequired] as bool? ?? false,
-      isDeleted: map[ColumnNames.isDeleted] as bool? ?? false,
+      // DIUBAH: Menggunakan ParserUtil
+      isUpdateRequired: ParserUtil.parseBool(map[ColumnNames.isUpdateRequired]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
       downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
 
   /// Converts the model to a Map for Firestore.
   Map<String, dynamic> toFirebase() {
     return {
-      id: id,
+      // DIUBAH: 'id' tidak seharusnya menjadi bagian dari data dokumen
       ColumnNames.releaseNotes: releaseNotes,
       ColumnNames.latestVersion: latestVersion,
       ColumnNames.youtubeTutorial: youtubeTutorial,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
-          updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
-      if (archivedAt != null)
-        ColumnNames.archivedAt: Timestamp.fromDate(archivedAt!),
+          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
+      ColumnNames.archivedAt:
+          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
       ColumnNames.latestBuildNumber: latestBuildNumber.map(
         (final key, final value) => MapEntry(key.name, value),
       ),

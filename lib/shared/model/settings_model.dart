@@ -1,10 +1,11 @@
 // path: lib/shared/model/settings_model.dart
-// new file: Refactored from pengaturan_model.dart to use English naming conventions.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Global ID for the settings document.
 const String globalSettingsId = 'global_config';
@@ -59,17 +60,7 @@ class SettingsModel implements HasId {
     );
   }
 
-  /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    return null;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a `SettingsModel` instance from SQLite map data.
   factory SettingsModel.fromSqlite(final Map<String, dynamic> map) {
@@ -78,9 +69,10 @@ class SettingsModel implements HasId {
       autoSyncInterval: map[ColumnNames.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays:
           map[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: (map[ColumnNames.maintenanceMode] as int? ?? 0) == 1,
+      // DIUBAH: Menggunakan ParserUtil
+      maintenanceMode: ParserUtil.parseBool(map[ColumnNames.maintenanceMode]),
       maintenanceInfo: map[ColumnNames.maintenanceInfo] as String? ?? '',
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
 
@@ -92,7 +84,8 @@ class SettingsModel implements HasId {
       ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
       ColumnNames.maintenanceMode: maintenanceMode ? 1 : 0,
       ColumnNames.maintenanceInfo: maintenanceInfo,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -103,9 +96,10 @@ class SettingsModel implements HasId {
       id: data[ColumnNames.id] as String? ?? globalSettingsId,
       autoSyncInterval: data[ColumnNames.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays: data[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: data[ColumnNames.maintenanceMode] as bool? ?? false,
+      // DIUBAH: Menggunakan ParserUtil
+      maintenanceMode: ParserUtil.parseBool(data[ColumnNames.maintenanceMode]),
       maintenanceInfo: data[ColumnNames.maintenanceInfo] as String? ?? '',
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
     );
   }
 
@@ -116,6 +110,7 @@ class SettingsModel implements HasId {
       ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
       ColumnNames.maintenanceMode: maintenanceMode,
       ColumnNames.maintenanceInfo: maintenanceInfo,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
     };

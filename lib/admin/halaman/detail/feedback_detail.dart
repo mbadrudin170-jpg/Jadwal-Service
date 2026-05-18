@@ -14,7 +14,7 @@ import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/widget/name_from_id.dart';
+import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
 ///
@@ -295,8 +295,8 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
                             width: 12,
                           ),
                           Expanded(
-                            child: NameFromIdWidget(
-                              userId: kritikSaran.userId,
+                            child: CustomerNameWidget(
+                              customerId: kritikSaran.userId,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,

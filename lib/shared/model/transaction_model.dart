@@ -1,14 +1,15 @@
 // path: lib/shared/model/transaction_model.dart
-// new file: Refactored from transaksi_model.dart to use English naming conventions.
+// diubah: Menghapus parser internal dan menggunakan ParserUtil.
+// diubah: Menambahkan .toUtc() saat menyimpan ke Firebase untuk konsistensi.
+// diubah: Memastikan updatedAt tidak pernah null saat menyimpan ke Firebase.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model that represents a single transaction in the application.
 class TransactionModel implements HasId {
@@ -157,18 +158,6 @@ class TransactionModel implements HasId {
     );
   }
 
-  /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    return null;
-  }
-
   /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
@@ -186,21 +175,12 @@ class TransactionModel implements HasId {
     return null;
   }
 
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
-  }
-
   /// Factory constructor to create [TransactionModel] from SQLite data.
   factory TransactionModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating TransactionModel from SQLite: ${map[ColumnNames.id]}');
     return TransactionModel(
       id: map[ColumnNames.id] as String? ?? '',
-      date: _parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
+      date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
       description: map[ColumnNames.description] as String? ?? '',
       amount: (map[ColumnNames.amount] as num? ?? 0).toDouble(),
       type: _safeParseEnum(TransactionType.values, map[ColumnNames.type]) ??
@@ -218,15 +198,15 @@ class TransactionModel implements HasId {
           PaymentStatus.unpaid,
       earnedPoints: (map[ColumnNames.earnedPoints] as num? ?? 0).toInt(),
       usedPoints: (map[ColumnNames.usedPoints] as num? ?? 0).toInt(),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       packageDuration: (map[ColumnNames.packageDuration] as num?)?.toInt(),
       durationType:
           _safeParseEnum(DurationType.values, map[ColumnNames.durationType]),
-      startDate: _parseDateTime(map[ColumnNames.startDate]),
-      endDate: _parseDateTime(map[ColumnNames.endDate]),
-      isActivated: _parseBool(map[ColumnNames.isActivated]),
+      startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]),
+      endDate: ParserUtil.parseDateTime(map[ColumnNames.endDate]),
+      isActivated: ParserUtil.parseBool(map[ColumnNames.isActivated]),
     );
   }
 
@@ -234,7 +214,7 @@ class TransactionModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
-      ColumnNames.date: date.millisecondsSinceEpoch, // INTEGER
+      ColumnNames.date: date.millisecondsSinceEpoch,
       ColumnNames.description: description,
       ColumnNames.amount: amount,
       ColumnNames.type: type.name,
@@ -247,7 +227,7 @@ class TransactionModel implements HasId {
       ColumnNames.paymentStatus: paymentStatus.name,
       ColumnNames.earnedPoints: earnedPoints,
       ColumnNames.usedPoints: usedPoints,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.packageDuration: packageDuration,
@@ -264,7 +244,7 @@ class TransactionModel implements HasId {
     Log.info('Creating TransactionModel from Firebase: $id');
     return TransactionModel(
       id: id,
-      date: _parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
+      date: ParserUtil.parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
       description: data[ColumnNames.description] as String? ?? '',
       amount: (data[ColumnNames.amount] as num? ?? 0).toDouble(),
       type: _safeParseEnum(TransactionType.values, data[ColumnNames.type]) ??
@@ -282,15 +262,15 @@ class TransactionModel implements HasId {
           PaymentStatus.unpaid,
       earnedPoints: (data[ColumnNames.earnedPoints] as num? ?? 0).toInt(),
       usedPoints: (data[ColumnNames.usedPoints] as num? ?? 0).toInt(),
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
-      isDeleted: data[ColumnNames.isDeleted] as bool? ?? false,
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
       packageDuration: (data[ColumnNames.packageDuration] as num?)?.toInt(),
       durationType:
           _safeParseEnum(DurationType.values, data[ColumnNames.durationType]),
-      startDate: _parseDateTime(data[ColumnNames.startDate]),
-      endDate: _parseDateTime(data[ColumnNames.endDate]),
-      isActivated: data[ColumnNames.isActivated] as bool? ?? false,
+      startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]),
+      endDate: ParserUtil.parseDateTime(data[ColumnNames.endDate]),
+      isActivated: ParserUtil.parseBool(data[ColumnNames.isActivated]),
     );
   }
 
@@ -298,7 +278,7 @@ class TransactionModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       // 'id' is not stored here as it is the document ID
-      ColumnNames.date: Timestamp.fromDate(date),
+      ColumnNames.date: Timestamp.fromDate(date.toUtc()),
       ColumnNames.description: description,
       ColumnNames.amount: amount,
       ColumnNames.type: type.name,
@@ -311,17 +291,18 @@ class TransactionModel implements HasId {
       ColumnNames.paymentStatus: paymentStatus.name,
       ColumnNames.earnedPoints: earnedPoints,
       ColumnNames.usedPoints: usedPoints,
+      // DIUBAH: Memastikan updatedAt tidak pernah null.
       ColumnNames.updatedAt:
-          updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.archivedAt:
-          archivedAt != null ? Timestamp.fromDate(archivedAt!) : null,
+          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
       ColumnNames.isDeleted: isDeleted,
       ColumnNames.packageDuration: packageDuration,
       ColumnNames.durationType: durationType?.name,
       ColumnNames.startDate:
-          startDate != null ? Timestamp.fromDate(startDate!) : null,
+          startDate != null ? Timestamp.fromDate(startDate!.toUtc()) : null,
       ColumnNames.endDate:
-          endDate != null ? Timestamp.fromDate(endDate!) : null,
+          endDate != null ? Timestamp.fromDate(endDate!.toUtc()) : null,
       ColumnNames.isActivated: isActivated,
     };
   }

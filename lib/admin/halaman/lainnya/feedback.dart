@@ -10,7 +10,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/shared/widget/name_from_id.dart';
+import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
 ///
@@ -247,7 +247,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                NameFromIdWidget(userId: item.userId),
+                                CustomerNameWidget(customerId: item.userId),
                                 const SizedBox(height: 12),
                                 Text(
                                   item.content,
@@ -259,7 +259,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                   alignment: Alignment.centerRight,
                                   child: Text(
                                     item.date != null
-                                        ? FormatDateTime.formatDateAndTimeCompact(
+                                        ? FormatDateTime
+                                            .formatDateAndTimeCompact(
                                             item.date!,
                                           )
                                         : 'Tanggal tidak tersedia',

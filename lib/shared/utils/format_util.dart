@@ -81,3 +81,15 @@ class CurrencyFormat {
     return formatter.format(amount);
   }
 }
+
+/// Kelas utilitas untuk memformat angka dengan separator ribuan.
+class NumberFormatter {
+  // Konstruktor privat untuk mencegah instansiasi.
+  NumberFormatter._();
+
+  /// Memformat angka [int] menjadi string dengan separator titik (contoh: 15000 → "15.000").
+  static String formatWithSeparator(final int value) {
+    final formatter = NumberFormat('#,###', 'id_ID');
+    return formatter.format(value);
+  }
+}

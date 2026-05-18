@@ -1,10 +1,11 @@
 // path: lib/shared/model/status_model.dart
-// new file: Refactored to align with the project's standard model structure.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Global ID for the status document.
 const String globalStatusId = 'global_status';
@@ -34,24 +35,15 @@ class StatusModel implements HasId {
     );
   }
 
-  /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    return null;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a `StatusModel` instance from SQLite map data.
   factory StatusModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating StatusModel from SQLite');
     return StatusModel(
       id: map[ColumnNames.id] as String? ?? globalStatusId,
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
 
@@ -59,7 +51,8 @@ class StatusModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -68,13 +61,15 @@ class StatusModel implements HasId {
     Log.info('Creating StatusModel from Firebase');
     return StatusModel(
       id: data[ColumnNames.id] as String? ?? globalStatusId,
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
     );
   }
 
   /// Converts `StatusModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
     };

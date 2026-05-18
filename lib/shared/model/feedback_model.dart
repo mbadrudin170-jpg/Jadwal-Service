@@ -1,11 +1,12 @@
 // path: lib/shared/model/feedback_model.dart
-// diperbarui: Mengganti nama variabel ke bahasa Inggris dan memperbaiki metode toFirebase.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model for feedback data from users.
 class FeedbackModel implements HasId {
@@ -64,27 +65,7 @@ class FeedbackModel implements HasId {
     );
   }
 
-  /// Parses a date value from various data types.
-  static DateTime? parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    Log.warning('Failed to parse date: $dateValue');
-    return null;
-  }
-
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a [FeedbackModel] instance from SQLite data.
   factory FeedbackModel.fromSqlite(final Map<String, dynamic> map) {
@@ -93,10 +74,11 @@ class FeedbackModel implements HasId {
       id: map[ColumnNames.id] as String?,
       content: map[ColumnNames.content] as String? ?? '',
       userId: map[ColumnNames.userId] as String? ?? '',
-      date: parseDateTime(map[ColumnNames.date]),
-      updatedAt: parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      date: ParserUtil.parseDateTime(map[ColumnNames.date]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -107,7 +89,8 @@ class FeedbackModel implements HasId {
       ColumnNames.content: content,
       ColumnNames.userId: userId,
       ColumnNames.date: date?.millisecondsSinceEpoch,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -121,10 +104,11 @@ class FeedbackModel implements HasId {
       id: id,
       content: data[ColumnNames.content] as String? ?? '',
       userId: data[ColumnNames.userId] as String? ?? '',
-      date: parseDateTime(data[ColumnNames.date]),
-      updatedAt: parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      date: ParserUtil.parseDateTime(data[ColumnNames.date]),
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -133,10 +117,13 @@ class FeedbackModel implements HasId {
     return {
       ColumnNames.content: content,
       ColumnNames.userId: userId,
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.date: date != null ? Timestamp.fromDate(date!.toUtc()) : null,
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
-          updatedAt != null ? Timestamp.fromDate(updatedAt!.toUtc()) : null,
+          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

@@ -1,5 +1,5 @@
 // path: lib/shared/model/category_model.dart
-// diperbarui: Memindahkan enum ke file sendiri dan memperbaiki typo.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'dart:convert';
 
@@ -7,9 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/category_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model that represents a transaction category.
 class CategoryModel implements HasId {
@@ -68,17 +69,7 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Helper to parse date values from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    return null;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
@@ -95,15 +86,6 @@ class CategoryModel implements HasId {
     }
     Log.warning('Failed to parse enum for type $T', name);
     return null;
-  }
-
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
   }
 
   /// Factory constructor to create [CategoryModel] from SQLite data.
@@ -136,9 +118,10 @@ class CategoryModel implements HasId {
       type: _safeParseEnum(CategoryType.values, map[ColumnNames.type]) ??
           CategoryType.expense,
       subCategories: parseSubCategories(map[ColumnNames.subCategoryId]),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -151,7 +134,8 @@ class CategoryModel implements HasId {
       ColumnNames.subCategoryId: jsonEncode(
         subCategories.map((final sub) => sub.toSqlite()).toList(),
       ),
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -186,9 +170,10 @@ class CategoryModel implements HasId {
       type: _safeParseEnum(CategoryType.values, data[ColumnNames.type]) ??
           CategoryType.expense,
       subCategories: parseSubCategories(data[ColumnNames.subCategoryId]),
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -200,8 +185,10 @@ class CategoryModel implements HasId {
       ColumnNames.subCategoryId:
           subCategories.map((final sub) => sub.toFirebase()).toList(),
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

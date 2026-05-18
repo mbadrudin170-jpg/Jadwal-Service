@@ -1,131 +1,40 @@
 # Dokumentasi: `lib/shared/utils/format_util.dart`
 
-File ini adalah pusat utilitas untuk semua kebutuhan pemformatan data seperti tanggal, waktu, dan mata uang. Tujuannya adalah untuk memastikan konsistensi format di seluruh aplikasi dan memisahkan logika pemformatan dari logika bisnis.
+`format_util.dart` adalah pustaka utilitas terpusat yang bertanggung jawab untuk semua tugas pemformatan data di seluruh aplikasi. Tujuannya adalah untuk memastikan bahwa data seperti tanggal, waktu, dan mata uang disajikan kepada pengguna dalam format yang konsisten, dapat dibaca, dan dilokalkan dengan benar (dalam hal ini, untuk Indonesia).
+
+File ini memanfaatkan kekuatan paket `intl` dari Dart.
 
 ---
 
-## Kelas `FormatDateTime`
+## Arsitektur dan Desain
 
-Kelas ini berisi metode statis untuk pemformatan yang melibatkan **tanggal dan waktu** secara bersamaan.
+Desain file ini mengikuti beberapa praktik terbaik untuk utilitas:
 
-### `FormatDateTime.formatDateAndTime(DateTime date)`
+1.  **Pemisahan Tanggung Jawab melalui Kelas Terpisah**: Daripada memiliki satu kelas `FormatUtil` raksasa, fungsionalitasnya dipecah menjadi beberapa kelas yang lebih kecil dan fokus:
+    -   `FormatDateTime`: Untuk format gabungan tanggal dan waktu.
+    -   `FormatDate`: Khusus untuk format tanggal.
+    -   `TimeFormat`: Khusus untuk format waktu.
+    -   `CurrencyFormat`: Khusus untuk format mata uang.
+    Pendekatan ini membuat kode lebih mudah dinavigasi dan dipelihara. Jika Anda perlu mengubah format mata uang, Anda tahu persis harus ke mana.
 
-Mengubah objek `DateTime` menjadi string tanggal dan waktu dengan format `d MMM yyyy, HH:mm`.
+2.  **Kelas Non-Instantiable**: Setiap kelas memiliki konstruktor privat (`._()`). Ini adalah pola desain yang penting untuk kelas utilitas. Ini mencegah pengembang lain untuk secara tidak sengaja membuat instance dari kelas-kelas ini (misalnya, `var myFormatter = CurrencyFormat();`), yang tidak masuk akal karena semua metodenya adalah statis. Ini memperkuat niat bahwa kelas-kelas ini hanyalah wadah untuk fungsi.
 
-- **Parameter:**
-  - `date` (DateTime): Objek tanggal yang akan diformat.
-- **Hasil:** String (contoh: "17 Agu 2024, 10:30").
-- **Contoh Penggunaan:**
-  '''dart
-  String tanggalWaktu = FormatDateTime.formatDateAndTime(DateTime.now());
-  // tanggalWaktu -> "17 Agu 2024, 10:30"
-  '''
+3.  **Metode Statis (Static Methods)**: Semua metode adalah `static`. Ini memungkinkan mereka dipanggil langsung dari kelas itu sendiri tanpa perlu membuat instance (contoh: `FormatDate.formatDateBasic(myDate)`). Ini bersih, efisien, dan cara standar untuk mengimplementasikan fungsi utilitas.
 
-### `FormatDateTime.formatDateAndTimeCompact(DateTime date)`
-
-Mengubah objek `DateTime` menjadi string tanggal dan waktu ringkas dengan format `E, d MMM yy, HH:mm`.
-
-- **Parameter:**
-  - `date` (DateTime): Objek tanggal yang akan diformat.
-- **Hasil:** String (contoh: "Sel, 20 Agu 26, 10:00").
-- **Contoh Penggunaan:**
-  '''dart
-  String tanggalWaktuRingkas = FormatDateTime.formatDateAndTimeCompact(DateTime.now());
-  // tanggalWaktuRingkas -> "Sel, 20 Agu 26, 10:00"
-  '''
+4.  **Lokalisasi Terpusat (`'id_ID'`)**: Semua pemformat tanggal dan mata uang secara eksplisit menggunakan lokal `'id_ID'`. Ini adalah praktik yang sangat baik. Ini memastikan bahwa output akan selalu benar untuk audiens Indonesia (misalnya, nama bulan seperti "Agt" bukan "Aug", dan simbol mata uang "Rp"), terlepas dari pengaturan lokal perangkat pengguna. Ini menjamin pengalaman pengguna yang konsisten.
 
 ---
 
-## Kelas `FormatDate`
+## Metode Utama
 
-Kelas ini khusus menangani pemformatan yang berhubungan dengan **tanggal**.
+-   **`FormatDate` / `FormatDateTime`**: Menyediakan berbagai format untuk tanggal. Adanya varian "Basic" dan "Compact" menunjukkan pemikiran tentang kebutuhan UI yang berbeda. Mungkin daftar yang padat memerlukan format ringkas (`E, d MMM yy`), sementara halaman detail dapat menampilkan format yang lebih lengkap (`d MMM yyyy`).
 
-### `FormatDate.formatDateBasic(DateTime date)`
+-   **`TimeFormat`**: Selain pemformatan `DateTime` ke `String`, ia juga menyertakan `formatTextToHour`. Metode ini menunjukkan desain yang tangguh: ia membungkus `DateTime.parse` dalam `try-catch`. Jika teks input tidak dalam format yang diharapkan, aplikasi tidak akan crash; sebaliknya, ia akan mengembalikan nilai *fallback* yang aman (`'--:--'`), mencegah kesalahan fatal di UI.
 
-Mengubah objek `DateTime` menjadi string tanggal dengan format `d MMM yyyy`.
-
-- **Parameter:**
-  - `date` (DateTime): Objek tanggal yang akan diformat.
-- **Hasil:** String (contoh: "17 Agu 2024").
-- **Contoh Penggunaan:**
-  '''dart
-  String tanggal = FormatDate.formatDateBasic(DateTime.now());
-  // tanggal -> "17 Agu 2024" (jika hari ini 17 Agustus 2024)
-  '''
-
-### `FormatDate.formatDateCompact(DateTime date)`
-
-Mengubah objek `DateTime` menjadi string tanggal ringkas dengan format `E, d MMM yy`.
-
-- **Parameter:**
-  - `date` (DateTime): Objek tanggal yang akan diformat.
-- **Hasil:** String (contoh: "Sel, 17 Agu 24").
-- **Contoh Penggunaan:**
-  '''dart
-  String tanggalRingkas = FormatDate.formatDateCompact(DateTime.now());
-  // tanggalRingkas -> "Sel, 17 Agu 24"
-  '''
+-   **`CurrencyFormat.formatCurrency`**: Ini adalah contoh sempurna dari pemformatan yang dikonfigurasi dengan benar untuk Rupiah. Ia secara eksplisit mendefinisikan `symbol: 'Rp '` dan, yang terpenting, `decimalDigits: 0`, karena Rupiah umumnya tidak menggunakan sen dalam transaksi sehari-hari. Ini menghasilkan format yang terlihat alami bagi pengguna Indonesia (misalnya, "Rp 50.000" bukan "Rp 50.000,00").
 
 ---
 
-## Kelas `TimeFormat`
+## Kesimpulan
 
-Kelas ini khusus menangani pemformatan yang berhubungan dengan **waktu/jam**.
-
-### `TimeFormat.formatHourMinute(DateTime time)`
-
-Mengubah objek `DateTime` menjadi string waktu dengan format `HH:mm`.
-
-- **Parameter:**
-  - `time` (DateTime): Objek tanggal-waktu yang jamnya akan diformat.
-- **Hasil:** String (contoh: "23:59").
-- **Contoh Penggunaan:**
-  '''dart
-  String jam = TimeFormat.formatHourMinute(DateTime.now());
-  // jam -> "23:59"
-  '''
-
-### `TimeFormat.formatFullTime(DateTime time)`
-
-Mengubah objek `DateTime` menjadi string waktu lengkap dengan format `HH:mm:ss`.
-
-- **Parameter:**
-  - `time` (DateTime): Objek tanggal-waktu yang jamnya akan diformat.
-- **Hasil:** String (contoh: "10:30:55").
-- **Contoh Penggunaan:**
-  '''dart
-  String waktuLengkap = TimeFormat.formatFullTime(DateTime.now());
-  // waktuLengkap -> "10:30:55"
-  '''
-
-### `TimeFormat.formatTextToHour(String timeText)`
-
-Mengonversi string waktu berformat ISO 8601 menjadi format jam `HH:mm`.
-
-- **Parameter:**
-  - `timeText` (String): Teks waktu dalam format yang bisa di-parse oleh `DateTime.parse()`.
-- **Hasil:** String (contoh: "14:45"). Jika input tidak valid, akan mengembalikan `"--:--"`.
-- **Contoh Penggunaan:**
-  '''dart
-  String jamDariTeks = TimeFormat.formatTextToHour("2024-08-17T14:45:00Z");
-  // jamDariTeks -> "14:45"
-  '''
-
----
-
-## Kelas `CurrencyFormat`
-
-Kelas ini khusus menangani pemformatan **mata uang Rupiah**.
-
-### `CurrencyFormat.formatCurrency(double amount)`
-
-Memformat angka (double) menjadi string mata uang Rupiah.
-
-- **Parameter:**
-  - `amount` (double): Jumlah uang yang akan diformat.
-- **Hasil:** String (contoh: "Rp 150.000").
-- **Contoh Penggunaan:**
-  '''dart
-  String harga = CurrencyFormat.formatCurrency(150000);
-  // harga -> "Rp 150.000"
-  '''
+`format_util.dart` adalah komponen fundamental untuk aplikasi yang dipoles. Dengan mematuhi prinsip DRY (Don't Repeat Yourself), ia memastikan konsistensi pemformatan di seluruh UI. Jika di masa depan ada keputusan untuk mengubah format tanggal di seluruh aplikasi, pengembang hanya perlu mengubah satu baris kode di dalam file ini, daripada mencari dan mengganti di puluhan file widget. Ini sangat meningkatkan keterpeliharaan (maintainability) dan mengurangi kemungkinan kesalahan.

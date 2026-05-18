@@ -1,54 +1,53 @@
+# Dokumentasi: `lib/shared/services/expired_subscription_check_service.dart`
 
-# Dokumentasi: ExpiredSubscriptionCheckService
+`ExpiredSubscriptionCheckService` adalah kelas di lapisan servis (*service layer*) yang bertanggung jawab untuk mengotomatiskan tugas pemeliharaan data penting: menemukan dan mengarsipkan langganan pelanggan yang sudah kedaluwarsa.
 
-## Lokasi File
-`lib/shared/services/expired_subscription_check_service.dart`
+---
 
-## Ringkasan
-`ExpiredSubscriptionCheckService` adalah kelas layanan (*service*) yang memiliki satu tugas penting: memeriksa dan menangani pelanggan yang masa langganannya telah habis (kedaluwarsa).
+## Tujuan dan Konsep
 
-Layanan ini tidak berjalan secara terus-menerus, melainkan dipanggil secara periodik (misalnya, setiap kali aplikasi dibuka atau sekali sehari) untuk membersihkan data pelanggan aktif. Tugas utamanya adalah mendelegasikan proses pengarsipan ke `ActiveCustomerOperation`.
+Seiring waktu, tabel `active_customers` (pelanggan aktif) akan berisi data langganan yang sudah lewat tanggal berlakunya. Membiarkan data ini menumpuk dapat menyebabkan beberapa masalah:
 
-## Arsitektur dan Ketergantungan
--   **ActiveCustomerOperation**: Layanan ini sangat bergantung pada `ActiveCustomerOperation`. Ia tidak melakukan logika database sendiri, melainkan memanggil metode `archiveExpiredCustomers()` dari `ActiveCustomerOperation` untuk melakukan pekerjaan beratnya.
--   **Pemisahan Tanggung Jawab**: Desain ini mencerminkan prinsip pemisahan tanggung jawab yang baik. `ExpiredSubscriptionCheckService` bertindak sebagai **pemicu** atau **koordinator**, sementara `ActiveCustomerOperation` bertanggung jawab atas **eksekusi** logika bisnis dan interaksi database.
+1.  **Penurunan Performa**: Kueri pada tabel `active_customers` menjadi lebih lambat karena harus memindai data yang tidak lagi relevan.
+2.  **Ketidakakuratan Data**: Daftar pelanggan aktif yang dilihat admin menjadi "kotor" karena tercampur dengan langganan yang sudah tidak valid.
 
-## Metode Utama
+Layanan ini bertindak sebagai "petugas kebersihan" otomatis yang secara proaktif menjalankan proses pengarsipan.
 
-### `Future<void> processExpiredSubscriptions()`
-Ini adalah satu-satunya metode publik dalam layanan ini. Ketika dipanggil, metode ini akan:
-1.  Mencatat (log) bahwa proses pengecekan dimulai.
-2.  Memanggil metode `_activeCustomerOperation.archiveExpiredCustomers()`.
-3.  Menunggu hasil dari operasi tersebut, yang mengembalikan jumlah pelanggan yang berhasil diarsipkan.
-4.  Mencatat hasilnya, baik itu jumlah data yang diarsipkan maupun informasi jika tidak ada data yang kedaluwarsa.
-5.  Menangani dan mencatat jika terjadi kesalahan selama proses berlangsung.
+---
 
-## Cara Kerja
-1.  **Inisialisasi**: Sebuah instance dari `ExpiredSubscriptionCheckService` dibuat di suatu tempat di aplikasi (misalnya, di level atas atau melalui *dependency injection*).
-2.  **Pemicu**: Logika di aplikasi (misalnya, di `main.dart` atau `home_page.dart`) akan memanggil `processExpiredSubscriptions()` pada waktu yang ditentukan (contoh: saat aplikasi pertama kali dimuat setelah beberapa jam tidak aktif).
-3.  **Delegasi**: `processExpiredSubscriptions()` segera mendelegasikan tugas ke `ActiveCustomerOperation.archiveExpiredCustomers()`.
-4.  **Eksekusi di `ActiveCustomerOperation`**: Metode `archiveExpiredCustomers()` akan:
-    a.  Mengambil semua data dari tabel `active_customers`.
-    b.  Memfilter data tersebut untuk menemukan pelanggan yang `endDate` nya sudah lewat dari `DateTime.now()`.
-    c.  Memindahkan data yang sudah kedaluwarsa dari tabel `active_customers` ke tabel `archived_customers` (atau hanya mengubah statusnya).
-    d.  Mengembalikan jumlah data yang berhasil dipindahkan.
-5.  **Logging**: `ExpiredSubscriptionCheckService` menerima kembali jumlah tersebut dan mencatatnya sebagai bukti bahwa proses telah selesai.
+## Desain dan Arsitektur
 
-## Tujuan Desain
--   **Terpusat**: Semua logika untuk *memicu* pengecekan langganan kedaluwarsa berada di satu tempat.
--   **Dapat Diuji (Testable)**: Dengan adanya *setter* `activeCustomerOperation`, kita bisa dengan mudah mengganti `ActiveCustomerOperation` asli dengan *mock* atau *fake* saat melakukan *unit testing*.
--   **Jelas dan Sederhana**: Kode di dalam service ini sangat mudah dibaca dan dipahami, karena hanya berfokus pada koordinasi dan logging, bukan pada detail implementasi database.
+Arsitektur kelas ini menunjukkan beberapa praktik terbaik:
 
-## Contoh Pemanggilan
-```dart
-// Di suatu tempat di aplikasi, misalnya saat startup
+-   **Pola Delegasi (Delegation Pattern)**: Ini adalah aspek desain yang paling penting. `ExpiredSubscriptionCheckService` **tidak** melakukan logika database sendiri. Sebaliknya, ia mendelegasikan seluruh pekerjaan berat ke `ActiveCustomerOperation.archiveExpiredCustomers()`. 
 
-final subscriptionChecker = ExpiredSubscriptionCheckService();
+-   **Pemisahan Tanggung Jawab (Separation of Concerns)**:
+    -   **Service (`ExpiredSubscriptionCheckService`)**: Bertanggung jawab atas "kapan" dan "apa" tugas yang harus dijalankan. Ia bertindak sebagai koordinator tingkat tinggi, mengelola alur proses, dan melakukan logging untuk keseluruhan tugas.
+    -   **Operation (`ActiveCustomerOperation`)**: Bertanggung jawab atas "bagaimana" tugas itu dieksekusi. Ia berisi logika SQL yang sebenarnya untuk memilih pelanggan kedaluwarsa, menyalinnya ke tabel arsip, dan menghapusnya dari tabel aktif.
 
-// Panggil untuk memulai proses. Proses ini berjalan di latar belakang (asynchronous).
-unawaited(subscriptionChecker.processExpiredSubscriptions());
+-   **Dependency Injection untuk Pengujian**: Kelas ini memiliki *setter* `set activeCustomerOperation` yang ditandai dengan `@visibleForTesting`. Ini adalah pola *Dependency Injection* manual yang memungkinkan kita dalam pengujian unit untuk mengganti `ActiveCustomerOperation` yang sebenarnya dengan versi *mock* (palsu). Dengan demikian, kita dapat menguji logika `ExpiredSubscriptionCheckService` (misalnya, apakah ia memanggil metode yang benar dan melakukan logging dengan tepat) tanpa perlu bergantung pada database sungguhan.
 
-// UI bisa terus berjalan tanpa harus menunggu proses ini selesai.
-```
+---
 
-Dokumentasi ini menjelaskan peran `ExpiredSubscriptionCheckService` sebagai pengelola siklus hidup langganan pelanggan, memastikan data pelanggan aktif selalu akurat dan relevan.
+## Metode Utama: `processExpiredSubscriptions()`
+
+Ini adalah satu-satunya metode publik dan merupakan titik masuk untuk layanan ini. Alur kerjanya sederhana dan kuat:
+
+1.  **Mulai & Log**: Mencatat log bahwa proses pengecekan dimulai. Ini penting untuk melacak kapan tugas ini berjalan.
+2.  **Panggil & Tunggu**: Memanggil `_activeCustomerOperation.archiveExpiredCustomers()` dan menunggu hasilnya. Hasilnya adalah jumlah (`int`) pelanggan yang berhasil diarsipkan.
+3.  **Log Hasil**: 
+    -   Jika `archivedCount > 0`, ia mencatat pesan sukses yang informatif, memberitahukan berapa banyak data yang dipindahkan.
+    -   Jika `archivedCount == 0`, ia mencatat bahwa tidak ada pekerjaan yang perlu dilakukan. Ini juga merupakan informasi yang berguna.
+4.  **Tangani Error**: Seluruh proses dibungkus dalam `try-catch`. Jika terjadi kesalahan apa pun di dalam `ActiveCustomerOperation` (misalnya, error database), `catch` akan menangkapnya dan mencatatnya sebagai `Log.error()`. Ini mencegah aplikasi dari *crash* dan memastikan bahwa setiap kegagalan dalam tugas latar belakang ini akan tercatat.
+
+---
+
+## Integrasi dan Penggunaan
+
+Kelas layanan seperti ini biasanya tidak dipanggil langsung oleh interaksi pengguna di UI. Sebaliknya, ia dirancang untuk dijalankan secara otomatis pada waktu-waktu tertentu, seperti:
+
+-   **Saat Aplikasi Dimulai**: Memanggil `processExpiredSubscriptions()` saat aplikasi (khususnya aplikasi Admin) pertama kali dibuka.
+-   **Secara Berkala**: Menggunakan `Timer.periodic` untuk menjalankan layanan ini setiap beberapa jam sekali saat aplikasi sedang berjalan.
+-   **Melalui Tugas Latar Belakang (Background Task)**: Pada platform yang mendukung, ini dapat dijadwalkan untuk berjalan bahkan saat aplikasi tidak aktif.
+
+Dengan cara ini, pemeliharaan data terjadi secara otomatis tanpa memerlukan intervensi manual dari admin.

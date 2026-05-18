@@ -1,11 +1,12 @@
 // path: lib/shared/model/customer_model.dart
-// new file: Refactored from pelanggan_model.dart to use English naming conventions.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model representing a customer's data.
 class CustomerModel implements HasId {
@@ -76,26 +77,7 @@ class CustomerModel implements HasId {
     );
   }
 
-  /// Parses a dynamic value into a [DateTime] object.
-  static DateTime? _parseDateTime(final dynamic value) {
-    if (value == null) return null;
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
-    if (value is String) return DateTime.tryParse(value);
-    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
-    Log.warning('Unrecognized DateTime format: $value');
-    return null;
-  }
-
-  /// Parses a dynamic value into a boolean.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    Log.warning('Unrecognized Boolean format, defaulting to false: $value');
-    return false;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a [CustomerModel] from a SQLite map.
   factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {
@@ -107,9 +89,10 @@ class CustomerModel implements HasId {
       address: map[ColumnNames.address] as String? ?? '',
       password: map[ColumnNames.password] as String? ?? '',
       macAddress: map[ColumnNames.macAddress] as String? ?? '',
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -123,7 +106,8 @@ class CustomerModel implements HasId {
       ColumnNames.password: password,
       ColumnNames.macAddress: macAddress,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
@@ -138,9 +122,10 @@ class CustomerModel implements HasId {
       address: data[ColumnNames.address] as String? ?? '',
       password: data[ColumnNames.password] as String? ?? '',
       macAddress: data[ColumnNames.macAddress] as String? ?? '',
-      isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -153,8 +138,10 @@ class CustomerModel implements HasId {
       ColumnNames.password: password,
       ColumnNames.macAddress: macAddress,
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

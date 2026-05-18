@@ -1,53 +1,54 @@
+# Dokumentasi: `lib/shared/services/internet_connection_check.dart`
 
-# Dokumentasi: InternetConnectionService
+`InternetConnectionService` adalah kelas layanan penting yang menyediakan fungsionalitas tunggal namun krusial: memeriksa apakah perangkat pengguna saat ini terhubung ke internet. Layanan ini mengabstraksi plugin `connectivity_plus` dan menambahkan logging yang kuat serta kemampuan untuk diuji (testability).
 
-## Lokasi File
-`lib/shared/services/internet_connection_check.dart`
+---
 
-## Ringkasan
-`InternetConnectionService` adalah sebuah kelas layanan utilitas yang menyediakan fungsionalitas terpusat untuk memeriksa status konektivitas internet perangkat. Kelas ini bertindak sebagai pembungkus (*wrapper*) untuk plugin `connectivity_plus`, mengabstraksi detail implementasi dan menyediakan metode sederhana yang mengembalikan nilai boolean (`true` jika online, `false` jika offline).
+## Tujuan dan Peran dalam Aplikasi
 
-Layanan ini sangat penting untuk fitur-fitur yang memerlukan koneksi internet, seperti sinkronisasi data dengan Firebase (`SyncManager`), pengunduhan pembaruan aplikasi, atau pengiriman data ke server.
+Dalam aplikasi yang bergantung pada sinkronisasi data dengan server, mengetahui status koneksi internet sebelum mencoba operasi jaringan adalah fundamental. Mengabaikan pemeriksaan ini dapat menyebabkan:
 
-## Arsitektur dan Ketergantungan
--   **connectivity_plus**: Ketergantungan eksternal utama. Plugin ini mendeteksi status konektivitas jaringan (WiFi, Mobile Data, Ethernet, dll.).
--   **Dependency Injection**: Kelas ini dirancang untuk dapat diuji (*testable*) dengan menggunakan *constructor injection*. Ia menerima instance `Connectivity` secara opsional. Jika tidak ada yang diberikan, ia akan membuat instancenya sendiri. Ini memungkinkan pengembang untuk menyuntikkan *mock* `Connectivity` selama *unit testing*.
--   **Logging**: Layanan ini dilengkapi dengan `Log` yang sangat detail untuk setiap langkahnya. Ini membantu dalam proses *debugging* untuk melacak status pemeriksaan koneksi, mulai dari pemanggilan plugin hingga hasil akhir.
+-   **Error yang Tidak Terduga**: Mencoba melakukan panggilan HTTP saat offline akan menghasilkan `Exception` yang mungkin tidak ditangani dengan baik.
+-   **Pengalaman Pengguna yang Buruk**: Pengguna mungkin melihat indikator *loading* tanpa akhir atau pesan error yang tidak jelas, karena aplikasi tidak tahu bahwa masalahnya adalah koneksi yang terputus.
 
-## Metode Utama
+Layanan ini digunakan di seluruh aplikasi, terutama oleh `SyncManager` dan proses unggah/unduh data, untuk memastikan operasi jaringan hanya dicoba ketika ada kemungkinan berhasil.
 
-### `Future<bool> checkConnection()`
-Ini adalah satu-satunya metode publik di dalam kelas. Saat dipanggil, metode ini akan melakukan langkah-langkah berikut secara asinkron:
-1.  **Memulai Pemeriksaan**: Mencatat bahwa proses pemeriksaan koneksi telah dimulai.
-2.  **Memanggil Plugin**: Memanggil `_connectivity.checkConnectivity()` untuk mendapatkan daftar hasil konektivitas saat ini (bisa berupa `[ConnectivityResult.wifi]`, `[ConnectivityResult.mobile]`, `[ConnectivityResult.none]`, dll).
-3.  **Menganalisis Hasil**: Memeriksa apakah daftar hasil mengandung `ConnectivityResult.wifi` atau `ConnectivityResult.mobile`.
-    -   Jika ya, variabel `isOnline` akan menjadi `true`.
-    -   Jika tidak (misal, hasilnya adalah `none`, `bluetooth`, atau `ethernet`), `isOnline` akan menjadi `false`.
-4.  **Logging Hasil**: Mencatat apakah perangkat dianggap online atau offline berdasarkan analisis.
-5.  **Mengembalikan Nilai**: Mengembalikan nilai boolean `isOnline`.
-6.  **Penanganan Error**: Jika terjadi `Exception` saat memanggil plugin (misalnya, karena masalah pada implementasi platform plugin), kesalahan tersebut akan ditangkap dan dicatat. Dalam kasus ini, metode akan mengembalikan `false` sebagai nilai *fallback* yang aman.
+---
 
-## Tujuan Desain
--   **Terpusat (Single Source of Truth)**: Menyediakan satu cara yang konsisten di seluruh aplikasi untuk memeriksa konektivitas internet. Ini mencegah duplikasi kode dan inkonsistensi.
--   **Dapat Diuji (Testable)**: Pola *dependency injection* memungkinkan pengujian logika layanan ini tanpa benar-benar bergantung pada status koneksi perangkat keras yang sebenarnya.
--   **Informatif (Debuggable)**: Penggunaan log yang ekstensif memudahkan untuk mendiagnosis masalah konektivitas saat aplikasi berjalan di perangkat pengguna.
--   **Aman (Fail-Safe)**: Dengan menangani error dan mengembalikan `false` secara default saat terjadi masalah, layanan ini mencegah *crash* dan memastikan bahwa logika aplikasi yang bergantung padanya akan berperilaku seolah-olah sedang offline, yang biasanya merupakan skenario yang lebih aman.
+## Desain dan Arsitektur
 
-## Contoh Pemanggilan
+Versi kode ini menunjukkan evolusi dari implementasi sederhana menjadi kelas yang lebih matang dan kuat, berkat beberapa keputusan desain kunci:
+
+-   **Injeksi Ketergantungan (Dependency Injection)**: Konstruktor `InternetConnectionService({final Connectivity? connectivity})` memungkinkan `Connectivity` (kelas inti dari plugin) untuk diinjeksi. Ini adalah praktik terbaik yang memberikan keuntungan besar:
+    -   **Untuk Pengujian**: Dalam pengujian unit, kita dapat membuat `InternetConnectionService` dengan *mock* `Connectivity`. Ini memungkinkan kita untuk mensimulasikan berbagai kondisi jaringan (online via WiFi, online via Mobile, offline, atau bahkan error dari plugin itu sendiri) secara deterministik tanpa memerlukan koneksi jaringan yang sebenarnya.
+    -   **Fleksibilitas**: Meskipun tidak digunakan saat ini, ini memungkinkan konfigurasi `Connectivity` di masa depan jika diperlukan.
+
+-   **Logging yang Sangat Detail**: Metode `checkConnection` dilengkapi dengan log di setiap langkahnya. Ini sangat berharga untuk debugging:
+    -   `[Koneksi] Memulai pemeriksaan...`
+    -   `[Koneksi] Memanggil _connectivity.checkConnectivity().`
+    -   `[Koneksi] Hasil mentah diterima: ...`
+    -   Log spesifik untuk hasil (sukses, gagal, atau peringatan).
+    -   `[Koneksi] Pemeriksaan selesai, mengembalikan nilai: ...`
+
+    Dengan log ini, saat meninjau log aplikasi, kita bisa melihat dengan tepat bagaimana layanan ini sampai pada kesimpulan "online" atau "offline", yang sangat membantu dalam mendiagnosis masalah terkait jaringan yang dilaporkan oleh pengguna.
+
+-   **Penanganan Error yang Aman (Robust Error Handling)**: Panggilan ke `_connectivity.checkConnectivity()` dibungkus dalam `try-catch`. Jika plugin `connectivity_plus` itu sendiri mengalami error internal, layanan ini tidak akan menyebabkan crash pada aplikasi. Sebaliknya, ia akan mencatat error fatal dengan `Log.error()` dan mengembalikan `false`. Ini adalah perilaku *fail-safe* yang benar: jika status koneksi tidak dapat dipastikan, lebih aman untuk mengasumsikan perangkat sedang offline.
+
+---
+
+## Logika Inti: `checkConnection()`
+
+Logika untuk menentukan status "online" sangat spesifik dan disengaja:
+
 ```dart
-// Inisialisasi service
-final connectionService = InternetConnectionService();
-
-// Sebelum melakukan sinkronisasi data
-if (await connectionService.checkConnection()) {
-  // Ada koneksi, lanjutkan dengan sinkronisasi
-  Log.info('Memulai sinkronisasi data ke Firebase...');
-  // await syncManager.startSync();
-} else {
-  // Tidak ada koneksi, tampilkan pesan ke pengguna atau batalkan operasi
-  Log.warning('Sinkronisasi dibatalkan karena tidak ada koneksi internet.');
-  // SnackBarUtil.showWarning(message: 'Tidak ada koneksi internet.');
-}
+final isOnline = connectivityResult.contains(ConnectivityResult.mobile) ||
+    connectivityResult.contains(ConnectivityResult.wifi);
 ```
 
-Dokumentasi ini menjelaskan bagaimana `InternetConnectionService` berfungsi sebagai komponen infrastruktur inti untuk membangun aplikasi yang sadar-jaringan (*network-aware*) dan andal.
+Aplikasi ini mendefinisikan "online" secara ketat sebagai terhubung ke **WiFi** atau **Mobile Data**. Hasil `connectivityResult` lain seperti `bluetooth` atau `ethernet` (yang mungkin terjadi pada perangkat tertentu) akan dianggap "offline" oleh logika ini. Ini adalah keputusan bisnis yang disengaja untuk menyederhanakan logika dan fokus pada dua metode koneksi yang paling umum. Log peringatan akan dicatat dalam kasus ini, yang memungkinkan untuk peninjauan di masa depan jika dukungan untuk jenis koneksi lain diperlukan.
+
+---
+
+## Kesimpulan
+
+`InternetConnectionService` adalah contoh yang sangat baik dari sebuah layanan utilitas yang dirancang dengan baik. Ia mengambil satu fungsionalitas inti, membuatnya dapat diandalkan melalui penanganan error yang kuat, membuatnya transparan melalui logging yang detail, dan membuatnya dapat diverifikasi melalui desain yang dapat diuji. Ini adalah komponen fondasi yang penting untuk stabilitas fitur-fitur jaringan aplikasi.

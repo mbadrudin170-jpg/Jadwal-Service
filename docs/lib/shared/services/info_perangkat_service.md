@@ -1,58 +1,50 @@
+# Dokumentasi: `lib/shared/services/info_perangkat_service.dart`
 
-# Dokumentasi: InfoPerangkatService
+`InfoPerangkatService` adalah kelas layanan yang berfungsi sebagai pembungkus (wrapper) dan fasad (facade) untuk plugin `device_info_plus`. Tujuannya adalah untuk mengabstraksi dan menyederhanakan proses pengambilan informasi perangkat keras (hardware) yang spesifik untuk setiap platform, terutama arsitektur CPU.
 
-## Lokasi File
-`lib/shared/services/info_perangkat_service.dart`
+---
 
-## Ringkasan
-`InfoPerangkatService` adalah kelas layanan sederhana yang bertujuan untuk mengambil informasi spesifik dari perangkat keras tempat aplikasi dijalankan. Layanan ini merupakan pembungkus (*wrapper*) untuk plugin `device_info_plus`, yang mengabstraksi cara mendapatkan detail perangkat di berbagai platform seperti Android dan iOS.
+## Tujuan dan Pentingnya
 
-Tujuan utama dari layanan ini dalam konteks aplikasi adalah untuk mengidentifikasi arsitektur CPU perangkat (misalnya, `arm64-v8a`, `armeabi-v7a`, `x86_64`). Informasi ini krusial untuk fitur pemeriksaan versi dan pembaruan aplikasi (`ApkVersionModel`), di mana aplikasi perlu mengunduh file APK yang tepat sesuai dengan arsitektur perangkat pengguna.
+Mengetahui arsitektur CPU perangkat sangat penting untuk beberapa skenario, terutama dalam konteks aplikasi Android. Aplikasi Android modern sering kali didistribusikan dalam beberapa versi APK yang berbeda, masing-masing dioptimalkan untuk arsitektur CPU yang berbeda (misalnya, `arm64-v8a`, `armeabi-v7a`, `x86_64`).
 
-## Arsitektur dan Ketergantungan
--   **device_info_plus**: Ketergantungan utama. Plugin ini menyediakan akses ke API tingkat sistem operasi untuk informasi perangkat.
--   **Dependency Injection**: Desain kelas ini menggunakan *constructor injection*. `DeviceInfoPlugin` di-pass melalui konstruktor, bukan dibuat di dalam kelas. Ini adalah praktik terbaik yang memungkinkan `InfoPerangkatService` untuk diuji secara terpisah (*unit test*) dengan menyuntikkan *mock* `DeviceInfoPlugin`.
--   **Platform Specific Code**: Layanan ini berisi kode yang spesifik untuk platform (Android dan iOS) dan juga menangani kasus untuk web (di mana informasi arsitektur tidak relevan atau tidak tersedia).
+Layanan ini menyediakan cara yang andal bagi aplikasi untuk:
+1.  Mengidentifikasi arsitektur perangkat yang sedang berjalan.
+2.  Membuat keputusan cerdas berdasarkan informasi tersebut, seperti merekomendasikan atau mengunduh versi APK yang paling sesuai saat ada pembaruan.
 
-## Metode Utama
+---
 
-### `Future<Map<String, dynamic>> dapatkanArsitekturPerangkat()`
-Ini adalah metode inti dari layanan ini. Ketika dipanggil, ia akan:
-1.  Memeriksa apakah aplikasi berjalan di web. Jika ya, ia akan langsung mengembalikan pesan error karena informasi arsitektur tidak relevan.
-2.  Memeriksa platform (`defaultTargetPlatform`).
-    -   **Jika Android**: Ia akan memanggil `deviceInfo.androidInfo` untuk mendapatkan `AndroidDeviceInfo`. Dari sini, ia akan mengekstrak daftar `supportedAbis` (contoh: `['arm64-v8a', 'armeabi-v7a', 'armeabi']`).
-    -   **Jika iOS**: Ia akan memanggil `deviceInfo.iosInfo` dan mengekstrak `utsname.machine` (contoh: `iPhone13,2`).
-3.  Mengembalikan informasi yang relevan dalam bentuk `Map<String, dynamic>`.
-4.  Jika terjadi kesalahan saat mengambil informasi, ia akan menangkap `Exception` dan mengembalikan `Map` yang berisi pesan error.
+## Desain dan Arsitektur
 
-## Tujuan Desain
--   **Abstraksi**: Menyembunyikan kompleksitas penggunaan plugin `device_info_plus` di balik metode yang sederhana dan fokus pada tujuan (`dapatkanArsitekturPerangkat`).
--   **Dapat Diuji (Testable)**: Pola *dependency injection* yang digunakan membuat kelas ini sangat mudah untuk diuji.
--   **Modular**: Mengisolasi fungsionalitas terkait informasi perangkat ke dalam satu kelas, sehingga mudah ditemukan, dikelola, dan diganti jika diperlukan.
--   **Aman dari Kegagalan (Fail-safe)**: Menggunakan `try-catch` untuk memastikan bahwa kegagalan dalam mengambil info perangkat tidak akan menyebabkan aplikasi crash, melainkan mengembalikan pesan error yang dapat ditangani.
+Kelas ini menerapkan beberapa praktik desain yang sangat baik:
 
-## Contoh Pemanggilan
-```dart
-// Inisialisasi service, idealnya melalui dependency injection framework
-final deviceInfoPlugin = DeviceInfoPlugin();
-final infoService = InfoPerangkatService(deviceInfoPlugin);
+-   **Pola Injeksi Ketergantungan (Dependency Injection - DI)**: Ini adalah fitur desain yang paling menonjol. Konstruktor `InfoPerangkatService(this.deviceInfo)` mengharuskan `DeviceInfoPlugin` untuk "disuntikkan" dari luar saat kelas ini dibuat. Ini sangat krusial untuk **pengujian (testing)**. Dalam pengujian unit, kita dapat membuat instance `InfoPerangkatService` dengan `DeviceInfoPlugin` palsu (mock), yang memungkinkan kita untuk mensimulasikan berbagai skenario (misalnya, perangkat Android dengan arsitektur ARM, perangkat iOS, atau bahkan kondisi error) tanpa memerlukan perangkat fisik.
 
-// Panggil metode untuk mendapatkan informasi
-final deviceInfoMap = await infoService.dapatkanArsitekturPerangkat();
+-   **Penanganan Spesifik Platform**: Metode `dapatkanArsitekturPerangkat` secara eksplisit memeriksa platform target (`defaultTargetPlatform`) dan menjalankan kode yang sesuai untuk Android atau iOS. Ini mengisolasi logika yang berbeda untuk setiap platform di dalam satu tempat.
 
-if (deviceInfoMap.containsKey('error')) {
-  Log.error('Gagal mendapatkan info arsitektur: ${deviceInfoMap['error']}');
-} else {
-  // Contoh untuk Android
-  final supportedAbis = deviceInfoMap['supportedAbis'] as List<String>?;
-  if (supportedAbis != null && supportedAbis.isNotEmpty) {
-    final primaryAbi = supportedAbis.first; // e.g., 'arm64-v8a'
-    Log.info('Arsitektur utama perangkat adalah: $primaryAbi');
+-   **Penanganan Kasus Web dan Platform Lain**: Kelas ini dengan benar mengidentifikasi bahwa fungsionalitas ini tidak relevan untuk web (`kIsWeb`) dan platform lain yang tidak didukung, lalu mengembalikan pesan error yang jelas.
 
-    // Logika selanjutnya, misalnya membandingkan dengan ApkVersionModel
-    // untuk menemukan URL unduhan APK yang benar.
-  }
-}
-```
+-   **Penanganan Error yang Kuat**: Seluruh logika panggilan ke *native code* dibungkus dalam blok `try-catch`. Jika `deviceInfo` gagal mendapatkan informasi karena alasan apa pun, layanan ini tidak akan menyebabkan aplikasi *crash*. Sebaliknya, ia akan menangkap `Exception` dan mengembalikan `Map` yang berisi pesan error yang deskriptif.
 
-Dokumentasi ini menjelaskan peran `InfoPerangkatService` sebagai jembatan yang aman dan teruji antara aplikasi dan informasi perangkat keras, yang sangat penting untuk fungsionalitas pembaruan aplikasi yang andal.
+---
+
+## Metode Utama: `dapatkanArsitekturPerangkat()`
+
+-   **Tanggung Jawab**: Satu-satunya tugas metode ini adalah mengambil informasi perangkat keras dan mengembalikannya dalam format `Map<String, dynamic>` yang terstruktur.
+-   **Struktur Kembalian (Return Value)**:
+    -   **Pada Android**: Mengembalikan `supportedAbis` (daftar arsitektur yang didukung, contoh: `['arm64-v8a', 'armeabi-v7a', 'armeabi']`) dan `isPhysicalDevice`. Informasi `supportedAbis` adalah yang paling penting di sini.
+    -   **Pada iOS**: Mengembalikan `utsname.machine` (pengenal model internal, contoh: `'iPhone13,2'`) dan `isPhysicalDevice`.
+    -   **Pada Error/Platform Tidak Didukung**: Mengembalikan `Map` dengan satu kunci, `'error'`, yang berisi string penjelasan masalah.
+
+---
+
+## Contoh Penggunaan
+
+Layanan ini dapat diintegrasikan dengan fitur pemeriksa pembaruan aplikasi. Alurnya akan seperti ini:
+
+1.  Aplikasi memanggil `InfoPerangkatService.dapatkanArsitekturPerangkat()`.
+2.  Aplikasi memeriksa `supportedAbis` dari hasil yang dikembalikan. Biasanya, arsitektur pertama dalam daftar (`supportedAbis[0]`) adalah yang paling optimal.
+3.  Saat meminta informasi versi APK terbaru dari server, aplikasi menyertakan arsitektur yang terdeteksi (misalnya, `arm64-v8a`).
+4.  Server kemudian merespons dengan URL unduhan untuk file APK yang benar, memastikan pengguna mendapatkan versi yang paling efisien untuk perangkat mereka.
+
+Dengan membungkus fungsionalitas ini dalam sebuah layanan, kode yang memerlukan informasi perangkat menjadi lebih bersih, lebih mudah diuji, dan tidak terikat langsung pada detail implementasi dari plugin `device_info_plus`.

@@ -1,12 +1,13 @@
 // path: lib/shared/model/package_model.dart
-// refactored: Complete rewrite to align with project conventions.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model for a package offered.
 class PackageModel implements HasId {
@@ -89,22 +90,7 @@ class PackageModel implements HasId {
     );
   }
 
-  /// Helper to parse DateTime from various formats.
-  static DateTime? _parseDateTime(final dynamic value) {
-    if (value == null) return null;
-    if (value is Timestamp) return value.toDate();
-    if (value is DateTime) return value;
-    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
-    if (value is String) return DateTime.tryParse(value);
-    return null;
-  }
-
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final Object? value) {
-    if (value == true || value == 1) return true;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Helper to parse DurationType from a string.
   static DurationType _parseType(final dynamic value) {
@@ -125,10 +111,11 @@ class PackageModel implements HasId {
       type: _parseType(map[ColumnNames.type]),
       rewardPoints: map[ColumnNames.rewardPoints] as int? ?? 0,
       redemptionPoints: map[ColumnNames.redemptionPoints] as int? ?? 0,
-      isPublic: _parseBool(map[ColumnNames.isPublic]),
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      isPublic: ParserUtil.parseBool(map[ColumnNames.isPublic]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -144,7 +131,8 @@ class PackageModel implements HasId {
       ColumnNames.redemptionPoints: redemptionPoints,
       ColumnNames.isPublic: isPublic ? 1 : 0,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
@@ -161,10 +149,11 @@ class PackageModel implements HasId {
       type: _parseType(data[ColumnNames.type]),
       rewardPoints: data[ColumnNames.rewardPoints] as int? ?? 0,
       redemptionPoints: data[ColumnNames.redemptionPoints] as int? ?? 0,
-      isPublic: _parseBool(data[ColumnNames.isPublic]),
-      isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      isPublic: ParserUtil.parseBool(data[ColumnNames.isPublic]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -179,8 +168,10 @@ class PackageModel implements HasId {
       ColumnNames.redemptionPoints: redemptionPoints,
       ColumnNames.isPublic: isPublic,
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

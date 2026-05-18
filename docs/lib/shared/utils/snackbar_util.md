@@ -1,79 +1,49 @@
 # Dokumentasi: `lib/shared/utils/snackbar_util.dart`
 
-File ini menyediakan utilitas untuk menampilkan `SnackBar` di seluruh aplikasi dengan gaya yang konsisten. Ini memastikan bahwa semua pesan yang ditampilkan kepada pengguna (sukses, error, peringatan, info) memiliki tampilan dan nuansa yang seragam, serta secara otomatis mencatat setiap SnackBar yang ditampilkan ke log.
+`SnackBarUtil` adalah kelas utilitas pembungkus (wrapper) yang dirancang untuk menstandarisasi dan menyederhanakan penggunaan `SnackBar` di seluruh aplikasi. Ini mengatasi beberapa tantangan umum yang terkait dengan `ScaffoldMessenger`, seperti konsistensi gaya, logging, dan keamanan konteks (context safety).
+
+Ini adalah komponen penting untuk menerapkan umpan balik pengguna yang konsisten dan dapat di-debug.
 
 ---
 
-## Enum `SnackBarType`
+## Arsitektur dan Desain
 
-Enum ini mendefinisikan jenis-jenis SnackBar yang dapat ditampilkan. Setiap jenis memiliki warna latar yang berbeda untuk memberikan isyarat visual kepada pengguna.
+1.  **Pola Fasad (Facade Pattern)**: Kelas ini bertindak sebagai fasad untuk `ScaffoldMessenger`. Daripada membiarkan pengembang memanggil `ScaffoldMessenger.of(context).showSnackBar(...)` di mana-mana dengan konfigurasi yang berpotensi berbeda setiap saat, `SnackBarUtil` menyediakan satu set metode sederhana (`success`, `error`, `warning`, `info`) yang menyembunyikan detail implementasi.
 
-- **Nilai:**
-  - `success`: Untuk operasi yang berhasil (latar hijau).
-  - `error`: Untuk operasi yang gagal atau error (latar merah).
-  - `warning`: Untuk peringatan atau potensi masalah (latar oranye).
-  - `info`: Untuk pesan informasi umum (latar biru).
+2.  **Metode Publik Sederhana, Logika Pribadi yang Kompleks**: Desainnya mengikuti praktik yang baik dengan mengekspos API publik yang mudah digunakan (`SnackBarUtil.success(...)`) sementara logika inti yang lebih kompleks berada dalam metode privat `_show(...)`. Ini membuat penggunaan utilitas menjadi sangat mudah dan mengurangi kemungkinan kesalahan.
 
----
+3.  **Keamanan Konteks (`context.mounted`)**: Ini adalah fitur yang paling penting dan sering diabaikan. Pemanggilan `_show` mungkin terjadi dalam fungsi `async`. Ada kemungkinan bahwa pada saat `SnackBar` akan ditampilkan, pengguna telah menavigasi ke layar lain, membuat `BuildContext` asli menjadi tidak valid (*stale*). Mencoba menggunakan konteks yang tidak valid akan menyebabkan crash. `SnackBarUtil` secara cerdas memeriksa `if (!context.mounted) return;` **setelah** operasi yang berpotensi memakan waktu (bahkan logging bisa menjadi async di beberapa implementasi). Ini mencegah seluruh kelas kesalahan yang sulit di-debug.
 
-## Kelas `SnackBarUtil`
+4.  **Logging Otomatis**: Setiap kali `SnackBar` ditampilkan, sebuah log secara otomatis dibuat. Ini sangat berharga untuk debugging. Jika pengguna melaporkan perilaku aneh, log dapat mengungkapkan urutan pesan umpan balik yang mereka terima. Penggunaan level log yang berbeda (`Log.error` untuk `SnackBarType.error`) memungkinkan penyaringan log yang lebih mudah.
 
-Kelas statis yang berisi metode untuk menampilkan berbagai jenis SnackBar. Karena bersifat statis, Anda tidak perlu membuat instance dari kelas ini.
-
-### `SnackBarUtil.success(BuildContext context, String message)`
-
-Menampilkan SnackBar bertipe "sukses".
-
-- **Parameter:**
-  - `context` (BuildContext): Konteks dari widget tempat SnackBar akan ditampilkan.
-  - `message` (String): Pesan yang ingin ditampilkan di dalam SnackBar.
-
-- **Contoh Penggunaan:**
-  '''dart
-  SnackBarUtil.success(context, 'Profil berhasil diperbarui!');
-  '''
+5.  **Gaya Terpusat**: Warna, bentuk (`RoundedRectangleBorder`), dan perilaku (`SnackBarBehavior.floating`) semuanya didefinisikan di satu tempat. Ini memastikan bahwa setiap `SnackBar` di seluruh aplikasi memiliki tampilan dan nuansa yang sama, menciptakan pengalaman pengguna yang konsisten dan profesional. Jika desain aplikasi berubah, hanya perlu mengubah beberapa baris di dalam file ini.
 
 ---
 
-### `SnackBarUtil.error(BuildContext context, String message)`
+## Metode dan Penggunaan
 
-Menampilkan SnackBar bertipe "error".
+-   **`SnackBarType` enum**: Mendefinisikan status semantik yang berbeda untuk sebuah pesan, yang kemudian dipetakan ke warna dan level log. Ini jauh lebih baik daripada melewatkan warna secara langsung, karena menjaga pemisahan antara "apa" (sebuah error) dan "bagaimana" (berwarna merah).
 
-- **Parameter:**
-  - `context` (BuildContext): Konteks dari widget.
-  - `message` (String): Pesan error yang akan ditampilkan.
+-   **`success(context, message)`**: Untuk pesan keberhasilan. Gunakan setelah operasi yang berhasil diselesaikan, seperti "Profil berhasil diperbarui".
 
-- **Contoh Penggunaan:**
-  '''dart
-  SnackBarUtil.error(context, 'Gagal terhubung ke server.');
-  '''
+-   **`error(context, message)`**: Untuk pesan kesalahan. Gunakan dalam blok `catch` atau setelah validasi gagal, seperti "Gagal terhubung ke server".
 
----
+-   **`warning(context, message)`**: Untuk pesan peringatan. Gunakan untuk informasi yang tidak kritis tetapi penting, seperti "Koneksi internet Anda lambat".
 
-### `SnackBarUtil.warning(BuildContext context, String message)`
+-   **`info(context, message)`**: Untuk pesan informasi umum yang netral.
 
-Menampilkan SnackBar bertipe "peringatan".
-
-- **Parameter:**
-  - `context` (BuildContext): Konteks dari widget.
-  - `message` (String): Pesan peringatan yang akan ditampilkan.
-
-- **Contoh Penggunaan:**
-  '''dart
-  SnackBarUtil.warning(context, 'Anda akan kehabisan kuota internet.');
-  '''
+Contoh Penggunaan:
+```dart
+try {
+  await updateUserProfile();
+  SnackBarUtil.success(context, 'Profil berhasil diperbarui.');
+} catch (e) {
+  SnackBarUtil.error(context, 'Gagal memperbarui profil. Silakan coba lagi.');
+}
+```
 
 ---
 
-### `SnackBarUtil.info(BuildContext context, String message)`
+## Kesimpulan
 
-Menampilkan SnackBar bertipe "informasi".
-
-- **Parameter:**
-  - `context` (BuildContext): Konteks dari widget.
-  - `message` (String): Pesan informasi yang akan ditampilkan.
-
-- **Contoh Penggunaan:**
-  '''dart
-  SnackBarUtil.info(context, 'Pembaruan aplikasi tersedia.');
-  '''
+`SnackBarUtil` adalah contoh sempurna dari utilitas yang dirancang dengan baik. Ia mengambil API tingkat rendah Flutter, menambahkan lapisan keamanan (pemeriksaan `mounted`), konsistensi (gaya terpusat), dan kemampuan observasi (logging), dan membungkus semuanya dalam API yang sederhana dan aman untuk digunakan. Menerapkan aturan proyek yang mengharuskan semua `SnackBar` melalui utilitas ini adalah cara yang pasti untuk meningkatkan kualitas dan keandalan basis kode.

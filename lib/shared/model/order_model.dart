@@ -1,11 +1,12 @@
 // path: lib/shared/model/order_model.dart
-// new file: Renamed from pesanan_model.dart and refactored to English.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model for order data.
 class OrderModel implements HasId {
@@ -70,26 +71,7 @@ class OrderModel implements HasId {
     );
   }
 
-  /// Helper to parse date values from various formats.
-  static DateTime? _parseDateTime(final dynamic dateValue) {
-    if (dateValue == null) return null;
-    if (dateValue is Timestamp) return dateValue.toDate();
-    if (dateValue is DateTime) return dateValue;
-    if (dateValue is String) return DateTime.tryParse(dateValue);
-    if (dateValue is int) {
-      return DateTime.fromMillisecondsSinceEpoch(dateValue);
-    }
-    return null;
-  }
-
-  /// Helper to parse boolean from various formats.
-  static bool _parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates an `OrderModel` instance from SQLite map data.
   factory OrderModel.fromSqlite(final Map<String, dynamic> map) {
@@ -98,11 +80,12 @@ class OrderModel implements HasId {
       id: map[ColumnNames.id] as String? ?? '',
       customerId: map[ColumnNames.customerId] as String? ?? '',
       packageId: map[ColumnNames.packageId] as String? ?? '',
-      date: _parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
+      // DIUBAH: Menggunakan ParserUtil
+      date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
       status: map[ColumnNames.status] as String? ?? 'new',
-      updatedAt: _parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: _parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -114,7 +97,8 @@ class OrderModel implements HasId {
       ColumnNames.packageId: packageId,
       ColumnNames.date: date.millisecondsSinceEpoch,
       ColumnNames.status: status,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -128,11 +112,12 @@ class OrderModel implements HasId {
       id: id,
       customerId: data[ColumnNames.customerId] as String? ?? '',
       packageId: data[ColumnNames.packageId] as String? ?? '',
-      date: _parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
+      // DIUBAH: Menggunakan ParserUtil
+      date: ParserUtil.parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
       status: data[ColumnNames.status] as String? ?? 'new',
-      updatedAt: _parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: _parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: _parseDateTime(data[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -141,11 +126,14 @@ class OrderModel implements HasId {
     return {
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,
+      // DIUBAH: Menggunakan .toUtc()
       ColumnNames.date: Timestamp.fromDate(date.toUtc()),
       ColumnNames.status: status,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

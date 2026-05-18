@@ -1,5 +1,5 @@
 // path: lib/shared/model/sub_category_model.dart
-// diperbarui: Mengganti impor dan menambahkan logging.
+// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -7,6 +7,7 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/category_model.dart' show CategoryModel;
 import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model yang merepresentasikan sebuah sub-kategori.
 ///
@@ -62,24 +63,7 @@ class SubCategoryModel implements HasId {
     );
   }
 
-  /// Fungsi bantuan untuk mem-parsing nilai dinamis menjadi DateTime.
-  static DateTime? parseDateTime(final dynamic date) {
-    if (date == null) return null;
-    if (date is Timestamp) return date.toDate();
-    if (date is DateTime) return date;
-    if (date is String) return DateTime.tryParse(date);
-    if (date is int) return DateTime.fromMillisecondsSinceEpoch(date);
-    return null;
-  }
-
-  /// Fungsi bantuan untuk mem-parsing nilai dinamis menjadi boolean secara aman.
-  static bool parseBool(final dynamic value) {
-    if (value == null) return false;
-    if (value is bool) return value;
-    if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-    return false;
-  }
+  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Factory constructor untuk membuat [SubCategoryModel] dari data SQLite.
   factory SubCategoryModel.fromSqlite(final Map<String, dynamic> map) {
@@ -88,9 +72,10 @@ class SubCategoryModel implements HasId {
       id: map[ColumnNames.id] as String? ?? '',
       name: map[ColumnNames.name] as String? ?? '',
       categoryId: map[ColumnNames.categoryId] as String? ?? '',
-      updatedAt: parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: parseDateTime(map[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
     );
   }
 
@@ -101,7 +86,8 @@ class SubCategoryModel implements HasId {
       ColumnNames.id: id,
       ColumnNames.name: name,
       ColumnNames.categoryId: categoryId,
-      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      // DIUBAH: Memastikan updatedAt tidak pernah null
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -114,9 +100,10 @@ class SubCategoryModel implements HasId {
       id: id,
       name: data[ColumnNames.name] as String? ?? '',
       categoryId: data[ColumnNames.categoryId] as String? ?? '',
-      updatedAt: parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: parseDateTime(data[ColumnNames.archivedAt]),
+      // DIUBAH: Menggunakan ParserUtil
+      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
   }
 
@@ -128,9 +115,11 @@ class SubCategoryModel implements HasId {
       ColumnNames.id: id,
       ColumnNames.name: name,
       ColumnNames.categoryId: categoryId,
+      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.isDeleted: isDeleted,
+      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

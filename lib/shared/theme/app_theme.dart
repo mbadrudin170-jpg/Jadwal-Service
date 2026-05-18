@@ -1,41 +1,13 @@
 // path: lib/shared/theme/app_theme.dart
-// diubah: Memperbaiki kesalahan referensi warna dan properti shade.
+// diubah: Menggunakan TextTheme terpusat dari app_text_style.dart.
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_text_style.dart';
 
 /// Kelas ini mendefinisikan tema terang dan gelap untuk aplikasi,
 /// termasuk skema warna, tipografi, dan gaya komponen.
 class AppTheme {
-  // Tema umum untuk teks, menggunakan Google Fonts
-  static final TextTheme _appTextTheme = TextTheme(
-    displayLarge:
-        GoogleFonts.poppins(fontSize: 57, fontWeight: FontWeight.bold),
-    displayMedium:
-        GoogleFonts.poppins(fontSize: 45, fontWeight: FontWeight.w500),
-    displaySmall:
-        GoogleFonts.poppins(fontSize: 36, fontWeight: FontWeight.w500),
-    headlineLarge:
-        GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.bold),
-    headlineMedium:
-        GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold),
-    headlineSmall:
-        GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w500),
-    titleLarge: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold),
-    titleMedium: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w500),
-    titleSmall: GoogleFonts.lato(fontSize: 14, fontWeight: FontWeight.w500),
-    bodyLarge:
-        GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.normal),
-    bodyMedium:
-        GoogleFonts.openSans(fontSize: 14, fontWeight: FontWeight.normal),
-    bodySmall:
-        GoogleFonts.openSans(fontSize: 12, fontWeight: FontWeight.normal),
-    labelLarge: GoogleFonts.lato(fontSize: 14, fontWeight: FontWeight.bold),
-    labelMedium: GoogleFonts.lato(fontSize: 12, fontWeight: FontWeight.normal),
-    labelSmall: GoogleFonts.lato(fontSize: 11, fontWeight: FontWeight.normal),
-  );
-
   /// Definisi tema terang (light theme).
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -49,13 +21,12 @@ class AppTheme {
       surface: AppColors.lightBackground,
       error: AppColors.errorColor,
     ),
-    textTheme: _appTextTheme,
+    textTheme: appTextTheme, // MENGGUNAKAN TEXTTHEME GLOBAL
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.primaryColor,
       foregroundColor: Colors.white,
       elevation: 0,
-      titleTextStyle:
-          _appTextTheme.headlineSmall?.copyWith(color: Colors.white),
+      titleTextStyle: appTextTheme.headlineSmall?.copyWith(color: Colors.white),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -65,7 +36,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        textStyle: _appTextTheme.labelLarge,
+        textStyle: appTextTheme.labelLarge,
       ),
     ),
     cardTheme: CardThemeData(
@@ -91,12 +62,11 @@ class AppTheme {
       error:
           AppColors.errorColor.shade300, // diubah: Menggunakan shade yang valid
     ),
-    textTheme: _appTextTheme,
+    textTheme: appTextTheme, // MENGGUNAKAN TEXTTHEME GLOBAL
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.darkSurface,
       foregroundColor: Colors.white,
-      titleTextStyle:
-          _appTextTheme.headlineSmall?.copyWith(color: Colors.white),
+      titleTextStyle: appTextTheme.headlineSmall?.copyWith(color: Colors.white),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -106,7 +76,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        textStyle: _appTextTheme.labelLarge,
+        textStyle: appTextTheme.labelLarge,
       ),
     ),
     cardTheme: CardThemeData(
