@@ -1,5 +1,5 @@
 // path: lib/user/page/subscription_history_user.dart
-// diubah: Menghapus import yang tidak terpakai.
+// diubah: Menghapus semua referensi ke NotificationOpFirebase yang telah dihapus.
 
 import 'dart:async';
 
@@ -11,7 +11,6 @@ import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/notification_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/services/info_perangkat_service.dart';
@@ -53,8 +52,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
-  final NotificationOpFirebase _notificationOpFirebase =
-      NotificationOpFirebase();
   final InfoPerangkatService _infoPerangkatService =
       InfoPerangkatService(DeviceInfoPlugin());
 
@@ -65,13 +62,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   void initState() {
     super.initState();
     unawaited(_checkDeviceArchitecture());
-    _notificationOpFirebase.syncNotificationSchedule(widget.userId);
-  }
-
-  @override
-  void dispose() {
-    unawaited(_notificationOpFirebase.stopSyncSchedule());
-    super.dispose();
   }
 
   Future<void> _checkDeviceArchitecture() async {

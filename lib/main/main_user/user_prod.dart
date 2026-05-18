@@ -1,5 +1,5 @@
 // path: lib/main/main_user/user_prod.dart
-// diubah: Mengganti nama ikon notifikasi dari '@mipmap/ic_launcher' menjadi '@mipmap/launcher_icon'.
+// diubah: Mengirim instance notifikasiServis ke AppUser.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -102,5 +102,5 @@ void main() async {
   await notifikasiServis.requestPermissions(); // Meminta izin
 
   final prefs = await SharedPreferences.getInstance();
-  runApp(AppUser(prefs: prefs));
+  runApp(AppUser(prefs: prefs, notifikasiServis: notifikasiServis));
 }

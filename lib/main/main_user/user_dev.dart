@@ -1,12 +1,14 @@
 // path: lib/main/main_user/user_dev.dart
-// diubah: Mengganti nama import dan kelas dari PengaturanModel menjadi SettingsModel.
+// diubah: Mengirim instance notifikasiServis ke AppUser.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -31,8 +33,8 @@ void main() async {
   try {
     Log.info('[main] Memeriksa status mode pemeliharaan dari Firestore...');
     final doc = await FirebaseFirestore.instance
-        .collection('settings')
-        .doc('global_config')
+        .collection(TableNameValue.get(TableName.settings))
+        .doc(globalSettingsId)
         .get(
           const GetOptions(source: Source.server),
         ); // Paksa ambil dari server
@@ -102,5 +104,5 @@ void main() async {
   await notifikasiServis.requestPermissions(); // Meminta izin
 
   final prefs = await SharedPreferences.getInstance();
-  runApp(AppUser(prefs: prefs));
+  runApp(AppUser(prefs: prefs, notifikasiServis: notifikasiServis));
 }

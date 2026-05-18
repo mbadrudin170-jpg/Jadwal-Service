@@ -1,11 +1,11 @@
 // path: lib/user/app_user.dart
-// diubah: Import ThemeProvider dari shared/theme/theme_provider.dart (global),
-//         tanpa alias karena tidak ada konflik nama lagi.
+// diubah: Menerima NotifikasiServis dan menyediakannya melalui Provider.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/login_page.dart';
@@ -19,8 +19,15 @@ class AppUser extends StatelessWidget {
   /// Instance dari SharedPreferences untuk penyimpanan lokal.
   final SharedPreferences prefs;
 
+  /// Instance dari NotifikasiServis yang sudah diinisialisasi.
+  final NotifikasiServis notifikasiServis;
+
   /// Membuat instance [AppUser].
-  const AppUser({super.key, required this.prefs});
+  const AppUser({
+    super.key,
+    required this.prefs,
+    required this.notifikasiServis,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -33,6 +40,8 @@ class AppUser extends StatelessWidget {
           create: (final _) =>
               ThemeProviderImpl(localStorageService: localStorageService),
         ),
+        // Daftarkan instance NotifikasiServis yang sudah ada.
+        Provider<NotifikasiServis>.value(value: notifikasiServis),
       ],
       child: Consumer<ThemeProvider>(
         builder: (final context, final themeProvider, final child) {
