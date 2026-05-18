@@ -1,4 +1,5 @@
 // path: lib/shared/widget/card/point_card.dart
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
@@ -35,64 +36,94 @@ class TotalPointCard extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final formattedPoints = NumberFormatter.formatWithSeparator(points);
+    final textTheme = Theme.of(context).textTheme;
 
-    return DecoratedBox(
+    return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        // Latar belakang gradien untuk nuansa modern.
+        gradient: LinearGradient(
+          colors: [
+            themeColor,
+            Color.lerp(themeColor, Colors.black, 0.25)!,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        // Bayangan berlapis untuk efek kedalaman yang lebih halus.
         boxShadow: [
           BoxShadow(
-            color: themeColor.withAlpha(26),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: themeColor.withOpacity(0.3),
+            blurRadius: 15,
+            spreadRadius: -5,
+            offset: const Offset(0, 5),
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 25,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
+      // Menggunakan ClipRRect agar efek splash InkWell mengikuti border radius.
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          onTap: onTap,
-          splashColor: themeColor.withAlpha(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: themeColor.withAlpha(26),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    color: themeColor,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Total Poin', // ✅ Petik satu
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+        borderRadius: BorderRadius.circular(24),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            splashColor: Colors.white.withOpacity(0.1),
+            highlightColor: Colors.white.withOpacity(0.05),
+            child: Padding(
+              // Padding yang lebih luas untuk ruang napas.
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Ikon dengan efek 'glow' ringan.
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.white.withOpacity(0.1),
+                          blurRadius: 10,
+                        )
+                      ],
                     ),
-                    Text(
-                      formattedPoints,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
+                    child: Icon(
+                      icon,
+                      color: Colors.white, // Ikon putih agar kontras.
+                      size: 30,
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(width: 20),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Poin',
+                        style: textTheme.titleMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        formattedPoints,
+                        style: textTheme.headlineMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
