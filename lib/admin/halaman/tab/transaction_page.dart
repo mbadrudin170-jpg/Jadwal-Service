@@ -4,8 +4,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -137,7 +138,7 @@ class _TransactionPageState extends State<TransactionPage> {
         'Berhasil mengambil ${transactions.length} item transaksi dari database.',
       );
       return {
-        'transactions': transactions,
+        TableNameValue.get(TableName.transactions): transactions,
         'income': (results[1] as num).toDouble(),
         'expense': (results[2] as num).toDouble(),
         'total': (results[3] as num).toDouble(),
@@ -186,7 +187,8 @@ class _TransactionPageState extends State<TransactionPage> {
     try {
       final data = await _fetchData();
       // Urutkan data sebelum menyimpannya di cache
-      _sortTransactions(data['transactions'] as List<TransactionModel>);
+      _sortTransactions(data[TableNameValue.get(TableName.transactions)]
+          as List<TransactionModel>);
       if (mounted) {
         setState(() {
           _cachedData = data;
