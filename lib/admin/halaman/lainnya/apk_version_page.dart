@@ -126,21 +126,6 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     }
   }
 
-  void _updateOrAddItem(final ApkVersionModel item) {
-    Log.info(
-      'Memperbarui/menambah item lokal - ID: ${item.id}, Versi: ${item.latestVersion}',
-    );
-    final index = _apkVersionList.indexWhere((final v) => v.id == item.id);
-    setState(() {
-      if (index != -1) {
-        _apkVersionList[index] = item;
-      } else {
-        _apkVersionList.add(item);
-      }
-      _sortList();
-    });
-  }
-
   Future<void> _toDetail(final ApkVersionModel apkVersion) async {
     if (!mounted) return;
     await Navigator.push<void>(
@@ -154,7 +139,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
 
   Future<void> _toEditForm(final ApkVersionModel apkVersion) async {
     if (!mounted) return;
-    final result = await Navigator.push<ApkVersionModel>(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (final context) => ApkVersionForm(
@@ -164,14 +149,15 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       ),
     );
 
-    if (result != null && mounted) {
-      _updateOrAddItem(result);
+    if ((result ?? false) && mounted) {
+      SnackBarUtil.success(context, 'Data berhasil diperbarui.');
+      unawaited(_loadData());
     }
   }
 
   Future<void> _toAddForm() async {
     if (!mounted) return;
-    final result = await Navigator.push<ApkVersionModel>(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (final context) =>
@@ -179,8 +165,9 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       ),
     );
 
-    if (result != null && mounted) {
-      _updateOrAddItem(result);
+    if ((result ?? false) && mounted) {
+      SnackBarUtil.success(context, 'Data baru berhasil ditambahkan.');
+      unawaited(_loadData());
     }
   }
 

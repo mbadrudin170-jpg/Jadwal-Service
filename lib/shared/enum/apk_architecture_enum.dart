@@ -11,8 +11,6 @@ enum ApkArchitectureEnum {
   /// Aplikasi universal (mendukung 32-bit dan 64-bit).
   universal,
 
-  /// Aplikasi untuk arsitektur ARM64.
-  arm64,
 
   /// Aplikasi untuk arsitektur x86_64.
   x86_64,

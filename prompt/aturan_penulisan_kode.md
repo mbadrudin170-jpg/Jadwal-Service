@@ -5,6 +5,9 @@
 
 ### Aturan Ngoding Flutter (AI)
 
+**0. Bahasa Percakapan dengan AI**
+Seluruh percakapan antara AI dan pengembang **wajib menggunakan Bahasa Indonesia**, baik saat menjelaskan kode, memberi saran, maupun menanggapi pertanyaan. Aturan ini berlaku mutlak dalam sesi ini.
+
 **1. Bahasa Komentar dan Percakapan**  
 Seluruh komentar di dalam kode serta percakapan dengan AI wajib menggunakan **Bahasa Indonesia**.
 
@@ -29,4 +32,12 @@ Penulisan nama tetap dimulai dengan Bahasa Inggris terlebih dahulu. Proses tanya
 - Jika ikon yang dibutuhkan **belum tersedia** di `AppIcons`, **wajib menambahkannya terlebih dahulu** sebagai properti `static const` baru dengan nama yang deskriptif dalam Bahasa Inggris, lalu gunakan properti tersebut.  
 - Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
 
----
+**6. Komentar Path di Awal Setiap File**  
+- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart`.  
+- Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.  
+- Tujuan: memudahkan identifikasi lokasi file, terutama saat salin-tempel atau diskusi kode.
+
+**7. Menjalankan `flutter analyze` Setiap Selesai Perubahan**  
+- Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.  
+- Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.  
+- Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.

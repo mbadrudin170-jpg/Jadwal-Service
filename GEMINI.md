@@ -1,5 +1,5 @@
-# GEMINI.md
 
+```markdown
 # // path: prompt/penyisipan_log_sanckbar.md
 ---
 
@@ -62,12 +62,15 @@
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
 
 ---
-# // path: prompt/aturan_penulisan_kode.md
+```# // path: prompt/aturan_penulisan_kode.md
 
 
 ---
 
 ### Aturan Ngoding Flutter (AI)
+
+**0. Bahasa Percakapan dengan AI**
+Seluruh percakapan antara AI dan pengembang **wajib menggunakan Bahasa Indonesia**, baik saat menjelaskan kode, memberi saran, maupun menanggapi pertanyaan. Aturan ini berlaku mutlak dalam sesi ini.
 
 **1. Bahasa Komentar dan Percakapan**  
 Seluruh komentar di dalam kode serta percakapan dengan AI wajib menggunakan **Bahasa Indonesia**.
@@ -85,11 +88,23 @@ Penulisan nama tetap dimulai dengan Bahasa Inggris terlebih dahulu. Proses tanya
 - Wajib menggunakan *trailing comma* di setiap widget tree agar auto-format rapi (sesuai `dart format`).  
 - Gunakan `const` constructor sebanyak mungkin untuk widget stateless.  
 - Pisahkan widget besar menjadi widget-widget kecil yang fokus pada satu tanggung jawab.  
-- **Jika widget tree sudah menjorok terlalu dalam (nested), ekstrak bagian tersebut menjadi widget private di file yang sama.**  
+- Jika widget tree sudah menjorok terlalu dalam (nested), ekstrak bagian tersebut menjadi widget private di file yang sama.  
 - Maksimal satu widget publik per file, kecuali widget private kecil yang hanya digunakan dalam file yang sama.
 
----
-# // path: prompt/build.md
+**5. Penggunaan Ikon Wajib dari `AppIcons`**  
+- Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.  
+- Jika ikon yang dibutuhkan **belum tersedia** di `AppIcons`, **wajib menambahkannya terlebih dahulu** sebagai properti `static const` baru dengan nama yang deskriptif dalam Bahasa Inggris, lalu gunakan properti tersebut.  
+- Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
+
+**6. Komentar Path di Awal Setiap File**  
+- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart`.  
+- Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.  
+- Tujuan: memudahkan identifikasi lokasi file, terutama saat salin-tempel atau diskusi kode.
+
+**7. Menjalankan `flutter analyze` Setiap Selesai Perubahan**  
+- Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.  
+- Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.  
+- Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.// path: prompt/build.md
 # Aturan untuk melakukan build apk dengan Alias
 
 ## Alur Kerja Build (WAJIB DIIKUTI)
@@ -152,7 +167,6 @@ Tindakan ini **krusial** untuk menjaga riwayat build tetap akurat dan menghindar
 ## Lokasi Output
 
 File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-apk/`.
-
 # // path: prompt/aturan_analisis_error.md
 
 
@@ -219,9 +233,7 @@ Setelah menelusuri file impor, lakukan langkah berikut untuk menentukan sumber e
 - Jika ya, sertakan penyesuaian yang diperlukan di file-file itu, atau beri tahu pengguna tentang dampaknya.
 - Jangan hanya fokus pada perbaikan di file yang dikerjakan, pastikan tidak merusak file lain yang menggunakan class tersebut.
 
----
-
-# // path: prompt/aturan_kepatuhan_ai.md
+---# // path: prompt/aturan_kepatuhan_ai.md
 
 
 ---
