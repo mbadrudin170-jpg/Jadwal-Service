@@ -1,14 +1,13 @@
 // path: lib/admin/app_admin.dart
+// diubah: Menghapus inisialisasi Firebase karena sudah dipindahkan ke main().
 
 import 'dart:async';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
@@ -87,11 +86,7 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi sekunder.');
     try {
-      _updateMessage('Menginisialisasi Firebase...');
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      Log.info('Firebase berhasil diinisialisasi');
+      // Inisialisasi Firebase sudah dipindahkan ke main() untuk mencegah duplikasi.
 
       _updateMessage('Menginisialisasi layanan notifikasi...');
       await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
