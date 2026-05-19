@@ -6,43 +6,31 @@
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/admin/halaman/detail/active_customer_detail.dart (ActiveCustomerDetailPage)
 //   - lib/admin/halaman/form/active_customer_form.dart (FormPelangganAktif)
-//   - lib/shared/data/sync/upload_data.dart (UploadDataService)
+//   - lib/shared/data/services/sync_check_service.dart (SyncCheckService)
 //   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
+//   - lib/shared/model/active_customer_detail_model.dart (ActiveCustomerDetailModel)
 //   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/services/internet_connection_check.dart (InternetConnectionService)
 //   - lib/shared/utils/active_customer_sorter.dart (ActiveCustomerSorter, SortOption)
 //   - lib/shared/utils/calculation_util.dart (CalculationUtil)
 //   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
-//   - lib/shared/utils/sync_manager.dart (SyncManager)
-//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
-//   - lib/shared/widget/package_name.dart (PackageNameWidget)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/shared/data/sync/upload_data.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
-import 'package:wifi/shared/widget/customer_name.dart';
-import 'package:wifi/shared/widget/package_name.dart';
 
 /// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
 enum DeleteOption {
@@ -71,17 +59,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   final ActiveCustomerOperation _activeCustomerOperation =
       ActiveCustomerOperation();
 
-  /// Operasi untuk data pelanggan.
-  final CustomerOperation _customerOperation = CustomerOperation();
-
-  /// Operasi untuk data paket.
-  final PackageOperation _packageOperation = PackageOperation();
-
-  /// Waktu saat ini.
-  final now = DateTime.now();
-  List<ActiveCustomerModel> _allCustomers = [];
-  List<ActiveCustomerModel> _filteredResults = [];
-  Map<String, String> _customerNameMap = {};
+  List<ActiveCustomerDetailModel> _allCustomers = [];
+  List<ActiveCustomerDetailModel> _filteredResults = [];
   bool _isLoading = true;
   SortOption _activeSort = SortOption.endDate;
   bool _isSearching = false;
@@ -114,18 +93,15 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     if (!mounted) return;
     setState(() => _isLoading = true);
 
-    final syncManager = Provider.of<SyncManager>(context, listen: false);
-
     try {
       final online = await _connectionService.checkConnection();
 
       if (online && forceRefresh) {
-        await UploadDataService().uploadActiveCustomerData().timeout(
+        await SyncCheckService().runSyncCheck().timeout(
               const Duration(seconds: 15),
               onTimeout: () =>
                   throw TimeoutException('Waktu sinkronisasi habis.'),
             );
-        await syncManager.setLastUpload(now);
       } else if (!online && forceRefresh) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -137,10 +113,9 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         }
       }
 
-      final customerList = await _customerOperation.getCustomers();
-      _customerNameMap = {for (var p in customerList) p.id: p.name};
-
-      _allCustomers = await _activeCustomerOperation.getAllActiveCustomers();
+      // Menggunakan metode query JOIN yang efisien
+      _allCustomers =
+          await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data.', e: e, st: s);
@@ -154,32 +129,31 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   }
 
   void _applyFilterAndSort() {
-    List<ActiveCustomerModel> tempResult;
+    List<ActiveCustomerDetailModel> tempResult;
     final query = _searchController.text.toLowerCase();
 
     if (query.isNotEmpty) {
       tempResult = _allCustomers.where((final c) {
-        final name = _customerNameMap[c.customerId]?.toLowerCase() ?? '';
+        final name = c.customerName.toLowerCase();
         return name.contains(query);
       }).toList();
     } else {
       tempResult = List.of(_allCustomers);
     }
 
-    final sorted =
-        ActiveCustomerSorter.sort(tempResult, _activeSort, _customerNameMap);
+    final sorted = ActiveCustomerSorter.sort(tempResult, _activeSort);
     if (mounted) setState(() => _filteredResults = sorted);
   }
 
-  Future<void> _archiveCustomer(final ActiveCustomerModel customer) async {
+  Future<void> _archiveCustomer(
+      final ActiveCustomerDetailModel customer) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (final ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
         content: Wrap(children: [
           const Text('Yakin ingin mengarsipkan '),
-          CustomerNameWidget(
-              customerId: customer.customerId,
+          Text(customer.customerName,
               style: const TextStyle(fontWeight: FontWeight.bold)),
           const Text('?'),
         ]),
@@ -189,21 +163,25 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               child: const Text('Batal')),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Arsipkan', style: TextStyle(color: Colors.red))),
+              child:
+                  const Text('Arsipkan', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
 
     if (confirm ?? false) {
       try {
-        await _activeCustomerOperation.archiveActiveCustomer(customer.id);
+        await _activeCustomerOperation
+            .archiveActiveCustomer(customer.activeCustomer.id);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Pelanggan berhasil diarsipkan.'),
             backgroundColor: Colors.green));
         setState(() {
-          _allCustomers.removeWhere((final p) => p.id == customer.id);
-          _filteredResults.removeWhere((final p) => p.id == customer.id);
+          _allCustomers.removeWhere(
+              (final p) => p.activeCustomer.id == customer.activeCustomer.id);
+          _filteredResults.removeWhere(
+              (final p) => p.activeCustomer.id == customer.activeCustomer.id);
         });
       } on Exception catch (e, s) {
         Log.error('Gagal mengarsipkan.', e: e, st: s);
@@ -241,8 +219,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   }
 
   Future<void> _addActiveCustomer() async {
-    final result = await Navigator.push<bool>(context,
-        MaterialPageRoute(builder: (final _) => FormPelangganAktif()));
+    final result = await Navigator.push<bool>(
+        context, MaterialPageRoute(builder: (final _) => FormPelangganAktif()));
     if (result ?? false) await _loadData(forceRefresh: true);
   }
 
@@ -325,7 +303,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                     icon: const Icon(AppIcons.search),
                     onPressed: () => setState(() => _isSearching = true)),
                 IconButton(
-                    icon: const Icon(AppIcons.filter), onPressed: _showSortDialog),
+                    icon: const Icon(AppIcons.filter),
+                    onPressed: _showSortDialog),
                 IconButton(
                     icon: const Icon(AppIcons.settings),
                     onPressed: _advancedOptions),
@@ -344,15 +323,14 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                       : ListView.builder(
                           itemCount: _filteredResults.length,
                           itemBuilder: (final _, final i) {
-                            final c = _filteredResults[i];
-                            final packageFuture = c.packageId.isNotEmpty
-                                ? _packageOperation.getPackageById(c.packageId)
-                                : Future<PackageModel?>.value();
+                            final detail = _filteredResults[i];
+                            final c = detail.activeCustomer;
+
                             return Card(
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 7),
                               child: InkWell(
-                                onLongPress: () => _archiveCustomer(c),
+                                onLongPress: () => _archiveCustomer(detail),
                                 onTap: () async {
                                   await Navigator.push(
                                       context,
@@ -363,16 +341,17 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                                   await _loadData(forceRefresh: true);
                                 },
                                 child: ListTile(
-                                  title: CustomerNameWidget(
-                                      customerId: c.customerId,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  title: Text(
+                                    detail.customerName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   subtitle: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      PackageNameWidget(
-                                          packageFuture: packageFuture),
+                                      Text(detail.packageName),
                                       Text('Pembayaran: ${c.status.name}',
                                           style: TextStyle(
                                               color:

@@ -33,40 +33,46 @@ class LocalStorageService {
 
   /// Menyimpan mode tema ([ThemeMode]) yang dipilih pengguna.
   ///
-  /// Mode tema disimpan berdasarkan `userId` untuk personalisasi.
+  /// Mode tema disimpan berdasarkan `userId` untuk personalisasi jika ada.
+  /// Jika tidak, akan disimpan secara global (untuk admin app).
   Future<void> saveThemeMode(final ThemeMode mode) async {
     Log.info('[Simpan Tema] Menyimpan mode tema: $mode.');
     final userId = prefs.getString(_userIdKey);
     if (userId == null) {
-      Log.warning(
-        '[Simpan Tema] Pengguna belum login, penyimpanan mode tema dibatalkan.',
-      );
-      return;
+      // Untuk app admin atau jika user belum login, simpan secara global
+      await prefs.setString(_themeModePrefixKey, mode.toString());
+      Log.info('[Simpan Tema] Mode tema berhasil disimpan secara global.');
+    } else {
+      // Untuk user app yang sudah login, simpan per-user
+      await prefs.setString('$_themeModePrefixKey$userId', mode.toString());
+      Log.info(
+          '[Simpan Tema] Mode tema berhasil disimpan untuk user ID: $userId.');
     }
-    await prefs.setString('$_themeModePrefixKey$userId', mode.toString());
-    Log.info(
-      '[Simpan Tema] Mode tema berhasil disimpan untuk user ID: $userId.',
-    );
   }
 
-  /// Mengambil mode tema yang disimpan untuk pengguna yang sedang login.
+  /// Mengambil mode tema yang disimpan.
   ///
-  /// Mengembalikan [ThemeMode.system] jika tidak ada pengguna yang login atau
-  /// tidak ada mode tema yang disimpan.
+  /// Akan mencari tema per-user jika ada. Jika tidak, akan mencari tema global.
+  /// Mengembalikan [ThemeMode.system] jika tidak ada yang ditemukan.
   Future<ThemeMode> getThemeMode() async {
     Log.info('[Ambil Tema] Mengambil mode tema.');
     final userId = prefs.getString(_userIdKey);
+    String? modeString;
+
     if (userId == null) {
-      Log.warning(
-        '[Ambil Tema] Pengguna belum login, menggunakan ThemeMode.system.',
-      );
-      return ThemeMode.system;
+      // Coba ambil dari penyimpanan global (untuk admin app)
+      modeString = prefs.getString(_themeModePrefixKey);
+      Log.info(
+          '[Ambil Tema] Mencoba mengambil tema global (tidak ada user login).');
+    } else {
+      // Coba ambil dari penyimpanan per-user
+      modeString = prefs.getString('$_themeModePrefixKey$userId');
+      Log.info('[Ambil Tema] Mencoba mengambil tema untuk user ID: $userId.');
     }
 
-    final modeString = prefs.getString('$_themeModePrefixKey$userId');
     if (modeString == null) {
       Log.warning(
-        '[Ambil Tema] Mode tema tidak ditemukan untuk user ID: $userId, menggunakan ThemeMode.system.',
+        '[Ambil Tema] Mode tema tidak ditemukan, menggunakan ThemeMode.system.',
       );
       return ThemeMode.system;
     }

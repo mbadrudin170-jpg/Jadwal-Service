@@ -20,13 +20,10 @@ import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-/// Widget utama aplikasi admin, kini menerima NotifikasiServis.
+/// Widget utama aplikasi admin.
 class AppAdmin extends StatelessWidget {
-  /// Instance NotifikasiServis yang sudah diinisialisasi dari main().
-  final NotifikasiServis notifikasiServis;
-
-  /// Konstruktor untuk AppAdmin, wajib menerima NotifikasiServis.
-  const AppAdmin({super.key, required this.notifikasiServis});
+  /// Konstruktor untuk AppAdmin.
+  const AppAdmin({super.key});
 
   @override
   Widget build(final BuildContext context) {
@@ -45,7 +42,10 @@ class AppAdmin extends StatelessWidget {
               create: (final _) =>
                   ThemeProviderImpl(localStorageService: localStorageService),
             ),
-            Provider<NotifikasiServis>.value(value: notifikasiServis),
+            // Menyediakan instance singleton dari NotifikasiServis
+            Provider<NotifikasiServis>(
+              create: (final _) => NotifikasiServis(),
+            ),
           ],
           child: const AppInitializer(),
         );

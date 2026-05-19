@@ -12,6 +12,7 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
@@ -28,15 +29,50 @@ class ActiveCustomerOperation {
 
   // DIUBAH: Menggunakan TableNameValue dinamis untuk konsistensi migrasi v50
   final String _tableName = TableNameValue.get(TableName.activeCustomer);
+  final String _customerTableName = TableNameValue.get(TableName.customer);
+  final String _packageTableName = TableNameValue.get(TableName.package);
 
-  /// Instance dari NotifikasiServis untuk menjadwalkan notifikasi.
-  late final NotifikasiServis notifikasiServis;
+  final NotifikasiServis _notifikasiServis = NotifikasiServis();
   final CustomerOperation _customerOperation = CustomerOperation();
 
   /// Konstruktor untuk `ActiveCustomerOperation`.
-  ActiveCustomerOperation({final NotifikasiServis? notifikasiServis}) {
-    this.notifikasiServis = notifikasiServis ?? NotifikasiServis();
+  ActiveCustomerOperation() {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
+  }
+
+  /// Mengambil semua pelanggan aktif dengan detail nama pelanggan dan nama paket
+  /// menggunakan satu query JOIN yang efisien.
+  Future<List<ActiveCustomerDetailModel>> getAllActiveCustomersWithDetails() async {
+    final db = await dbHelper.database;
+    Log.info('Mengambil semua pelanggan aktif dengan detail (JOIN)');
+
+    final query = '''
+      SELECT
+        ac.*,
+        c.${ColumnNames.name} as customer_name,
+        p.${ColumnNames.name} as package_name
+      FROM $_tableName ac
+      LEFT JOIN $_customerTableName c ON ac.${ColumnNames.customerId} = c.${ColumnNames.id}
+      LEFT JOIN $_packageTableName p ON ac.${ColumnNames.packageId} = p.${ColumnNames.id}
+      WHERE ac.${ColumnNames.isDeleted} = 0
+    ''';
+
+    try {
+      final List<Map<String, dynamic>> maps = await db.rawQuery(query);
+      Log.info('Berhasil mengambil ${maps.length} pelanggan aktif dengan detail.');
+
+      return List.generate(maps.length, (final i) {
+        final map = maps[i];
+        return ActiveCustomerDetailModel(
+          activeCustomer: ActiveCustomerModel.fromSqlite(map),
+          customerName: map['customer_name'] as String? ?? 'Tanpa Nama',
+          packageName: map['package_name'] as String? ?? 'Tanpa Paket',
+        );
+      });
+    } on Exception catch (e, st) {
+      Log.error('Gagal melakukan query JOIN untuk pelanggan aktif', e: e, st: st);
+      rethrow;
+    }
   }
 
   /// Membuat [ActiveCustomerModel] baru di database.
@@ -170,14 +206,14 @@ class ActiveCustomerOperation {
       final customerName = customer?.name ?? 'Tanpa Nama';
 
       // Batalkan notifikasi lama
-      await notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
-      await notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
-      await notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
+      await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
+      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
+      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
 
       // 1. NOTIFIKASI TEPAT SAAT BERAKHIR
       final exactTime = activeCustomer.endDate;
       if (exactTime.isAfter(DateTime.now())) {
-        await notifikasiServis.jadwalNotifikasi(
+        await _notifikasiServis.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 2),
           title: 'Masa Aktif Habis!',
           body: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
@@ -189,7 +225,7 @@ class ActiveCustomerOperation {
       final h1Schedule =
           activeCustomer.endDate.subtract(const Duration(days: 1));
       if (h1Schedule.isAfter(DateTime.now())) {
-        await notifikasiServis.jadwalNotifikasi(
+        await _notifikasiServis.jadwalNotifikasi(
           id: activeCustomer.id.hashCode,
           title: 'Paket Akan Segera Berakhir',
           body: 'Paket untuk pelanggan $customerName akan berakhir besok.',
@@ -201,7 +237,7 @@ class ActiveCustomerOperation {
       final h3Schedule =
           activeCustomer.endDate.subtract(const Duration(days: 3));
       if (h3Schedule.isAfter(DateTime.now())) {
-        await notifikasiServis.jadwalNotifikasi(
+        await _notifikasiServis.jadwalNotifikasi(
           id: (activeCustomer.id.hashCode + 1),
           title: 'Pengingat Paket',
           body:
@@ -275,9 +311,9 @@ class ActiveCustomerOperation {
             whereArgs: [id],
           );
 
-          await notifikasiServis.batalNotifikasi(id.hashCode);
-          await notifikasiServis.batalNotifikasi((id.hashCode + 1));
-          await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+          await _notifikasiServis.batalNotifikasi(id.hashCode);
+          await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
+          await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
         },
         fromServer: fromServer,
       );
@@ -374,9 +410,9 @@ class ActiveCustomerOperation {
           );
 
           for (final id in idsToArchive) {
-            await notifikasiServis.batalNotifikasi(id.hashCode);
-            await notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+            await _notifikasiServis.batalNotifikasi(id.hashCode);
+            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
+            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
           }
         },
         fromServer: fromServer,
@@ -421,9 +457,9 @@ class ActiveCustomerOperation {
           );
 
           for (final id in idsToArchive) {
-            await notifikasiServis.batalNotifikasi(id.hashCode);
-            await notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await notifikasiServis.batalNotifikasi((id.hashCode + 2));
+            await _notifikasiServis.batalNotifikasi(id.hashCode);
+            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
+            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
           }
         },
         fromServer: fromServer,

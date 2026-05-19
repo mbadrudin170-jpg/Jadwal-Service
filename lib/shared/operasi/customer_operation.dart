@@ -121,7 +121,7 @@ class CustomerOperation {
         Log.info('Customer dengan ID: $id ditemukan.');
         return CustomerModel.fromSqlite(maps.first);
       }
-      Log.warning('Customer dengan ID: $id tidak ditemukan.');
+      Log.info('Customer dengan ID: $id tidak ditemukan (hasil valid).');
       return null;
     } catch (e, s) {
       Log.error('Gagal mencari customer berdasarkan ID.', e: e, st: s);

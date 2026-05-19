@@ -5,13 +5,13 @@
 //
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
+//   - lib/shared/model/active_customer_detail_model.dart (ActiveCustomerDetailModel)
 //   - lib/shared/utils/calculation_util.dart (CalculationUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 
 /// Opsi pengurutan untuk daftar pelanggan aktif.
@@ -50,41 +50,39 @@ enum SortOption {
 class ActiveCustomerSorter {
   /// Mengurutkan daftar [customers] berdasarkan [sortOption] yang dipilih.
   ///
-  /// [customerNameMap] digunakan untuk menerjemahkan ID pelanggan ke nama
-  /// saat mengurutkan berdasarkan nama (nameAZ/nameZA).
-  ///
   /// Mengembalikan list baru yang sudah terurut.
-  static List<ActiveCustomerModel> sort(
-    final List<ActiveCustomerModel> customers,
+  static List<ActiveCustomerDetailModel> sort(
+    final List<ActiveCustomerDetailModel> customers,
     final SortOption sortOption,
-    final Map<String, String> customerNameMap,
   ) {
     Log.info(
       'Mengurutkan ${customers.length} pelanggan berdasarkan: ${sortOption.name}',
     );
     final sortedList = List.of(customers);
 
-    int Function(ActiveCustomerModel, ActiveCustomerModel) comparator;
+    int Function(ActiveCustomerDetailModel, ActiveCustomerDetailModel) comparator;
 
     switch (sortOption) {
       case SortOption.endDate:
-        comparator = (final a, final b) => a.endDate.compareTo(b.endDate);
+        comparator = (final a, final b) =>
+            a.activeCustomer.endDate.compareTo(b.activeCustomer.endDate);
         break;
       case SortOption.startDate:
-        comparator = (final a, final b) => a.startDate.compareTo(b.startDate);
+        comparator = (final a, final b) =>
+            a.activeCustomer.startDate.compareTo(b.activeCustomer.startDate);
         break;
       case SortOption.lastUpdated:
         comparator = (final a, final b) {
-          final dateA = a.updatedAt ?? a.startDate;
-          final dateB = b.updatedAt ?? b.startDate;
+          final dateA = a.activeCustomer.updatedAt ?? a.activeCustomer.startDate;
+          final dateB = b.activeCustomer.updatedAt ?? b.activeCustomer.startDate;
           return dateB.compareTo(dateA);
         };
         break;
       case SortOption.nameAZ:
       case SortOption.nameZA:
         comparator = (final a, final b) {
-          final nameA = customerNameMap[a.customerId] ?? '';
-          final nameB = customerNameMap[b.customerId] ?? '';
+          final nameA = a.customerName;
+          final nameB = b.customerName;
           return sortOption == SortOption.nameAZ
               ? nameA.compareTo(nameB)
               : nameB.compareTo(nameA);
@@ -93,10 +91,11 @@ class ActiveCustomerSorter {
       case SortOption.paid:
       case SortOption.unpaid:
         comparator = (final a, final b) {
-          final isPaidA = a.status == PaymentStatus.paid;
-          final isPaidB = b.status == PaymentStatus.paid;
+          final isPaidA = a.activeCustomer.status == PaymentStatus.paid;
+          final isPaidB = b.activeCustomer.status == PaymentStatus.paid;
           if (isPaidA == isPaidB) {
-            return a.endDate.compareTo(b.endDate);
+            return a.activeCustomer.endDate
+                .compareTo(b.activeCustomer.endDate);
           }
           return (sortOption == SortOption.paid)
               ? (isPaidA ? -1 : 1)
@@ -106,10 +105,13 @@ class ActiveCustomerSorter {
       case SortOption.activePackage:
       case SortOption.inactivePackage:
         comparator = (final a, final b) {
-          final isActiveA = CalculationUtil.remainingDays(a.endDate) >= 0;
-          final isActiveB = CalculationUtil.remainingDays(b.endDate) >= 0;
+          final isActiveA =
+              CalculationUtil.remainingDays(a.activeCustomer.endDate) >= 0;
+          final isActiveB =
+              CalculationUtil.remainingDays(b.activeCustomer.endDate) >= 0;
           if (isActiveA == isActiveB) {
-            return a.endDate.compareTo(b.endDate);
+            return a.activeCustomer.endDate
+                .compareTo(b.activeCustomer.endDate);
           }
           return (sortOption == SortOption.activePackage)
               ? (isActiveA ? -1 : 1)

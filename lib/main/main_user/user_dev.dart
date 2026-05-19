@@ -103,9 +103,9 @@ void main() async {
   Log.info('[main-dev] Melanjutkan ke aplikasi utama...');
 
   final prefs = await SharedPreferences.getInstance();
-  final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi(iconName: '@mipmap/ic_launcher');
-  await notifikasiServis.requestPermissions();
+  // Inisialisasi servis notifikasi menggunakan factory constructor Singleton.
+  await NotifikasiServis().inisialisasi(iconName: '@mipmap/ic_launcher');
+  await NotifikasiServis().requestPermissions();
 
-  runApp(AppUser(prefs: prefs, notifikasiServis: notifikasiServis));
+  runApp(AppUser(prefs: prefs));
 }

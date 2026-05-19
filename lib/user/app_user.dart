@@ -18,15 +18,8 @@ class AppUser extends StatelessWidget {
   /// Instance dari SharedPreferences untuk penyimpanan lokal.
   final SharedPreferences prefs;
 
-  /// Instance dari NotifikasiServis yang sudah diinisialisasi.
-  final NotifikasiServis notifikasiServis;
-
   /// Membuat instance [AppUser].
-  const AppUser({
-    super.key,
-    required this.prefs,
-    required this.notifikasiServis,
-  });
+  const AppUser({super.key, required this.prefs});
 
   @override
   Widget build(final BuildContext context) {
@@ -39,7 +32,10 @@ class AppUser extends StatelessWidget {
           create: (final _) =>
               ThemeProviderImpl(localStorageService: localStorageService),
         ),
-        Provider<NotifikasiServis>.value(value: notifikasiServis),
+        // Menyediakan instance singleton dari NotifikasiServis
+        Provider<NotifikasiServis>(
+          create: (final _) => NotifikasiServis(),
+        ),
       ],
       child: Consumer<ThemeProvider>(
         builder: (final context, final themeProvider, final child) {

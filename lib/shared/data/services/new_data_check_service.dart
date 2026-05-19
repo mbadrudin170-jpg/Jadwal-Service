@@ -9,6 +9,7 @@
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
@@ -123,12 +124,12 @@ class NewDataCheckService {
         );
         final data = docSnapshot.data() as Map<String, dynamic>;
 
-        if (data.containsKey('diperbarui')) {
+        if (data.containsKey(ColumnNames.updatedAt)) {
           Log.info(
-            'Field "diperbarui" ditemukan pada dokumen server. Mengonversi tipe data Timestamp Firestore ke objek DateTime Dart.',
+            'Field "${ColumnNames.updatedAt}" ditemukan pada dokumen server. Mengonversi tipe data Timestamp Firestore ke objek DateTime Dart.',
           );
           final DateTime serverTime =
-              (data['diperbarui'] as Timestamp).toDate();
+              (data[ColumnNames.updatedAt] as Timestamp).toDate();
           Log.info('Waktu pembaruan di server adalah: $serverTime');
 
           final bool isAfter = serverTime.isAfter(localTime);
@@ -144,7 +145,7 @@ class NewDataCheckService {
           return isAfter;
         } else {
           Log.warning(
-            'Struktur data dokumen di server tidak sesuai standar. Field "diperbarui" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
+            'Struktur data dokumen di server tidak sesuai standar. Field "${ColumnNames.updatedAt}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
           );
           return false;
         }

@@ -20,11 +20,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inisialisasi servis notifikasi.
-  final notifikasiServis = NotifikasiServis();
-  await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
-  await notifikasiServis.requestPermissions();
+  // Inisialisasi servis notifikasi menggunakan factory constructor Singleton.
+  await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
+  await NotifikasiServis().requestPermissions();
 
-  // diubah: Menjalankan AppAdmin dan menyuntikkan NotifikasiServis.
-  runApp(AppAdmin(notifikasiServis: notifikasiServis));
+  // Menjalankan AppAdmin.
+  runApp(const AppAdmin());
 }
