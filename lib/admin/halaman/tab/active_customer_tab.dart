@@ -15,6 +15,7 @@
 //   - lib/shared/utils/calculation_util.dart (CalculationUtil)
 //   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
 //   - lib/shared/debug/log.dart (Log)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 
 import 'dart:async';
 
@@ -31,6 +32,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart'; // <-- tambahan import
 
 /// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
 enum DeleteOption {
@@ -74,6 +76,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   @override
   void initState() {
     super.initState();
+    Log.info('ActiveCustomerPage initState'); // <-- log inisialisasi
     unawaited(_loadData());
     _searchController.addListener(_onSearchChanged);
   }
@@ -92,6 +95,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   Future<void> _loadData({final bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() => _isLoading = true);
+    Log.info(
+        'Memuat data pelanggan aktif forceRefresh=$forceRefresh'); // <-- log info
 
     try {
       final online = await _connectionService.checkConnection();
@@ -103,12 +108,12 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                   throw TimeoutException('Waktu sinkronisasi habis.'),
             );
       } else if (!online && forceRefresh) {
+        // Ganti SnackBar manual dengan SnackBarUtil.warning + Log.warning
+        Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content:
-                    Text('Jaringan tidak tersedia. Menampilkan data lokal.'),
-                backgroundColor: Colors.orange),
+          SnackBarUtil.warning(
+            context,
+            'Jaringan tidak tersedia. Menampilkan data lokal.',
           );
         }
       }
@@ -118,10 +123,10 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
           await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
     } on Exception catch (e, s) {
-      Log.error('Gagal memuat data.', e: e, st: s);
+      // Error: Log.error + SnackBarUtil.error
+      Log.error('Gagal memuat data pelanggan aktif', e: e, st: s);
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+        SnackBarUtil.error(context, 'Gagal memuat data');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -129,8 +134,11 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   }
 
   void _applyFilterAndSort() {
-    List<ActiveCustomerDetailModel> tempResult;
     final query = _searchController.text.toLowerCase();
+    // Log.info dengan info singkat (query & sort aktif)
+    Log.info('applyFilterAndSort query="$query" sort=${_activeSort.name}');
+
+    List<ActiveCustomerDetailModel> tempResult;
 
     if (query.isNotEmpty) {
       tempResult = _allCustomers.where((final c) {
@@ -147,13 +155,18 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
   Future<void> _archiveCustomer(
       final ActiveCustomerDetailModel customer) async {
+    final customerId = customer.activeCustomer.id;
+    final customerName = customer.customerName;
+    Log.info(
+        'Mulai arsip pelanggan id=$customerId nama=$customerName'); // <-- log awal
+
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (final ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
         content: Wrap(children: [
           const Text('Yakin ingin mengarsipkan '),
-          Text(customer.customerName,
+          Text(customerName,
               style: const TextStyle(fontWeight: FontWeight.bold)),
           const Text('?'),
         ]),
@@ -173,10 +186,11 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       try {
         await _activeCustomerOperation
             .archiveActiveCustomer(customer.activeCustomer.id);
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Pelanggan berhasil diarsipkan.'),
-            backgroundColor: Colors.green));
+        // Sukses: log info + snackbar success (feedback ke user)
+        Log.info('Berhasil arsip pelanggan id=$customerId');
+        if (mounted) {
+          SnackBarUtil.success(context, 'Pelanggan berhasil diarsipkan.');
+        }
         setState(() {
           _allCustomers.removeWhere(
               (final p) => p.activeCustomer.id == customer.activeCustomer.id);
@@ -184,16 +198,20 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               (final p) => p.activeCustomer.id == customer.activeCustomer.id);
         });
       } on Exception catch (e, s) {
-        Log.error('Gagal mengarsipkan.', e: e, st: s);
+        // Error: Log.error + SnackBarUtil.error
+        Log.error('Gagal mengarsipkan pelanggan id=$customerId', e: e, st: s);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Gagal: $e'), backgroundColor: Colors.red));
+          SnackBarUtil.error(context, 'Gagal mengarsipkan pelanggan');
         }
       }
+    } else {
+      Log.info('Arsip pelanggan id=$customerId dibatalkan oleh user');
     }
   }
 
   Future<void> _showSortDialog() async {
+    Log.info(
+        'Menampilkan dialog sort, sort aktif=${_activeSort.name}'); // <-- log
     final SortOption? selected = await showDialog<SortOption>(
       context: context,
       builder: (final ctx) => SimpleDialog(
@@ -213,18 +231,24 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       ),
     );
     if (selected != null && selected != _activeSort) {
+      Log.info('Sort diubah menjadi ${selected.name}'); // <-- log perubahan
       setState(() => _activeSort = selected);
       _applyFilterAndSort();
     }
   }
 
   Future<void> _addActiveCustomer() async {
+    Log.info('Navigasi ke form tambah pelanggan aktif'); // <-- log
     final result = await Navigator.push<bool>(
         context, MaterialPageRoute(builder: (final _) => FormPelangganAktif()));
-    if (result ?? false) await _loadData(forceRefresh: true);
+    if (result ?? false) {
+      Log.info('Pelanggan baru ditambahkan, memuat ulang data');
+      await _loadData(forceRefresh: true);
+    }
   }
 
   Future<void> _advancedOptions() async {
+    Log.info('Membuka opsi lanjutan'); // <-- log
     final DeleteOption? selected = await showDialog<DeleteOption>(
       context: context,
       builder: (final ctx) => SimpleDialog(
@@ -248,6 +272,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     if (!mounted) return;
     switch (selected) {
       case DeleteOption.hapusSemua:
+        Log.warning('Opsi hapus semua dipilih'); // <-- log warning
         final bool? confirm = await showDialog<bool>(
             context: context,
             builder: (final ctx) => AlertDialog(
@@ -263,17 +288,25 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                   ],
                 ));
         if (confirm ?? false) {
+          Log.warning('Eksekusi hapus semua pelanggan aktif');
           await _activeCustomerOperation.archiveAllActiveCustomers();
           await _loadData(forceRefresh: true);
         }
+        break;
       case DeleteOption.arsipkanKadaluarsa:
+        Log.info('Mulai arsipkan pelanggan kadaluarsa'); // <-- log
         final count = await _activeCustomerOperation.archiveExpiredCustomers();
+        Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('$count pelanggan kadaluarsa diarsipkan.')));
+          // Feedback sukses ke user dengan snackbar
+          SnackBarUtil.success(
+              context, '$count pelanggan kadaluarsa diarsipkan.');
         }
         await _loadData(forceRefresh: true);
+        break;
       default:
+        // batal
+        break;
     }
   }
 

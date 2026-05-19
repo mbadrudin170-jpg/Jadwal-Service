@@ -18,35 +18,38 @@ enum SnackBarType {
   info,
 }
 
-/// Kelas utilitas untuk menampilkan SnackBar dengan gaya yang konsisten dan logging otomatis.
+/// Kelas utilitas untuk menampilkan SnackBar dengan gaya yang konsisten
+/// sekaligus mencatat log otomatis menggunakan [Log].
 class SnackBarUtil {
-  /// Fungsi internal untuk menampilkan SnackBar dan mencatat log.
+  /// Menampilkan SnackBar dan mencatat log berdasarkan [type].
+  ///
+  /// [message] akan tampil di UI, sedangkan [logData] hanya direkam
+  /// di console debug sebagai konteks tambahan (tidak tampil ke pengguna).
   static void _show(
     final BuildContext context,
     final String message, {
     final SnackBarType type = SnackBarType.info,
+    final Object? logData,
   }) {
-    // Mencatat pesan ke log berdasarkan tipenya
-    final logMessage = '[SNACKBAR] Tipe: ${type.name}, Pesan: $message';
+    // Pesan log pendek, kaya informasi
+    final shortLog = '[SNACKBAR] type=${type.name} msg="$message"';
     switch (type) {
       case SnackBarType.success:
-        Log.info(logMessage);
+        Log.info(shortLog, logData);
         break;
       case SnackBarType.error:
-        Log.error(logMessage);
+        Log.error(shortLog, data: logData);
         break;
       case SnackBarType.warning:
-        Log.warning(logMessage);
+        Log.warning(shortLog, logData);
         break;
       case SnackBarType.info:
-        Log.info(logMessage);
+        Log.info(shortLog, logData);
         break;
     }
 
-    // Jangan tampilkan snackbar jika context sudah tidak valid setelah logging
     if (!context.mounted) return;
 
-    // Tentukan warna berdasarkan tipe snackbar
     Color backgroundColor;
     switch (type) {
       case SnackBarType.success:
@@ -63,7 +66,6 @@ class SnackBarUtil {
         break;
     }
 
-    // Buat dan tampilkan SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -76,23 +78,38 @@ class SnackBarUtil {
     );
   }
 
-  /// Menampilkan SnackBar dengan tipe success.
-  static void success(final BuildContext context, final String message) {
-    _show(context, message, type: SnackBarType.success);
-  }
+  /// Menampilkan SnackBar sukses (hijau).
+  static void success(
+    final BuildContext context,
+    final String message, {
+    final Object? logData,
+  }) =>
+      _show(context, message, type: SnackBarType.success, logData: logData);
 
-  /// Menampilkan SnackBar dengan tipe error.
-  static void error(final BuildContext context, final String message) {
-    _show(context, message, type: SnackBarType.error);
-  }
+  /// Menampilkan SnackBar error (merah).
+  static void error(
+    final BuildContext context,
+    final String message, {
+    final Object? logData,
+  }) =>
+      _show(context, message, type: SnackBarType.error, logData: logData);
 
-  /// Menampilkan SnackBar dengan tipe warning.
-  static void warning(final BuildContext context, final String message) {
-    _show(context, message, type: SnackBarType.warning);
-  }
+  /// Menampilkan SnackBar peringatan (oranye).
+  static void warning(
+    final BuildContext context,
+    final String message, {
+    final Object? logData,
+  }) =>
+      _show(context, message, type: SnackBarType.warning, logData: logData);
 
-  /// Menampilkan SnackBar dengan tipe info.
-  static void info(final BuildContext context, final String message) {
-    _show(context, message);
-  }
+  /// Menampilkan SnackBar informasi (biru).
+  ///
+  /// Karena [SnackBarType.info] sudah menjadi nilai default di `_show`,
+  /// pemanggilan tidak perlu menyertakan argumen `type`.
+  static void info(
+    final BuildContext context,
+    final String message, {
+    final Object? logData,
+  }) =>
+      _show(context, message, logData: logData);
 }
