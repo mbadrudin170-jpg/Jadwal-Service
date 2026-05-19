@@ -1,5 +1,5 @@
 // path: lib/user/app_user.dart
-// diubah: Memperbaiki semua masalah dari flutter analyze dan menghubungkan SnackBar global.
+// perbaikan: Melengkapi state dan logika fallback untuk alur pembaruan.
 
 import 'dart:async';
 
@@ -12,7 +12,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -83,8 +86,6 @@ enum AppStatus {
 }
 
 /// Widget yang menangani seluruh alur inisialisasi aplikasi.
-///
-/// Widget ini menggunakan state machine untuk menentukan halaman mana yang harus ditampilkan.
 class AppInitializer extends StatefulWidget {
   /// Instance dari [SharedPreferences].
   final SharedPreferences prefs;
@@ -107,6 +108,9 @@ class _AppInitializerState extends State<AppInitializer> {
   AppStatus _status = AppStatus.initializing;
   String _loadingMessage = 'Memulai aplikasi...';
   SettingsModel? _maintenanceSettings;
+  ApkVersionModel? _apkInfo;
+  PackageInfoModel? _packageInfo;
+  ApkArchitectureEnum? _architecture;
 
   @override
   void initState() {
@@ -115,7 +119,6 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 
   /// Fungsi utama yang menjalankan seluruh proses inisialisasi.
-  /// Dapat dipanggil kembali untuk mencoba lagi (misalnya dari MaintenancePage).
   Future<void> _initializeApp() async {
     if (_status != AppStatus.initializing) {
       setState(() {
@@ -139,7 +142,7 @@ class _AppInitializerState extends State<AppInitializer> {
       );
 
       _updateMessage('Menginisialisasi Notifikasi...');
-      await NotifikasiServis().inisialisasi(iconName: '@mipmap/ic_launcher');
+      await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
       await NotifikasiServis().requestPermissions();
 
       _updateMessage('Menginisialisasi format tanggal...');
@@ -152,10 +155,14 @@ class _AppInitializerState extends State<AppInitializer> {
       if (isConnected) {
         _updateMessage('Memeriksa pembaruan aplikasi...');
         final updateService = UpdateCheckService();
-        if (await updateService.isUpdateRequired()) {
-          _updateMessage('Pembaruan ditemukan!');
+        final updateInfo = await updateService.getUpdateInfo();
+
+        if (updateInfo.isUpdateRequired) {
           setState(() {
             _status = AppStatus.needsUpdate;
+            _apkInfo = updateInfo.apkInfo;
+            _packageInfo = updateInfo.packageInfo;
+            _architecture = updateInfo.architecture;
           });
           return;
         }
@@ -187,12 +194,10 @@ class _AppInitializerState extends State<AppInitializer> {
       Log.error('Error kritis saat inisialisasi user app', e: e, st: st);
       _updateMessage('Terjadi error. Silakan coba lagi.');
 
-      // Menggunakan SnackBar global untuk menampilkan error
       SnackBarUtil.globalError(
         'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.',
       );
 
-      // Lanjutkan ke status siap agar pengguna bisa mencoba login atau melihat data cache
       setState(() {
         _status = AppStatus.ready;
       });
@@ -213,7 +218,7 @@ class _AppInitializerState extends State<AppInitializer> {
     return Consumer<ThemeProvider>(
       builder: (final context, final themeProvider, final child) {
         return MaterialApp(
-          scaffoldMessengerKey: SnackBarUtil.key, // Menghubungkan GlobalKey
+          scaffoldMessengerKey: SnackBarUtil.key,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
@@ -237,7 +242,17 @@ class _AppInitializerState extends State<AppInitializer> {
           onExit: SystemNavigator.pop,
         );
       case AppStatus.needsUpdate:
-        return const UpdateApkPage();
+        if (_apkInfo != null && _packageInfo != null && _architecture != null) {
+          return UpdateApkPage(
+            apkInfo: _apkInfo!,
+            packageInfo: _packageInfo!,
+            architecture: _architecture!,
+          );
+        } else {
+          return const SplashScreenUser(
+            loadingMessage: 'Error: Data pembaruan tidak lengkap. Coba lagi.',
+          );
+        }
       case AppStatus.ready:
         final userId = widget.prefs.getString('userId');
         if (userId != null) {

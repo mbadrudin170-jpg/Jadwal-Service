@@ -1,30 +1,32 @@
 // path: lib/shared/services/package_info_service.dart
-// File ini bertanggung jawab untuk menyediakan informasi paket aplikasi.
-
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/package_info_model.dart';
 
-/// Kelas layanan untuk mengambil informasi paket aplikasi.
+/// Kelas layanan untuk mendapatkan informasi paket aplikasi.
 class PackageInfoService {
-  /// Konstruktor untuk PackageInfoService.
+  /// Konstruktor untuk [PackageInfoService].
   PackageInfoService() {
     Log.info('PackageInfoService diinisialisasi.');
   }
 
-  /// Mengambil informasi paket aplikasi seperti versi dan build number.
+  /// Mengambil informasi paket aplikasi yang sedang berjalan.
   ///
-  /// Mengembalikan objek [PackageInfo] jika berhasil, atau `null` jika gagal.
-  Future<PackageInfo?> getPackageInfo() async {
+  /// Mengembalikan instance [PackageInfoModel] yang berisi detail seperti
+  /// nama aplikasi, nama paket, versi, dan nomor build.
+  /// Mengembalikan `null` jika terjadi kesalahan saat mengambil data.
+  Future<PackageInfoModel?> getPackageInfo() async {
     Log.info('Mencoba mengambil info paket aplikasi.');
     try {
       final packageInfo = await PackageInfo.fromPlatform();
+      final model = PackageInfoModel.fromPackageInfo(packageInfo);
       Log.info('Berhasil mengambil info paket.', {
-        'appName': packageInfo.appName,
-        'packageName': packageInfo.packageName,
-        'version': packageInfo.version,
-        'buildNumber': packageInfo.buildNumber,
+        'appName': model.appName,
+        'packageName': model.packageName,
+        'version': model.version,
+        'buildNumber': model.buildNumber,
       });
-      return packageInfo;
+      return model;
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil info paket.', e: e, st: st);
       return null;

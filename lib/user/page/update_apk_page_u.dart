@@ -1,25 +1,34 @@
 // path: lib/user/page/update_apk_page_u.dart
-// diperbaiki: Menambahkan const untuk optimasi performa.
+// perbaikan: Menghapus penggunaan _isUpdateAvailable yang sudah tidak ada.
 
 import 'dart:async';
 
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
-import 'package:wifi/shared/services/device_info_service.dart';
+import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
-/// A page for checking and managing application updates.
+/// Halaman yang menampilkan detail pembaruan aplikasi dan opsi untuk mengunduh.
 class UpdateApkPage extends StatefulWidget {
-  /// Creates an [UpdateApkPage].
-  const UpdateApkPage({super.key});
+  /// Informasi versi APK terbaru yang didapat dari proses inisialisasi.
+  final ApkVersionModel apkInfo;
+
+  /// Informasi paket aplikasi yang sedang terpasang (versi lokal).
+  final PackageInfoModel packageInfo;
+
+  /// Arsitektur perangkat yang terdeteksi (bit64, bit32, universal).
+  final ApkArchitectureEnum architecture;
+
+  /// Membuat instance [UpdateApkPage].
+  const UpdateApkPage(
+      {super.key,
+      required this.apkInfo,
+      required this.packageInfo,
+      required this.architecture});
 
   @override
   State<UpdateApkPage> createState() => _UpdateApkPageState();
@@ -27,18 +36,10 @@ class UpdateApkPage extends StatefulWidget {
 
 class _UpdateApkPageState extends State<UpdateApkPage>
     with SingleTickerProviderStateMixin {
-  // Firebase and Services
-  final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
-  late final DeviceInfoService _deviceInfoService;
+  // Services
 
-  // State variables
-  bool _isChecking = false;
-  bool _isUpdateAvailable = false;
-  PackageInfo? _packageInfo;
-  ApkVersionModel? _apkVersionModel;
-  ApkArchitectureEnum? _deviceArchitecture;
-  String _fileSize = '...'; // Default value
-  List<String> _changelog = [];
+  final String _fileSize = 'Tersedia'; // Placeholder, bisa dikembangkan nanti
+  late final List<String> _changelog;
 
   // Animation
   late AnimationController _pulseController;
@@ -47,9 +48,13 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   @override
   void initState() {
     super.initState();
-    _deviceInfoService = DeviceInfoService(DeviceInfoPlugin());
     _initializeAnimations();
-    unawaited(_initAppInfo());
+
+    // Data changelog dan pembaruan sudah tersedia dari widget
+    _changelog = widget.apkInfo.releaseNotes.split('\n');
+
+    // Memulai animasi karena halaman ini hanya muncul jika ada pembaruan
+    unawaited(_pulseController.repeat(reverse: true));
   }
 
   void _initializeAnimations() {
@@ -68,130 +73,33 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     super.dispose();
   }
 
-  Future<void> _initAppInfo() async {
-    Log.info('Memulai inisialisasi info aplikasi dan perangkat.');
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final deviceInfo = await _deviceInfoService.getDeviceArchitecture();
-      final architecture = _determineArchitecture(deviceInfo);
-
-      if (mounted) {
-        setState(() {
-          _packageInfo = packageInfo;
-          _deviceArchitecture = architecture;
-        });
-        Log.info('Info aplikasi dan perangkat berhasil dimuat.', {
-          'version': packageInfo.version,
-          'buildNumber': packageInfo.buildNumber,
-          'architecture': architecture?.name,
-        });
-      }
-    } on Exception catch (e, st) {
-      Log.error('Gagal memuat info aplikasi awal.', e: e, st: st);
-      if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat info perangkat.');
-      }
-    }
-  }
-
-  ApkArchitectureEnum? _determineArchitecture(
-      final Map<String, dynamic> deviceInfo) {
-    if (kIsWeb || deviceInfo['error'] != null) {
-      return null;
-    }
-
-    final supportedAbis =
-        List<String>.from(deviceInfo['supportedAbis'] as Iterable<dynamic>);
-    if (supportedAbis.contains('arm64-v8a')) {
-      return ApkArchitectureEnum.bit64;
-    } else if (supportedAbis.contains('armeabi-v7a')) {
-      return ApkArchitectureEnum.bit32;
-    }
-    return null;
-  }
-
-  Future<void> _checkForUpdate() async {
-    Log.info('Memulai pemeriksaan pembaruan.');
-    if (_packageInfo == null || _deviceArchitecture == null) {
-      if (mounted) {
-        SnackBarUtil.warning(context, 'Informasi perangkat belum siap.');
-      }
-      return;
-    }
-
-    setState(() {
-      _isChecking = true;
-      _isUpdateAvailable = false;
-    });
-
-    try {
-      final latestApk = await _apkVersionOp.getLatestApkVersion();
-      if (!mounted) return;
-
-      if (latestApk == null) {
-        SnackBarUtil.info(context, 'Aplikasi sudah menggunakan versi terbaru.');
-        return;
-      }
-
-      final currentBuildNumber = int.tryParse(_packageInfo!.buildNumber) ?? 0;
-      final latestBuildNumber =
-          latestApk.latestBuildNumber[_deviceArchitecture] ?? 0;
-
-      if (latestBuildNumber > currentBuildNumber) {
-        setState(() {
-          _isUpdateAvailable = true;
-          _apkVersionModel = latestApk;
-          _changelog = latestApk.releaseNotes.split('\n');
-          _fileSize = 'Tersedia';
-        });
-        unawaited(_pulseController.repeat(reverse: true));
-        SnackBarUtil.success(context, 'Pembaruan tersedia!');
-      } else {
-        SnackBarUtil.info(context, 'Aplikasi sudah versi terbaru.');
-      }
-    } on Exception catch (e, st) {
-      Log.error('Error saat memeriksa pembaruan', e: e, st: st);
-      if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memeriksa pembaruan.',
-            logData: {'error': e.toString()});
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isChecking = false);
-      }
-    }
-  }
-
   Future<void> _downloadUpdate() async {
-    if (_apkVersionModel == null || _deviceArchitecture == null) {
-      if (mounted) {
-        SnackBarUtil.error(context, 'URL download tidak ditemukan.');
-      }
-      return;
+    // Coba ambil link sesuai arsitektur, jika tidak ada fallback ke universal
+    String? downloadUrl = widget.apkInfo.downloadLinks[widget.architecture];
+    if (downloadUrl == null || downloadUrl.isEmpty) {
+      downloadUrl = widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
     }
 
-    final downloadUrl = _apkVersionModel!.downloadLinks[_deviceArchitecture];
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
-        SnackBarUtil.error(context, 'URL download tidak valid.');
+        SnackBarUtil.error(
+            context, 'Link download belum tersedia untuk perangkat ini.');
       }
       return;
     }
 
     Log.info('Mencoba membuka URL download: $downloadUrl');
-
     try {
       final uri = Uri.parse(downloadUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Could not launch $downloadUrl');
+        throw Exception('Tidak dapat membuka $downloadUrl');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal membuka URL', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal membuka link download.',
-            logData: {'error': e.toString()});
+        SnackBarUtil.error(context, 'Gagal membuka link download.');
       }
     }
   }
@@ -224,7 +132,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             const SizedBox(height: 24),
             _buildActionButton(),
             const SizedBox(height: 20),
-            if (_isUpdateAvailable) _buildChangelogCard(),
+            _buildChangelogCard(),
           ],
         ),
       ),
@@ -236,7 +144,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       animation: _pulseAnimation,
       builder: (final _, final child) {
         return Transform.scale(
-          scale: _isUpdateAvailable ? _pulseAnimation.value : 1.0,
+          scale: _pulseAnimation.value, // Langsung gunakan animasi
           child: child,
         );
       },
@@ -245,19 +153,14 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         height: 130,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: _isUpdateAvailable
-                ? [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)]
-                : [const Color(0xFF6C63FF), const Color(0xFF9D63FF)],
+            colors: [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
           ),
           boxShadow: [
             BoxShadow(
-              color: (_isUpdateAvailable
-                      ? const Color(0xFFFF6B6B)
-                      : const Color(0xFF6C63FF))
-                  .withAlpha(102),
+              color: const Color(0xFFFF6B6B).withAlpha(102),
               blurRadius: 25,
               offset: const Offset(0, 10),
             ),
@@ -295,7 +198,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             icon: AppIcons.phoneAndroid,
             iconColor: const Color(0xFF6C63FF),
             label: 'Versi Saat Ini',
-            version: _packageInfo?.version ?? '...',
+            version: widget.packageInfo.version.split('-').first,
             isCurrent: true,
           ),
           const Padding(
@@ -304,13 +207,11 @@ class _UpdateApkPageState extends State<UpdateApkPage>
           ),
           _buildVersionRow(
             icon: AppIcons.cloudDone,
-            iconColor: _isUpdateAvailable ? Colors.orange : Colors.green,
+            iconColor: Colors.orange,
             label: 'Versi Terbaru',
-            version: _apkVersionModel?.latestVersion ??
-                _packageInfo?.version ??
-                '...',
+            version: widget.apkInfo.latestVersion.split('-').first,
             isCurrent: false,
-            badge: _isUpdateAvailable ? 'BARU' : null,
+            badge: 'BARU',
           ),
         ],
       ),
@@ -415,83 +316,36 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Widget _buildUpdateStatusCard() {
-    if (_isChecking) {
-      return _buildStatusContainer(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                color: Color(0xFF6C63FF),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Text(
-              'Memeriksa pembaruan...',
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_isUpdateAvailable) {
-      return _buildStatusContainer(
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.orange.withAlpha(26),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(AppIcons.warningAmber,
-                  color: Colors.orange, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Pembaruan Tersedia!',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3142),
-                    ),
-                  ),
-                  Text(
-                    'Ukuran: $_fileSize',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return _buildStatusContainer(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(AppIcons.success, color: Colors.green, size: 22),
-          const SizedBox(width: 10),
-          Text(
-            'Aplikasi sudah versi terbaru',
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.grey[700],
-              fontWeight: FontWeight.w500,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.orange.withAlpha(26),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(AppIcons.warningAmber,
+                color: Colors.orange, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Pembaruan Tersedia!',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D3142),
+                  ),
+                ),
+                Text(
+                  'Ukuran: $_fileSize',
+                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                ),
+              ],
             ),
           ),
         ],
@@ -520,40 +374,14 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Widget _buildActionButton() {
-    if (_isChecking) {
-      return const SizedBox.shrink();
-    }
-
-    if (_isUpdateAvailable) {
-      return SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: FilledButton.icon(
-          onPressed: _downloadUpdate,
-          icon: const Icon(AppIcons.downloadRounded, size: 24),
-          label: const Text(
-            'Download Update',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-          ),
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF6C63FF),
-            foregroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 4,
-          ),
-        ),
-      );
-    }
-
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: FilledButton.icon(
-        onPressed: _checkForUpdate,
-        icon: const Icon(AppIcons.refresh, size: 24),
+        onPressed: _downloadUpdate,
+        icon: const Icon(AppIcons.downloadRounded, size: 24),
         label: const Text(
-          'Periksa Pembaruan',
+          'Download Update',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
         style: FilledButton.styleFrom(

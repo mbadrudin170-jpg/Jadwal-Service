@@ -1,5 +1,5 @@
 // path: lib/shared/services/update_check_service.dart
-// Bertanggung jawab untuk memeriksa ketersediaan pembaruan aplikasi.
+// perbaikan: Menghapus impor yang tidak terpakai.
 
 import 'dart:async';
 
@@ -7,6 +7,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
 import 'package:wifi/shared/services/device_info_service.dart';
 import 'package:wifi/shared/services/package_info_service.dart';
@@ -26,30 +28,47 @@ class UpdateCheckService {
     Log.info('UpdateCheckService diinisialisasi.');
   }
 
-  /// Memeriksa apakah ada pembaruan yang diperlukan.
-  ///
-  /// Mengembalikan `true` jika versi di Firebase lebih tinggi,
-  /// sebaliknya `false`.
-  Future<bool> isUpdateRequired() async {
-    Log.info('Memulai pengecekan apakah pembaruan diperlukan.');
+  /// Memeriksa pembaruan dan mengembalikan semua informasi yang relevan.
+  Future<({
+    bool isUpdateRequired,
+    ApkVersionModel? apkInfo,
+    PackageInfoModel? packageInfo,
+    ApkArchitectureEnum? architecture
+  })> getUpdateInfo() async {
+    Log.info('Memulai pengecekan informasi pembaruan lengkap.');
     try {
       final packageInfo = await _packageInfoService.getPackageInfo();
       if (packageInfo == null) {
-        Log.warning('Gagal mendapatkan info paket lokal. Anggap tidak ada update.');
-        return false;
+        Log.warning('Gagal mendapatkan info paket lokal.');
+        return (
+          isUpdateRequired: false,
+          apkInfo: null,
+          packageInfo: null,
+          architecture: null
+        );
       }
 
       final deviceInfo = await _deviceInfoService.getDeviceArchitecture();
       final architecture = _determineArchitecture(deviceInfo);
       if (architecture == null) {
-        Log.warning('Gagal menentukan arsitektur. Anggap tidak ada update.');
-        return false;
+        Log.warning('Gagal menentukan arsitektur.');
+        return (
+          isUpdateRequired: false,
+          apkInfo: null,
+          packageInfo: packageInfo,
+          architecture: null
+        );
       }
 
       final latestApk = await _apkVersionOp.getLatestApkVersion();
       if (latestApk == null) {
-        Log.info('Tidak ada data versi APK di Firebase. Anggap tidak ada update.');
-        return false;
+        Log.info('Tidak ada data versi APK di Firebase.');
+        return (
+          isUpdateRequired: false,
+          apkInfo: null,
+          packageInfo: packageInfo,
+          architecture: architecture
+        );
       }
 
       final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
@@ -61,14 +80,25 @@ class UpdateCheckService {
         'architecture': architecture.name,
       });
 
-      return latestBuildNumber > currentBuildNumber;
+      final bool isRequired = latestBuildNumber > currentBuildNumber;
+      return (
+        isUpdateRequired: isRequired,
+        apkInfo: isRequired ? latestApk : null,
+        packageInfo: packageInfo,
+        architecture: architecture
+      );
     } on Exception catch (e, st) {
       Log.error(
-        'Terjadi kesalahan saat memeriksa isUpdateRequired.',
+        'Terjadi kesalahan saat memeriksa getUpdateInfo.',
         e: e,
         st: st,
       );
-      return false; // Jika error, anggap tidak ada update untuk mencegah blok.
+      return (
+        isUpdateRequired: false,
+        apkInfo: null,
+        packageInfo: null,
+        architecture: null
+      );
     }
   }
 
@@ -82,15 +112,23 @@ class UpdateCheckService {
       return;
     }
 
-    final bool isRequired = await isUpdateRequired();
+    final update = await getUpdateInfo();
 
-    if (isRequired) {
+    if (update.isUpdateRequired &&
+        update.apkInfo != null &&
+        update.packageInfo != null &&
+        update.architecture != null) {
       Log.info('Pembaruan tersedia! Menavigasi ke halaman update.');
       if (context!.mounted) {
         unawaited(
           Navigator.of(context!).pushReplacement(
             MaterialPageRoute<void>(
-                builder: (final ctx) => const UpdateApkPage()),
+              builder: (final ctx) => UpdateApkPage(
+                apkInfo: update.apkInfo!,
+                packageInfo: update.packageInfo!,
+                architecture: update.architecture!,
+              ),
+            ),
           ),
         );
       }
@@ -116,8 +154,6 @@ class UpdateCheckService {
       Log.warning('Arsitektur tidak didukung (bukan 64-bit atau 32-bit).', {
         'supportedAbis': supportedAbis,
       });
-      // Fallback ke universal jika arsitektur spesifik tidak ditemukan.
-      // Ini asumsi, mungkin perlu penyesuaian.
       return ApkArchitectureEnum.universal;
     }
   }
