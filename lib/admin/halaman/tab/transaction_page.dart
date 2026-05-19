@@ -197,6 +197,8 @@ class _TransactionPageState extends State<TransactionPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data.', e: e, st: s);
       if (mounted) {
+        // TAMBAHAN: Beri tahu pengguna bahwa terjadi kesalahan
+        SnackBarUtil.error(context, 'Gagal memuat data transaksi');
         setState(() {
           _error = e;
         });
@@ -256,6 +258,8 @@ class _TransactionPageState extends State<TransactionPage> {
 
   /// Menampilkan dialog konfirmasi dan menghapus semua transaksi jika disetujui.
   Future<void> _deleteAllTransactions() async {
+    Log.info(
+        'Tombol hapus semua transaksi ditekan, menampilkan dialog konfirmasi.');
     try {
       final bool? confirmed = await showDialog<bool>(
         context: context,
@@ -286,6 +290,8 @@ class _TransactionPageState extends State<TransactionPage> {
         if (!mounted) return;
         SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
         await _loadData(reload: true);
+      } else {
+        Log.info('Penghapusan semua transaksi dibatalkan oleh pengguna.');
       }
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
@@ -308,6 +314,7 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _showSortDialog() async {
+    Log.info('Menampilkan dialog pengurutan. Sort aktif: $_currentSortBy');
     final newSort = await showDialog<SortBy>(
       context: context,
       builder: (final context) {
@@ -346,6 +353,8 @@ class _TransactionPageState extends State<TransactionPage> {
           );
         }
       });
+    } else {
+      Log.info('Dialog pengurutan ditutup tanpa perubahan.');
     }
   }
 
@@ -370,8 +379,10 @@ class _TransactionPageState extends State<TransactionPage> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            _navigateToTransactionForm, // Memanggil tanpa argumen untuk mode tambah
+        onPressed: () {
+          Log.info('FAB tambah transaksi ditekan.');
+          unawaited(_navigateToTransactionForm());
+        },
         child: const Icon(AppIcons.add),
       ),
     );
@@ -412,6 +423,7 @@ class _TransactionPageState extends State<TransactionPage> {
     // Jika ada error, tampilkan pesan error
     if (_error != null) {
       Log.error('Membangun UI Error: $_error');
+      // SnackBar sudah ditampilkan di _loadData, tidak perlu diulang.
       return Center(child: Text('Terjadi Kesalahan: $_error'));
     }
 
@@ -431,6 +443,14 @@ class _TransactionPageState extends State<TransactionPage> {
             e: snapshot.error,
             st: snapshot.stackTrace,
           );
+          // Tampilkan snackbar untuk error awal yang mungkin belum tertangkap
+          if (snapshot.error != null) {
+            WidgetsBinding.instance.addPostFrameCallback((final _) {
+              if (mounted) {
+                SnackBarUtil.error(context, 'Gagal memuat data awal');
+              }
+            });
+          }
           return Center(child: Text('Terjadi Kesalahan: ${snapshot.error}'));
         }
         Log.warning('FutureBuilder selesai tapi _cachedData masih null.');
@@ -469,14 +489,17 @@ class _TransactionPageState extends State<TransactionPage> {
                 context,
                 transaction,
                 onTap: () {
+                  Log.info('Transaksi di-tap: id=${transaction.id}');
                   unawaited(_navigateToTransactionDetail(transaction));
                 },
                 onEdit: () {
+                  Log.info('Edit transaksi: id=${transaction.id}');
                   unawaited(
                     _navigateToTransactionForm(transaction: transaction),
                   );
                 },
                 onDelete: () async {
+                  Log.info('Hapus transaksi: id=${transaction.id}');
                   await _transactionOperation
                       .archiveTransaction(transaction.id);
                   await _loadData(reload: true);

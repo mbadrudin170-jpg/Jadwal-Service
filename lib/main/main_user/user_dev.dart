@@ -28,6 +28,7 @@ void main() async {
   );
 
   // Aktifkan cache offline Firestore agar aplikasi bisa jalan tanpa internet
+  Log.info('Mengaktifkan cache offline Firestore');
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
   );
@@ -35,6 +36,7 @@ void main() async {
   // Periksa koneksi internet
   final internetService = InternetConnectionService();
   final isConnected = await internetService.checkConnection();
+  Log.info('Status koneksi: ${isConnected ? "online" : "offline"}');
 
   // Jika terhubung ke internet, periksa status maintenance dari server
   if (isConnected) {
@@ -104,8 +106,11 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
   // Inisialisasi servis notifikasi menggunakan factory constructor Singleton.
+  Log.info('Menginisialisasi layanan notifikasi');
   await NotifikasiServis().inisialisasi(iconName: '@mipmap/ic_launcher');
+  Log.info('Meminta izin notifikasi');
   await NotifikasiServis().requestPermissions();
+  Log.info('Layanan notifikasi siap');
 
   runApp(AppUser(prefs: prefs));
 }

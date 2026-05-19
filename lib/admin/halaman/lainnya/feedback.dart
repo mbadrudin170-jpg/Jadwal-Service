@@ -1,4 +1,5 @@
-// path: lib/admin/halaman/lainnya/kritik_saran.dart
+// path: lib/admin/halaman/lainnya/feedback.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -89,8 +90,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
           _applyFilter();
           _isLoading = false;
         });
-        Log.info(
-            'Berhasil memuat ${_allFeedback.length} data kritik dan saran');
+        // Sisipan: ganti Log.info sukses dengan SnackBarUtil.info
+        SnackBarUtil.info(context, 'Data kritik & saran dimuat',
+            logData: {'jumlah': _allFeedback.length});
       }
     } on Exception catch (e, st) {
       Log.error(
@@ -130,6 +132,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
     );
 
     if ((konfirmasi ?? false) && mounted) {
+      // Sisipan: log info awal proses hapus
+      Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
       try {
         await _feedbackOperation.deleteFeedback(item.id);
 

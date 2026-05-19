@@ -27,6 +27,7 @@ class AppAdmin extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('AppAdmin build: memulai FutureBuilder SharedPreferences');
     return FutureBuilder<SharedPreferences>(
       future: SharedPreferences.getInstance(),
       builder: (final context, final snapshot) {
@@ -35,6 +36,7 @@ class AppAdmin extends StatelessWidget {
         }
         final prefs = snapshot.data!;
         final localStorageService = LocalStorageService(prefs: prefs);
+        Log.info('SharedPreferences tersedia, membangun MultiProvider');
         
         return MultiProvider(
           providers: [
@@ -85,22 +87,28 @@ class _AppInitializerState extends State<AppInitializer> {
     try {
       _updateMessage('Mengonfigurasi pengaturan lokal...');
       await initializeDateFormatting('id_ID');
+      Log.info('Pengaturan lokal selesai (id_ID).');
 
       _updateMessage('Mempersiapkan database lokal...');
       await DatabaseHelper.instance.database;
+      Log.info('Database lokal siap.');
 
       _updateMessage('Memeriksa data awal...');
       await InitialDownloadService().runInitialDownload();
+      Log.info('Initial download selesai.');
 
       _updateMessage('Membersihkan data arsip kadaluarsa...');
       final dataCleaningOperation = DataCleaningOperation();
       await dataCleaningOperation.deleteAllExpiredArchivedData(retentionDays: 30);
+      Log.info('Pembersihan data arsip selesai (retentionDays=30).');
 
       _updateMessage('Mengecek koneksi internet...');
       final isOnline = await _connectionService.checkConnection();
+      Log.info('Status koneksi: ${isOnline ? "online" : "offline"}');
 
       _updateMessage('Selesai, membuka aplikasi...');
       await Future<void>.delayed(const Duration(milliseconds: 500));
+      Log.info('Inisialisasi sekunder selesai. Kembali dengan isOnline=$isOnline');
 
       return isOnline;
     } on Exception catch (e, s) {
@@ -112,6 +120,8 @@ class _AppInitializerState extends State<AppInitializer> {
 
   void _updateMessage(final String message) {
     if (!mounted) return;
+    // Log setiap perubahan status inisialisasi
+    Log.info('Status inisialisasi: $message');
     setState(() {
       _loadingMessage = message;
     });
@@ -124,6 +134,7 @@ class _AppInitializerState extends State<AppInitializer> {
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final isOnline = snapshot.data ?? false;
+          Log.info('Inisialisasi selesai, menuju AppProviders dengan isOffline=${!isOnline}');
           return AppProviders(isOffline: !isOnline);
         }
         return Consumer<ThemeProvider>(
@@ -155,6 +166,7 @@ class AppProviders extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('AppProviders build, isOffline=$isOffline');
     return MultiProvider(
       providers: [
         Provider<SyncManager>(
@@ -179,6 +191,7 @@ class AppMaterial extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('AppMaterial build, isOffline=$isOffline');
     return Consumer<ThemeProvider>(
       builder: (final context, final themeProvider, final child) {
         return MaterialApp(

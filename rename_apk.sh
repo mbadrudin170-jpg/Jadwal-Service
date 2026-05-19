@@ -5,10 +5,17 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Baca version dari pubspec.yaml
-VERSION=$(grep "version:" pubspec.yaml | head -1 | awk '{print $2}')
-VERSION_NAME=$(echo $VERSION | cut -d'+' -f1)
-VERSION_CODE=$(echo $VERSION | cut -d'+' -f2)
+# Validasi bahwa nama versi dan nomor build diberikan sebagai argumen
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo -e "${YELLOW}Error: Nama versi dan nomor build wajib disertakan.${NC}"
+    echo -e "${YELLOW}Penggunaan: $0 <nama-versi> <nomor-build>${NC}"
+    echo -e "${YELLOW}Contoh: $0 1.0.1 3${NC}"
+    exit 1
+fi
+
+# Gunakan argumen dari baris perintah
+VERSION_NAME=$1
+VERSION_CODE=$2
 
 echo -e "${YELLOW}📦 Version: $VERSION_NAME ($VERSION_CODE)${NC}"
 

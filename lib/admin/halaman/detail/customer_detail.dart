@@ -61,7 +61,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
   }
 
   Future<void> _loadData() async {
-    Log.info('Memulai pengambilan data dari SQLite.');
+    Log.info('Memulai pengambilan data pelanggan ID: ${widget.customerId}.');
     try {
       if (mounted) {
         setState(() => _isLoading = true);
@@ -82,10 +82,10 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
       });
 
       Log.info(
-        'Pengambilan data dari SQLite selesai. Pelanggan: ${_customer?.name}, Poin: $_totalPoints',
+        'Data pelanggan dimuat. Nama: ${_customer?.name}, Poin: $_totalPoints',
       );
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil data dari SQLite.', e: e, st: s);
+      Log.error('Gagal mengambil data pelanggan ID: ${widget.customerId}.', e: e, st: s);
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -94,6 +94,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
 
   Future<void> _editCustomer() async {
     if (_customer == null) return;
+    Log.info('Navigasi ke form edit pelanggan: ${_customer!.name}');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -101,12 +102,13 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
       ),
     );
     if ((result ?? false) && mounted) {
-      Log.info('Kembali dari edit, memuat ulang data dari SQLite.');
+      Log.info('Kembali dari edit pelanggan, memuat ulang data.');
       await _loadData();
     }
   }
 
   Future<void> _copyAllInfo(final CustomerModel customer) async {
+    Log.info('Menyalin info pelanggan: ${customer.name}');
     final info = '''
 Nama : ${customer.name}
 No HP : ${customer.phone}
@@ -123,6 +125,7 @@ MAC : ${customer.macAddress}
 
   Future<void> _navigateToPoints() async {
     if (_customer == null) return;
+    Log.info('Navigasi ke halaman poin pelanggan: ${_customer!.name}');
     // PERBAIKAN: Menggunakan nama class yang benar
     await Navigator.push<void>(
       context,
@@ -130,7 +133,7 @@ MAC : ${customer.macAddress}
         builder: (final context) => AdminPointsPage(customerId: _customer!.id),
       ),
     );
-    Log.info('Kembali dari halaman poin, memuat ulang data dari SQLite.');
+    Log.info('Kembali dari halaman poin, memuat ulang data.');
     await _loadData();
   }
 

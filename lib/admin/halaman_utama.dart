@@ -132,11 +132,14 @@ class _HalamanUtamaState extends State<HalamanUtama> {
 
   Future<void> _sinkronisasiDataSaatOnline() async {
     if (_sedangSinkronisasi) return;
-
+    Log.info('Memulai sinkronisasi data.');
     if (mounted) setState(() => _sedangSinkronisasi = true);
     try {
       // PERBAIKAN 4: Method yang benar adalah runSyncCheck
       await _syncService.runSyncCheck();
+      Log.info('Sinkronisasi data selesai.');
+    } on Exception catch (e, s) {
+      Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
       if (mounted) setState(() => _sedangSinkronisasi = false);
     }

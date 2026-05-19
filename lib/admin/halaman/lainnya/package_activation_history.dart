@@ -12,6 +12,7 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/package_name.dart';
@@ -306,7 +307,7 @@ class _PackageActivationHistoryPageState
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.sort),
+            icon: const Icon(AppIcons.filter),
             onPressed: _showSortDialog,
             tooltip: 'Urutkan',
           ),

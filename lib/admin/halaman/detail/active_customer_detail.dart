@@ -83,8 +83,10 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     final Uri whatsappUri = Uri.parse('https://wa.me/$formattedNumber');
 
     try {
+      Log.info('Mencoba membuka WhatsApp: $formattedNumber');
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+        Log.info('Berhasil membuka WhatsApp.');
       } else {
         throw Exception('Could not launch $whatsappUri');
       }
@@ -102,6 +104,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
   Future<void> _loadDetails() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
+    Log.info('Memuat detail pelanggan dan paket...');
 
     final customerOperation = CustomerOperation();
     final packageOperation = PackageOperation();
@@ -122,6 +125,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
           _package = results.length > 1 ? results[1] as PackageModel? : null;
           _isLoading = false;
         });
+        Log.info(
+            'Detail pelanggan berhasil dimuat. Customer: ${_customer?.name}, Paket: ${_package?.name}');
       }
     } on Exception catch (e, s) {
       Log.error('Gagal memuat detail pelanggan aktif', e: e, st: s);
@@ -132,6 +137,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
   }
 
   Future<void> _navigateToEdit() async {
+    Log.info('Navigasi ke form edit pelanggan aktif ID: ${_activeCustomer.id}');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -141,6 +147,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     );
 
     if (result ?? false) {
+      Log.info('Kembali dari edit dengan perubahan. Memuat ulang data.');
       final operation = ActiveCustomerOperation();
       final updatedActiveCustomer =
           await operation.getActiveCustomerById(_activeCustomer.id);
@@ -151,11 +158,14 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         });
         await _loadDetails();
       }
+    } else {
+      Log.info('Kembali dari edit tanpa perubahan.');
     }
   }
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('Membangun UI detail pelanggan aktif.');
     return Scaffold(
       appBar: AppBar(
         title: Text(_customer?.name ?? 'Detail Pelanggan'),
@@ -193,6 +203,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                 onPressed: () {
                                   final customer = _customer;
                                   if (customer != null) {
+                                    Log.info(
+                                        'Navigasi ke detail pelanggan: ${customer.name}');
                                     unawaited(Navigator.push<void>(
                                       context,
                                       MaterialPageRoute<void>(
@@ -224,6 +236,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               onTap: () {
                                 final pkg = _package;
                                 if (pkg != null) {
+                                  Log.info(
+                                      'Navigasi ke detail paket: ${pkg.name}');
                                   unawaited(Navigator.push<void>(
                                     context,
                                     MaterialPageRoute<void>(
@@ -279,6 +293,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                               icon: const Icon(Icons.send_to_mobile),
                               label: const Text('Kirim Info via WhatsApp'),
                               onPressed: () {
+                                Log.info('Tombol kirim info WhatsApp ditekan.');
                                 unawaited(PesanInfoPaket.kirimRincianPaket(
                                     _activeCustomer));
                               },

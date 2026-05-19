@@ -268,7 +268,7 @@ class _WalletPageState extends State<WalletPage> {
         _sortAscending = parts[1] == 'asc';
       });
       _loadWallets();
-      Log.info('Pengurutan diubah. Memuat ulang dompet.');
+      Log.info('Pengurutan diubah menjadi $_sortBy ${_sortAscending ? 'asc' : 'desc'}. Memuat ulang dompet.');
     } else {
       Log.info('Dialog pengurutan ditutup tanpa perubahan.');
     }
@@ -347,7 +347,11 @@ class _WalletPageState extends State<WalletPage> {
                           if (!mounted) return;
                           _loadWallets();
                         },
-                        onLongPress: () => _showArchiveOneDialog(wallet),
+                        // TAMBAHAN: log pada long press
+                        onLongPress: () {
+                          Log.info('Long press dompet: id=${wallet.id} name=${wallet.name}');
+                          unawaited(_showArchiveOneDialog(wallet));
+                        },
                       );
                     },
                   );
@@ -499,6 +503,8 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    // TAMBAHAN: log build dengan informasi dompet
+    Log.info('WalletCard build: name=${wallet.name} balance=${wallet.balance}');
     final theme = Theme.of(context);
     final subtitleColor = wallet.balance < 0
         ? theme.colorScheme.error

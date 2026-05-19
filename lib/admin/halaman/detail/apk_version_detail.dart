@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah versi APK.
 class ApkVersionDetailPage extends StatelessWidget {
@@ -35,9 +36,11 @@ class ApkVersionDetailPage extends StatelessWidget {
         title: const Text('Detail Versi APK'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(AppIcons.edit),
             tooltip: 'Edit Data',
             onPressed: () async {
+              Log.info(
+                  'Tombol edit APK ditekan, versi=${apkVersion.latestVersion}');
               final result = await Navigator.push<bool>(
                 context,
                 MaterialPageRoute(
@@ -47,7 +50,11 @@ class ApkVersionDetailPage extends StatelessWidget {
               );
 
               if ((result ?? false) && context.mounted) {
+                Log.info(
+                    'Edit APK selesai dengan perubahan, kembali ke halaman sebelumnya');
                 Navigator.pop(context, true);
+              } else {
+                Log.info('Edit APK dibatalkan atau tanpa perubahan');
               }
             },
           ),

@@ -15,8 +15,8 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    Log.info('Membangun SplashScreen dengan pesan: "$loadingMessage"');
     final theme = Theme.of(context);
-    Log.info('Membangun UI untuk SplashScreen dengan pesan: "$loadingMessage"');
 
     return Scaffold(
       backgroundColor:

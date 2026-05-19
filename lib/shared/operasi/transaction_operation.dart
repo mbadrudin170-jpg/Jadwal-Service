@@ -189,7 +189,7 @@ class TransactionOperation {
       return null;
     }
   }
-  
+
   /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
   /// Digunakan untuk menentukan status langganan aktif.
   Future<TransactionModel?> getLatestPaidTransactionByUserId(
@@ -214,7 +214,8 @@ class TransactionOperation {
         return null;
       }
 
-      Log.info('Transaksi lunas terbaru ditemukan untuk pengguna ID: $customerId');
+      Log.info(
+          'Transaksi lunas terbaru ditemukan untuk pengguna ID: $customerId');
       return TransactionModel.fromSqlite(maps.first);
     } on Exception catch (e, st) {
       Log.error(
@@ -421,7 +422,7 @@ class TransactionOperation {
           );
 
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
-          
+
           // DIUBAH & DISEMPURNAKAN: Menambahkan updatedAt agar sinkronisasi mendeteksi perubahan dompet lokal
           await txn.update(
             TableNameValue.get(TableName.wallet),
@@ -430,6 +431,9 @@ class TransactionOperation {
               ColumnNames.updatedAt: now.millisecondsSinceEpoch,
             },
           );
+          // TAMBAHAN: log bahwa semua wallet direset
+          Log.info(
+              'Semua saldo dompet direset ke 0 setelah penghapusan massal');
         },
         fromServer: fromServer,
       );
@@ -531,7 +535,8 @@ class TransactionOperation {
     final earnedPoints = await getEarnedPoints(customerId);
     final usedPoints = await getUsedPoints(customerId);
     final total = earnedPoints - usedPoints;
-    Log.info('Saldo poin akhir: $total');
+    Log.info(
+        'Saldo poin akhir Customer $customerId: $total (earned=$earnedPoints, used=$usedPoints)');
     return total;
   }
 
