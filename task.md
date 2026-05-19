@@ -16,3 +16,9 @@ Setiap tugas yang diberikan pengguna HARUS melewati alur berikut:
 10. Jelaskan dengan ringkas apa yang diubah dan kenapa.
 11. Ingatkan pengguna untuk memverifikasi fitur berjalan sesuai harapan.
 12. Setelah diverifikasi, perbarui file `docs/` yang sesuai dengan perubahan (misalnya catatan perubahan, API docs).
+
+
+# rencana
+1. tidak bisa menambah sub saat sudah menyimpan kategori.
+2. mengatasi saat edit versi apk user tombol simpan tidak mengarahkan kembali
+3. input harga harus mengunakan angka ribuan di form paket.

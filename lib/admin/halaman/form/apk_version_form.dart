@@ -1,7 +1,5 @@
 // path: lib/admin/halaman/form/apk_version_form.dart
-// diubah: Menambahkan FocusNode untuk perpindahan antar form field dengan menekan Enter.
-// diubah: Memperbaiki warning `use_build_context_synchronously` secara final.
-// diubah: Mengganti SnackBar manual dengan SnackBarUtil.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -269,7 +267,8 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         if (!mounted) return;
 
         SnackBarUtil.success(context, 'Data berhasil disimpan!');
-        Navigator.of(context).pop(dataToSave);
+        // diubah: Menggunakan Navigator.pop(context, true) untuk memberitahu halaman sebelumnya bahwa ada perubahan
+        Navigator.of(context).pop(true);
       } on Exception catch (e, s) {
         Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
         if (!mounted) return;

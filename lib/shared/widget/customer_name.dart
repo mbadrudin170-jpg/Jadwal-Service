@@ -1,7 +1,9 @@
 // path: lib/shared/widget/customer_name.dart
 // diubah: Menambahkan parameter useFirebase untuk fleksibilitas data source.
+// ditambah: Menambahkan logging untuk error di FutureBuilder dan StreamBuilder.
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
@@ -47,6 +49,12 @@ class CustomerNameWidget extends StatelessWidget {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
+          // ditambah: Logging untuk error saat mengambil data dari Firebase.
+          Log.error(
+            'Error di CustomerNameWidget (Firebase) untuk ID: $customerId',
+            e: snapshot.error,
+            st: snapshot.stackTrace,
+          );
           return Text('Error',
               style: style ??
                   const TextStyle(
@@ -77,6 +85,12 @@ class CustomerNameWidget extends StatelessWidget {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
+          // ditambah: Logging untuk error saat mengambil data dari SQLite.
+          Log.error(
+            'Error di CustomerNameWidget (SQLite) untuk ID: $customerId',
+            e: snapshot.error,
+            st: snapshot.stackTrace,
+          );
           return Text('Error',
               style: style ??
                   const TextStyle(

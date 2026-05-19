@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/firebase_operasi/package_op_firebase.dart
 // diubah: Menambahkan getPublicPackages dan memperbaiki konstruktor.
+// diperbaiki: Menambahkan logging inisialisasi.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -15,7 +16,10 @@ class PackageOpFirebase {
 
   /// Konstruktor untuk PackageOpFirebase.
   PackageOpFirebase({final FirebaseFirestore? firestore})
-      : db = firestore ?? FirebaseFirestore.instance;
+      : db = firestore ?? FirebaseFirestore.instance {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('PackageOpFirebase diinisialisasi.');
+  }
 
   /// Mendapatkan referensi ke koleksi package.
   CollectionReference get _collection =>

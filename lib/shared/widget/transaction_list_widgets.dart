@@ -1,9 +1,11 @@
 // path: lib/shared/widget/transaction_list_widgets.dart
 // Diperbarui: Aksi didelegasikan ke pemanggil melalui callback.
+// Diperbaiki: Menambahkan logging pada lifecycle dan error handling di TransactionTile.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
@@ -81,14 +83,34 @@ class _TransactionTileState extends State<TransactionTile> {
   final CategoryOperation _categoryOperation = CategoryOperation();
   final WalletOperation _walletOperation = WalletOperation();
 
+  // ditambah: Logging pada initState.
+  @override
+  void initState() {
+    super.initState();
+    Log.info('TransactionTile initState for transaction ID: ${widget.transaction.id}');
+  }
+
+  // ditambah: Logging pada dispose.
+  @override
+  void dispose() {
+    Log.info('TransactionTile dispose for transaction ID: ${widget.transaction.id}');
+    super.dispose();
+  }
+
   Future<String> _getCategoryName() async {
     try {
       final category = await _categoryOperation.getCategoryById(
         widget.transaction.categoryId,
       );
       return category.name;
-    } on Exception {
-      return 'Tidak ada kategori';
+    } on Exception catch (e, st) {
+      // diperbaiki: Menambahkan logging error.
+      Log.error(
+        'Gagal mendapatkan nama kategori untuk ID: ${widget.transaction.categoryId}',
+        e: e,
+        st: st,
+      );
+      return 'Error Kategori';
     }
   }
 
@@ -97,9 +119,15 @@ class _TransactionTileState extends State<TransactionTile> {
       final wallet = await _walletOperation.getWalletById(
         widget.transaction.walletId,
       );
-      return wallet?.name ?? 'Tidak ada dompet';
-    } on Exception {
-      return 'Tidak ada dompet';
+      return wallet?.name ?? 'Dompet Dihapus';
+    } on Exception catch (e, st) {
+      // diperbaiki: Menambahkan logging error.
+      Log.error(
+        'Gagal mendapatkan nama dompet untuk ID: ${widget.transaction.walletId}',
+        e: e,
+        st: st,
+      );
+      return 'Error Dompet';
     }
   }
 
@@ -165,8 +193,14 @@ class _TransactionTileState extends State<TransactionTile> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Memuat...');
             }
+            // diperbaiki: Menambahkan logging error.
             if (snapshot.hasError) {
-              return const Text('Error memuat data');
+              Log.error(
+                'Error di FutureBuilder TransactionTile untuk ID: ${widget.transaction.id}',
+                e: snapshot.error,
+                st: snapshot.stackTrace,
+              );
+              return const Text('Error memuat data', style: TextStyle(color: Colors.red));
             }
             final categoryName = snapshot.data?[0] ?? '-';
             final walletName = snapshot.data?[1] ?? '-';

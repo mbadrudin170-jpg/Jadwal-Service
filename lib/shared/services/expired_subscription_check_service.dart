@@ -1,4 +1,5 @@
 // path: lib/shared/services/expired_subscription_check_service.dart
+// diperbaiki: Menambahkan logging inisialisasi.
 
 import 'package:flutter/foundation.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -8,6 +9,12 @@ import 'package:wifi/shared/operasi/active_customer_operation.dart';
 /// langganan pelanggan aktif yang telah kedaluwarsa secara berkala.
 class ExpiredSubscriptionCheckService {
   ActiveCustomerOperation _activeCustomerOperation = ActiveCustomerOperation();
+
+  /// Konstruktor untuk inisialisasi service.
+  ExpiredSubscriptionCheckService() {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('ExpiredSubscriptionCheckService diinisialisasi.');
+  }
 
   @visibleForTesting
   set activeCustomerOperation(final ActiveCustomerOperation operation) {

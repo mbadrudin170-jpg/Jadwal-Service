@@ -41,6 +41,7 @@ class _CategoryFormState extends State<CategoryForm> {
   final _namaFocusNode = FocusNode();
 
   final List<TextEditingController> _subKategoriControllers = [];
+  final List<SubCategoryModel?> _subKategoriModels = [];
 
   bool get _isEditMode => widget.kategori != null || widget.subKategori != null;
   bool get _isSubKategoriMode =>
@@ -91,6 +92,13 @@ class _CategoryFormState extends State<CategoryForm> {
       _namaController.text = widget.kategori!.name;
       _tipe = widget.kategori!.type;
       Log.info('Tipe kategori diatur ke: ${widget.kategori!.type}');
+
+      Log.info('Memuat sub-kategori yang sudah ada untuk diedit.');
+      for (final sub in widget.kategori!.subCategories) {
+        _subKategoriControllers.add(TextEditingController(text: sub.name));
+        _subKategoriModels.add(sub);
+      }
+      Log.info('${_subKategoriControllers.length} sub-kategori dimuat.');
     } else if (widget.subKategori != null) {
       Log.info('MODE EDIT SUB-KATEGORI terdeteksi.');
       Log.info('Data sub-kategori yang akan diedit:');
@@ -161,6 +169,7 @@ class _CategoryFormState extends State<CategoryForm> {
 
     setState(() {
       _subKategoriControllers.add(TextEditingController());
+      _subKategoriModels.add(null);
     });
 
     Log.info('Field sub-kategori baru berhasil ditambahkan.');
@@ -194,6 +203,7 @@ class _CategoryFormState extends State<CategoryForm> {
       _subKategoriControllers[index].dispose();
       Log.info('Menghapus controller dari list.');
       _subKategoriControllers.removeAt(index);
+      _subKategoriModels.removeAt(index);
     });
 
     Log.info('Field sub-kategori berhasil dihapus.');
@@ -298,23 +308,32 @@ class _CategoryFormState extends State<CategoryForm> {
           Log.info('PROSES UPDATE KATEGORI UTAMA (MODE EDIT KATEGORI)');
           Log.info('========================================');
 
-          Log.info('Data kategori sebelum update:');
-          Log.info('  - ID: ${widget.kategori!.id}');
-          Log.info('  - Nama Lama: ${widget.kategori!.name}');
-          Log.info('  - Nama Baru: ${_namaController.text}');
-          Log.info('  - Tipe Lama: ${widget.kategori!.type}');
-          Log.info('  - Tipe Baru: $_tipe');
-          Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data.');
+          Log.info('Memproses daftar sub-kategori untuk update...');
+          final List<SubCategoryModel> newSubCategoryList = [];
+          for (int i = 0; i < _subKategoriControllers.length; i++) {
+            final controller = _subKategoriControllers[i];
+            final originalModel = _subKategoriModels[i];
+
+            if (controller.text.isNotEmpty) {
+              if (originalModel != null) {
+                // Ini adalah sub-kategori yang sudah ada yang mungkin telah diedit
+                newSubCategoryList
+                    .add(originalModel.copyWith(name: controller.text));
+              } else {
+                // Ini adalah sub-kategori baru
+                newSubCategoryList.add(SubCategoryModel(
+                  name: controller.text,
+                  categoryId: widget.kategori!.id,
+                ));
+              }
+            }
+          }
 
           final kategoriDiperbarui = widget.kategori!.copyWith(
             name: _namaController.text,
             type: _tipe,
+            subCategories: newSubCategoryList,
           );
-
-          Log.info('Objek CategoryModel baru (tanpa timestamp):');
-          Log.info('  - ID: ${kategoriDiperbarui.id}');
-          Log.info('  - Nama: ${kategoriDiperbarui.name}');
-          Log.info('  - Tipe: ${kategoriDiperbarui.type}');
 
           Log.info(
             'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
@@ -322,12 +341,6 @@ class _CategoryFormState extends State<CategoryForm> {
           await _kategoriOperasi.updateCategory(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
-          Log.info(
-            'Nama kategori berubah dari "${widget.kategori!.name}" menjadi "${_namaController.text}"',
-          );
-          Log.info(
-            'Tipe kategori berubah dari "${widget.kategori!.type}" menjadi "$_tipe"',
-          );
         } else {
           Log.info('========================================');
           Log.info('PROSES TAMBAH KATEGORI BARU (MODE TAMBAH)');
@@ -528,33 +541,26 @@ class _CategoryFormState extends State<CategoryForm> {
                   },
                 ),
                 const SizedBox(height: 16),
-                if (!_isEditMode && !_isSubKategoriMode) ...[
+                if (!_isEditMode) ...[
                   DropdownButtonFormField<CategoryType>(
                     initialValue: _tipe,
                     decoration: const InputDecoration(
                       labelText: 'Tipe',
                       border: OutlineInputBorder(),
                     ),
-                    // // path: lib/admin/halaman/form/transaction_form.dart
-// // atau di file form lain yang relevan
-
                     items: CategoryType.values
-                        // Menyaring agar hanya menampilkan opsi pemasukan dan pengeluaran
                         .where((final type) =>
                             type == CategoryType.income ||
                             type == CategoryType.expense)
                         .map((final CategoryType category) {
-                      // Log untuk memastikan pemetaan berjalan
                       Log.info(
                           'Membuat DropdownMenuItem untuk: ${category.displayName}');
 
                       return DropdownMenuItem<CategoryType>(
                         value: category,
-                        child: Text(category
-                            .displayName), // Menggunakan extension .displayName
+                        child: Text(category.displayName),
                       );
                     }).toList(),
-
                     onChanged: (final CategoryType? newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
@@ -568,8 +574,10 @@ class _CategoryFormState extends State<CategoryForm> {
                     },
                   ),
                   const SizedBox(height: 24),
+                ],
+                if (!_isSubKategoriMode) ...[
                   const Text(
-                    'Tambah Sub-Kategori (Opsional)',
+                    'Sub-Kategori',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const Divider(),

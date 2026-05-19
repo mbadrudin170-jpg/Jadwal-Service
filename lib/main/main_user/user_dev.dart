@@ -111,6 +111,5 @@ void main() async {
   Log.info('Meminta izin notifikasi');
   await NotifikasiServis().requestPermissions();
   Log.info('Layanan notifikasi siap');
-
   runApp(AppUser(prefs: prefs));
 }

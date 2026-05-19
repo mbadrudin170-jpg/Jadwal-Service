@@ -1,5 +1,5 @@
 // path: lib/shared/services/kontrol_aplikasi_service.dart
-// import 'package:cloud_firestore/cloud_firestore.dart';
+// diperbaiki: Menambahkan logging inisialisasi.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -9,6 +9,12 @@ class KontrolAplikasiService {
   // Mendapatkan referensi ke koleksi 'pengaturan' di Firestore.
   final CollectionReference _pengaturanRef =
       FirebaseFirestore.instance.collection('pengaturan');
+
+  /// Konstruktor untuk inisialisasi service.
+  KontrolAplikasiService() {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('KontrolAplikasiService diinisialisasi.');
+  }
 
   /// Mengambil status maintenance dari Firestore.
   ///
@@ -45,7 +51,7 @@ class KontrolAplikasiService {
       // Jika dokumen tidak ada atau field tidak ada, default ke false (tidak maintenance).
       Log.info('Menggunakan nilai default (false)');
       return false;
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       // Mencatat error jika gagal mengambil data.
       Log.error(
         'Gagal mengambil status maintenance dari database',
@@ -75,7 +81,7 @@ class KontrolAplikasiService {
       Log.info(
         '✨ Berhasil memperbarui status maintenance di Firestore menjadi: $status',
       );
-    } on Exception catch  (e, s) {
+    } on Exception catch (e, s) {
       // Mencatat error jika gagal menyimpan data.
       Log.error(
         'Gagal mengatur status maintenance ke database: $status',

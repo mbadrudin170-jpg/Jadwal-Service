@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
 // diubah: Menambahkan getLatestPaidTransactionByUserId.
+// diperbaiki: Menambahkan logging inisialisasi dan menerjemahkan komentar.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -15,7 +16,10 @@ class TransactionOpFirebase {
 
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   TransactionOpFirebase({final FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+      : _db = firestore ?? FirebaseFirestore.instance {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('TransactionOpFirebase diinisialisasi.');
+  }
 
   /// Mendapatkan referensi ke koleksi transaction.
   CollectionReference get _collection =>
@@ -105,7 +109,8 @@ class TransactionOpFirebase {
   Future<List<TransactionModel>> getSubscriptionHistory(
     final String customerId,
   ) {
-    // This is the same as getting all transactions for a customer.
+    // DIUBAH: Komentar diterjemahkan ke Bahasa Indonesia.
+    // Metode ini sama dengan mengambil semua transaksi untuk seorang pelanggan.
     return getTransactionsByCustomerId(customerId);
   }
 

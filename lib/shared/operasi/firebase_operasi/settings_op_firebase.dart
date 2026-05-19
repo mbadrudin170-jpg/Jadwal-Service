@@ -1,6 +1,7 @@
 // path: lib/shared/operasi/firebase_operasi/settings_op_firebase.dart
 // diubah: Rename kelas ke SettingsOpFirebase, menggunakan TableNameValue
 //         dan ColumnNames untuk semua referensi koleksi dan kolom.
+// diperbaiki: Menambahkan logging inisialisasi.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -14,7 +15,10 @@ class SettingsOpFirebase {
 
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   SettingsOpFirebase({final FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+      : _db = firestore ?? FirebaseFirestore.instance {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('SettingsOpFirebase diinisialisasi.');
+  }
 
   /// Mendapatkan referensi ke koleksi setting.
   CollectionReference get _collection =>

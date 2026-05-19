@@ -1,4 +1,4 @@
-// path: lib/widget/thousands_input_formatter.dart
+// path: lib/shared/widget/thousands_input_formatter.dart
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 

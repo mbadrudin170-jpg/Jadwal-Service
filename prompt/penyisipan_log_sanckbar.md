@@ -1,7 +1,16 @@
-// path: prompt/penyisipan_log_sanckbar.md
+
+```markdown
+# // path: prompt/penyisipan_log_sanckbar.md
 ---
 
 **Aturan Logging dan SnackBar untuk Asisten Koding Flutter:**
+
+0. **Prasyarat: Pahami Implementasi**
+   - Sebelum menyisipkan kode apa pun, **baca dan pahami** isi file berikut:
+     - `lib/shared/debug/log.dart` (kelas `Log`)
+     - `lib/shared/utils/snackbar_util.dart` (kelas `SnackBarUtil`)
+   - Gunakan hanya method dan tanda tangan yang tersedia di kedua kelas tersebut.
+   - Jangan membuat asumsi tentang fitur yang tidak ada; ikuti persis API yang disediakan.
 
 1. **Logging**
    - Jangan pernah menggunakan `print()`, `debugPrint()`, atau `log()` bawaan.
@@ -53,4 +62,4 @@
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
 
 ---
-
+```

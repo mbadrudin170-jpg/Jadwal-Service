@@ -1,6 +1,7 @@
 // path: lib/shared/operasi/firebase_operasi/customer_op_firebase.dart
 // diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
 //         koleksi dan kolom.
+// diperbaiki: Menambahkan logging dan error handling yang lebih konsisten.
 
 import 'dart:async';
 
@@ -18,7 +19,10 @@ class CustomerOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   CustomerOpFirebase({final FirebaseFirestore? firestore})
       : _customerCollection = (firestore ?? FirebaseFirestore.instance)
-            .collection(TableNameValue.get(TableName.customer));
+            .collection(TableNameValue.get(TableName.customer)) {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('CustomerOpFirebase diinisialisasi.');
+  }
 
   /// Memperbarui data pelanggan yang ada di Firestore.
   Future<void> updateCustomer(final CustomerModel customer) async {
@@ -48,6 +52,10 @@ class CustomerOpFirebase {
       }
       Log.warning('Pelanggan $userId tidak ditemukan di stream.');
       return null;
+      // DIPERBAIKI: Menambahkan penanganan error untuk stream
+    }).handleError((final Object e, final StackTrace s) {
+      Log.error('Error pada stream pelanggan untuk: $userId', e: e, st: s);
+      // Tidak melempar error lebih lanjut agar stream tidak mati
     });
   }
 
@@ -67,7 +75,7 @@ class CustomerOpFirebase {
       return null;
     } on Exception catch (e, s) {
       Log.error('Error mengambil pelanggan: $e', e: e, st: s);
-      return null;
+      return null; // Mengembalikan null sebagai nilai aman
     }
   }
 
@@ -84,6 +92,8 @@ class CustomerOpFirebase {
       Log.info('Token FCM berhasil disimpan.');
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan token FCM untuk $userId', e: e, st: s);
+      // DIPERBAIKI: Menambahkan rethrow agar pemanggil tahu ada error
+      rethrow;
     }
   }
 }

@@ -9,10 +9,12 @@
 //   - package:flutter/material.dart (Widget)
 //   - package:intl/intl.dart (format mata uang)
 //   - lib/shared/debug/log.dart (Log)
+//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Membuat widget info ringkasan keuangan (label + amount) dengan warna tertentu.
 ///
@@ -205,14 +207,10 @@ extension FinancialSummaryExtension on BuildContext {
     );
 
     final message = '📊 Ringkasan: ${currencyFormat.format(income)} | '
-        '${currencyFormat.format(expense)} | '
+        '${currencyFormat.format(expense.abs())} | '
         '${currencyFormat.format(total)}';
 
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    // diperbaiki: Menggunakan SnackBarUtil sesuai aturan.
+    SnackBarUtil.info(this, message);
   }
 }

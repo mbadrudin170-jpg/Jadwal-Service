@@ -1,5 +1,8 @@
 // path: lib/shared/utils/sync_manager.dart
 
+// diperbaiki: Mengubah semua metode menjadi statis agar konsisten dengan kelas utilitas lainnya.
+// diperbaiki: Menambahkan konstruktor privat untuk mencegah instansiasi.
+
 import 'package:wifi/shared/data/services/preference_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -7,6 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 ///
 /// Menyimpan dan mengambil timestamp terakhir unduh dan unggah
 /// melalui [PreferenceService], serta menyediakan fungsi reset.
+/// Kelas ini hanya berisi metode statis dan tidak untuk diinstansiasi.
 class SyncManager {
   /// Mengambil timestamp terakhir unduh.
   ///

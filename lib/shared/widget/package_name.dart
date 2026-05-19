@@ -1,7 +1,9 @@
 // path: lib/shared/widget/package_name.dart
 // digunakan oleh: lib/user/page/riwayat_langganan_user.dart
+// ditambah: Menambahkan logging untuk error di FutureBuilder.
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 
 /// Widget yang menampilkan nama paket berdasarkan Future yang diberikan.
@@ -30,16 +32,29 @@ class PackageNameWidget extends StatelessWidget {
             height: 12,
             child: CircularProgressIndicator(strokeWidth: 2),
           );
-        } else if (snapshot.hasError ||
-            !snapshot.hasData ||
-            snapshot.data == null) {
+        }
+
+        // ditambah: Pengecekan error yang eksplisit dengan logging.
+        if (snapshot.hasError) {
+          Log.error(
+            'Error di PackageNameWidget saat memuat paket',
+            e: snapshot.error,
+            st: snapshot.stackTrace,
+          );
+          return Text(
+            'Error',
+            style: style?.copyWith(color: Colors.red, fontStyle: FontStyle.italic),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data == null) {
           return Text(
             'Paket tidak tersedia',
-            style: style?.copyWith(color: Colors.red),
+            style: style?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic),
           );
-        } else {
-          return Text(snapshot.data!.name, style: style);
         }
+
+        return Text(snapshot.data!.name, style: style);
       },
     );
   }

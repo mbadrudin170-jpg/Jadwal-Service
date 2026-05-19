@@ -4,6 +4,8 @@
 // ditambah: Menerapkan Dependency Injection agar kelas ini dapat diuji.
 // ditambah: Menambahkan Log yang lebih detail untuk setiap langkah.
 // diperbaiki: Memperbaiki sintaks pemanggilan Log.error yang salah.
+// diperbaiki: Menambahkan logging inisialisasi.
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -16,7 +18,10 @@ class InternetConnectionService {
   ///
   /// Memungkinkan injeksi `Connectivity` untuk keperluan pengujian.
   InternetConnectionService({final Connectivity? connectivity})
-      : _connectivity = connectivity ?? Connectivity();
+      : _connectivity = connectivity ?? Connectivity() {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('InternetConnectionService diinisialisasi.');
+  }
 
   /// Memeriksa apakah perangkat terhubung ke internet (WiFi atau Mobile).
   /// Mengembalikan `true` jika online, dan `false` jika offline.

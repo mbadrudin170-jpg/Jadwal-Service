@@ -5,6 +5,7 @@
 //          Digunakan oleh sisi admin maupun user.
 // diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
 //         koleksi dan kolom.
+// diperbaiki: Menambahkan logging dan error handling yang konsisten.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -30,7 +31,10 @@ class FeedbackOpFirebase {
   final FirebaseFirestore firestore;
 
   /// Konstruktor untuk membuat instance [FeedbackOpFirebase].
-  FeedbackOpFirebase(this.firestore);
+  FeedbackOpFirebase(this.firestore) {
+    // DITAMBAHKAN: Logging saat inisialisasi
+    Log.info('FeedbackOpFirebase diinisialisasi.');
+  }
 
   /// Mendapatkan referensi ke koleksi feedback.
   CollectionReference get _collection =>
@@ -38,19 +42,19 @@ class FeedbackOpFirebase {
 
   /// Menyimpan [feedback] baru ke Firestore.
   Future<void> createFeedback(final FeedbackModel feedback) async {
-    Log.info('[FeedbackOpFirebase] Menyimpan feedback baru...');
+    Log.info('Menyimpan feedback baru...');
     try {
       await _collection.add(feedback.toFirebase());
-      Log.info('[FeedbackOpFirebase] Feedback berhasil disimpan.');
-    } catch (e) {
-      Log.error('[FeedbackOpFirebase] Gagal menyimpan feedback.', e: e);
-      throw Exception('Gagal membuat feedback: $e');
+      Log.info('Feedback berhasil disimpan.');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menyimpan feedback.', e: e, st: s);
+      rethrow;
     }
   }
 
   /// Membaca semua feedback oleh pengguna tertentu.
   Stream<List<FeedbackModel>> getFeedbacksByUser(final String userId) {
-    Log.info('[FeedbackOpFirebase] Memuat feedback untuk userId: $userId');
+    Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(ColumnNames.userId, isEqualTo: userId)
         .orderBy(ColumnNames.updatedAt, descending: true)
@@ -62,8 +66,12 @@ class FeedbackOpFirebase {
           doc.data() as Map<String, dynamic>,
         );
       }).toList();
-      Log.info('[FeedbackOpFirebase] Ditemukan ${feedbacks.length} feedback.');
+      Log.info('Ditemukan ${feedbacks.length} feedback.');
       return feedbacks;
+    })
+        // DIPERBAIKI: Menambahkan penanganan error untuk stream
+        .handleError((final Object e, final StackTrace s) {
+      Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
     });
   }
 
@@ -72,16 +80,16 @@ class FeedbackOpFirebase {
     final String docId,
     final String newContent,
   ) async {
-    Log.info('[FeedbackOpFirebase] Memperbarui feedback: $docId');
+    Log.info('Memperbarui feedback: $docId');
     try {
       await _collection.doc(docId).update({
         ColumnNames.content: newContent,
         ColumnNames.updatedAt: FieldValue.serverTimestamp(),
       });
-      Log.info('[FeedbackOpFirebase] Feedback berhasil diperbarui.');
-    } catch (e) {
-      Log.error('[FeedbackOpFirebase] Gagal memperbarui feedback.', e: e);
-      throw Exception('Gagal memperbarui feedback: $e');
+      Log.info('Feedback berhasil diperbarui.');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal memperbarui feedback: $docId', e: e, st: s);
+      rethrow;
     }
   }
 
@@ -91,19 +99,16 @@ class FeedbackOpFirebase {
   /// telah dihapus dengan mengatur `isDeleted = true` dan mencatat
   /// waktu pengarsipan.
   Future<void> deleteFeedback(final String docId) async {
-    Log.info('[FeedbackOpFirebase] Melakukan soft delete pada feedback: $docId');
+    Log.info('Melakukan soft delete pada feedback: $docId');
     try {
       await _collection.doc(docId).update({
         ColumnNames.isDeleted: true,
         ColumnNames.archivedAt: FieldValue.serverTimestamp(),
       });
-      Log.info('[FeedbackOpFirebase] Feedback berhasil di-soft-delete.');
-    } catch (e) {
-      Log.error(
-        '[FeedbackOpFirebase] Gagal melakukan soft delete pada feedback.',
-        e: e,
-      );
-      throw Exception('Gagal menghapus feedback: $e');
+      Log.info('Feedback berhasil di-soft-delete.');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal melakukan soft delete pada feedback: $docId', e: e, st: s);
+      rethrow;
     }
   }
 }
