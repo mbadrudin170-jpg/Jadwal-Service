@@ -377,7 +377,9 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                         ),
             ),
       floatingActionButton: FloatingActionButton(
-          onPressed: _addActiveCustomer, child: const Icon(AppIcons.add)),
+          heroTag: 'fab_active_customer',
+          onPressed: _addActiveCustomer,
+          child: const Icon(AppIcons.add)),
     );
   }
 }

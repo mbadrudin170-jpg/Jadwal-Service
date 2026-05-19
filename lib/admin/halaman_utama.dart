@@ -164,7 +164,10 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     Log.info(
         'Membangun UI halaman utama dengan selected index: $_selectedIndex.');
     return Scaffold(
-      body: _widgetOptions.elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _widgetOptions,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[

@@ -358,6 +358,7 @@ class _WalletPageState extends State<WalletPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_wallet',
         onPressed: _addWallet,
         tooltip: 'Tambah Dompet',
         child: const Icon(AppIcons.add),

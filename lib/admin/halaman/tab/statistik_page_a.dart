@@ -149,7 +149,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
                     leading: CircleAvatar(
                       child: Text('#${index + 1}'),
                     ),
-                    title: Text(item['nama'] as String), // diperbaiki: Tipe data diperjelas
+                    title: Text(item['nama']
+                        as String), // diperbaiki: Tipe data diperjelas
                     trailing: Text(
                       '${item['terjual']} terjual',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -189,7 +190,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: color.withAlpha(25), // diperbaiki: Mengganti withOpacity
+                  backgroundColor:
+                      color.withAlpha(25), // diperbaiki: Mengganti withOpacity
                   radius: 20,
                   child: Icon(icon, color: color, size: 24),
                 ),
