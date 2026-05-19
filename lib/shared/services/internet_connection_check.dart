@@ -63,7 +63,7 @@ class InternetConnectionService {
         '[Koneksi] Pemeriksaan selesai, mengembalikan nilai: $isOnline.',
       );
       return isOnline;
-    } on Exception catch  (e, st) {
+    } on Exception catch (e, st) {
       // diperbaiki: Memperbaiki pemanggilan Log.error sesuai dengan definisinya.
       Log.error(
         '[Koneksi] ❌ Fatal: Terjadi kesalahan saat menggunakan plugin connectivity_plus.',

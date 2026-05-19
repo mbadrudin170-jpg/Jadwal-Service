@@ -1,4 +1,5 @@
 // path: lib/shared/utils/snackbar_util.dart
+// diubah: Menambahkan GlobalKey dan metode global untuk menampilkan SnackBar dari mana saja.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -21,17 +22,62 @@ enum SnackBarType {
 /// Kelas utilitas untuk menampilkan SnackBar dengan gaya yang konsisten
 /// sekaligus mencatat log otomatis menggunakan [Log].
 class SnackBarUtil {
-  /// Menampilkan SnackBar dan mencatat log berdasarkan [type].
+  /// Kunci global untuk mengakses ScaffoldMessenger dari mana saja di aplikasi.
   ///
-  /// [message] akan tampil di UI, sedangkan [logData] hanya direkam
-  /// di console debug sebagai konteks tambahan (tidak tampil ke pengguna).
+  /// Ini harus dihubungkan ke properti `scaffoldMessengerKey` di `MaterialApp`.
+  /// Berguna untuk menampilkan SnackBar dari dalam service atau logic bisnis
+  /// yang tidak memiliki akses ke `BuildContext`.
+  ///
+  /// Contoh:
+  /// ```dart
+  /// // Di MaterialApp
+  /// MaterialApp(
+  ///   scaffoldMessengerKey: SnackBarUtil.key,
+  ///   // ...
+  /// )
+  ///
+  /// // Di mana saja dalam aplikasi
+  /// SnackBarUtil.globalError('Operasi gagal!');
+  /// ```
+  static final GlobalKey<ScaffoldMessengerState> key =
+      GlobalKey<ScaffoldMessengerState>();
+
+  /// Menampilkan SnackBar menggunakan [BuildContext].
   static void _show(
     final BuildContext context,
     final String message, {
     final SnackBarType type = SnackBarType.info,
     final Object? logData,
   }) {
-    // Pesan log pendek, kaya informasi
+    if (!context.mounted) return;
+    final snackBar = _createSnackBar(message, type, logData);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  /// Menampilkan SnackBar menggunakan [GlobalKey].
+  static void _showGlobal(
+    final String message, {
+    final SnackBarType type = SnackBarType.info,
+    final Object? logData,
+  }) {
+    final messengerState = key.currentState;
+    if (messengerState == null) {
+      Log.warning(
+        'Gagal menampilkan SnackBar global karena ScaffoldMessengerState null.',
+        {'message': message, 'type': type.name},
+      );
+      return;
+    }
+    final snackBar = _createSnackBar(message, type, logData);
+    messengerState.showSnackBar(snackBar);
+  }
+
+  /// Membuat widget SnackBar berdasarkan tipe dan pesan.
+  static SnackBar _createSnackBar(
+    final String message,
+    final SnackBarType type,
+    final Object? logData,
+  ) {
     final shortLog = '[SNACKBAR] type=${type.name} msg="$message"';
     switch (type) {
       case SnackBarType.success:
@@ -47,8 +93,6 @@ class SnackBarUtil {
         Log.info(shortLog, logData);
         break;
     }
-
-    if (!context.mounted) return;
 
     Color backgroundColor;
     switch (type) {
@@ -66,19 +110,19 @@ class SnackBarUtil {
         break;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
+    return SnackBar(
+      content: Text(message),
+      backgroundColor: backgroundColor,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
       ),
     );
   }
 
-  /// Menampilkan SnackBar sukses (hijau).
+  // --- Metode berbasis BuildContext ---
+
+  /// Menampilkan SnackBar sukses (hijau) via BuildContext.
   static void success(
     final BuildContext context,
     final String message, {
@@ -86,7 +130,7 @@ class SnackBarUtil {
   }) =>
       _show(context, message, type: SnackBarType.success, logData: logData);
 
-  /// Menampilkan SnackBar error (merah).
+  /// Menampilkan SnackBar error (merah) via BuildContext.
   static void error(
     final BuildContext context,
     final String message, {
@@ -94,7 +138,7 @@ class SnackBarUtil {
   }) =>
       _show(context, message, type: SnackBarType.error, logData: logData);
 
-  /// Menampilkan SnackBar peringatan (oranye).
+  /// Menampilkan SnackBar peringatan (oranye) via BuildContext.
   static void warning(
     final BuildContext context,
     final String message, {
@@ -102,14 +146,29 @@ class SnackBarUtil {
   }) =>
       _show(context, message, type: SnackBarType.warning, logData: logData);
 
-  /// Menampilkan SnackBar informasi (biru).
-  ///
-  /// Karena [SnackBarType.info] sudah menjadi nilai default di `_show`,
-  /// pemanggilan tidak perlu menyertakan argumen `type`.
+  /// Menampilkan SnackBar informasi (biru) via BuildContext.
   static void info(
     final BuildContext context,
     final String message, {
     final Object? logData,
   }) =>
       _show(context, message, logData: logData);
+
+  // --- Metode berbasis GlobalKey ---
+
+  /// Menampilkan SnackBar sukses (hijau) secara global.
+  static void globalSuccess(final String message, {final Object? logData}) =>
+      _showGlobal(message, type: SnackBarType.success, logData: logData);
+
+  /// Menampilkan SnackBar error (merah) secara global.
+  static void globalError(final String message, {final Object? logData}) =>
+      _showGlobal(message, type: SnackBarType.error, logData: logData);
+
+  /// Menampilkan SnackBar peringatan (oranye) secara global.
+  static void globalWarning(final String message, {final Object? logData}) =>
+      _showGlobal(message, type: SnackBarType.warning, logData: logData);
+
+  /// Menampilkan SnackBar informasi (biru) secara global.
+  static void globalInfo(final String message, {final Object? logData}) =>
+      _showGlobal(message, logData: logData);
 }

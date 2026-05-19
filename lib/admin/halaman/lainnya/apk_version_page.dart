@@ -131,10 +131,17 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (final context) =>
-            ApkVersionDetailPage(apkVersion: apkVersion),
+        builder: (final context) => ApkVersionDetailPage(
+          apkVersion: apkVersion,
+          operation: _apkVersionOperation,
+        ),
       ),
     );
+
+    // Muat ulang data setelah kembali dari halaman detail untuk memastikan
+    // daftar selalu menampilkan data yang paling baru.
+    Log.info('Kembali dari detail, memuat ulang data daftar APK.');
+    unawaited(_loadData());
   }
 
   Future<void> _toEditForm(final ApkVersionModel apkVersion) async {

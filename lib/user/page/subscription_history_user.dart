@@ -1,5 +1,6 @@
 // path: lib/user/page/subscription_history_user.dart
 // diubah: Menggunakan ikon dari AppIcons untuk konsistensi UI.
+// diperbaiki: Mengganti nama InfoPerangkatService menjadi DeviceInfoService.
 
 import 'dart:async';
 
@@ -7,13 +8,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/services/info_perangkat_service.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/op_firebase.dart';
+import 'package:wifi/shared/services/device_info_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -54,8 +51,8 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
-  final InfoPerangkatService _infoPerangkatService =
-      InfoPerangkatService(DeviceInfoPlugin());
+  final DeviceInfoService _deviceInfoService =
+      DeviceInfoService(DeviceInfoPlugin());
 
   /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
@@ -68,7 +65,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
 
   Future<void> _checkDeviceArchitecture() async {
     try {
-      await _infoPerangkatService.dapatkanArsitekturPerangkat();
+      await _deviceInfoService.getDeviceArchitecture();
     } on Exception catch (e, st) {
       Log.error('Gagal mendapatkan arsitektur perangkat.', e: e, st: st);
     }

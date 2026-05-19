@@ -1,5 +1,5 @@
 // path: lib/user/page/profile_page.dart
-// diubah: Menggunakan ikon terpusat dari AppIcons dan menambahkan navigasi ke halaman poin.
+// diubah: Menggunakan ikon terpusat, menyempurnakan logging, dan penanganan error navigasi.
 
 import 'dart:async';
 
@@ -125,27 +125,41 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _navigateToDetail(final String userId) async {
     Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (final context) => UserCustomerDetailPage(userId: userId),
-      ),
-    ).then((final _) {
-      Log.info(
-        'Kembali dari UserCustomerDetailPage, memuat ulang data jika ada perubahan.',
-      );
-      unawaited(_reloadData());
-    });
+    try {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (final context) => UserCustomerDetailPage(userId: userId),
+        ),
+      ).then((final _) {
+        Log.info(
+          'Kembali dari UserCustomerDetailPage, memuat ulang data jika ada perubahan.',
+        );
+        unawaited(_reloadData());
+      });
+    } on Exception catch (e, st) {
+      Log.error('Gagal navigasi ke detail pelanggan.', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.error(context, 'Gagal membuka halaman detail.');
+      }
+    }
   }
 
   Future<void> _navigateToPointsPage(final String customerId) async {
     Log.info('Menavigasi ke UserPointsPage untuk customerId: $customerId');
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (final context) => UserPointsPage(customerId: customerId),
-      ),
-    );
+    try {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (final context) => UserPointsPage(customerId: customerId),
+        ),
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal navigasi ke halaman poin.', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.error(context, 'Gagal membuka halaman poin.');
+      }
+    }
   }
 
   @override

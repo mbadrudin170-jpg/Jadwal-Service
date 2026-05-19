@@ -2,11 +2,13 @@
 
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
@@ -37,7 +39,7 @@ class AppAdmin extends StatelessWidget {
         final prefs = snapshot.data!;
         final localStorageService = LocalStorageService(prefs: prefs);
         Log.info('SharedPreferences tersedia, membangun MultiProvider');
-        
+
         return MultiProvider(
           providers: [
             ChangeNotifierProvider<ThemeProvider>(
@@ -56,7 +58,6 @@ class AppAdmin extends StatelessWidget {
   }
 }
 
-
 /// Widget yang menangani proses inisialisasi sekunder aplikasi.
 ///
 /// Proses ini berjalan setelah inisialisasi utama di `main()` dan menampilkan
@@ -73,7 +74,8 @@ class _AppInitializerState extends State<AppInitializer> {
   late Future<bool> _initialization;
   String _loadingMessage = 'Memulai aplikasi...';
 
-  final InternetConnectionService _connectionService = InternetConnectionService();
+  final InternetConnectionService _connectionService =
+      InternetConnectionService();
 
   @override
   void initState() {
@@ -85,6 +87,17 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi sekunder.');
     try {
+      _updateMessage('Menginisialisasi Firebase...');
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      Log.info('Firebase berhasil diinisialisasi');
+
+      _updateMessage('Menginisialisasi layanan notifikasi...');
+      await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
+      await NotifikasiServis().requestPermissions();
+      Log.info('Layanan notifikasi siap');
+
       _updateMessage('Mengonfigurasi pengaturan lokal...');
       await initializeDateFormatting('id_ID');
       Log.info('Pengaturan lokal selesai (id_ID).');
@@ -99,7 +112,8 @@ class _AppInitializerState extends State<AppInitializer> {
 
       _updateMessage('Membersihkan data arsip kadaluarsa...');
       final dataCleaningOperation = DataCleaningOperation();
-      await dataCleaningOperation.deleteAllExpiredArchivedData(retentionDays: 30);
+      await dataCleaningOperation.deleteAllExpiredArchivedData(
+          retentionDays: 30);
       Log.info('Pembersihan data arsip selesai (retentionDays=30).');
 
       _updateMessage('Mengecek koneksi internet...');
@@ -108,7 +122,8 @@ class _AppInitializerState extends State<AppInitializer> {
 
       _updateMessage('Selesai, membuka aplikasi...');
       await Future<void>.delayed(const Duration(milliseconds: 500));
-      Log.info('Inisialisasi sekunder selesai. Kembali dengan isOnline=$isOnline');
+      Log.info(
+          'Inisialisasi sekunder selesai. Kembali dengan isOnline=$isOnline');
 
       return isOnline;
     } on Exception catch (e, s) {
@@ -134,7 +149,8 @@ class _AppInitializerState extends State<AppInitializer> {
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final isOnline = snapshot.data ?? false;
-          Log.info('Inisialisasi selesai, menuju AppProviders dengan isOffline=${!isOnline}');
+          Log.info(
+              'Inisialisasi selesai, menuju AppProviders dengan isOffline=${!isOnline}');
           return AppProviders(isOffline: !isOnline);
         }
         return Consumer<ThemeProvider>(

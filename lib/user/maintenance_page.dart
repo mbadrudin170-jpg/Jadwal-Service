@@ -1,19 +1,25 @@
 // path: lib/user/maintenance_page.dart
-// ditambah: Menambahkan tombol Coba Lagi (refresh) dan Keluar.
-// ditambah: Menambahkan Log untuk interaksi pengguna dan event build.
+// diubah: Mengubah menjadi StatefulWidget untuk menangani state loading pada tombol refresh.
+// diubah: Menggunakan ikon terpusat dari AppIcons.
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart'; // ditambah: Impor Log
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
 ///
 /// Menampilkan informasi pemeliharaan, tombol untuk mencoba lagi (refresh),
 /// dan tombol untuk keluar dari aplikasi.
-class MaintenancePage extends StatelessWidget {
+class MaintenancePage extends StatefulWidget {
   /// Informasi teks yang menjelaskan status pemeliharaan.
   final String maintenanceInfo;
 
-  /// Callback yang dipanggil saat pengguna menekan tombol "Coba Lagi".
-  final VoidCallback onRefresh;
+  /// Callback asinkron yang dipanggil saat pengguna menekan tombol "Coba Lagi".
+  /// Diharapkan mengembalikan Future agar state loading bisa dikelola.
+  final FutureOr<void> Function() onRefresh;
 
   /// Callback yang dipanggil saat pengguna menekan tombol "Keluar".
   final VoidCallback onExit;
@@ -27,10 +33,44 @@ class MaintenancePage extends StatelessWidget {
   });
 
   @override
+  State<MaintenancePage> createState() => _MaintenancePageState();
+}
+
+class _MaintenancePageState extends State<MaintenancePage> {
+  bool _isLoading = false;
+
+  /// Menangani aksi refresh saat tombol "Coba Lagi" ditekan.
+  Future<void> _handleRefresh() async {
+    if (_isLoading) return;
+
+    Log.info('[Aksi Pengguna] Tombol "Coba Lagi" ditekan.');
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Menjalankan fungsi refresh dari parent widget.
+      await widget.onRefresh();
+      Log.info('[Aksi Pengguna] Proses onRefresh selesai.');
+    } on Exception catch (e, st) {
+      Log.error('Error selama callback onRefresh', e: e, st: st);
+      if (mounted) {
+        SnackBarUtil.error(context, 'Gagal menyegarkan data: $e');
+      }
+    } finally {
+      // Pastikan widget masih ada di tree sebelum memanggil setState.
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(final BuildContext context) {
-    // ditambah: Log saat halaman ini dibangun.
     Log.info(
-      '[Build UI]  membangun MaintenancePage dengan info: "$maintenanceInfo"',
+      '[Build UI] Membangun MaintenancePage dengan info: "${widget.maintenanceInfo}"',
     );
 
     return Scaffold(
@@ -45,7 +85,7 @@ class MaintenancePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.warning_amber_rounded,
+                AppIcons.warningAmber, // Menggunakan AppIcons
                 size: 80,
                 color: Colors.orange,
               ),
@@ -59,18 +99,24 @@ class MaintenancePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                maintenanceInfo,
+                widget.maintenanceInfo,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(
-                // ditambah: Menambahkan log pada saat tombol ditekan.
-                onPressed: () {
-                  Log.info('[Aksi Pengguna] Tombol "Coba Lagi" ditekan.');
-                  onRefresh();
-                },
-                icon: const Icon(Icons.refresh),
+                onPressed: _isLoading ? null : _handleRefresh,
+                icon: _isLoading
+                    ? Container(
+                        width: 24,
+                        height: 24,
+                        padding: const EdgeInsets.all(2.0),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : const Icon(AppIcons.refresh), // Menggunakan AppIcons
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -80,12 +126,11 @@ class MaintenancePage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               TextButton.icon(
-                // ditambah: Menambahkan log pada saat tombol ditekan.
                 onPressed: () {
                   Log.info('[Aksi Pengguna] Tombol "Keluar" ditekan.');
-                  onExit();
+                  widget.onExit();
                 },
-                icon: const Icon(Icons.exit_to_app),
+                icon: const Icon(AppIcons.logout), // Menggunakan AppIcons
                 label: const Text('Keluar'),
               ),
             ],

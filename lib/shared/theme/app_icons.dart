@@ -1,5 +1,5 @@
 // path: lib/shared/theme/app_icons.dart
-// diubah: Menambahkan ikon-ikon untuk navigasi utama admin.
+// diubah: Menambahkan ikon-ikon baru tanpa mengubah yang sudah ada.
 import 'package:flutter/material.dart';
 
 /// Kelas utilitas untuk mengelola ikon aplikasi secara terpusat.
@@ -58,6 +58,9 @@ class AppIcons {
   /// Ikon untuk keluar atau logout.
   static const IconData logout = Icons.logout;
 
+  /// Ikon untuk aksi muat ulang.
+  static const IconData refresh = Icons.refresh_rounded;
+
   // --- Menu Utama & Halaman ---
   /// Ikon untuk menu dasbor.
   static const IconData dashboard = Icons.dashboard;
@@ -88,6 +91,9 @@ class AppIcons {
 
   /// Ikon untuk menu "Lainnya".
   static const IconData apps = Icons.apps;
+
+  /// Ikon untuk daftar alternatif.
+  static const IconData listAlt = Icons.list_alt_rounded;
 
   // --- Entitas & Status ---
   /// Ikon generik untuk pengguna atau orang.
@@ -141,11 +147,17 @@ class AppIcons {
   /// Ikon untuk peringatan.
   static const IconData warning = Icons.warning;
 
+  /// Ikon untuk peringatan (variasi amber).
+  static const IconData warningAmber = Icons.warning_amber_rounded;
+
   /// Ikon untuk status sukses.
   static const IconData success = Icons.check_circle;
 
   /// Ikon untuk status sukses (outline).
   static const IconData successOutlined = Icons.check_circle_outline;
+
+  /// Ikon centang sederhana.
+  static const IconData check = Icons.check;
 
   /// Ikon untuk status error atau gagal.
   static const IconData error = Icons.error;
@@ -171,6 +183,9 @@ class AppIcons {
 
   /// Ikon untuk aksi unduh (download).
   static const IconData download = Icons.download;
+  
+  /// Ikon untuk aksi unduh (download) dengan sudut bulat.
+  static const IconData downloadRounded = Icons.download_rounded;
 
   /// Ikon untuk status sinkronisasi.
   static const IconData sync = Icons.sync;
@@ -189,6 +204,12 @@ class AppIcons {
 
   /// Ikon untuk unduh dari cloud.
   static const IconData cloudDownload = Icons.cloud_download;
+
+  /// Ikon untuk cloud dengan status selesai.
+  static const IconData cloudDone = Icons.cloud_done_rounded;
+
+  /// Ikon untuk pembaruan sistem.
+  static const IconData systemUpdate = Icons.system_update_rounded;
 
   // --- UI Lainnya ---
   /// Ikon untuk menampilkan (misal: password).
@@ -217,4 +238,7 @@ class AppIcons {
 
   /// Ikon untuk tema sistem/otomatis (di menu).
   static const IconData themeSystem = Icons.settings_brightness_outlined;
+
+  /// Ikon untuk perangkat Android.
+  static const IconData phoneAndroid = Icons.phone_android_rounded;
 }

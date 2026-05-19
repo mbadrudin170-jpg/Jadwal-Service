@@ -1,4 +1,6 @@
 // path: lib/user/page/update_apk_page_u.dart
+// diperbaiki: Menambahkan const untuk optimasi performa.
+
 import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -10,7 +12,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
-import 'package:wifi/shared/services/info_perangkat_service.dart';
+import 'package:wifi/shared/services/device_info_service.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// A page for checking and managing application updates.
@@ -26,7 +29,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     with SingleTickerProviderStateMixin {
   // Firebase and Services
   final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
-  late final InfoPerangkatService _infoPerangkatService;
+  late final DeviceInfoService _deviceInfoService;
 
   // State variables
   bool _isChecking = false;
@@ -44,7 +47,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   @override
   void initState() {
     super.initState();
-    _infoPerangkatService = InfoPerangkatService(DeviceInfoPlugin());
+    _deviceInfoService = DeviceInfoService(DeviceInfoPlugin());
     _initializeAnimations();
     unawaited(_initAppInfo());
   }
@@ -69,8 +72,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     Log.info('Memulai inisialisasi info aplikasi dan perangkat.');
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      final deviceInfo =
-          await _infoPerangkatService.dapatkanArsitekturPerangkat();
+      final deviceInfo = await _deviceInfoService.getDeviceArchitecture();
       final architecture = _determineArchitecture(deviceInfo);
 
       if (mounted) {
@@ -261,11 +263,9 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             ),
           ],
         ),
-        child: Center(
+        child: const Center(
           child: Icon(
-            _isUpdateAvailable
-                ? Icons.system_update_rounded
-                : Icons.check_circle_outline_rounded,
+            AppIcons.systemUpdate,
             size: 65,
             color: Colors.white,
           ),
@@ -292,7 +292,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       child: Column(
         children: [
           _buildVersionRow(
-            icon: Icons.phone_android_rounded,
+            icon: AppIcons.phoneAndroid,
             iconColor: const Color(0xFF6C63FF),
             label: 'Versi Saat Ini',
             version: _packageInfo?.version ?? '...',
@@ -303,7 +303,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             child: Divider(height: 1, thickness: 1),
           ),
           _buildVersionRow(
-            icon: Icons.cloud_done_rounded,
+            icon: AppIcons.cloudDone,
             iconColor: _isUpdateAvailable ? Colors.orange : Colors.green,
             label: 'Versi Terbaru',
             version: _apkVersionModel?.latestVersion ??
@@ -397,7 +397,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check, color: Colors.green, size: 16),
+                Icon(AppIcons.check, color: Colors.green, size: 16),
                 SizedBox(width: 4),
                 Text(
                   'Aktif',
@@ -452,7 +452,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                 color: Colors.orange.withAlpha(26),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.warning_amber_rounded,
+              child: const Icon(AppIcons.warningAmber,
                   color: Colors.orange, size: 22),
             ),
             const SizedBox(width: 12),
@@ -484,7 +484,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.check_circle, color: Colors.green, size: 22),
+          const Icon(AppIcons.success, color: Colors.green, size: 22),
           const SizedBox(width: 10),
           Text(
             'Aplikasi sudah versi terbaru',
@@ -530,7 +530,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         height: 56,
         child: FilledButton.icon(
           onPressed: _downloadUpdate,
-          icon: const Icon(Icons.download_rounded, size: 24),
+          icon: const Icon(AppIcons.downloadRounded, size: 24),
           label: const Text(
             'Download Update',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -551,7 +551,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       height: 56,
       child: FilledButton.icon(
         onPressed: _checkForUpdate,
-        icon: const Icon(Icons.refresh_rounded, size: 24),
+        icon: const Icon(AppIcons.refresh, size: 24),
         label: const Text(
           'Periksa Pembaruan',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -593,7 +593,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                   color: const Color(0xFFFF6B6B).withAlpha(26),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.list_alt_rounded,
+                child: const Icon(AppIcons.listAlt,
                     color: Color(0xFFFF6B6B), size: 22),
               ),
               const SizedBox(width: 12),
