@@ -38,6 +38,11 @@ class FormatDate {
   static String formatDateCompact(final DateTime date) {
     return DateFormat('E, d MMM yy', 'id_ID').format(date);
   }
+
+  /// Mengubah [DateTime] menjadi format bulan dan tahun "MMMM yyyy" (contoh: "Agustus 2024").
+  static String formatMonthYear(final DateTime date) {
+    return DateFormat('MMMM yyyy', 'id_ID').format(date);
+  }
 }
 
 /// Kelas utilitas untuk semua pemformatan yang terkait dengan waktu/jam.

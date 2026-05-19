@@ -25,4 +25,3 @@
 - [flutter_lints](https://pub.dev/packages/flutter_lints)
 
 
-admob ca-app-pub-9773465799516929~2356901332

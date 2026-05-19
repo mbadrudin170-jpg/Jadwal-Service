@@ -1,6 +1,6 @@
 // path: lib/shared/operasi/firebase_operasi/package_op_firebase.dart
 // diubah: Menambahkan getPublicPackages dan memperbaiki konstruktor.
-// diperbaiki: Menambahkan logging inisialisasi.
+// diperbaiki: Menambahkan logging inisialisasi dan filter isDeleted.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -32,8 +32,10 @@ class PackageOpFirebase {
       final querySnapshot = await _collection
           .where(ColumnNames.isPublic, isEqualTo: true)
           .where(ColumnNames.redemptionPoints, isGreaterThan: 0)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
           .get();
-      Log.info('Menemukan ${querySnapshot.docs.length} paket publik.');
+      Log.info(
+          'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
       return querySnapshot.docs.map((final doc) {
         final data = doc.data() as Map<String, dynamic>;
         return PackageModel.fromFirebase(doc.id, data);

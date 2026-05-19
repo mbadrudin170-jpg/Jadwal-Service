@@ -132,7 +132,8 @@ class PackageModel implements HasId {
       ColumnNames.isPublic: isPublic ? 1 : 0,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }

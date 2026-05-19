@@ -11,12 +11,14 @@
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
 class PackageForm extends StatefulWidget {
@@ -157,7 +159,7 @@ class _PackageFormState extends State<PackageForm> {
       final newPackage = PackageModel(
         id: _isEditMode ? widget.package!.id : null,
         name: _nameController.text,
-        price: int.parse(_priceController.text),
+        price: int.parse(_priceController.text.replaceAll('.', '')),
         duration: int.parse(_durationController.text),
         type: _selectedType,
         rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
@@ -356,6 +358,10 @@ class _PackageFormState extends State<PackageForm> {
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Harga'),
                   keyboardType: TextInputType.number,
+                   inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    ThousandsAndNegativeInputFormatter(),
+                  ],
                   onChanged: (final value) {
                     Log.info(
                         'INPUT: Harga berubah menjadi: "$value" (panjang: ${value.length} karakter)');
@@ -367,13 +373,13 @@ class _PackageFormState extends State<PackageForm> {
                       Log.warning('VALIDASI GAGAL: Harga kosong.');
                       return 'Harga tidak boleh kosong';
                     }
-                    if (int.tryParse(value) == null) {
+                    if (int.tryParse(value.replaceAll('.', '')) == null) {
                       Log.warning(
                           'VALIDASI GAGAL: Harga bukan angka yang valid. Nilai: "$value"');
                       return 'Harga harus berupa angka';
                     }
                     Log.info(
-                        'VALIDASI BERHASIL: Harga valid = ${int.parse(value)}');
+                        'VALIDASI BERHASIL: Harga valid = ${int.parse(value.replaceAll('.', ''))}');
                     return null;
                   },
                   onFieldSubmitted: (final _) {
