@@ -12,19 +12,8 @@ import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/model/save_result_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -172,6 +161,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   @override
   void initState() {
     super.initState();
+    Log.info('FormPelangganAktif initState, isEditMode=$_isEditMode');
     unawaited(_loadAllData());
   }
 
@@ -297,6 +287,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Future<void> _selectDate(final BuildContext context) async {
+    Log.info('Memilih tanggal, saat ini: $_selectedDate');
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
@@ -305,10 +296,12 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     );
     if (picked != null && picked != _selectedDate) {
       setState(() => _selectedDate = picked);
+      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(picked)}');
     }
   }
 
   Future<void> _selectTime(final BuildContext context) async {
+    Log.info('Memilih waktu, saat ini: $_selectedTime');
     final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
       context: context,
@@ -319,11 +312,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     );
     if (picked != null && picked != _selectedTime) {
       setState(() => _selectedTime = picked);
+      Log.info('Waktu dipilih: ${picked.hour}:${picked.minute}');
     }
   }
 
   Future<SaveResultModel<ActiveCustomerModel>> _saveForm() async {
+    Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
     if (!(_formKey.currentState?.validate() ?? false)) {
+      Log.warning('Validasi form gagal');
       return SaveResultModel(success: false, message: 'Data belum lengkap');
     }
 
@@ -333,6 +329,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         _selectedTime == null ||
         _selectedDompet == null ||
         _selectedKategori == null) {
+      Log.warning('Data form belum lengkap');
       return SaveResultModel(
           success: false, message: 'Harap lengkapi semua data');
     }
@@ -375,6 +372,9 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           endDate: tanggalBerakhir,
           isActivated: true);
 
+      Log.info(
+          'Menyimpan data: customerId=${_selectedPelanggan!.id}, packageId=${_selectedPaket!.id}, transaksiId=$transaksiId');
+
       ActiveCustomerModel pelangganAktifHasil;
       if (_isEditMode) {
         pelangganAktifHasil = await widget.pelangganAktifOperasi
@@ -387,6 +387,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         await widget.transaksiOperasi.addTransaction(transaksiData);
       }
 
+      Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
       return SaveResultModel(
           success: true,
           message: 'Berhasil disimpan',
@@ -459,6 +460,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             onChanged: (final value) {
               setState(() {
                 _gunakanPoin = value;
+                Log.info(
+                    'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}');
                 if (!_kategoriList.contains(_selectedKategori)) {
                   _selectedKategori =
                       _kategoriList.isNotEmpty ? _kategoriList.first : null;
@@ -486,6 +489,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             await widget.transaksiOperasi.getTotalPoints(newValue.id);
         if (mounted) {
           setState(() {
+            Log.info(
+                'Pelanggan dipilih: id=${newValue.id} nama=${newValue.name}, saldoPoin=$saldoPoin');
             _selectedPelanggan = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });
@@ -504,7 +509,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       items: _paketList
           .map((final p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
-      onChanged: (final newValue) => setState(() => _selectedPaket = newValue),
+      onChanged: (final newValue) {
+        Log.info('Paket dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        setState(() => _selectedPaket = newValue);
+      },
       validator: (final v) => v == null ? 'Paket tidak boleh kosong' : null,
     );
   }
@@ -518,7 +526,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       items: _daftarDompet
           .map((final d) => DropdownMenuItem(value: d, child: Text(d.name)))
           .toList(),
-      onChanged: (final newValue) => setState(() => _selectedDompet = newValue),
+      onChanged: (final newValue) {
+        Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        setState(() => _selectedDompet = newValue);
+      },
       validator: (final v) => v == null ? 'Dompet tidak boleh kosong' : null,
     );
   }
@@ -532,8 +543,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       items: _kategoriList
           .map((final k) => DropdownMenuItem(value: k, child: Text(k.name)))
           .toList(),
-      onChanged: (final newValue) =>
-          setState(() => _selectedKategori = newValue),
+      onChanged: (final newValue) {
+        Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        setState(() => _selectedKategori = newValue);
+      },
       validator: (final v) => v == null ? 'Kategori tidak boleh kosong' : null,
     );
   }
@@ -571,8 +584,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
                   foregroundColor: _statusPembayaran == PaymentStatus.paid
                       ? Colors.white
                       : Colors.black),
-              onPressed: () =>
-                  setState(() => _statusPembayaran = PaymentStatus.paid),
+              onPressed: () {
+                Log.info('Status pembayaran diubah: paid');
+                setState(() => _statusPembayaran = PaymentStatus.paid);
+              },
               child: const Text('Lunas'))),
       const SizedBox(width: 8),
       Expanded(
@@ -584,8 +599,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
                   foregroundColor: _statusPembayaran == PaymentStatus.unpaid
                       ? Colors.white
                       : Colors.black),
-              onPressed: () =>
-                  setState(() => _statusPembayaran = PaymentStatus.unpaid),
+              onPressed: () {
+                Log.info('Status pembayaran diubah: unpaid');
+                setState(() => _statusPembayaran = PaymentStatus.unpaid);
+              },
               child: const Text('Belum Lunas'))),
     ]);
   }
@@ -633,6 +650,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       padding: const EdgeInsets.all(16.0),
       child: ElevatedButton(
         onPressed: () async {
+          Log.info('Tombol Simpan ditekan');
           final navigator = Navigator.of(context);
           final hasil = await _saveForm();
           if (!mounted) {
@@ -640,12 +658,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           }
           if (hasil.success) {
             SnackBarUtil.success(context, hasil.message);
+            Log.info('Form berhasil disimpan, snackbar success ditampilkan');
             await Future<void>.delayed(const Duration(milliseconds: 300));
             if (mounted) {
               navigator.pop(true);
             }
           } else {
             SnackBarUtil.error(context, hasil.message);
+            Log.warning('Form gagal disimpan, pesan: ${hasil.message}');
           }
         },
         style: ElevatedButton.styleFrom(
