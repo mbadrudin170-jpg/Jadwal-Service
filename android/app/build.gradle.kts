@@ -55,6 +55,15 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("admin") {
+            res.srcDirs("src/admin/res")
+        }
+        getByName("user") {
+            res.srcDirs("src/user/res")
+        }
+    }
+
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
