@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -17,6 +18,8 @@ class SubCategoryOperation {
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
   @visibleForTesting
   final BaseOperation baseOperation;
+
+  final String _tableName = TableNameValue.get(TableName.subCategory);
 
   /// Konstruktor untuk [SubCategoryOperation].
   ///
@@ -37,9 +40,8 @@ class SubCategoryOperation {
     try {
       final data =
           subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       await baseOperation.insert(
-        TableNameValue.get(TableName.subCategory),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -57,10 +59,9 @@ class SubCategoryOperation {
     Log.info('Mengambil sub-kategori untuk kategori ID: $categoryId');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.subCategory),
-        where: 'id_kategori = ? AND isDeleted = ?',
+        _tableName,
+        where: '${ColumnNames.categoryId} = ? AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [categoryId, 0],
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori aktif.');
@@ -79,9 +80,8 @@ class SubCategoryOperation {
     Log.info('Mengambil sub-kategori dengan ID: $id');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.subCategory),
+        _tableName,
         where: 'id = ?',
         whereArgs: [id],
       );
@@ -107,9 +107,8 @@ class SubCategoryOperation {
     try {
       final data =
           subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       await baseOperation.update(
-        TableNameValue.get(TableName.subCategory),
+        _tableName,
         data,
         subCategory.id,
         fromServer: fromServer,
@@ -121,41 +120,55 @@ class SubCategoryOperation {
     }
   }
 
-  /// Menghapus [SubCategoryModel] dari database.
-  ///
-  /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
-  /// Jika `false`, maka akan menghapus data secara permanen.
-  Future<void> deleteSubCategory(
+  /// Menghapus [SubCategoryModel] dari database secara permanen.
+  Future<void> delete(final String id, {final bool fromServer = false}) async {
+    Log.warning('PERINGATAN: Menghapus sub-kategori ID: $id secara permanen');
+    try {
+      await baseOperation.delete(
+        _tableName,
+        id,
+        fromServer: fromServer,
+      );
+      Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghapus sub-kategori secara permanen.', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada sub-kategori berdasarkan [id].
+  Future<void> softDelete(
     final String id, {
-    final bool softDelete = true,
     final bool fromServer = false,
   }) async {
-    Log.warning('Menghapus sub-kategori ID: $id (softDelete: $softDelete)');
+    Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      if (softDelete) {
-        final dataToUpdate = {
-          'isDeleted': 1,
-          'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
-        };
-        // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
-        await baseOperation.update(
-          TableNameValue.get(TableName.subCategory),
-          dataToUpdate,
-          id,
-          fromServer: fromServer,
-        );
-        Log.info('Berhasil melakukan soft delete sub-kategori ID: $id');
-      } else {
-        // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
-        await baseOperation.delete(
-          TableNameValue.get(TableName.subCategory),
-          id,
-          fromServer: fromServer,
-        );
-        Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus sub-kategori.', e: e, st: s);
+      await baseOperation.softDelete(
+        _tableName,
+        id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete sub-kategori ID: $id.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal saat soft delete sub-kategori ID: $id', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua sub-kategori.
+  Future<int> softDeleteAll({
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk semua sub-kategori');
+    try {
+      final count = await baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete semua sub-kategori. Total: $count item.');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error('Gagal saat soft delete semua sub-kategori', e: e, st: st);
       rethrow;
     }
   }
@@ -179,9 +192,8 @@ class SubCategoryOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       await baseOperation.insertOrUpdateBatch(
-        TableNameValue.get(TableName.subCategory),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -204,10 +216,9 @@ class SubCategoryOperation {
     try {
       final db = await dbHelper.database;
       final placeholders = List.filled(ids.length, '?').join(',');
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel subCategory
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.subCategory),
-        where: 'id IN ($placeholders)',
+        _tableName,
+        where: 'id IN ($placeholders) AND ${ColumnNames.isDeleted} = 0',
         whereArgs: ids,
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori dari list ID.');

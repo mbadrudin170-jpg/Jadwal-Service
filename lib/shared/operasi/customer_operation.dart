@@ -22,6 +22,8 @@ class CustomerOperation {
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
   final BaseOperation _baseOperation;
 
+  final String _tableName = TableNameValue.get(TableName.customer);
+
   /// Konstruktor untuk [CustomerOperation].
   ///
   /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
@@ -48,7 +50,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.insert(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -69,7 +71,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         where:
             '${ColumnNames.archivedAt} IS NULL AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [0],
@@ -92,7 +94,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.customer),
+        _tableName,
       );
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
@@ -112,7 +114,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -141,7 +143,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.update(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         data,
         customer.id,
         fromServer: fromServer,
@@ -154,42 +156,39 @@ class CustomerOperation {
     }
   }
 
-  /// Menghapus [CustomerModel] dari database.
-  ///
-  /// Jika [softDelete] bernilai `true`, maka hanya akan menandai `isDeleted` menjadi `1`.
-  /// Jika `false`, maka akan menghapus data secara permanen.
-  Future<void> deleteCustomer(
+  /// Melakukan soft delete pada [CustomerModel] berdasarkan [id].
+  Future<void> softDelete(
     final String id, {
-    final bool softDelete = true,
     final bool fromServer = false,
   }) async {
-    Log.info(
-        'Memulai proses penghapusan untuk customer ID: $id (softDelete: $softDelete)');
+    Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {
-      if (softDelete) {
-        // DIUBAH: Menggunakan TableNameValue berbasis v50
-        await _baseOperation.update(
-          TableNameValue.get(TableName.customer),
-          {
-            ColumnNames.isDeleted: 1,
-            ColumnNames.updatedAt:
-                DateTime.now().toUtc().millisecondsSinceEpoch,
-          },
-          id,
-          fromServer: fromServer,
-        );
-        Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
-      } else {
-        // DIUBAH: Menggunakan TableNameValue berbasis v50
-        await _baseOperation.delete(
-          TableNameValue.get(TableName.customer),
-          id,
-          fromServer: fromServer,
-        );
-        Log.warning('Berhasil melakukan hard delete pada customer ID: $id.');
-      }
+      await _baseOperation.softDelete(
+        _tableName,
+        id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
     } catch (e, s) {
       Log.error('Gagal menghapus customer.', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua customer.
+  Future<int> softDeleteAll({
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai proses soft delete untuk semua customer.');
+    try {
+      final count = await _baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil melakukan soft delete pada semua customer. Total: $count');
+      return count;
+    } catch (e, s) {
+      Log.error('Gagal melakukan soft delete pada semua customer.', e: e, st: s);
       rethrow;
     }
   }
@@ -201,7 +200,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -213,32 +212,6 @@ class CustomerOperation {
       );
     } catch (e, s) {
       Log.error('Gagal mengambil perubahan customer.', e: e, st: s);
-      rethrow;
-    }
-  }
-
-  /// Mengarsipkan [CustomerModel] berdasarkan [id].
-  Future<void> archiveCustomer(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
-    Log.info('Mengarsipkan customer ID: $id');
-    try {
-      final now = DateTime.now().toUtc();
-      // DIUBAH: Menggunakan TableNameValue berbasis v50
-      await _baseOperation.update(
-        TableNameValue.get(TableName.customer),
-        {
-          ColumnNames.isDeleted: 1,
-          ColumnNames.archivedAt: now.millisecondsSinceEpoch,
-          ColumnNames.updatedAt: now.millisecondsSinceEpoch,
-        },
-        id,
-        fromServer: fromServer,
-      );
-      Log.info('Berhasil mengarsipkan customer ID: $id.');
-    } catch (e, s) {
-      Log.error('Gagal mengarsipkan customer.', e: e, st: s);
       rethrow;
     }
   }
@@ -260,7 +233,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.insertOrUpdateBatch(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -284,7 +257,7 @@ class CustomerOperation {
       final placeholders = List.filled(ids.length, '?').join(',');
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.customer),
+        _tableName,
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

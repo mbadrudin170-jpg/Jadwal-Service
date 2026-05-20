@@ -6,6 +6,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
 
@@ -207,6 +208,93 @@ class BaseOperation {
         e: e,
         st: s,
         data: {'id': id},
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada satu baris di [table] berdasarkan [id].
+  Future<void> softDelete(
+    final String table,
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete', {'tabel': table, 'id': id});
+    try {
+      await _runInTransaction(
+        (final txn) async {
+          final now = DateTime.now().toUtc();
+          final rowsAffected = await txn.update(
+            table,
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+            },
+            where: '${ColumnNames.id} = ?',
+            whereArgs: [id],
+          );
+
+          if (rowsAffected == 0) {
+            Log.warning(
+              'Soft delete selesai tapi tidak ada baris yang berubah (ID tidak ditemukan)',
+              {'id': id, 'tabel': table},
+            );
+          } else {
+            Log.info(
+              'Soft delete berhasil',
+              {'rowsAffected': rowsAffected, 'id': id},
+            );
+          }
+          return rowsAffected;
+        },
+        fromServer: fromServer,
+      );
+    } catch (e, s) {
+      Log.error(
+        'Gagal melakukan soft delete di tabel: $table',
+        e: e,
+        st: s,
+        data: {'id': id},
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua baris di [table] yang belum di-soft-delete.
+  Future<int> softDeleteAll(
+    final String table, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete semua data di tabel: $table');
+    try {
+      final count = await _runInTransaction<int>(
+        (final txn) async {
+          final now = DateTime.now().toUtc();
+          final rowsAffected = await txn.update(
+            table,
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+            },
+            where: '${ColumnNames.isDeleted} = 0',
+          );
+
+          Log.info(
+            'Soft delete semua data berhasil',
+            {'rowsAffected': rowsAffected, 'tabel': table},
+          );
+          return rowsAffected;
+        },
+        fromServer: fromServer,
+      );
+      return count;
+    } catch (e, s) {
+      Log.error(
+        'Gagal melakukan soft delete semua data di tabel: $table',
+        e: e,
+        st: s,
       );
       rethrow;
     }

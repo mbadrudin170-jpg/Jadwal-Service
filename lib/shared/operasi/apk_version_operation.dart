@@ -4,6 +4,7 @@
 // diperbaiki: Menggunakan konstanta ColumnNames untuk query agar sesuai dengan skema DB v50.
 // diperbaiki: Menambahkan `const` pada variabel final untuk optimasi performa.
 
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -132,6 +133,67 @@ class ApkVersionOperation {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal mengarsipkan versi APK user - ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada [ApkVersionModel] berdasarkan [id].
+  /// Ini adalah alias untuk `archiveApkVersion`.
+  Future<void> softDelete(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      Log.info('Memulai proses soft delete untuk APK version ID: $id');
+      await archiveApkVersion(id, fromServer: fromServer);
+      Log.info('Proses soft delete untuk APK version ID: $id selesai.');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal melakukan soft delete pada APK version ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete untuk semua [ApkVersionModel] yang aktif.
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
+    try {
+      Log.info('Memulai proses soft delete untuk SEMUA active APK versions');
+      final activeVersions = await getAllActiveApkVersions();
+      if (activeVersions.isEmpty) {
+        Log.info('Tidak ada APK version aktif untuk di-soft delete');
+        return 0;
+      }
+
+      final idsToArchive = activeVersions.map((v) => v.id).toList();
+      final count = await _baseOperation.runComplexOperation<int>(
+        (final Transaction txn) async {
+          final now = DateTime.now().toUtc();
+          return await txn.update(
+            _tableName,
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+            },
+            where:
+                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+            whereArgs: idsToArchive,
+          );
+        },
+        fromServer: fromServer,
+      );
+
+      Log.info('Proses soft delete semua APK versions selesai. Total: $count');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal melakukan soft delete untuk semua APK versions',
         e: e,
         st: st,
       );

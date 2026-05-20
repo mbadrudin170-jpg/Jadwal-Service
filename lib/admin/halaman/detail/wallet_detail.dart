@@ -277,7 +277,7 @@ class _WalletDetailState extends State<WalletDetail> {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await _transactionOperation.archiveTransaction(transaction.id);
+                  await _transactionOperation.softDelete(transaction.id);
                   _reloadData();
                 },
               ),

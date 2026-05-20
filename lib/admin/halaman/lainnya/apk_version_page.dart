@@ -1,16 +1,6 @@
 // path: lib/admin/halaman/lainnya/apk_version_page.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman dalam navigasi admin.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/apk_version_detail.dart (ApkVersionDetailPage)
-//   - lib/admin/halaman/form/apk_version_form.dart (ApkVersionForm)
-//   - lib/shared/enum/apk_architecture_enum.dart (ApkArchitectureEnum)
-//   - lib/shared/model/apk_version_model.dart (ApkVersionModel)
-//   - lib/shared/operasi/apk_version_operation.dart (ApkVersionOperation)
-//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Mengganti archiveApkVersion dengan softDelete.
+// diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
 
 import 'dart:async';
 
@@ -25,29 +15,16 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.
 enum SortOrder {
-  /// Urutkan berdasarkan nomor build dari Z ke A (terbaru ke terlama).
-  buildZA,
-
-  /// Urutkan berdasarkan nomor build dari A ke Z (terlama ke terbaru).
-  buildAZ,
-
-  /// Urutkan berdasarkan nomor versi dari Z ke A.
+  buildZA, // Terbaru ke terlama
+  buildAZ, // Terlama ke terbaru
   versionZA,
-
-  /// Urutkan berdasarkan nomor versi dari A ke Z.
   versionAZ,
 }
 
 /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
-///
-/// Admin dapat melihat, menambah, mengedit, mengarsipkan, dan mengurutkan
-/// daftar versi APK yang akan ditampilkan kepada pengguna.
 class ApkVersionPage extends StatefulWidget {
-  /// Operasi database untuk mengelola data versi APK. Jika null,
-  /// instance baru akan dibuat.
   final ApkVersionOperation? operation;
 
-  /// Membuat instance dari [ApkVersionPage].
   const ApkVersionPage({super.key, this.operation});
 
   @override
@@ -66,17 +43,11 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     super.initState();
     Log.info('Menginisialisasi halaman Versi APK User');
     _apkVersionOperation = widget.operation ?? ApkVersionOperation();
-    Log.info(
-      'Menggunakan operasi: ${widget.operation != null ? "dari parameter" : "instance baru"}',
-    );
     unawaited(_loadData());
   }
 
   void _sortList() {
-    Log.info(
-      'Mengurutkan ${_apkVersionList.length} data berdasarkan: ${_getSortName(_currentSort)}',
-    );
-
+    Log.info('Mengurutkan data berdasarkan: ${_getSortName(_currentSort)}');
     _apkVersionList.sort((final a, final b) {
       final buildA = a.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0;
       final buildB = b.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0;
@@ -92,12 +63,10 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
           return a.latestVersion.compareTo(b.latestVersion);
       }
     });
-
-    Log.info('Pengurutan selesai');
   }
 
   Future<void> _loadData() async {
-    Log.info('Memuat data versi APK aktif dari database');
+    Log.info('Memuat data versi APK aktif');
     if (!mounted) return;
 
     setState(() {
@@ -108,16 +77,14 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     try {
       final versionList = await _apkVersionOperation.getAllActiveApkVersions();
       Log.info('Berhasil memuat ${versionList.length} data versi APK aktif');
-
       if (!mounted) return;
-
       setState(() {
         _apkVersionList = versionList;
         _sortList();
         _isLoading = false;
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal memuat data versi APK dari database', e: e, st: s);
+      Log.error('Gagal memuat data versi APK', e: e, st: s);
       if (!mounted) return;
       setState(() {
         _error = 'Gagal memuat data: $e';
@@ -137,10 +104,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         ),
       ),
     );
-
-    // Muat ulang data setelah kembali dari halaman detail untuk memastikan
-    // daftar selalu menampilkan data yang paling baru.
-    Log.info('Kembali dari detail, memuat ulang data daftar APK.');
+    Log.info('Kembali dari detail, memuat ulang data.');
     unawaited(_loadData());
   }
 
@@ -155,7 +119,6 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         ),
       ),
     );
-
     if ((result ?? false) && mounted) {
       ToastUtil.success(context, 'Data berhasil diperbarui.');
       unawaited(_loadData());
@@ -171,7 +134,6 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
             ApkVersionForm(operasi: _apkVersionOperation),
       ),
     );
-
     if ((result ?? false) && mounted) {
       ToastUtil.success(context, 'Data baru berhasil ditambahkan.');
       unawaited(_loadData());
@@ -186,7 +148,6 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
         return _SortDialog(currentSort: _currentSort);
       },
     );
-
     if (newSort != null && newSort != _currentSort) {
       setState(() {
         _currentSort = newSort;
@@ -229,55 +190,64 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
 
   Future<void> _showArchiveDialog(final ApkVersionModel version) async {
     if (!mounted) return;
-    await showDialog<void>(
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (final c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
-        content: Text(
-          'Anda yakin ingin mengarsipkan versi ${version.latestVersion}?',
-        ),
+        content: Text('Anda yakin ingin mengarsipkan versi ${version.latestVersion}?'),
         actions: [
-          TextButton(
-            child: const Text('Batal'),
-            onPressed: () => Navigator.pop(c),
-          ),
-          TextButton(
-            child: const Text('Arsipkan'),
-            onPressed: () {
-              Navigator.pop(c);
-              unawaited(_archive(version.id));
-            },
-          ),
+          TextButton(child: const Text('Batal'), onPressed: () => Navigator.pop(c, false)),
+          TextButton(child: const Text('Arsipkan'), onPressed: () => Navigator.pop(c, true)),
         ],
       ),
     );
+    if (confirm ?? false) {
+      unawaited(_softDelete(version));
+    }
   }
-
-  Future<void> _archive(final String id) async {
-    Log.info('Memulai proses pengarsipan untuk ID: $id');
-
-    final dataBeforeArchive =
-        _apkVersionList.where((final v) => v.id == id).firstOrNull;
-
+  
+  Future<void> _softDelete(final ApkVersionModel version) async {
+    Log.info('Memulai proses soft delete untuk ID: ${version.id}');
     try {
-      await _apkVersionOperation.archiveApkVersion(id);
-
+      await _apkVersionOperation.softDelete(version.id);
       if (!mounted) return;
-
       setState(() {
-        _apkVersionList.removeWhere((final v) => v.id == id);
+        _apkVersionList.removeWhere((final v) => v.id == version.id);
       });
-
-      if (mounted) {
-        ToastUtil.success(
-          context,
-          'Versi ${dataBeforeArchive?.latestVersion ?? id} berhasil diarsipkan.',
-        );
-      }
+      ToastUtil.success(context, 'Versi ${version.latestVersion} berhasil diarsipkan.');
     } on Exception catch (e, s) {
-      Log.error('Gagal mengarsipkan data ID: $id', e: e, st: s);
+      Log.error('Gagal soft delete data ID: ${version.id}', e: e, st: s);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan: $e');
+    }
+  }
+
+  Future<void> _softDeleteAll() async {
+    if (!mounted) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (final c) => AlertDialog(
+        title: const Text('Arsipkan Semua Versi?'),
+        content: const Text('Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
+        actions: [
+          TextButton(child: const Text('Batal'), onPressed: () => Navigator.pop(c, false)),
+          TextButton(child: const Text('Arsipkan Semua'), onPressed: () => Navigator.pop(c, true)),
+        ],
+      ),
+    );
+
+    if (confirm ?? false) {
+      Log.info('Memulai proses soft delete untuk semua versi APK aktif');
+      try {
+        final count = await _apkVersionOperation.softDeleteAll();
+        if (!mounted) return;
+        ToastUtil.success(context, 'Berhasil mengarsipkan $count versi APK.');
+        unawaited(_loadData());
+      } on Exception catch (e, s) {
+        Log.error('Gagal soft delete semua versi APK', e: e, st: s);
+        if (!mounted) return;
+        ToastUtil.error(context, 'Gagal mengarsipkan semua: $e');
+      }
     }
   }
 
@@ -291,6 +261,11 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.archive_outlined),
+            onPressed: _softDeleteAll,
+            tooltip: 'Arsipkan Semua',
+          ),
           IconButton(
             icon: const Icon(Icons.sort),
             onPressed: _showSortDialog,
@@ -419,5 +394,24 @@ String _getSortName(final SortOrder order) {
       return 'Versi (Z-A)';
     case SortOrder.versionAZ:
       return 'Versi (A-Z)';
+  }
+}
+
+// Helper widget for radio group since it's not standard in Flutter
+class RadioGroup<T> extends StatelessWidget {
+  final T groupValue;
+  final ValueChanged<T?> onChanged;
+  final Widget child;
+
+  const RadioGroup({
+    super.key,
+    required this.groupValue,
+    required this.onChanged,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
   }
 }

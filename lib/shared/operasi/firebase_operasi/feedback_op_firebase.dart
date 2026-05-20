@@ -6,6 +6,8 @@
 // diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
 //         koleksi dan kolom.
 // diperbaiki: Menambahkan logging dan error handling yang konsisten.
+// diubah: Mengubah deleteFeedback menjadi penghapusan permanen (hard delete).
+// ditambahkan: Fungsi softDeleteFeedback untuk menandai feedback sebagai terhapus.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -32,7 +34,6 @@ class FeedbackOpFirebase {
 
   /// Konstruktor untuk membuat instance [FeedbackOpFirebase].
   FeedbackOpFirebase(this.firestore) {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -69,7 +70,6 @@ class FeedbackOpFirebase {
       Log.info('Ditemukan ${feedbacks.length} feedback.');
       return feedbacks;
     })
-        // DIPERBAIKI: Menambahkan penanganan error untuk stream
         .handleError((final Object e, final StackTrace s) {
       Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
     });
@@ -93,21 +93,30 @@ class FeedbackOpFirebase {
     }
   }
 
-  /// Melakukan soft delete pada feedback di Firestore.
-  ///
-  /// Operasi ini tidak menghapus dokumen, melainkan menandainya sebagai
-  /// telah dihapus dengan mengatur `isDeleted = true` dan mencatat
-  /// waktu pengarsipan.
+  /// Menghapus feedback secara permanen dari Firestore.
   Future<void> deleteFeedback(final String docId) async {
-    Log.info('Melakukan soft delete pada feedback: $docId');
+    Log.warning('Memulai penghapusan permanen feedback di Firestore: $docId');
+    try {
+      await _collection.doc(docId).delete();
+      Log.info('Penghapusan permanen feedback berhasil: $docId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menghapus feedback secara permanen: $docId', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada feedback di Firestore.
+  Future<void> softDeleteFeedback(final String docId) async {
+    Log.info('Memulai soft delete feedback di Firestore: $docId');
     try {
       await _collection.doc(docId).update({
         ColumnNames.isDeleted: true,
         ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
       });
-      Log.info('Feedback berhasil di-soft-delete.');
+      Log.info('Soft delete feedback berhasil: $docId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete pada feedback: $docId', e: e, st: s);
+      Log.error('Gagal melakukan soft delete feedback: $docId', e: e, st: s);
       rethrow;
     }
   }

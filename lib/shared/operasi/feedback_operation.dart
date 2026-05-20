@@ -22,6 +22,8 @@ class FeedbackOperation {
   @visibleForTesting
   final BaseOperation baseOperation;
 
+  final String _tableName = TableNameValue.get(TableName.feedback);
+
   /// Konstruktor untuk [FeedbackOperation].
   ///
   /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
@@ -43,7 +45,7 @@ class FeedbackOperation {
           feedback.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
       await baseOperation.insert(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -62,7 +64,7 @@ class FeedbackOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         orderBy: '${ColumnNames.date} DESC',
       );
       final feedbackList = List.generate(
@@ -77,13 +79,35 @@ class FeedbackOperation {
     }
   }
 
+  /// Mengambil semua kritik dan saran yang aktif (tidak di-soft-delete).
+  Future<List<FeedbackModel>> getAllActiveFeedback() async {
+    Log.info('Mengambil semua feedback aktif (isDeleted = 0).');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: '${ColumnNames.isDeleted} = 0',
+        orderBy: '${ColumnNames.date} DESC',
+      );
+      final feedbackList = List.generate(
+        maps.length,
+        (final i) => FeedbackModel.fromSqlite(maps[i]),
+      );
+      Log.info('Berhasil mengambil ${feedbackList.length} feedback aktif.');
+      return feedbackList;
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengambil feedback aktif', e: e, st: st);
+      rethrow;
+    }
+  }
+
   /// Mengambil [FeedbackModel] berdasarkan [id].
   Future<FeedbackModel> getFeedbackById(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         where: 'id = ?',
         whereArgs: [id],
       );
@@ -116,7 +140,7 @@ class FeedbackOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
@@ -160,7 +184,7 @@ class FeedbackOperation {
           )
           .toList();
       await baseOperation.insertOrUpdateBatch(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -187,7 +211,7 @@ class FeedbackOperation {
     );
     try {
       await baseOperation.delete(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         id,
         fromServer: fromServer,
       );
@@ -195,6 +219,51 @@ class FeedbackOperation {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal saat deleteFeedback untuk ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada satu feedback berdasarkan [id].
+  Future<void> softDelete(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk feedback ID: $id');
+    try {
+      await baseOperation.softDelete(
+        _tableName,
+        id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete feedback ID: $id.');
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat soft delete feedback ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua feedback.
+  Future<int> softDeleteAll({
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk semua feedback');
+    try {
+      final count = await baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete semua feedback. Total: $count item.');
+      return count;
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat soft delete semua feedback',
         e: e,
         st: st,
       );
@@ -211,7 +280,7 @@ class FeedbackOperation {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           final int count = await txn.delete(
-            TableNameValue.get(TableName.feedback),
+            _tableName,
           );
           Log.info(
             'Berhasil deleteAllFeedback. Total baris yang dihapus: $count',
@@ -238,7 +307,7 @@ class FeedbackOperation {
       await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           final int deletedCount = await txn.delete(
-            TableNameValue.get(TableName.feedback),
+            _tableName,
             where: '${ColumnNames.userId} = ?',
             whereArgs: [userId],
           );
@@ -301,7 +370,7 @@ class FeedbackOperation {
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.feedback),
+        _tableName,
         where: 'id IN (${List.filled(ids.length, '?').join(',')})',
         whereArgs: ids,
       );

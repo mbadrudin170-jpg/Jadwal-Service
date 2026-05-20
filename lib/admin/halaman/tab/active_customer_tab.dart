@@ -1,21 +1,6 @@
 // path: lib/admin/halaman/tab/active_customer_tab.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai tab "Pelanggan Aktif" di navigasi admin.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/active_customer_detail.dart (ActiveCustomerDetailPage)
-//   - lib/admin/halaman/form/active_customer_form.dart (FormPelangganAktif)
-//   - lib/shared/data/services/sync_check_service.dart (SyncCheckService)
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/active_customer_detail_model.dart (ActiveCustomerDetailModel)
-//   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
-//   - lib/shared/services/internet_connection_check.dart (InternetConnectionService)
-//   - lib/shared/utils/active_customer_sorter.dart (ActiveCustomerSorter, SortOption)
-//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
-//   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
+// diubah: Mengganti pemanggilan archiveActiveCustomer dengan softDelete sesuai standardisasi.
+// diubah: Mengganti pemanggilan archiveAllActiveCustomers dengan softDeleteAll sesuai standardisasi.
 
 import 'dart:async';
 
@@ -32,18 +17,18 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart'; // <-- tambahan import
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
-enum DeleteOption {
+enum AdvancedOption {
   /// Hapus semua data pelanggan aktif.
-  hapusSemua,
+  softDeleteAll,
 
   /// Arsipkan pelanggan yang sudah kadaluarsa.
-  arsipkanKadaluarsa,
+  archiveExpired,
 
   /// Batalkan aksi.
-  batal,
+  cancel,
 }
 
 /// Halaman untuk menampilkan daftar pelanggan yang sedang aktif berlangganan.
@@ -57,7 +42,6 @@ class ActiveCustomerPage extends StatefulWidget {
 
 class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
-  /// Operasi untuk data pelanggan aktif.
   final ActiveCustomerOperation _activeCustomerOperation =
       ActiveCustomerOperation();
 
@@ -76,7 +60,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   @override
   void initState() {
     super.initState();
-    Log.info('ActiveCustomerPage initState'); // <-- log inisialisasi
+    Log.info('ActiveCustomerPage initState');
     unawaited(_loadData());
     _searchController.addListener(_onSearchChanged);
   }
@@ -95,8 +79,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   Future<void> _loadData({final bool forceRefresh = false}) async {
     if (!mounted) return;
     setState(() => _isLoading = true);
-    Log.info(
-        'Memuat data pelanggan aktif forceRefresh=$forceRefresh'); // <-- log info
+    Log.info('Memuat data pelanggan aktif (forceRefresh: $forceRefresh)');
 
     try {
       final online = await _connectionService.checkConnection();
@@ -108,7 +91,6 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                   throw TimeoutException('Waktu sinkronisasi habis.'),
             );
       } else if (!online && forceRefresh) {
-        // Ganti SnackBar manual dengan ToastUtil.warning + Log.warning
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
           ToastUtil.warning(
@@ -118,15 +100,13 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         }
       }
 
-      // Menggunakan metode query JOIN yang efisien
       _allCustomers =
           await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
     } on Exception catch (e, s) {
-      // Error: Log.error + ToastUtil.error
       Log.error('Gagal memuat data pelanggan aktif', e: e, st: s);
       if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat data');
+        ToastUtil.error(context, 'Gagal memuat data: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -135,8 +115,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
   void _applyFilterAndSort() {
     final query = _searchController.text.toLowerCase();
-    // Log.info dengan info singkat (query & sort aktif)
-    Log.info('applyFilterAndSort query="$query" sort=${_activeSort.name}');
+    Log.info('Menerapkan filter (query: "$query") dan urutan (${_activeSort.name})');
 
     List<ActiveCustomerDetailModel> tempResult;
 
@@ -153,23 +132,17 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     if (mounted) setState(() => _filteredResults = sorted);
   }
 
-  Future<void> _archiveCustomer(
+  Future<void> _softDeleteCustomer(
       final ActiveCustomerDetailModel customer) async {
     final customerId = customer.activeCustomer.id;
     final customerName = customer.customerName;
-    Log.info(
-        'Mulai arsip pelanggan id=$customerId nama=$customerName'); // <-- log awal
+    Log.info('Memulai soft delete pelanggan ID: $customerId, Nama: $customerName');
 
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (final ctx) => AlertDialog(
         title: const Text('Konfirmasi Arsipkan'),
-        content: Wrap(children: [
-          const Text('Yakin ingin mengarsipkan '),
-          Text(customerName,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          const Text('?'),
-        ]),
+        content: Text('Yakin ingin mengarsipkan pelanggan "$customerName"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -184,34 +157,28 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
     if (confirm ?? false) {
       try {
-        await _activeCustomerOperation
-            .archiveActiveCustomer(customer.activeCustomer.id);
-        // Sukses: log info + snackbar success (feedback ke user)
-        Log.info('Berhasil arsip pelanggan id=$customerId');
+        await _activeCustomerOperation.softDelete(customerId);
+        Log.info('Berhasil soft delete pelanggan ID: $customerId');
         if (mounted) {
-          ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
+          ToastUtil.success(context, 'Pelanggan "$customerName" berhasil diarsipkan.');
         }
         setState(() {
-          _allCustomers.removeWhere(
-              (final p) => p.activeCustomer.id == customer.activeCustomer.id);
-          _filteredResults.removeWhere(
-              (final p) => p.activeCustomer.id == customer.activeCustomer.id);
+          _allCustomers.removeWhere((final p) => p.activeCustomer.id == customerId);
+          _filteredResults.removeWhere((final p) => p.activeCustomer.id == customerId);
         });
       } on Exception catch (e, s) {
-        // Error: Log.error + ToastUtil.error
-        Log.error('Gagal mengarsipkan pelanggan id=$customerId', e: e, st: s);
+        Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, st: s);
         if (mounted) {
-          ToastUtil.error(context, 'Gagal mengarsipkan pelanggan');
+          ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
         }
       }
     } else {
-      Log.info('Arsip pelanggan id=$customerId dibatalkan oleh user');
+      Log.info('Soft delete pelanggan ID: $customerId dibatalkan oleh user');
     }
   }
 
   Future<void> _showSortDialog() async {
-    Log.info(
-        'Menampilkan dialog sort, sort aktif=${_activeSort.name}'); // <-- log
+    Log.info('Menampilkan dialog urutkan, urutan aktif: ${_activeSort.name}');
     final SortOption? selected = await showDialog<SortOption>(
       context: context,
       builder: (final ctx) => SimpleDialog(
@@ -231,14 +198,14 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       ),
     );
     if (selected != null && selected != _activeSort) {
-      Log.info('Sort diubah menjadi ${selected.name}'); // <-- log perubahan
+      Log.info('Urutan diubah menjadi ${selected.name}');
       setState(() => _activeSort = selected);
       _applyFilterAndSort();
     }
   }
 
   Future<void> _addActiveCustomer() async {
-    Log.info('Navigasi ke form tambah pelanggan aktif'); // <-- log
+    Log.info('Navigasi ke form tambah pelanggan aktif');
     final result = await Navigator.push<bool>(
         context, MaterialPageRoute(builder: (final _) => FormPelangganAktif()));
     if (result ?? false) {
@@ -248,22 +215,22 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
   }
 
   Future<void> _advancedOptions() async {
-    Log.info('Membuka opsi lanjutan'); // <-- log
-    final DeleteOption? selected = await showDialog<DeleteOption>(
+    Log.info('Membuka opsi lanjutan');
+    final AdvancedOption? selected = await showDialog<AdvancedOption>(
       context: context,
       builder: (final ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
         children: [
           SimpleDialogOption(
               onPressed: () =>
-                  Navigator.pop(ctx, DeleteOption.arsipkanKadaluarsa),
+                  Navigator.pop(ctx, AdvancedOption.archiveExpired),
               child: const Text('Arsipkan pelanggan kadaluarsa')),
           SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, DeleteOption.hapusSemua),
-              child: const Text('Hapus Semua',
+              onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
+              child: const Text('Arsipkan Semua',
                   style: TextStyle(color: Colors.red))),
           SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx, DeleteOption.batal),
+              onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
               child: const Text('Batal')),
         ],
       ),
@@ -271,38 +238,55 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
     if (!mounted) return;
     switch (selected) {
-      case DeleteOption.hapusSemua:
-        Log.warning('Opsi hapus semua dipilih'); // <-- log warning
+      case AdvancedOption.softDeleteAll:
+        Log.warning('Opsi arsipkan semua dipilih');
         final bool? confirm = await showDialog<bool>(
             context: context,
             builder: (final ctx) => AlertDialog(
-                  title: const Text('Konfirmasi Hapus Semua'),
-                  content: const Text('Yakin ingin menghapus SEMUA?'),
+                  title: const Text('Konfirmasi Arsipkan Semua'),
+                  content: const Text('Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         child: const Text('Batal')),
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Hapus Semua')),
+                        child: const Text('Arsipkan Semua')),
                   ],
                 ));
         if (confirm ?? false) {
-          Log.warning('Eksekusi hapus semua pelanggan aktif');
-          await _activeCustomerOperation.archiveAllActiveCustomers();
-          await _loadData(forceRefresh: true);
+          try {
+            Log.warning('Eksekusi arsipkan semua pelanggan aktif');
+            final count = await _activeCustomerOperation.softDeleteAll();
+            Log.info('Berhasil mengarsipkan $count pelanggan aktif.');
+            if (mounted) {
+              ToastUtil.success(context, 'Berhasil mengarsipkan $count pelanggan.');
+            }
+            await _loadData(forceRefresh: true);
+          } on Exception catch (e, s) {
+            Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, st: s);
+            if (mounted) {
+              ToastUtil.error(context, 'Gagal mengarsipkan semua pelanggan: $e');
+            }
+          }
         }
         break;
-      case DeleteOption.arsipkanKadaluarsa:
-        Log.info('Mulai arsipkan pelanggan kadaluarsa'); // <-- log
-        final count = await _activeCustomerOperation.archiveExpiredCustomers();
-        Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
-        if (mounted) {
-          // Feedback sukses ke user dengan snackbar
-          ToastUtil.success(
-              context, '$count pelanggan kadaluarsa diarsipkan.');
+      case AdvancedOption.archiveExpired:
+        try {
+          Log.info('Mulai arsipkan pelanggan kadaluarsa');
+          final count = await _activeCustomerOperation.archiveExpiredCustomers();
+          Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
+          if (mounted) {
+            ToastUtil.success(
+                context, '$count pelanggan kadaluarsa diarsipkan.');
+          }
+          await _loadData(forceRefresh: true);
+        } on Exception catch (e, s) {
+          Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, st: s);
+          if (mounted) {
+            ToastUtil.error(context, 'Gagal mengarsipkan pelanggan kadaluarsa: $e');
+          }
         }
-        await _loadData(forceRefresh: true);
         break;
       default:
         // batal
@@ -363,7 +347,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 7),
                               child: InkWell(
-                                onLongPress: () => _archiveCustomer(detail),
+                                onLongPress: () => _softDeleteCustomer(detail),
                                 onTap: () async {
                                   await Navigator.push(
                                       context,

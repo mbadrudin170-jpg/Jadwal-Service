@@ -1,13 +1,9 @@
-// path: lib/admin/halaman/lainnya/kategori.dart
+// path: lib/admin/halaman/lainnya/category.dart
 // Fitur: Manajemen Kategori
-// Tujuan: Menampilkan, menambah, mengedit, dan mengarsipkan kategori dan sub-kategori pemasukan/pengeluaran.
-//
-// Daftar Fungsi:
-// - _loadCategories(): Memuat daftar kategori dari database.
-// - _addCategory(): Navigasi ke halaman form untuk menambah kategori baru.
-// - _showConfirmDialog(): Menampilkan dialog konfirmasi generik.
-// - _archiveMainCategory(): Mengarsipkan kategori utama setelah konfirmasi.
-// - _archiveSubCategory(): Mengarsipkan sub-kategori setelah konfirmasi.
+// diubah: Menggunakan ToastUtil sesuai instruksi.
+// diubah: Mengganti implementasi arsip manual dengan memanggil metode softDelete dari operasi yang relevan.
+// diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
+// diubah: Memperbaiki logika arsip sub-kategori agar memanggil SubCategoryOperation.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/category_form.dart';
@@ -16,15 +12,11 @@ import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sub_category_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
-///
-/// Halaman ini memungkinkan admin untuk melihat daftar kategori,
-/// memfilter berdasarkan tipe (pemasukan/pengeluaran), serta
-/// melakukan operasi tambah, edit, dan arsip pada kategori dan sub-kategori.
 class CategoryPage extends StatefulWidget {
-  /// Konstruktor untuk membuat instance [CategoryPage].
   const CategoryPage({super.key});
 
   @override
@@ -33,6 +25,7 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   final CategoryOperation _categoryOperation = CategoryOperation();
+  final SubCategoryOperation _subCategoryOperation = SubCategoryOperation();
   late Future<List<CategoryModel>> _categoryListFuture;
   CategoryType _selectedType = CategoryType.income;
   bool _isEdit = false;
@@ -48,31 +41,14 @@ class _CategoryPageState extends State<CategoryPage> {
   void _loadCategories() {
     Log.info('Memuat data kategori dari database');
     setState(() {
-      _categoryListFuture = _categoryOperation.getCategories().then((final data) {
-        final int totalSubKategori = data.fold(
-          0,
-          (final sum, final kat) => sum + kat.subCategories.length,
-        );
-        Log.info(
-          'Berhasil memuat ${data.length} kategori utama dengan total $totalSubKategori sub-kategori',
-        );
-        for (var kat in data) {
-          Log.info(
-            'Kategori: ${kat.name} (ID: ${kat.id}, Tipe: ${kat.type.name}, Sub: ${kat.subCategories.length}, Diarsipkan: ${kat.archivedAt != null ? "Ya" : "Tidak"})',
-          );
+      _categoryListFuture = _categoryOperation.getCategories().catchError((
+        final Object e,
+        final StackTrace st,
+      ) {
+        Log.error('Gagal memuat data kategori', e: e, st: st);
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal memuat data kategori: $e');
         }
-        return data;
-      })
-          // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
-          // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
-          .catchError((final Object e, final StackTrace st) {
-        Log.error(
-          'Gagal memuat data kategori dari database',
-          e: e,
-          st: st,
-        );
-        // diubah: Melempar error dengan tipe yang benar.
-        // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
         throw Exception(e);
       });
     });
@@ -80,183 +56,130 @@ class _CategoryPageState extends State<CategoryPage> {
 
   Future<void> _addCategory() async {
     Log.info('Navigasi ke Form Tambah Kategori');
-    // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
-    // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(builder: (final context) => const CategoryForm()),
     );
     if (result ?? false) {
-      Log.info(
-        'Kategori baru berhasil ditambahkan, menyegarkan daftar kategori',
-      );
+      Log.info('Kategori baru berhasil ditambahkan, memuat ulang daftar.');
+      ToastUtil.success(context, 'Kategori berhasil ditambahkan.');
       _loadCategories();
-    } else {
-      Log.info('Kembali dari Form Tambah Kategori tanpa menambah data');
     }
   }
 
-  Future<bool> _showConfirmDialog(final String judul, final String konten) async {
-    Log.info('Menampilkan dialog konfirmasi: "$judul"');
-    final konfirmasi = await showDialog<bool>(
+  Future<bool> _showConfirmDialog(final String title, final String content) async {
+    Log.info('Menampilkan dialog konfirmasi: "$title"');
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (final BuildContext context) {
         return AlertDialog(
-          title: Text(judul),
-          content: Text(konten),
+          title: Text(title),
+          content: Text(content),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                Log.info('Dialog "$judul" - User memilih Batal');
-                Navigator.of(context).pop(false);
-              },
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Batal'),
             ),
             TextButton(
-              onPressed: () {
-                Log.info('Dialog "$judul" - User memilih Ya');
-                Navigator.of(context).pop(true);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
               child: const Text('Ya'),
             ),
           ],
         );
       },
     );
-    Log.info(
-      'Hasil konfirmasi dialog "$judul": ${konfirmasi ?? false ? "Ya" : "Batal"}',
-    );
-    return konfirmasi ?? false;
+    return confirm ?? false;
   }
 
-  Future<void> _archiveMainCategory(final CategoryModel kategori) async {
-    Log.info(
-      'Memproses pengarsipan kategori utama: ${kategori.name} (ID: ${kategori.id})',
-    );
-    final bool konfirmasi = await _showConfirmDialog(
+  Future<void> _softDeleteCategory(final CategoryModel category) async {
+    final confirm = await _showConfirmDialog(
       'Arsipkan Kategori',
-      'Anda yakin ingin mengarsipkan "${kategori.name}"? Kategori ini tidak akan bisa digunakan lagi.',
+      'Anda yakin ingin mengarsipkan "${category.name}"? Ini juga akan mengarsipkan semua sub-kategorinya.',
     );
-    if (!mounted || !konfirmasi) {
-      Log.info(
-        'Pengarsipan kategori ${kategori.name} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
-      );
-      return;
-    }
+    if (!mounted || !confirm) return;
 
     try {
-      Log.info(
-        'Mengarsipkan kategori utama ID: ${kategori.id}, nama: ${kategori.name}',
-      );
-      final updatedCategory = kategori.copyWith(archivedAt: DateTime.now());
-      await _categoryOperation.updateCategory(updatedCategory);
-      Log.info(
-        'Kategori ${kategori.name} (ID: ${kategori.id}) berhasil diarsipkan pada ${updatedCategory.archivedAt}',
-      );
-
+      Log.info('Memulai soft delete untuk kategori ID: ${category.id}');
+      await _categoryOperation.softDelete(category.id);
+      Log.info('Berhasil soft delete kategori ID: ${category.id}');
       if (!mounted) return;
-      ToastUtil.success(context, 'Kategori berhasil diarsipkan.');
+      ToastUtil.success(context, 'Kategori "${category.name}" berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengarsipkan kategori ID: ${kategori.id}, nama: ${kategori.name}',
-        e: e,
-        st: st,
-      );
+      Log.error('Gagal soft delete kategori ID: ${category.id}', e: e, st: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan kategori: $e');
     }
   }
 
-  Future<void> _archiveSubCategory(
-    final CategoryModel parentCategory,
-    final SubCategoryModel subKategori,
-  ) async {
-    Log.info(
-      'Memproses pengarsipan sub-kategori: ${subKategori.name} (ID: ${subKategori.id}) dari kategori induk: ${parentCategory.name}',
-    );
-    final bool konfirmasi = await _showConfirmDialog(
+  Future<void> _softDeleteSubCategory(final SubCategoryModel subCategory) async {
+    final confirm = await _showConfirmDialog(
       'Arsipkan Sub-Kategori',
-      'Anda yakin ingin mengarsipkan sub-kategori "${subKategori.name}"?',
+      'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.name}"?',
     );
-    if (!mounted || !konfirmasi) {
-      Log.info(
-        'Pengarsipan sub-kategori ${subKategori.name} dibatalkan (konfirmasi: $konfirmasi, mounted: $mounted)',
-      );
-      return;
-    }
+    if (!mounted || !confirm) return;
 
     try {
-      Log.info(
-        'Mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.name}',
-      );
-      final updatedSubCategory = subKategori.copyWith(
-        archivedAt: DateTime.now(),
-      );
-      final newSubCategoryList = parentCategory.subCategories.map((final sub) {
-        return sub.id == subKategori.id ? updatedSubCategory : sub;
-      }).toList();
-      final parentCategoryDiperbarui = parentCategory.copyWith(
-        subCategories: newSubCategoryList,
-        updatedAt: DateTime.now(),
-      );
-
-      await _categoryOperation.updateCategory(parentCategoryDiperbarui);
-      Log.info(
-        'Sub-kategori ${subKategori.name} (ID: ${subKategori.id}) berhasil diarsipkan, kategori induk ${parentCategory.name} diperbarui',
-      );
-
+      Log.info('Memulai soft delete untuk sub-kategori ID: ${subCategory.id}');
+      await _subCategoryOperation.softDelete(subCategory.id);
+      Log.info('Berhasil soft delete sub-kategori ID: ${subCategory.id}');
       if (!mounted) return;
-      ToastUtil.success(context, 'Sub-kategori berhasil diarsipkan.');
+      ToastUtil.success(context, 'Sub-kategori "${subCategory.name}" berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengarsipkan sub-kategori ID: ${subKategori.id}, nama: ${subKategori.name}',
-        e: e,
-        st: st,
-      );
+      Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}', e: e, st: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
+    }
+  }
+  
+  Future<void> _softDeleteAll() async {
+    final confirm = await _showConfirmDialog(
+      'Arsipkan Semua Kategori',
+      'Anda yakin ingin mengarsipkan SEMUA kategori? Tindakan ini akan mengarsipkan semua kategori dan sub-kategorinya.',
+    );
+    if (!mounted || !confirm) return;
+
+    try {
+      Log.info('Memulai soft delete untuk semua kategori');
+      final count = await _categoryOperation.softDeleteAll();
+      Log.info('Berhasil soft delete $count kategori.');
+      if (!mounted) return;
+      ToastUtil.success(context, 'Berhasil mengarsipkan $count kategori.');
+      _loadCategories();
+    } on Exception catch (e, st) {
+      Log.error('Gagal melakukan soft delete semua kategori', e: e, st: st);
+      if (!mounted) return;
+      ToastUtil.error(context, 'Gagal mengarsipkan semua kategori: $e');
     }
   }
 
   @override
   Widget build(final BuildContext context) {
-    Log.info(
-      'Membangun UI halaman Kategori (Mode Edit: $_isEdit, Mode Arsip: $_isArchiveMode, Filter Tipe: ${_selectedType.name})',
-    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kategori'),
         actions: [
+          if (_isArchiveMode)
+            IconButton(
+              tooltip: 'Arsipkan Semua',
+              onPressed: _softDeleteAll,
+              icon: const Icon(Icons.inventory_2_outlined),
+            ),
           IconButton(
             tooltip: _isArchiveMode ? 'Selesai' : 'Arsipkan',
-            onPressed: () {
-              setState(() {
-                _isArchiveMode = !_isArchiveMode;
-                if (_isArchiveMode) {
-                  _isEdit = false;
-                  Log.info('Mode ARSIP diaktifkan, Mode EDIT dinonaktifkan');
-                } else {
-                  Log.info('Mode ARSIP dinonaktifkan');
-                }
-              });
-            },
+            onPressed: () => setState(() {
+              _isArchiveMode = !_isArchiveMode;
+              if (_isArchiveMode) _isEdit = false;
+            }),
             icon: Icon(_isArchiveMode ? Icons.check : Icons.archive_outlined),
           ),
           IconButton(
             tooltip: _isEdit ? 'Selesai' : 'Edit',
-            onPressed: () {
-              setState(() {
-                _isEdit = !_isEdit;
-                if (_isEdit) {
-                  _isArchiveMode = false;
-                  Log.info('Mode EDIT diaktifkan, Mode ARSIP dinonaktifkan');
-                } else {
-                  Log.info('Mode EDIT dinonaktifkan');
-                }
-              });
-            },
+            onPressed: () => setState(() {
+              _isEdit = !_isEdit;
+              if (_isEdit) _isArchiveMode = false;
+            }),
             icon: Icon(_isEdit ? Icons.check : Icons.edit_outlined),
           ),
         ],
@@ -267,26 +190,16 @@ class _CategoryPageState extends State<CategoryPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  Log.info('Filter tipe diubah ke PEMASUKAN');
-                  setState(() => _selectedType = CategoryType.income);
-                },
+                onPressed: () => setState(() => _selectedType = CategoryType.income),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.income
-                      ? Colors.green
-                      : Colors.grey,
+                  backgroundColor: _selectedType == CategoryType.income ? Colors.green : Colors.grey,
                 ),
                 child: const Text('Pemasukan'),
               ),
               ElevatedButton(
-                onPressed: () {
-                  Log.info('Filter tipe diubah ke PENGELUARAN');
-                  setState(() => _selectedType = CategoryType.expense);
-                },
+                onPressed: () => setState(() => _selectedType = CategoryType.expense),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.expense
-                      ? Colors.red
-                      : Colors.grey,
+                  backgroundColor: _selectedType == CategoryType.expense ? Colors.red : Colors.grey,
                 ),
                 child: const Text('Pengeluaran'),
               ),
@@ -298,128 +211,84 @@ class _CategoryPageState extends State<CategoryPage> {
               builder: (final context, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  Log.error(
-                    'Terjadi error saat memuat data kategori di FutureBuilder',
-                    e: snapshot.error,
-                    st: snapshot.stackTrace,
-                  );
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  Log.info(
-                    'Data kategori kosong, tidak ada kategori ditemukan',
-                  );
-                  return const Center(
-                    child: Text('Tidak ada kategori ditemukan.'),
-                  );
-                } else {
-                  final filteredKategori = snapshot.data!
-                      .where(
-                        (final k) => k.type == _selectedType && k.archivedAt == null,
-                      )
-                      .toList();
-
-                  Log.info(
-                    'Menampilkan ${filteredKategori.length} kategori dengan tipe ${_selectedType.name} (total data: ${snapshot.data!.length}, difilter: ${snapshot.data!.length - filteredKategori.length} diarsipkan/beda tipe)',
-                  );
-
-                  return ListView.builder(
-                    itemCount: filteredKategori.length,
-                    itemBuilder: (final context, final index) {
-                      final kategori = filteredKategori[index];
-                      return Card(
-                        margin: const EdgeInsets.all(8.0),
-                        child: ExpansionTile(
-                          title: Text(kategori.name),
-                          trailing: _isEdit
-                              ? IconButton(
-                                  onPressed: () async {
-                                    Log.info(
-                                      'Navigasi ke Form Edit Kategori Utama: ${kategori.name} (ID: ${kategori.id})',
-                                    );
-                                    // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
-                                    // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
-                                    final result = await Navigator.push<bool>(
-                                      context,
-                                      MaterialPageRoute<bool>(
-                                        builder: (final context) => CategoryForm(
-                                          kategori: kategori,
-                                        ),
-                                      ),
-                                    );
-                                    if (result ?? false) {
-                                      Log.info(
-                                        'Kategori ${kategori.name} berhasil diedit, menyegarkan daftar',
-                                      );
-                                      _loadCategories();
-                                    } else {
-                                      Log.info(
-                                        'Kembali dari Form Edit Kategori tanpa perubahan',
-                                      );
-                                    }
-                                  },
-                                  icon: const Icon(Icons.edit),
-                                )
-                              : _isArchiveMode
-                                  ? IconButton(
-                                      onPressed: () =>
-                                          _archiveMainCategory(kategori),
-                                      icon: const Icon(Icons.archive),
-                                    )
-                                  : null,
-                          children: kategori.subCategories
-                              .where((final sub) => sub.archivedAt == null)
-                              .map((final sub) {
-                            return ListTile(
-                              title: Text(sub.name),
-                              trailing: _isEdit
-                                  ? IconButton(
-                                      onPressed: () async {
-                                        Log.info(
-                                          'Navigasi ke Form Edit Sub-Kategori: ${sub.name} (ID: ${sub.id})',
-                                        );
-                                        // diubah: Menambahkan tipe eksplisit <bool> pada Navigator.push dan MaterialPageRoute.
-                                        // Alasan: Untuk memenuhi aturan 'inference_failure_on_instance_creation' karena halaman form mengembalikan nilai boolean.
-                                        final result =
-                                            await Navigator.push<bool>(
-                                          context,
-                                          MaterialPageRoute<bool>(
-                                            builder: (final context) =>
-                                                CategoryForm(
-                                              subKategori: sub,
-                                              idKategoriInduk: kategori.id,
-                                            ),
-                                          ),
-                                        );
-                                        if (result ?? false) {
-                                          Log.info(
-                                            'Sub-kategori ${sub.name} berhasil diedit, menyegarkan daftar',
-                                          );
-                                          _loadCategories();
-                                        } else {
-                                          Log.info(
-                                            'Kembali dari Form Edit Sub-Kategori tanpa perubahan',
-                                          );
-                                        }
-                                      },
-                                      icon: const Icon(Icons.edit),
-                                    )
-                                  : _isArchiveMode
-                                      ? IconButton(
-                                          onPressed: () => _archiveSubCategory(
-                                            kategori,
-                                            sub,
-                                          ),
-                                          icon: const Icon(Icons.archive),
-                                        )
-                                      : null,
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
-                  );
                 }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Tidak ada kategori ditemukan.'));
+                }
+
+                final filteredKategori = snapshot.data!
+                    .where((final k) => k.type == _selectedType && k.archivedAt == null)
+                    .toList();
+
+                return ListView.builder(
+                  itemCount: filteredKategori.length,
+                  itemBuilder: (final context, final index) {
+                    final kategori = filteredKategori[index];
+                    return Card(
+                      margin: const EdgeInsets.all(8.0),
+                      child: ExpansionTile(
+                        title: Text(kategori.name),
+                        trailing: _isEdit
+                            ? IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () async {
+                                  final result = await Navigator.push<bool>(
+                                    context,
+                                    MaterialPageRoute<bool>(
+                                      builder: (final context) => CategoryForm(kategori: kategori),
+                                    ),
+                                  );
+                                  if (result ?? false) {
+                                    ToastUtil.success(context, 'Kategori berhasil diubah.');
+                                    _loadCategories();
+                                  }
+                                },
+                              )
+                            : _isArchiveMode
+                                ? IconButton(
+                                    icon: const Icon(Icons.archive),
+                                    onPressed: () => _softDeleteCategory(kategori),
+                                  )
+                                : null,
+                        children: kategori.subCategories
+                            .where((final sub) => sub.archivedAt == null)
+                            .map((final sub) {
+                          return ListTile(
+                            title: Text(sub.name),
+                            trailing: _isEdit
+                                ? IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () async {
+                                      final result = await Navigator.push<bool>(
+                                        context,
+                                        MaterialPageRoute<bool>(
+                                          builder: (final context) => CategoryForm(
+                                            subKategori: sub,
+                                            idKategoriInduk: kategori.id,
+                                          ),
+                                        ),
+                                      );
+                                      if (result ?? false) {
+                                        ToastUtil.success(context, 'Sub-kategori berhasil diubah.');
+                                        _loadCategories();
+                                      }
+                                    },
+                                  )
+                                : _isArchiveMode
+                                    ? IconButton(
+                                        icon: const Icon(Icons.archive),
+                                        onPressed: () => _softDeleteSubCategory(sub),
+                                      )
+                                    : null,
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ),

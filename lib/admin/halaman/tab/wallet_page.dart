@@ -180,7 +180,7 @@ class _WalletPageState extends State<WalletPage> {
   Future<void> _archiveOneWallet(final WalletModel wallet) async {
     Log.info('Memulai pengarsipan dompet: "${wallet.name}".');
     try {
-      await _walletOperation.archiveOneWallet(wallet.id);
+      await _walletOperation.softDelete(wallet.id);
       _loadWallets();
       if (!mounted) return;
       Log.info('Dompet "${wallet.name}" berhasil diarsipkan.');

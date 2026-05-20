@@ -283,7 +283,7 @@ class _CustomerPageState extends State<CustomerPage> {
                     'Opsi "Arsipkan Pelanggan" dipilih. Menutup dialog dan memanggil _showArchiveDialog.',
                   );
                   Navigator.of(dialogContext).pop();
-                  await _showArchiveDialog(customer);
+                  await _showSoftDelete(customer);
                 },
               ),
             ],
@@ -293,7 +293,7 @@ class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  Future<void> _showArchiveDialog(final CustomerModel customer) async {
+  Future<void> _showSoftDelete(final CustomerModel customer) async {
     Log.info(
       'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${customer.name}".',
     );
@@ -323,7 +323,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   'Pengguna mengonfirmasi pengarsipan. Memanggil _archiveCustomer dengan ID: ${customer.id}.',
                 );
                 Navigator.of(context).pop();
-                await _archiveCustomer(customer.id);
+                await _softDelete(customer.id);
               },
             ),
           ],
@@ -332,10 +332,10 @@ class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  Future<void> _archiveCustomer(final String id) async {
+  Future<void> _softDelete(final String id) async {
     Log.info('Memulai proses pengarsipan untuk ID pelanggan: $id.');
     try {
-      await _customerOperation.archiveCustomer(id);
+      await _customerOperation.softDelete(id);
       Log.info(
         'Berhasil mengarsipkan pelanggan dengan ID: $id. Memuat ulang daftar dan menampilkan SnackBar.',
       );

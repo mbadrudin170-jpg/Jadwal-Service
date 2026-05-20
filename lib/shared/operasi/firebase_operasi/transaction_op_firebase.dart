@@ -1,6 +1,8 @@
 // path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
 // diubah: Menambahkan getLatestPaidTransactionByUserId.
 // diperbaiki: Menambahkan logging inisialisasi dan menerjemahkan komentar.
+// ditambahkan: Fungsi deleteTransaction untuk menghapus transaksi secara permanen.
+// ditambahkan: Fungsi softDeleteTransaction untuk menandai transaksi sebagai terhapus.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -101,6 +103,34 @@ class TransactionOpFirebase {
     } on Exception catch (e, s) {
       Log.error('Error menghitung total poin: $e', e: e, st: s);
       return 0;
+    }
+  }
+
+  /// Menghapus transaksi dari Firestore secara permanen.
+  Future<void> deleteTransaction(final String transactionId) async {
+    Log.warning('Memulai penghapusan permanen transaksi di Firestore: $transactionId');
+    try {
+      await _collection.doc(transactionId).delete();
+      Log.info('Penghapusan permanen transaksi berhasil: $transactionId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menghapus transaksi secara permanen: $transactionId', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada transaksi di Firestore.
+  Future<void> softDeleteTransaction(final String transactionId) async {
+    Log.info('Memulai soft delete transaksi di Firestore: $transactionId');
+    try {
+      await _collection.doc(transactionId).update({
+        ColumnNames.isDeleted: true,
+        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('Soft delete transaksi berhasil: $transactionId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal melakukan soft delete transaksi: $transactionId', e: e, st: s);
+      rethrow;
     }
   }
 

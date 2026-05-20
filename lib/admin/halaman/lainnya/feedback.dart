@@ -135,7 +135,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       // Sisipan: log info awal proses hapus
       Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
       try {
-        await _feedbackOperation.deleteFeedback(item.id);
+        await _feedbackOperation.softDelete(item.id);
 
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');

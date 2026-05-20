@@ -1,5 +1,7 @@
 // path: lib/admin/app_admin.dart
 // DIUBAH: Menyuntikkan SqliteTransactionRepository ke dalam TransactionProvider.
+// DIUBAH: Pengecekan koneksi internet sebelum membersihkan data.
+// DIUBAH: Menggunakan SettingsOperation untuk mendapatkan retentionDays.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -95,14 +98,23 @@ class _AppInitializerState extends State<AppInitializer> {
       Log.info('Memeriksa data awal...');
       await InitialDownloadService().runInitialDownload();
 
-      Log.info('Membersihkan data arsip kadaluarsa...');
-      final dataCleaningOperation = DataCleaningOperation();
-      await dataCleaningOperation.deleteAllExpiredArchivedData(
-          retentionDays: 30);
-
-      Log.info('Mengecek koneksi internet...');
+      Log.info('Mengecek koneksi internet untuk pembersihan data...');
       final isOnline = await _connectionService.checkConnection();
       Log.info('Status koneksi: ${isOnline ? "online" : "offline"}');
+
+      if (isOnline) {
+        // DIUBAH: Menggunakan SettingsOperation untuk mendapatkan pengaturan
+        final settings = await SettingsOperation().getSettings();
+        final retentionDays = settings.autoDeleteArchiveDays;
+
+        Log.info(
+            'Membersihkan data arsip kadaluarsa (SQLite & Firestore) dengan retensi $retentionDays hari...');
+        final dataCleaningOperation = DataCleaningOperation();
+        await dataCleaningOperation.deleteAllExpiredArchivedData(
+            retentionDays: retentionDays);
+      } else {
+        Log.warning('Melewati proses pembersihan data karena sedang offline.');
+      }
 
       Log.info('Native splash screen dihapus. Aplikasi siap.');
 

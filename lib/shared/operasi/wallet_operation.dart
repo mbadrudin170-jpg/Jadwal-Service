@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/wallet_operation.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -14,6 +13,8 @@ class WalletOperation {
   /// Instance dari DatabaseHelper dan BaseOperation untuk mengakses database.
   final DatabaseHelper dbHelper;
   final BaseOperation _baseOperation;
+
+  final String _tableName = TableNameValue.get(TableName.wallet);
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   WalletOperation({
@@ -35,9 +36,8 @@ class WalletOperation {
     try {
       final data =
           wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.insert(
-        TableNameValue.get(TableName.wallet),
+        _tableName,
         data,
         fromServer: fromServer,
       );
@@ -58,11 +58,10 @@ class WalletOperation {
     try {
       final db = await dbHelper.database;
       final query = showArchived
-          ? '${ColumnNames.isDeleted} = 0'
+          ? null
           : '${ColumnNames.isDeleted} = 0 AND ${ColumnNames.archivedAt} IS NULL';
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.wallet),
+        _tableName,
         where: query,
       );
 
@@ -83,9 +82,8 @@ class WalletOperation {
     Log.info('Memulai getWalletById untuk ID: $id');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       final List<Map<String, dynamic>> maps = await db.query(
-        TableNameValue.get(TableName.wallet),
+        _tableName,
         where: '${ColumnNames.id} = ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [id],
       );
@@ -117,9 +115,8 @@ class WalletOperation {
     try {
       final data =
           wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.update(
-        TableNameValue.get(TableName.wallet),
+        _tableName,
         data,
         wallet.id,
         fromServer: fromServer,
@@ -135,41 +132,15 @@ class WalletOperation {
     }
   }
 
-  /// Mengarsipkan semua dompet yang aktif.
-  Future<void> archiveAllWallets({final bool fromServer = false}) async {
-    Log.info('Memulai proses pengarsipan untuk semua wallet.');
-    try {
-      final activeWallets = await getWallets();
-      Log.info(
-          'Ditemukan ${activeWallets.length} wallet aktif untuk diarsipkan.');
-
-      for (final wallet in activeWallets) {
-        await updateWallet(
-          wallet.copyWith(archivedAt: DateTime.now().toUtc()),
-          fromServer: fromServer,
-        );
-      }
-
-      Log.info('Proses pengarsipan semua wallet telah selesai.');
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal saat proses pengarsipan massal wallet.',
-        e: e,
-        st: st,
-      );
-      rethrow;
-    }
-  }
-
   /// Menghapus semua dompet dari database secara permanen.
   Future<void> deleteAllWallets({final bool fromServer = false}) async {
     Log.warning(
         'PERINGATAN: Memulai deleteAllWallets. Ini adalah operasi destruktif.');
     try {
+      await dbHelper.database;
       await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
-          final count = await txn.delete(TableNameValue.get(TableName.wallet));
+        (final txn) async {
+          final count = await txn.delete(_tableName);
           Log.info(
               'Berhasil deleteAllWallets. Total baris yang dihapus: $count');
         },
@@ -181,30 +152,42 @@ class WalletOperation {
     }
   }
 
-  /// Mengarsipkan satu dompet berdasarkan [id] (soft delete).
-  Future<void> archiveOneWallet(final String id,
+  /// Melakukan soft delete pada satu dompet berdasarkan [id].
+  Future<void> softDelete(final String id,
       {final bool fromServer = false}) async {
-    Log.info('Memulai archiveOneWallet (soft delete) untuk ID: $id');
+    Log.info('Memulai soft delete untuk wallet ID: $id');
     try {
-      final now = DateTime.now().toUtc();
-      final Map<String, dynamic> dataToUpdate = {
-        ColumnNames.archivedAt: now.millisecondsSinceEpoch,
-        ColumnNames.updatedAt: now.millisecondsSinceEpoch,
-        ColumnNames.isDeleted: 1,
-      };
-
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
-      await _baseOperation.update(
-        TableNameValue.get(TableName.wallet),
-        dataToUpdate,
+      await _baseOperation.softDelete(
+        _tableName,
         id,
         fromServer: fromServer,
       );
-
-      Log.info('Berhasil archiveOneWallet untuk ID: $id.');
-    } on Exception catch (e, st) {
+      Log.info('Berhasil soft delete wallet ID: $id.');
+    } catch (e, st) {
       Log.error(
-        'Gagal saat archiveOneWallet untuk ID: $id',
+        'Gagal saat soft delete wallet ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua dompet.
+  Future<int> softDeleteAll({
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk semua dompet');
+    try {
+      final count = await _baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete semua dompet. Total: $count item.');
+      return count;
+    } catch (e, st) {
+      Log.error(
+        'Gagal saat soft delete semua dompet',
         e: e,
         st: st,
       );
@@ -218,9 +201,8 @@ class WalletOperation {
         'Memulai getTotalBalance (menghitung total saldo dari semua wallet aktif).');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -242,9 +224,8 @@ class WalletOperation {
         'Memulai getPositiveBalance (menghitung total saldo > 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -266,9 +247,8 @@ class WalletOperation {
         'Memulai getNegativeBalance (menghitung total saldo < 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
-      // DIUBAH: Menggunakan TableNameValue di dalam query string rawQuery
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM ${TableNameValue.get(TableName.wallet)} WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -301,9 +281,8 @@ class WalletOperation {
                 item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
           )
           .toList();
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel wallet
       await _baseOperation.insertOrUpdateBatch(
-        TableNameValue.get(TableName.wallet),
+        _tableName,
         data,
         fromServer: fromServer,
       );

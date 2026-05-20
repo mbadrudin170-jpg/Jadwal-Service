@@ -195,7 +195,7 @@ class _PackagePageState extends State<PackagePage> {
                   Log.info(
                     'Menjalankan operasi hapus paket ID: ${paket.id}, nama: ${paket.name}',
                   );
-                  await _paketOperasi.softDeletePackage(paket.id);
+                  await _paketOperasi.softDelete(paket.id);
                   Log.info(
                     'Paket ID: ${paket.id} berhasil dihapus dari database',
                   );
@@ -257,7 +257,7 @@ class _PackagePageState extends State<PackagePage> {
                   Log.info(
                     'Menjalankan operasi hapus semua paket dari database',
                   );
-                  await _paketOperasi.softDeleteAllPackages();
+                  await _paketOperasi.softDeleteAll();
                   Log.info('Semua paket berhasil dihapus dari database');
                   _refreshPaketList();
 

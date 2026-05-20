@@ -2,6 +2,8 @@
 // diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
 //         koleksi dan kolom.
 // diperbaiki: Menambahkan logging dan error handling yang lebih konsisten.
+// ditambahkan: Fungsi deleteCustomer untuk menghapus pelanggan secara permanen.
+// ditambahkan: Fungsi softDeleteCustomer untuk menandai pelanggan sebagai terhapus.
 
 import 'dart:async';
 
@@ -20,7 +22,6 @@ class CustomerOpFirebase {
   CustomerOpFirebase({final FirebaseFirestore? firestore})
       : _customerCollection = (firestore ?? FirebaseFirestore.instance)
             .collection(TableNameValue.get(TableName.customer)) {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('CustomerOpFirebase diinisialisasi.');
   }
 
@@ -52,10 +53,8 @@ class CustomerOpFirebase {
       }
       Log.warning('Pelanggan $userId tidak ditemukan di stream.');
       return null;
-      // DIPERBAIKI: Menambahkan penanganan error untuk stream
     }).handleError((final Object e, final StackTrace s) {
       Log.error('Error pada stream pelanggan untuk: $userId', e: e, st: s);
-      // Tidak melempar error lebih lanjut agar stream tidak mati
     });
   }
 
@@ -75,7 +74,7 @@ class CustomerOpFirebase {
       return null;
     } on Exception catch (e, s) {
       Log.error('Error mengambil pelanggan: $e', e: e, st: s);
-      return null; // Mengembalikan null sebagai nilai aman
+      return null;
     }
   }
 
@@ -92,7 +91,34 @@ class CustomerOpFirebase {
       Log.info('Token FCM berhasil disimpan.');
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan token FCM untuk $userId', e: e, st: s);
-      // DIPERBAIKI: Menambahkan rethrow agar pemanggil tahu ada error
+      rethrow;
+    }
+  }
+
+  /// Menghapus pelanggan dari Firestore secara permanen.
+  Future<void> deleteCustomer(final String customerId) async {
+    Log.warning('Memulai penghapusan permanen pelanggan di Firestore: $customerId');
+    try {
+      await _customerCollection.doc(customerId).delete();
+      Log.info('Penghapusan permanen pelanggan berhasil: $customerId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menghapus pelanggan secara permanen: $customerId', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada pelanggan di Firestore.
+  Future<void> softDeleteCustomer(final String customerId) async {
+    Log.info('Memulai soft delete pelanggan di Firestore: $customerId');
+    try {
+      await _customerCollection.doc(customerId).update({
+        ColumnNames.isDeleted: true,
+        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('Soft delete pelanggan berhasil: $customerId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal melakukan soft delete pelanggan: $customerId', e: e, st: s);
       rethrow;
     }
   }

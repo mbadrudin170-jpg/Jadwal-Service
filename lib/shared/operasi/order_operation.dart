@@ -53,7 +53,7 @@ class OrderOperation {
     }
   }
 
-  /// Mengambil semua pesanan dari database.
+  /// Mengambil semua pesanan dari database (termasuk yang sudah di-soft-delete).
   Future<List<OrderModel>> getAllOrders() async {
     Log.info('Mengambil semua pesanan dari database.');
     try {
@@ -70,6 +70,24 @@ class OrderOperation {
     }
   }
 
+  /// Mengambil semua pesanan yang aktif (belum di-soft-delete).
+  Future<List<OrderModel>> getAllActiveOrders() async {
+    Log.info('Mengambil semua pesanan aktif dari database.');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: '${ColumnNames.isDeleted} = 0',
+        orderBy: '${ColumnNames.date} DESC',
+      );
+      Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
+      return maps.map(OrderModel.fromSqlite).toList();
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengambil semua pesanan aktif.', e: e, st: s);
+      rethrow;
+    }
+  }
+
   /// Mengambil pesanan berdasarkan [status].
   Future<List<OrderModel>> getOrdersByStatus(final String status) async {
     Log.info('Mengambil pesanan dengan status: $status');
@@ -77,12 +95,12 @@ class OrderOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.status} = ?',
+        where: '${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [status],
         orderBy: '${ColumnNames.date} DESC',
       );
       Log.info(
-          'Berhasil mengambil ${maps.length} data pesanan berstatus $status.');
+          'Berhasil mengambil ${maps.length} data pesanan aktif berstatus $status.');
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, st: s);
@@ -131,17 +149,54 @@ class OrderOperation {
     }
   }
 
-  /// Menghapus [OrderModel] dari database berdasarkan [id].
+  /// Menghapus [OrderModel] dari database berdasarkan [id] (hard delete).
   Future<void> deleteOrder(
     final String id, {
     final bool fromServer = false,
   }) async {
-    Log.warning('Menghapus pesanan ID: $id');
+    Log.warning('Menghapus pesanan ID: $id (hard delete)');
     try {
       await baseOperation.delete(_tableName, id, fromServer: fromServer);
       Log.info('Berhasil menghapus pesanan dengan ID: $id.');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus pesanan.', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada pesanan berdasarkan [id].
+  Future<void> softDelete(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk pesanan ID: $id');
+    try {
+      await baseOperation.softDelete(
+        _tableName,
+        id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete pesanan ID: $id.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal saat soft delete pesanan ID: $id', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada semua pesanan.
+  Future<int> softDeleteAll({
+    final bool fromServer = false,
+  }) async {
+    Log.info('Memulai soft delete untuk semua pesanan');
+    try {
+      final count = await baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error('Gagal saat soft delete semua pesanan', e: e, st: st);
       rethrow;
     }
   }
@@ -187,7 +242,7 @@ class OrderOperation {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '${ColumnNames.id} IN (${List.filled(ids.length, '?').join(',')})',
+            '${ColumnNames.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${ColumnNames.isDeleted} = 0',
         whereArgs: ids,
       );
       Log.info(

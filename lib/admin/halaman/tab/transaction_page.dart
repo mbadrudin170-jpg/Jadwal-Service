@@ -286,7 +286,7 @@ class _TransactionPageState extends State<TransactionPage> {
 
       if (confirmed ?? false) {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
-        await _transactionOperation.archiveAllTransactions();
+        await _transactionOperation.softDeleteAll();
         if (!mounted) return;
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
         await _loadData(reload: true);
@@ -500,8 +500,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: id=${transaction.id}');
-                  await _transactionOperation
-                      .archiveTransaction(transaction.id);
+                  await _transactionOperation.softDelete(transaction.id);
                   await _loadData(reload: true);
                 },
               ),

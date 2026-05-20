@@ -85,7 +85,8 @@ class SettingsModel implements HasId {
       ColumnNames.maintenanceMode: maintenanceMode ? 1 : 0,
       ColumnNames.maintenanceInfo: maintenanceInfo,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
     };
   }
 
@@ -95,7 +96,8 @@ class SettingsModel implements HasId {
     return SettingsModel(
       id: data[ColumnNames.id] as String? ?? globalSettingsId,
       autoSyncInterval: data[ColumnNames.autoSyncInterval] as int? ?? 24,
-      autoDeleteArchiveDays: data[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
+      autoDeleteArchiveDays:
+          data[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
       // DIUBAH: Menggunakan ParserUtil
       maintenanceMode: ParserUtil.parseBool(data[ColumnNames.maintenanceMode]),
       maintenanceInfo: data[ColumnNames.maintenanceInfo] as String? ?? '',

@@ -1,6 +1,8 @@
 // path: lib/shared/operasi/firebase_operasi/package_op_firebase.dart
 // diubah: Menambahkan getPublicPackages dan memperbaiki konstruktor.
 // diperbaiki: Menambahkan logging inisialisasi dan filter isDeleted.
+// ditambahkan: Fungsi deletePackage untuk menghapus paket secara permanen.
+// ditambahkan: Fungsi softDeletePackage untuk menandai paket sebagai terhapus.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -17,7 +19,6 @@ class PackageOpFirebase {
   /// Konstruktor untuk PackageOpFirebase.
   PackageOpFirebase({final FirebaseFirestore? firestore})
       : db = firestore ?? FirebaseFirestore.instance {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
@@ -83,6 +84,34 @@ class PackageOpFirebase {
     } on Exception catch (e, s) {
       Log.error('Error mengambil model paket: $e', e: e, st: s);
       return null;
+    }
+  }
+
+  /// Menghapus paket dari Firestore secara permanen.
+  Future<void> deletePackage(final String packageId) async {
+    Log.warning('Memulai penghapusan permanen paket di Firestore: $packageId');
+    try {
+      await _collection.doc(packageId).delete();
+      Log.info('Penghapusan permanen paket berhasil: $packageId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menghapus paket secara permanen: $packageId', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada paket di Firestore.
+  Future<void> softDeletePackage(final String packageId) async {
+    Log.info('Memulai soft delete paket di Firestore: $packageId');
+    try {
+      await _collection.doc(packageId).update({
+        ColumnNames.isDeleted: true,
+        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('Soft delete paket berhasil: $packageId');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal melakukan soft delete paket: $packageId', e: e, st: s);
+      rethrow;
     }
   }
 }

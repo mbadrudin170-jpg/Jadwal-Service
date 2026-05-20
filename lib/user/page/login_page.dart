@@ -123,6 +123,7 @@ class _LoginViewState extends State<_LoginView> {
           .collection(TableNameValue.get(TableName.customer))
           .where(ColumnNames.phone, isEqualTo: phone)
           .where(ColumnNames.password, isEqualTo: password)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
           .limit(1)
           .get();
 

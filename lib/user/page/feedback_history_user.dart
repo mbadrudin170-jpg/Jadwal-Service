@@ -102,7 +102,7 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
 
     if (shouldDelete ?? false) {
       try {
-        await _operation.deleteFeedback(docId);
+        await _operation.softDeleteFeedback(docId);
         if (!mounted) return;
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {

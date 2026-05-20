@@ -1,6 +1,7 @@
 // path: lib/shared/operasi/settings_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -30,7 +31,6 @@ class SettingsOperation {
       );
       final db = await _dbHelper.database;
 
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       final result = await db.query(
         TableNameValue.get(TableName.settings),
         where: 'id = ?',
@@ -78,7 +78,6 @@ class SettingsOperation {
       Log.info(
         'Memulai proses simpan/perbarui untuk pengaturan dengan ID: ${settingsToSave.id}',
       );
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.insert(
         TableNameValue.get(TableName.settings),
         settingsToSave.toSqlite(),
@@ -112,10 +111,9 @@ class SettingsOperation {
       // Selalu tambahkan timestamp `updated_at` pada setiap operasi tulis dalam bentuk epoch millisecond.
       final dataToUpdate = {
         ...data,
-        'diperbarui': DateTime.now().toUtc().millisecondsSinceEpoch,
+        ColumnNames.updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
       };
 
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.update(
         TableNameValue.get(TableName.settings),
         dataToUpdate,
@@ -149,7 +147,6 @@ class SettingsOperation {
       );
       final settingsData = settingsToSave.toSqlite();
 
-      // DIUBAH: Menggunakan TableNameValue untuk nama tabel settings
       await _baseOperation.insertOrUpdateBatch(
         TableNameValue.get(TableName.settings),
         [settingsData],

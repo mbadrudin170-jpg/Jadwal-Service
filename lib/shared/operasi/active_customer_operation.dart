@@ -328,6 +328,26 @@ class ActiveCustomerOperation {
     }
   }
 
+  /// Melakukan soft delete pada [ActiveCustomerModel] berdasarkan [id].
+  /// Ini adalah alias untuk `archiveActiveCustomer`.
+  Future<void> softDelete(
+    final String id, {
+    final bool fromServer = false,
+  }) async {
+    try {
+      Log.info('Memulai proses soft delete untuk active customer ID: $id');
+      await archiveActiveCustomer(id, fromServer: fromServer);
+      Log.info('Proses soft delete untuk active customer ID: $id selesai.');
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal melakukan soft delete pada active customer ID: $id',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
   /// Menghapus permanen pelanggan yang sudah diarsipkan lebih dari 30 hari.
   Future<void> permanentlyDeleteArchivedCustomers({
     final bool fromServer = false,
@@ -472,6 +492,24 @@ class ActiveCustomerOperation {
       return idsToArchive.length;
     } on Exception catch (e, st) {
       Log.error('Gagal mengarsipkan semua active customer', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete untuk semua pelanggan aktif.
+  /// Ini adalah alias untuk `archiveAllActiveCustomers`.
+  Future<int> softDeleteAll({final bool fromServer = false}) async {
+    try {
+      Log.info('Memulai proses soft delete untuk SEMUA active customer');
+      final count = await archiveAllActiveCustomers(fromServer: fromServer);
+      Log.info('Proses soft delete untuk semua active customer selesai. Total: $count');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal melakukan soft delete untuk semua active customer',
+        e: e,
+        st: st,
+      );
       rethrow;
     }
   }
