@@ -1,6 +1,8 @@
 // path: lib/user/app_user.dart
 // PERUBAHAN:
-// - Menambahkan TransactionProvider dengan FirebaseTransactionRepository.
+// - REFACTOR: Navigasi ke halaman update sekarang menggunakan pushAndRemoveUntil
+//   untuk mencegah build halaman yang tidak perlu di background.
+// - Menambahkan parameter `ignoreUpdateCheck` pada `_initializeApp`.
 
 import 'dart:async';
 
@@ -54,7 +56,6 @@ class AppUser extends StatelessWidget {
             Provider<NotifikasiServis>(
               create: (final _) => NotifikasiServis(),
             ),
-            // --- DITAMBAHKAN ---
           ],
           child: AppInitializer(
             prefs: prefs,
@@ -108,7 +109,7 @@ class _AppInitializerState extends State<AppInitializer> {
     unawaited(_initializeApp());
   }
 
-  Future<void> _initializeApp() async {
+  Future<void> _initializeApp({bool ignoreUpdateCheck = false}) async {
     if (_status != AppStatus.initializing) {
       setState(() {
         _status = AppStatus.initializing;
@@ -143,14 +144,18 @@ class _AppInitializerState extends State<AppInitializer> {
           isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
       if (isConnected) {
-        Log.info('Memeriksa pembaruan aplikasi...');
-        final updateService = UpdateCheckService();
-        final updateInfo = await updateService.getUpdateInfo();
+        // --- LOGIKA PEMERIKSAAN PEMBARUAN ---
+        if (!ignoreUpdateCheck) {
+          Log.info('Memeriksa pembaruan aplikasi...');
+          final updateService = UpdateCheckService();
+          final updateInfo = await updateService.getUpdateInfo();
 
-        if (updateInfo.isUpdateRequired) {
-          Log.info('Pembaruan diperlukan. Mengalihkan ke halaman update.');
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final skipped = await _navigatorKey.currentState?.push<bool>(
+          if (updateInfo.isUpdateRequired) {
+            Log.info('Pembaruan diperlukan. Mengalihkan ke halaman update.');
+
+            // Navigasi ke halaman update dan hapus semua halaman sebelumnya.
+            final skipped =
+                await _navigatorKey.currentState?.pushAndRemoveUntil<bool>(
               MaterialPageRoute(
                 builder: (final context) => UpdateApkPage(
                   apkInfo: updateInfo.apkInfo!,
@@ -158,20 +163,27 @@ class _AppInitializerState extends State<AppInitializer> {
                   architecture: updateInfo.architecture!,
                 ),
               ),
+              (route) => false,
             );
 
-            if (skipped != true) {
-              if (updateInfo.apkInfo?.isUpdateRequired ?? false) {
-                Log.info('Pembaruan wajib tidak dilewati. Menutup aplikasi.');
-                unawaited(SystemNavigator.pop());
-                return;
-              }
+            // Logika setelah halaman update ditutup
+            if (skipped == true) {
+              Log.info(
+                  'Pengguna melewati pembaruan opsional. Memulai ulang inisialisasi.');
+              // Inisialisasi ulang, tapi kali ini lewati pemeriksaan pembaruan.
+              unawaited(_initializeApp(ignoreUpdateCheck: true));
             } else {
-              Log.info('Pengguna memilih melewati pembaruan opsional.');
+              Log.info(
+                  'Pembaruan tidak dilewati atau wajib. Menutup aplikasi.');
+              // Jika pembaruan wajib, atau pengguna menekan tombol kembali,
+              // aplikasi akan ditutup.
+              unawaited(SystemNavigator.pop());
             }
-          });
+            return; // Hentikan eksekusi _initializeApp saat ini.
+          }
         }
 
+        // --- LOGIKA PEMERIKSAAN MAINTENANCE ---
         Log.info('Memeriksa status server...');
         final doc = await FirebaseFirestore.instance
             .collection(TableNameValue.get(TableName.settings))
@@ -187,11 +199,12 @@ class _AppInitializerState extends State<AppInitializer> {
               _status = AppStatus.maintenance;
               _maintenanceSettings = settings;
             });
-            return;
+            return; // Hentikan eksekusi.
           }
         }
       }
 
+      // Jika semua pemeriksaan online lolos atau jika sedang offline
       Log.info('Inisialisasi selesai. Aplikasi siap.');
       setState(() {
         _status = AppStatus.ready;
@@ -234,7 +247,10 @@ class _AppInitializerState extends State<AppInitializer> {
     switch (_status) {
       case AppStatus.initializing:
       case AppStatus.needsUpdate:
-        return const SizedBox.shrink();
+        // Selama proses atau saat menunggu navigasi update, tampilkan layar kosong.
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
       case AppStatus.maintenance:
         return MaintenancePage(
           maintenanceInfo: _maintenanceSettings?.maintenanceInfo ??
