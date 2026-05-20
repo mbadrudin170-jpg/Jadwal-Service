@@ -7,7 +7,7 @@ import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
 class CategoryForm extends StatefulWidget {
@@ -418,7 +418,7 @@ class _CategoryFormState extends State<CategoryForm> {
         }
 
         Log.info('Widget masih mounted. Menampilkan SnackBar sukses.');
-        SnackBarUtil.success(
+        ToastUtil.success(
           context,
           '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
         );
@@ -449,7 +449,7 @@ class _CategoryFormState extends State<CategoryForm> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-        SnackBarUtil.error(context, 'Gagal menyimpan: $e');
+        ToastUtil.error(context, 'Gagal menyimpan: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {

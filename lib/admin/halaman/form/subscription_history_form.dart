@@ -9,7 +9,7 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -20,7 +20,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
 //   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
 //   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/shared/services/notifikasi/notifikasi_servis.dart (NotifikasiServis)
 
@@ -137,12 +137,12 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       );
 
       if (!mounted) return;
-      SnackBarUtil.success(context, 'Riwayat langganan berhasil diperbarui.');
+      ToastUtil.success(context, 'Riwayat langganan berhasil diperbarui.');
       Navigator.of(context).pop(true); // Return true to indicate success
     } on Exception catch (e) {
       Log.error('Gagal memperbarui riwayat langganan', e: e);
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal memperbarui riwayat: ${e.toString()}');
+      ToastUtil.error(context, 'Gagal memperbarui riwayat: ${e.toString()}');
     }
   }
 

@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
@@ -173,7 +173,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
         }
 
         if (mounted) {
-          SnackBarUtil.success(
+          ToastUtil.success(
             context,
             'Kritik dan saran berhasil dihapus',
           );
@@ -202,7 +202,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
         }
 
         if (mounted) {
-          SnackBarUtil.error(
+          ToastUtil.error(
             context,
             'Gagal menghapus: $e',
           );

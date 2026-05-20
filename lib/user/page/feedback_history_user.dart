@@ -1,8 +1,5 @@
 // path: lib/user/page/feedback_history_user.dart
-// diubah: Mengganti KritikSaranOperasiUser menjadi FeedbackOpFirebase,
-//         hapusKritikSaran → deleteFeedback,
-//         bacaSemuaKritikSaran → getFeedbacksByUser.
-// diubah: Mengurutkan import directives.
+// diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
 
 import 'dart:async';
 
@@ -11,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/user_feedback_form.dart';
 
 // === INFORMASI DEPENDENCY ===
@@ -21,7 +18,7 @@ import 'package:wifi/user/page/user_feedback_form.dart';
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/feedback_model.dart (FeedbackModel)
 //   - lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart (FeedbackOpFirebase)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/user/page/form_kritik_dan_saran_user.dart (FormKritikDanSaran)
 
 /// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim
@@ -107,10 +104,10 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
       try {
         await _operation.deleteFeedback(docId);
         if (!mounted) return;
-        SnackBarUtil.success(context, 'Masukan berhasil dihapus.');
+        ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {
         if (!mounted) return;
-        SnackBarUtil.error(context, 'Gagal menghapus: $e');
+        ToastUtil.error(context, 'Gagal menghapus: $e');
       }
     }
   }

@@ -16,7 +16,7 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -38,7 +38,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/operasi/wallet_operation.dart (WalletOperation)
 //   - lib/shared/services/pembaruan_data_service.dart (PembaruanDataService)
 //   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
@@ -220,7 +220,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     } on Exception catch (e, s) {
       Log.error('Gagal memuat data referensi', e: e, st: s);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat data: $e');
+        ToastUtil.error(context, 'Gagal memuat data: $e');
         setState(() => _isLoading = false);
       }
     }
@@ -249,7 +249,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       Log.warning(
           'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.');
       if (mounted) {
-        SnackBarUtil.info(context,
+        ToastUtil.info(context,
             'Info: Transaksi asli tidak ditemukan, pilih ulang dompet/kategori.');
       }
     }
@@ -657,14 +657,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             return;
           }
           if (hasil.success) {
-            SnackBarUtil.success(context, hasil.message);
+            ToastUtil.success(context, hasil.message);
             Log.info('Form berhasil disimpan, snackbar success ditampilkan');
             await Future<void>.delayed(const Duration(milliseconds: 300));
             if (mounted) {
               navigator.pop(true);
             }
           } else {
-            SnackBarUtil.error(context, hasil.message);
+            ToastUtil.error(context, hasil.message);
             Log.warning('Form gagal disimpan, pesan: ${hasil.message}');
           }
         },

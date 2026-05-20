@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/services/firebase_migration/firebase_migration_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk alat migrasi data Firebase.
 ///
@@ -30,7 +30,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
 
     if (_isMigrating) {
       Log.warning('Migrasi sudah berjalan, tindakan dicegah.');
-      SnackBarUtil.warning(context, 'Migrasi sedang berjalan, harap tunggu.');
+      ToastUtil.warning(context, 'Migrasi sedang berjalan, harap tunggu.');
       return;
     }
 
@@ -52,9 +52,9 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
                 _isMigrating = false;
                 if (!hasError) {
                   _migrationCompletedSuccessfully = true;
-                  SnackBarUtil.success(context, 'Migrasi berhasil dilakukan.');
+                  ToastUtil.success(context, 'Migrasi berhasil dilakukan.');
                 } else {
-                  SnackBarUtil.error(
+                  ToastUtil.error(
                       context, 'Migrasi gagal, cek log untuk detail.');
                 }
               });

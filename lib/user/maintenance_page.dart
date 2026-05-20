@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
 class MaintenancePage extends StatefulWidget {
@@ -50,7 +50,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
     } on Exception catch (e, st) {
       Log.error('Error selama callback onRefresh', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal menyegarkan data: $e');
+        ToastUtil.error(context, 'Gagal menyegarkan data: $e');
       }
     } finally {
       if (mounted) {

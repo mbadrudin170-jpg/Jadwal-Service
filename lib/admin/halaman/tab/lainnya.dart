@@ -1,4 +1,3 @@
-
 // path: lib/admin/halaman/tab/lainnya.dart
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -16,7 +15,7 @@
 //   - lib/admin/halaman/lainnya/tentang_aplikasi.dart (TentangAplikasiPage)
 //   - lib/admin/halaman/tes/halaman_tes.dart (HalamanTes)
 //   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 
 import 'dart:async';
 
@@ -30,10 +29,9 @@ import 'package:wifi/admin/halaman/lainnya/feedback.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
-import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
 class LainnyaPage extends StatefulWidget {
@@ -91,14 +89,13 @@ class _LainnyaPageState extends State<LainnyaPage> {
     } on Exception catch (e, st) {
       Log.error('Gagal navigasi ke halaman $pageName.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal membuka halaman $pageName.');
+        ToastUtil.error(context, 'Gagal membuka halaman $pageName.');
       }
     }
   }
 
   @override
-  Widget build(final BuildContext context)
-   {
+  Widget build(final BuildContext context) {
     Log.info('Membangun halaman Lainnya untuk admin.');
     return Scaffold(
       appBar: AppBar(title: const Text('Menu Lainnya')),
@@ -140,12 +137,6 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: AppIcons.report,
             title: 'Versi Aplikasi',
             onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
-          ),
-           _buildMenuItem(
-            context: context,
-            icon: AppIcons.bug,
-            title: 'Halaman Tes Toast',
-            onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes Toast'),
           ),
           _buildMenuItem(
             context: context,

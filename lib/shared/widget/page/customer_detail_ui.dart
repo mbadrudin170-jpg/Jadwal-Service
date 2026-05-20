@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
 
 /// Halaman UI untuk menampilkan detail profil pelanggan.
@@ -47,13 +47,13 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
 
     if (data.isEmpty) {
       Log.warning('Tidak ada data untuk disalin pada label: $label');
-      SnackBarUtil.warning(context, 'Tidak ada data untuk disalin.');
+      ToastUtil.warning(context, 'Tidak ada data untuk disalin.');
       return;
     }
     Log.info('Menyalin data untuk label: $label');
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) return;
-    SnackBarUtil.success(context, '$label berhasil disalin');
+    ToastUtil.success(context, '$label berhasil disalin');
   }
 
   @override

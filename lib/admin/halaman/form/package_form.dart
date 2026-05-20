@@ -7,17 +7,17 @@
 //   - lib/shared/model/package_model.dart (PackageModel)
 //   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/enum/duration_type_enum.dart (DurationType)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
@@ -215,7 +215,7 @@ class _PackageFormState extends State<PackageForm> {
 
         if (!mounted) {
           Log.warning(
-              'Widget sudah tidak mounted setelah operasi database berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.');
+              'Widget sudah tidak mounted setelah operasi database berhasil. Tidak dapat menampilkan Toast atau melakukan Navigator.pop.');
           return;
         }
 
@@ -223,11 +223,11 @@ class _PackageFormState extends State<PackageForm> {
         Log.info('PENYIMPANAN DATA PAKET BERHASIL');
         Log.info('========================================');
 
-        SnackBarUtil.success(
+        ToastUtil.success(
           context,
           'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
         );
-        Log.info('SnackBar sukses telah ditampilkan.');
+        Log.info('Toast sukses telah ditampilkan.');
 
         Log.info(
             'Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.');
@@ -258,14 +258,14 @@ class _PackageFormState extends State<PackageForm> {
 
         if (!mounted) {
           Log.warning(
-              'Widget sudah tidak mounted setelah DatabaseException. Tidak dapat menampilkan SnackBar error.');
+              'Widget sudah tidak mounted setelah DatabaseException. Tidak dapat menampilkan Toast error.');
           return;
         }
 
         Log.info(
-            'Menampilkan SnackBar error ke pengguna dengan pesan: "$errorMessage"');
-        SnackBarUtil.error(context, errorMessage);
-        Log.info('SnackBar error telah ditampilkan.');
+            'Menampilkan Toast error ke pengguna dengan pesan: "$errorMessage"');
+        ToastUtil.error(context, errorMessage);
+        Log.info('Toast error telah ditampilkan.');
       } on Exception catch (e, s) {
         Log.error(
             'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_isEditMode ? "update" : "create"} paket.',
@@ -274,13 +274,13 @@ class _PackageFormState extends State<PackageForm> {
 
         if (!mounted) {
           Log.warning(
-              'Widget sudah tidak mounted setelah Unknown Error. Tidak dapat menampilkan SnackBar error.');
+              'Widget sudah tidak mounted setelah Unknown Error. Tidak dapat menampilkan Toast error.');
           return;
         }
 
-        Log.info('Menampilkan SnackBar error umum ke pengguna.');
-        SnackBarUtil.error(context, 'Terjadi kesalahan: $e');
-        Log.info('SnackBar error telah ditampilkan.');
+        Log.info('Menampilkan Toast error umum ke pengguna.');
+        ToastUtil.error(context, 'Terjadi kesalahan: $e');
+        Log.info('Toast error telah ditampilkan.');
       }
     } else {
       Log.warning('Validasi form GAGAL. Terdapat input yang tidak valid.');

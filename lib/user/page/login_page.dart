@@ -1,5 +1,5 @@
 // path: lib/user/page/login_page.dart
-// diubah: Menambahkan remove() splash screen untuk transisi mulus.
+// diubah: Mengganti SnackBarUtil menjadi ToastUtil.
 
 import 'dart:async';
 
@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -62,7 +62,7 @@ class _LoginViewState extends State<_LoginView> {
     unawaited(_initializeLocalStorage());
     WidgetsBinding.instance.addPostFrameCallback((final _) {
       if (mounted) {
-        SnackBarUtil.info(context, 'Anda telah keluar. Silakan login kembali.');
+        ToastUtil.info(context, 'Anda telah keluar. Silakan login kembali.');
       }
     });
   }

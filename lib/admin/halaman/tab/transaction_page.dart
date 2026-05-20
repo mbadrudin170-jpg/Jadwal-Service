@@ -10,7 +10,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 import 'package:wifi/shared/widget/transaction_list_widgets.dart';
 
@@ -198,7 +198,7 @@ class _TransactionPageState extends State<TransactionPage> {
       Log.error('Gagal memuat data.', e: e, st: s);
       if (mounted) {
         // TAMBAHAN: Beri tahu pengguna bahwa terjadi kesalahan
-        SnackBarUtil.error(context, 'Gagal memuat data transaksi');
+        ToastUtil.error(context, 'Gagal memuat data transaksi');
         setState(() {
           _error = e;
         });
@@ -288,7 +288,7 @@ class _TransactionPageState extends State<TransactionPage> {
         Log.warning('Pengguna mengkonfirmasi penghapusan semua transaksi.');
         await _transactionOperation.archiveAllTransactions();
         if (!mounted) return;
-        SnackBarUtil.success(context, 'Semua transaksi berhasil dihapus.');
+        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
         await _loadData(reload: true);
       } else {
         Log.info('Penghapusan semua transaksi dibatalkan oleh pengguna.');
@@ -296,7 +296,7 @@ class _TransactionPageState extends State<TransactionPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal menghapus transaksi: $e');
+      ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
     }
   }
 
@@ -447,7 +447,7 @@ class _TransactionPageState extends State<TransactionPage> {
           if (snapshot.error != null) {
             WidgetsBinding.instance.addPostFrameCallback((final _) {
               if (mounted) {
-                SnackBarUtil.error(context, 'Gagal memuat data awal');
+                ToastUtil.error(context, 'Gagal memuat data awal');
               }
             });
           }

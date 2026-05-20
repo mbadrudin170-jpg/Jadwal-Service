@@ -10,7 +10,7 @@
 //   - lib/user/page/main_page.dart (MainPage)
 //   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
 //   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 
 import 'dart:async';
 
@@ -19,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -100,7 +100,7 @@ class _AccountListPageState extends State<AccountListPage> {
     } on Exception catch (e, st) {
       Log.error('Gagal memuat daftar akun', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat daftar akun',
+        ToastUtil.error(context, 'Gagal memuat daftar akun',
             logData: e.toString());
       }
       rethrow;
@@ -133,14 +133,14 @@ class _AccountListPageState extends State<AccountListPage> {
 
       // SnackBar setelah navigasi; pastikan context masih valid
       if (mounted) {
-        SnackBarUtil.success(
+        ToastUtil.success(
             context, 'Berhasil masuk sebagai ${customer.name}');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal menyimpan akun yang dipilih',
           e: e, st: st, data: {'customer_id': customer.id});
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memilih akun, silakan coba lagi',
+        ToastUtil.error(context, 'Gagal memilih akun, silakan coba lagi',
             logData: e.toString());
       }
     }
@@ -216,7 +216,7 @@ class _AccountListPageState extends State<AccountListPage> {
 
                                   if (!pageContext.mounted) return;
 
-                                  SnackBarUtil.success(pageContext,
+                                  ToastUtil.success(pageContext,
                                       'Akun berhasil dihapus, silakan login ulang');
 
                                   await navigator.pushNamedAndRemoveUntil(
@@ -229,7 +229,7 @@ class _AccountListPageState extends State<AccountListPage> {
                                       st: st,
                                       data: {'customer_id': customer.id});
                                   if (pageContext.mounted) {
-                                    SnackBarUtil.error(
+                                    ToastUtil.error(
                                         pageContext, 'Gagal menghapus akun',
                                         logData: e.toString());
                                   }
@@ -253,7 +253,7 @@ class _AccountListPageState extends State<AccountListPage> {
                     _loadAccountList();
 
                     if (pageContext.mounted) {
-                      SnackBarUtil.success(
+                      ToastUtil.success(
                           pageContext, 'Akun berhasil dihapus');
                     }
                   }
@@ -261,7 +261,7 @@ class _AccountListPageState extends State<AccountListPage> {
                   Log.error('Gagal menghapus akun',
                       e: e, st: st, data: {'customer_id': customer.id});
                   if (dialogContext.mounted) {
-                    SnackBarUtil.error(dialogContext, 'Gagal menghapus akun',
+                    ToastUtil.error(dialogContext, 'Gagal menghapus akun',
                         logData: e.toString());
                   }
                 }
@@ -296,7 +296,7 @@ class _AccountListPageState extends State<AccountListPage> {
 
                 if (!context.mounted) return;
 
-                SnackBarUtil.success(
+                ToastUtil.success(
                     context, 'Anda telah keluar dan akun dihapus');
 
                 await navigator.pushNamedAndRemoveUntil(
@@ -306,7 +306,7 @@ class _AccountListPageState extends State<AccountListPage> {
               } on Exception catch (e, st) {
                 Log.error('Gagal keluar & hapus akun', e: e, st: st);
                 if (context.mounted) {
-                  SnackBarUtil.error(context, 'Gagal keluar',
+                  ToastUtil.error(context, 'Gagal keluar',
                       logData: e.toString());
                 }
               }
@@ -334,7 +334,7 @@ class _AccountListPageState extends State<AccountListPage> {
 
                 if (!context.mounted) return;
 
-                SnackBarUtil.success(context, 'Token berhasil dihapus');
+                ToastUtil.success(context, 'Token berhasil dihapus');
 
                 await pageNavigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
@@ -345,7 +345,7 @@ class _AccountListPageState extends State<AccountListPage> {
               } on Exception catch (e, st) {
                 Log.error('Gagal menghapus token login', e: e, st: st);
                 if (context.mounted) {
-                  SnackBarUtil.error(context, 'Gagal keluar, coba lagi',
+                  ToastUtil.error(context, 'Gagal keluar, coba lagi',
                       logData: e.toString());
                 }
               }

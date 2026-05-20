@@ -4,7 +4,7 @@
 // diubah: Memperbaiki import path dari pesanan_model.dart menjadi order_model.dart.
 // diubah: Mengganti PesananOperasi menjadi OrderOperation.
 // diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
-// diubah: Mengganti SnackBar dengan SnackBarUtil.
+// diubah: Mengganti SnackBar dengan ToastUtil.
 
 import 'dart:async';
 
@@ -13,7 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/order_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -23,7 +23,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/model/order_model.dart (OrderModel)
 //   - lib/shared/operasi/order_operation.dart (OrderOperation)
 //   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 
 /// Halaman untuk menampilkan dan mengelola daftar pesanan.
 class OrderPage extends StatefulWidget {
@@ -149,7 +149,7 @@ class _OrderPageState extends State<OrderPage> {
 
       if (mounted) {
         Log.info('Widget masih mounted. Menampilkan SnackBar sukses.');
-        SnackBarUtil.success(
+        ToastUtil.success(
           context,
           'Status pesanan #${order.id} diubah menjadi "$newStatus"',
         );
@@ -169,7 +169,7 @@ class _OrderPageState extends State<OrderPage> {
       );
       if (mounted) {
         Log.info('Menampilkan SnackBar error ke pengguna.');
-        SnackBarUtil.error(context, 'Gagal mengubah status: $e');
+        ToastUtil.error(context, 'Gagal mengubah status: $e');
         Log.info('SnackBar error telah ditampilkan.');
       }
     }
@@ -234,7 +234,7 @@ class _OrderPageState extends State<OrderPage> {
 
         if (mounted) {
           Log.info('Widget masih mounted. Menampilkan SnackBar sukses hapus.');
-          SnackBarUtil.success(context, 'Pesanan berhasil dihapus');
+          ToastUtil.success(context, 'Pesanan berhasil dihapus');
           Log.info('SnackBar sukses hapus telah ditampilkan.');
         } else {
           Log.warning(
@@ -251,7 +251,7 @@ class _OrderPageState extends State<OrderPage> {
         );
         if (mounted) {
           Log.info('Menampilkan SnackBar error ke pengguna.');
-          SnackBarUtil.error(context, 'Gagal menghapus pesanan: $e');
+          ToastUtil.error(context, 'Gagal menghapus pesanan: $e');
           Log.info('SnackBar error telah ditampilkan.');
         }
       }

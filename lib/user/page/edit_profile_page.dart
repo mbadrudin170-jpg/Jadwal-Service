@@ -7,7 +7,7 @@
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
 //   - lib/shared/theme/app_colors.dart (AppColors)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengedit profil pengguna.
 ///
@@ -72,7 +72,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
         if (!mounted) return;
 
-        SnackBarUtil.success(context, 'Profil berhasil diperbarui.');
+        ToastUtil.success(context, 'Profil berhasil diperbarui.');
 
         navigator.pop(true);
       } on Exception catch (e, st) {
@@ -82,7 +82,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           st: st,
         );
         if (!mounted) return;
-        SnackBarUtil.error(context, 'Gagal menyimpan perubahan: $e');
+        ToastUtil.error(context, 'Gagal menyimpan perubahan: $e');
       }
     }
   }

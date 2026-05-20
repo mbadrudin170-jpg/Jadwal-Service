@@ -8,7 +8,7 @@
 //   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
@@ -19,7 +19,7 @@ import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
 enum SortOption {
@@ -202,7 +202,7 @@ class _CustomerPageState extends State<CustomerPage> {
       );
       if (mounted) {
         setState(() => _isLoading = false);
-        SnackBarUtil.error(
+        ToastUtil.error(
             context, 'Gagal memuat data customer. Silakan coba lagi.');
       }
     }
@@ -341,7 +341,7 @@ class _CustomerPageState extends State<CustomerPage> {
       );
       await _refreshCustomerList();
       if (mounted) {
-        SnackBarUtil.success(context, 'Pelanggan berhasil diarsipkan.');
+        ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
       }
     } on Exception catch (e, s) {
       Log.error(
@@ -350,7 +350,7 @@ class _CustomerPageState extends State<CustomerPage> {
         st: s,
       );
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal mengarsipkan customer.');
+        ToastUtil.error(context, 'Gagal mengarsipkan customer.');
       }
     }
   }

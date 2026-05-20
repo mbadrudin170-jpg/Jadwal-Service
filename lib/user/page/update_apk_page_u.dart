@@ -1,5 +1,5 @@
 // path: lib/user/page/update_apk_page_u.dart
-// perbaikan: Menambahkan remove() splash screen untuk transisi mulus.
+// perbaikan: Menggunakan ToastUtil, menghapus SnackBarUtil.
 
 import 'dart:async';
 
@@ -11,7 +11,7 @@ import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman yang menampilkan detail pembaruan aplikasi dan opsi untuk mengunduh.
 class UpdateApkPage extends StatefulWidget {
@@ -86,7 +86,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
-        SnackBarUtil.error(
+        ToastUtil.error(
             context, 'Link download belum tersedia untuk perangkat ini.');
       }
       return;
@@ -103,7 +103,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     } on Exception catch (e, st) {
       Log.error('Gagal membuka URL', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal membuka link download.');
+        ToastUtil.error(context, 'Gagal membuka link download.');
       }
     }
   }

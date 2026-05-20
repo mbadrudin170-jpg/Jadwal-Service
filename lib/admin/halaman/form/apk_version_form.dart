@@ -8,7 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengelola versi APK pengguna.
 ///
@@ -266,13 +266,11 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
 
         if (!mounted) return;
 
-        // SnackBarUtil.success(context, 'Data berhasil disimpan!');
-        // diubah: Menggunakan Navigator.pop(context, true) untuk memberitahu halaman sebelumnya bahwa ada perubahan
         Navigator.of(context).pop(true);
       } on Exception catch (e, s) {
         Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
         if (!mounted) return;
-        SnackBarUtil.error(context, 'Gagal menyimpan data: $e');
+        ToastUtil.error(context, 'Gagal menyimpan data: $e');
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
@@ -360,8 +358,6 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     ),
                     maxLines: 3,
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
-                    // onFieldSubmitted tidak efektif di sini untuk multiline,
-                    // keyboard akan menampilkan tombol next.
                   ),
                   const SizedBox(height: 16),
                   TextFormField(

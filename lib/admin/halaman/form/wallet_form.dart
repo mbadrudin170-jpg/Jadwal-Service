@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
 class WalletForm extends StatefulWidget {
@@ -104,7 +104,7 @@ class _WalletFormState extends State<WalletForm> {
 
           if (!mounted) return;
 
-          SnackBarUtil.info(context, 'Nama dompet berhasil diperbarui!');
+          ToastUtil.info(context, 'Nama dompet berhasil diperbarui!');
           Navigator.pop(context, true);
         } else {
           Log.info('Proses TAMBAH dompet baru');
@@ -125,7 +125,7 @@ class _WalletFormState extends State<WalletForm> {
 
           if (!mounted) return;
 
-          SnackBarUtil.success(context, 'Dompet baru berhasil ditambahkan!');
+          ToastUtil.success(context, 'Dompet baru berhasil ditambahkan!');
           Navigator.pop(context, true);
         }
       } on Exception catch (e, s) {
@@ -136,7 +136,7 @@ class _WalletFormState extends State<WalletForm> {
         );
 
         if (!mounted) return;
-        SnackBarUtil.error(context, 'Gagal menyimpan dompet: $e');
+        ToastUtil.error(context, 'Gagal menyimpan dompet: $e');
       }
     } else {
       Log.warning('Validasi form gagal. Nama dompet kosong atau tidak valid.');

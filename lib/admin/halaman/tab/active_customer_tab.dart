@@ -15,7 +15,7 @@
 //   - lib/shared/utils/calculation_util.dart (CalculationUtil)
 //   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
 //   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 
 import 'dart:async';
 
@@ -32,7 +32,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart'; // <-- tambahan import
+import 'package:wifi/shared/utils/toast_util.dart'; // <-- tambahan import
 
 /// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
 enum DeleteOption {
@@ -108,10 +108,10 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                   throw TimeoutException('Waktu sinkronisasi habis.'),
             );
       } else if (!online && forceRefresh) {
-        // Ganti SnackBar manual dengan SnackBarUtil.warning + Log.warning
+        // Ganti SnackBar manual dengan ToastUtil.warning + Log.warning
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
-          SnackBarUtil.warning(
+          ToastUtil.warning(
             context,
             'Jaringan tidak tersedia. Menampilkan data lokal.',
           );
@@ -123,10 +123,10 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
           await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
     } on Exception catch (e, s) {
-      // Error: Log.error + SnackBarUtil.error
+      // Error: Log.error + ToastUtil.error
       Log.error('Gagal memuat data pelanggan aktif', e: e, st: s);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat data');
+        ToastUtil.error(context, 'Gagal memuat data');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -189,7 +189,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         // Sukses: log info + snackbar success (feedback ke user)
         Log.info('Berhasil arsip pelanggan id=$customerId');
         if (mounted) {
-          SnackBarUtil.success(context, 'Pelanggan berhasil diarsipkan.');
+          ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
         }
         setState(() {
           _allCustomers.removeWhere(
@@ -198,10 +198,10 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               (final p) => p.activeCustomer.id == customer.activeCustomer.id);
         });
       } on Exception catch (e, s) {
-        // Error: Log.error + SnackBarUtil.error
+        // Error: Log.error + ToastUtil.error
         Log.error('Gagal mengarsipkan pelanggan id=$customerId', e: e, st: s);
         if (mounted) {
-          SnackBarUtil.error(context, 'Gagal mengarsipkan pelanggan');
+          ToastUtil.error(context, 'Gagal mengarsipkan pelanggan');
         }
       }
     } else {
@@ -299,7 +299,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
         if (mounted) {
           // Feedback sukses ke user dengan snackbar
-          SnackBarUtil.success(
+          ToastUtil.success(
               context, '$count pelanggan kadaluarsa diarsipkan.');
         }
         await _loadData(forceRefresh: true);

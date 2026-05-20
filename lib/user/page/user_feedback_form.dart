@@ -1,6 +1,5 @@
 // path: lib/user/page/user_feedback_form.dart
-// diubah: Mengganti perbaruiKritikSaran → updateFeedback,
-//         buatKritikSaranBaru → createFeedback.
+// diubah: Mengganti SnackBarUtil menjadi ToastUtil.
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
 //   - lib/user/page/feedback_history_user.dart
@@ -8,7 +7,7 @@
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/feedback_model.dart (FeedbackModel)
 //   - lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart (FeedbackOpFirebase)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormKritikDanSaran extends StatefulWidget {
@@ -77,14 +76,14 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
         }
 
         if (mounted) {
-          SnackBarUtil.success(
+          ToastUtil.success(
               context, 'Terima kasih! Masukan Anda telah disimpan.');
           Navigator.of(context).pop();
         }
       } on Exception catch (e, s) {
         Log.error('Gagal mengirim kritik dan saran', e: e, st: s);
         if (mounted) {
-          SnackBarUtil.error(context, 'Gagal mengirim masukan: $e');
+          ToastUtil.error(context, 'Gagal mengirim masukan: $e');
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);

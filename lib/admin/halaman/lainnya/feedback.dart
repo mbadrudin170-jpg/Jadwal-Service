@@ -10,7 +10,7 @@ import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
@@ -90,8 +90,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
           _applyFilter();
           _isLoading = false;
         });
-        // Sisipan: ganti Log.info sukses dengan SnackBarUtil.info
-        SnackBarUtil.info(context, 'Data kritik & saran dimuat',
+        // Sisipan: ganti Log.info sukses dengan ToastUtil.info
+        ToastUtil.info(context, 'Data kritik & saran dimuat',
             logData: {'jumlah': _allFeedback.length});
       }
     } on Exception catch (e, st) {
@@ -101,7 +101,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         st: st,
       );
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat data: $e');
+        ToastUtil.error(context, 'Gagal memuat data: $e');
         setState(() {
           _isLoading = false;
         });
@@ -138,7 +138,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         await _feedbackOperation.deleteFeedback(item.id);
 
         if (mounted) {
-          SnackBarUtil.success(context, 'Kritik dan saran berhasil dihapus');
+          ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
         await _loadFeedback();
       } on Exception catch (e, st) {
@@ -148,7 +148,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
           st: st,
         );
         if (mounted) {
-          SnackBarUtil.error(context, 'Gagal menghapus: $e');
+          ToastUtil.error(context, 'Gagal menghapus: $e');
         }
       }
     }

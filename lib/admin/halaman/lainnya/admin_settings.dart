@@ -9,7 +9,7 @@
 //   - lib/shared/model/settings_model.dart (SettingsModel)
 //   - lib/shared/operasi/settings_operation.dart (SettingsOperation)
 //   - lib/shared/utils/sync_manager.dart (SyncManager)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/user/widget/theme_menu_widget.dart (ThemeMenuWidget)
 
@@ -22,7 +22,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
@@ -127,7 +127,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
         await SyncManager().resetSyncTime();
         Log.info('Reset waktu sinkronisasi berhasil.');
         if (mounted) {
-          SnackBarUtil.success(
+          ToastUtil.success(
             context,
             'Waktu sinkronisasi berhasil di-reset.',
           );
@@ -135,7 +135,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
       } on Exception catch (e, st) {
         Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
         if (mounted) {
-          SnackBarUtil.error(
+          ToastUtil.error(
             context,
             'Gagal mereset waktu sinkronisasi: $e',
           );

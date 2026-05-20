@@ -14,7 +14,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/points_page_user.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
@@ -141,7 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } on Exception catch (e, st) {
       Log.error('Gagal navigasi ke detail pelanggan.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal membuka halaman detail.');
+        ToastUtil.error(context, 'Gagal membuka halaman detail.');
       }
     }
   }
@@ -158,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } on Exception catch (e, st) {
       Log.error('Gagal navigasi ke halaman poin.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal membuka halaman poin.');
+        ToastUtil.error(context, 'Gagal membuka halaman poin.');
       }
     }
   }

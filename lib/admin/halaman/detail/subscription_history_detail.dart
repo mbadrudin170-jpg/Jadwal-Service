@@ -1,8 +1,5 @@
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
-// diubah: Memperbaiki nama class DetailPelangganPage menjadi CustomerDetailPage.
-// diubah: Memperbaiki parameter yang dikirimkan ke CustomerDetailPage.
-// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
-// diubah: Mengurutkan import directives.
+// diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
 
 import 'dart:async';
 
@@ -14,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -31,7 +28,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
 //   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 /// Halaman untuk menampilkan detail transaksi langganan.
@@ -88,7 +85,7 @@ class _SubscriptionHistoryDetailPageState
       Log.info(
           'Form edit mengembalikan berhasil, memuat ulang detail transaksi.');
       if (mounted) {
-        SnackBarUtil.success(context, 'Detail transaksi berhasil diperbarui.');
+        ToastUtil.success(context, 'Detail transaksi berhasil diperbarui.');
       }
       _loadTransactionDetails();
     }

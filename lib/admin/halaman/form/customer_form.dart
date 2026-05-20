@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
 class CustomerForm extends StatefulWidget {
@@ -108,12 +108,12 @@ class _CustomerFormState extends State<CustomerForm> {
             'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
           );
           Navigator.pop(context, true);
-          SnackBarUtil.success(context, 'Data pelanggan berhasil disimpan.');
+          ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
         if (mounted) {
-          SnackBarUtil.error(context, 'Gagal menyimpan data: $e');
+          ToastUtil.error(context, 'Gagal menyimpan data: $e');
         }
       } finally {
         if (mounted) {

@@ -16,7 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah versi APK.
 class ApkVersionDetailPage extends StatefulWidget {
@@ -83,12 +83,12 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
         setState(() {
           _currentApkVersion = freshData;
         });
-        SnackBarUtil.success(context, 'Data detail telah diperbarui.');
+        ToastUtil.success(context, 'Data detail telah diperbarui.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal memuat ulang data APK', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat ulang data detail.');
+        ToastUtil.error(context, 'Gagal memuat ulang data detail.');
       }
     }
   }

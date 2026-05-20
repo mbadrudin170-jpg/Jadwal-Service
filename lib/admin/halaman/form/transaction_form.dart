@@ -15,7 +15,7 @@ import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengubah data transaksi.
 ///
@@ -153,7 +153,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal total saat memuat data awal.', e: e, st: s);
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal memuat data penting: $e');
+      ToastUtil.error(context, 'Gagal memuat data penting: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -291,7 +291,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
           st: s,
         );
         if (!mounted) return;
-        SnackBarUtil.error(context, 'Gagal menyimpan transaksi: $e');
+        ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');
       } finally {
         if (mounted) {
           setState(() => _isSaving = false);

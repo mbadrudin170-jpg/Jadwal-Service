@@ -16,7 +16,7 @@ import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
 ///
@@ -155,7 +155,7 @@ class _CategoryPageState extends State<CategoryPage> {
       );
 
       if (!mounted) return;
-      SnackBarUtil.success(context, 'Kategori berhasil diarsipkan.');
+      ToastUtil.success(context, 'Kategori berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
       Log.error(
@@ -164,7 +164,7 @@ class _CategoryPageState extends State<CategoryPage> {
         st: st,
       );
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal mengarsipkan kategori: $e');
+      ToastUtil.error(context, 'Gagal mengarsipkan kategori: $e');
     }
   }
 
@@ -207,7 +207,7 @@ class _CategoryPageState extends State<CategoryPage> {
       );
 
       if (!mounted) return;
-      SnackBarUtil.success(context, 'Sub-kategori berhasil diarsipkan.');
+      ToastUtil.success(context, 'Sub-kategori berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
       Log.error(
@@ -216,7 +216,7 @@ class _CategoryPageState extends State<CategoryPage> {
         st: st,
       );
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
+      ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
     }
   }
 

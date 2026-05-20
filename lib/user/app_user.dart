@@ -1,5 +1,6 @@
 // path: lib/user/app_user.dart
-// perbaikan: Memusatkan logika penghapusan splash screen ke masing-masing halaman tujuan.
+// PERUBAHAN:
+// - Menambahkan TransactionProvider dengan FirebaseTransactionRepository.
 
 import 'dart:async';
 
@@ -20,7 +21,7 @@ import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
@@ -53,6 +54,7 @@ class AppUser extends StatelessWidget {
             Provider<NotifikasiServis>(
               create: (final _) => NotifikasiServis(),
             ),
+            // --- DITAMBAHKAN ---
           ],
           child: AppInitializer(
             prefs: prefs,
@@ -147,25 +149,27 @@ class _AppInitializerState extends State<AppInitializer> {
 
         if (updateInfo.isUpdateRequired) {
           Log.info('Pembaruan diperlukan. Mengalihkan ke halaman update.');
-          final skipped = await _navigatorKey.currentState?.push<bool>(
-            MaterialPageRoute(
-              builder: (final context) => UpdateApkPage(
-                apkInfo: updateInfo.apkInfo!,
-                packageInfo: updateInfo.packageInfo!,
-                architecture: updateInfo.architecture!,
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            final skipped = await _navigatorKey.currentState?.push<bool>(
+              MaterialPageRoute(
+                builder: (final context) => UpdateApkPage(
+                  apkInfo: updateInfo.apkInfo!,
+                  packageInfo: updateInfo.packageInfo!,
+                  architecture: updateInfo.architecture!,
+                ),
               ),
-            ),
-          );
+            );
 
-          if (skipped != true) {
-            if (updateInfo.apkInfo?.isUpdateRequired ?? false) {
-              Log.info('Pembaruan wajib tidak dilewati. Menutup aplikasi.');
-              unawaited(SystemNavigator.pop());
-              return;
+            if (skipped != true) {
+              if (updateInfo.apkInfo?.isUpdateRequired ?? false) {
+                Log.info('Pembaruan wajib tidak dilewati. Menutup aplikasi.');
+                unawaited(SystemNavigator.pop());
+                return;
+              }
+            } else {
+              Log.info('Pengguna memilih melewati pembaruan opsional.');
             }
-          } else {
-            Log.info('Pengguna memilih melewati pembaruan opsional.');
-          }
+          });
         }
 
         Log.info('Memeriksa status server...');
@@ -177,7 +181,8 @@ class _AppInitializerState extends State<AppInitializer> {
         if (doc.exists && doc.data() != null) {
           final settings = SettingsModel.fromFirebase(doc.data()!);
           if (settings.maintenanceMode) {
-            Log.info('Server dalam mode pemeliharaan. Mengalihkan ke halaman maintenance.');
+            Log.info(
+                'Server dalam mode pemeliharaan. Mengalihkan ke halaman maintenance.');
             setState(() {
               _status = AppStatus.maintenance;
               _maintenanceSettings = settings;
@@ -193,10 +198,13 @@ class _AppInitializerState extends State<AppInitializer> {
       });
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi user app', e: e, st: st);
-
-      SnackBarUtil.globalError(
-        'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.',
-      );
+      final context = _navigatorKey.currentContext;
+      if (context != null) {
+        ToastUtil.error(
+          context,
+          'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.',
+        );
+      }
 
       setState(() {
         _status = AppStatus.ready;
@@ -211,7 +219,6 @@ class _AppInitializerState extends State<AppInitializer> {
         builder: (final context, final themeProvider, final child) {
           return MaterialApp(
             navigatorKey: _navigatorKey,
-            scaffoldMessengerKey: SnackBarUtil.key,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

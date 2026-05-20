@@ -17,7 +17,6 @@ class TransactionOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   TransactionOpFirebase({final FirebaseFirestore? firestore})
       : _db = firestore ?? FirebaseFirestore.instance {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
 
@@ -109,8 +108,6 @@ class TransactionOpFirebase {
   Future<List<TransactionModel>> getSubscriptionHistory(
     final String customerId,
   ) {
-    // DIUBAH: Komentar diterjemahkan ke Bahasa Indonesia.
-    // Metode ini sama dengan mengambil semua transaksi untuk seorang pelanggan.
     return getTransactionsByCustomerId(customerId);
   }
 

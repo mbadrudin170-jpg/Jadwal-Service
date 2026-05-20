@@ -4,13 +4,10 @@
 
 import 'dart:async';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
-import 'package:wifi/shared/services/device_info_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -51,8 +48,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
-  final DeviceInfoService _deviceInfoService =
-      DeviceInfoService(DeviceInfoPlugin());
 
   /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
@@ -60,15 +55,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(_checkDeviceArchitecture());
-  }
-
-  Future<void> _checkDeviceArchitecture() async {
-    try {
-      await _deviceInfoService.getDeviceArchitecture();
-    } on Exception catch (e, st) {
-      Log.error('Gagal mendapatkan arsitektur perangkat.', e: e, st: st);
-    }
   }
 
   List<TransactionModel> _sortHistory(final List<TransactionModel> history) {

@@ -11,7 +11,7 @@ import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
 /// Halaman untuk menampilkan dan mengelola dompet (wallet).
@@ -98,7 +98,7 @@ class _WalletPageState extends State<WalletPage> {
 
     if (walletList.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus. Dialog tidak ditampilkan.');
-      SnackBarUtil.info(
+      ToastUtil.info(
         context,
         'Tidak ada dompet untuk dihapus.',
       );
@@ -184,7 +184,7 @@ class _WalletPageState extends State<WalletPage> {
       _loadWallets();
       if (!mounted) return;
       Log.info('Dompet "${wallet.name}" berhasil diarsipkan.');
-      SnackBarUtil.success(
+      ToastUtil.success(
         context,
         'Dompet berhasil diarsipkan.',
       );
@@ -195,7 +195,7 @@ class _WalletPageState extends State<WalletPage> {
         e: e,
         st: s,
       );
-      SnackBarUtil.error(
+      ToastUtil.error(
         context,
         'Gagal mengarsipkan dompet: $e',
       );
@@ -210,14 +210,14 @@ class _WalletPageState extends State<WalletPage> {
       _loadWallets();
       if (!mounted) return;
       Log.info('Semua dompet berhasil dihapus.');
-      SnackBarUtil.success(
+      ToastUtil.success(
         context,
         'Semua dompet berhasil dihapus.',
       );
     } on Exception catch (e, s) {
       if (!mounted) return;
       Log.error('Gagal menghapus semua dompet.', e: e, st: s);
-      SnackBarUtil.error(
+      ToastUtil.error(
         context,
         'Gagal menghapus dompet: $e',
       );

@@ -9,7 +9,7 @@
 //   - lib/shared/enum/apk_architecture_enum.dart (ApkArchitectureEnum)
 //   - lib/shared/model/apk_version_model.dart (ApkVersionModel)
 //   - lib/shared/operasi/apk_version_operation.dart (ApkVersionOperation)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
@@ -21,7 +21,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.
 enum SortOrder {
@@ -157,7 +157,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     );
 
     if ((result ?? false) && mounted) {
-      SnackBarUtil.success(context, 'Data berhasil diperbarui.');
+      ToastUtil.success(context, 'Data berhasil diperbarui.');
       unawaited(_loadData());
     }
   }
@@ -173,7 +173,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     );
 
     if ((result ?? false) && mounted) {
-      SnackBarUtil.success(context, 'Data baru berhasil ditambahkan.');
+      ToastUtil.success(context, 'Data baru berhasil ditambahkan.');
       unawaited(_loadData());
     }
   }
@@ -269,7 +269,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       });
 
       if (mounted) {
-        SnackBarUtil.success(
+        ToastUtil.success(
           context,
           'Versi ${dataBeforeArchive?.latestVersion ?? id} berhasil diarsipkan.',
         );
@@ -277,7 +277,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal mengarsipkan data ID: $id', e: e, st: s);
       if (!mounted) return;
-      SnackBarUtil.error(context, 'Gagal mengarsipkan: $e');
+      ToastUtil.error(context, 'Gagal mengarsipkan: $e');
     }
   }
 

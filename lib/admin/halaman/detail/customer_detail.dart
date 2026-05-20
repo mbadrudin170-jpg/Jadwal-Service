@@ -1,7 +1,5 @@
 // path: lib/admin/halaman/detail/customer_detail.dart
-// diubah: Memperbaiki nama class PoinPageAdmin menjadi AdminPointsPage.
-// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
-// diubah: Mengurutkan import directives.
+// diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
 
 import 'dart:async';
 
@@ -13,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 
 // === INFORMASI DEPENDENCY ===
@@ -27,7 +25,7 @@ import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
 //   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/widget/customer_detail_ui.dart (CustomerDetailUI)
 //   - lib/shared/debug/log.dart (Log)
 
@@ -120,7 +118,7 @@ MAC : ${customer.macAddress}
 
     await Clipboard.setData(ClipboardData(text: info));
     if (!mounted) return;
-    SnackBarUtil.success(context, 'Informasi pelanggan berhasil disalin.');
+    ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
   }
 
   Future<void> _navigateToPoints() async {
