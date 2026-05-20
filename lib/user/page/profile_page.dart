@@ -1,5 +1,5 @@
 // path: lib/user/page/profile_page.dart
-// diubah: Menggunakan ikon terpusat, menyempurnakan logging, dan penanganan error navigasi.
+// diubah: Menambahkan durasi pada ToastUtil.success.
 
 import 'dart:async';
 
@@ -15,6 +15,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/points_page_user.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
@@ -86,19 +87,16 @@ class _ProfilePageState extends State<ProfilePage> {
     } on Exception catch (e, st) {
       Log.error('Gagal memuat data awal profil.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memuat data profil: $e');
+        ToastUtil.error(context, 'Gagal membuka halaman poin.');
       }
     }
   }
 
   Future<void> _reloadData() async {
     Log.info('Memuat ulang semua data profil via onRefresh.');
-    SnackBarUtil.info(context, 'Memperbarui data...');
-
     setState(() {
       _futureCustomer = _customerOp.getCustomerOnce(widget.userId);
     });
-
     try {
       final customer = await _futureCustomer;
       if (customer != null) {
@@ -113,12 +111,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (mounted) {
         Log.info('Data profil berhasil diperbarui.');
-        SnackBarUtil.success(context, 'Data berhasil diperbarui.');
+        ToastUtil.success(
+          context,
+          'Data berhasil diperbarui.',
+        );
       }
     } on Exception catch (e, st) {
       Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
       if (mounted) {
-        SnackBarUtil.error(context, 'Gagal memperbarui data: $e');
+        ToastUtil.error(context, 'Gagal memperbarui data: $e');
       }
     }
   }

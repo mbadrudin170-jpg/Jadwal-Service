@@ -1,5 +1,5 @@
 // path: lib/shared/utils/snackbar_util.dart
-// diubah: Menambahkan GlobalKey dan metode global untuk menampilkan SnackBar dari mana saja.
+// diubah: Menambahkan parameter durasi opsional ke semua metode.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -23,22 +23,6 @@ enum SnackBarType {
 /// sekaligus mencatat log otomatis menggunakan [Log].
 class SnackBarUtil {
   /// Kunci global untuk mengakses ScaffoldMessenger dari mana saja di aplikasi.
-  ///
-  /// Ini harus dihubungkan ke properti `scaffoldMessengerKey` di `MaterialApp`.
-  /// Berguna untuk menampilkan SnackBar dari dalam service atau logic bisnis
-  /// yang tidak memiliki akses ke `BuildContext`.
-  ///
-  /// Contoh:
-  /// ```dart
-  /// // Di MaterialApp
-  /// MaterialApp(
-  ///   scaffoldMessengerKey: SnackBarUtil.key,
-  ///   // ...
-  /// )
-  ///
-  /// // Di mana saja dalam aplikasi
-  /// SnackBarUtil.globalError('Operasi gagal!');
-  /// ```
   static final GlobalKey<ScaffoldMessengerState> key =
       GlobalKey<ScaffoldMessengerState>();
 
@@ -48,9 +32,10 @@ class SnackBarUtil {
     final String message, {
     final SnackBarType type = SnackBarType.info,
     final Object? logData,
+    final Duration? duration,
   }) {
     if (!context.mounted) return;
-    final snackBar = _createSnackBar(message, type, logData);
+    final snackBar = _createSnackBar(message, type, logData, duration);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -59,6 +44,7 @@ class SnackBarUtil {
     final String message, {
     final SnackBarType type = SnackBarType.info,
     final Object? logData,
+    final Duration? duration,
   }) {
     final messengerState = key.currentState;
     if (messengerState == null) {
@@ -68,7 +54,7 @@ class SnackBarUtil {
       );
       return;
     }
-    final snackBar = _createSnackBar(message, type, logData);
+    final snackBar = _createSnackBar(message, type, logData, duration);
     messengerState.showSnackBar(snackBar);
   }
 
@@ -77,6 +63,7 @@ class SnackBarUtil {
     final String message,
     final SnackBarType type,
     final Object? logData,
+    final Duration? duration,
   ) {
     final shortLog = '[SNACKBAR] type=${type.name} msg="$message"';
     switch (type) {
@@ -114,6 +101,8 @@ class SnackBarUtil {
       content: Text(message),
       backgroundColor: backgroundColor,
       behavior: SnackBarBehavior.floating,
+      // Gunakan durasi yang diberikan, atau default 4 detik jika null.
+      duration: duration ?? const Duration(seconds: 1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
@@ -127,48 +116,110 @@ class SnackBarUtil {
     final BuildContext context,
     final String message, {
     final Object? logData,
+    final Duration? duration,
   }) =>
-      _show(context, message, type: SnackBarType.success, logData: logData);
+      _show(
+        context,
+        message,
+        type: SnackBarType.success,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar error (merah) via BuildContext.
   static void error(
     final BuildContext context,
     final String message, {
     final Object? logData,
+    final Duration? duration,
   }) =>
-      _show(context, message, type: SnackBarType.error, logData: logData);
+      _show(
+        context,
+        message,
+        type: SnackBarType.error,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar peringatan (oranye) via BuildContext.
   static void warning(
     final BuildContext context,
     final String message, {
     final Object? logData,
+    final Duration? duration,
   }) =>
-      _show(context, message, type: SnackBarType.warning, logData: logData);
+      _show(
+        context,
+        message,
+        type: SnackBarType.warning,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar informasi (biru) via BuildContext.
   static void info(
     final BuildContext context,
     final String message, {
     final Object? logData,
+    final Duration? duration,
   }) =>
-      _show(context, message, logData: logData);
+      _show(
+        context,
+        message,
+        logData: logData,
+        duration: duration,
+      );
 
   // --- Metode berbasis GlobalKey ---
 
   /// Menampilkan SnackBar sukses (hijau) secara global.
-  static void globalSuccess(final String message, {final Object? logData}) =>
-      _showGlobal(message, type: SnackBarType.success, logData: logData);
+  static void globalSuccess(
+    final String message, {
+    final Object? logData,
+    final Duration? duration,
+  }) =>
+      _showGlobal(
+        message,
+        type: SnackBarType.success,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar error (merah) secara global.
-  static void globalError(final String message, {final Object? logData}) =>
-      _showGlobal(message, type: SnackBarType.error, logData: logData);
+  static void globalError(
+    final String message, {
+    final Object? logData,
+    final Duration? duration,
+  }) =>
+      _showGlobal(
+        message,
+        type: SnackBarType.error,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar peringatan (oranye) secara global.
-  static void globalWarning(final String message, {final Object? logData}) =>
-      _showGlobal(message, type: SnackBarType.warning, logData: logData);
+  static void globalWarning(
+    final String message, {
+    final Object? logData,
+    final Duration? duration,
+  }) =>
+      _showGlobal(
+        message,
+        type: SnackBarType.warning,
+        logData: logData,
+        duration: duration,
+      );
 
   /// Menampilkan SnackBar informasi (biru) secara global.
-  static void globalInfo(final String message, {final Object? logData}) =>
-      _showGlobal(message, logData: logData);
+  static void globalInfo(
+    final String message, {
+    final Object? logData,
+    final Duration? duration,
+  }) =>
+      _showGlobal(
+        message,
+        logData: logData,
+        duration: duration,
+      );
 }
