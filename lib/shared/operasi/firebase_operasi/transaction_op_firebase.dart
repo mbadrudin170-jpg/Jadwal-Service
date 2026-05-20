@@ -108,12 +108,14 @@ class TransactionOpFirebase {
 
   /// Menghapus transaksi dari Firestore secara permanen.
   Future<void> deleteTransaction(final String transactionId) async {
-    Log.warning('Memulai penghapusan permanen transaksi di Firestore: $transactionId');
+    Log.warning(
+        'Memulai penghapusan permanen transaksi di Firestore: $transactionId');
     try {
       await _collection.doc(transactionId).delete();
       Log.info('Penghapusan permanen transaksi berhasil: $transactionId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus transaksi secara permanen: $transactionId', e: e, st: s);
+      Log.error('Gagal menghapus transaksi secara permanen: $transactionId',
+          e: e, st: s);
       rethrow;
     }
   }
@@ -129,7 +131,8 @@ class TransactionOpFirebase {
       });
       Log.info('Soft delete transaksi berhasil: $transactionId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete transaksi: $transactionId', e: e, st: s);
+      Log.error('Gagal melakukan soft delete transaksi: $transactionId',
+          e: e, st: s);
       rethrow;
     }
   }

@@ -1,10 +1,14 @@
 // path: lib/user/page/update_apk_page_u.dart
-// perbaikan: Menggunakan ToastUtil, menghapus SnackBarUtil.
+// PERUBAHAN:
+// - Tombol "Lewati" sekarang memiliki logika navigasi langsung ke MainPage atau LoginPage.
+// - Menambahkan SharedPreferences dan LocalStorageService ke constructor.
+// - Menambahkan impor yang diperlukan untuk halaman dan service.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
@@ -12,6 +16,9 @@ import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/user/page/login_page.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman yang menampilkan detail pembaruan aplikasi dan opsi untuk mengunduh.
 class UpdateApkPage extends StatefulWidget {
@@ -24,12 +31,21 @@ class UpdateApkPage extends StatefulWidget {
   /// Arsitektur perangkat yang terdeteksi (bit64, bit32, universal).
   final ApkArchitectureEnum architecture;
 
+  /// Diperlukan untuk memeriksa status login.
+  final SharedPreferences prefs;
+
+  /// Diperlukan untuk diteruskan ke MainPage jika pengguna sudah login.
+  final LocalStorageService localStorageService;
+
   /// Membuat instance [UpdateApkPage].
-  const UpdateApkPage(
-      {super.key,
-      required this.apkInfo,
-      required this.packageInfo,
-      required this.architecture});
+  const UpdateApkPage({
+    super.key,
+    required this.apkInfo,
+    required this.packageInfo,
+    required this.architecture,
+    required this.prefs,
+    required this.localStorageService,
+  });
 
   @override
   State<UpdateApkPage> createState() => _UpdateApkPageState();
@@ -37,12 +53,9 @@ class UpdateApkPage extends StatefulWidget {
 
 class _UpdateApkPageState extends State<UpdateApkPage>
     with SingleTickerProviderStateMixin {
-  // Services
-
-  final String _fileSize = 'Tersedia'; // Placeholder, bisa dikembangkan nanti
+  final String _fileSize = 'Tersedia';
   late final List<String> _changelog;
 
-  // Animation
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -50,14 +63,8 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   void initState() {
     super.initState();
     _initializeAnimations();
-
-    // Menghilangkan splash screen di sini agar transisi mulus.
     FlutterNativeSplash.remove();
-
-    // Data changelog dan pembaruan sudah tersedia dari widget
     _changelog = widget.apkInfo.releaseNotes.split('\n');
-
-    // Memulai animasi karena halaman ini hanya muncul jika ada pembaruan
     unawaited(_pulseController.repeat(reverse: true));
   }
 
@@ -78,11 +85,8 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Future<void> _downloadUpdate() async {
-    // Coba ambil link sesuai arsitektur, jika tidak ada fallback ke universal
-    String? downloadUrl = widget.apkInfo.downloadLinks[widget.architecture];
-    if (downloadUrl == null || downloadUrl.isEmpty) {
-      downloadUrl = widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
-    }
+    String? downloadUrl = widget.apkInfo.downloadLinks[widget.architecture] ??
+        widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
@@ -108,17 +112,32 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     }
   }
 
+  void _skipUpdateAndNavigate() {
+    Log.info('Pengguna memilih untuk melewati pembaruan.');
+
+    final userId = widget.prefs.getString('userId');
+
+    if (userId != null) {
+      Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MainPage(
+            userId: userId,
+            localStorageService: widget.localStorageService,
+          ),
+        ),
+      );
+    } else {
+      Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Update Aplikasi',
-      //       style: TextStyle(fontWeight: FontWeight.w600)),
-      //   centerTitle: true,
-      //   shape: const RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-      //   ),
-      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -144,7 +163,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       animation: _pulseAnimation,
       builder: (final _, final child) {
         return Transform.scale(
-          scale: _pulseAnimation.value, // Langsung gunakan animasi
+          scale: _pulseAnimation.value,
           child: child,
         );
       },
@@ -374,12 +393,10 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Widget _buildActionButton() {
-    // Cek apakah pembaruan bersifat wajib atau tidak.
     final isUpdateRequired = widget.apkInfo.isUpdateRequired;
 
     return Row(
       children: [
-        // Tombol Download selalu ada, tetapi mungkin tidak expanded jika ada tombol Lewati.
         Expanded(
           child: SizedBox(
             height: 56,
@@ -400,16 +417,12 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             ),
           ),
         ),
-        // Jika pembaruan tidak wajib, tampilkan tombol Lewati.
         if (!isUpdateRequired) ...[
           const SizedBox(width: 12),
           SizedBox(
             height: 56,
             child: OutlinedButton(
-              onPressed: () {
-                Log.info('Pengguna memilih untuk melewati pembaruan.');
-                Navigator.of(context).pop(true);
-              },
+              onPressed: _skipUpdateAndNavigate, // Menggunakan fungsi baru
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.grey[700],
                 side: BorderSide(color: Colors.grey[300]!),

@@ -1,52 +1,202 @@
 // path: lib/user/page/splash_screen_user.dart
-// diubah: Diubah menjadi StatelessWidget yang hanya menampilkan UI.
+// PERUBAHAN:
+// - Menghapus semua pemanggilan `FlutterNativeSplash.remove()`.
 
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/services/update_check_service.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/user/maintenance_page.dart';
+import 'package:wifi/user/page/login_page.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/page/update_apk_page_u.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-/// Halaman splash screen untuk pengguna, hanya bertanggung jawab untuk UI.
-class SplashScreenUser extends StatelessWidget {
-  /// Pesan yang ditampilkan selama proses pemuatan.
-  final String loadingMessage;
+// Mendefinisikan tipe Record untuk kejelasan kode.
+typedef UpdateInfoRecord = ({
+  bool isUpdateRequired,
+  ApkVersionModel? apkInfo,
+  PackageInfoModel? packageInfo,
+  ApkArchitectureEnum? architecture
+});
 
-  /// Konstruktor untuk [SplashScreenUser].
-  const SplashScreenUser({super.key, this.loadingMessage = 'Memuat...'});
+class SplashScreenUser extends StatefulWidget {
+  final SharedPreferences prefs;
+  final LocalStorageService localStorageService;
+
+  const SplashScreenUser({
+    super.key,
+    required this.prefs,
+    required this.localStorageService,
+  });
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun SplashScreenUser dengan pesan: "$loadingMessage"');
-    final theme = Theme.of(context);
+  State<SplashScreenUser> createState() => _SplashScreenUserState();
+}
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/image/ikon_apk.png',
-              width: 150,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'WiFi Client',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
+class _SplashScreenUserState extends State<SplashScreenUser> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeApp();
+    });
+  }
+
+  Future<void> _initializeApp() async {
+    try {
+      Log.info('Memulai inisialisasi dari Splash Screen...');
+
+      await _initializeCoreServices();
+
+      final internetService = InternetConnectionService();
+      final isConnected = await internetService.checkConnection();
+      Log.info(
+          isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
+
+      if (isConnected) {
+        final updateInfo = await _checkAppUpdate();
+        if (updateInfo != null) {
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => UpdateApkPage(
+                apkInfo: updateInfo.apkInfo!,
+                packageInfo: updateInfo.packageInfo!,
+                architecture: updateInfo.architecture!,
+                prefs: widget.prefs,
+                localStorageService: widget.localStorageService,
               ),
             ),
-            const SizedBox(height: 40),
-            CircularProgressIndicator(
-              color: theme.colorScheme.primary,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              loadingMessage,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
+          );
+          return;
+        }
+
+        final maintenanceSettings = await _checkMaintenanceMode();
+        if (maintenanceSettings != null) {
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => MaintenancePage(
+                maintenanceInfo: maintenanceSettings.maintenanceInfo,
+                onRefresh: _initializeApp,
+                onExit: SystemNavigator.pop,
               ),
             ),
-          ],
+          );
+          return;
+        }
+      }
+
+      Log.info('Inisialisasi selesai. Menavigasi ke halaman yang sesuai.');
+      _navigateToNextPage();
+    } on Exception catch (e, st) {
+      Log.error('Error kritis saat inisialisasi', e: e, st: st);
+      if (mounted) {
+        ToastUtil.error(context,
+            'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.');
+      }
+      _navigateToNextPage();
+    }
+  }
+
+  Future<void> _initializeCoreServices() async {
+    Log.info('Menginisialisasi Mobile Ads, Notifikasi, dan lainnya...');
+    try {
+      await MobileAds.instance.initialize();
+    } catch (e, st) {
+      Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
+    }
+    await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
+    await NotifikasiServis().requestPermissions();
+    await initializeDateFormatting('id_ID');
+    FirebaseFirestore.instance.settings =
+        const Settings(persistenceEnabled: true);
+    Log.info('Inisialisasi service inti selesai.');
+  }
+
+  Future<UpdateInfoRecord?> _checkAppUpdate() async {
+    Log.info('Memeriksa pembaruan aplikasi...');
+    final updateService = UpdateCheckService(
+      prefs: widget.prefs,
+      localStorageService: widget.localStorageService,
+      context: context,
+    );
+    final updateInfo = await updateService.getUpdateInfo();
+    if (updateInfo.isUpdateRequired) {
+      Log.info('Pembaruan diperlukan.');
+      return updateInfo;
+    }
+    Log.info('Aplikasi sudah versi terbaru.');
+    return null;
+  }
+
+  Future<SettingsModel?> _checkMaintenanceMode() async {
+    Log.info('Memeriksa status server...');
+    final doc = await FirebaseFirestore.instance
+        .collection(TableNameValue.get(TableName.settings))
+        .doc(globalSettingsId)
+        .get(const GetOptions(source: Source.server));
+
+    if (doc.exists && doc.data() != null) {
+      final settings = SettingsModel.fromFirebase(doc.data()!);
+      if (settings.maintenanceMode) {
+        Log.info('Server dalam mode pemeliharaan.');
+        return settings;
+      }
+    }
+    Log.info('Server tidak dalam mode pemeliharaan.');
+    return null;
+  }
+
+  void _navigateToNextPage() {
+    if (!mounted) {
+      Log.warning(
+          'Navigasi dibatalkan karena widget sudah tidak terpasang (unmounted).');
+      return;
+    }
+
+    // FlutterNativeSplash.remove(); <--- DIHAPUS
+
+    final userId = widget.prefs.getString('userId');
+    if (userId != null) {
+      Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => MainPage(
+            userId: userId,
+            localStorageService: widget.localStorageService,
+          ),
         ),
+      );
+    } else {
+      Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }

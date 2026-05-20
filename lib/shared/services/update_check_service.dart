@@ -1,10 +1,13 @@
 // path: lib/shared/services/update_check_service.dart
-// perbaikan: Menghapus impor yang tidak terpakai.
+// PERUBAHAN:
+// - Constructor sekarang memerlukan SharedPreferences dan LocalStorageService.
+// - Meneruskan parameter yang diperlukan saat membuat UpdateApkPage.
 
 import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
@@ -13,18 +16,24 @@ import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dar
 import 'package:wifi/shared/services/device_info_service.dart';
 import 'package:wifi/shared/services/package_info_service.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Kelas layanan untuk memeriksa pembaruan aplikasi.
 class UpdateCheckService {
-  /// [BuildContext] diperlukan untuk navigasi. Bisa null jika tidak untuk navigasi.
   final BuildContext? context;
+  final SharedPreferences prefs;
+  final LocalStorageService localStorageService;
+
   final PackageInfoService _packageInfoService = PackageInfoService();
   final DeviceInfoService _deviceInfoService;
   final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
 
   /// Konstruktor untuk UpdateCheckService.
-  UpdateCheckService({this.context})
-      : _deviceInfoService = DeviceInfoService(DeviceInfoPlugin()) {
+  UpdateCheckService({
+    this.context,
+    required this.prefs,
+    required this.localStorageService,
+  }) : _deviceInfoService = DeviceInfoService(DeviceInfoPlugin()) {
     Log.info('UpdateCheckService diinisialisasi.');
   }
 
@@ -103,8 +112,6 @@ class UpdateCheckService {
   }
 
   /// Memeriksa pembaruan dan menavigasi jika perlu.
-  ///
-  /// Metode ini memerlukan [context] untuk disediakan saat inisialisasi.
   Future<void> checkUpdateAndNavigate() async {
     Log.info('Memulai proses pengecekan pembaruan dan navigasi.');
     if (context == null) {
@@ -127,6 +134,9 @@ class UpdateCheckService {
                 apkInfo: update.apkInfo!,
                 packageInfo: update.packageInfo!,
                 architecture: update.architecture!,
+                prefs: prefs, // Diteruskan ke UpdateApkPage
+                localStorageService:
+                    localStorageService, // Diteruskan ke UpdateApkPage
               ),
             ),
           ),
