@@ -4,6 +4,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/app_admin.dart';
+import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
@@ -12,18 +13,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inisialisasi Firebase HANYA SEKALI di sini untuk mencegah error duplikasi.
-  try {
-    // `initializeApp` akan menggunakan `DefaultFirebaseOptions.currentPlatform`
-    // yang secara otomatis disediakan oleh konfigurasi build flavor FlutterFire.
-    await Firebase.initializeApp();
-    Log.info('[main-prod] Firebase berhasil diinisialisasi.');
-  } on FirebaseException catch (e, st) {
-    // Mencatat error jika inisialisasi gagal, tetapi tetap melanjutkan
-    // agar aplikasi bisa berjalan dalam mode offline.
-    Log.error('[main-prod] Gagal menginisialisasi Firebase.', e: e, st: st);
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  Log.info('[main-prod] Memulai aplikasi. Menyerahkan kendali ke AppAdmin...');
+  Log.info(
+      '[main-prod] Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
   // Langsung jalankan AppAdmin. Semua inisialisasi sekunder akan ditangani di sana.
   runApp(const AppAdmin());

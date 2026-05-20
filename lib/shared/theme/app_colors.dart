@@ -9,24 +9,30 @@ class AppColors {
   // Warna Inti
   /// Warna utama aplikasi.
   static const MaterialColor primaryColor = Colors.deepPurple;
+
   /// Warna sekunder aplikasi.
   static const Color secondaryColor = Colors.white;
+
   /// Warna aksen aplikasi.
   static const Color accentColor = Colors.blueAccent;
+
   /// Warna untuk menunjukkan error.
   static const MaterialColor errorColor = Colors.red;
 
   // Warna Latar & Permukaan
   /// Warna latar belakang untuk tema terang.
   static const Color lightBackground = Color(0xFFF8F9FA);
+
   /// Warna latar belakang untuk tema gelap.
   static const Color darkBackground = Color(0xFF121212);
+
   /// Warna permukaan untuk tema gelap.
   static const Color darkSurface = Color(0xFF1E1E1E);
 
   // Warna Teks (opsional, bisa di-override oleh TextTheme)
   /// Warna teks untuk tema terang.
   static const Color textOnLight = Colors.black;
+
   /// Warna teks untuk tema gelap.
   static const Color textOnDark = Colors.white;
 

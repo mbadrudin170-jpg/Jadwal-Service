@@ -4,7 +4,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -23,7 +22,6 @@ import 'package:wifi/shared/services/update_check_service.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
-import 'package:wifi/user/firebase_option/firebase_option_user_dev.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
@@ -129,13 +127,6 @@ class _AppInitializerState extends State<AppInitializer> {
     }
 
     try {
-      _updateMessage('Menginisialisasi Firebase...');
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      }
-
       _updateMessage('Mengaktifkan cache Firestore...');
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: true,
