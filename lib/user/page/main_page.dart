@@ -1,9 +1,10 @@
 // path: lib/user/page/main_page.dart
-// diubah: Logika penjadwalan notifikasi telah dipindahkan ke file terpisah.
+// diubah: Menambahkan remove() splash screen untuk transisi mulus.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/user/page/profile_page.dart';
@@ -12,16 +13,10 @@ import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
-///
-/// Menampilkan halaman berbeda berdasarkan item yang dipilih di BottomNavigationBar.
 class MainPage extends StatefulWidget {
-  /// ID unik pengguna yang sedang login.
   final String userId;
-
-  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  /// Konstruktor untuk [MainPage].
   const MainPage({
     super.key,
     required this.userId,
@@ -38,6 +33,9 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    // Menghilangkan splash screen di sini agar transisi mulus.
+    FlutterNativeSplash.remove();
+
     Log.info(
         'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
     // Memanggil logika penjadwalan notifikasi dari file terpisah.

@@ -1,12 +1,12 @@
 // path: lib/user/app_user.dart
-// perbaikan: Menambahkan ToastificationWrapper.
+// perbaikan: Memusatkan logika penghapusan splash screen ke masing-masing halaman tujuan.
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,13 +81,9 @@ enum AppStatus {
 
 /// Widget yang menangani seluruh alur inisialisasi aplikasi.
 class AppInitializer extends StatefulWidget {
-  /// Instance dari [SharedPreferences].
   final SharedPreferences prefs;
-
-  /// Instance dari [LocalStorageService] untuk akses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  /// Membuat instance [AppInitializer].
   const AppInitializer({
     super.key,
     required this.prefs,
@@ -119,6 +115,14 @@ class _AppInitializerState extends State<AppInitializer> {
     }
 
     try {
+      Log.info('Menginisialisasi Mobile Ads SDK...');
+      try {
+        await MobileAds.instance.initialize();
+        Log.info('Inisialisasi Mobile Ads SDK berhasil.');
+      } on Exception catch (e, st) {
+        Log.error('Gagal menginisialisasi Mobile Ads SDK.', e: e, st: st);
+      }
+
       Log.info('Mengaktifkan cache Firestore...');
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: true,
@@ -142,9 +146,7 @@ class _AppInitializerState extends State<AppInitializer> {
         final updateInfo = await updateService.getUpdateInfo();
 
         if (updateInfo.isUpdateRequired) {
-          Log.info('Pembaruan diperlukan. Menampilkan halaman update.');
-          FlutterNativeSplash.remove();
-
+          Log.info('Pembaruan diperlukan. Mengalihkan ke halaman update.');
           final skipped = await _navigatorKey.currentState?.push<bool>(
             MaterialPageRoute(
               builder: (final context) => UpdateApkPage(
@@ -175,8 +177,7 @@ class _AppInitializerState extends State<AppInitializer> {
         if (doc.exists && doc.data() != null) {
           final settings = SettingsModel.fromFirebase(doc.data()!);
           if (settings.maintenanceMode) {
-            Log.info('Server dalam mode pemeliharaan.');
-            FlutterNativeSplash.remove();
+            Log.info('Server dalam mode pemeliharaan. Mengalihkan ke halaman maintenance.');
             setState(() {
               _status = AppStatus.maintenance;
               _maintenanceSettings = settings;
@@ -187,14 +188,11 @@ class _AppInitializerState extends State<AppInitializer> {
       }
 
       Log.info('Inisialisasi selesai. Aplikasi siap.');
-      FlutterNativeSplash.remove();
       setState(() {
         _status = AppStatus.ready;
       });
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi user app', e: e, st: st);
-
-      FlutterNativeSplash.remove();
 
       SnackBarUtil.globalError(
         'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.',

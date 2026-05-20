@@ -1,30 +1,20 @@
 // path: lib/user/maintenance_page.dart
-// diubah: Mengubah menjadi StatefulWidget untuk menangani state loading pada tombol refresh.
-// diubah: Menggunakan ikon terpusat dari AppIcons.
+// diubah: Menambahkan remove() splash screen untuk transisi mulus.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
 
 /// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
-///
-/// Menampilkan informasi pemeliharaan, tombol untuk mencoba lagi (refresh),
-/// dan tombol untuk keluar dari aplikasi.
 class MaintenancePage extends StatefulWidget {
-  /// Informasi teks yang menjelaskan status pemeliharaan.
   final String maintenanceInfo;
-
-  /// Callback asinkron yang dipanggil saat pengguna menekan tombol "Coba Lagi".
-  /// Diharapkan mengembalikan Future agar state loading bisa dikelola.
   final FutureOr<void> Function() onRefresh;
-
-  /// Callback yang dipanggil saat pengguna menekan tombol "Keluar".
   final VoidCallback onExit;
 
-  /// Membuat instance dari [MaintenancePage].
   const MaintenancePage({
     super.key,
     required this.maintenanceInfo,
@@ -39,7 +29,13 @@ class MaintenancePage extends StatefulWidget {
 class _MaintenancePageState extends State<MaintenancePage> {
   bool _isLoading = false;
 
-  /// Menangani aksi refresh saat tombol "Coba Lagi" ditekan.
+  @override
+  void initState() {
+    super.initState();
+    // Menghilangkan splash screen di sini agar transisi mulus.
+    FlutterNativeSplash.remove();
+  }
+
   Future<void> _handleRefresh() async {
     if (_isLoading) return;
 
@@ -49,7 +45,6 @@ class _MaintenancePageState extends State<MaintenancePage> {
     });
 
     try {
-      // Menjalankan fungsi refresh dari parent widget.
       await widget.onRefresh();
       Log.info('[Aksi Pengguna] Proses onRefresh selesai.');
     } on Exception catch (e, st) {
@@ -58,7 +53,6 @@ class _MaintenancePageState extends State<MaintenancePage> {
         SnackBarUtil.error(context, 'Gagal menyegarkan data: $e');
       }
     } finally {
-      // Pastikan widget masih ada di tree sebelum memanggil setState.
       if (mounted) {
         setState(() {
           _isLoading = false;

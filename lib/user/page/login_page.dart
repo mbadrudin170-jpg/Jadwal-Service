@@ -1,21 +1,11 @@
 // path: lib/user/page/login_page.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman login utama untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/theme/app_colors.dart (AppColors)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
-//   - lib/user/page/account_list_page.dart (AccountListPage)
-//   - lib/user/page/main_page.dart (MainPage)
-//   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
-//   - lib/shared/debug/log.dart (Log)
+// diubah: Menambahkan remove() splash screen untuk transisi mulus.
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -30,13 +20,9 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman login untuk pengguna.
 class LoginPage extends StatelessWidget {
-  /// Instance FirebaseFirestore, opsional untuk keperluan testing.
   final FirebaseFirestore? firestore;
-
-  /// Service untuk penyimpanan lokal, opsional untuk keperluan testing.
   final LocalStorageService? localStorageService;
 
-  /// Konstruktor untuk LoginPage.
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
@@ -48,15 +34,10 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-/// View internal yang menangani state untuk halaman login.
 class _LoginView extends StatefulWidget {
-  /// Instance FirebaseFirestore yang diteruskan dari [LoginPage].
   final FirebaseFirestore? firestore;
-
-  /// Service penyimpanan lokal yang diteruskan dari [LoginPage].
   final LocalStorageService? localStorageService;
 
-  /// Konstruktor untuk _LoginView.
   const _LoginView({this.firestore, this.localStorageService});
 
   @override
@@ -74,6 +55,9 @@ class _LoginViewState extends State<_LoginView> {
   @override
   void initState() {
     super.initState();
+    // Menghilangkan splash screen di sini agar transisi mulus.
+    FlutterNativeSplash.remove();
+
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     unawaited(_initializeLocalStorage());
     WidgetsBinding.instance.addPostFrameCallback((final _) {

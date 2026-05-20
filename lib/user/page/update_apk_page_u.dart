@@ -1,9 +1,10 @@
 // path: lib/user/page/update_apk_page_u.dart
-// perbaikan: Menghapus penggunaan _isUpdateAvailable yang sudah tidak ada.
+// perbaikan: Menambahkan remove() splash screen untuk transisi mulus.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
@@ -49,6 +50,9 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   void initState() {
     super.initState();
     _initializeAnimations();
+
+    // Menghilangkan splash screen di sini agar transisi mulus.
+    FlutterNativeSplash.remove();
 
     // Data changelog dan pembaruan sudah tersedia dari widget
     _changelog = widget.apkInfo.releaseNotes.split('\n');
