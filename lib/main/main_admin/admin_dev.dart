@@ -3,7 +3,6 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,8 +11,6 @@ import 'package:wifi/shared/debug/log.dart';
 void main() async {
   // Memastikan binding Flutter siap. Ini wajib ada sebelum runApp().
   WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(
-      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
