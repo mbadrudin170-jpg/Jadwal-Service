@@ -195,7 +195,7 @@ class _PackagePageState extends State<PackagePage> {
                   Log.info(
                     'Menjalankan operasi hapus paket ID: ${paket.id}, nama: ${paket.name}',
                   );
-                  await _paketOperasi.deletePackage(paket.id);
+                  await _paketOperasi.softDeletePackage(paket.id);
                   Log.info(
                     'Paket ID: ${paket.id} berhasil dihapus dari database',
                   );
@@ -257,7 +257,7 @@ class _PackagePageState extends State<PackagePage> {
                   Log.info(
                     'Menjalankan operasi hapus semua paket dari database',
                   );
-                  await _paketOperasi.deleteAllPackages();
+                  await _paketOperasi.softDeleteAllPackages();
                   Log.info('Semua paket berhasil dihapus dari database');
                   _refreshPaketList();
 
@@ -351,12 +351,12 @@ class _PackagePageState extends State<PackagePage> {
               break;
             // diubah: Menggunakan rewardPoints untuk pengurutan
             case UrutanPaket.poinTertinggi:
-              paketList.sort(
-                  (final a, final b) => b.rewardPoints.compareTo(a.rewardPoints));
+              paketList.sort((final a, final b) =>
+                  b.rewardPoints.compareTo(a.rewardPoints));
               break;
             case UrutanPaket.poinTerendah:
-              paketList.sort(
-                  (final a, final b) => a.rewardPoints.compareTo(b.rewardPoints));
+              paketList.sort((final a, final b) =>
+                  a.rewardPoints.compareTo(b.rewardPoints));
               break;
           }
 
@@ -376,7 +376,8 @@ class _PackagePageState extends State<PackagePage> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (final context) => PackageDetailPage(package: paket),
+                      builder: (final context) =>
+                          PackageDetailPage(package: paket),
                     ),
                   );
                   Log.info(

@@ -374,24 +374,57 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Widget _buildActionButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: _downloadUpdate,
-        icon: const Icon(AppIcons.downloadRounded, size: 24),
-        label: const Text(
-          'Download Update',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+    // Cek apakah pembaruan bersifat wajib atau tidak.
+    final isUpdateRequired = widget.apkInfo.isUpdateRequired;
+
+    return Row(
+      children: [
+        // Tombol Download selalu ada, tetapi mungkin tidak expanded jika ada tombol Lewati.
+        Expanded(
+          child: SizedBox(
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: _downloadUpdate,
+              icon: const Icon(AppIcons.downloadRounded, size: 24),
+              label: const Text(
+                'Download Update',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF6C63FF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+              ),
+            ),
+          ),
         ),
-        style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF6C63FF),
-          foregroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 4,
-        ),
-      ),
+        // Jika pembaruan tidak wajib, tampilkan tombol Lewati.
+        if (!isUpdateRequired) ...[
+          const SizedBox(width: 12),
+          SizedBox(
+            height: 56,
+            child: OutlinedButton(
+              onPressed: () {
+                Log.info('Pengguna memilih untuk melewati pembaruan.');
+                Navigator.of(context).pop(true);
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+                side: BorderSide(color: Colors.grey[300]!),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text(
+                'Lewati',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

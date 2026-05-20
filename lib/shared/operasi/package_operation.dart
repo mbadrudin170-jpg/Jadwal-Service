@@ -183,6 +183,54 @@ class PackageOperation {
     }
   }
 
+  /// Menandai semua paket sebagai soft-deleted (diarsipkan).
+  Future<void> softDeleteAllPackages({final bool fromServer = false}) async {
+    Log.info('Memulai soft-delete untuk semua paket');
+    try {
+      await _baseOperation.runComplexOperation<void>(
+        (final Transaction txn) async {
+          // DIUBAH: Menggunakan nama tabel dari TableNameValue berbasis v50
+          final int count = await txn.update(
+            TableNameValue.get(TableName.package),
+            {
+              ColumnNames.isDeleted: 1,
+              ColumnNames.updatedAt:
+                  DateTime.now().toUtc().millisecondsSinceEpoch,
+              ColumnNames.archivedAt:
+                  DateTime.now().toUtc().millisecondsSinceEpoch
+            },
+          );
+          Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
+        },
+        fromServer: fromServer,
+      );
+    } catch (e, s) {
+      Log.error('Gagal soft-delete semua paket', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada [PackageModel] berdasarkan [id].
+  Future<void> softDeletePackage(final String id,
+      {final bool fromServer = false}) async {
+    Log.info('Memulai soft-delete untuk package id: $id');
+    try {
+      await _baseOperation.update(
+        TableNameValue.get(TableName.package),
+        {
+          ColumnNames.isDeleted: 1,
+          ColumnNames.updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch
+        },
+        id,
+        fromServer: fromServer,
+      );
+      Log.info('Berhasil soft-delete untuk package id: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft-delete untuk package id: $id', e: e, st: s);
+      rethrow;
+    }
+  }
+
   /// Menghapus [PackageModel] dari database secara permanen.
   Future<void> deletePackage(final String id,
       {final bool fromServer = false}) async {
