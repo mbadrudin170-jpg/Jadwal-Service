@@ -168,6 +168,9 @@ class AppIcons {
   /// Ikon untuk bantuan.
   static const IconData help = Icons.help;
 
+  /// Ikon untuk bug.
+  static const IconData bug = Icons.bug_report;
+
   /// Ikon untuk kritik dan saran (feedback).
   static const IconData feedback = Icons.feedback_outlined;
 

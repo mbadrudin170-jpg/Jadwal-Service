@@ -1,3 +1,4 @@
+
 // path: lib/admin/halaman/tab/lainnya.dart
 //
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -13,6 +14,7 @@
 //   - lib/admin/halaman/lainnya/package.dart (PackagePage)
 //   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
 //   - lib/admin/halaman/lainnya/tentang_aplikasi.dart (TentangAplikasiPage)
+//   - lib/admin/halaman/tes/halaman_tes.dart (HalamanTes)
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
 
@@ -28,6 +30,7 @@ import 'package:wifi/admin/halaman/lainnya/feedback.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
+import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/snackbar_util.dart';
@@ -137,6 +140,12 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: AppIcons.report,
             title: 'Versi Aplikasi',
             onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
+          ),
+           _buildMenuItem(
+            context: context,
+            icon: AppIcons.bug,
+            title: 'Halaman Tes Toast',
+            onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes Toast'),
           ),
           _buildMenuItem(
             context: context,

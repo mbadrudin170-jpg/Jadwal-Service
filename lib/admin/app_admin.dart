@@ -1,15 +1,15 @@
 // path: lib/admin/app_admin.dart
-// diubah: Menghapus inisialisasi Firebase karena sudah dipindahkan ke main().
+// diubah: Menambahkan ToastificationWrapper dan scaffoldMessengerKey.
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/admin/splash_screen_admin.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -18,12 +18,13 @@ import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
+import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Widget utama aplikasi admin.
 class AppAdmin extends StatelessWidget {
-  /// Konstruktor untuk AppAdmin.
+  /// Konstruktor untuk [AppAdmin].
   const AppAdmin({super.key});
 
   @override
@@ -33,8 +34,9 @@ class AppAdmin extends StatelessWidget {
       future: SharedPreferences.getInstance(),
       builder: (final context, final snapshot) {
         if (!snapshot.hasData) {
-          return const MaterialApp(home: SplashScreen());
+          return const SizedBox.shrink();
         }
+
         final prefs = snapshot.data!;
         final localStorageService = LocalStorageService(prefs: prefs);
         Log.info('SharedPreferences tersedia, membangun MultiProvider');
@@ -45,7 +47,6 @@ class AppAdmin extends StatelessWidget {
               create: (final _) =>
                   ThemeProviderImpl(localStorageService: localStorageService),
             ),
-            // Menyediakan instance singleton dari NotifikasiServis
             Provider<NotifikasiServis>(
               create: (final _) => NotifikasiServis(),
             ),
@@ -58,9 +59,6 @@ class AppAdmin extends StatelessWidget {
 }
 
 /// Widget yang menangani proses inisialisasi sekunder aplikasi.
-///
-/// Proses ini berjalan setelah inisialisasi utama di `main()` dan menampilkan
-/// [SplashScreen] selama berlangsung.
 class AppInitializer extends StatefulWidget {
   /// Membuat instance [AppInitializer].
   const AppInitializer({super.key});
@@ -71,8 +69,6 @@ class AppInitializer extends StatefulWidget {
 
 class _AppInitializerState extends State<AppInitializer> {
   late Future<bool> _initialization;
-  String _loadingMessage = 'Memulai aplikasi...';
-
   final InternetConnectionService _connectionService =
       InternetConnectionService();
 
@@ -86,55 +82,39 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi sekunder.');
     try {
-      // Inisialisasi Firebase sudah dipindahkan ke main() untuk mencegah duplikasi.
+      final notifikasiServis = context.read<NotifikasiServis>();
 
-      _updateMessage('Menginisialisasi layanan notifikasi...');
-      await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
-      await NotifikasiServis().requestPermissions();
-      Log.info('Layanan notifikasi siap');
+      Log.info('Menginisialisasi layanan notifikasi...');
+      await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
+      await notifikasiServis.requestPermissions();
 
-      _updateMessage('Mengonfigurasi pengaturan lokal...');
+      Log.info('Mengonfigurasi pengaturan lokal...');
       await initializeDateFormatting('id_ID');
-      Log.info('Pengaturan lokal selesai (id_ID).');
 
-      _updateMessage('Mempersiapkan database lokal...');
+      Log.info('Mempersiapkan database lokal...');
       await DatabaseHelper.instance.database;
-      Log.info('Database lokal siap.');
 
-      _updateMessage('Memeriksa data awal...');
+      Log.info('Memeriksa data awal...');
       await InitialDownloadService().runInitialDownload();
-      Log.info('Initial download selesai.');
 
-      _updateMessage('Membersihkan data arsip kadaluarsa...');
+      Log.info('Membersihkan data arsip kadaluarsa...');
       final dataCleaningOperation = DataCleaningOperation();
       await dataCleaningOperation.deleteAllExpiredArchivedData(
           retentionDays: 30);
-      Log.info('Pembersihan data arsip selesai (retentionDays=30).');
 
-      _updateMessage('Mengecek koneksi internet...');
+      Log.info('Mengecek koneksi internet...');
       final isOnline = await _connectionService.checkConnection();
       Log.info('Status koneksi: ${isOnline ? "online" : "offline"}');
 
-      _updateMessage('Selesai, membuka aplikasi...');
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      Log.info(
-          'Inisialisasi sekunder selesai. Kembali dengan isOnline=$isOnline');
+      FlutterNativeSplash.remove();
+      Log.info('Native splash screen dihapus. Aplikasi siap.');
 
       return isOnline;
     } on Exception catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, st: s);
-      _updateMessage('Terjadi error: ${e.toString()}');
+      FlutterNativeSplash.remove();
       return false;
     }
-  }
-
-  void _updateMessage(final String message) {
-    if (!mounted) return;
-    // Log setiap perubahan status inisialisasi
-    Log.info('Status inisialisasi: $message');
-    setState(() {
-      _loadingMessage = message;
-    });
   }
 
   @override
@@ -143,31 +123,20 @@ class _AppInitializerState extends State<AppInitializer> {
       future: _initialization,
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
+          FlutterNativeSplash.remove();
+
           final isOnline = snapshot.data ?? false;
           Log.info(
               'Inisialisasi selesai, menuju AppProviders dengan isOffline=${!isOnline}');
           return AppProviders(isOffline: !isOnline);
         }
-        return Consumer<ThemeProvider>(
-          builder: (final context, final themeProvider, final child) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeProvider.themeMode,
-              home: SplashScreen(loadingMessage: _loadingMessage),
-            );
-          },
-        );
+        return const SizedBox.shrink();
       },
     );
   }
 }
 
 /// Widget yang menyediakan provider-provider penting untuk aplikasi.
-///
-/// Provider yang disediakan di sini akan tersedia untuk semua halaman
-/// setelah proses inisialisasi selesai.
 class AppProviders extends StatelessWidget {
   /// Menandakan apakah aplikasi sedang dalam mode offline.
   final bool isOffline;
@@ -190,9 +159,6 @@ class AppProviders extends StatelessWidget {
 }
 
 /// Widget yang membangun [MaterialApp] utama aplikasi.
-///
-/// Ini adalah akar dari hierarki widget aplikasi setelah semua
-/// inisialisasi dan penyediaan provider selesai.
 class AppMaterial extends StatelessWidget {
   /// Menandakan apakah aplikasi sedang dalam mode offline.
   final bool isOffline;
@@ -203,18 +169,21 @@ class AppMaterial extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     Log.info('AppMaterial build, isOffline=$isOffline');
-    return Consumer<ThemeProvider>(
-      builder: (final context, final themeProvider, final child) {
-        return MaterialApp(
-          title: 'Admin Wifi',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.themeMode,
-          home: HalamanUtama(isOffline: isOffline),
-          navigatorKey: NavigasiServis.navigatorKey,
-        );
-      },
+    return ToastificationWrapper(
+      child: Consumer<ThemeProvider>(
+        builder: (final context, final themeProvider, final child) {
+          return MaterialApp(
+            title: 'Admin Wifi',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: HalamanUtama(isOffline: isOffline),
+            navigatorKey: NavigasiServis.navigatorKey,
+            scaffoldMessengerKey: SnackBarUtil.key,
+          );
+        },
+      ),
     );
   }
 }

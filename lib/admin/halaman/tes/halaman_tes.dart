@@ -1,44 +1,76 @@
-// // path: lib/halaman/tes/halaman_tes.dart
-// import 'package:admin_wifi/data/operasi/status_unggah_operasi.dart';
-// // import 'package:admin_wifi/halaman/tes/contoh_simpan_status.dart';
-// import 'package:flutter/material.dart';
+// path: lib/admin/halaman/tes/halaman_tes.dart
+import 'package:flutter/material.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
-// class HalamanTes extends StatelessWidget {
-//   const HalamanTes({super.key});
+/// Halaman untuk melakukan tes tampilan dari berbagai jenis Toast.
+class HalamanTes extends StatelessWidget {
+  /// Membuat instance dari [HalamanTes].
+  const HalamanTes({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Halaman Uji Coba')),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const Text(
-//               'test data yang muncul untuk StatusUnggahModel',
-//               textAlign: TextAlign.center,
-//               style: TextStyle(fontSize: 16),
-//             ),
-//             const SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () {
-//                 // Memanggil fungsi dari file contoh
-//                 StatusUnggahOperasi().ambilSemuaStatusUnggah();
-//                 // Menampilkan snackbar sebagai feedback
-//                 ScaffoldMessenger.of(context).showSnackBar(
-//                   const SnackBar(
-//                     content: Text(
-//                       'Fungsi simpanContohStatusUnggah() dijalankan. Cek konsol debug Anda!',
-//                     ),
-//                     duration: Duration(seconds: 3),
-//                   ),
-//                 );
-//               },
-//               child: const Text('Jalankan simpanContohStatusUnggah'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(final BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Halaman Uji Toast'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: () {
+                  ToastUtil.success(
+                    context,
+                    'Ini adalah contoh notifikasi sukses.',
+                    logData: {'info': 'Tombol sukses ditekan'},
+                  );
+                },
+                child: const Text('Tampilkan Toast Sukses'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  ToastUtil.error(
+                    context,
+                    'Ini adalah contoh notifikasi error.',
+                    logData: {'info': 'Tombol error ditekan'},
+                  );
+                },
+                child: const Text('Tampilkan Toast Error'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                onPressed: () {
+                  ToastUtil.warning(
+                    context,
+                    'Ini adalah contoh notifikasi peringatan.',
+                    logData: {'info': 'Tombol peringatan ditekan'},
+                  );
+                },
+                child: const Text('Tampilkan Toast Peringatan'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                onPressed: () {
+                  ToastUtil.info(
+                    context,
+                    'Ini adalah contoh notifikasi informasi.',
+                    logData: {'info': 'Tombol info ditekan'},
+                  );
+                },
+                child: const Text('Tampilkan Toast Info'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,20 +1,19 @@
 // path: lib/user/app_user.dart
-// perbaikan: Melengkapi state dan logika fallback untuk alur pembaruan.
+// perbaikan: Menambahkan ToastificationWrapper.
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toastification/toastification.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -25,7 +24,6 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/page/splash_screen_user.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
@@ -40,9 +38,7 @@ class AppUser extends StatelessWidget {
       future: SharedPreferences.getInstance(),
       builder: (final context, final snapshot) {
         if (!snapshot.hasData) {
-          return const MaterialApp(
-            home: SplashScreenUser(loadingMessage: 'Mempersiapkan...'),
-          );
+          return const SizedBox.shrink();
         }
 
         final prefs = snapshot.data!;
@@ -104,11 +100,9 @@ class AppInitializer extends StatefulWidget {
 
 class _AppInitializerState extends State<AppInitializer> {
   AppStatus _status = AppStatus.initializing;
-  String _loadingMessage = 'Memulai aplikasi...';
   SettingsModel? _maintenanceSettings;
-  ApkVersionModel? _apkInfo;
-  PackageInfoModel? _packageInfo;
-  ApkArchitectureEnum? _architecture;
+
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -116,49 +110,63 @@ class _AppInitializerState extends State<AppInitializer> {
     unawaited(_initializeApp());
   }
 
-  /// Fungsi utama yang menjalankan seluruh proses inisialisasi.
   Future<void> _initializeApp() async {
     if (_status != AppStatus.initializing) {
       setState(() {
         _status = AppStatus.initializing;
-        _loadingMessage = 'Mencoba terhubung kembali...';
       });
       await Future<void>.delayed(const Duration(milliseconds: 50));
     }
 
     try {
-      _updateMessage('Mengaktifkan cache Firestore...');
+      Log.info('Mengaktifkan cache Firestore...');
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: true,
       );
 
-      _updateMessage('Menginisialisasi Notifikasi...');
+      Log.info('Menginisialisasi Notifikasi...');
       await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
       await NotifikasiServis().requestPermissions();
 
-      _updateMessage('Menginisialisasi format tanggal...');
+      Log.info('Menginisialisasi format tanggal...');
       await initializeDateFormatting('id_ID');
 
       final internetService = InternetConnectionService();
       final isConnected = await internetService.checkConnection();
-      _updateMessage(isConnected ? 'Online' : 'Offline');
+      Log.info(
+          isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
       if (isConnected) {
-        _updateMessage('Memeriksa pembaruan aplikasi...');
+        Log.info('Memeriksa pembaruan aplikasi...');
         final updateService = UpdateCheckService();
         final updateInfo = await updateService.getUpdateInfo();
 
         if (updateInfo.isUpdateRequired) {
-          setState(() {
-            _status = AppStatus.needsUpdate;
-            _apkInfo = updateInfo.apkInfo;
-            _packageInfo = updateInfo.packageInfo;
-            _architecture = updateInfo.architecture;
-          });
-          return;
+          Log.info('Pembaruan diperlukan. Menampilkan halaman update.');
+          FlutterNativeSplash.remove();
+
+          final skipped = await _navigatorKey.currentState?.push<bool>(
+            MaterialPageRoute(
+              builder: (final context) => UpdateApkPage(
+                apkInfo: updateInfo.apkInfo!,
+                packageInfo: updateInfo.packageInfo!,
+                architecture: updateInfo.architecture!,
+              ),
+            ),
+          );
+
+          if (skipped != true) {
+            if (updateInfo.apkInfo?.isUpdateRequired ?? false) {
+              Log.info('Pembaruan wajib tidak dilewati. Menutup aplikasi.');
+              unawaited(SystemNavigator.pop());
+              return;
+            }
+          } else {
+            Log.info('Pengguna memilih melewati pembaruan opsional.');
+          }
         }
 
-        _updateMessage('Memeriksa status server...');
+        Log.info('Memeriksa status server...');
         final doc = await FirebaseFirestore.instance
             .collection(TableNameValue.get(TableName.settings))
             .doc(globalSettingsId)
@@ -167,7 +175,8 @@ class _AppInitializerState extends State<AppInitializer> {
         if (doc.exists && doc.data() != null) {
           final settings = SettingsModel.fromFirebase(doc.data()!);
           if (settings.maintenanceMode) {
-            _updateMessage('Server dalam perbaikan.');
+            Log.info('Server dalam mode pemeliharaan.');
+            FlutterNativeSplash.remove();
             setState(() {
               _status = AppStatus.maintenance;
               _maintenanceSettings = settings;
@@ -177,13 +186,15 @@ class _AppInitializerState extends State<AppInitializer> {
         }
       }
 
-      _updateMessage('Pemeriksaan selesai.');
+      Log.info('Inisialisasi selesai. Aplikasi siap.');
+      FlutterNativeSplash.remove();
       setState(() {
         _status = AppStatus.ready;
       });
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi user app', e: e, st: st);
-      _updateMessage('Terjadi error. Silakan coba lagi.');
+
+      FlutterNativeSplash.remove();
 
       SnackBarUtil.globalError(
         'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.',
@@ -195,36 +206,30 @@ class _AppInitializerState extends State<AppInitializer> {
     }
   }
 
-  void _updateMessage(final String message) {
-    if (mounted && _status == AppStatus.initializing) {
-      Log.info('Status Inisialisasi User: $message');
-      setState(() {
-        _loadingMessage = message;
-      });
-    }
-  }
-
   @override
   Widget build(final BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (final context, final themeProvider, final child) {
-        return MaterialApp(
-          scaffoldMessengerKey: SnackBarUtil.key,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.themeMode,
-          home: _buildHome(),
-        );
-      },
+    return ToastificationWrapper(
+      child: Consumer<ThemeProvider>(
+        builder: (final context, final themeProvider, final child) {
+          return MaterialApp(
+            navigatorKey: _navigatorKey,
+            scaffoldMessengerKey: SnackBarUtil.key,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: _buildHome(),
+          );
+        },
+      ),
     );
   }
 
-  /// Membangun halaman utama berdasarkan status aplikasi saat ini.
   Widget _buildHome() {
     switch (_status) {
       case AppStatus.initializing:
-        return SplashScreenUser(loadingMessage: _loadingMessage);
+      case AppStatus.needsUpdate:
+        return const SizedBox.shrink();
       case AppStatus.maintenance:
         return MaintenancePage(
           maintenanceInfo: _maintenanceSettings?.maintenanceInfo ??
@@ -232,18 +237,6 @@ class _AppInitializerState extends State<AppInitializer> {
           onRefresh: _initializeApp,
           onExit: SystemNavigator.pop,
         );
-      case AppStatus.needsUpdate:
-        if (_apkInfo != null && _packageInfo != null && _architecture != null) {
-          return UpdateApkPage(
-            apkInfo: _apkInfo!,
-            packageInfo: _packageInfo!,
-            architecture: _architecture!,
-          );
-        } else {
-          return const SplashScreenUser(
-            loadingMessage: 'Error: Data pembaruan tidak lengkap. Coba lagi.',
-          );
-        }
       case AppStatus.ready:
         final userId = widget.prefs.getString('userId');
         if (userId != null) {

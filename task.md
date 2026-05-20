@@ -10,3 +10,8 @@ Setiap tugas yang diberikan pengguna HARUS melewati alur berikut:
 3. jalakan flutter analyze agar tidak ada error lagi.
 4. tanyakan ke saya apakah kdoe nya sesuai.
 6. 
+
+
+# Rencana
+1. menerapkan notif di apk admin
+2. mengatasi hapus paket tidak shof delete

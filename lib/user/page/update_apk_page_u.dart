@@ -107,18 +107,14 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE),
-      appBar: AppBar(
-        title: const Text('Update Aplikasi',
-            style: TextStyle(fontWeight: FontWeight.w600)),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black87,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Update Aplikasi',
+      //       style: TextStyle(fontWeight: FontWeight.w600)),
+      //   centerTitle: true,
+      //   shape: const RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      //   ),
+      // ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
