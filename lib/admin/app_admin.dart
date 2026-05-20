@@ -1,24 +1,24 @@
 // path: lib/admin/app_admin.dart
-// diubah: Menambahkan ToastificationWrapper dan scaffoldMessengerKey.
+// DIUBAH: Menyuntikkan SqliteTransactionRepository ke dalam TransactionProvider.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/shared/data/repositories/sqlite_transaction_repository.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/providers/transaction_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
@@ -106,13 +106,11 @@ class _AppInitializerState extends State<AppInitializer> {
       final isOnline = await _connectionService.checkConnection();
       Log.info('Status koneksi: ${isOnline ? "online" : "offline"}');
 
-      FlutterNativeSplash.remove();
       Log.info('Native splash screen dihapus. Aplikasi siap.');
 
       return isOnline;
     } on Exception catch (e, s) {
       Log.error('Error kritis selama inisialisasi sekunder.', e: e, st: s);
-      FlutterNativeSplash.remove();
       return false;
     }
   }
@@ -123,8 +121,6 @@ class _AppInitializerState extends State<AppInitializer> {
       future: _initialization,
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          FlutterNativeSplash.remove();
-
           final isOnline = snapshot.data ?? false;
           Log.info(
               'Inisialisasi selesai, menuju AppProviders dengan isOffline=${!isOnline}');
@@ -180,7 +176,6 @@ class AppMaterial extends StatelessWidget {
             themeMode: themeProvider.themeMode,
             home: HalamanUtama(isOffline: isOffline),
             navigatorKey: NavigasiServis.navigatorKey,
-            scaffoldMessengerKey: SnackBarUtil.key,
           );
         },
       ),

@@ -15,7 +15,7 @@
 //   - lib/shared/operasi/package_operation.dart (PackageOperation)
 //   - lib/shared/utils/calculation_util.dart (CalculationUtil)
 //   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/whatsapp/info_paket.dart (PesanInfoPaket)
 //   - lib/shared/debug/log.dart (Log)
 
@@ -36,7 +36,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Halaman untuk menampilkan detail pelanggan aktif.
@@ -93,7 +93,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     } on Exception catch (e, s) {
       Log.error('Gagal membuka WhatsApp', e: e, st: s);
       if (mounted) {
-        SnackBarUtil.error(
+        ToastUtil.error(
           context,
           'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
         );

@@ -11,6 +11,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
@@ -20,7 +21,7 @@ import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/snackbar_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -37,7 +38,7 @@ import 'package:wifi/shared/utils/snackbar_util.dart';
 //   - lib/shared/data/services/sync_check_service.dart (SyncCheckService)
 //   - lib/shared/services/expired_subscription_check_service.dart (ExpiredSubscriptionCheckService)
 //   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (SnackBarUtil)
+//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 //   - lib/shared/theme/app_icons.dart (AppIcons)
 
 /// Halaman utama aplikasi admin yang menampilkan navigasi tab.
@@ -68,6 +69,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
   @override
   void initState() {
     super.initState();
+    FlutterNativeSplash.remove();
     Log.info(
       'Memulai inisialisasi halaman utama. Status offline: ${widget.isOffline}.',
     );
@@ -151,8 +153,8 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       Log.warning(
           'Aplikasi berjalan dalam mode offline. Menampilkan snackbar peringatan.');
 
-      // PERBAIKAN 5: Menggunakan SnackBarUtil
-      SnackBarUtil.warning(
+      // PERBAIKAN 5: Menggunakan ToastUtil
+      ToastUtil.warning(
         context,
         'Anda dalam mode offline. Data mungkin tidak terbaru.',
       );
