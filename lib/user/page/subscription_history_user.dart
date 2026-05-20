@@ -51,10 +51,18 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
 
   /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
+  late Future<List<TransactionModel>> _historyFuture;
 
   @override
   void initState() {
     super.initState();
+    _historyFuture = _loadHistory();
+  }
+
+  Future<List<TransactionModel>> _loadHistory() async {
+    final customer = await _customerOpFirebase.getCustomerOnce(widget.userId);
+    if (customer == null) return [];
+    return _transactionOpFirebase.getFullSubscriptionHistory(customer.id);
   }
 
   List<TransactionModel> _sortHistory(final List<TransactionModel> history) {
@@ -87,6 +95,13 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
         });
     }
     return history;
+  }
+
+  // Panggil ini saat kembali dari halaman detail transaksi
+  Future<void> _refreshHistory() async {
+    setState(() {
+      _historyFuture = _loadHistory();
+    });
   }
 
   @override
@@ -127,13 +142,11 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
           if (!customerSnapshot.hasData || customerSnapshot.data == null) {
             return const Center(child: Text('Data pelanggan tidak ditemukan.'));
           }
-          final customer = customerSnapshot.data!;
           return Column(
             children: [
               Expanded(
                 child: FutureBuilder<List<TransactionModel>>(
-                  future: _transactionOpFirebase
-                      .getFullSubscriptionHistory(customer.id),
+                  future: _historyFuture,
                   builder: (final context, final historySnapshot) {
                     if (historySnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -150,62 +163,69 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                     }
                     final sorted =
                         _sortHistory(List.from(historySnapshot.data!));
-                    return ListView.builder(
-                      itemCount: sorted.length,
-                      itemBuilder: (final context, final index) {
-                        final tx = sorted[index];
-                        final packageFuture = tx.packageId != null
-                            ? _packageOpFirebase
-                                .getPackageModelById(tx.packageId!)
-                            : Future<PackageModel?>.value();
-                        final activeText = tx.endDate != null
-                            ? CalculationUtil.getRemainingActivePeriodText(
-                                tx.endDate!)
-                            : 'N/A';
-                        final activeColor = tx.endDate != null
-                            ? CalculationUtil.getRemainingActivePeriodColor(
-                                tx.endDate!)
-                            : Colors.grey;
-                        return Card(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: ListTile(
-                            leading: const Icon(AppIcons.receiptLong),
-                            title:
-                                PackageNameWidget(packageFuture: packageFuture),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (tx.endDate != null)
+                    return RefreshIndicator(
+                      onRefresh: _refreshHistory,
+                      child: ListView.builder(
+                        itemCount: sorted.length,
+                        itemBuilder: (final context, final index) {
+                          final tx = sorted[index];
+                          final packageFuture = tx.packageId != null
+                              ? _packageOpFirebase
+                                  .getPackageModelById(tx.packageId!)
+                              : Future<PackageModel?>.value();
+                          final activeText = tx.endDate != null
+                              ? CalculationUtil.getRemainingActivePeriodText(
+                                  tx.endDate!)
+                              : 'N/A';
+                          final activeColor = tx.endDate != null
+                              ? CalculationUtil.getRemainingActivePeriodColor(
+                                  tx.endDate!)
+                              : Colors.grey;
+                          return Card(
+                            key: ValueKey(tx.id), // ← tambahkan ini
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: ListTile(
+                              leading: const Icon(AppIcons.receiptLong),
+                              title: PackageNameWidget(
+                                  packageFuture: packageFuture),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (tx.endDate != null)
+                                    Text(
+                                        'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
                                   Text(
-                                      'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
-                                Text('Status: ${tx.paymentStatus.displayName}',
-                                    style: TextStyle(
-                                        color: tx.paymentStatus ==
-                                                PaymentStatus.paid
-                                            ? Colors.green
-                                            : Colors.red)),
-                                Text('Masa Aktif: $activeText',
-                                    style: TextStyle(color: activeColor)),
-                              ],
+                                      'Status: ${tx.paymentStatus.displayName}',
+                                      style: TextStyle(
+                                          color: tx.paymentStatus ==
+                                                  PaymentStatus.paid
+                                              ? Colors.green
+                                              : Colors.red)),
+                                  Text('Masa Aktif: $activeText',
+                                      style: TextStyle(color: activeColor)),
+                                ],
+                              ),
+                              trailing: const Icon(AppIcons.chevronRight),
+                              onTap: () async {
+                                final package = await packageFuture;
+                                if (context.mounted) {
+                                  await Navigator.push<void>(
+                                    context,
+                                    MaterialPageRoute<void>(
+                                      builder: (final context) =>
+                                          TransactionDetailPage(
+                                              transaction: tx,
+                                              package: package),
+                                    ),
+                                  );
+                                  _refreshHistory();
+                                }
+                              },
                             ),
-                            trailing: const Icon(AppIcons.chevronRight),
-                            onTap: () async {
-                              final package = await packageFuture;
-                              if (context.mounted) {
-                                await Navigator.push<void>(
-                                  context,
-                                  MaterialPageRoute<void>(
-                                    builder: (final context) =>
-                                        TransactionDetailPage(
-                                            transaction: tx, package: package),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

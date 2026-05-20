@@ -12,8 +12,8 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -42,7 +42,8 @@ class ActiveCustomerOperation {
 
   /// Mengambil semua pelanggan aktif dengan detail nama pelanggan dan nama paket
   /// menggunakan satu query JOIN yang efisien.
-  Future<List<ActiveCustomerDetailModel>> getAllActiveCustomersWithDetails() async {
+  Future<List<ActiveCustomerDetailModel>>
+      getAllActiveCustomersWithDetails() async {
     final db = await dbHelper.database;
     Log.info('Mengambil semua pelanggan aktif dengan detail (JOIN)');
 
@@ -59,7 +60,8 @@ class ActiveCustomerOperation {
 
     try {
       final List<Map<String, dynamic>> maps = await db.rawQuery(query);
-      Log.info('Berhasil mengambil ${maps.length} pelanggan aktif dengan detail.');
+      Log.info(
+          'Berhasil mengambil ${maps.length} pelanggan aktif dengan detail.');
 
       return List.generate(maps.length, (final i) {
         final map = maps[i];
@@ -70,7 +72,8 @@ class ActiveCustomerOperation {
         );
       });
     } on Exception catch (e, st) {
-      Log.error('Gagal melakukan query JOIN untuk pelanggan aktif', e: e, st: st);
+      Log.error('Gagal melakukan query JOIN untuk pelanggan aktif',
+          e: e, st: st);
       rethrow;
     }
   }
