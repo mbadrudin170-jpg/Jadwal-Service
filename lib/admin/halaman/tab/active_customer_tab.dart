@@ -115,7 +115,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
   void _applyFilterAndSort() {
     final query = _searchController.text.toLowerCase();
-    Log.info('Menerapkan filter (query: "$query") dan urutan (${_activeSort.name})');
+    Log.info(
+        'Menerapkan filter (query: "$query") dan urutan (${_activeSort.name})');
 
     List<ActiveCustomerDetailModel> tempResult;
 
@@ -136,7 +137,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       final ActiveCustomerDetailModel customer) async {
     final customerId = customer.activeCustomer.id;
     final customerName = customer.customerName;
-    Log.info('Memulai soft delete pelanggan ID: $customerId, Nama: $customerName');
+    Log.info(
+        'Memulai soft delete pelanggan ID: $customerId, Nama: $customerName');
 
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -160,11 +162,14 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         await _activeCustomerOperation.softDelete(customerId);
         Log.info('Berhasil soft delete pelanggan ID: $customerId');
         if (mounted) {
-          ToastUtil.success(context, 'Pelanggan "$customerName" berhasil diarsipkan.');
+          ToastUtil.success(
+              context, 'Pelanggan "$customerName" berhasil diarsipkan.');
         }
         setState(() {
-          _allCustomers.removeWhere((final p) => p.activeCustomer.id == customerId);
-          _filteredResults.removeWhere((final p) => p.activeCustomer.id == customerId);
+          _allCustomers
+              .removeWhere((final p) => p.activeCustomer.id == customerId);
+          _filteredResults
+              .removeWhere((final p) => p.activeCustomer.id == customerId);
         });
       } on Exception catch (e, s) {
         Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, st: s);
@@ -244,7 +249,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
             context: context,
             builder: (final ctx) => AlertDialog(
                   title: const Text('Konfirmasi Arsipkan Semua'),
-                  content: const Text('Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
+                  content: const Text(
+                      'Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
@@ -260,13 +266,15 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
             final count = await _activeCustomerOperation.softDeleteAll();
             Log.info('Berhasil mengarsipkan $count pelanggan aktif.');
             if (mounted) {
-              ToastUtil.success(context, 'Berhasil mengarsipkan $count pelanggan.');
+              ToastUtil.success(
+                  context, 'Berhasil mengarsipkan $count pelanggan.');
             }
             await _loadData(forceRefresh: true);
           } on Exception catch (e, s) {
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, st: s);
             if (mounted) {
-              ToastUtil.error(context, 'Gagal mengarsipkan semua pelanggan: $e');
+              ToastUtil.error(
+                  context, 'Gagal mengarsipkan semua pelanggan: $e');
             }
           }
         }
@@ -274,7 +282,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       case AdvancedOption.archiveExpired:
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
-          final count = await _activeCustomerOperation.archiveExpiredCustomers();
+          final count =
+              await _activeCustomerOperation.archiveExpiredCustomers();
           Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
           if (mounted) {
             ToastUtil.success(
@@ -284,7 +293,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         } on Exception catch (e, s) {
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, st: s);
           if (mounted) {
-            ToastUtil.error(context, 'Gagal mengarsipkan pelanggan kadaluarsa: $e');
+            ToastUtil.error(
+                context, 'Gagal mengarsipkan pelanggan kadaluarsa: $e');
           }
         }
         break;
@@ -371,10 +381,11 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                                       Text(detail.packageName),
                                       Text('Pembayaran: ${c.status.name}',
                                           style: TextStyle(
-                                              color:
-                                                  c.status == PaymentStatus.paid
-                                                      ? Colors.green
-                                                      : Colors.red,
+                                              color: c.status ==
+                                                      PaymentStatus
+                                                          .paid.displayName
+                                                  ? Colors.green
+                                                  : Colors.red,
                                               fontWeight: FontWeight.bold)),
                                       Text(
                                           'Status: ${CalculationUtil.getRemainingActivePeriodText(c.endDate)}',

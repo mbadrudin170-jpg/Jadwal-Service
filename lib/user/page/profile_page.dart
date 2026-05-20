@@ -56,13 +56,13 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     Log.info(
-      'Memulai inisialisasi state untuk ProfilePage, userId: \${widget.userId}',
+      'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
     );
     unawaited(_initializeData());
   }
 
   Future<void> _initializeData() async {
-    Log.info('Memulai pengambilan data awal untuk userId: \${widget.userId}.');
+    Log.info('Memulai pengambilan data awal untuk userId: ${widget.userId}.');
     if (!mounted) return;
 
     setState(() {
@@ -73,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
       final customer = await _futureCustomer;
       if (customer != null) {
         Log.info(
-          'Data pelanggan berhasil diambil: \${customer.name}. Mengambil riwayat langganan...',
+          'Data pelanggan berhasil diambil: ${customer.name}. Mengambil riwayat langganan...',
         );
         if (!mounted) return;
         setState(() {
@@ -82,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       } else {
         Log.warning(
-          'Pelanggan dengan userId: \${widget.userId} tidak ditemukan di Firestore.',
+          'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.',
         );
       }
     } on Exception catch (e, st) {
@@ -120,13 +120,13 @@ class _ProfilePageState extends State<ProfilePage> {
     } on Exception catch (e, st) {
       Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
       if (mounted) {
-        ToastUtil.error(context, 'Gagal memperbarui data: \$e');
+        ToastUtil.error(context, 'Gagal memperbarui data: $e');
       }
     }
   }
 
   Future<void> _navigateToDetail(final String userId) async {
-    Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: \$userId');
+    Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
     try {
       await Navigator.push(
         context,
@@ -148,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToPointsPage(final String customerId) async {
-    Log.info('Menavigasi ke UserPointsPage untuk customerId: \$customerId');
+    Log.info('Menavigasi ke UserPointsPage untuk customerId: $customerId');
     try {
       await Navigator.push(
         context,
@@ -178,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
               future: _futureCustomer,
               builder: (final context, final snapshot) {
                 Log.info(
-                  'FutureBuilder<Customer>: Menerima status koneksi: \${snapshot.connectionState}.',
+                  'FutureBuilder<Customer>: Menerima status koneksi: ${snapshot.connectionState}.',
                 );
 
                 if (snapshot.connectionState == ConnectionState.waiting &&
@@ -188,27 +188,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 if (snapshot.hasError) {
                   Log.error(
-                    'FutureBuilder<Customer> mendeteksi error: \${snapshot.error}.',
+                    'FutureBuilder<Customer> mendeteksi error: ${snapshot.error}.',
                     e: snapshot.error,
                     st: snapshot.stackTrace,
                   );
                   return Center(
-                      child: Text('Terjadi Error: \${snapshot.error}'));
+                      child: Text('Terjadi Error: ${snapshot.error}'));
                 }
 
                 if (!snapshot.hasData || snapshot.data == null) {
                   Log.warning(
-                    'FutureBuilder<Customer>: Tidak ada data pelanggan yang ditemukan untuk ID: \${widget.userId}.',
+                    'FutureBuilder<Customer>: Tidak ada data pelanggan yang ditemukan untuk ID: ${widget.userId}.',
                   );
                   return Center(
                     child: Text(
-                        'Profil untuk ID: \${widget.userId} tidak ditemukan.'),
+                        'Profil untuk ID: ${widget.userId} tidak ditemukan.'),
                   );
                 }
 
                 final customer = snapshot.data!;
                 Log.info(
-                  'Data pelanggan berhasil dimuat untuk: \${customer.name}. Merender UI utama.',
+                  'Data pelanggan berhasil dimuat untuk: ${customer.name}. Merender UI utama.',
                 );
 
                 return Column(
@@ -300,7 +300,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 : b,
                                       );
                                       Log.info(
-                                        'Langganan aktif terakhir ditemukan, berakhir pada: \${FormatDateTime.formatDateAndTimeCompact(lastSubscription.endDate!)}.',
+                                        'Langganan aktif terakhir ditemukan, berakhir pada: ${FormatDateTime.formatDateAndTimeCompact(lastSubscription.endDate!)}.',
                                       );
                                     } else {
                                       lastSubscription = null;
@@ -339,7 +339,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                         _cachePackageId !=
                                             lastSubscription.packageId) {
                                       Log.info(
-                                        'ID Paket berubah. Mengambil nama paket baru untuk ID: \${lastSubscription.packageId!}.',
+                                        'ID Paket berubah. Mengambil nama paket baru untuk ID: ${lastSubscription.packageId!}.',
                                       );
                                       _futurePackageName =
                                           _packageOp.getPackageName(
@@ -364,7 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 .hasError) {
                                               packageName = 'Gagal memuat';
                                               Log.error(
-                                                'FutureBuilder<PackageName>: Gagal mengambil nama paket: \${packageSnapshot.error}',
+                                                'FutureBuilder<PackageName>: Gagal mengambil nama paket: ${packageSnapshot.error}',
                                                 e: packageSnapshot.error,
                                                 st: packageSnapshot.stackTrace,
                                               );
@@ -373,7 +373,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   packageSnapshot.data ??
                                                       'Tidak tersedia';
                                               Log.info(
-                                                'Nama paket berhasil dimuat: \$packageName',
+                                                'Nama paket berhasil dimuat: $packageName',
                                               );
                                             }
                                             return _InfoItem(
@@ -487,7 +487,7 @@ class _PointsInfoWidget extends StatelessWidget {
       future: subscriptionHistoryFuture,
       builder: (final context, final historySnapshot) {
         Log.info(
-          'FutureBuilder<_PointsInfoWidget>: Status koneksi: \${historySnapshot.connectionState}.',
+          'FutureBuilder<_PointsInfoWidget>: Status koneksi: ${historySnapshot.connectionState}.',
         );
         if (historySnapshot.connectionState == ConnectionState.waiting) {
           return const _InfoItem(
@@ -525,7 +525,7 @@ class _PointsInfoWidget extends StatelessWidget {
 
         final history = historySnapshot.data!;
         Log.info(
-          'Menghitung total poin dari \${history.length} transaksi.',
+          'Menghitung total poin dari ${history.length} transaksi.',
         );
         final int earnedPoints = history.fold<int>(
           0,
@@ -537,7 +537,7 @@ class _PointsInfoWidget extends StatelessWidget {
         );
 
         final int totalPoints = earnedPoints - usedPoints;
-        Log.info('Total poin dihitung: \$totalPoints.');
+        Log.info('Total poin dihitung: $totalPoints.');
 
         return _InfoItem(
           icon: AppIcons.points,

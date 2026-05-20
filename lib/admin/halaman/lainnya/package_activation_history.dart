@@ -346,7 +346,7 @@ class _PackageActivationHistoryPageState
               itemBuilder: (final context, final index) {
                 final transaction = snapshot.data![index];
                 final paymentStatusColor =
-                    transaction.paymentStatus == PaymentStatus.paid
+                    transaction.paymentStatus == PaymentStatus.paid.displayName
                         ? Colors.green
                         : Colors.red;
 
