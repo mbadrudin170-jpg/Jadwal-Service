@@ -378,14 +378,14 @@ class TransactionOperation {
       final count = await _baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.warning('Memulai soft delete semua transaksi secara atomik');
-          final now = DateTime.now().toUtc();
+          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
 
           final rowsAffected = await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
-              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now,
+              ColumnNames.archivedAt: now,
             },
             where: '${ColumnNames.isDeleted} = ?',
             whereArgs: [0],
@@ -396,7 +396,7 @@ class TransactionOperation {
             TableNameValue.get(TableName.wallet),
             {
               ColumnNames.balance: 0,
-              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now,
             },
           );
           Log.info(

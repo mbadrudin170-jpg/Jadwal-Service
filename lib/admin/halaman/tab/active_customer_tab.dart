@@ -239,7 +239,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               child: const Text('Arsipkan pelanggan kadaluarsa')),
           SimpleDialogOption(
               onPressed: () => Navigator.pop(ctx, AdvancedOption.softDeleteAll),
-              child: const Text('Arsipkan Semua',
+              child: const Text('Hapus Semua',
                   style: TextStyle(color: Colors.red))),
           SimpleDialogOption(
               onPressed: () => Navigator.pop(ctx, AdvancedOption.cancel),
@@ -253,25 +253,26 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       case AdvancedOption.softDeleteAll:
         Log.warning('Opsi arsipkan semua dipilih');
         final bool? confirm = await showDialog<bool>(
-            context: context,
-            builder: (final ctx) => AlertDialog(
-                  title: const Text('Konfirmasi Arsipkan Semua'),
-                  content: const Text(
-                      'Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Batal')),
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Arsipkan Semua')),
-                  ],
-                ));
+          context: context,
+          builder: (final ctx) => AlertDialog(
+            title: const Text('Konfirmasi Arsipkan Semua'),
+            content:
+                const Text('Yakin ingin mengarsipkan SEMUA pelanggan aktif?'),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Batal')),
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Arsipkan Semua')),
+            ],
+          ),
+        );
         if (confirm ?? false) {
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             final count = await _activeCustomerOperation.softDeleteAll();
-// TODO : menambahkan fungsi sofdeletealltransaction
+            await _transactionOperation.softDeleteAll();
             Log.info('Berhasil mengarsipkan $count pelanggan aktif.');
             if (mounted) {
               ToastUtil.success(
@@ -307,7 +308,6 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
         }
         break;
       default:
-        // batal
         break;
     }
   }
@@ -387,7 +387,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(detail.packageName),
-                                      Text('Pembayaran: ${c.status.name}',
+                                      Text(
+                                          'Pembayaran: ${c.status.displayName}',
                                           style: TextStyle(
                                               color: c.status ==
                                                       PaymentStatus
