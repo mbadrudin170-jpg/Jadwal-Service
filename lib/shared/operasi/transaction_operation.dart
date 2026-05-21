@@ -342,21 +342,22 @@ class TransactionOperation {
           }
 
           final oldTransaction = TransactionModel.fromSqlite(maps.first);
-          final now = DateTime.now().toUtc();
+          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
 
           await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
-              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: now,
+              ColumnNames.archivedAt: now,
             },
             where: '${ColumnNames.id} = ?',
             whereArgs: [id],
           );
           Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
-          await _recalculateAndUpdateWalletBalance(oldTransaction.walletId, txn);
+          await _recalculateAndUpdateWalletBalance(
+              oldTransaction.walletId, txn);
           if (oldTransaction.type == TransactionType.transfer &&
               oldTransaction.destinationWalletId != null) {
             await _recalculateAndUpdateWalletBalance(

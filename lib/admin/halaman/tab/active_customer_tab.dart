@@ -44,6 +44,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   final ActiveCustomerOperation _activeCustomerOperation =
       ActiveCustomerOperation();
+  final ActiveCustomerOperation _transactionOperation =
+      ActiveCustomerOperation();
 
   List<ActiveCustomerDetailModel> _allCustomers = [];
   List<ActiveCustomerDetailModel> _filteredResults = [];
@@ -137,8 +139,9 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       final ActiveCustomerDetailModel customer) async {
     final customerId = customer.activeCustomer.id;
     final customerName = customer.customerName;
+    final transaction = customer.activeCustomer.transactionId;
     Log.info(
-        'Memulai soft delete pelanggan ID: $customerId, Nama: $customerName');
+        'Memulai soft delete pelanggan ID: $customerId, Nama: $customerName, TransaksiId : $transaction');
 
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -150,9 +153,12 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Batal')),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child:
-                  const Text('Arsipkan', style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Arsipkan',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
         ],
       ),
     );
@@ -160,6 +166,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     if (confirm ?? false) {
       try {
         await _activeCustomerOperation.softDelete(customerId);
+        await _transactionOperation.softDelete(transaction!);
         Log.info('Berhasil soft delete pelanggan ID: $customerId');
         if (mounted) {
           ToastUtil.success(
@@ -264,6 +271,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             final count = await _activeCustomerOperation.softDeleteAll();
+
             Log.info('Berhasil mengarsipkan $count pelanggan aktif.');
             if (mounted) {
               ToastUtil.success(
