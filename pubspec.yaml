@@ -64,14 +64,14 @@ dev_dependencies:
 
 
 flutter_native_splash:
-  color: "#673AB7"   
-  color_dark: "#311B92"
-  image:           assets/image/ikon_putih.png
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
+  image: assets/image/splash.png
   
   android_12:
-    color: "#673AB7"   
-    color_dark: "#311B92"
-    image:            assets/image/ikon_putih.png
+    color: "#FFFFFF"
+    color_dark: "#FFFFFF"
+    image: assets/image/splash.png
 
 flutter_launcher_icons:
   android: "launcher_icon"
