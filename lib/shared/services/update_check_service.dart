@@ -38,12 +38,13 @@ class UpdateCheckService {
   }
 
   /// Memeriksa pembaruan dan mengembalikan semua informasi yang relevan.
-  Future<({
-    bool isUpdateRequired,
-    ApkVersionModel? apkInfo,
-    PackageInfoModel? packageInfo,
-    ApkArchitectureEnum? architecture
-  })> getUpdateInfo() async {
+  Future<
+      ({
+        bool isUpdateRequired,
+        ApkVersionModel? apkInfo,
+        PackageInfoModel? packageInfo,
+        ApkArchitectureEnum? architecture
+      })> getUpdateInfo() async {
     Log.info('Memulai pengecekan informasi pembaruan lengkap.');
     try {
       final packageInfo = await _packageInfoService.getPackageInfo();
@@ -161,7 +162,7 @@ class UpdateCheckService {
     } else if (supportedAbis.contains('armeabi-v7a')) {
       return ApkArchitectureEnum.bit32;
     } else {
-      Log.warning('Arsitektur tidak didukung (bukan 64-bit atau 32-bit).', {
+      Log.warning('Arsitektur tidak didukung (bukan 64-bit, 32-bit, ).', {
         'supportedAbis': supportedAbis,
       });
       return ApkArchitectureEnum.universal;

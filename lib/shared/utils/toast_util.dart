@@ -87,8 +87,6 @@ class ToastUtil {
     );
   }
 
-  // --- Metode berbasis BuildContext ---
-
   /// Menampilkan Toast sukses via BuildContext.
   static void success(
     final BuildContext context,
