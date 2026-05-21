@@ -227,7 +227,8 @@ class TransactionModel implements HasId {
       ColumnNames.paymentStatus: paymentStatus.name,
       ColumnNames.earnedPoints: earnedPoints,
       ColumnNames.usedPoints: usedPoints,
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.packageDuration: packageDuration,

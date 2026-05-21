@@ -132,6 +132,7 @@ class CustomerModel implements HasId {
   /// Converts the [CustomerModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
+      ColumnNames.id:id,
       ColumnNames.name: name,
       ColumnNames.phone: phone,
       ColumnNames.address: address,

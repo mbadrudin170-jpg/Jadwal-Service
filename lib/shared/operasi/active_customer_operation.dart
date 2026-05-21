@@ -402,8 +402,7 @@ class ActiveCustomerOperation {
           await txn.update(
             _tableName,
             {
-              ColumnNames.isDeleted:
-                  1, // Berupa integer 1 untuk penanda true di SQLite
+              ColumnNames.isDeleted: 1,
               ColumnNames.archivedAt: nowMs,
               ColumnNames.updatedAt: nowMs,
             },

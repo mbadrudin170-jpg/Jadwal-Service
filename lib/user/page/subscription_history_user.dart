@@ -62,7 +62,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   Future<List<TransactionModel>> _loadHistory() async {
     final customer = await _customerOpFirebase.getCustomerOnce(widget.userId);
     if (customer == null) return [];
-    return _transactionOpFirebase.getFullSubscriptionHistory(customer.id);
+    return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
   }
 
   List<TransactionModel> _sortHistory(final List<TransactionModel> history) {
@@ -170,8 +170,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                         itemBuilder: (final context, final index) {
                           final tx = sorted[index];
                           final packageFuture = tx.packageId != null
-                              ? _packageOpFirebase
-                                  .getPackageModelById(tx.packageId!)
+                              ? _packageOpFirebase.getPackageById(tx.packageId!)
                               : Future<PackageModel?>.value();
                           final activeText = tx.endDate != null
                               ? CalculationUtil.getRemainingActivePeriodText(

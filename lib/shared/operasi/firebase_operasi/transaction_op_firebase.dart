@@ -91,6 +91,7 @@ class TransactionOpFirebase {
       Log.info('Menghitung total poin untuk: $customerId');
       final querySnapshot = await _collection
           .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
           .get();
 
       int totalPoints = 0;
@@ -183,19 +184,5 @@ class TransactionOpFirebase {
       // Kembalikan list kosong jika terjadi error agar aplikasi tidak crash
       return [];
     }
-  }
-
-  /// Mengambil riwayat langganan untuk seorang pelanggan.
-  Future<List<TransactionModel>> getSubscriptionHistory(
-    final String customerId,
-  ) {
-    return getTransactionsByCustomerId(customerId);
-  }
-
-  /// Mengambil riwayat langganan lengkap untuk seorang pelanggan.
-  Future<List<TransactionModel>> getFullSubscriptionHistory(
-    final String customerId,
-  ) {
-    return getSubscriptionHistory(customerId);
   }
 }

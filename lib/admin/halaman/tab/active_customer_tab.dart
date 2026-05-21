@@ -271,7 +271,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
           try {
             Log.warning('Eksekusi arsipkan semua pelanggan aktif');
             final count = await _activeCustomerOperation.softDeleteAll();
-
+// TODO : menambahkan fungsi sofdeletealltransaction
             Log.info('Berhasil mengarsipkan $count pelanggan aktif.');
             if (mounted) {
               ToastUtil.success(

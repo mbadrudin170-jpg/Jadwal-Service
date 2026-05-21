@@ -63,9 +63,10 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   void initState() {
     super.initState();
     _initializeAnimations();
-    FlutterNativeSplash.remove();
     _changelog = widget.apkInfo.releaseNotes.split('\n');
     unawaited(_pulseController.repeat(reverse: true));
+    FlutterNativeSplash.remove();
+
   }
 
   void _initializeAnimations() {

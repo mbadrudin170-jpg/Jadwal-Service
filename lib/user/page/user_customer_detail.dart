@@ -2,6 +2,9 @@
 // diubah: Memperbaiki nama kelas PoinPageUser → PointsPageUser,
 //         CustomerDetailUi → CustomerDetailUI, idPelanggan → customerId.
 // diubah: Menghapus import yang tidak digunakan.
+// DIPERBAIKI: Menghapus pemanggilan _reloadData yang tidak perlu setelah kembali dari halaman poin.
+// DIPERBAIKI: Mengganti onPopInvoked yang usang dengan onPopInvokedWithResult.
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -38,6 +41,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
   Future<_ProfileData>? _dataFuture;
+  bool _hasMadeChanges = false;
 
   @override
   void initState() {
@@ -62,7 +66,8 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         'Pelanggan ditemukan: ${customer.name}. Mengambil riwayat transaksi...',
       );
 
-      final history = await _transactionOp.getSubscriptionHistory(customer.id);
+      final history =
+          await _transactionOp.getTransactionsByCustomerId(customer.id);
       Log.info('Ditemukan ${history.length} transaksi. Menghitung poin...');
 
       final int earnedPoints = history.fold<int>(
@@ -102,58 +107,77 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
             EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
-    if (result ?? false) {
+    if (result == true) {
       Log.info('Kembali dari edit, memuat ulang data.');
+      setState(() {
+        _hasMadeChanges = true;
+      });
       _reloadData();
     }
   }
 
   Future<void> _navigateToPoints(final String customerId) async {
-    await Navigator.push<void>(
+    final bool? result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<void>(
+      MaterialPageRoute<bool>(
         builder: (final context) => UserPointsPage(customerId: customerId),
       ),
     );
-    _reloadData();
+    if (result == true) {
+      Log.info(
+          'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
+      setState(() {
+        _hasMadeChanges = true;
+      });
+      _reloadData();
+    }
   }
 
   @override
   Widget build(final BuildContext context) {
-    return FutureBuilder<_ProfileData>(
-      future: _dataFuture,
-      builder: (final context, final snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Memuat Profil...')),
-            body: const Center(child: CircularProgressIndicator()),
-          );
+    return PopScope<bool>(
+      canPop: false,
+      onPopInvokedWithResult: (final bool didPop, final bool? result) {
+        if (didPop) {
+          return;
         }
+        Navigator.pop(context, _hasMadeChanges);
+      },
+      child: FutureBuilder<_ProfileData>(
+        future: _dataFuture,
+        builder: (final context, final snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Memuat Profil...')),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
 
-        if (snapshot.hasError || !snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Error')),
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Gagal memuat data: ${snapshot.error}',
-                  textAlign: TextAlign.center,
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('Error')),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Gagal memuat data: ${snapshot.error}',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
+            );
+          }
+
+          final data = snapshot.data!;
+
+          return CustomerDetailUI(
+            customer: data.customer,
+            totalPoints: data.totalPoints,
+            onEdit: () => _navigateToEdit(data.customer),
+            onNavigateToPoints: () => _navigateToPoints(data.customer.id),
           );
-        }
-
-        final data = snapshot.data!;
-
-        return CustomerDetailUI(
-          customer: data.customer,
-          totalPoints: data.totalPoints,
-          onEdit: () => _navigateToEdit(data.customer),
-          onNavigateToPoints: () => _navigateToPoints(data.customer.id),
-        );
-      },
+        },
+      ),
     );
   }
 }

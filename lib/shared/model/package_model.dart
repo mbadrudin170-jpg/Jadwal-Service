@@ -161,6 +161,7 @@ class PackageModel implements HasId {
   /// Converts `PackageModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
+      ColumnNames.id:id,
       ColumnNames.name: name,
       ColumnNames.price: price,
       ColumnNames.duration: duration,

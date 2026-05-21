@@ -47,29 +47,8 @@ class PackageOpFirebase {
     }
   }
 
-  /// Mengambil nama paket berdasarkan ID paket.
-  Future<String> getPackageName(final String packageId) async {
-    try {
-      Log.info('Mengambil nama paket untuk ID: $packageId');
-      final doc = await _collection.doc(packageId).get();
-      if (doc.exists) {
-        final data = doc.data()! as Map<String, dynamic>;
-        if (data.containsKey(ColumnNames.name)) {
-          final packageName = data[ColumnNames.name] as String;
-          Log.info('Nama paket ditemukan: $packageName');
-          return packageName;
-        }
-      }
-      Log.warning('Paket dengan ID $packageId tidak ditemukan.');
-      return 'Paket Tidak Ditemukan';
-    } on Exception catch (e, s) {
-      Log.error('Error mengambil nama paket: $e', e: e, st: s);
-      return 'Error Memuat Paket';
-    }
-  }
-
   /// Mengambil model [PackageModel] lengkap berdasarkan ID paket.
-  Future<PackageModel?> getPackageModelById(final String packageId) async {
+  Future<PackageModel?> getPackageById(final String packageId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $packageId');
       final doc = await _collection.doc(packageId).get();
@@ -94,7 +73,8 @@ class PackageOpFirebase {
       await _collection.doc(packageId).delete();
       Log.info('Penghapusan permanen paket berhasil: $packageId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $packageId', e: e, st: s);
+      Log.error('Gagal menghapus paket secara permanen: $packageId',
+          e: e, st: s);
       rethrow;
     }
   }

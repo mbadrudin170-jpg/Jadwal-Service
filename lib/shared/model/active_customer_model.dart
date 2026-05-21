@@ -132,7 +132,8 @@ class ActiveCustomerModel implements HasId {
       ColumnNames.startDate: startDate.millisecondsSinceEpoch,
       ColumnNames.endDate: endDate.millisecondsSinceEpoch,
       ColumnNames.status: status.name,
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -181,6 +182,7 @@ class ActiveCustomerModel implements HasId {
   Map<String, dynamic> toFirebase() {
     Log.info('Preparing toFirebase for ActiveCustomerModel $id');
     return {
+      ColumnNames.id: id,
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,
       ColumnNames.transactionId: transactionId,

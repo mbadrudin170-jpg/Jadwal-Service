@@ -1,17 +1,4 @@
-// path: lib/admin/halaman/pembantu/point_page.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/detail/customer_detail.dart
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
-//   - lib/shared/widget/poin_page_ui.dart (PoinPageUi)
-//   - lib/shared/debug/log.dart (Log)
+// path: lib/admin/halaman/pembantu/point_page_u.dart
 
 import 'dart:async';
 

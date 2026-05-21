@@ -171,7 +171,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       return;
     }
 
-    // FlutterNativeSplash.remove(); <--- DIHAPUS
 
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
