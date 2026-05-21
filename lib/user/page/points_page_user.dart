@@ -1,5 +1,8 @@
 // path: lib/user/page/points_page_user.dart
 // diubah: Menggunakan ikon terpusat dari AppIcons untuk riwayat poin.
+// PERBAIKAN: Mencegah rebuild pada AppBar title saat berganti menu.
+// PERBAIKAN 2: Menggunakan `late final` untuk mengatasi error null safety.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -40,11 +43,28 @@ class _UserPointsPageState extends State<UserPointsPage> {
   bool _isLoadingHistory = false;
   String? _errorMessage;
 
+  // Variabel untuk menyimpan widget AppBar agar tidak di-rebuild
+  late final Widget _appBarTitle;
+
   @override
   void initState() {
     super.initState();
     Log.info(
         'Menginisialisasi UserPointsPage untuk pelanggan: ${widget.customerId}');
+
+    // Buat widget AppBar title hanya sekali di sini.
+    _appBarTitle = Row(
+      children: [
+        const Text('Poin: '),
+        Expanded(
+          child: CustomerNameWidget(
+            customerId: widget.customerId,
+            useFirebase: true, // Menggunakan Firebase untuk aplikasi user.
+          ),
+        ),
+      ],
+    );
+
     unawaited(_loadPointsData());
   }
 
@@ -110,17 +130,7 @@ class _UserPointsPageState extends State<UserPointsPage> {
   Widget build(final BuildContext context) {
     Log.info('Membangun UI UserPointsPage, menu terpilih: $_selectedMenu');
     return PoinPageUi(
-      appBarTitle: Row(
-        children: [
-          const Text('Poin: '),
-          Expanded(
-            child: CustomerNameWidget(
-              customerId: widget.customerId,
-              useFirebase: true, // Menggunakan Firebase untuk aplikasi user.
-            ),
-          ),
-        ],
-      ),
+      appBarTitle: _appBarTitle,
       totalPoin: _totalPoints,
       menuPilihan: _selectedMenu,
       onSelectionChanged: (final Set<MenuPoin> newSelection) async {

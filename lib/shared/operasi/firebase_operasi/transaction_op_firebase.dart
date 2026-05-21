@@ -37,6 +37,7 @@ class TransactionOpFirebase {
       final querySnapshot = await _collection
           .where(ColumnNames.customerId, isEqualTo: customerId)
           .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
           .orderBy(ColumnNames.endDate, descending: true)
           .limit(1)
           .get();
@@ -69,6 +70,7 @@ class TransactionOpFirebase {
       Log.info('Mengambil semua transaksi untuk: $customerId');
       final querySnapshot = await _collection
           .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
           .orderBy(ColumnNames.date, descending: true)
           .get();
 
@@ -134,6 +136,52 @@ class TransactionOpFirebase {
       Log.error('Gagal melakukan soft delete transaksi: $transactionId',
           e: e, st: s);
       rethrow;
+    }
+  }
+
+// path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
+  Future<List<TransactionModel>> getPaketAktifCustomer(
+    final String customerId,
+  ) async {
+    try {
+      Log.info('Mulai mengambil paket aktif untuk pelanggan: $customerId');
+      // Ambil waktu saat ini
+      final DateTime now = DateTime.now();
+
+      final querySnapshot = await _collection
+          // 1. Cari transaksi milik pelanggan yang benar
+          .where(ColumnNames.customerId, isEqualTo: customerId)
+          // 2. Pastikan transaksi tidak dihapus
+          .where(ColumnNames.isDeleted, isEqualTo: false)
+          // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
+          .where(ColumnNames.endDate, isGreaterThan: now)
+          .get();
+
+      // Jika tidak ada dokumen yang cocok, kembalikan list kosong
+      if (querySnapshot.docs.isEmpty) {
+        Log.info('Tidak ada paket aktif yang ditemukan untuk: $customerId');
+        return [];
+      }
+
+      // Ubah setiap dokumen menjadi objek TransactionModel
+      final activePackages = querySnapshot.docs.map((doc) {
+        return TransactionModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+
+      Log.info(
+          '${activePackages.length} paket aktif ditemukan untuk: $customerId');
+      return activePackages;
+    } on Exception catch (e, s) {
+      Log.error(
+        'Gagal mengambil paket aktif untuk pelanggan $customerId: $e',
+        e: e,
+        st: s,
+      );
+      // Kembalikan list kosong jika terjadi error agar aplikasi tidak crash
+      return [];
     }
   }
 
