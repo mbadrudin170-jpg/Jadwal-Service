@@ -95,7 +95,6 @@ class SyncCheckService {
       );
       Log.info(
           'Dokumen ${TableNameValue.get(TableName.statusGlobal)}/global berhasil diperbarui.');
-
     } on Exception catch (e, s) {
       Log.error(
         'Gagal memperbarui dokumen ${TableNameValue.get(TableName.statusGlobal)}/global.',
