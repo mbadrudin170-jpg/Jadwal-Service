@@ -86,9 +86,30 @@ class _AppInitializerState extends State<AppInitializer> {
       final notifikasiServis = context.read<NotifikasiServis>();
 
       Log.info('Menginisialisasi layanan notifikasi...');
-      await notifikasiServis.inisialisasi(iconName: '@mipmap/launcher_icon');
+      await notifikasiServis.inisialisasi(iconName: 'android12splash');
       await notifikasiServis.requestPermissions();
+// ... setelah requestPermissions()
 
+// Tangkap jika aplikasi dibuka dari notifikasi saat mati
+      final launchDetails =
+          await notifikasiServis.getDetailPeluncuranNotifikasi();
+      if (launchDetails?.didNotificationLaunchApp ?? false) {
+        final payload = launchDetails?.notificationResponse?.payload;
+        Log.info(
+            'Aplikasi dibuka dari notifikasi (terminated) dengan payload: $payload');
+
+        // Simpan payload ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        if (payload != null && payload.isNotEmpty) {
+          await prefs.setString('initial_notification_payload', payload);
+        } else {
+          await prefs.remove('initial_notification_payload');
+        }
+      } else {
+        // Hapus data lama jika tidak ada
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('initial_notification_payload');
+      }
       Log.info('Mengonfigurasi pengaturan lokal...');
       await initializeDateFormatting('id_ID');
 

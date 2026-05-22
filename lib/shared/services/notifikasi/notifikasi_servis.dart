@@ -77,7 +77,9 @@ class NotifikasiServis {
       final String zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
-
+      if (zonaWaktuLokal.isEmpty || zonaWaktuLokal == 'Unknown') {
+        Log.warning('Zona waktu tidak valid, menggunakan UTC sebagai fallback');
+      }
       tz.Location lokasi;
       if (zonaWaktuLokal == 'GMT') {
         Log.info(
@@ -291,6 +293,11 @@ class NotifikasiServis {
       return;
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
+    final pending = await plugin.pendingNotificationRequests();
+    Log.info('=== DAFTAR NOTIFIKASI TERJADWAL (${pending.length}) ===');
+    for (var notif in pending) {
+      Log.info('ID: ${notif.id}, Title: ${notif.title}, Scheduled: $notif');
+    }
 
     // Memastikan izin exact alarm diberikan sebelum menjadwalkan
     final bool hasPermission = await pastikanIzinExactAlarm();

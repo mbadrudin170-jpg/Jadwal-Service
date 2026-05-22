@@ -4,15 +4,17 @@
 // diubah: Menghapus import yang tidak digunakan.
 // DIPERBAIKI: Menghapus pemanggilan _reloadData yang tidak perlu setelah kembali dari halaman poin.
 // DIPERBAIKI: Mengganti onPopInvoked yang usang dengan onPopInvokedWithResult.
+// diubah: Refaktor untuk menggunakan PointsPage generik.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
+import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
-import 'package:wifi/user/page/points_page_u.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -120,7 +122,10 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => UserPointsPage(customerId: customerId),
+        builder: (final context) => PointsPage(
+          customerId: customerId,
+          dataSource: FirebasePointsDataSource(), // Menggunakan data source Firebase
+        ),
       ),
     );
     if (result ?? false) {

@@ -128,9 +128,10 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     }on Exception catch (e, st) {
       Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
     }
-    await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
+    await NotifikasiServis().inisialisasi(iconName: 'splash');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
+
     FirebaseFirestore.instance.settings =
         const Settings(persistenceEnabled: true);
     Log.info('Inisialisasi service inti selesai.');

@@ -358,7 +358,7 @@ class _PackageFormState extends State<PackageForm> {
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Harga'),
                   keyboardType: TextInputType.number,
-                   inputFormatters: [
+                  inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     ThousandsAndNegativeInputFormatter(),
                   ],
@@ -490,7 +490,7 @@ class _PackageFormState extends State<PackageForm> {
                   items: DurationType.values.map((final DurationType type) {
                     return DropdownMenuItem<DurationType>(
                       value: type,
-                      child: Text(type.name),
+                      child: Text(type.displayName),
                     );
                   }).toList(),
                   onChanged: (final DurationType? newValue) {

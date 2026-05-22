@@ -99,7 +99,6 @@ class AppTheme {
       // Tidak perlu override warna di sini lagi, akan diwariskan dari _lightTextTheme
       subtitleTextStyle:
           _lightTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
-      iconColor: AppColors.primaryColor,
     ),
     // ... tema komponen lainnya ...
   );
@@ -130,7 +129,7 @@ class AppTheme {
       // Tidak perlu override warna di sini lagi, akan diwariskan dari _darkTextTheme
       subtitleTextStyle:
           _darkTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade400),
-      iconColor: Colors.white70,
+      // iconColor: Colors.white70,
     ),
     // ... tema komponen lainnya ...
   );

@@ -1,37 +1,40 @@
-// path: lib/user/page/points_page_u.dart
+// path: lib/shared/widget/page/points_page.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 
-/// Halaman untuk pengguna melihat poin mereka.
-///
-/// Menampilkan total poin, daftar hadiah yang bisa ditukar, dan riwayat
-/// perolehan serta penggunaan poin.
-class UserPointsPage extends StatefulWidget {
-  /// ID unik dari pelanggan yang poinnya sedang dilihat.
+/// A generic page for displaying points, rewards, and history.
+/// It uses a [PointsPageDataSource] to fetch data, making it independent
+/// of the data source (Firebase or SQLite).
+class PointsPage extends StatefulWidget {
+  /// The ID of the customer whose points are being displayed.
   final String customerId;
 
-  /// Konstruktor untuk [UserPointsPage].
-  const UserPointsPage({super.key, required this.customerId});
+  /// The data source for fetching points, rewards, and history.
+  final PointsPageDataSource dataSource;
+
+  /// Creates a generic page for displaying points information.
+  const PointsPage({
+    super.key,
+    required this.customerId,
+    required this.dataSource,
+  });
 
   @override
-  State<UserPointsPage> createState() => _UserPointsPageState();
+  State<PointsPage> createState() => _PointsPageState();
 }
 
-class _UserPointsPageState extends State<UserPointsPage> {
+class _PointsPageState extends State<PointsPage> {
   MenuPoin _selectedMenu = MenuPoin.penukaran;
-  final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
-  final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
 
   int _totalPoints = 0;
   List<PackageModel> _rewardList = [];
@@ -40,23 +43,20 @@ class _UserPointsPageState extends State<UserPointsPage> {
   bool _isLoadingHistory = false;
   String? _errorMessage;
 
-  // Variabel untuk menyimpan widget AppBar agar tidak di-rebuild
   late final Widget _appBarTitle;
 
   @override
   void initState() {
     super.initState();
-    Log.info(
-        'Menginisialisasi UserPointsPage untuk pelanggan: ${widget.customerId}');
+    Log.info('Initializing PointsPage for customer: ${widget.customerId}');
 
-    // Buat widget AppBar title hanya sekali di sini.
     _appBarTitle = Row(
       children: [
         const Text('Poin: '),
         Expanded(
           child: CustomerNameWidget(
             customerId: widget.customerId,
-            useFirebase: true, // Menggunakan Firebase untuk aplikasi user.
+            useFirebase: widget.dataSource.isFirebase,
           ),
         ),
       ],
@@ -67,54 +67,50 @@ class _UserPointsPageState extends State<UserPointsPage> {
 
   Future<void> _loadPointsData() async {
     if (!mounted) return;
-    Log.info('Memulai memuat data poin dari Firebase...');
+    Log.info('Loading points data...');
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
     try {
       final totalPoints =
-          await _transactionOpFirebase.getTotalPoints(widget.customerId);
-      final rewardList = await _packageOpFirebase.getPublicPackages();
+          await widget.dataSource.getTotalPoints(widget.customerId);
+      final rewardList = await widget.dataSource.getPublicPackages();
       if (!mounted) return;
       setState(() {
         _totalPoints = totalPoints;
         _rewardList = rewardList;
         _isLoading = false;
       });
-      Log.info('Berhasil memuat data poin dan hadiah dari Firebase.');
+      Log.info('Successfully loaded points data and rewards.');
       if (_selectedMenu == MenuPoin.riwayat) {
         await _loadTransactionHistory();
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat data poin dari Firebase: $e', e: e, st: st);
+      Log.error('Failed to load points data: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Gagal memuat data: $e';
+        _errorMessage = 'Failed to load data: $e';
       });
     }
   }
 
   Future<void> _loadTransactionHistory() async {
     if (!mounted) return;
-    Log.info('Memulai memuat riwayat transaksi poin dari Firebase...');
+    Log.info('Loading points transaction history...');
     setState(() => _isLoadingHistory = true);
     try {
-      final history = await _transactionOpFirebase
-          .getTransactionsByCustomerId(widget.customerId);
-      final pointsTransactions = history
-          .where((final TransactionModel t) =>
-              t.earnedPoints > 0 || t.usedPoints > 0)
-          .toList();
+      final history =
+          await widget.dataSource.getPointsTransactions(widget.customerId);
       if (!mounted) return;
       setState(() {
-        _transactionHistory = pointsTransactions;
+        _transactionHistory = history;
         _isLoadingHistory = false;
       });
-      Log.info('Berhasil memuat riwayat transaksi poin dari Firebase.');
+      Log.info('Successfully loaded points transaction history.');
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat riwayat dari Firebase: $e', e: e, st: st);
+      Log.error('Failed to load history: $e', e: e, st: st);
       if (!mounted) return;
       setState(() {
         _isLoadingHistory = false;
@@ -126,25 +122,21 @@ class _UserPointsPageState extends State<UserPointsPage> {
   Future<void> _navigateToDetailTransaksi(
       final TransactionModel transaction) async {
     if (!mounted) return;
-    Log.info('Menuju ke halaman detail transaksi untuk ID: ${transaction.id}');
+    Log.info('Navigating to transaction detail for ID: ${transaction.id}');
 
     PackageModel? package;
-    // Jika ada packageId, coba ambil data paketnya.
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
       try {
         package =
-            await _packageOpFirebase.getPackageById(transaction.packageId!);
+            await widget.dataSource.getPackageById(transaction.packageId!);
       } on Exception catch (e, st) {
-        // Jika gagal mengambil paket, cukup catat log dan lanjutkan tanpa data paket.
-        Log.error('Gagal mengambil data paket ${transaction.packageId}: $e',
+        Log.error('Failed to get package ${transaction.packageId}: $e',
             e: e, st: st);
       }
     }
 
-    // Guard against context usage across async gaps.
     if (!mounted) return;
 
-    // Navigasi ke halaman detail.
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -158,14 +150,14 @@ class _UserPointsPageState extends State<UserPointsPage> {
 
   @override
   Widget build(final BuildContext context) {
-    Log.info('Membangun UI UserPointsPage, menu terpilih: $_selectedMenu');
+    Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
     return PoinPageUi(
       appBarTitle: _appBarTitle,
       totalPoin: _totalPoints,
       menuPilihan: _selectedMenu,
       onSelectionChanged: (final Set<MenuPoin> newSelection) async {
         final selection = newSelection.first;
-        Log.info('Menu poin diubah menjadi: $selection');
+        Log.info('Points menu changed to: $selection');
         setState(() => _selectedMenu = selection);
         if (selection == MenuPoin.riwayat && _transactionHistory.isEmpty) {
           await _loadTransactionHistory();
@@ -178,7 +170,7 @@ class _UserPointsPageState extends State<UserPointsPage> {
   }
 
   Widget _buildRewardList() {
-    Log.info('Membangun daftar hadiah (penukaran poin).');
+    Log.info('Building reward list.');
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -186,7 +178,7 @@ class _UserPointsPageState extends State<UserPointsPage> {
       return Center(child: Text(_errorMessage!));
     }
     if (_rewardList.isEmpty) {
-      return const Center(child: Text('Belum ada hadiah tersedia'));
+      return const Center(child: Text('No rewards available yet'));
     }
     return ListView.builder(
       itemCount: _rewardList.length,
@@ -196,6 +188,7 @@ class _UserPointsPageState extends State<UserPointsPage> {
         final progress = reward.redemptionPoints > 0
             ? (_totalPoints / reward.redemptionPoints).clamp(0.0, 1.0)
             : 1.0;
+        final poinKurang = _totalPoints - reward.redemptionPoints;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -203,9 +196,22 @@ class _UserPointsPageState extends State<UserPointsPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${reward.redemptionPoints} Poin'),
+                // TODO : merapikan poin kurang
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${reward.redemptionPoints} Points'),
+                    Text(
+                      '$poinKurang',
+                      style: TextStyle(
+                        color: enoughPoints ? Colors.green : Colors.red,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
                 LinearProgressIndicator(value: progress, minHeight: 8),
-                Text('Poin: $_totalPoints / ${reward.redemptionPoints}',
+                Text('Points: $_totalPoints / ${reward.redemptionPoints}',
                     style: TextStyle(
                         fontSize: 12,
                         color: enoughPoints ? Colors.green : Colors.grey)),
@@ -218,12 +224,12 @@ class _UserPointsPageState extends State<UserPointsPage> {
   }
 
   Widget _buildPointsHistory() {
-    Log.info('Membangun riwayat transaksi poin.');
+    Log.info('Building points history.');
     if (_isLoadingHistory) {
       return const Center(child: CircularProgressIndicator());
     }
     if (_transactionHistory.isEmpty) {
-      return const Center(child: Text('Belum ada riwayat poin'));
+      return const Center(child: Text('No points history yet'));
     }
     return ListView.builder(
       itemCount: _transactionHistory.length,
@@ -244,7 +250,6 @@ class _UserPointsPageState extends State<UserPointsPage> {
               title: Text(tx.description),
               subtitle: Text(
                 FormatDate.formatDateBasic(tx.date),
-                // style: const TextStyle(fontSize: 12),
               ),
               trailing: Text(pointsStr,
                   style: TextStyle(

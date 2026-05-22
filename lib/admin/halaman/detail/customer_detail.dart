@@ -1,18 +1,20 @@
 // path: lib/admin/halaman/detail/customer_detail.dart
 // diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
+// diubah: Refaktor untuk menggunakan PointsPage generik.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
-import 'package:wifi/admin/halaman/pembantu/point_page_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
+import 'package:wifi/shared/widget/page/points_page.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -21,7 +23,7 @@ import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 //
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
-//   - lib/admin/halaman/pembantu/admin_points_page.dart (AdminPointsPage)
+//   - lib/shared/widget/page/points_page.dart (PointsPage)
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
 //   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
@@ -124,13 +126,16 @@ MAC : ${customer.macAddress}
   Future<void> _navigateToPoints() async {
     if (_customer == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${_customer!.name}');
-    // PERBAIKAN: Menggunakan nama class yang benar
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => AdminPointsPage(customerId: _customer!.id),
+        builder: (final context) => PointsPage(
+          customerId: _customer!.id,
+          dataSource: SQLitePointsDataSource(), // Menggunakan data source SQLite
+        ),
       ),
     );
+    if (!mounted) return;
     Log.info('Kembali dari halaman poin, memuat ulang data.');
     await _loadData();
   }

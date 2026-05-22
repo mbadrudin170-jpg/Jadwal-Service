@@ -22,7 +22,5 @@ void main() async {
   Log.info(
       '[main-dev] Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
-  // Langsung jalankan AppAdmin. Semua inisialisasi akan ditangani di sana
-  // sambil menampilkan splash screen yang sesuai.
   runApp(const AppAdmin());
 }

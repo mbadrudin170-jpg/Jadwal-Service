@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -44,6 +45,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _phoneController;
   late TextEditingController _passwordController;
   final _customerOpFirebase = CustomerOpFirebase();
+  final _internetConnectionService = InternetConnectionService();
 
   bool _isPasswordVisible = false;
 
@@ -62,6 +64,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final navigator = Navigator.of(context);
 
       try {
+        final isConnected = await _internetConnectionService.checkConnection();
+        if (!isConnected) {
+          if (mounted) {
+            ToastUtil.info(
+              context,
+              'Anda sedang offline, data akan disinkronkan saat online.',
+            );
+          }
+        }
+
         final updatedCustomer = widget.customer.copyWith(
           name: _nameController.text,
           phone: _phoneController.text,

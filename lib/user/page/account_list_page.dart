@@ -117,7 +117,9 @@ class _AccountListPageState extends State<AccountListPage> {
 
     final navigator = Navigator.of(context);
     try {
-      await _localStorageService.saveAccount(customer);
+      // [DIPERBAIKI] Memanggil metode yang benar untuk mengganti akun aktif,
+      // yang akan mengatur token ID pengguna dan memperbarui data akun.
+      await _localStorageService.saveCurrentAccount(customer);
 
       if (!mounted) return;
       final page = widget.mainPageBuilder != null

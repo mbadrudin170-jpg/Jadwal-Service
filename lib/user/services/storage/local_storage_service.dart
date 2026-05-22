@@ -85,25 +85,47 @@ class LocalStorageService {
     return themeMode;
   }
 
-  /// Menyimpan akun pelanggan ke dalam daftar akun di penyimpanan lokal.
+  /// [DIPERBARUI] Menyimpan atau memperbarui akun pelanggan di penyimpanan lokal.
+  ///
+  /// Jika akun sudah ada, datanya akan diperbarui.
+  /// Jika belum, akun baru akan ditambahkan ke daftar.
   Future<void> saveAccount(final CustomerModel customer) async {
-    Log.info('[Simpan Akun] Menyimpan akun: ${customer.name}.');
+    Log.info('[Simpan Akun] Menyimpan atau memperbarui akun: ${customer.name}.');
     final accountListJson = prefs.getString(_accountListKey);
     final List<dynamic> accountList = accountListJson != null
         ? jsonDecode(accountListJson) as List<dynamic>
         : [];
 
-    if (!accountList
+    final existingAccountIndex = accountList
         .cast<Map<String, dynamic>>()
-        .any((final p) => p['id'] == customer.id)) {
-      accountList.add(customer.toSqlite());
-      await prefs.setString(_accountListKey, jsonEncode(accountList));
-      Log.info('[Simpan Akun] Akun ${customer.name} berhasil disimpan.');
+        .indexWhere((final p) => p['id'] == customer.id);
+
+    if (existingAccountIndex != -1) {
+      // Akun sudah ada, perbarui datanya
+      accountList[existingAccountIndex] = customer.toSqlite();
+      Log.info('[Simpan Akun] Akun ${customer.name} berhasil diperbarui.');
     } else {
-      Log.warning(
-        '[Simpan Akun] Akun ${customer.name} sudah ada, tidak disimpan ulang.',
-      );
+      // Akun belum ada, tambahkan baru
+      accountList.add(customer.toSqlite());
+      Log.info('[Simpan Akun] Akun ${customer.name} berhasil ditambahkan.');
     }
+
+    await prefs.setString(_accountListKey, jsonEncode(accountList));
+  }
+
+  /// [DITAMBAHKAN] Menyimpan akun yang dipilih sebagai akun aktif saat ini.
+  ///
+  /// Metode ini juga akan memperbarui daftar akun yang ada dengan data terbaru dari
+  /// customer yang dipilih, serta menyetel token ID pengguna yang aktif.
+  Future<void> saveCurrentAccount(final CustomerModel customer) async {
+    Log.info('[Simpan Akun Aktif] Mengatur ${customer.name} sebagai akun aktif.');
+    // Setel token ID pengguna yang aktif
+    await prefs.setString(_userIdKey, customer.id);
+    // Simpan atau perbarui detail akun di daftar riwayat
+    await saveAccount(customer);
+    Log.info(
+      '[Simpan Akun Aktif] Akun ${customer.name} berhasil diatur sebagai akun aktif.',
+    );
   }
 
   /// Mengambil daftar semua akun pelanggan yang tersimpan secara lokal.

@@ -3,6 +3,7 @@
 // REFACTOR: Mengekstrak logika paket aktif ke method _buildActivePackageDetails.
 // DITAMBAHKAN: Logging untuk memverifikasi nilai totalPoints yang diterima.
 // DIPERBAIKI: Navigasi kini memeriksa hasil boolean sebelum memanggil _reloadData.
+// diubah: Refaktor untuk menggunakan PointsPage generik.
 
 import 'dart:async';
 
@@ -15,11 +16,12 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/points_page_u.dart';
+import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/ad_helper.dart';
@@ -163,12 +165,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToPointsPage(final String customerId) async {
-    Log.info('Menavigasi ke UserPointsPage untuk customerId: $customerId');
+    Log.info('Menavigasi ke PointsPage untuk customerId: $customerId');
     try {
       final hasChanged = await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
-          builder: (final context) => UserPointsPage(customerId: customerId),
+          builder: (final context) => PointsPage(
+            customerId: customerId,
+            dataSource: FirebasePointsDataSource(), // Menggunakan data source Firebase
+          ),
         ),
       );
       if (hasChanged ?? false) {

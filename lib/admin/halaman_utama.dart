@@ -1,17 +1,11 @@
 // path: lib/admin/halaman_utama.dart
-// diubah: Menggunakan ikon dari AppIcons.
-// diubah: Menambahkan tab Statistik.
-// diubah: Mengganti IndexedStack dengan widget langsung untuk mengatasi konflik Hero.
-// diubah: Memperbaiki import path yang salah.
-// diubah: Mengurutkan import directives.
-// diubah: Mengganti nama class sesuai dengan file yang ada.
-// diubah: Memperbaiki nama method yang dipanggil.
-
+// TODO : menambahkan workmanager
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
@@ -22,6 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/tes_fitur/halaman_test.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -83,10 +78,12 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       const WalletPage(), // dari wallet_page.dart
       const TransactionPage(), // dari transaction_page.dart
       const StatistikPageA(), // dari statistik_page_a.dart
-      const LainnyaPage(), // dari lainnya.dart
+      // const LainnyaPage(), // dari lainnya.dart
+      const TestNotificationPage(),
     ];
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
+      await _handleInitialNotification();
       Log.info('Frame pertama selesai dirender.');
       _cekDanTampilkanPesanOffline();
       Log.info('Menjalankan proses pengecekan langganan kadaluarsa.');
@@ -161,6 +158,28 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       Log.info('Snackbar offline berhasil ditampilkan.');
     } else {
       Log.info('Aplikasi berjalan dalam mode online.');
+    }
+  }
+
+  Future<void> _handleInitialNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = prefs.getString('initial_notification_payload');
+    if (payload != null && payload.isNotEmpty) {
+      // Hapus setelah dibaca agar tidak terulang
+      await prefs.remove('initial_notification_payload');
+      Log.info(
+          'Aplikasi dibuka dari notifikasi (terminated) dengan payload: $payload');
+
+      if (mounted) {
+        // Tampilkan pesan atau navigasi sesuai payload
+        ToastUtil.info(context, 'Dibuka dari notifikasi: $payload');
+
+        // Contoh jika ingin navigasi ke halaman tertentu:
+        // if (payload.startsWith('order_')) {
+        //   final orderId = payload.split('_')[1];
+        //   Navigator.pushNamed(context, '/detail_order', arguments: orderId);
+        // }
+      }
     }
   }
 
