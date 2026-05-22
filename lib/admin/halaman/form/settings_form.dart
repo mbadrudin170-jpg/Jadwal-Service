@@ -1,8 +1,10 @@
 // path: lib/admin/halaman/form/form_pengaturan.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengubah pengaturan aplikasi.
 ///
@@ -37,8 +39,7 @@ class _SettingsFormState extends State<SettingsForm> {
   @override
   void initState() {
     super.initState();
-    _settingsOperation =
-        widget.settingsOperation ?? SettingsOperation();
+    _settingsOperation = widget.settingsOperation ?? SettingsOperation();
     Log.info('Menginisialisasi SettingsForm.', {
       'interval': widget.settings.autoSyncInterval,
       'hapus_arsip': widget.settings.autoDeleteArchiveDays,
@@ -65,36 +66,31 @@ class _SettingsFormState extends State<SettingsForm> {
     super.dispose();
   }
 
-  Future<void> _simpanPerubahan() async {
+  Future<void> _saveForm() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
           id: widget.settings.id, // ID tetap sama
-          autoSyncInterval:
-              int.tryParse(_intervalController.text) ?? 24,
-          autoDeleteArchiveDays:
-              int.tryParse(_hapusArsipController.text) ?? 30,
+          autoSyncInterval: int.tryParse(_intervalController.text) ?? 24,
+          autoDeleteArchiveDays: int.tryParse(_hapusArsipController.text) ?? 30,
           maintenanceMode: _modePemeliharaan,
           maintenanceInfo: _infoPemeliharaanController.text,
         );
 
         await _settingsOperation.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
-
+        await SyncCheckService().runSyncCheck();
+        Log.info(
+            'melakukan unggah dan upload data setelah menyimpan $newSettings');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Pengaturan berhasil disimpan')),
-          );
+          ToastUtil.success(context, 'Pengaturan berhasil disimpan');
           Navigator.pop(context, true); // Kembali dengan hasil true
         }
-        // diubah: Menggunakan 'on Exception' untuk menangkap error yang lebih spesifik.
       } on Exception catch (e, st) {
         Log.error('Gagal menyimpan pengaturan.', e: e, st: st);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menyimpan: $e')),
-          );
+          ToastUtil.error(context, 'Gagal menyimpan pengaturan: $e');
         }
       }
     }
@@ -144,7 +140,7 @@ class _SettingsFormState extends State<SettingsForm> {
               ElevatedButton.icon(
                 icon: const Icon(Icons.save),
                 label: const Text('Simpan Perubahan'),
-                onPressed: _simpanPerubahan,
+                onPressed: _saveForm,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                 ),

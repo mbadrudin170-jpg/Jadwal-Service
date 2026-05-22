@@ -1,20 +1,20 @@
 // path: lib/admin/halaman/form/transaction_form.dart
 // diubah: Memperbaiki logika pemfilteran kategori untuk menangani tipe transfer dengan benar.
+// diperbaiki: Menggunakan file ekspor terpusat untuk semua model.
+// diperbaiki: Menggunakan properti displayName dari enum untuk UI.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengubah data transaksi.
@@ -36,7 +36,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
   final _formKey = GlobalKey<FormState>();
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
-  DateTime _tanggal = DateTime.now();
+  final _jumlahFocusNode = FocusNode();
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
 
   CategoryModel? _selectedKategori;
   SubCategoryModel? _selectedSubKategori;
@@ -90,8 +92,8 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         _tipe = trx.type;
         _keteranganController.text = trx.description;
         _jumlahController.text = trx.amount.abs().toString();
-        _tanggal = trx.date;
-
+        _selectedDate = trx.date;
+        _selectedTime = TimeOfDay.fromDateTime(trx.date);
         _selectedDompet = _dompetList.firstWhere(
           (final d) => d.id == trx.walletId,
           orElse: () {
@@ -148,6 +150,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         Log.info(
           'Mode Tambah: Mejalankan filter kategori awal untuk tipe Pemasukan.',
         );
+        Log.info('Mode Tambah: Mengisi default tanggal/waktu sekarang.');
+        _selectedDate = DateTime.now();
+        _selectedTime = TimeOfDay.fromDateTime(DateTime.now());
         _filterKategoriInternal();
       }
     } on Exception catch (e, s) {
@@ -193,52 +198,34 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     });
   }
 
-  Future<void> _pilihTanggal(final BuildContext context) async {
-    Log.info('Membuka dialog pemilih tanggal.');
-    final DateTime? picked = await showDatePicker(
+  Future<void> _selectDate(final BuildContext context) async {
+    Log.info('Memilih tanggal, saat ini: $_selectedDate');
+    final picked = await showDatePicker(
       context: context,
-      initialDate: _tanggal,
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _tanggal) {
-      setState(() {
-        _tanggal = DateTime(
-          picked.year,
-          picked.month,
-          picked.day,
-          _tanggal.hour,
-          _tanggal.minute,
-        );
-      });
-      Log.info('Pengguna memilih tanggal baru: ${_tanggal.toLocal()}');
-    } else {
-      Log.info('Pengguna membatalkan pemilihan tanggal.');
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
+      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(picked)}');
     }
   }
 
-  Future<void> _pilihWaktu(final BuildContext context) async {
-    Log.info('Membuka dialog pemilih waktu.');
-    final TimeOfDay? picked = await showTimePicker(
+  Future<void> _selectTime(final BuildContext context) async {
+    Log.info('Memilih waktu, saat ini: $_selectedTime');
+    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
+    final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(_tanggal),
+      initialTime: initial,
+      builder: (final context, final child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!),
     );
-
-    if (!mounted || picked == null) {
-      Log.info('Pengguna membatalkan pemilihan waktu.');
-      return;
+    if (picked != null && picked != _selectedTime) {
+      setState(() => _selectedTime = picked);
+      Log.info('Waktu dipilih: ${picked.hour}:${picked.minute}');
     }
-
-    setState(() {
-      _tanggal = DateTime(
-        _tanggal.year,
-        _tanggal.month,
-        _tanggal.day,
-        picked.hour,
-        picked.minute,
-      );
-    });
-    Log.info('Pengguna memilih waktu baru: ${_tanggal.toLocal()}');
   }
 
   Future<void> _simpanForm() async {
@@ -246,14 +233,20 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _isSaving = true);
-
+      final DateTime combinedDateTime = DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
       final double jumlah = double.parse(_jumlahController.text).abs();
 
       final transaksi = TransactionModel(
         id: _isEditMode ? widget.transaction!.id : const Uuid().v4(),
         description: _keteranganController.text,
         amount: jumlah,
-        date: _tanggal,
+        date: combinedDateTime,
         type: _tipe,
         walletId: _selectedDompet!.id,
         destinationWalletId: _tipe == TransactionType.transfer
@@ -324,12 +317,63 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                   children: [
                     Center(
                       child: SegmentedButton<TransactionType>(
+                        showSelectedIcon: false,
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStateProperty.resolveWith<Color>(
+                            (final Set<WidgetState> states) {
+                              if (states.contains(WidgetState.selected)) {
+                                switch (_tipe) {
+                                  case TransactionType.income:
+                                    return Colors.green.withAlpha(51);
+                                  case TransactionType.expense:
+                                    return Colors.red.withAlpha(51);
+                                  case TransactionType.transfer:
+                                    return Colors.blue.withAlpha(51);
+                                }
+                              }
+                              return Colors.transparent;
+                            },
+                          ),
+                          foregroundColor:
+                              WidgetStateProperty.resolveWith<Color>(
+                            (final Set<WidgetState> states) {
+                              if (states.contains(WidgetState.selected)) {
+                                switch (_tipe) {
+                                  case TransactionType.income:
+                                    return Colors.green;
+                                  case TransactionType.expense:
+                                    return Colors.red;
+                                  case TransactionType.transfer:
+                                    return Colors.blue;
+                                }
+                              }
+                              return Colors.grey;
+                            },
+                          ),
+                          side: WidgetStateProperty.resolveWith<BorderSide>(
+                            (final Set<WidgetState> states) {
+                              if (states.contains(WidgetState.selected)) {
+                                switch (_tipe) {
+                                  case TransactionType.income:
+                                    return const BorderSide(
+                                        color: Colors.green);
+                                  case TransactionType.expense:
+                                    return const BorderSide(color: Colors.red);
+                                  case TransactionType.transfer:
+                                    return const BorderSide(color: Colors.blue);
+                                }
+                              }
+                              return const BorderSide(color: Colors.grey);
+                            },
+                          ),
+                        ),
                         segments: TransactionType.values.map((
                           final TransactionType tipe,
                         ) {
                           return ButtonSegment<TransactionType>(
                             value: tipe,
-                            label: Text(tipe.name.toUpperCase()),
+                            label: Text(tipe.displayName.toUpperCase()),
                           );
                         }).toList(),
                         selected: <TransactionType>{_tipe},
@@ -351,14 +395,20 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                       decoration: const InputDecoration(
                         labelText: 'Keterangan',
                       ),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (final _) {
+                        FocusScope.of(context).requestFocus(_jumlahFocusNode);
+                      },
                       validator: (final value) => value == null || value.isEmpty
                           ? 'Keterangan tidak boleh kosong'
                           : null,
                     ),
                     TextFormField(
                       controller: _jumlahController,
+                      focusNode: _jumlahFocusNode,
                       decoration: const InputDecoration(labelText: 'Jumlah'),
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
                       validator: (final value) {
                         if (value == null || value.isEmpty) {
                           return 'Jumlah tidak boleh kosong';
@@ -369,25 +419,14 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                         return null;
                       },
                     ),
-                    ListTile(
-                      title: Text(
-                        'Tanggal & Jam: ${_tanggal.toLocal().toString().split('.')[0]}',
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.calendar_today),
-                            onPressed: () => _pilihTanggal(context),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.access_time),
-                            onPressed: () => _pilihWaktu(context),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 24),
+                    DateTimePickerWidget(
+                      selectedDate: _selectedDate,
+                      selectedTime: _selectedTime,
+                      onSelectDate: () => _selectDate(context),
+                      onSelectTime: () => _selectTime(context),
                     ),
-                    // Dropdown Dompet
+
                     DropdownButtonFormField<WalletModel>(
                       key: ValueKey<WalletModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
@@ -469,7 +508,8 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',
                         ),
-                        items: _selectedKategori!.subCategories.map((final sub) {
+                        items:
+                            _selectedKategori!.subCategories.map((final sub) {
                           return DropdownMenuItem(
                             value: sub,
                             child: Text(sub.name),
@@ -505,6 +545,7 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     );
     _jumlahController.dispose();
     _keteranganController.dispose();
+    _jumlahFocusNode.dispose();
     super.dispose();
   }
 }

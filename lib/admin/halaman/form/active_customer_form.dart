@@ -10,11 +10,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -424,11 +424,16 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
                       const SizedBox(height: 16),
                       _buildKategoriDropdown(),
                       const SizedBox(height: 24),
-                      _buildDateTimePicker(),
+                      DateTimePickerWidget(
+                        selectedDate: _selectedDate,
+                        selectedTime: _selectedTime,
+                        onSelectDate: () => _selectDate(context),
+                        onSelectTime: () => _selectTime(context),
+                      ),
                       const SizedBox(height: 8),
                       _buildStatusPembayaranButtons(),
                       const SizedBox(height: 16),
-                      _buildInfoTanggal(),
+                      _buildInfoTanggalBerakhir(),
                     ],
                   ),
                 ),
@@ -551,28 +556,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     );
   }
 
-  Widget _buildDateTimePicker() {
-    return Column(children: [
-      const Text('Pilih Tanggal & Waktu Aktif:',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height: 8),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        TextButton.icon(
-            onPressed: () => _selectDate(context),
-            icon: const Icon(AppIcons.calendar),
-            label: Text(_selectedDate == null
-                ? 'Pilih Tanggal'
-                : FormatDate.formatDateBasic(_selectedDate!))),
-        TextButton.icon(
-            onPressed: () => _selectTime(context),
-            icon: const Icon(AppIcons.clock),
-            label: Text(_selectedTime == null
-                ? 'Pilih Jam'
-                : '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}')),
-      ]),
-    ]);
-  }
-
   Widget _buildStatusPembayaranButtons() {
     return Row(children: [
       Expanded(
@@ -607,7 +590,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     ]);
   }
 
-  Widget _buildInfoTanggal() {
+  Widget _buildInfoTanggalBerakhir() {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Tanggal Mulai:',

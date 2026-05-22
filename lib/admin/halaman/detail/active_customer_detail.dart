@@ -1,23 +1,4 @@
 // path: lib/admin/halaman/detail/active_customer_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman detail pelanggan aktif dari daftar pelanggan aktif.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/customer_detail.dart (CustomerDetailPage)
-//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
-//   - lib/admin/halaman/form/active_customer_form.dart (FormPelangganAktif)
-//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/utils/calculation_util.dart (CalculationUtil)
-//   - lib/shared/utils/format_util.dart (FormatUtil, TimeFormat)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/whatsapp/info_paket.dart (PesanInfoPaket)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 

@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
@@ -250,8 +251,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         downloadLinks: tautanUnduhan,
       );
 
-      Log.info(
-          'Model Versi APK yang akan disimpan: ${dataToSave.toFirebase()}');
+      Log.info('Model Versi APK yang akan disimpan: ${dataToSave.toSqlite()}');
 
       try {
         if (_isEdit) {
@@ -261,7 +261,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
           Log.info('Menjalankan perintah tambah data baru...');
           await widget.operasi.addApkVersion(dataToSave);
         }
-
+        await SyncCheckService().runSyncCheck();
         Log.info('Proses penyimpanan berhasil diselesaikan');
 
         if (!mounted) return;

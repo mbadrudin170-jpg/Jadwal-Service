@@ -14,6 +14,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Membuat widget info ringkasan keuangan (label + amount) dengan warna tertentu.
@@ -34,12 +35,6 @@ Widget buildFinancialSummaryInfo({
   Log.info(
       'Membangun widget FinancialSummaryInfo untuk label: "$label", amount: $amount');
 
-  final currencyFormat = NumberFormat.currency(
-    locale: 'id_ID',
-    symbol: 'Rp ',
-    decimalDigits: 0,
-  );
-
   final textColor = color ?? Theme.of(context).colorScheme.primary;
 
   return Column(
@@ -53,7 +48,7 @@ Widget buildFinancialSummaryInfo({
       ),
       const SizedBox(height: 4),
       Text(
-        currencyFormat.format(amount),
+        CurrencyFormat.formatCurrency(amount),
         style: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,

@@ -10,8 +10,8 @@ import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
@@ -44,8 +44,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   final ActiveCustomerOperation _activeCustomerOperation =
       ActiveCustomerOperation();
-  final ActiveCustomerOperation _transactionOperation =
-      ActiveCustomerOperation();
+  final TransactionOperation _transactionOperation = TransactionOperation();
 
   List<ActiveCustomerDetailModel> _allCustomers = [];
   List<ActiveCustomerDetailModel> _filteredResults = [];
@@ -390,11 +389,10 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
                                       Text(
                                           'Pembayaran: ${c.status.displayName}',
                                           style: TextStyle(
-                                              color: c.status ==
-                                                      PaymentStatus
-                                                          .paid.displayName
-                                                  ? Colors.green
-                                                  : Colors.red,
+                                              color:
+                                                  c.status == PaymentStatus.paid
+                                                      ? Colors.green
+                                                      : Colors.red,
                                               fontWeight: FontWeight.bold)),
                                       Text(
                                           'Status: ${CalculationUtil.getRemainingActivePeriodText(c.endDate)}',

@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/tab/order_page.dart
 // diubah: Mengganti deleteOrder dengan softDelete.
 // diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
+// diperbaiki: Menambahkan dokumentasi dan kata kunci final.
 
 import 'dart:async';
 
@@ -11,7 +12,9 @@ import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/order_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
+/// Halaman untuk menampilkan dan mengelola daftar pesanan.
 class OrderPage extends StatefulWidget {
+  /// Halaman untuk menampilkan dan mengelola daftar pesanan.
   const OrderPage({super.key});
 
   @override
@@ -37,7 +40,7 @@ class _OrderPageState extends State<OrderPage> {
     setState(() => _isLoading = true);
 
     try {
-      List<OrderModel> orders;
+      final List<OrderModel> orders;
       if (_filterStatus == 'semua') {
         orders = await _orderOperation.getAllActiveOrders();
       } else {
@@ -185,7 +188,7 @@ class _OrderPageState extends State<OrderPage> {
             _filterChip('Diproses', 'diproses'),
             _filterChip('Selesai', 'selesai'),
             _filterChip('Ditolak', 'ditolak'),
-          ].map((e) => Padding(padding: const EdgeInsets.only(right: 8), child: e)).toList(),
+          ].map((final e) => Padding(padding: const EdgeInsets.only(right: 8), child: e)).toList(),
         ),
       ),
     );

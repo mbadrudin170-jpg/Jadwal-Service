@@ -82,7 +82,7 @@ class ToastUtil {
       autoCloseDuration: duration ?? const Duration(seconds: 2),
       alignment: Alignment.topCenter,
       // Perkecil durasi animasi agar toast muncul lebih cepat.
-      animationDuration: const Duration(milliseconds: 200),
+      animationDuration: const Duration(seconds: 1),
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
     );
   }

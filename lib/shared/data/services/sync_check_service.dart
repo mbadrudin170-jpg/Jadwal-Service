@@ -52,13 +52,6 @@ class SyncCheckService {
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
       // Perbarui status global di server untuk memberitahu klien lain.
       await _updateGlobalStatus();
-
-      // Optimisasi: Langsung perbarui timestamp unduhan lokal
-      // untuk mencerminkan status terbaru tanpa perlu mengunduh.
-      final DateTime now = DateTime.now();
-      await _syncManager.setLastDownload(now);
-      Log.info(
-          'Optimisasi: Timestamp unduh lokal diperbarui ke $now setelah unggah, proses unduh dilewati.');
     } else {
       // Jika tidak ada data yang diunggah, baru jalankan proses pengecekan unduh
       // untuk mendapatkan data terbaru dari server (jika ada).

@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/lainnya/apk_version_page.dart
 // diubah: Mengganti archiveApkVersion dengan softDelete.
 // diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
+// diperbaiki: Menambahkan dokumentasi untuk semua anggota publik.
 
 import 'dart:async';
 
@@ -15,16 +16,25 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.
 enum SortOrder {
-  buildZA, // Terbaru ke terlama
-  buildAZ, // Terlama ke terbaru
+  /// Terbaru ke terlama
+  buildZA,
+
+  /// Terlama ke terbaru
+  buildAZ,
+
+  /// Versi Z-A
   versionZA,
+
+  /// Versi A-Z
   versionAZ,
 }
 
 /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
 class ApkVersionPage extends StatefulWidget {
+  /// Operasi untuk berinteraksi dengan data versi APK.
   final ApkVersionOperation? operation;
 
+  /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
   const ApkVersionPage({super.key, this.operation});
 
   @override
@@ -330,8 +340,12 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   }
 }
 
+/// Dialog untuk memilih kriteria pengurutan.
 class _SortDialog extends StatefulWidget {
+  /// Dialog untuk memilih kriteria pengurutan.
   const _SortDialog({required this.currentSort});
+
+  /// Kriteria pengurutan saat ini.
   final SortOrder currentSort;
 
   @override
@@ -384,6 +398,7 @@ class _SortDialogState extends State<_SortDialog> {
   }
 }
 
+/// Mendapatkan nama yang dapat dibaca manusia dari [SortOrder].
 String _getSortName(final SortOrder order) {
   switch (order) {
     case SortOrder.buildZA:
@@ -397,12 +412,18 @@ String _getSortName(final SortOrder order) {
   }
 }
 
-// Helper widget for radio group since it's not standard in Flutter
+/// Helper widget for radio group since it's not standard in Flutter
 class RadioGroup<T> extends StatelessWidget {
+  /// Nilai grup saat ini.
   final T groupValue;
+
+  /// Callback saat nilai berubah.
   final ValueChanged<T?> onChanged;
+
+  /// Widget anak.
   final Widget child;
 
+  /// Helper widget for radio group since it's not standard in Flutter
   const RadioGroup({
     super.key,
     required this.groupValue,
@@ -411,7 +432,7 @@ class RadioGroup<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return child;
   }
 }

@@ -20,9 +20,13 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman login untuk pengguna.
 class LoginPage extends StatelessWidget {
+  /// Instance Firestore untuk akses database.
   final FirebaseFirestore? firestore;
+
+  /// Layanan untuk penyimpanan data lokal.
   final LocalStorageService? localStorageService;
 
+  /// Konstruktor untuk [LoginPage].
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override

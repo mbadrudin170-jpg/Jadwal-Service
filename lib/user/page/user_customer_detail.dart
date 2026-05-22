@@ -107,7 +107,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
             EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
       setState(() {
         _hasMadeChanges = true;
@@ -123,7 +123,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         builder: (final context) => UserPointsPage(customerId: customerId),
       ),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info(
           'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
       setState(() {

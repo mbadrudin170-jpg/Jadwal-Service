@@ -35,6 +35,8 @@ class TransactionOperation {
 
   Future<Database> get _db async => await dbHelper.database;
 
+  /// Menghitung ulang saldo dompet berdasarkan semua transaksi terkait dan memperbaruinya.
+  /// Operasi ini harus dijalankan di dalam sebuah transaksi database [txn].
   Future<void> _recalculateAndUpdateWalletBalance(
     final String walletId,
     final DatabaseExecutor txn,
@@ -93,6 +95,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menambahkan transaksi baru ke database dan memperbarui saldo dompet terkait.
   Future<int> addTransaction(
     final TransactionModel transaction, {
     final bool fromServer = false,
@@ -131,6 +134,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil semua transaksi yang tidak dihapus dari database.
   Future<List<TransactionModel>> getAllTransactions() async {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
@@ -152,6 +156,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil satu transaksi berdasarkan ID-nya.
   Future<TransactionModel?> getTransactionById(final String id) async {
     try {
       final db = await _db;
@@ -176,6 +181,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil transaksi lunas terbaru dari seorang pengguna.
   Future<TransactionModel?> getLatestPaidTransactionByUserId(
       final String customerId) async {
     try {
@@ -210,6 +216,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil semua transaksi untuk seorang pelanggan.
   Future<List<TransactionModel>> getTransactionsByCustomerId(
     final String customerId,
   ) async {
@@ -233,6 +240,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil semua transaksi yang terkait dengan sebuah dompet (baik sebagai sumber maupun tujuan).
   Future<List<TransactionModel>> getTransactionsByWalletId(
       final String walletId) async {
     try {
@@ -255,6 +263,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil semua transaksi yang merupakan aktivasi paket.
   Future<List<TransactionModel>> getTransactionsByPackageActivation() async {
     try {
       final db = await _db;
@@ -276,6 +285,7 @@ class TransactionOperation {
     }
   }
 
+  /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> updateTransaction(
     final String id,
     final TransactionModel newTransaction, {
@@ -325,6 +335,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menandai transaksi sebagai dihapus (soft delete) dan menghitung ulang saldo dompet.
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -373,6 +384,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
       final count = await _baseOperation.runComplexOperation<int>(
@@ -413,6 +425,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menghitung total pemasukan (income) dari semua transaksi.
   Future<double> getTotalIncome() async {
     try {
       final db = await _db;
@@ -431,6 +444,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menghitung total pengeluaran (expense) dari semua transaksi.
   Future<double> getTotalExpense() async {
     try {
       final db = await _db;
@@ -449,6 +463,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menghitung total bersih (pemasukan - pengeluaran).
   Future<double> getNetTotal() async {
     Log.info('Menghitung Net Total (Pemasukan - Pengeluaran)');
     final income = await getTotalIncome();
@@ -458,6 +473,7 @@ class TransactionOperation {
     return net;
   }
 
+  /// Menghitung total poin yang diperoleh seorang pelanggan.
   Future<int> getEarnedPoints(final String customerId) async {
     try {
       final db = await dbHelper.database;
@@ -474,6 +490,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menghitung total poin yang digunakan seorang pelanggan.
   Future<int> getUsedPoints(final String customerId) async {
     try {
       final db = await dbHelper.database;
@@ -490,6 +507,7 @@ class TransactionOperation {
     }
   }
 
+  /// Menghitung total saldo poin seorang pelanggan.
   Future<int> getTotalPoints(final String customerId) async {
     Log.info('Menghitung saldo poin akhir Customer: $customerId');
     final earnedPoints = await getEarnedPoints(customerId);
@@ -500,6 +518,7 @@ class TransactionOperation {
     return total;
   }
 
+  /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> insertOrUpdateBatch(
     final List<TransactionModel> items, {
     final bool fromServer = false,
@@ -544,6 +563,7 @@ class TransactionOperation {
     }
   }
 
+  /// Mengambil beberapa transaksi berdasarkan daftar ID.
   Future<List<TransactionModel>> getTransactionsByIds(
       final List<String> ids) async {
     if (ids.isEmpty) {

@@ -53,14 +53,14 @@ class TransactionDetailPage extends StatelessWidget {
               'Jumlah:',
               CurrencyFormat.formatCurrency(transaction.amount),
             ),
-            _buildInfoRow('Tipe:', transaction.type.name),
+            _buildInfoRow('Tipe:', transaction.type.displayName),
             if (package != null)
               _buildInfoRow('Paket:', package!.name)
             else if (transaction.packageId != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
               'Status Pembayaran:',
-              transaction.paymentStatus.name,
+              transaction.paymentStatus.displayName,
             ),
             if (transaction.startDate != null)
               _buildInfoRow(

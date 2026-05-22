@@ -8,6 +8,7 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 // import 'package:wifi/shared/model/transaction_model.dart'; // Komentar: Import ini tidak digunakan di dalam kelas.
 
+/// Kelas operasi untuk mengelola data pelanggan aktif dari Firebase.
 class ActiveCustomerOpFirebase {
   final FirebaseFirestore _db;
 
@@ -22,6 +23,9 @@ class ActiveCustomerOpFirebase {
   CollectionReference get _collection =>
       _db.collection(TableNameValue.get(TableName.transactions));
 
+  /// Mengambil data pelanggan aktif berdasarkan ID pelanggan dari Firebase.
+  ///
+  /// Mengembalikan [ActiveCustomerModel] jika ditemukan, jika tidak `null`.
   Future<ActiveCustomerModel?> getActiveCustomersById(
     final String customerId,
   ) async {
@@ -43,7 +47,7 @@ class ActiveCustomerOpFirebase {
       Log.info(
           'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $customerId');
       return ActiveCustomerModel.fromFirebase(doc.id, data);
-    } catch (e, s) {
+    }on Exception catch (e, s) {
       Log.error(
           'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $customerId',
           e: e,

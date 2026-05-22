@@ -12,11 +12,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
-import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
@@ -27,7 +25,7 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-// Mendefinisikan tipe Record untuk kejelasan kode.
+/// Record yang berisi informasi tentang pembaruan aplikasi.
 typedef UpdateInfoRecord = ({
   bool isUpdateRequired,
   ApkVersionModel? apkInfo,
@@ -35,10 +33,18 @@ typedef UpdateInfoRecord = ({
   ApkArchitectureEnum? architecture
 });
 
+/// Halaman splash screen yang ditampilkan saat aplikasi pengguna pertama kali dibuka.
+///
+/// Halaman ini bertanggung jawab untuk inisialisasi awal, pemeriksaan pembaruan,
+/// mode pemeliharaan, dan mengarahkan pengguna ke halaman yang sesuai.
 class SplashScreenUser extends StatefulWidget {
+  /// Instance SharedPreferences untuk mengakses data penyimpanan sederhana.
   final SharedPreferences prefs;
+
+  /// Layanan untuk mengelola penyimpanan data lokal yang lebih kompleks.
   final LocalStorageService localStorageService;
 
+  /// Konstruktor untuk [SplashScreenUser].
   const SplashScreenUser({
     super.key,
     required this.prefs,
@@ -53,8 +59,8 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeApp();
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
+      unawaited(_initializeApp());
     });
   }
 
@@ -73,9 +79,9 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         final updateInfo = await _checkAppUpdate();
         if (updateInfo != null) {
           if (!mounted) return;
-          Navigator.of(context).pushReplacement(
+          unawaited(Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => UpdateApkPage(
+              builder: (final context) => UpdateApkPage(
                 apkInfo: updateInfo.apkInfo!,
                 packageInfo: updateInfo.packageInfo!,
                 architecture: updateInfo.architecture!,
@@ -83,22 +89,22 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
                 localStorageService: widget.localStorageService,
               ),
             ),
-          );
+          ));
           return;
         }
 
         final maintenanceSettings = await _checkMaintenanceMode();
         if (maintenanceSettings != null) {
           if (!mounted) return;
-          Navigator.of(context).pushReplacement(
+          unawaited(Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MaintenancePage(
+              builder: (final context) => MaintenancePage(
                 maintenanceInfo: maintenanceSettings.maintenanceInfo,
                 onRefresh: _initializeApp,
                 onExit: SystemNavigator.pop,
               ),
             ),
-          );
+          ));
           return;
         }
       }
@@ -119,7 +125,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     Log.info('Menginisialisasi Mobile Ads, Notifikasi, dan lainnya...');
     try {
       await MobileAds.instance.initialize();
-    } catch (e, st) {
+    }on Exception catch (e, st) {
       Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
     }
     await NotifikasiServis().inisialisasi(iconName: '@mipmap/launcher_icon');
@@ -175,24 +181,24 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      Navigator.of(context).pushReplacement(
+      unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => MainPage(
+          builder: (final context) => MainPage(
             userId: userId,
             localStorageService: widget.localStorageService,
           ),
         ),
-      );
+      ));
     } else {
       Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (final context) => const LoginPage()),
+      ));
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return const Scaffold(
       body: Center(
         child: CircularProgressIndicator(),

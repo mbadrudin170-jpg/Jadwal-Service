@@ -4,6 +4,9 @@
 // diubah: Mengganti implementasi arsip manual dengan memanggil metode softDelete dari operasi yang relevan.
 // diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
 // diubah: Memperbaiki logika arsip sub-kategori agar memanggil SubCategoryOperation.
+// diperbaiki: Memperbaiki error use_build_context_synchronously dengan memindahkan logika async ke method terpisah.
+// diperbaiki: Menghilangkan unnecessary_string_escapes warnings.
+// diperbaiki: Menambahkan final pada parameter dan dokumentasi untuk member publik.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/category_form.dart';
@@ -17,12 +20,14 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
 class CategoryPage extends StatefulWidget {
+  /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
   const CategoryPage({super.key});
 
   @override
   State<CategoryPage> createState() => _CategoryPageState();
 }
 
+/// State untuk [CategoryPage].
 class _CategoryPageState extends State<CategoryPage> {
   final CategoryOperation _categoryOperation = CategoryOperation();
   final SubCategoryOperation _subCategoryOperation = SubCategoryOperation();
@@ -38,37 +43,72 @@ class _CategoryPageState extends State<CategoryPage> {
     _loadCategories();
   }
 
+  Future<List<CategoryModel>> _loadCategoriesAndHandleErrors() async {
+    try {
+      return await _categoryOperation.getCategories();
+    } on Exception catch (e, st) {
+      Log.error('Gagal memuat data kategori', e: e, st: st);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal memuat data kategori: $e');
+      }
+      rethrow;
+    }
+  }
+
   void _loadCategories() {
     Log.info('Memuat data kategori dari database');
     setState(() {
-      _categoryListFuture = _categoryOperation.getCategories().catchError((
-        final Object e,
-        final StackTrace st,
-      ) {
-        Log.error('Gagal memuat data kategori', e: e, st: st);
-        if (mounted) {
-          ToastUtil.error(context, 'Gagal memuat data kategori: $e');
-        }
-        throw Exception(e);
-      });
+      _categoryListFuture = _loadCategoriesAndHandleErrors();
     });
   }
 
   Future<void> _addCategory() async {
-    Log.info('Navigasi ke Form Tambah Kategori');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(builder: (final context) => const CategoryForm()),
     );
     if (result ?? false) {
+      if (!mounted) return;
       Log.info('Kategori baru berhasil ditambahkan, memuat ulang daftar.');
       ToastUtil.success(context, 'Kategori berhasil ditambahkan.');
       _loadCategories();
     }
   }
 
-  Future<bool> _showConfirmDialog(final String title, final String content) async {
-    Log.info('Menampilkan dialog konfirmasi: "$title"');
+  Future<void> _navigateToEditCategory(final CategoryModel category) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (final context) => CategoryForm(kategori: category),
+      ),
+    );
+    if (result ?? false) {
+      if (!mounted) return;
+      _loadCategories();
+    }
+  }
+
+  Future<void> _navigateToEditSubCategory(
+    final SubCategoryModel subCategory,
+    final String categoryId,
+  ) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (final context) => CategoryForm(
+          subKategori: subCategory,
+          idKategoriInduk: categoryId,
+        ),
+      ),
+    );
+    if (result ?? false) {
+      if (!mounted) return;
+      _loadCategories();
+    }
+  }
+
+  Future<bool> _showConfirmDialog(
+      final String title, final String content) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (final BuildContext context) {
@@ -99,20 +139,20 @@ class _CategoryPageState extends State<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      Log.info('Memulai soft delete untuk kategori ID: ${category.id}');
       await _categoryOperation.softDelete(category.id);
-      Log.info('Berhasil soft delete kategori ID: ${category.id}');
       if (!mounted) return;
-      ToastUtil.success(context, 'Kategori "${category.name}" berhasil diarsipkan.');
+      ToastUtil.success(
+          context, 'Kategori "${category.name}" berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
-      Log.error('Gagal soft delete kategori ID: ${category.id}', e: e, st: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan kategori: $e');
+      Log.error('Gagal soft delete kategori ID: ${category.id}', e: e, st: st);
     }
   }
 
-  Future<void> _softDeleteSubCategory(final SubCategoryModel subCategory) async {
+  Future<void> _softDeleteSubCategory(
+      final SubCategoryModel subCategory) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Sub-Kategori',
       'Anda yakin ingin mengarsipkan sub-kategori "${subCategory.name}"?',
@@ -120,19 +160,19 @@ class _CategoryPageState extends State<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      Log.info('Memulai soft delete untuk sub-kategori ID: ${subCategory.id}');
       await _subCategoryOperation.softDelete(subCategory.id);
-      Log.info('Berhasil soft delete sub-kategori ID: ${subCategory.id}');
       if (!mounted) return;
-      ToastUtil.success(context, 'Sub-kategori "${subCategory.name}" berhasil diarsipkan.');
+      ToastUtil.success(
+          context, 'Sub-kategori "${subCategory.name}" berhasil diarsipkan.');
       _loadCategories();
     } on Exception catch (e, st) {
-      Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}', e: e, st: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
+      Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}',
+          e: e, st: st);
     }
   }
-  
+
   Future<void> _softDeleteAll() async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Semua Kategori',
@@ -141,16 +181,14 @@ class _CategoryPageState extends State<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      Log.info('Memulai soft delete untuk semua kategori');
       final count = await _categoryOperation.softDeleteAll();
-      Log.info('Berhasil soft delete $count kategori.');
       if (!mounted) return;
       ToastUtil.success(context, 'Berhasil mengarsipkan $count kategori.');
       _loadCategories();
     } on Exception catch (e, st) {
-      Log.error('Gagal melakukan soft delete semua kategori', e: e, st: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan semua kategori: $e');
+      Log.error('Gagal melakukan soft delete semua kategori', e: e, st: st);
     }
   }
 
@@ -190,16 +228,22 @@ class _CategoryPageState extends State<CategoryPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () => setState(() => _selectedType = CategoryType.income),
+                onPressed: () =>
+                    setState(() => _selectedType = CategoryType.income),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.income ? Colors.green : Colors.grey,
+                  backgroundColor: _selectedType == CategoryType.income
+                      ? Colors.green
+                      : Colors.grey,
                 ),
                 child: const Text('Pemasukan'),
               ),
               ElevatedButton(
-                onPressed: () => setState(() => _selectedType = CategoryType.expense),
+                onPressed: () =>
+                    setState(() => _selectedType = CategoryType.expense),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.expense ? Colors.red : Colors.grey,
+                  backgroundColor: _selectedType == CategoryType.expense
+                      ? Colors.red
+                      : Colors.grey,
                 ),
                 child: const Text('Pengeluaran'),
               ),
@@ -208,7 +252,7 @@ class _CategoryPageState extends State<CategoryPage> {
           Expanded(
             child: FutureBuilder<List<CategoryModel>>(
               future: _categoryListFuture,
-              builder: (final context, final snapshot) {
+              builder: (final _, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -216,16 +260,18 @@ class _CategoryPageState extends State<CategoryPage> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('Tidak ada kategori ditemukan.'));
+                  return const Center(
+                      child: Text('Tidak ada kategori ditemukan.'));
                 }
 
                 final filteredKategori = snapshot.data!
-                    .where((final k) => k.type == _selectedType && k.archivedAt == null)
+                    .where((final k) =>
+                        k.type == _selectedType && k.archivedAt == null)
                     .toList();
 
                 return ListView.builder(
                   itemCount: filteredKategori.length,
-                  itemBuilder: (final context, final index) {
+                  itemBuilder: (final _, final index) {
                     final kategori = filteredKategori[index];
                     return Card(
                       margin: const EdgeInsets.all(8.0),
@@ -234,23 +280,14 @@ class _CategoryPageState extends State<CategoryPage> {
                         trailing: _isEdit
                             ? IconButton(
                                 icon: const Icon(Icons.edit),
-                                onPressed: () async {
-                                  final result = await Navigator.push<bool>(
-                                    context,
-                                    MaterialPageRoute<bool>(
-                                      builder: (final context) => CategoryForm(kategori: kategori),
-                                    ),
-                                  );
-                                  if (result ?? false) {
-                                    ToastUtil.success(context, 'Kategori berhasil diubah.');
-                                    _loadCategories();
-                                  }
-                                },
+                                onPressed: () =>
+                                    _navigateToEditCategory(kategori),
                               )
                             : _isArchiveMode
                                 ? IconButton(
                                     icon: const Icon(Icons.archive),
-                                    onPressed: () => _softDeleteCategory(kategori),
+                                    onPressed: () =>
+                                        _softDeleteCategory(kategori),
                                   )
                                 : null,
                         children: kategori.subCategories
@@ -261,26 +298,14 @@ class _CategoryPageState extends State<CategoryPage> {
                             trailing: _isEdit
                                 ? IconButton(
                                     icon: const Icon(Icons.edit),
-                                    onPressed: () async {
-                                      final result = await Navigator.push<bool>(
-                                        context,
-                                        MaterialPageRoute<bool>(
-                                          builder: (final context) => CategoryForm(
-                                            subKategori: sub,
-                                            idKategoriInduk: kategori.id,
-                                          ),
-                                        ),
-                                      );
-                                      if (result ?? false) {
-                                        ToastUtil.success(context, 'Sub-kategori berhasil diubah.');
-                                        _loadCategories();
-                                      }
-                                    },
+                                    onPressed: () => _navigateToEditSubCategory(
+                                        sub, kategori.id),
                                   )
                                 : _isArchiveMode
                                     ? IconButton(
                                         icon: const Icon(Icons.archive),
-                                        onPressed: () => _softDeleteSubCategory(sub),
+                                        onPressed: () =>
+                                            _softDeleteSubCategory(sub),
                                       )
                                     : null,
                           );

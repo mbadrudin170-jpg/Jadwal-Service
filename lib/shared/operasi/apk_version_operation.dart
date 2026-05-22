@@ -3,6 +3,7 @@
 // diubah: Menggunakan DateTime.now().toUtc() pada pengarsipan agar konsisten dengan BaseOperation.
 // diperbaiki: Menggunakan konstanta ColumnNames untuk query agar sesuai dengan skema DB v50.
 // diperbaiki: Menambahkan `const` pada variabel final untuk optimasi performa.
+// diperbaiki: Menambahkan kata kunci final pada parameter.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -170,7 +171,7 @@ class ApkVersionOperation {
         return 0;
       }
 
-      final idsToArchive = activeVersions.map((v) => v.id).toList();
+      final idsToArchive = activeVersions.map((final v) => v.id).toList();
       final count = await _baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           final now = DateTime.now().toUtc();

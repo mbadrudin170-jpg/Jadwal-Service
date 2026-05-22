@@ -346,7 +346,7 @@ class _PackageActivationHistoryPageState
               itemBuilder: (final context, final index) {
                 final transaction = snapshot.data![index];
                 final paymentStatusColor =
-                    transaction.paymentStatus == PaymentStatus.paid.displayName
+                    transaction.paymentStatus == PaymentStatus.paid
                         ? Colors.green
                         : Colors.red;
 
@@ -399,7 +399,7 @@ class _PackageActivationHistoryPageState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Status: ${transaction.paymentStatus.name}',
+                          'Status: ${transaction.paymentStatus.displayName}',
                           style: TextStyle(
                             color: paymentStatusColor,
                             fontWeight: FontWeight.bold,

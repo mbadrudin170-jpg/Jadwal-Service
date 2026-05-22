@@ -66,7 +66,6 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     _changelog = widget.apkInfo.releaseNotes.split('\n');
     unawaited(_pulseController.repeat(reverse: true));
     FlutterNativeSplash.remove();
-
   }
 
   void _initializeAnimations() {
@@ -86,8 +85,9 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Future<void> _downloadUpdate() async {
-    String? downloadUrl = widget.apkInfo.downloadLinks[widget.architecture] ??
-        widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
+    final String? downloadUrl =
+        widget.apkInfo.downloadLinks[widget.architecture] ??
+            widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
@@ -120,19 +120,19 @@ class _UpdateApkPageState extends State<UpdateApkPage>
 
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      Navigator.of(context).pushReplacement(
+      unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => MainPage(
+          builder: (final context) => MainPage(
             userId: userId,
             localStorageService: widget.localStorageService,
           ),
         ),
-      );
+      ));
     } else {
       Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (final context) => const LoginPage()),
+      ));
     }
   }
 

@@ -15,9 +15,13 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends StatefulWidget {
+  /// ID unik pengguna yang sedang login.
   final String userId;
+
+  /// Layanan untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
+  /// Konstruktor untuk [MainPage].
   const MainPage({
     super.key,
     required this.userId,

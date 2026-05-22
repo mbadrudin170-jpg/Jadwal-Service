@@ -140,7 +140,8 @@ class TransactionOpFirebase {
     }
   }
 
-// path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
+  /// Mengambil daftar paket aktif (transaksi yang belum kedaluwarsa)
+  /// untuk seorang pelanggan.
   Future<List<TransactionModel>> getPaketAktifCustomer(
     final String customerId,
   ) async {
@@ -165,7 +166,7 @@ class TransactionOpFirebase {
       }
 
       // Ubah setiap dokumen menjadi objek TransactionModel
-      final activePackages = querySnapshot.docs.map((doc) {
+      final activePackages = querySnapshot.docs.map((final doc) {
         return TransactionModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,

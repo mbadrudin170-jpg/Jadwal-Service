@@ -1,238 +1,238 @@
-# include: package:flutter_lints/flutter.yaml
+include: package:flutter_lints/flutter.yaml
 
-# linter:
-#   rules:
-#     # ============================================================
-#     # GAYA KODE (STYLE)
-#     # ============================================================
-#     sort_pub_dependencies: false              # Urutkan dependencies di pubspec.yaml secara alfabetis agar mudah dibaca
-#     prefer_single_quotes: true               # Gunakan petik satu ('), kecuali saat string mengandung karakter petik satu
-#     require_trailing_commas: false            # Wajibkan koma di akhir daftar parameter/argumen agar format vertikal rapi
-#     use_super_parameters: true               # Gunakan super.x di parameter konstruktor (Dart 3) untuk menghindari penulisan ulang field
-#     use_null_aware_elements: true            # Gunakan ?element di collection literal (Dart 3) untuk menyingkat if (x != null) x
+linter:
+  rules:
+    # ============================================================
+    # GAYA KODE (STYLE)
+    # ============================================================
+    sort_pub_dependencies: false              # Urutkan dependencies di pubspec.yaml secara alfabetis agar mudah dibaca
+    prefer_single_quotes: true               # Gunakan petik satu ('), kecuali saat string mengandung karakter petik satu
+    require_trailing_commas: false            # Wajibkan koma di akhir daftar parameter/argumen agar format vertikal rapi
+    use_super_parameters: true               # Gunakan super.x di parameter konstruktor (Dart 3) untuk menghindari penulisan ulang field
+    use_null_aware_elements: true            # Gunakan ?element di collection literal (Dart 3) untuk menyingkat if (x != null) x
 
-#     # ============================================================
-#     # PERFORMA
-#     # ============================================================
-#     prefer_const_constructors: true          # Gunakan 'const' pada konstruktor agar widget tidak di-rebuild ulang
-#     prefer_const_constructors_in_immutables: true # Gunakan 'const' pada konstruktor di kelas @immutable
-#     prefer_const_declarations: true          # Gunakan 'const' daripada 'final' untuk deklarasi variabel yang nilainya sudah pasti saat kompilasi
-#     prefer_const_literals_to_create_immutables: true # Gunakan literal 'const' untuk membuat objek immutable agar lebih hemat memori
-#     await_only_futures: true                 # Larang 'await' pada tipe non-Future (mencegah kesalahan menunggu nilai biasa)
+    # ============================================================
+    # PERFORMA
+    # ============================================================
+    prefer_const_constructors: true          # Gunakan 'const' pada konstruktor agar widget tidak di-rebuild ulang
+    prefer_const_constructors_in_immutables: true # Gunakan 'const' pada konstruktor di kelas @immutable
+    prefer_const_declarations: true          # Gunakan 'const' daripada 'final' untuk deklarasi variabel yang nilainya sudah pasti saat kompilasi
+    prefer_const_literals_to_create_immutables: true # Gunakan literal 'const' untuk membuat objek immutable agar lebih hemat memori
+    await_only_futures: true                 # Larang 'await' pada tipe non-Future (mencegah kesalahan menunggu nilai biasa)
 
-#     # ============================================================
-#     # FLUTTER SPECIFIC
-#     # ============================================================
-#     sort_child_properties_last: true         # Letakkan properti 'child'/'children' di akhir daftar parameter widget
-#     use_key_in_widget_constructors: true     # Wajibkan parameter 'Key?' di konstruktor widget publik untuk manajemen state
-#     use_build_context_synchronously: true    # Cegah penggunaan BuildContext setelah operasi async (gap) untuk mencegah crash
+    # ============================================================
+    # FLUTTER SPECIFIC
+    # ============================================================
+    sort_child_properties_last: true         # Letakkan properti 'child'/'children' di akhir daftar parameter widget
+    use_key_in_widget_constructors: true     # Wajibkan parameter 'Key?' di konstruktor widget publik untuk manajemen state
+    use_build_context_synchronously: true    # Cegah penggunaan BuildContext setelah operasi async (gap) untuk mencegah crash
 
-#     # ============================================================
-#     # PENCEGAHAN ERROR
-#     # ============================================================
-#     public_member_api_docs: true             # Wajibkan dokumentasi (///) pada semua API publik agar kode terdokumentasi
-#     unawaited_futures: true                  # Wajibkan 'await' atau 'unawaited()' pada setiap Future di fungsi async agar tidak ada yang terlewat
-#     avoid_slow_async_io: true                # Hindari versi sinkron dari operasi dart:io, gunakan versi async agar tidak blocking UI
-#     no_literal_bool_comparisons: true        # Jangan bandingkan boolean dengan true/false secara literal (pakai if(x) saja)
-#     close_sinks: true                        # Tutup StreamController setelah selesai digunakan untuk mencegah memory leak
-#     discarded_futures: true                  # Tangkap Future yang dibuang di fungsi sinkron, pelengkap unawaited_futures
-#     depend_on_referenced_packages: true      # Wajibkan package yang di-import ada di pubspec.yaml, cegah ketergantungan hantu
-#     hash_and_equals: true                    # Wajibkan override hashCode jika override ==, cegah bug di HashSet/HashMap
-#     valid_regexps: true                      # Validasi sintaks RegExp saat kompilasi, bukan saat runtime
-#     avoid_renaming_method_parameters: true   # Jangan ganti nama parameter saat override method, cegah kebingungan
-#     avoid_shadowing_type_parameters: true    # Jangan tutupi type parameter dengan nama variabel lokal yang sama
-#     avoid_types_as_parameter_names: true     # Jangan pakai nama tipe sebagai nama parameter (misal: int int)
-#     secure_pubspec_urls: true                # URL di pubspec.yaml wajib https untuk keamanan
-#     no_wildcard_variable_uses: true          # Jangan gunakan variabel wildcard _ (Dart 3) karena tidak bisa diakses
+    # ============================================================
+    # PENCEGAHAN ERROR
+    # ============================================================
+    public_member_api_docs: true             # Wajibkan dokumentasi (///) pada semua API publik agar kode terdokumentasi
+    unawaited_futures: true                  # Wajibkan 'await' atau 'unawaited()' pada setiap Future di fungsi async agar tidak ada yang terlewat
+    avoid_slow_async_io: true                # Hindari versi sinkron dari operasi dart:io, gunakan versi async agar tidak blocking UI
+    no_literal_bool_comparisons: true        # Jangan bandingkan boolean dengan true/false secara literal (pakai if(x) saja)
+    close_sinks: true                        # Tutup StreamController setelah selesai digunakan untuk mencegah memory leak
+    discarded_futures: true                  # Tangkap Future yang dibuang di fungsi sinkron, pelengkap unawaited_futures
+    depend_on_referenced_packages: true      # Wajibkan package yang di-import ada di pubspec.yaml, cegah ketergantungan hantu
+    hash_and_equals: true                    # Wajibkan override hashCode jika override ==, cegah bug di HashSet/HashMap
+    valid_regexps: true                      # Validasi sintaks RegExp saat kompilasi, bukan saat runtime
+    avoid_renaming_method_parameters: true   # Jangan ganti nama parameter saat override method, cegah kebingungan
+    avoid_shadowing_type_parameters: true    # Jangan tutupi type parameter dengan nama variabel lokal yang sama
+    avoid_types_as_parameter_names: true     # Jangan pakai nama tipe sebagai nama parameter (misal: int int)
+    secure_pubspec_urls: true                # URL di pubspec.yaml wajib https untuk keamanan
+    no_wildcard_variable_uses: true          # Jangan gunakan variabel wildcard _ (Dart 3) karena tidak bisa diakses
 
-#     # ============================================================
-#     # PENCEGAHAN BUG SERIUS
-#     # ============================================================
-#     avoid_catches_without_on_clauses: true   # Hindari catch tanpa klausa 'on', cegah menangkap Error yang seharusnya crash
-#     avoid_dynamic_calls: true                # Hindari panggilan method/akses properti pada tipe dynamic, cegah runtime error
-#     avoid_equals_and_hash_code_on_mutable_classes: true # Hindari override ==/hashCode pada kelas mutable, cegah objek hilang dari Set/Map
-#     avoid_implementing_value_types: true     # Jangan implementasikan kelas yang sudah override ==, cegah inkonsistensi equality
-#     no_duplicate_case_values: true           # Jangan gunakan case dengan nilai yang sama, cegah dead code di switch
-#     no_self_assignments: true                # Jangan menetapkan variabel ke dirinya sendiri, cegah no-op yang tidak disengaja
-#     null_check_on_nullable_type_parameter: true # Jangan gunakan ! pada type parameter nullable, tidak benar-benar menghilangkan null
-#     null_closures: true                      # Jangan kirim null sebagai argumen di mana closure diharapkan, cegah NullPointerException
-#     only_throw_errors: true                  # Hanya lempar instance Exception/Error, jangan lempar string atau tipe lain
-#     parameter_assignments: true              # Jangan mengubah nilai parameter fungsi/method, gunakan variabel lokal baru
-#     throw_in_finally: true                   # Hindari throw di blok finally, cegah exception asli tertimpa
-#     unnecessary_null_aware_operator_on_extension_on_nullable: true # Hindari ?. pada extension nullable, sudah ditangani extension
-#     unrelated_type_equality_checks: true     # Jangan bandingkan tipe yang tidak mungkin sama dengan ==, selalu false
-#     use_rethrow_when_possible: true          # Gunakan rethrow alih-alih throw e, pertahankan stack trace asli untuk debugging
+    # ============================================================
+    # PENCEGAHAN BUG SERIUS
+    # ============================================================
+    avoid_catches_without_on_clauses: true   # Hindari catch tanpa klausa 'on', cegah menangkap Error yang seharusnya crash
+    avoid_dynamic_calls: true                # Hindari panggilan method/akses properti pada tipe dynamic, cegah runtime error
+    avoid_equals_and_hash_code_on_mutable_classes: true # Hindari override ==/hashCode pada kelas mutable, cegah objek hilang dari Set/Map
+    avoid_implementing_value_types: true     # Jangan implementasikan kelas yang sudah override ==, cegah inkonsistensi equality
+    no_duplicate_case_values: true           # Jangan gunakan case dengan nilai yang sama, cegah dead code di switch
+    no_self_assignments: true                # Jangan menetapkan variabel ke dirinya sendiri, cegah no-op yang tidak disengaja
+    null_check_on_nullable_type_parameter: true # Jangan gunakan ! pada type parameter nullable, tidak benar-benar menghilangkan null
+    null_closures: true                      # Jangan kirim null sebagai argumen di mana closure diharapkan, cegah NullPointerException
+    only_throw_errors: true                  # Hanya lempar instance Exception/Error, jangan lempar string atau tipe lain
+    parameter_assignments: true              # Jangan mengubah nilai parameter fungsi/method, gunakan variabel lokal baru
+    throw_in_finally: true                   # Hindari throw di blok finally, cegah exception asli tertimpa
+    unnecessary_null_aware_operator_on_extension_on_nullable: true # Hindari ?. pada extension nullable, sudah ditangani extension
+    unrelated_type_equality_checks: true     # Jangan bandingkan tipe yang tidak mungkin sama dengan ==, selalu false
+    use_rethrow_when_possible: true          # Gunakan rethrow alih-alih throw e, pertahankan stack trace asli untuk debugging
 
-#     # ============================================================
-#     # KEBERSIHAN KODE
-#     # ============================================================
-#     avoid_returning_null_for_void: true      # Jangan mengembalikan 'null' pada fungsi bertipe void
-#     unnecessary_lambdas: true                # Gunakan tear-off langsung daripada membungkus dalam lambda yang tidak perlu
-#     avoid_redundant_argument_values: true    # Jangan kirim argumen yang nilainya sama dengan default, tidak perlu
-#     always_use_package_imports: true         # Gunakan 'package:' import untuk file di lib/, jangan relative import
-#     avoid_empty_else: true                   # Hindari blok else yang kosong, biasanya indikasi bug logika
-#     camel_case_extensions: true              # Nama extension wajib UpperCamelCase sesuai konvensi Dart
-#     unnecessary_overrides: true              # Hapus override yang cuma memanggil super tanpa perubahan apa pun
+    # ============================================================
+    # KEBERSIHAN KODE
+    # ============================================================
+    avoid_returning_null_for_void: true      # Jangan mengembalikan 'null' pada fungsi bertipe void
+    unnecessary_lambdas: true                # Gunakan tear-off langsung daripada membungkus dalam lambda yang tidak perlu
+    avoid_redundant_argument_values: true    # Jangan kirim argumen yang nilainya sama dengan default, tidak perlu
+    always_use_package_imports: true         # Gunakan 'package:' import untuk file di lib/, jangan relative import
+    avoid_empty_else: true                   # Hindari blok else yang kosong, biasanya indikasi bug logika
+    camel_case_extensions: true              # Nama extension wajib UpperCamelCase sesuai konvensi Dart
+    unnecessary_overrides: true              # Hapus override yang cuma memanggil super tanpa perubahan apa pun
 
-#     # ============================================================
-#     # LAINNYA
-#     # ============================================================
-#     avoid_void_async: true                   # Hindari fungsi async yang return void, gunakan Future<void> agar bisa di-await
-#     cascade_invocations: false               # (MATI) Cascade (..) tidak diwajibkan, gunakan jika dirasa lebih jelas
-#     directives_ordering: true                # Urutkan direktif (import/export/part) sesuai konvensi Dart
-#     prefer_final_fields: true                # Gunakan final untuk field yang tidak pernah di-reassign setelah inisialisasi
-#     prefer_final_locals: true                # Gunakan final untuk variabel lokal yang tidak pernah di-reassign
-#     prefer_if_null_operators: true           # Gunakan ?? daripada if (x == null) y else x, lebih ringkas
-#     avoid_init_to_null: true                 # Jangan inisialisasi variabel nullable dengan null karena sudah null secara default
-#     file_names: true                         # Nama file wajib snake_case (lowercase_with_underscores) sesuai konvensi
+    # ============================================================
+    # LAINNYA
+    # ============================================================
+    avoid_void_async: true                   # Hindari fungsi async yang return void, gunakan Future<void> agar bisa di-await
+    cascade_invocations: false               # (MATI) Cascade (..) tidak diwajibkan, gunakan jika dirasa lebih jelas
+    directives_ordering: true                # Urutkan direktif (import/export/part) sesuai konvensi Dart
+    prefer_final_fields: true                # Gunakan final untuk field yang tidak pernah di-reassign setelah inisialisasi
+    prefer_final_locals: true                # Gunakan final untuk variabel lokal yang tidak pernah di-reassign
+    prefer_if_null_operators: true           # Gunakan ?? daripada if (x == null) y else x, lebih ringkas
+    avoid_init_to_null: true                 # Jangan inisialisasi variabel nullable dengan null karena sudah null secara default
+    file_names: true                         # Nama file wajib snake_case (lowercase_with_underscores) sesuai konvensi
 
-#     # ============================================================
-#     # KOMPLEMEN LAINNYA
-#     # ============================================================
-#     empty_catches: true                      # Larang blok catch kosong, minimal beri komentar atau gunakan _
-#     cancel_subscriptions: true               # Batalkan StreamSubscription setelah selesai untuk mencegah memory leak
-#     comment_references: true                 # Hanya gunakan identifier dalam scope di komentar dokumen [dalam kurung siku]
-#     constant_identifier_names: true          # Gunakan lowerCamelCase untuk nama konstanta, bukan ALL_CAPS
-#     document_ignores: true                   # Wajibkan komentar penjelasan di atas setiap // ignore: aturan
-#     empty_constructor_bodies: true           # Gunakan ; alih-alih {} untuk badan konstruktor kosong
-#     empty_statements: true                   # Hindari statement kosong (titik koma sendirian), biasanya bug
+    # ============================================================
+    # KOMPLEMEN LAINNYA
+    # ============================================================
+    empty_catches: true                      # Larang blok catch kosong, minimal beri komentar atau gunakan _
+    cancel_subscriptions: true               # Batalkan StreamSubscription setelah selesai untuk mencegah memory leak
+    comment_references: true                 # Hanya gunakan identifier dalam scope di komentar dokumen [dalam kurung siku]
+    constant_identifier_names: true          # Gunakan lowerCamelCase untuk nama konstanta, bukan ALL_CAPS
+    document_ignores: true                   # Wajibkan komentar penjelasan di atas setiap // ignore: aturan
+    empty_constructor_bodies: true           # Gunakan ; alih-alih {} untuk badan konstruktor kosong
+    empty_statements: true                   # Hindari statement kosong (titik koma sendirian), biasanya bug
 
-#     # === 5 ATURAN MOBILE PALING PENTING (BATCH 1) ===
-#     collection_methods_unrelated_type: true
-#     no_logic_in_create_state: true
-#     library_private_types_in_public_api: true
-#     exhaustive_cases: true
+    # === 5 ATURAN MOBILE PALING PENTING (BATCH 1) ===
+    collection_methods_unrelated_type: true
+    no_logic_in_create_state: true
+    library_private_types_in_public_api: true
+    exhaustive_cases: true
 
-#     # === 5 ATURAN MOBILE BERIKUTNYA (BATCH 2) ===
-#     avoid_function_literals_in_foreach_calls: true
-#     avoid_single_cascade_in_expression_statements: true
-#     prefer_conditional_assignment: true
-#     prefer_is_empty: true
-#     prefer_is_not_empty: true
-#     annotate_overrides: true
+    # === 5 ATURAN MOBILE BERIKUTNYA (BATCH 2) ===
+    avoid_function_literals_in_foreach_calls: true
+    avoid_single_cascade_in_expression_statements: true
+    prefer_conditional_assignment: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
+    annotate_overrides: true
 
-#     # ============================================================
-#     # TAMBAHAN DART 3 & BEST PRACTICE (17 ATURAN)
-#     # ============================================================
-#     matching_super_parameters: true             # Nama parameter super harus cocok (Dart 3)
-#     unnecessary_async: true                     # Hapus async jika tidak ada await
-#     avoid_catching_errors: true                 # Jangan tangkap Error (hanya Exception)
-#     # avoid_returning_null_for_future: true       # Jangan return null untuk Future<T>
-#     literal_only_boolean_expressions: true      # Ekspresi boolean hanya literal = bug
-#     no_runtimetype_tostring: true               # Jangan panggil toString() pada runtimeType
-#     test_types_in_equals: true                  # Cek tipe argumen di operator ==
-#     unnecessary_statements: true                # Hapus statement yang tidak perlu
-#     use_colored_box: true                       # Gunakan ColoredBox alih-alih Container(color:)
-#     use_decorated_box: true                     # Gunakan DecoratedBox alih-alih Container(decoration:)
-#     sized_box_shrink_expand: true               # Gunakan SizedBox.shrink() / .expand()
-#     prefer_final_parameters: true               # Gunakan final untuk parameter yang tidak di-reassign
-#     use_if_null_to_convert_nulls_to_bools: true # Gunakan ?? untuk konversi null ke bool
-#     prefer_asserts_with_message: true           # Sertakan pesan di assert
-#     # avoid_unstable_final_fields: true           # Hindari field final yang tidak stabil
-#     prefer_constructors_over_static_methods: true # Gunakan konstruktor daripada static method untuk membuat instance
-#     unnecessary_null_checks: true               # Hapus null check (!) yang tidak diperlukan
+    # ============================================================
+    # TAMBAHAN DART 3 & BEST PRACTICE (17 ATURAN)
+    # ============================================================
+    matching_super_parameters: true             # Nama parameter super harus cocok (Dart 3)
+    unnecessary_async: true                     # Hapus async jika tidak ada await
+    avoid_catching_errors: true                 # Jangan tangkap Error (hanya Exception)
+    # avoid_returning_null_for_future: true       # Jangan return null untuk Future<T>
+    literal_only_boolean_expressions: true      # Ekspresi boolean hanya literal = bug
+    no_runtimetype_tostring: true               # Jangan panggil toString() pada runtimeType
+    test_types_in_equals: true                  # Cek tipe argumen di operator ==
+    unnecessary_statements: true                # Hapus statement yang tidak perlu
+    use_colored_box: true                       # Gunakan ColoredBox alih-alih Container(color:)
+    use_decorated_box: true                     # Gunakan DecoratedBox alih-alih Container(decoration:)
+    sized_box_shrink_expand: true               # Gunakan SizedBox.shrink() / .expand()
+    prefer_final_parameters: true               # Gunakan final untuk parameter yang tidak di-reassign
+    use_if_null_to_convert_nulls_to_bools: true # Gunakan ?? untuk konversi null ke bool
+    prefer_asserts_with_message: true           # Sertakan pesan di assert
+    # avoid_unstable_final_fields: true           # Hindari field final yang tidak stabil
+    prefer_constructors_over_static_methods: true # Gunakan konstruktor daripada static method untuk membuat instance
+    unnecessary_null_checks: true               # Hapus null check (!) yang tidak diperlukan
 
-#     use_string_buffers: true
-#     prefer_contains: true
-#     avoid_multiple_declarations_per_line: true
+    use_string_buffers: true
+    prefer_contains: true
+    avoid_multiple_declarations_per_line: true
 
-# # /home/user/myapp/analysis_options.yaml
+# /home/user/myapp/analysis_options.yaml
 
-# analyzer:
-#   exclude:
-#     - "**/*.g.dart"
-#     - "**/*.freezed.dart"
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
     
-#   errors:
-#     # ERROR (kritis)
-#     await_only_futures: error
-#     use_build_context_synchronously: error
-#     unawaited_futures: error
-#     avoid_slow_async_io: error
-#     no_literal_bool_comparisons: error
-#     close_sinks: error
-#     discarded_futures: error
-#     hash_and_equals: error
-#     valid_regexps: error
-#     avoid_shadowing_type_parameters: error
-#     avoid_types_as_parameter_names: error
-#     secure_pubspec_urls: error
-#     avoid_catches_without_on_clauses: error
-#     avoid_equals_and_hash_code_on_mutable_classes: error
-#     avoid_implementing_value_types: error
-#     no_duplicate_case_values: error
-#     no_self_assignments: error
-#     null_check_on_nullable_type_parameter: error
-#     null_closures: error
-#     only_throw_errors: error
-#     parameter_assignments: error
-#     throw_in_finally: error
-#     unrelated_type_equality_checks: error
-#     use_rethrow_when_possible: error
-#     avoid_returning_null_for_void: error
-#     avoid_empty_else: error
-#     cancel_subscriptions: error
-#     empty_statements: error
-#     collection_methods_unrelated_type: error
-#     no_logic_in_create_state: error
-#     avoid_catching_errors: error
-#     literal_only_boolean_expressions: error
+  errors:
+    # ERROR (kritis)
+    await_only_futures: error
+    use_build_context_synchronously: error
+    unawaited_futures: error
+    avoid_slow_async_io: error
+    no_literal_bool_comparisons: error
+    close_sinks: error
+    discarded_futures: error
+    hash_and_equals: error
+    valid_regexps: error
+    avoid_shadowing_type_parameters: error
+    avoid_types_as_parameter_names: error
+    secure_pubspec_urls: error
+    avoid_catches_without_on_clauses: error
+    avoid_equals_and_hash_code_on_mutable_classes: error
+    avoid_implementing_value_types: error
+    no_duplicate_case_values: error
+    no_self_assignments: error
+    null_check_on_nullable_type_parameter: error
+    null_closures: error
+    only_throw_errors: error
+    parameter_assignments: error
+    throw_in_finally: error
+    unrelated_type_equality_checks: error
+    use_rethrow_when_possible: error
+    avoid_returning_null_for_void: error
+    avoid_empty_else: error
+    cancel_subscriptions: error
+    empty_statements: error
+    collection_methods_unrelated_type: error
+    no_logic_in_create_state: error
+    avoid_catching_errors: error
+    literal_only_boolean_expressions: error
 
-#     # WARNING (sisanya)
-#     prefer_single_quotes: warning
-#     use_super_parameters: warning
-#     use_null_aware_elements: warning
-#     prefer_const_constructors: warning
-#     prefer_const_constructors_in_immutables: warning
-#     prefer_const_declarations: warning
-#     prefer_const_literals_to_create_immutables: warning
-#     sort_child_properties_last: warning
-#     use_key_in_widget_constructors: warning
-#     public_member_api_docs: warning
-#     depend_on_referenced_packages: warning
-#     avoid_renaming_method_parameters: warning
-#     avoid_dynamic_calls: warning
-#     unnecessary_null_aware_operator_on_extension_on_nullable: warning
-#     unnecessary_lambdas: warning
-#     avoid_redundant_argument_values: warning
-#     camel_case_extensions: warning
-#     unnecessary_overrides: warning
-#     avoid_void_async: warning
-#     directives_ordering: warning
-#     prefer_final_fields: warning
-#     prefer_final_locals: warning
-#     prefer_if_null_operators: warning
-#     avoid_init_to_null: warning
-#     file_names: warning
-#     empty_catches: warning
-#     comment_references: warning
-#     constant_identifier_names: warning
-#     document_ignores: warning
-#     empty_constructor_bodies: warning
-#     library_private_types_in_public_api: warning
-#     exhaustive_cases: warning
-#     avoid_function_literals_in_foreach_calls: warning
-#     avoid_single_cascade_in_expression_statements: warning
-#     prefer_conditional_assignment: warning
-#     prefer_is_empty: warning
-#     prefer_is_not_empty: warning
-#     annotate_overrides: warning
-#     matching_super_parameters: warning
-#     unnecessary_async: warning
-#     no_runtimetype_tostring: warning
-#     test_types_in_equals: warning
-#     unnecessary_statements: warning
-#     use_colored_box: warning
-#     use_decorated_box: warning
-#     sized_box_shrink_expand: warning
-#     prefer_final_parameters: warning
-#     use_if_null_to_convert_nulls_to_bools: warning
-#     prefer_asserts_with_message: warning
-#     prefer_constructors_over_static_methods: warning
-#     unnecessary_null_checks: warning
+    # WARNING (sisanya)
+    prefer_single_quotes: warning
+    use_super_parameters: warning
+    use_null_aware_elements: warning
+    prefer_const_constructors: warning
+    prefer_const_constructors_in_immutables: warning
+    prefer_const_declarations: warning
+    prefer_const_literals_to_create_immutables: warning
+    sort_child_properties_last: warning
+    use_key_in_widget_constructors: warning
+    public_member_api_docs: warning
+    depend_on_referenced_packages: warning
+    avoid_renaming_method_parameters: warning
+    avoid_dynamic_calls: warning
+    unnecessary_null_aware_operator_on_extension_on_nullable: warning
+    unnecessary_lambdas: warning
+    avoid_redundant_argument_values: warning
+    camel_case_extensions: warning
+    unnecessary_overrides: warning
+    avoid_void_async: warning
+    directives_ordering: warning
+    prefer_final_fields: warning
+    prefer_final_locals: warning
+    prefer_if_null_operators: warning
+    avoid_init_to_null: warning
+    file_names: warning
+    empty_catches: warning
+    comment_references: warning
+    constant_identifier_names: warning
+    document_ignores: warning
+    empty_constructor_bodies: warning
+    library_private_types_in_public_api: warning
+    exhaustive_cases: warning
+    avoid_function_literals_in_foreach_calls: warning
+    avoid_single_cascade_in_expression_statements: warning
+    prefer_conditional_assignment: warning
+    prefer_is_empty: warning
+    prefer_is_not_empty: warning
+    annotate_overrides: warning
+    matching_super_parameters: warning
+    unnecessary_async: warning
+    no_runtimetype_tostring: warning
+    test_types_in_equals: warning
+    unnecessary_statements: warning
+    use_colored_box: warning
+    use_decorated_box: warning
+    sized_box_shrink_expand: warning
+    prefer_final_parameters: warning
+    use_if_null_to_convert_nulls_to_bools: warning
+    prefer_asserts_with_message: warning
+    prefer_constructors_over_static_methods: warning
+    unnecessary_null_checks: warning
 
 
-#   language:
-#     strict-casts: true              # Casting harus eksplisit dan aman
-#     strict-inference: true          # Tipe tidak boleh di-infer sebagai dynamic
-#     strict-raw-types: true          # Generik harus diberi parameter tipe (tidak boleh mentah)
+  language:
+    strict-casts: true              # Casting harus eksplisit dan aman
+    strict-inference: true          # Tipe tidak boleh di-infer sebagai dynamic
+    strict-raw-types: true          # Generik harus diberi parameter tipe (tidak boleh mentah)

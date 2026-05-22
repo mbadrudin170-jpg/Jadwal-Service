@@ -111,6 +111,11 @@ class _CategoryFormState extends State<CategoryForm> {
         'Mengisi TextEditingController dengan nama sub-kategori: "${widget.subKategori!.name}"',
       );
       _namaController.text = widget.subKategori!.name;
+      // FIX: Inisialisasi _tipe untuk menghindari LateInitializationError.
+      // Nilai ini tidak digunakan saat menyimpan sub-kategori, jadi aman diatur ke default.
+      _tipe = CategoryType.income;
+      Log.info(
+          'Tipe kategori diatur ke default: $_tipe (tidak relevan untuk edit sub-kategori).');
     } else {
       Log.info(
         'MODE TAMBAH BARU terdeteksi.',
@@ -220,7 +225,9 @@ class _CategoryFormState extends State<CategoryForm> {
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
     );
     Log.info('Nama yang akan disimpan: "${_namaController.text}"');
-    Log.info('Tipe kategori: $_tipe');
+    if (!_isSubKategoriMode || !_isEditMode) {
+      Log.info('Tipe kategori: $_tipe');
+    }
     Log.info('========================================');
 
     Log.info('Memvalidasi form...');
@@ -233,26 +240,19 @@ class _CategoryFormState extends State<CategoryForm> {
           Log.info('PROSES UPDATE SUB-KATEGORI (MODE EDIT SUB-KATEGORI)');
           Log.info('========================================');
 
+          final String parentCategoryId = widget.subKategori!.categoryId;
+
           Log.info('Data sub-kategori sebelum update:');
           Log.info('  - ID: ${widget.subKategori!.id}');
           Log.info('  - Nama Lama: ${widget.subKategori!.name}');
           Log.info('  - Nama Baru: ${_namaController.text}');
-          Log.info('  - ID Kategori Induk: ${widget.idKategoriInduk}');
-
-          if (widget.idKategoriInduk == null) {
-            Log.error(
-              'ID kategori induk tidak ditemukan saat mengedit sub-kategori. Ini adalah kesalahan logika karena sub-kategori harus selalu memiliki kategori induk.',
-            );
-            throw Exception(
-              'ID kategori induk tidak ditemukan saat mengedit sub-kategori.',
-            );
-          }
+          Log.info('  - ID Kategori Induk: $parentCategoryId');
 
           Log.info(
-            'Mengambil data kategori induk dengan ID: ${widget.idKategoriInduk}',
+            'Mengambil data kategori induk dengan ID: $parentCategoryId',
           );
           final kategoriInduk = await _kategoriOperasi
-              .getCategoryById(widget.idKategoriInduk!) as CategoryModel?;
+              .getCategoryById(parentCategoryId) as CategoryModel?;
 
           if (kategoriInduk == null) {
             throw Exception('Kategori induk tidak ditemukan.');
@@ -541,7 +541,7 @@ class _CategoryFormState extends State<CategoryForm> {
                   },
                 ),
                 const SizedBox(height: 16),
-                if (!_isEditMode) ...[
+                if (!_isSubKategoriMode) ...[
                   DropdownButtonFormField<CategoryType>(
                     initialValue: _tipe,
                     decoration: const InputDecoration(

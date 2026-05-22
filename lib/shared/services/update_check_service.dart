@@ -20,8 +20,13 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Kelas layanan untuk memeriksa pembaruan aplikasi.
 class UpdateCheckService {
+  /// Konteks build untuk navigasi.
   final BuildContext? context;
+
+  /// Instance SharedPreferences untuk mengakses penyimpanan lokal.
   final SharedPreferences prefs;
+
+  /// Layanan untuk mengakses penyimpanan lokal yang lebih kompleks.
   final LocalStorageService localStorageService;
 
   final PackageInfoService _packageInfoService = PackageInfoService();

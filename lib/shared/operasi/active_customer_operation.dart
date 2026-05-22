@@ -303,6 +303,7 @@ class ActiveCustomerOperation {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           final archivedCustomer = activeCustomer.copyWith(
+            updatedAt: DateTime.now().toUtc(),
             isDeleted: true,
             archivedAt: DateTime.now().toUtc(),
           );

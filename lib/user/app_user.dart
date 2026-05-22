@@ -15,12 +15,12 @@ class AppUser extends StatelessWidget {
   const AppUser({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     // FutureBuilder digunakan untuk memastikan SharedPreferences siap sebelum
     // aplikasi dimulai.
     return FutureBuilder<SharedPreferences>(
       future: SharedPreferences.getInstance(),
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         // Selama SharedPreferences dimuat, tampilkan loading indicator.
         if (!snapshot.hasData) {
           return const MaterialApp(
@@ -36,16 +36,16 @@ class AppUser extends StatelessWidget {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider<ThemeProvider>(
-              create: (_) =>
+              create: (final _) =>
                   ThemeProviderImpl(localStorageService: localStorageService),
             ),
             Provider<NotifikasiServis>(
-              create: (_) => NotifikasiServis(),
+              create: (final _) => NotifikasiServis(),
             ),
             // Tambahkan provider lain di sini jika dibutuhkan.
           ],
           child: Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
+            builder: (final context, final themeProvider, final child) {
               return ToastificationWrapper(
                 child: MaterialApp(
                   debugShowCheckedModeBanner: false,

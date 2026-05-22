@@ -33,7 +33,7 @@ Widget buildSectionHeader(final DateTime date, final double total) {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          FormatDate.formatDateBasic(date),
+          FormatDate.formatDateCompact(date),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         Text(
@@ -87,13 +87,15 @@ class _TransactionTileState extends State<TransactionTile> {
   @override
   void initState() {
     super.initState();
-    Log.info('TransactionTile initState for transaction ID: ${widget.transaction.id}');
+    Log.info(
+        'TransactionTile initState for transaction ID: ${widget.transaction.id}');
   }
 
   // ditambah: Logging pada dispose.
   @override
   void dispose() {
-    Log.info('TransactionTile dispose for transaction ID: ${widget.transaction.id}');
+    Log.info(
+        'TransactionTile dispose for transaction ID: ${widget.transaction.id}');
     super.dispose();
   }
 
@@ -200,7 +202,8 @@ class _TransactionTileState extends State<TransactionTile> {
                 e: snapshot.error,
                 st: snapshot.stackTrace,
               );
-              return const Text('Error memuat data', style: TextStyle(color: Colors.red));
+              return const Text('Error memuat data',
+                  style: TextStyle(color: Colors.red));
             }
             final categoryName = snapshot.data?[0] ?? '-';
             final walletName = snapshot.data?[1] ?? '-';
@@ -213,7 +216,11 @@ class _TransactionTileState extends State<TransactionTile> {
           children: [
             Text(
               CurrencyFormat.formatCurrency(widget.transaction.amount),
-              style: TextStyle(fontWeight: FontWeight.bold, color: iconColor),
+              style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: iconColor),
+            ),
+            const SizedBox(
+              height: 4,
             ),
             Text(TimeFormat.formatHourMinute(widget.transaction.date)),
           ],

@@ -11,10 +11,16 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman yang ditampilkan saat aplikasi dalam mode pemeliharaan (maintenance).
 class MaintenancePage extends StatefulWidget {
+  /// Informasi yang menjelaskan status pemeliharaan.
   final String maintenanceInfo;
+
+  /// Fungsi callback yang dipanggil saat pengguna menekan tombol "Coba Lagi".
   final FutureOr<void> Function() onRefresh;
+
+  /// Fungsi callback yang dipanggil saat pengguna menekan tombol "Keluar".
   final VoidCallback onExit;
 
+  /// Konstruktor untuk [MaintenancePage].
   const MaintenancePage({
     super.key,
     required this.maintenanceInfo,

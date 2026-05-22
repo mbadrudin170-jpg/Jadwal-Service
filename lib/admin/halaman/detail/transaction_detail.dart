@@ -1,39 +1,10 @@
 // path: lib/admin/halaman/detail/transaction_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman detail transaksi dari daftar transaksi.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/transaction_form.dart (FormTransaksiPage)
-//   - lib/shared/model/category_model.dart (CategoryModel)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/model/sub_category_model.dart (SubCategoryModel)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/model/wallet_model.dart (WalletModel)
-//   - lib/shared/operasi/category_operation.dart (CategoryOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/operasi/sub_category_operation.dart (SubCategoryOperation)
-//   - lib/shared/operasi/wallet_operation.dart (WalletOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/sub_category_operation.dart';
-import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
@@ -137,16 +108,11 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
             _buildDetailRow('Keterangan', transaction.description),
             _buildDetailRow(
               'Tanggal',
-            FormatDateTime.formatDateAndTimeCompact(transaction.date),
+              FormatDateTime.formatDateAndTimeCompact(transaction.date),
             ),
             _buildDetailRow(
-              'Jumlah',
-              NumberFormat.currency(
-                locale: 'id_ID',
-                symbol: 'Rp ',
-              ).format(transaction.amount),
-            ),
-            _buildDetailRow('Tipe', transaction.type.name.toUpperCase()),
+                'Jumlah', CurrencyFormat.formatCurrency(transaction.amount)),
+            _buildDetailRow('Tipe', transaction.type.displayName),
             _buildFutureDetailRow(
               'Dompet',
               _getName(
@@ -205,7 +171,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               ),
             _buildDetailRow(
               'Status Pembayaran',
-              transaction.paymentStatus.name.toUpperCase(),
+              transaction.paymentStatus.displayName,
             ),
             _buildDetailRow(
                 'Poin Dihasilkan', transaction.earnedPoints.toString()),
@@ -214,12 +180,12 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
             if (transaction.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-            FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
               ),
             if (transaction.endDate != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-             FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
               ),
           ],
         ),

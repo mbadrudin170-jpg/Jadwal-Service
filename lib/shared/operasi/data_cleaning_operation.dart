@@ -111,7 +111,7 @@ class DataCleaningOperation {
       Log.info(
         'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database SQLite.',
       );
-    } catch (e, s) {
+    } on Exception catch (e, s) {
       Log.error('Gagal menjalankan batch pembersihan data di SQLite.',
           e: e, st: s);
       // Tidak melempar error agar proses Firestore bisa tetap berjalan.
@@ -127,7 +127,7 @@ class DataCleaningOperation {
       Log.info('Memulai proses pembersihan data untuk Firestore...');
 
       // Membuat daftar semua query future
-      final futures = collections.map((collectionName) {
+      final futures = collections.map((final collectionName) {
         return _firestore
             .collection(collectionName)
             .where(

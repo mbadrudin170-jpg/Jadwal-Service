@@ -114,8 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
           _cachePackageId = null;
         });
         await Future.wait([
-          _totalPointsFuture ?? Future.value(),
-          _activePackagesFuture ?? Future.value(),
+          _totalPointsFuture ?? Future<int>.value(0),
+          _activePackagesFuture ?? Future<List<TransactionModel>>.value([]),
         ]);
       }
 
@@ -137,14 +137,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _navigateToDetail(final String userId) async {
     Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
     try {
-      final bool? hasChanged = await Navigator.push<bool>(
+      final hasChanged = await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
           builder: (final context) => UserCustomerDetailPage(userId: userId),
         ),
       );
 
-      if (hasChanged == true) {
+      if (hasChanged ?? false) {
         Log.info(
           'Kembali dari halaman detail dengan perubahan, memuat ulang data.',
         );
@@ -165,13 +165,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _navigateToPointsPage(final String customerId) async {
     Log.info('Menavigasi ke UserPointsPage untuk customerId: $customerId');
     try {
-      final bool? hasChanged = await Navigator.push<bool>(
+      final hasChanged = await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
           builder: (final context) => UserPointsPage(customerId: customerId),
         ),
       );
-      if (hasChanged == true) {
+      if (hasChanged ?? false) {
         Log.info('Kembali dari halaman poin dengan perubahan, memuat ulang data.');
         await _reloadData();
       } else {

@@ -218,7 +218,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                                               package: package),
                                     ),
                                   );
-                                  _refreshHistory();
+                                  unawaited(_refreshHistory());
                                 }
                               },
                             ),

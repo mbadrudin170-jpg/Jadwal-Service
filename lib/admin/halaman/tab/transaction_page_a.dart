@@ -1,4 +1,5 @@
-// path: lib/admin/halaman/tab/transaction_page.dart
+// path: lib/admin/halaman/tab/transaction_page_a.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -178,8 +179,6 @@ class _TransactionPageState extends State<TransactionPage> {
 
     if (reload && mounted) {
       setState(() {
-        // Hapus cache untuk menampilkan indikator loading
-        _cachedData = null;
         _error = null;
       });
     }
@@ -467,6 +466,7 @@ class _TransactionPageState extends State<TransactionPage> {
     final groupedTransactions = groupTransactionsByDate(transactionsData);
 
     return ListView.builder(
+      key: const PageStorageKey('transaction_list_key'),
       itemCount: groupedTransactions.length,
       itemBuilder: (final context, final index) {
         final date = groupedTransactions.keys.elementAt(index);
