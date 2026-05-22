@@ -100,7 +100,12 @@ class AppTheme {
       subtitleTextStyle:
           _lightTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
     ),
-    // ... tema komponen lainnya ...
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primaryColor,
+      ),
+    ),
   );
 
   /// Definisi tema gelap (dark theme).

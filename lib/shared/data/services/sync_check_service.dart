@@ -43,19 +43,14 @@ class SyncCheckService {
     Log.info('Memulai siklus orkestrasi sinkronisasi global.');
 
     final bool hasUploadedData = await _checkAndRunUpload();
+    await _checkAndRunDownload();
 
-    // Jika ada data yang diunggah, kita anggap klien sudah sinkron
-    // dan hanya perlu memperbarui timestamp unduh lokal untuk mencegah
-    // pengunduhan ulang data yang sama.
     if (hasUploadedData) {
       Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
-      // Perbarui status global di server untuk memberitahu klien lain.
       await _updateGlobalStatus();
     } else {
-      // Jika tidak ada data yang diunggah, baru jalankan proses pengecekan unduh
-      // untuk mendapatkan data terbaru dari server (jika ada).
-      await _checkAndRunDownload();
+      Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
     }
 
     Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
