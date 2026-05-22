@@ -12,7 +12,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-import 'package:wifi/user/page/transaction_detail_user.dart';
+import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 

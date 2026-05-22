@@ -1,8 +1,4 @@
-// path: lib/user/page/points_page_user.dart
-// diubah: Menggunakan ikon terpusat dari AppIcons untuk riwayat poin.
-// PERBAIKAN: Mencegah rebuild pada AppBar title saat berganti menu.
-// PERBAIKAN 2: Menggunakan `late final` untuk mengatasi error null safety.
-
+// path: lib/user/page/points_page_u.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -15,6 +11,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
+import 'package:wifi/user/page/transaction_detail_u.dart';
 
 /// Halaman untuk pengguna melihat poin mereka.
 ///
@@ -126,6 +123,39 @@ class _UserPointsPageState extends State<UserPointsPage> {
     }
   }
 
+  Future<void> _navigateToDetailTransaksi(
+      final TransactionModel transaction) async {
+    if (!mounted) return;
+    Log.info('Menuju ke halaman detail transaksi untuk ID: ${transaction.id}');
+
+    PackageModel? package;
+    // Jika ada packageId, coba ambil data paketnya.
+    if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
+      try {
+        package =
+            await _packageOpFirebase.getPackageById(transaction.packageId!);
+      } on Exception catch (e, st) {
+        // Jika gagal mengambil paket, cukup catat log dan lanjutkan tanpa data paket.
+        Log.error('Gagal mengambil data paket ${transaction.packageId}: $e',
+            e: e, st: st);
+      }
+    }
+
+    // Guard against context usage across async gaps.
+    if (!mounted) return;
+
+    // Navigasi ke halaman detail.
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (final context) => TransactionDetailPage(
+          transaction: transaction,
+          package: package,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Membangun UI UserPointsPage, menu terpilih: $_selectedMenu');
@@ -202,21 +232,26 @@ class _UserPointsPageState extends State<UserPointsPage> {
         final isAddition = tx.earnedPoints > 0;
         final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
         final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: ListTile(
-            leading: Icon(
-              isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
-              color: isAddition ? Colors.green : Colors.red,
+        return InkWell(
+          onTap: () => _navigateToDetailTransaksi(tx),
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: ListTile(
+              leading: Icon(
+                isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
+                color: isAddition ? Colors.green : Colors.red,
+              ),
+              title: Text(tx.description),
+              subtitle: Text(
+                FormatDate.formatDateBasic(tx.date),
+                // style: const TextStyle(fontSize: 12),
+              ),
+              trailing: Text(pointsStr,
+                  style: TextStyle(
+                      color: isAddition ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16)),
             ),
-            title: Text(tx.description),
-            subtitle: Text(FormatDate.formatDateBasic(tx.date),
-                style: const TextStyle(fontSize: 12)),
-            trailing: Text(pointsStr,
-                style: TextStyle(
-                    color: isAddition ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16)),
           ),
         );
       },

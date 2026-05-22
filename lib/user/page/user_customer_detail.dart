@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
-import 'package:wifi/user/page/points_page_user.dart';
+import 'package:wifi/user/page/points_page_u.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
