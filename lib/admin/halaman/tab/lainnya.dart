@@ -1,21 +1,4 @@
 // path: lib/admin/halaman/tab/lainnya.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai tab "Lainnya" di navigasi admin.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/lainnya/admin_settings.dart (SettingsAdminPage)
-//   - lib/admin/halaman/lainnya/apk_version_page.dart (ApkVersionPage)
-//   - lib/admin/halaman/lainnya/category.dart (CategoryPage)
-//   - lib/admin/halaman/lainnya/customer.dart (CustomerPage)
-//   - lib/admin/halaman/lainnya/feedback.dart (FeedbackPage)
-//   - lib/admin/halaman/lainnya/halaman_migrasi.dart (HalamanMigrasi)
-//   - lib/admin/halaman/lainnya/package.dart (PackagePage)
-//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
-//   - lib/admin/halaman/lainnya/tentang_aplikasi.dart (TentangAplikasiPage)
-//   - lib/admin/halaman/tes/halaman_tes.dart (HalamanTes)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
 
 import 'dart:async';
 
@@ -162,15 +145,20 @@ class _LainnyaPageState extends State<LainnyaPage> {
     );
   }
 
+  /// Membangun satu item menu dalam daftar.
   Widget _buildMenuItem({
     required final BuildContext context,
     required final IconData icon,
     required final String title,
     required final VoidCallback onTap,
   }) {
+    // Ambil textTheme dari context.
+    final textTheme = Theme.of(context).textTheme;
+
     return ListTile(
       leading: Icon(icon),
-      title: Text(title),
+      // Terapkan gaya teks dari tema untuk konsistensi.
+      title: Text(title, style: textTheme.titleMedium),
       onTap: onTap,
     );
   }

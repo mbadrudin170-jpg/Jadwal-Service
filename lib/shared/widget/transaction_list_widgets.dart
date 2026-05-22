@@ -1,6 +1,7 @@
 // path: lib/shared/widget/transaction_list_widgets.dart
 // Diperbarui: Aksi didelegasikan ke pemanggil melalui callback.
 // Diperbaiki: Menambahkan logging pada lifecycle dan error handling di TransactionTile.
+// Diperbaiki: Menggunakan Theme.of(context) untuk gaya teks yang konsisten.
 
 import 'dart:async';
 
@@ -27,25 +28,29 @@ Map<DateTime, List<TransactionModel>> groupTransactionsByDate(
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
 Widget buildSectionHeader(final DateTime date, final double total) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          FormatDate.formatDateCompact(date),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        Text(
-          CurrencyFormat.formatCurrency(total),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: total >= 0 ? Colors.green : Colors.red,
+  // Menggunakan Builder untuk mendapatkan context agar bisa mengakses Theme
+  return Builder(builder: (final context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            FormatDate.formatDateCompact(date),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
-        ),
-      ],
-    ),
-  );
+          Text(
+            CurrencyFormat.formatCurrency(total),
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: total >= 0 ? Colors.green : Colors.red,
+            ),
+          ),
+        ],
+      ),
+    );
+  });
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
@@ -53,7 +58,7 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 /// Widget ini bersifat pasif. Semua aksi (tap, edit, hapus) didelegasikan
 /// ke pemanggil melalui parameter callback.
 class TransactionTile extends StatefulWidget {
-  /// Data transaksi yang ditampilkan.
+  /// Data transaksi yang akan ditampilkan.
   final TransactionModel transaction;
 
   /// Callback yang dipanggil saat item di-tap.
@@ -65,7 +70,7 @@ class TransactionTile extends StatefulWidget {
   /// Callback yang dipanggil saat tombol "Hapus" ditekan.
   final VoidCallback? onDelete;
 
-  /// Membuat [TransactionTile].
+  /// Membuat instance dari [TransactionTile].
   const TransactionTile({
     super.key,
     required this.transaction,
@@ -79,11 +84,9 @@ class TransactionTile extends StatefulWidget {
 }
 
 class _TransactionTileState extends State<TransactionTile> {
-  // Operasi database tetap diperlukan untuk mengambil nama kategori dan dompet.
   final CategoryOperation _categoryOperation = CategoryOperation();
   final WalletOperation _walletOperation = WalletOperation();
 
-  // ditambah: Logging pada initState.
   @override
   void initState() {
     super.initState();
@@ -91,7 +94,6 @@ class _TransactionTileState extends State<TransactionTile> {
         'TransactionTile initState for transaction ID: ${widget.transaction.id}');
   }
 
-  // ditambah: Logging pada dispose.
   @override
   void dispose() {
     Log.info(
@@ -106,7 +108,6 @@ class _TransactionTileState extends State<TransactionTile> {
       );
       return category.name;
     } on Exception catch (e, st) {
-      // diperbaiki: Menambahkan logging error.
       Log.error(
         'Gagal mendapatkan nama kategori untuk ID: ${widget.transaction.categoryId}',
         e: e,
@@ -123,7 +124,6 @@ class _TransactionTileState extends State<TransactionTile> {
       );
       return wallet?.name ?? 'Dompet Dihapus';
     } on Exception catch (e, st) {
-      // diperbaiki: Menambahkan logging error.
       Log.error(
         'Gagal mendapatkan nama dompet untuk ID: ${widget.transaction.walletId}',
         e: e,
@@ -135,6 +135,7 @@ class _TransactionTileState extends State<TransactionTile> {
 
   @override
   Widget build(final BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     final IconData iconData;
     final Color iconColor;
     if (widget.transaction.type == TransactionType.income) {
@@ -151,7 +152,6 @@ class _TransactionTileState extends State<TransactionTile> {
         key: ValueKey(widget.transaction.id),
         onTap: widget.onTap,
         onLongPress: () {
-          // Hanya tampilkan dialog jika ada aksi (onEdit atau onDelete).
           if (widget.onEdit == null && widget.onDelete == null) return;
 
           unawaited(
@@ -195,15 +195,14 @@ class _TransactionTileState extends State<TransactionTile> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Memuat...');
             }
-            // diperbaiki: Menambahkan logging error.
             if (snapshot.hasError) {
               Log.error(
                 'Error di FutureBuilder TransactionTile untuk ID: ${widget.transaction.id}',
                 e: snapshot.error,
                 st: snapshot.stackTrace,
               );
-              return const Text('Error memuat data',
-                  style: TextStyle(color: Colors.red));
+              return Text('Error memuat data',
+                  style: textTheme.bodyMedium?.copyWith(color: Colors.red));
             }
             final categoryName = snapshot.data?[0] ?? '-';
             final walletName = snapshot.data?[1] ?? '-';
@@ -216,13 +215,18 @@ class _TransactionTileState extends State<TransactionTile> {
           children: [
             Text(
               CurrencyFormat.formatCurrency(widget.transaction.amount),
-              style: TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.bold, color: iconColor),
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: iconColor,
+              ),
             ),
             const SizedBox(
               height: 4,
             ),
-            Text(TimeFormat.formatHourMinute(widget.transaction.date)),
+            Text(
+              TimeFormat.formatHourMinute(widget.transaction.date),
+              style: textTheme.bodySmall,
+            ),
           ],
         ),
       ),

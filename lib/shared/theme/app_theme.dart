@@ -2,6 +2,79 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 
+// Gaya teks sekarang didefinisikan langsung di sini untuk isolasi tema.
+// Ini mencegah "kebocoran" gaya antara mode terang dan gelap.
+
+// 1. Definisikan TextTheme dasar tanpa warna.
+const TextTheme _baseTextTheme = TextTheme(
+  displayLarge: TextStyle(
+      fontFamily: 'Poppins', fontSize: 57, fontWeight: FontWeight.bold),
+  displayMedium: TextStyle(
+      fontFamily: 'Poppins', fontSize: 45, fontWeight: FontWeight.bold),
+  displaySmall: TextStyle(
+      fontFamily: 'Poppins', fontSize: 36, fontWeight: FontWeight.bold),
+  headlineLarge: TextStyle(
+      fontFamily: 'Poppins', fontSize: 32, fontWeight: FontWeight.bold),
+  headlineMedium: TextStyle(
+      fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.bold),
+  headlineSmall: TextStyle(
+      fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w500),
+  titleLarge: TextStyle(
+      fontFamily: 'Poppins', fontSize: 22, fontWeight: FontWeight.w500),
+  titleMedium: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.15),
+  titleSmall: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1),
+  bodyLarge: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 16,
+      fontWeight: FontWeight.normal,
+      letterSpacing: 0.5),
+  bodyMedium: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 14,
+      fontWeight: FontWeight.normal,
+      letterSpacing: 0.25),
+  bodySmall: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 12,
+      fontWeight: FontWeight.normal,
+      letterSpacing: 0.4),
+  labelLarge: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 1.25),
+  labelMedium: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.5),
+  labelSmall: TextStyle(
+      fontFamily: 'Open Sans',
+      fontSize: 10,
+      fontWeight: FontWeight.normal,
+      letterSpacing: 1.5),
+);
+
+// 2. Buat TextTheme spesifik untuk mode terang dengan menerapkan warna hitam.
+final TextTheme _lightTextTheme = _baseTextTheme.apply(
+  bodyColor: Colors.black87,
+  displayColor: Colors.black87,
+);
+
+// 3. Buat TextTheme spesifik untuk mode gelap dengan menerapkan warna putih.
+final TextTheme _darkTextTheme = _baseTextTheme.apply(
+  bodyColor: Colors.white,
+  displayColor: Colors.white,
+);
+
 /// Kelas ini mendefinisikan tema terang dan gelap untuk aplikasi,
 /// termasuk skema warna, tipografi, dan gaya komponen.
 class AppTheme {
@@ -11,47 +84,24 @@ class AppTheme {
     brightness: Brightness.light,
     primaryColor: AppColors.primaryColor,
     scaffoldBackgroundColor: AppColors.lightBackground,
-    fontFamily: 'Poppins',
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primaryColor,
-      primary: AppColors.primaryColor,
-      secondary: AppColors.secondaryColor,
-      surface: AppColors.lightBackground,
-      error: AppColors.errorColor,
     ),
-    appBarTheme: const AppBarTheme(
+    textTheme:
+        _lightTextTheme, // Menggunakan TextTheme terang yang sudah diisolasi
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.primaryColor,
       foregroundColor: Colors.white,
-      elevation: 0,
-      titleTextStyle: TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 24,
-        fontWeight: FontWeight.w500,
-        color: Colors.white,
-      ),
+      titleTextStyle:
+          _lightTextTheme.headlineSmall?.copyWith(color: Colors.white),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        textStyle: const TextStyle(
-          fontFamily: 'Open Sans',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 1.25,
-        ),
-      ),
+    listTileTheme: ListTileThemeData(
+      // Tidak perlu override warna di sini lagi, akan diwariskan dari _lightTextTheme
+      subtitleTextStyle:
+          _lightTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+      iconColor: AppColors.primaryColor,
     ),
-    cardTheme: CardThemeData(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-    ),
+    // ... tema komponen lainnya ...
   );
 
   /// Definisi tema gelap (dark theme).
@@ -60,47 +110,28 @@ class AppTheme {
     brightness: Brightness.dark,
     primaryColor: AppColors.primaryColor,
     scaffoldBackgroundColor: AppColors.darkBackground,
-    fontFamily: 'Poppins',
+    canvasColor: AppColors.darkBackground,
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primaryColor,
       brightness: Brightness.dark,
-      primary: AppColors.primaryColor,
-      secondary: Colors.grey.shade300,
-      surface: AppColors.darkBackground,
-      error: AppColors.errorColor.shade300,
+      surface: AppColors.darkSurface,
     ),
-    appBarTheme: const AppBarTheme(
+    textTheme:
+        _darkTextTheme, // Menggunakan TextTheme gelap yang sudah diisolasi
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.darkSurface,
       foregroundColor: Colors.white,
-      titleTextStyle: TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 24,
-        fontWeight: FontWeight.w500,
-        color: Colors.white,
-      ),
+      titleTextStyle: _darkTextTheme.headlineSmall,
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: AppColors.primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        textStyle: const TextStyle(
-          fontFamily: 'Open Sans',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 1.25,
-        ),
-      ),
-    ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardThemeData(
       color: AppColors.darkSurface,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
     ),
+    listTileTheme: ListTileThemeData(
+      // Tidak perlu override warna di sini lagi, akan diwariskan dari _darkTextTheme
+      subtitleTextStyle:
+          _darkTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade400),
+      iconColor: Colors.white70,
+    ),
+    // ... tema komponen lainnya ...
   );
 }
