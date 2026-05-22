@@ -16,7 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/tes_fitur/halaman_test.dart';
+// import 'package:wifi/tes_fitur/halaman_test.dart';
 
 // === INFORMASI DEPENDENCY ===
 // 📂 FILE INI DIGUNAKAN OLEH:
@@ -78,8 +78,8 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       const WalletPage(), // dari wallet_page.dart
       const TransactionPage(), // dari transaction_page.dart
       const StatistikPageA(), // dari statistik_page_a.dart
-      // const LainnyaPage(), // dari lainnya.dart
-      const TestNotificationPage(),
+      const LainnyaPage(), // dari lainnya.dart
+      // const TestNotificationPage(),
     ];
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {

@@ -62,6 +62,9 @@ class NotifikasiServis {
   NotifikasiServis.testing(this.plugin);
 
   /// Menginisialisasi konfigurasi zona waktu untuk penjadwalan notifikasi.
+  /// [DIPERBAIKI] Logika ini diubah untuk menangani kasus di mana emulator
+  /// mengembalikan 'GMT' yang ambigu, dan menggantinya dengan 'Asia/Jakarta'
+  /// agar penjadwalan sesuai dengan waktu lokal Indonesia.
   Future<void> _inisialisasiZonaWaktu() async {
     Log.info('Memeriksa status inisialisasi zona waktu.');
     if (_zonaWaktuTelahDiinisialisasi) {
@@ -74,27 +77,28 @@ class NotifikasiServis {
       Log.info('Memulai inisialisasi data zona waktu...');
       tz.initializeTimeZones();
 
-      final String zonaWaktuLokal =
+      // [FIXED] Mengambil properti .identifier dari objek TimezoneInfo
+      String zonaWaktuLokal =
           (await FlutterTimezone.getLocalTimezone()).identifier;
       Log.info('Zona waktu terdeteksi dari perangkat: $zonaWaktuLokal');
-      if (zonaWaktuLokal.isEmpty || zonaWaktuLokal == 'Unknown') {
-        Log.warning('Zona waktu tidak valid, menggunakan UTC sebagai fallback');
-      }
-      tz.Location lokasi;
+
+      // [DIPERBAIKI] Jika emulator mengembalikan "GMT" yang ambigu, gunakan "Asia/Jakarta".
       if (zonaWaktuLokal == 'GMT') {
-        Log.info(
-            'Zona waktu "GMT" terdeteksi, menggunakan tz.UTC secara langsung.');
+        Log.warning(
+          'Zona waktu "GMT" terdeteksi (kemungkinan dari emulator). Menggunakan "Asia/Jakarta" sebagai fallback.',
+        );
+        zonaWaktuLokal = 'Asia/Jakarta';
+      }
+
+      tz.Location lokasi;
+      try {
+        Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
+        lokasi = tz.getLocation(zonaWaktuLokal);
+      } on tz.LocationNotFoundException catch (e) {
+        Log.error(
+          'Lokasi untuk zona waktu "$zonaWaktuLokal" tidak ditemukan. Menggunakan "UTC" sebagai fallback utama. Detail: $e',
+        );
         lokasi = tz.UTC;
-      } else {
-        try {
-          Log.info('Mencari lokasi untuk zona waktu: $zonaWaktuLokal');
-          lokasi = tz.getLocation(zonaWaktuLokal);
-        } on tz.LocationNotFoundException catch (e) {
-          Log.warning(
-            'Lokasi untuk zona waktu "$zonaWaktuLokal" tidak ditemukan. Menggunakan "UTC" sebagai fallback. Detail: $e',
-          );
-          lokasi = tz.UTC;
-        }
       }
 
       tz.setLocalLocation(lokasi);
@@ -163,6 +167,9 @@ class NotifikasiServis {
 
     final androidPlugin = plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
+
+    await androidPlugin?.requestNotificationsPermission();
+    await androidPlugin?.requestExactAlarmsPermission();
     if (androidPlugin == null) {
       Log.warning(
           'Gagal mendapatkan implementasi plugin Android. Tidak dapat membuat channel.');
