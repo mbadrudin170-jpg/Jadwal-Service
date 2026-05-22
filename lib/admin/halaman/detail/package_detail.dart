@@ -103,7 +103,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 _buildDetailRow('Nama Paket', _package.name),
                 _buildDetailRow('Harga Sewa', 'Rp ${_package.price}'),
                 _buildDetailRow(
-                    'Masa Aktif', '${_package.duration} ${_package.type.name}'),
+                    'Masa Aktif', '${_package.duration} ${_package.type.displayName}'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),

@@ -445,14 +445,14 @@ class ActiveCustomerOperation {
 
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
+          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
 
           await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: nowMs,
-              ColumnNames.updatedAt: nowMs,
+              ColumnNames.archivedAt: now,
+              ColumnNames.updatedAt: now,
             },
             where:
                 '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',

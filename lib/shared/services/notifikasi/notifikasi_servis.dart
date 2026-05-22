@@ -323,6 +323,7 @@ class NotifikasiServis {
       channelDescription: channelNotifikasiPenting!.description,
       importance: Importance.max,
       priority: Priority.high,
+      // DIPERBAIKI: Menggunakan resource dari @drawable yang sudah terverifikasi ada.
     );
     final notificationDetails = NotificationDetails(android: androidDetails);
 

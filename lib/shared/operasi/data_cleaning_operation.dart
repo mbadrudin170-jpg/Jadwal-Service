@@ -128,12 +128,13 @@ class DataCleaningOperation {
 
       // Membuat daftar semua query future
       final futures = collections.map((final collectionName) {
+        // [DIPERBAIKI] Menambahkan filter `isDeleted: true` sesuai permintaan.
+        // Sekarang, dokumen akan dihapus hanya jika isDeleted == true DAN archivedAt sudah kadaluarsa.
+        // Ini membutuhkan composite index di Firestore: (isDeleted, archivedAt).
         return _firestore
             .collection(collectionName)
-            .where(
-              ColumnNames.archivedAt,
-              isLessThanOrEqualTo: timeLimit,
-            )
+            .where(ColumnNames.isDeleted, isEqualTo: true)
+            .where(ColumnNames.archivedAt, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
 
@@ -148,7 +149,7 @@ class DataCleaningOperation {
         if (snapshot.docs.isNotEmpty) {
           final collectionName = collections[i];
           Log.info(
-            '[Firestore - $collectionName] Ditemukan ${snapshot.docs.length} dokumen kadaluarsa untuk dihapus.',
+            '[Firestore - $collectionName] Ditemukan ${snapshot.docs.length} dokumen kadaluarsa (isDeleted:true) untuk dihapus.',
           );
           for (final doc in snapshot.docs) {
             batch.delete(doc.reference);
@@ -163,10 +164,11 @@ class DataCleaningOperation {
         await batch.commit();
         totalDeleted = docsFound;
         Log.info(
-          'Total $totalDeleted dokumen arsip kadaluarsa berhasil dihapus dari Firestore.',
+          'Total $totalDeleted dokumen arsip kadaluarsa (isDeleted:true) berhasil dihapus dari Firestore.',
         );
       } else {
-        Log.info('Tidak ada data arsip kadaluarsa untuk dihapus di Firestore.');
+        Log.info(
+            'Tidak ada data arsip kadaluarsa (isDeleted:true) untuk dihapus di Firestore.');
       }
     } catch (e, s) {
       Log.error('Gagal menjalankan batch pembersihan data di Firestore.',

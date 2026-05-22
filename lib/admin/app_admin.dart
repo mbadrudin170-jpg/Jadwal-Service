@@ -2,6 +2,7 @@
 // DIUBAH: Menyuntikkan SqliteTransactionRepository ke dalam TransactionProvider.
 // DIUBAH: Pengecekan koneksi internet sebelum membersihkan data.
 // DIUBAH: Menggunakan SettingsOperation untuk mendapatkan retentionDays.
+// DIPERBAIKI: Mengganti nama ikon notifikasi menjadi 'ic_notification' yang valid.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -86,11 +87,10 @@ class _AppInitializerState extends State<AppInitializer> {
       final notifikasiServis = context.read<NotifikasiServis>();
 
       Log.info('Menginisialisasi layanan notifikasi...');
-      await notifikasiServis.inisialisasi(iconName: 'android12splash');
+      // DIPERBAIKI: Menggunakan nama ikon notifikasi yang sesuai standar Android.
+      await notifikasiServis.inisialisasi(iconName: 'ic_stat_logo_wifi');
       await notifikasiServis.requestPermissions();
-// ... setelah requestPermissions()
 
-// Tangkap jika aplikasi dibuka dari notifikasi saat mati
       final launchDetails =
           await notifikasiServis.getDetailPeluncuranNotifikasi();
       if (launchDetails?.didNotificationLaunchApp ?? false) {

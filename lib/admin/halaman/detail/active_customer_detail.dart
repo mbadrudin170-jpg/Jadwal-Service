@@ -46,7 +46,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
     Log.info('  - ID Pelanggan: ${widget.activeCustomer.customerId}');
     Log.info('  - ID Paket: ${widget.activeCustomer.packageId}');
-    Log.info('  - Status: ${widget.activeCustomer.status.name}');
+    Log.info('  - Status: ${widget.activeCustomer.status.displayName}');
 
     _activeCustomer = widget.activeCustomer;
     unawaited(_loadDetails());
@@ -236,7 +236,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                             ),
                             _buildInfoRow(
                               'Status',
-                              _activeCustomer.status.name,
+                              _activeCustomer.status.displayName,
                             ),
                             if (_package != null)
                               _buildInfoRow(

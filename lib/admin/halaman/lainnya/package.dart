@@ -402,7 +402,7 @@ class _PackagePageState extends State<PackagePage> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      'Rp ${paket.price} / ${paket.duration} ${paket.type.name}',
+                      'Rp ${paket.price} / ${paket.duration} ${paket.type.displayName}',
                     ),
                     // diubah: Menampilkan rewardPoints di trailing
                     trailing: Text('Poin: ${paket.rewardPoints}'),
