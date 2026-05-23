@@ -1,10 +1,4 @@
 // path: lib/shared/services/internet_connection_check.dart
-// File ini menyediakan layanan terpusat untuk memeriksa status koneksi internet.
-
-// ditambah: Menerapkan Dependency Injection agar kelas ini dapat diuji.
-// ditambah: Menambahkan Log yang lebih detail untuk setiap langkah.
-// diperbaiki: Memperbaiki sintaks pemanggilan Log.error yang salah.
-// diperbaiki: Menambahkan logging inisialisasi.
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wifi/shared/debug/log.dart';

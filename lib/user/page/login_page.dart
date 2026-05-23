@@ -1,5 +1,7 @@
 // path: lib/user/page/login_page.dart
 // diubah: Mengganti SnackBarUtil menjadi ToastUtil dan menambahkan pencatatan waktu login.
+// PERBAIKAN: Menghapus toast otomatis di initState untuk mencegah notifikasi ganda.
+// FITUR: Menambahkan pengecekan koneksi internet sebelum login.
 
 import 'dart:async';
 
@@ -12,6 +14,7 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -53,6 +56,8 @@ class _LoginViewState extends State<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
   final UserActivityService _activityService = UserActivityService();
+  final InternetConnectionService _internetService =
+      InternetConnectionService(); // DITAMBAHKAN
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -61,16 +66,9 @@ class _LoginViewState extends State<_LoginView> {
   @override
   void initState() {
     super.initState();
-    // Menghilangkan splash screen di sini agar transisi mulus.
     FlutterNativeSplash.remove();
-
     _firestore = widget.firestore ?? FirebaseFirestore.instance;
     unawaited(_initializeLocalStorage());
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
-      if (mounted) {
-        ToastUtil.info(context, 'Anda telah keluar. Silakan login kembali.');
-      }
-    });
   }
 
   Future<void> _initializeLocalStorage() async {
@@ -110,6 +108,16 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Future<void> _processLogin() async {
+    // FITUR: Pengecekan koneksi internet ditambahkan di sini.
+    final isConnected = await _internetService.checkConnection();
+    if (!isConnected) {
+      if (mounted) {
+        ToastUtil.error(
+            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+      }
+      return; // Hentikan proses login jika tidak ada internet
+    }
+
     if (!_isLocalStorageInitialized) {
       await _showErrorAlert('Layanan penyimpanan lokal belum siap. Coba lagi.');
       return;
@@ -138,7 +146,6 @@ class _LoginViewState extends State<_LoginView> {
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
-        // DITAMBAHKAN: Mencatat waktu aktivitas terakhir pengguna.
         unawaited(_activityService.pingActivity(customer.id));
 
         await _localStorageService.saveAccount(customer);

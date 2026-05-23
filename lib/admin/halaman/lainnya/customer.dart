@@ -1,15 +1,4 @@
 // path: lib/admin/halaman/lainnya/customer.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman dalam navigasi admin (tab Pelanggan).
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/detail_pelanggan.dart (DetailPelangganPage)
-//   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 
@@ -19,6 +8,7 @@ import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
@@ -43,11 +33,13 @@ class CustomerPage extends StatefulWidget {
 
 class _CustomerPageState extends State<CustomerPage> {
   final CustomerOperation _customerOperation = CustomerOperation();
+  final SQLitePointsDataSource _pointsDataSource = SQLitePointsDataSource();
 
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   List<CustomerModel> _allCustomers = [];
   List<CustomerModel> _filteredCustomers = [];
+  final Map<String, int> _customerPoints = {};
   bool _isLoading = true;
 
   SortOption _activeSort = SortOption.nameAZ;
@@ -182,6 +174,15 @@ class _CustomerPageState extends State<CustomerPage> {
     try {
       final list = await _customerOperation.getCustomers();
       Log.info('Berhasil mengambil ${list.length} data customer.');
+
+      for (final customer in list) {
+        final points = await _pointsDataSource.getTotalPoints(customer.id);
+        if (mounted) {
+          setState(() {
+            _customerPoints[customer.id] = points;
+          });
+        }
+      }
 
       if (mounted) {
         setState(() {
@@ -394,6 +395,7 @@ class _CustomerPageState extends State<CustomerPage> {
       itemCount: _filteredCustomers.length,
       itemBuilder: (final context, final index) {
         final customer = _filteredCustomers[index];
+        final points = _customerPoints[customer.id] ?? 0;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: ListTile(
@@ -402,6 +404,20 @@ class _CustomerPageState extends State<CustomerPage> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(customer.macAddress),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.star, color: Colors.amber),
+                const SizedBox(width: 4),
+                Text(
+                  points.toString(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
             onTap: () async {
               Log.info(
                 'ListTile untuk pelanggan "${customer.name}" ditekan. Menavigasi ke DetailPelangganPage.',

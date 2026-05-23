@@ -59,7 +59,8 @@ class _AccountListPageState extends State<AccountListPage> {
   late Future<List<CustomerModel>> _accountListFuture;
   late LocalStorageService _localStorageService;
   bool _isLocalStorageInitialized = false;
-  final UserActivityService _activityService = UserActivityService(); // DITAMBAHKAN
+  final UserActivityService _activityService =
+      UserActivityService(); // DITAMBAHKAN
 
   @override
   void initState() {
@@ -120,12 +121,7 @@ class _AccountListPageState extends State<AccountListPage> {
 
     final navigator = Navigator.of(context);
     try {
-      // [DIPERBAIKI] Memanggil metode yang benar untuk mengganti akun aktif,
-      // yang akan mengatur token ID pengguna dan memperbarui data akun.
       await _localStorageService.saveCurrentAccount(customer);
-
-      // DITAMBAHKAN: Kirim ping aktivitas pengguna saat berhasil memilih akun.
-      // Tidak perlu di-await agar tidak memblokir navigasi.
       unawaited(_activityService.pingActivity(customer.id));
 
       if (!mounted) return;
@@ -136,15 +132,16 @@ class _AccountListPageState extends State<AccountListPage> {
               localStorageService: _localStorageService,
             );
 
-      await navigator.pushReplacement(
+      // PERBAIKAN: Menggunakan pushAndRemoveUntil untuk memastikan tumpukan navigasi bersih.
+      // Ini akan menghapus semua halaman sebelumnya dan menjadikan MainPage sebagai root baru,
+      // sehingga mencegah state ganda dan memastikan banner iklan dimuat ulang dengan benar.
+      await navigator.pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (final context) => page),
+        (final route) => false,
       );
 
-      // SnackBar setelah navigasi; pastikan context masih valid
-      if (mounted) {
-        ToastUtil.success(
-            context, 'Berhasil masuk sebagai ${customer.name}');
-      }
+      // Toast tidak dapat ditampilkan setelah navigasi pushAndRemoveUntil karena context lama tidak valid.
+      // Notifikasi keberhasilan login seharusnya ditangani di halaman tujuan jika diperlukan.
     } on Exception catch (e, st) {
       Log.error('Gagal menyimpan akun yang dipilih',
           e: e, st: st, data: {'customer_id': customer.id});
@@ -262,8 +259,7 @@ class _AccountListPageState extends State<AccountListPage> {
                     _loadAccountList();
 
                     if (pageContext.mounted) {
-                      ToastUtil.success(
-                          pageContext, 'Akun berhasil dihapus');
+                      ToastUtil.success(pageContext, 'Akun berhasil dihapus');
                     }
                   }
                 } on Exception catch (e, st) {
@@ -306,7 +302,7 @@ class _AccountListPageState extends State<AccountListPage> {
                 if (!context.mounted) return;
 
                 ToastUtil.success(
-                    context, 'Anda telah keluar dan akun dihapus');
+                    context, 'Anda telah keluar dan akun dihapus'); 
 
                 await navigator.pushNamedAndRemoveUntil(
                   '/login',
