@@ -1,8 +1,9 @@
 // path: lib/user/page/update_apk_page_u.dart
 // PERUBAHAN:
-// - Tombol "Lewati" sekarang memiliki logika navigasi langsung ke MainPage atau LoginPage.
-// - Menambahkan SharedPreferences dan LocalStorageService ke constructor.
-// - Menambahkan impor yang diperlukan untuk halaman dan service.
+// - Mengubah tata letak tombol aksi menjadi lebih seimbang dan rapi.
+// - Tombol "Download" kini berukuran penuh.
+// - Tombol "Tutorial" dan "Lewati" ditempatkan berdampingan di bawahnya.
+// - Tombol YouTube diubah menjadi OutlinedButton.icon untuk konsistensi.
 
 import 'dart:async';
 
@@ -14,30 +15,20 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/shared/services/update_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-/// Halaman yang menampilkan detail pembaruan aplikasi dan opsi untuk mengunduh.
 class UpdateApkPage extends StatefulWidget {
-  /// Informasi versi APK terbaru yang didapat dari proses inisialisasi.
   final ApkVersionModel apkInfo;
-
-  /// Informasi paket aplikasi yang sedang terpasang (versi lokal).
   final PackageInfoModel packageInfo;
-
-  /// Arsitektur perangkat yang terdeteksi (bit64, bit32, universal).
   final ApkArchitectureEnum architecture;
-
-  /// Diperlukan untuk memeriksa status login.
   final SharedPreferences prefs;
-
-  /// Diperlukan untuk diteruskan ke MainPage jika pengguna sudah login.
   final LocalStorageService localStorageService;
 
-  /// Membuat instance [UpdateApkPage].
   const UpdateApkPage({
     super.key,
     required this.apkInfo,
@@ -55,6 +46,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     with SingleTickerProviderStateMixin {
   final String _fileSize = 'Tersedia';
   late final List<String> _changelog;
+  final UpdateService _updateService = UpdateService();
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -63,7 +55,13 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   void initState() {
     super.initState();
     _initializeAnimations();
-    _changelog = widget.apkInfo.releaseNotes.split('\n');
+
+    _changelog = widget.apkInfo.releaseNotes
+        .split('\n')
+        .map((final e) => e.trim())
+        .where((final e) => e.isNotEmpty)
+        .toList();
+
     unawaited(_pulseController.repeat(reverse: true));
     FlutterNativeSplash.remove();
   }
@@ -91,24 +89,39 @@ class _UpdateApkPageState extends State<UpdateApkPage>
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
-        ToastUtil.error(
-            context, 'Link download belum tersedia untuk perangkat ini.');
+        ToastUtil.error(context, 'Link download belum tersedia.');
       }
       return;
     }
 
-    Log.info('Mencoba membuka URL download: $downloadUrl');
+    final fileName = 'update_v${widget.apkInfo.latestVersion}.apk';
+
+    await _updateService.downloadAndInstallApk(
+      context: context,
+      url: downloadUrl,
+      fileName: fileName,
+    );
+  }
+
+  Future<void> _openTutorial() async {
+    final url = widget.apkInfo.youtubeTutorial;
+    if (url.isEmpty) {
+      if (mounted) {
+        ToastUtil.info(context, 'Link tutorial belum tersedia.');
+      }
+      return;
+    }
     try {
-      final uri = Uri.parse(downloadUrl);
+      final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Tidak dapat membuka $downloadUrl');
+        throw Exception("Could not launch $url");
       }
-    } on Exception catch (e, st) {
-      Log.error('Gagal membuka URL', e: e, st: st);
+    } catch (e, st) {
+      Log.error("Gagal membuka URL Tutorial", e: e, st: st);
       if (mounted) {
-        ToastUtil.error(context, 'Gagal membuka link download.');
+        ToastUtil.error(context, "Gagal membuka link tutorial.");
       }
     }
   }
@@ -150,12 +163,97 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             const SizedBox(height: 20),
             _buildUpdateStatusCard(),
             const SizedBox(height: 24),
-            _buildActionButton(),
+            _buildActionButtons(),
             const SizedBox(height: 20),
-            _buildChangelogCard(),
+            if (_changelog.isNotEmpty) _buildChangelogCard(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    final isUpdateRequired = widget.apkInfo.isUpdateRequired;
+    final hasTutorial = widget.apkInfo.youtubeTutorial.isNotEmpty;
+
+    return Column(
+      children: [
+        // Tombol Download Utama
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton.icon(
+            onPressed: _downloadUpdate,
+            icon: const Icon(AppIcons.downloadRounded, size: 24),
+            label: const Text(
+              'Download Pembaruan',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 4,
+            ),
+          ),
+        ),
+
+        // Tombol Sekunder (Tutorial dan Lewati)
+        if (hasTutorial || !isUpdateRequired) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (hasTutorial)
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      onPressed: _openTutorial,
+                      icon: const Icon(AppIcons.youtube, color: Colors.red),
+                      label: const Text(
+                        'Tutorial',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.red,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.red.withAlpha(100)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (hasTutorial && !isUpdateRequired)
+                const SizedBox(width: 12),
+              if (!isUpdateRequired)
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: _skipUpdateAndNavigate,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Lewati',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 
@@ -390,55 +488,6 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         ],
       ),
       child: child,
-    );
-  }
-
-  Widget _buildActionButton() {
-    final isUpdateRequired = widget.apkInfo.isUpdateRequired;
-
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 56,
-            child: FilledButton.icon(
-              onPressed: _downloadUpdate,
-              icon: const Icon(AppIcons.downloadRounded, size: 24),
-              label: const Text(
-                'Download Update',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                elevation: 4,
-              ),
-            ),
-          ),
-        ),
-        if (!isUpdateRequired) ...[
-          const SizedBox(width: 12),
-          SizedBox(
-            height: 56,
-            child: OutlinedButton(
-              onPressed: _skipUpdateAndNavigate, // Menggunakan fungsi baru
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.grey[700],
-                side: BorderSide(color: Colors.grey[300]!),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: const Text(
-                'Lewati',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
-      ],
     );
   }
 
