@@ -55,15 +55,13 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   void initState() {
     super.initState();
     _initializeAnimations();
-
+    FlutterNativeSplash.remove();
     _changelog = widget.apkInfo.releaseNotes
         .split('\n')
         .map((final e) => e.trim())
         .where((final e) => e.isNotEmpty)
         .toList();
-
     unawaited(_pulseController.repeat(reverse: true));
-    FlutterNativeSplash.remove();
   }
 
   void _initializeAnimations() {
@@ -227,8 +225,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                     ),
                   ),
                 ),
-              if (hasTutorial && !isUpdateRequired)
-                const SizedBox(width: 12),
+              if (hasTutorial && !isUpdateRequired) const SizedBox(width: 12),
               if (!isUpdateRequired)
                 Expanded(
                   child: SizedBox(

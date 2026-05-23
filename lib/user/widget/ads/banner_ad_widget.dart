@@ -1,6 +1,4 @@
 // path: lib/user/widget/ads/banner_ad_widget.dart
-// diubah: Disederhanakan untuk hanya menggunakan Google Mobile Ads dengan mediasi.
-// Logika fallback ke Unity sekarang ditangani otomatis oleh GMA SDK.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,16 +6,10 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Widget untuk menampilkan banner iklan Google Mobile Ads (dengan mediasi).
-///
-/// Widget ini mengelola siklus hidup banner ad, termasuk loading,
-/// error handling, dan retry otomatis jika gagal load.
 class BannerAdWidget extends StatefulWidget {
   /// Unit ID iklan yang akan ditampilkan.
   final String adUnitId;
 
-  /// Membuat instance dari [BannerAdWidget].
-  ///
-  /// [adUnitId] adalah ID unit iklan dari Google AdMob.
   const BannerAdWidget({
     super.key,
     required this.adUnitId,
@@ -30,6 +22,7 @@ class BannerAdWidget extends StatefulWidget {
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  Timer? _retryTimer; // Solusi Kebocoran Memori: Untuk membatalkan auto-retry jika widget di-dispose
 
   @override
   void initState() {
@@ -42,15 +35,26 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.adUnitId != widget.adUnitId) {
-      Log.info('Ad unit ID changed. Reloading banner.');
-      unawaited(_disposeBanner());
-      Log.info(' $_disposeBanner');
-      unawaited(_loadBanner());
-      Log.info(' $_loadBanner');
+      Log.info('Ad unit ID changed. Re-initializing banner.');
+      // Batalkan timer retry lama jika ada
+      _retryTimer?.cancel();
+      
+      // Jalankan fungsi dispose secara sekuensial sebelum memuat yang baru
+      _disposeBanner().then((_) {
+        if (mounted) unawaited(_loadBanner());
+      });
     }
   }
 
   Future<void> _loadBanner() async {
+    // Pastikan timer retry sebelumnya dibersihkan sebelum memuat ulang
+    _retryTimer?.cancel();
+
+    if (widget.adUnitId.isEmpty) {
+      Log.error('Banner ad failed to load: adUnitId is empty');
+      return;
+    }
+
     Log.api('/banner_ad', {'adUnitId': widget.adUnitId}, method: 'LOAD');
     _isLoaded = false;
 
@@ -60,8 +64,11 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (final ad) {
-          if (!mounted) return;
-          Log.info('Banner ad loaded successfully.');
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
+          Log.info('Banner ad loaded successfully via Mediation.');
           setState(() {
             _isLoaded = true;
           });
@@ -77,14 +84,18 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             },
           );
           await ad.dispose();
-          _bannerAd = null;
+          
+          if (!mounted) return;
+          
+          setState(() {
+            _bannerAd = null;
+            _isLoaded = false;
+          });
 
-          // Coba lagi setelah beberapa detik jika gagal
-          unawaited(
-            Future.delayed(const Duration(seconds: 30), () async {
-              if (mounted) await _loadBanner();
-            }),
-          );
+          // Menggunakan Timer yang bisa dibatalkan jika widget dihancurkan
+          _retryTimer = Timer(const Duration(seconds: 30), () {
+            if (mounted) unawaited(_loadBanner());
+          });
         },
       ),
     );
@@ -93,14 +104,20 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   Future<void> _disposeBanner() async {
-    Log.info('Disposing banner ad.');
+    Log.info('Disposing banner ad resource.');
+    _retryTimer?.cancel();
     await _bannerAd?.dispose();
     _bannerAd = null;
-    _isLoaded = false;
+    if (mounted) {
+      setState(() {
+        _isLoaded = false;
+      });
+    }
   }
 
   @override
   Widget build(final BuildContext context) {
+    // Memastikan objek iklan dan status sinkron sebelum merender UI
     if (_isLoaded && _bannerAd != null) {
       return SizedBox(
         height: _bannerAd!.size.height.toDouble(),
@@ -108,12 +125,12 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
         child: AdWidget(ad: _bannerAd!),
       );
     }
-    // Jika iklan belum siap, jangan tampilkan apa-apa.
     return const SizedBox.shrink();
   }
 
   @override
   void dispose() {
+    _retryTimer?.cancel(); // Pastikan timer dibatalkan saat berpindah halaman
     unawaited(_disposeBanner());
     super.dispose();
   }

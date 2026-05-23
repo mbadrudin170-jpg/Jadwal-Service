@@ -128,7 +128,8 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       MaterialPageRoute<bool>(
         builder: (final context) => PointsPage(
           customerId: customerId,
-          dataSource: FirebasePointsDataSource(), // Menggunakan data source Firebase
+          dataSource:
+              FirebasePointsDataSource(), // Menggunakan data source Firebase
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
