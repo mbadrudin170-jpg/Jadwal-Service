@@ -20,28 +20,6 @@ import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/tab/active_customer_tab.dart (ActiveCustomerPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/active_customer_model.dart (ActiveCustomerModel)
-//   - lib/shared/model/category_model.dart (CategoryModel)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/model/save_result_model.dart (SaveResultModel)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/model/wallet_model.dart (WalletModel)
-//   - lib/shared/operasi/active_customer_operation.dart (ActiveCustomerOperation)
-//   - lib/shared/operasi/category_operation.dart (CategoryOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/operasi/wallet_operation.dart (WalletOperation)
-//   - lib/shared/services/pembaruan_data_service.dart (PembaruanDataService)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/utils/snackbar_util.dart (ToastUtil)
-
 /// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
   final DateTime startDate,

@@ -8,9 +8,8 @@ import 'package:flutter/material.dart';
 /// dan kemudahan dalam mengganti ikon di masa mendatang. Cukup ubah di satu tempat.
 ///
 /// Contoh Penggunaan:
-/// ```
-/// Icon(AppIcons.save)
-/// ```
+/// /// Icon(AppIcons.save)
+/// ///
 class AppIcons {
   // Mencegah class ini diinstansiasi.
   AppIcons._();
@@ -186,7 +185,7 @@ class AppIcons {
 
   /// Ikon untuk aksi unduh (download).
   static const IconData download = Icons.download;
-  
+
   /// Ikon untuk aksi unduh (download) dengan sudut bulat.
   static const IconData downloadRounded = Icons.download_rounded;
 
@@ -244,4 +243,7 @@ class AppIcons {
 
   /// Ikon untuk perangkat Android.
   static const IconData phoneAndroid = Icons.phone_android_rounded;
+
+  /// Ikon untuk video YouTube.
+  static const IconData youtube = Icons.ondemand_video_rounded;
 }
