@@ -1,9 +1,4 @@
 // path: lib/admin/app_admin.dart
-// DIUBAH: Menyuntikkan SqliteTransactionRepository ke dalam TransactionProvider.
-// DIUBAH: Pengecekan koneksi internet sebelum membersihkan data.
-// DIUBAH: Menggunakan SettingsOperation untuk mendapatkan retentionDays.
-// DIPERBAIKI: Mengganti nama ikon notifikasi menjadi 'ic_notification' yang valid.
-// DITAMBAHKAN: Log yang lebih jelas setelah inisialisasi notifikasi.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
