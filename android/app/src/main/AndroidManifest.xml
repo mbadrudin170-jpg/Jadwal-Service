@@ -58,7 +58,7 @@
         <!-- TODO: Ganti dengan ID Aplikasi AdMob Anda yang sebenarnya -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9773465799516929~2356901332"/>
+            android:value="ca-app-pub-9773465799516929~5575068959"/>
     </application>
     <queries>
         <intent>
