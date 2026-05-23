@@ -98,12 +98,14 @@ class CustomerOpFirebase {
 
   /// Menghapus pelanggan dari Firestore secara permanen.
   Future<void> deleteCustomer(final String customerId) async {
-    Log.warning('Memulai penghapusan permanen pelanggan di Firestore: $customerId');
+    Log.warning(
+        'Memulai penghapusan permanen pelanggan di Firestore: $customerId');
     try {
       await _customerCollection.doc(customerId).delete();
       Log.info('Penghapusan permanen pelanggan berhasil: $customerId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus pelanggan secara permanen: $customerId', e: e, st: s);
+      Log.error('Gagal menghapus pelanggan secara permanen: $customerId',
+          e: e, st: s);
       rethrow;
     }
   }
@@ -119,7 +121,8 @@ class CustomerOpFirebase {
       });
       Log.info('Soft delete pelanggan berhasil: $customerId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete pelanggan: $customerId', e: e, st: s);
+      Log.error('Gagal melakukan soft delete pelanggan: $customerId',
+          e: e, st: s);
       rethrow;
     }
   }

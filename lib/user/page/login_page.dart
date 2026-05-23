@@ -2,6 +2,8 @@
 // diubah: Mengganti SnackBarUtil menjadi ToastUtil dan menambahkan pencatatan waktu login.
 // PERBAIKAN: Menghapus toast otomatis di initState untuk mencegah notifikasi ganda.
 // FITUR: Menambahkan pengecekan koneksi internet sebelum login.
+// FITUR: Menambahkan tombol untuk memilih akun yang sudah tersimpan.
+// PERBAIKAN: Mencegah navigasi ke halaman list akun jika tidak ada akun tersimpan.
 
 import 'dart:async';
 
@@ -56,8 +58,7 @@ class _LoginViewState extends State<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
   final UserActivityService _activityService = UserActivityService();
-  final InternetConnectionService _internetService =
-      InternetConnectionService(); // DITAMBAHKAN
+  final InternetConnectionService _internetService = InternetConnectionService();
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -108,14 +109,12 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Future<void> _processLogin() async {
-    // FITUR: Pengecekan koneksi internet ditambahkan di sini.
     final isConnected = await _internetService.checkConnection();
     if (!isConnected) {
       if (mounted) {
-        ToastUtil.error(
-            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+        ToastUtil.error(context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
       }
-      return; // Hentikan proses login jika tidak ada internet
+      return;
     }
 
     if (!_isLocalStorageInitialized) {
@@ -167,6 +166,28 @@ class _LoginViewState extends State<_LoginView> {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
+    }
+  }
+
+  // DITAMBAHKAN: Logika untuk menangani pemilihan akun yang ada.
+  Future<void> _handleChooseExistingAccount() async {
+    if (!_isLocalStorageInitialized) {
+      ToastUtil.warning(context, 'Penyimpanan data lokal belum siap.');
+      return;
+    }
+
+    final accounts = await _localStorageService.getAccountList();
+    if (!mounted) return;
+
+    if (accounts.isEmpty) {
+      ToastUtil.info(context, 'Tidak ada akun yang tersimpan. Silakan login manual.');
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (final context) => const AccountListPage(),
+        ),
+      );
     }
   }
 
@@ -237,40 +258,53 @@ class _LoginViewState extends State<_LoginView> {
                 child: const Text('Login'),
               ),
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  unawaited(showDialog<void>(
-                    context: context,
-                    builder: (final ctx) => AlertDialog(
-                      title: const Text('Fitur Dalam Pengembangan'),
-                      content: const Text('Fitur ini sedang kami kerjakan.'),
-                      actions: [
-                        TextButton(
-                          child: const Text('OK'),
-                          onPressed: () => Navigator.of(ctx).pop(),
-                        ),
-                      ],
-                    ),
-                  ));
-                },
-                child: const Text('Lupa Sandi?'),
-              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Belum punya akun?'),
-                  TextButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (final context) => const AccountListPage(),
-                        ),
-                      );
-                    },
-                    child: const Text('Daftar di sini'),
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      'Atau',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                   ),
+                  const Expanded(child: Divider()),
                 ],
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.people_alt_outlined),
+                label: const Text('Pilih dari Akun Tersimpan'),
+                // diubah: Memanggil fungsi baru dengan logika pengecekan.
+                onPressed: _handleChooseExistingAccount,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.center,
+                child: TextButton(
+                  onPressed: () {
+                    unawaited(showDialog<void>(
+                      context: context,
+                      builder: (final ctx) => AlertDialog(
+                        title: const Text('Fitur Dalam Pengembangan'),
+                        content: const Text('Fitur ini sedang kami kerjakan.'),
+                        actions: [
+                          TextButton(
+                            child: const Text('OK'),
+                            onPressed: () => Navigator.of(ctx).pop(),
+                          ),
+                        ],
+                      ),
+                    ));
+                  },
+                  child: const Text('Lupa Sandi?'),
+                ),
               ),
             ],
           ),
