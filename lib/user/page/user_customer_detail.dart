@@ -6,6 +6,7 @@
 // DIPERBAIKI: Mengganti onPopInvoked yang usang dengan onPopInvokedWithResult.
 // diubah: Refaktor untuk menggunakan PointsPage generik.
 // DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
+// DITAMBAHKAN: Iklan banner di bagian bawah halaman.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -16,6 +17,8 @@ import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
+import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -177,11 +180,18 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
           final data = snapshot.data!;
 
-          return CustomerDetailUI(
-            customer: data.customer,
-            totalPoints: data.totalPoints,
-            onEdit: () => _navigateToEdit(data.customer),
-            onNavigateToPoints: () => _navigateToPoints(data.customer.id),
+          // DITAMBAHKAN: Bungkus UI dengan Scaffold untuk menambahkan banner.
+          return Scaffold(
+            body: CustomerDetailUI(
+              customer: data.customer,
+              totalPoints: data.totalPoints,
+              onEdit: () => _navigateToEdit(data.customer),
+              onNavigateToPoints: () => _navigateToPoints(data.customer.id),
+            ),
+            // DITAMBAHKAN: Banner iklan di bagian bawah.
+            bottomNavigationBar: BannerAdWidget(
+              adUnitId: AdHelper.profileBannerAdUnitId,
+            ),
           );
         },
       ),

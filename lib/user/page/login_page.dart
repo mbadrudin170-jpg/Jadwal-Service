@@ -58,7 +58,8 @@ class _LoginViewState extends State<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
   final UserActivityService _activityService = UserActivityService();
-  final InternetConnectionService _internetService = InternetConnectionService();
+  final InternetConnectionService _internetService =
+      InternetConnectionService();
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -112,7 +113,8 @@ class _LoginViewState extends State<_LoginView> {
     final isConnected = await _internetService.checkConnection();
     if (!isConnected) {
       if (mounted) {
-        ToastUtil.error(context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+        ToastUtil.error(
+            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
       }
       return;
     }
@@ -180,7 +182,8 @@ class _LoginViewState extends State<_LoginView> {
     if (!mounted) return;
 
     if (accounts.isEmpty) {
-      ToastUtil.info(context, 'Tidak ada akun yang tersimpan. Silakan login manual.');
+      ToastUtil.info(
+          context, 'Tidak ada akun yang tersimpan. Silakan login manual.');
     } else {
       await Navigator.push(
         context,

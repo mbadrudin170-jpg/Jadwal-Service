@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
@@ -38,11 +39,13 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   late final List<Widget> _pages;
+
   @override
   void initState() {
     super.initState();
-    // Menghilangkan splash screen di sini agar transisi mulus.
-    FlutterNativeSplash.remove();
+    unawaited(
+        PenjadwalNotifikasi.aturNotifikasiLangganan(context, widget.userId));
+    unawaited(UserActivityService().pingActivity(widget.userId));
     _pages = [
       ProfilePage(
         userId: widget.userId,
@@ -59,8 +62,7 @@ class _MainPageState extends State<MainPage> {
     Log.info(
         'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
     // Memanggil logika penjadwalan notifikasi dari file terpisah.
-    unawaited(
-        PenjadwalNotifikasi.aturNotifikasiLangganan(context, widget.userId));
+    FlutterNativeSplash.remove();
   }
 
   void _onItemTapped(final int index) {
@@ -87,18 +89,24 @@ class _MainPageState extends State<MainPage> {
               children: _pages,
             ),
           ),
-          // Iklan banner ditampilkan di sini
           BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Agar semua label terlihat
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(AppIcons.person), label: 'Profil'),
           BottomNavigationBarItem(
-              icon: Icon(AppIcons.history), label: 'Riwayat'),
+            icon: Icon(AppIcons.person),
+            label: 'Profil',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(AppIcons.settings), label: 'Pengaturan'),
+            icon: Icon(AppIcons.history),
+            label: 'Riwayat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(AppIcons.settings),
+            label: 'Pengaturan',
+          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
