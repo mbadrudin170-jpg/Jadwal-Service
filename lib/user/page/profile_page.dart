@@ -5,6 +5,7 @@
 // DIPERBAIKI: Navigasi kini memeriksa hasil boolean sebelum memanggil _reloadData.
 // diubah: Refaktor untuk menggunakan PointsPage generik.
 // DIHAPUS: BannerAdWidget dan import terkait karena sudah terpusat di main_page.
+// DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
 
 import 'dart:async';
 
@@ -173,6 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
             customerId: customerId,
             dataSource:
                 FirebasePointsDataSource(), // Menggunakan data source Firebase
+            showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
           ),
         ),
       );

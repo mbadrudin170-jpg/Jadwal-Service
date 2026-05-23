@@ -5,6 +5,7 @@
 // DIPERBAIKI: Menghapus pemanggilan _reloadData yang tidak perlu setelah kembali dari halaman poin.
 // DIPERBAIKI: Mengganti onPopInvoked yang usang dengan onPopInvokedWithResult.
 // diubah: Refaktor untuk menggunakan PointsPage generik.
+// DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -125,6 +126,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         builder: (final context) => PointsPage(
           customerId: customerId,
           dataSource: FirebasePointsDataSource(), // Menggunakan data source Firebase
+          showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
         ),
       ),
     );

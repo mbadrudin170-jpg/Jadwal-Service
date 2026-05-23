@@ -11,10 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -386,12 +388,20 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
             .createActiveCustomer(pelangganAktifData);
         await widget.transaksiOperasi.addTransaction(transaksiData);
       }
-
+      final internetService = InternetConnectionService();
+      final isOnline = await internetService.checkConnection();
+      String successMessage;
+      if (isOnline) {
+        Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
+        unawaited(SyncCheckService().runSyncCheck());
+        successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
+      } else {
+        Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
+        successMessage = 'Berhasil disimpan (offline).';
+      }
       Log.info('Berhasil menyimpan, id hasil=${pelangganAktifHasil.id}');
       return SaveResultModel(
-          success: true,
-          message: 'Berhasil disimpan',
-          data: pelangganAktifHasil);
+          success: true, message: successMessage, data: pelangganAktifHasil);
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, st: s);
       return SaveResultModel(success: false, message: 'Gagal menyimpan: $e');
