@@ -47,7 +47,6 @@ class UpdateService {
       // Menggunakan getTemporaryDirectory sesuai rekomendasi dokumentasi untuk file sekali pakai
       final Directory tempDir = await getTemporaryDirectory();
       final String fullPath = '${tempDir.path}/$fileName';
-
       Log.info('Mulai mengunduh dari: $url ke: $fullPath');
 
       // Mulai proses download menggunakan Dio
