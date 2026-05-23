@@ -1,5 +1,6 @@
 // path: lib/user/widget/ads/ad_helper.dart
 // diubah: Secara otomatis beralih antara ID iklan tes dan produksi.
+// DITAMBAHKAN: ID Aplikasi AdMob.
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,9 @@ import 'package:flutter/foundation.dart';
 /// Kelas ini secara otomatis menggunakan ID tes dalam mode debug
 /// dan ID produksi dalam mode rilis.
 class AdHelper {
+  // --- ID Aplikasi AdMob ---
+  static const String appId = 'ca-app-pub-9773465799516929~5575068959';
+
   // --- ID Iklan Produksi ---
   static const String _prodBannerAd = 'ca-app-pub-9773465799516929/1302679235';
   static const String _prodProfileBannerAd =

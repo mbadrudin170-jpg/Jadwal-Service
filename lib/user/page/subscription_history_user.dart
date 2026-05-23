@@ -1,6 +1,7 @@
 // path: lib/user/page/subscription_history_user.dart
 // diubah: Menggunakan ikon dari AppIcons untuk konsistensi UI.
 // diperbaiki: Mengganti nama InfoPerangkatService menjadi DeviceInfoService.
+// DIHAPUS: BannerAdWidget karena sudah terpusat di main_page.
 
 import 'dart:async';
 
@@ -13,8 +14,6 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
-import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
@@ -228,9 +227,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                     );
                   },
                 ),
-              ),
-              Center(
-                child: BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId),
               ),
             ],
           );

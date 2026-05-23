@@ -1,5 +1,6 @@
 // path: lib/user/page/main_page.dart
 // diubah: Menambahkan remove() splash screen untuk transisi mulus.
+// DITAMBAHKAN: Menambahkan BannerAdWidget di atas BottomNavigationBar.
 
 import 'dart:async';
 
@@ -12,6 +13,8 @@ import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
+import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends StatefulWidget {
@@ -76,9 +79,17 @@ class _MainPageState extends State<MainPage> {
     Log.info('Membangun MainPage untuk indeks halaman: $_selectedIndex');
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+      body: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: _pages,
+            ),
+          ),
+          // Iklan banner ditampilkan di sini
+          BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Agar semua label terlihat

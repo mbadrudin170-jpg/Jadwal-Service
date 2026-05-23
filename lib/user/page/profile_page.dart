@@ -4,6 +4,7 @@
 // DITAMBAHKAN: Logging untuk memverifikasi nilai totalPoints yang diterima.
 // DIPERBAIKI: Navigasi kini memeriksa hasil boolean sebelum memanggil _reloadData.
 // diubah: Refaktor untuk menggunakan PointsPage generik.
+// DIHAPUS: BannerAdWidget dan import terkait karena sudah terpusat di main_page.
 
 import 'dart:async';
 
@@ -24,8 +25,6 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
-import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends StatefulWidget {
@@ -172,12 +171,14 @@ class _ProfilePageState extends State<ProfilePage> {
         MaterialPageRoute<bool>(
           builder: (final context) => PointsPage(
             customerId: customerId,
-            dataSource: FirebasePointsDataSource(), // Menggunakan data source Firebase
+            dataSource:
+                FirebasePointsDataSource(), // Menggunakan data source Firebase
           ),
         ),
       );
       if (hasChanged ?? false) {
-        Log.info('Kembali dari halaman poin dengan perubahan, memuat ulang data.');
+        Log.info(
+            'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
         await _reloadData();
       } else {
         Log.info('Kembali dari halaman poin tanpa ada perubahan.');
@@ -228,55 +229,45 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
 
                 final customer = snapshot.data!;
-                return Column(
-                  children: [
-                    Expanded(
-                      child: RefreshIndicator(
-                        onRefresh: _reloadData,
-                        child: ListView(
-                          padding: const EdgeInsets.all(16.0),
-                          children: [
-                            _buildInfoCard(
-                              context,
-                              title: 'Informasi Pribadi',
-                              icon: AppIcons.person,
-                              children: [
-                                _InfoItem(
-                                  icon: AppIcons.personOutlined,
-                                  label: 'Nama Lengkap',
-                                  value: customer.name,
-                                  trailingIcon: AppIcons.chevronRight,
-                                  onTap: () =>
-                                      unawaited(_navigateToDetail(customer.id)),
-                                ),
-                                _PointsInfoWidget(
-                                  totalPointsFuture: _totalPointsFuture,
-                                  onTap: () => unawaited(
-                                      _navigateToPointsPage(customer.id)),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            _buildInfoCard(
-                              context,
-                              title: 'Informasi Paket Aktif',
-                              icon: AppIcons.wifi,
-                              children: [
-                                FutureBuilder<List<TransactionModel>>(
-                                  future: _activePackagesFuture,
-                                  builder: _buildActivePackageDetails,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                return RefreshIndicator(
+                  onRefresh: _reloadData,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16.0),
+                    children: [
+                      _buildInfoCard(
+                        context,
+                        title: 'Informasi Pribadi',
+                        icon: AppIcons.person,
+                        children: [
+                          _InfoItem(
+                            icon: AppIcons.personOutlined,
+                            label: 'Nama Lengkap',
+                            value: customer.name,
+                            trailingIcon: AppIcons.chevronRight,
+                            onTap: () =>
+                                unawaited(_navigateToDetail(customer.id)),
+                          ),
+                          _PointsInfoWidget(
+                            totalPointsFuture: _totalPointsFuture,
+                            onTap: () =>
+                                unawaited(_navigateToPointsPage(customer.id)),
+                          ),
+                        ],
                       ),
-                    ),
-                    Center(
-                      child: BannerAdWidget(
-                          adUnitId: AdHelper.profileBannerAdUnitId),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      _buildInfoCard(
+                        context,
+                        title: 'Informasi Paket Aktif',
+                        icon: AppIcons.wifi,
+                        children: [
+                          FutureBuilder<List<TransactionModel>>(
+                            future: _activePackagesFuture,
+                            builder: _buildActivePackageDetails,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
