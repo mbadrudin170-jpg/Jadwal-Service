@@ -1,9 +1,11 @@
-// path: lib/admin/halaman/form/form_pengaturan.dart
+// path: lib/admin/halaman/form/settings_form.dart
+
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengubah pengaturan aplikasi.
@@ -80,11 +82,20 @@ class _SettingsFormState extends State<SettingsForm> {
 
         await _settingsOperation.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
-        await SyncCheckService().runSyncCheck();
-        Log.info(
-            'melakukan unggah dan upload data setelah menyimpan $newSettings');
+
+        final hasConnection = await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          await SyncCheckService().runSyncCheck();
+          if (mounted) {
+            ToastUtil.success(context, 'Pengaturan berhasil disimpan dan disinkronkan.');
+          }
+        } else {
+          if (mounted) {
+            ToastUtil.info(context, 'Pengaturan disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+          }
+        }
+
         if (mounted) {
-          ToastUtil.success(context, 'Pengaturan berhasil disimpan');
           Navigator.pop(context, true); // Kembali dengan hasil true
         }
       } on Exception catch (e, st) {

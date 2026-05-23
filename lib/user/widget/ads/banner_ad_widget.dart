@@ -1,12 +1,13 @@
 // path: lib/user/widget/ads/banner_ad_widget.dart
-// diubah: Menghilangkan placeholder SizedBox saat iklan tidak ada.
+// diubah: Disederhanakan untuk hanya menggunakan Google Mobile Ads dengan mediasi.
+// Logika fallback ke Unity sekarang ditangani otomatis oleh GMA SDK.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Widget untuk menampilkan banner iklan Google Mobile Ads.
+/// Widget untuk menampilkan banner iklan Google Mobile Ads (dengan mediasi).
 ///
 /// Widget ini mengelola siklus hidup banner ad, termasuk loading,
 /// error handling, dan retry otomatis jika gagal load.
@@ -43,7 +44,9 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     if (oldWidget.adUnitId != widget.adUnitId) {
       Log.info('Ad unit ID changed. Reloading banner.');
       unawaited(_disposeBanner());
+      Log.info(' $_disposeBanner');
       unawaited(_loadBanner());
+      Log.info(' $_loadBanner');
     }
   }
 
@@ -76,9 +79,9 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
           await ad.dispose();
           _bannerAd = null;
 
-          // optional: retry ringan
+          // Coba lagi setelah beberapa detik jika gagal
           unawaited(
-            Future.delayed(const Duration(seconds: 3), () async {
+            Future.delayed(const Duration(seconds: 30), () async {
               if (mounted) await _loadBanner();
             }),
           );
@@ -98,15 +101,15 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(final BuildContext context) {
-    if (!_isLoaded || _bannerAd == null) {
-      return const SizedBox.shrink();
+    if (_isLoaded && _bannerAd != null) {
+      return SizedBox(
+        height: _bannerAd!.size.height.toDouble(),
+        width: _bannerAd!.size.width.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      );
     }
-
-    return SizedBox(
-      height: _bannerAd!.size.height.toDouble(),
-      width: _bannerAd!.size.width.toDouble(),
-      child: AdWidget(ad: _bannerAd!),
-    );
+    // Jika iklan belum siap, jangan tampilkan apa-apa.
+    return const SizedBox.shrink();
   }
 
   @override

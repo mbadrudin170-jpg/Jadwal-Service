@@ -1,19 +1,18 @@
 // path: lib/admin/halaman/form/transaction_form.dart
-// diubah: Memperbaiki logika pemfilteran kategori untuk menangani tipe transfer dengan benar.
-// diperbaiki: Menggunakan file ekspor terpusat untuk semua model.
-// diperbaiki: Menggunakan properti displayName dari enum untuk UI.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -241,7 +240,6 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         _selectedTime!.minute,
       );
       final double jumlah = double.parse(_jumlahController.text).abs();
-
       final transaksi = TransactionModel(
         id: _isEditMode ? widget.transaction!.id : const Uuid().v4(),
         description: _keteranganController.text,
@@ -276,6 +274,22 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
+
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          await SyncCheckService().runSyncCheck();
+          if (mounted) {
+            ToastUtil.success(
+                context, 'Transaksi berhasil disimpan dan disinkronkan.');
+          }
+        } else {
+          if (mounted) {
+            ToastUtil.info(context,
+                'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+          }
+        }
+
         Navigator.pop(context, true);
       } on Exception catch (e, s) {
         Log.error(

@@ -10,6 +10,9 @@ import 'package:flutter/foundation.dart';
 /// Kelas ini secara otomatis menggunakan ID tes dalam mode debug
 /// dan ID produksi dalam mode rilis.
 class AdHelper {
+  // Di dalam class AdHelper
+  static const String unityGameId = '80000716';
+  static const String unityBannerPlacement = 'Banner_Android';
   // --- ID Aplikasi AdMob ---
   static const String appId = 'ca-app-pub-9773465799516929~5575068959';
 

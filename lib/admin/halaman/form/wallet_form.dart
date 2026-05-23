@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
@@ -101,11 +103,6 @@ class _WalletFormState extends State<WalletForm> {
 
           await _walletOperation.updateWallet(updatedWallet);
           Log.info('Update dompet berhasil.');
-
-          if (!mounted) return;
-
-          ToastUtil.info(context, 'Nama dompet berhasil diperbarui!');
-          Navigator.pop(context, true);
         } else {
           Log.info('Proses TAMBAH dompet baru');
 
@@ -122,12 +119,23 @@ class _WalletFormState extends State<WalletForm> {
 
           await _walletOperation.createWallet(newWallet);
           Log.info('Dompet baru berhasil disimpan. ID: $newId');
-
-          if (!mounted) return;
-
-          ToastUtil.success(context, 'Dompet baru berhasil ditambahkan!');
-          Navigator.pop(context, true);
         }
+
+        if (!mounted) return;
+
+        final hasConnection = await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          await SyncCheckService().runSyncCheck();
+          if (mounted) {
+            ToastUtil.success(context, 'Dompet berhasil disimpan dan disinkronkan.');
+          }
+        } else {
+          if (mounted) {
+            ToastUtil.info(context, 'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+          }
+        }
+
+        Navigator.pop(context, true);
       } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan dompet. Proses ${_isEditMode ? "update" : "create"} gagal.',

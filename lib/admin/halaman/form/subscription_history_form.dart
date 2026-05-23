@@ -1,12 +1,13 @@
 // path: lib/admin/halaman/form/subscription_history_form.dart
-// diubah: Menyesuaikan jadwal notifikasi agar muncul TEPAT saat masa aktif berakhir.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -137,7 +138,21 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       );
 
       if (!mounted) return;
-      ToastUtil.success(context, 'Riwayat langganan berhasil diperbarui.');
+
+      final hasConnection = await InternetConnectionService().checkConnection();
+      if (hasConnection) {
+        await SyncCheckService().runSyncCheck();
+        if (mounted) {
+          ToastUtil.success(
+              context, 'Riwayat langganan berhasil diperbarui dan disinkronkan.');
+        }
+      } else {
+        if (mounted) {
+          ToastUtil.info(context,
+              'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
+        }
+      }
+
       Navigator.of(context).pop(true); // Return true to indicate success
     } on Exception catch (e) {
       Log.error('Gagal memperbarui riwayat langganan', e: e);

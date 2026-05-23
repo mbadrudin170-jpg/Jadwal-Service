@@ -125,7 +125,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     Log.info('Menginisialisasi Mobile Ads, Notifikasi, dan lainnya...');
     try {
       await MobileAds.instance.initialize();
-    }on Exception catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
     }
     await NotifikasiServis().inisialisasi(iconName: 'launcher_icon');
@@ -177,8 +177,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
           'Navigasi dibatalkan karena widget sudah tidak terpasang (unmounted).');
       return;
     }
-
-
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');

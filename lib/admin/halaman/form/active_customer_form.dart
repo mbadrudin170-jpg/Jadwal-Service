@@ -138,6 +138,20 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
     return (_saldoPoinPelanggan - pakai).clamp(0, 999999999);
   }
 
+  int _getDurationInMinutes(final PackageModel package) {
+    switch (package.type) {
+      case DurationType.minutes:
+        return package.duration;
+      case DurationType.hours:
+        return package.duration * 60;
+      case DurationType.days:
+        return package.duration * 24 * 60;
+      case DurationType.months:
+        // Perkiraan, 1 bulan = 30 hari untuk tujuan pengurutan
+        return package.duration * 30 * 24 * 60;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -494,6 +508,14 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildPaketDropdown() {
+    // Salin dan urutkan daftar paket untuk ditampilkan di dropdown.
+    final sortedPaketList = List<PackageModel>.from(_paketList);
+    sortedPaketList.sort((final a, final b) {
+      final durationA = _getDurationInMinutes(a);
+      final durationB = _getDurationInMinutes(b);
+      return durationA.compareTo(durationB);
+    });
+
     return DropdownButtonFormField<PackageModel>(
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(

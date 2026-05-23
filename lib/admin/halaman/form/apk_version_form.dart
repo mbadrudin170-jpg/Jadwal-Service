@@ -9,6 +9,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengelola versi APK pengguna.
@@ -31,7 +32,6 @@ class ApkVersionForm extends StatefulWidget {
   ApkVersionForm(
       {super.key, this.apkVersion, final ApkVersionOperation? operasi})
       : operasi = operasi ?? ApkVersionOperation();
-
   @override
   State<ApkVersionForm> createState() => _ApkVersionFormState();
 }
@@ -40,20 +40,16 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool get _isEdit => widget.apkVersion != null;
-
   late TextEditingController _releaseNotesController;
   late TextEditingController _latestVersionController;
   late TextEditingController _youtubeTutorialController;
   late bool _isUpdateRequired;
-
   late TextEditingController _buildUniversalController;
   late TextEditingController _build32Controller;
   late TextEditingController _build64Controller;
   late TextEditingController _universalLinkController;
   late TextEditingController _link32Controller;
   late TextEditingController _link64Controller;
-
-  // Tambahkan FocusNode
   final _latestVersionFocusNode = FocusNode();
   final _buildUniversalFocusNode = FocusNode();
   final _build32FocusNode = FocusNode();
@@ -70,19 +66,16 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
     Log.info(
       'Menginisialisasi ApkVersionForm (Mode: ${_isEdit ? 'Edit' : 'Tambah'})',
     );
-
     _releaseNotesController = TextEditingController();
     _latestVersionController = TextEditingController();
     _youtubeTutorialController = TextEditingController();
     _isUpdateRequired = false;
-
     _buildUniversalController = TextEditingController();
     _build32Controller = TextEditingController();
     _build64Controller = TextEditingController();
     _universalLinkController = TextEditingController();
     _link32Controller = TextEditingController();
     _link64Controller = TextEditingController();
-
     if (_isEdit) {
       _populateControllers(widget.apkVersion!);
     } else {
@@ -97,6 +90,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
       final versiTerakhir = await widget.operasi.getLatestApkVersion();
       if (versiTerakhir != null && mounted) {
         _latestVersionController.text = versiTerakhir.latestVersion;
+        _youtubeTutorialController.text = versiTerakhir.youtubeTutorial;
         final buildUniversalBerikutnya =
             (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.universal] ??
                     0) +
@@ -107,12 +101,11 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         final buildBit64Berikutnya =
             (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.bit64] ?? 0) +
                 1;
-
         _buildUniversalController.text = buildUniversalBerikutnya.toString();
         _build32Controller.text = buildBit32Berikutnya.toString();
         _build64Controller.text = buildBit64Berikutnya.toString();
         Log.info(
-          'Data rilis sebelumnya ditemukan. Menyarankan build: $buildUniversalBerikutnya',
+          'Data rilis sebelumnya ditemukan. Menyarankan build: $buildUniversalBerikutnya dan menyalin link tutorial.',
         );
       }
     } on Exception catch (e, s) {
@@ -128,14 +121,12 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
     _latestVersionController.text = data.latestVersion;
     _youtubeTutorialController.text = data.youtubeTutorial;
     _isUpdateRequired = data.isUpdateRequired;
-
     _buildUniversalController.text =
         data.latestBuildNumber[ApkArchitectureEnum.universal]?.toString() ?? '';
     _build32Controller.text =
         data.latestBuildNumber[ApkArchitectureEnum.bit32]?.toString() ?? '';
     _build64Controller.text =
         data.latestBuildNumber[ApkArchitectureEnum.bit64]?.toString() ?? '';
-
     _universalLinkController.text =
         data.downloadLinks[ApkArchitectureEnum.universal] ?? '';
     _link32Controller.text =
@@ -156,7 +147,6 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
     _universalLinkController.dispose();
     _link32Controller.dispose();
     _link64Controller.dispose();
-
     _latestVersionFocusNode.dispose();
     _buildUniversalFocusNode.dispose();
     _build32FocusNode.dispose();
@@ -172,10 +162,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
   Future<void> _saveForm() async {
     if (_formKey.currentState!.validate()) {
       Log.info('Menampilkan dialog konfirmasi kepada pengguna');
-
-      // Unfocus untuk menyembunyikan keyboard sebelum menampilkan dialog
       FocusScope.of(context).unfocus();
-
       final konfirmasi = await showDialog<bool>(
         context: context,
         builder: (final context) => AlertDialog(
@@ -201,14 +188,11 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
           ],
         ),
       );
-
       if (konfirmasi != true) {
         Log.info('Pengguna membatalkan proses penyimpanan');
         return;
       }
-
       if (!mounted) return;
-
       setState(() => _isLoading = true);
       Log.info('Sedang memproses penyimpanan ke database...');
 
@@ -240,7 +224,6 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
       if (_link64Controller.text.isNotEmpty) {
         tautanUnduhan[ApkArchitectureEnum.bit64] = _link64Controller.text;
       }
-
       final dataToSave = ApkVersionModel(
         id: widget.apkVersion?.id ?? const Uuid().v4(),
         releaseNotes: _releaseNotesController.text,
@@ -250,9 +233,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         latestBuildNumber: nomorBuild,
         downloadLinks: tautanUnduhan,
       );
-
       Log.info('Model Versi APK yang akan disimpan: ${dataToSave.toSqlite()}');
-
       try {
         if (_isEdit) {
           Log.info('Menjalankan perintah update data...');
@@ -261,11 +242,20 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
           Log.info('Menjalankan perintah tambah data baru...');
           await widget.operasi.addApkVersion(dataToSave);
         }
-        await SyncCheckService().runSyncCheck();
+
+        final hasConnection = await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          await SyncCheckService().runSyncCheck();
+        } else {
+          Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
+          if (mounted) {
+            ToastUtil.info(context,
+                'Data lokal disimpan. Sinkronisasi akan dilakukan saat online.');
+          }
+        }
+
         Log.info('Proses penyimpanan berhasil diselesaikan');
-
         if (!mounted) return;
-
         Navigator.of(context).pop(true);
       } on Exception catch (e, s) {
         Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);

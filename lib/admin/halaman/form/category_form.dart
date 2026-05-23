@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
@@ -406,10 +408,6 @@ class _CategoryFormState extends State<CategoryForm> {
           await _kategoriOperasi.createCategory(kategoriBaru);
         }
 
-        Log.info('========================================');
-        Log.info('PENYIMPANAN DATA BERHASIL');
-        Log.info('========================================');
-
         if (!mounted) {
           Log.warning(
             'Widget sudah tidak mounted setelah penyimpanan berhasil. Tidak dapat menampilkan SnackBar atau melakukan Navigator.pop.',
@@ -417,21 +415,21 @@ class _CategoryFormState extends State<CategoryForm> {
           return;
         }
 
-        Log.info('Widget masih mounted. Menampilkan SnackBar sukses.');
-        ToastUtil.success(
-          context,
-          '${_isSubKategoriMode ? 'Sub-Kategori' : 'Kategori'} berhasil disimpan!',
-        );
-        Log.info('SnackBar sukses telah ditampilkan.');
+        final hasConnection = await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          await SyncCheckService().runSyncCheck();
+          if (mounted) {
+            ToastUtil.success(
+                context, 'Kategori berhasil disimpan dan disinkronkan.');
+          }
+        } else {
+          if (mounted) {
+            ToastUtil.info(context,
+                'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
+          }
+        }
 
-        Log.info(
-          'Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.',
-        );
-        Log.info(
-          'Nilai result true dikirim untuk memberitahu halaman sebelumnya bahwa ada perubahan data.',
-        );
         Navigator.pop(context, true);
-        Log.info('Navigator.pop berhasil dijalankan.');
       } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',

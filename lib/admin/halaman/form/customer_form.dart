@@ -1,10 +1,11 @@
-// path: lib/admin/halaman/form/form_pelanggan.dart
-
+// path: lib/admin/halaman/form/customer_form.dart
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/debug/log.dart'; // diubah: Menggunakan Log kustom
+import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
@@ -73,7 +74,7 @@ class _CustomerFormState extends State<CustomerForm> {
     super.dispose();
   }
 
-  Future<void> _simpanForm() async {
+  Future<void> _saveForm() async {
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -88,7 +89,8 @@ class _CustomerFormState extends State<CustomerForm> {
         macAddress: _macAddressController.text.trim().toUpperCase(),
       );
 
-      Log.info('Model Pelanggan yang akan disimpan: ${newCustomer.toFirebase()}');
+      Log.info(
+          'Model Pelanggan yang akan disimpan: ${newCustomer.toFirebase()}');
 
       try {
         if (!_isEditMode) {
@@ -103,12 +105,29 @@ class _CustomerFormState extends State<CustomerForm> {
           await CustomerOperation().updateCustomer(newCustomer);
         }
 
+        if (!mounted) return;
+
+        final hasConnection = await InternetConnectionService().checkConnection();
+        if (hasConnection) {
+          Log.info("Ada koneksi internet, menjalankan sinkronisasi.");
+          await SyncCheckService().runSyncCheck();
+          if (mounted) {
+            ToastUtil.success(
+                context, 'Data pelanggan berhasil disimpan & disinkronkan.');
+          }
+        } else {
+          Log.info("Tidak ada koneksi internet, sinkronisasi dilewati.");
+          if (mounted) {
+            ToastUtil.info(context,
+                'Koneksi offline. Data disimpan lokal, akan sinkron saat online.');
+          }
+        }
+
         if (mounted) {
           Log.info(
             'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
           );
           Navigator.pop(context, true);
-          ToastUtil.success(context, 'Data pelanggan berhasil disimpan.');
         }
       } on Exception catch (e, s) {
         Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
@@ -155,9 +174,8 @@ class _CustomerFormState extends State<CustomerForm> {
                   label: 'Nama Pelanggan',
                   icon: Icons.person_outline,
                   nextFocus: _teleponFocusNode,
-                  validator: (final v) => (v == null || v.isEmpty)
-                      ? 'Nama tidak boleh kosong'
-                      : null,
+                  validator: (final v) =>
+                      (v == null || v.isEmpty) ? 'Nama tidak boleh kosong' : null,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
@@ -229,7 +247,7 @@ class _CustomerFormState extends State<CustomerForm> {
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: _isSaving ? null : _simpanForm,
+                  onPressed: _isSaving ? null : _saveForm,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(

@@ -1,4 +1,4 @@
-// path: lib/main/main_user/user_prod.dart
+// path: lib/main/main_user/user_dev.dart
 // PERUBAHAN:
 // - Menambahkan `flutter_native_splash` untuk menahan splash screen
 //   hingga inisialisasi di Flutter selesai.
@@ -6,6 +6,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/app_user.dart';
 import 'package:wifi/user/firebase_option/firebase_option_user_dev.dart';
@@ -18,9 +19,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  await MobileAds.instance.initialize();
+  
   Log.info(
-      '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
+      '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
 
   // Langsung jalankan AppUser.
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
