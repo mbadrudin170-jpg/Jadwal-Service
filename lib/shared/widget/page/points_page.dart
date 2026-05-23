@@ -1,4 +1,7 @@
 // path: lib/shared/widget/page/points_page.dart
+// DIUBAH: Menambahkan parameter showAd untuk kontrol tampilan iklan.
+// DIUBAH: Meneruskan BannerAdWidget ke PoinPageUi jika showAd true.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,22 +14,19 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
+import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
 
-/// A generic page for displaying points, rewards, and history.
-/// It uses a [PointsPageDataSource] to fetch data, making it independent
-/// of the data source (Firebase or SQLite).
 class PointsPage extends StatefulWidget {
-  /// The ID of the customer whose points are being displayed.
   final String customerId;
-
-  /// The data source for fetching points, rewards, and history.
   final PointsPageDataSource dataSource;
+  final bool showAd;
 
-  /// Creates a generic page for displaying points information.
   const PointsPage({
     super.key,
     required this.customerId,
     required this.dataSource,
+    this.showAd = false,
   });
 
   @override
@@ -35,21 +35,18 @@ class PointsPage extends StatefulWidget {
 
 class _PointsPageState extends State<PointsPage> {
   MenuPoin _selectedMenu = MenuPoin.penukaran;
-
   int _totalPoints = 0;
   List<PackageModel> _rewardList = [];
   List<TransactionModel> _transactionHistory = [];
   bool _isLoading = false;
   bool _isLoadingHistory = false;
   String? _errorMessage;
-
   late final Widget _appBarTitle;
 
   @override
   void initState() {
     super.initState();
     Log.info('Initializing PointsPage for customer: ${widget.customerId}');
-
     _appBarTitle = Row(
       children: [
         const Text('Poin: '),
@@ -61,7 +58,6 @@ class _PointsPageState extends State<PointsPage> {
         ),
       ],
     );
-
     unawaited(_loadPointsData());
   }
 
@@ -123,7 +119,6 @@ class _PointsPageState extends State<PointsPage> {
       final TransactionModel transaction) async {
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaction.id}');
-
     PackageModel? package;
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
       try {
@@ -134,9 +129,7 @@ class _PointsPageState extends State<PointsPage> {
             e: e, st: st);
       }
     }
-
     if (!mounted) return;
-
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -166,6 +159,9 @@ class _PointsPageState extends State<PointsPage> {
       contentView: _selectedMenu == MenuPoin.penukaran
           ? _buildRewardList()
           : _buildPointsHistory(),
+      bottomWidget: widget.showAd
+          ? BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId)
+          : null,
     );
   }
 
@@ -196,7 +192,6 @@ class _PointsPageState extends State<PointsPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // TODO : merapikan poin kurang
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

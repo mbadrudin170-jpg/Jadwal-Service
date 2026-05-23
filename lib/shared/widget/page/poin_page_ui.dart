@@ -1,4 +1,5 @@
 // path: lib/shared/widget/page/poin_page_ui.dart
+// DIUBAH: Menambahkan parameter bottomWidget opsional untuk menampilkan widget tambahan di bawah konten, seperti iklan.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -33,9 +34,10 @@ class PoinPageUi extends StatelessWidget {
   /// Konten utama yang ditampilkan di bawah kontrol tersegmentasi.
   final Widget contentView;
 
+  /// Widget opsional untuk ditampilkan di bagian bawah halaman.
+  final Widget? bottomWidget;
+
   /// Membuat halaman [PoinPageUi].
-  ///
-  /// Semua parameter wajib diisi.
   const PoinPageUi({
     super.key,
     required this.appBarTitle,
@@ -43,6 +45,7 @@ class PoinPageUi extends StatelessWidget {
     required this.menuPilihan,
     required this.onSelectionChanged,
     required this.contentView,
+    this.bottomWidget,
   });
 
   @override
@@ -57,6 +60,7 @@ class PoinPageUi extends StatelessWidget {
           _buildInfoPoinHeader(context),
           _buildSegmentedControl(context),
           Expanded(child: contentView),
+          if (bottomWidget != null) bottomWidget!,
         ],
       ),
     );
@@ -75,13 +79,10 @@ class PoinPageUi extends StatelessWidget {
     );
   }
 
-// path: lib/shared/widget/page/poin_page_ui.dart
-// Versi B: Custom widget pakai AnimatedContainer (full kontrol)
   Widget _buildSegmentedControl(final BuildContext context) {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
 
-    // Widget untuk satu segmen tombol
     Widget buildSegment(
         final MenuPoin menu, final String label, final IconData icon) {
       final bool isSelected = menuPilihan == menu;
@@ -125,21 +126,20 @@ class PoinPageUi extends StatelessWidget {
       padding: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withAlpha(102),
-        borderRadius: BorderRadius.circular(24.0), // border radius 24px
+        borderRadius: BorderRadius.circular(24.0),
       ),
       child: Stack(
         children: [
-          // Latar belakang slider yang bisa beranimasi
           AnimatedAlign(
             alignment: menuPilihan == MenuPoin.penukaran
                 ? Alignment.centerLeft
                 : Alignment.centerRight,
-            duration: const Duration(milliseconds: 300), // Animasi halus
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: FractionallySizedBox(
               widthFactor: 0.5,
               child: Container(
-                height: 48, // Sesuaikan dengan tinggi total
+                height: 48,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [primaryColor, primaryColor.withAlpha(204)],
@@ -158,7 +158,6 @@ class PoinPageUi extends StatelessWidget {
               ),
             ),
           ),
-          // Tombol-tombol di atasnya
           Row(
             children: [
               buildSegment(MenuPoin.penukaran, 'Tukar Hadiah', AppIcons.gift),
