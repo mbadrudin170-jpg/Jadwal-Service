@@ -11,6 +11,7 @@
 //   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
 //   - lib/shared/debug/log.dart (Log)
 //   - lib/shared/utils/toast_util.dart (ToastUtil)
+//   - lib/shared/services/user_activity_service.dart (UserActivityService) // DITAMBAHKAN
 
 import 'dart:async';
 
@@ -18,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/services/user_activity_service.dart'; // DITAMBAHKAN
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
@@ -57,6 +59,7 @@ class _AccountListPageState extends State<AccountListPage> {
   late Future<List<CustomerModel>> _accountListFuture;
   late LocalStorageService _localStorageService;
   bool _isLocalStorageInitialized = false;
+  final UserActivityService _activityService = UserActivityService(); // DITAMBAHKAN
 
   @override
   void initState() {
@@ -120,6 +123,10 @@ class _AccountListPageState extends State<AccountListPage> {
       // [DIPERBAIKI] Memanggil metode yang benar untuk mengganti akun aktif,
       // yang akan mengatur token ID pengguna dan memperbarui data akun.
       await _localStorageService.saveCurrentAccount(customer);
+
+      // DITAMBAHKAN: Kirim ping aktivitas pengguna saat berhasil memilih akun.
+      // Tidak perlu di-await agar tidak memblokir navigasi.
+      unawaited(_activityService.pingActivity(customer.id));
 
       if (!mounted) return;
       final page = widget.mainPageBuilder != null

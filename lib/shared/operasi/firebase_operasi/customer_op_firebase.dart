@@ -4,6 +4,7 @@
 // diperbaiki: Menambahkan logging dan error handling yang lebih konsisten.
 // ditambahkan: Fungsi deleteCustomer untuk menghapus pelanggan secara permanen.
 // ditambahkan: Fungsi softDeleteCustomer untuk menandai pelanggan sebagai terhapus.
+// ditambahkan: Fungsi updateLastActive untuk melacak aktivitas pengguna.
 
 import 'dart:async';
 
@@ -120,6 +121,25 @@ class CustomerOpFirebase {
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete pelanggan: $customerId', e: e, st: s);
       rethrow;
+    }
+  }
+
+  /// Memperbarui waktu terakhir pengguna aktif.
+  Future<void> updateLastActive(final String customerId) async {
+    Log.info('Memperbarui waktu aktif terakhir untuk pelanggan: $customerId');
+    try {
+      await _customerCollection.doc(customerId).update({
+        ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
+        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+      });
+      Log.info('Waktu aktif terakhir berhasil diperbarui untuk: $customerId');
+    } on FirebaseException catch (e, s) {
+      Log.error(
+        'Gagal memperbarui waktu aktif terakhir untuk: $customerId',
+        e: e,
+        st: s,
+      );
+      // Tidak melempar ulang error agar tidak mengganggu alur utama aplikasi klien
     }
   }
 }

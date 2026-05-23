@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 
@@ -27,6 +28,12 @@ enum UrutanPaket {
 
   /// Urutkan berdasarkan perolehan poin dari yang terendah ke tertinggi.
   poinTerendah,
+
+  /// Urutkan berdasarkan durasi paket dari yang terlama ke terpendek.
+  durasiTerlama,
+
+  /// Urutkan berdasarkan durasi paket dari yang terpendek ke terlama.
+  durasiTerpendek,
 }
 
 /// Halaman untuk mengelola daftar paket internet.
@@ -44,8 +51,8 @@ class PackagePage extends StatefulWidget {
 class _PackagePageState extends State<PackagePage> {
   final PackageOperation _paketOperasi = PackageOperation();
   late Future<List<PackageModel>> _paketFuture;
-  // ditambah: Variabel untuk menyimpan status pengurutan saat ini, defaultnya A-Z.
-  UrutanPaket _urutanSaatIni = UrutanPaket.namaAZ;
+  // diubah: Variabel untuk menyimpan status pengurutan saat ini, defaultnya durasi terpendek.
+  UrutanPaket _urutanSaatIni = UrutanPaket.durasiTerpendek;
 
   @override
   void initState() {
@@ -61,6 +68,20 @@ class _PackagePageState extends State<PackagePage> {
     });
   }
 
+  // ditambah: Fungsi untuk mengubah semua durasi menjadi menit untuk perbandingan.
+  int _getDurationInMinutes(final PackageModel paket) {
+    switch (paket.type) {
+      case DurationType.minutes:
+        return paket.duration;
+      case DurationType.hours:
+        return paket.duration * 60;
+      case DurationType.days:
+        return paket.duration * 24 * 60;
+      case DurationType.months:
+        return paket.duration * 30 * 24 * 60; // Asumsi 30 hari/bulan
+    }
+  }
+
   // ditambah: Fungsi untuk menampilkan dialog pilihan pengurutan.
   Future<void> _tampilkanDialogUrutkan() async {
     Log.info('Menampilkan dialog urutkan');
@@ -70,6 +91,20 @@ class _PackagePageState extends State<PackagePage> {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: [
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, UrutanPaket.durasiTerpendek);
+                Log.info('Mengurutkan berdasarkan: Durasi (Terpendek)');
+              },
+              child: const Text('Durasi (Terpendek)'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, UrutanPaket.durasiTerlama);
+                Log.info('Mengurutkan berdasarkan: Durasi (Terlama)');
+              },
+              child: const Text('Durasi (Terlama)'),
+            ),
             SimpleDialogOption(
               onPressed: () {
                 Navigator.pop(context, UrutanPaket.namaAZ);
@@ -351,12 +386,27 @@ class _PackagePageState extends State<PackagePage> {
               break;
             // diubah: Menggunakan rewardPoints untuk pengurutan
             case UrutanPaket.poinTertinggi:
-              paketList.sort((final a, final b) =>
-                  b.rewardPoints.compareTo(a.rewardPoints));
+              paketList.sort(
+                (final a, final b) => b.rewardPoints.compareTo(a.rewardPoints),
+              );
               break;
             case UrutanPaket.poinTerendah:
-              paketList.sort((final a, final b) =>
-                  a.rewardPoints.compareTo(b.rewardPoints));
+              paketList.sort(
+                (final a, final b) => a.rewardPoints.compareTo(b.rewardPoints),
+              );
+              break;
+            // ditambah: Logika pengurutan berdasarkan durasi.
+            case UrutanPaket.durasiTerpendek:
+              paketList.sort(
+                (final a, final b) => _getDurationInMinutes(a)
+                    .compareTo(_getDurationInMinutes(b)),
+              );
+              break;
+            case UrutanPaket.durasiTerlama:
+              paketList.sort(
+                (final a, final b) => _getDurationInMinutes(b)
+                    .compareTo(_getDurationInMinutes(a)),
+              );
               break;
           }
 
@@ -380,6 +430,7 @@ class _PackagePageState extends State<PackagePage> {
                           PackageDetailPage(package: paket),
                     ),
                   );
+
                   Log.info(
                     'Kembali dari halaman Detail Paket, menyegarkan daftar',
                   );

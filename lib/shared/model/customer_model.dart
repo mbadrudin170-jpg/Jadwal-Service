@@ -1,5 +1,6 @@
 // path: lib/shared/model/customer_model.dart
 // diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
+// ditambahkan: Properti lastActiveAt untuk melacak aktivitas pengguna.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -37,6 +38,9 @@ class CustomerModel implements HasId {
   /// The timestamp of when the customer was archived.
   final DateTime? archivedAt;
 
+  /// The timestamp of when the customer was last active.
+  final DateTime? lastActiveAt;
+
   /// Creates a new instance of the [CustomerModel].
   CustomerModel({
     final String? id,
@@ -48,6 +52,7 @@ class CustomerModel implements HasId {
     this.isDeleted = false,
     this.updatedAt,
     this.archivedAt,
+    this.lastActiveAt,
   }) : id = id ?? const Uuid().v4() {
     Log.info('CustomerModel created: $id, name: $name');
   }
@@ -63,6 +68,7 @@ class CustomerModel implements HasId {
     final bool? isDeleted,
     final DateTime? updatedAt,
     final DateTime? archivedAt,
+    final DateTime? lastActiveAt,
   }) {
     return CustomerModel(
       id: id ?? this.id,
@@ -74,6 +80,7 @@ class CustomerModel implements HasId {
       isDeleted: isDeleted ?? this.isDeleted,
       updatedAt: updatedAt ?? this.updatedAt,
       archivedAt: archivedAt ?? this.archivedAt,
+      lastActiveAt: lastActiveAt ?? this.lastActiveAt,
     );
   }
 
@@ -93,6 +100,7 @@ class CustomerModel implements HasId {
       isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
       archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      lastActiveAt: ParserUtil.parseDateTime(map[ColumnNames.lastActiveAt]),
     );
   }
 
@@ -109,6 +117,7 @@ class CustomerModel implements HasId {
       // DIUBAH: Memastikan updatedAt tidak pernah null
       ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      ColumnNames.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -126,6 +135,7 @@ class CustomerModel implements HasId {
       isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
       archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      lastActiveAt: ParserUtil.parseDateTime(data[ColumnNames.lastActiveAt]),
     );
   }
 
@@ -145,6 +155,8 @@ class CustomerModel implements HasId {
       // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
+      ColumnNames.lastActiveAt:
+          lastActiveAt != null ? Timestamp.fromDate(lastActiveAt!.toUtc()) : null,
     };
   }
 }

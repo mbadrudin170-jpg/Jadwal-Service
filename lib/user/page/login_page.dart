@@ -1,5 +1,5 @@
 // path: lib/user/page/login_page.dart
-// diubah: Mengganti SnackBarUtil menjadi ToastUtil.
+// diubah: Mengganti SnackBarUtil menjadi ToastUtil dan menambahkan pencatatan waktu login.
 
 import 'dart:async';
 
@@ -12,6 +12,7 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
@@ -51,6 +52,7 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
+  final UserActivityService _activityService = UserActivityService();
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -135,6 +137,9 @@ class _LoginViewState extends State<_LoginView> {
         final userDoc = querySnapshot.docs.first;
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
+
+        // DITAMBAHKAN: Mencatat waktu aktivitas terakhir pengguna.
+        unawaited(_activityService.pingActivity(customer.id));
 
         await _localStorageService.saveAccount(customer);
         await _localStorageService.prefs.setString('userId', customer.id);

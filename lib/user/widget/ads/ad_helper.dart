@@ -10,9 +10,9 @@ import 'package:flutter/foundation.dart';
 /// dan ID produksi dalam mode rilis.
 class AdHelper {
   // --- ID Iklan Produksi ---
-  static const String _prodBannerAd = 'ca-app-pub-9773465799516929/9310245936';
+  static const String _prodBannerAd = 'ca-app-pub-9773465799516929/1302679235';
   static const String _prodProfileBannerAd =
-      'ca-app-pub-9773465799516929/2018222461';
+      'ca-app-pub-9773465799516929/6555005913';
 
   // --- ID Iklan Tes (untuk Pengembangan) ---
   // Gunakan ID ini untuk semua banner selama tes.

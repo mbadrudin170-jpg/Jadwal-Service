@@ -3,6 +3,7 @@
 // DIUBAH: Pengecekan koneksi internet sebelum membersihkan data.
 // DIUBAH: Menggunakan SettingsOperation untuk mendapatkan retentionDays.
 // DIPERBAIKI: Mengganti nama ikon notifikasi menjadi 'ic_notification' yang valid.
+// DITAMBAHKAN: Log yang lebih jelas setelah inisialisasi notifikasi.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -88,8 +89,10 @@ class _AppInitializerState extends State<AppInitializer> {
 
       Log.info('Menginisialisasi layanan notifikasi...');
       // DIPERBAIKI: Menggunakan nama ikon notifikasi yang sesuai standar Android.
-      await notifikasiServis.inisialisasi(iconName: 'ic_stat_logo_wifi');
+      await notifikasiServis.inisialisasi(
+          iconName: 'launcher_icon'); // TODO : memeriksa ikon
       await notifikasiServis.requestPermissions();
+      Log.info('Inisialisasi notifikasi dan permintaan izin telah selesai.');
 
       final launchDetails =
           await notifikasiServis.getDetailPeluncuranNotifikasi();

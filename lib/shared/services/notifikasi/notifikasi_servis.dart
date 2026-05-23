@@ -124,6 +124,7 @@ class NotifikasiServis {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
 
     await _inisialisasiZonaWaktu();
+    Log.info('inisialisai');
     await _setupAndroidChannel();
 
     final android = AndroidInitializationSettings(iconName);

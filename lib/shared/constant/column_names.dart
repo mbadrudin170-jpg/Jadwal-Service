@@ -130,6 +130,9 @@ abstract final class ColumnNames {
   /// Nama kolom untuk status pembaruan paksa.
   static const String isUpdateRequired = 'is_update_required';
 
+  /// Nama kolom untuk waktu terakhir pengguna aktif.
+  static const String lastActiveAt = 'last_active_at';
+
   /// Nama kolom untuk tautan tutorial YouTube.
   static const String youtubeTutorial = 'youtube_tutorial';
 

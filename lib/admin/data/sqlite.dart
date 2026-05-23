@@ -1,8 +1,7 @@
 // path: lib/admin/data/sqlite.dart
 // diubah: Mengintegrasikan ColumnNames dan TableNameValue untuk mendefinisikan skema v50.
-// diubah: Menaikkan versi DB ke 50, menambahkan migrasi _migrateToV50
-//         untuk rename semua nama tabel ke snake_case Inggris.
-//         Data tetap AMAN karena menggunakan ALTER TABLE RENAME TO.
+// diubah: Menaikkan versi DB ke 51, menambahkan migrasi _migrateToV51
+//         untuk menambahkan kolom last_active_at ke tabel customer.
 // diubah: Semua definisi CREATE TABLE menggunakan nama tabel & kolom berbasis konstanta.
 // diubah: Semua index menggunakan nama tabel baru dari TableNameValue.
 // diperbaiki: Urutan direktif import (directives_ordering) diatur secara alfabetis.
@@ -25,8 +24,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // diubah: Versi dinaikkan ke 50 untuk rename tabel ke snake_case.
-  static const int _databaseVersion = 50;
+  // diubah: Versi dinaikkan ke 51 untuk menambah kolom last_active_at di customer.
+  static const int _databaseVersion = 51;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -136,12 +135,27 @@ class DatabaseHelper {
       await _migrateToV50(db);
     }
 
+    if (oldVersion < 51) {
+      Log.info(
+        '[MIGRASI v51] Menambahkan kolom `${ColumnNames.lastActiveAt}` ke tabel `${TableNameValue.get(TableName.customer)}`.',
+      );
+      await _migrateToV51(db);
+    }
+
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
       'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
     );
     Log.info('========================================');
+  }
+
+  Future<void> _migrateToV51(final Database db) async {
+    Log.info('[MIGRASI v51] Menambahkan kolom ${ColumnNames.lastActiveAt}...');
+    await db.execute(
+      'ALTER TABLE ${TableNameValue.get(TableName.customer)} ADD COLUMN ${ColumnNames.lastActiveAt} INTEGER',
+    );
+    Log.info('[MIGRASI v51] Penambahan kolom ${ColumnNames.lastActiveAt} selesai.');
   }
 
   Future<void> _migrateToV45(final Database db) async {
@@ -414,7 +428,7 @@ class DatabaseHelper {
     batch.execute(_tabelSetting);
     batch.execute(_tabelUploadStatus);
     batch.execute(_tabelMessage);
-    Log.info('Semua 14 definisi tabel (v50) ditambahkan ke batch.');
+    Log.info('Semua 14 definisi tabel (v51) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     final String trxTable = '"${TableNameValue.get(TableName.transactions)}"';
@@ -427,7 +441,7 @@ class DatabaseHelper {
     batch.execute(
       'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${ColumnNames.isDeleted})',
     );
-    Log.info('Semua 3 definisi index (v50) ditambahkan ke batch.');
+    Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
 
   void _createAllTablesV47(final Batch batch) {
@@ -448,7 +462,7 @@ class DatabaseHelper {
   }
 
   // ============================================================
-  // DEFINISI TABEL v50 (snake_case nama tabel + nama kolom via konstanta)
+  // DEFINISI TABEL v51 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
   static final String _tabelWallet = '''
@@ -463,7 +477,7 @@ class DatabaseHelper {
   ''';
 
   static final String _tabelTransaction = '''
-    CREATE TABLE "${TableNameValue.get(TableName.transactions)}"(
+    CREATE TABLE "${TableNameValue.get(TableName.transactions)}" (
       ${ColumnNames.id} TEXT PRIMARY KEY,
       ${ColumnNames.description} TEXT NOT NULL,
       ${ColumnNames.amount} REAL NOT NULL,
@@ -504,14 +518,14 @@ class DatabaseHelper {
     )
   ''';
 
-static final String _tabelUploadStatus = '''
+  static final String _tabelUploadStatus = '''
     CREATE TABLE ${TableNameValue.get(TableName.uploadStatus)}(
       ${ColumnNames.id} TEXT PRIMARY KEY,
       ${ColumnNames.value} TEXT NOT NULL,
       ${ColumnNames.updatedAt} INTEGER
     )
   ''';
-  
+
   static final String _tabelMessage = '''
     CREATE TABLE ${TableNameValue.get(TableName.message)}(
       ${ColumnNames.id} TEXT PRIMARY KEY,
@@ -584,7 +598,8 @@ static final String _tabelUploadStatus = '''
       ${ColumnNames.status} TEXT NOT NULL DEFAULT 'aktif',
       ${ColumnNames.updatedAt} INTEGER,
       ${ColumnNames.archivedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.lastActiveAt} INTEGER
     )
   ''';
 
@@ -620,7 +635,7 @@ static final String _tabelUploadStatus = '''
   ''';
 
   static final String _tabelOrder = '''
-    CREATE TABLE "${TableNameValue.get(TableName.customerOrder)}"(
+    CREATE TABLE "${TableNameValue.get(TableName.customerOrder)}" (
       ${ColumnNames.id} TEXT PRIMARY KEY,
       ${ColumnNames.customerId} TEXT NOT NULL,
       ${ColumnNames.packageId} TEXT NOT NULL,

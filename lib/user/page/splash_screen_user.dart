@@ -128,7 +128,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     }on Exception catch (e, st) {
       Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
     }
-    await NotifikasiServis().inisialisasi(iconName: 'splash');
+    await NotifikasiServis().inisialisasi(iconName: 'launcher_icon');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
 
