@@ -10,7 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 /// Idealnya, iklan dimuat sebelumnya dan ditampilkan di titik transisi alami.
 class InterstitialAdService {
   InterstitialAd? _interstitialAd;
-  String? _lastUsedAdUnitId; 
+  String? _lastUsedAdUnitId;
 
   // Getter untuk memeriksa apakah iklan sudah siap untuk ditampilkan.
   bool get isAdLoaded => _interstitialAd != null;

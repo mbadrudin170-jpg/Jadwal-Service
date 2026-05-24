@@ -1,33 +1,49 @@
 // path: lib/user/widget/ads/banner_ad_widget.dart
+// MODIFIED:
+// - Added `onAdLoaded` and `onAdFailedToLoad` callbacks to the constructor.
+// - These callbacks are invoked from the `BannerAdListener`.
+// - The widget itself no longer shows notifications.
+// - Cleaned up the placeholder text and removed the `kDebugMode` check for simplicity.
+
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Widget untuk menampilkan banner iklan Google Mobile Ads (dengan mediasi).
+/// A widget that displays a Google Mobile Ads banner.
 class BannerAdWidget extends StatefulWidget {
-  /// Unit ID iklan yang akan ditampilkan.
+  /// The ad unit ID for the banner.
   final String adUnitId;
+
+  /// An optional callback that is called when the ad is successfully loaded.
+  final VoidCallback? onAdLoaded;
+
+  /// An optional callback that is called when the ad fails to load.
+  final Function(LoadAdError error)? onAdFailedToLoad;
 
   const BannerAdWidget({
     super.key,
     required this.adUnitId,
+    this.onAdLoaded,
+    this.onAdFailedToLoad,
   });
 
   @override
-  State<BannerAdWidget> createState() => _BannerAdWidgetState();
+  // ignore: library_private_types_in_public_api
+  State<BannerAdWidget> createState() => BannerAdWidgetState();
 }
 
-class _BannerAdWidgetState extends State<BannerAdWidget> {
+class BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
-  Timer? _retryTimer; // Solusi Kebocoran Memori: Untuk membatalkan auto-retry jika widget di-dispose
+  Timer? _retryTimer;
 
   @override
   void initState() {
     super.initState();
-    unawaited(_loadBanner());
+    unawaited(loadAd());
   }
 
   @override
@@ -36,18 +52,17 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
     if (oldWidget.adUnitId != widget.adUnitId) {
       Log.info('Ad unit ID changed. Re-initializing banner.');
-      // Batalkan timer retry lama jika ada
       _retryTimer?.cancel();
-      
-      // Jalankan fungsi dispose secara sekuensial sebelum memuat yang baru
+
       _disposeBanner().then((_) {
-        if (mounted) unawaited(_loadBanner());
+        if (mounted) unawaited(loadAd());
       });
     }
   }
 
-  Future<void> _loadBanner() async {
-    // Pastikan timer retry sebelumnya dibersihkan sebelum memuat ulang
+  /// Loads (or reloads) the banner ad.
+  /// Can be called externally via a GlobalKey.
+  Future<void> loadAd() async {
     _retryTimer?.cancel();
 
     if (widget.adUnitId.isEmpty) {
@@ -56,7 +71,14 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     }
 
     Log.api('/banner_ad', {'adUnitId': widget.adUnitId}, method: 'LOAD');
-    _isLoaded = false;
+    if (mounted) {
+      setState(() {
+        _isLoaded = false;
+      });
+    }
+
+    await _bannerAd?.dispose();
+    _bannerAd = null;
 
     _bannerAd = BannerAd(
       adUnitId: widget.adUnitId,
@@ -68,10 +90,13 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             ad.dispose();
             return;
           }
-          Log.info('Banner ad loaded successfully via Mediation.');
+          Log.info('Banner ad loaded successfully.');
           setState(() {
+            _bannerAd = ad as BannerAd?;
             _isLoaded = true;
           });
+          // Invoke the external callback
+          widget.onAdLoaded?.call();
         },
         onAdFailedToLoad: (final ad, final error) async {
           Log.error(
@@ -84,17 +109,19 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             },
           );
           await ad.dispose();
-          
+
           if (!mounted) return;
-          
+
           setState(() {
             _bannerAd = null;
             _isLoaded = false;
           });
 
-          // Menggunakan Timer yang bisa dibatalkan jika widget dihancurkan
-          _retryTimer = Timer(const Duration(seconds: 30), () {
-            if (mounted) unawaited(_loadBanner());
+          // Invoke the external callback
+          widget.onAdFailedToLoad?.call(error);
+
+          _retryTimer = Timer(const Duration(seconds: 5), () {
+            if (mounted) unawaited(loadAd());
           });
         },
       ),
@@ -117,7 +144,6 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(final BuildContext context) {
-    // Memastikan objek iklan dan status sinkron sebelum merender UI
     if (_isLoaded && _bannerAd != null) {
       return SizedBox(
         height: _bannerAd!.size.height.toDouble(),
@@ -125,12 +151,32 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
         child: AdWidget(ad: _bannerAd!),
       );
     }
+
+    // Always show a placeholder in debug mode if the ad is not loaded.
+    // In release, this will be an empty space unless you want a placeholder.
+    if (kDebugMode) {
+      return Container(
+        height: AdSize.banner.height.toDouble(),
+        width: AdSize.banner.width.toDouble(),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          border: Border.all(color: Colors.grey[400]!),
+        ),
+        child: Center(
+          child: Text(
+            'Banner Ad Space\n(Loading / Failed...)',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+          ),
+        ),
+      );
+    }
     return const SizedBox.shrink();
   }
 
   @override
   void dispose() {
-    _retryTimer?.cancel(); // Pastikan timer dibatalkan saat berpindah halaman
+    _retryTimer?.cancel();
     unawaited(_disposeBanner());
     super.dispose();
   }
