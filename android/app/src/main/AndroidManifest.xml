@@ -70,11 +70,6 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-9773465799516929~5575068959"/>
-
-        <!-- DITAMBAHKAN: ID Game Unity untuk Mediasi AdMob -->
-        <meta-data
-            android:name="com.google.android.gms.ads.unity.GAME_ID"
-            android:value="80000716" />
     </application>
 
     <!-- Konfigurasi Visibilitas Paket (Krusial untuk Android 11+) -->
