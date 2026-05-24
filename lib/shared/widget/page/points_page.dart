@@ -12,7 +12,7 @@ import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
-import 'package:wifi/user/widget/ads/interestial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
   final String customerId;

@@ -1,4 +1,4 @@
-// path: lib/user/widget/ads/interestial/id_interestial_ads.dart
+// path: lib/user/widget/ads/interstitial/id_interstitial_ads.dart
 import 'package:flutter/foundation.dart';
 
 /// Class khusus untuk mengelola ID unit iklan yang berhubungan dengan Interstitial.
@@ -6,8 +6,10 @@ class IdInterstitialAds {
   // --- ID Iklan Interstitial Produksi ---
   static const String _prodInterstitialAdMediasi =
       'ca-app-pub-9773465799516929/4325033636';
-  static const String _prodInterestial1 =
+  static const String _prodInterstitial1 =
       'ca-app-pub-9773465799516929/2200295108';
+  static const String _prodInterstitial2 =
+      'ca-app-pub-9773465799516929/6082636738';
 
   // --- ID Iklan Interstitial Tes ---
   static const String _testInterstitialAd =
@@ -22,7 +24,7 @@ class IdInterstitialAds {
         _testInterstitialAd,
       ];
     }
-    return [_prodInterstitialAdMediasi, _prodInterestial1];
+    return [_prodInterstitialAdMediasi, _prodInterstitial1, _prodInterstitial2];
   }
 
   /// ID unit iklan untuk Interstitial (Mediasi).
@@ -38,6 +40,6 @@ class IdInterstitialAds {
     if (kDebugMode) {
       return _testInterstitialAd;
     }
-    return _prodInterestial1;
+    return _prodInterstitial1;
   }
 }

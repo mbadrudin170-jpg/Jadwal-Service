@@ -1,10 +1,10 @@
-// path: lib/user/widget/ads/interestial/interstitial_ad_service.dart
+// path: lib/user/widget/ads/interstitial/interstitial_ad_service.dart
 import 'dart:async';
 
 import 'package:flutter/foundation.dart'; // Ditambahkan
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/widget/ads/interestial/id_interestial_ads.dart';
+import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Service singleton untuk mengelola dan menampilkan iklan Interstitial dengan logika waterfall.
 class InterstitialAdService {

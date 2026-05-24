@@ -1,6 +1,6 @@
 // path: lib/admin/halaman/tes/halaman_tes.dart
 import 'package:flutter/material.dart';
-import 'package:wifi/user/widget/ads/interestial/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class HalamanTes extends StatefulWidget {
   const HalamanTes({super.key});
