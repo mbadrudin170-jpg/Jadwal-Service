@@ -7,6 +7,7 @@
 // diubah: Refaktor untuk menggunakan PointsPage generik.
 // DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
 // DITAMBAHKAN: Iklan banner di bagian bawah halaman.
+// FITUR: Menambahkan Interstitial Ad saat navigasi ke halaman Edit Profile.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -19,6 +20,7 @@ import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
+import 'package:wifi/user/widget/ads/interstitial_ad_service.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -29,14 +31,9 @@ class _ProfileData {
 }
 
 /// Halaman untuk menampilkan detail profil pengguna.
-///
-/// Halaman ini mengambil data pelanggan dan total poin dari Firestore,
-/// lalu menampilkannya menggunakan widget [CustomerDetailUI].
 class UserCustomerDetailPage extends StatefulWidget {
-  /// ID unik pengguna yang detailnya akan ditampilkan.
   final String userId;
 
-  /// Membuat instance dari [UserCustomerDetailPage].
   const UserCustomerDetailPage({super.key, required this.userId});
 
   @override
@@ -46,6 +43,8 @@ class UserCustomerDetailPage extends StatefulWidget {
 class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
+  late final InterstitialAdService _interstitialAdService;
+
   Future<_ProfileData>? _dataFuture;
   bool _hasMadeChanges = false;
 
@@ -55,10 +54,17 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     Log.info(
       'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
     );
+    _interstitialAdService = InterstitialAdService();
+    _interstitialAdService.loadAd(); // Muat iklan saat halaman dibuka
     _dataFuture = _loadData();
   }
 
-  /// Mengambil semua data yang diperlukan dari Firestore.
+  @override
+  void dispose() {
+    _interstitialAdService.dispose(); // Wajib untuk membersihkan iklan
+    super.dispose();
+  }
+
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
@@ -105,7 +111,9 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     });
   }
 
+  /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
   Future<void> _navigateToEdit(final CustomerModel customer) async {
+    // 1. Langsung navigasi ke halaman edit.
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -113,6 +121,8 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
             EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
+
+    // 2. Setelah kembali, periksa jika ada perubahan dan muat ulang data.
     if (result ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
       setState(() {
@@ -120,6 +130,11 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       });
       _reloadData();
     }
+    
+    // 3. Tampilkan iklan setelah semua proses navigasi & update selesai.
+    _interstitialAdService.showAd(onAdDismissed: () {
+      Log.info('Iklan interstisial ditutup setelah kembali dari halaman edit.');
+    });
   }
 
   Future<void> _navigateToPoints(final String customerId) async {
@@ -181,7 +196,6 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
           final data = snapshot.data!;
 
-          // DITAMBAHKAN: Bungkus UI dengan Scaffold untuk menambahkan banner.
           return Scaffold(
             body: CustomerDetailUI(
               customer: data.customer,
@@ -189,9 +203,8 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            // DITAMBAHKAN: Banner iklan di bagian bawah.
             bottomNavigationBar: BannerAdWidget(
-              adUnitId: AdHelper.profileBannerAdUnitId,
+              adUnitId: AdHelper.profileBannerAdUnitIdMediasi,
             ),
           );
         },

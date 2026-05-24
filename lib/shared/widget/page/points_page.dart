@@ -160,7 +160,7 @@ class _PointsPageState extends State<PointsPage> {
           ? _buildRewardList()
           : _buildPointsHistory(),
       bottomWidget: widget.showAd
-          ? BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId)
+          ? BannerAdWidget(adUnitId: AdHelper.bannerAdUnitIdMediasi)
           : null,
     );
   }

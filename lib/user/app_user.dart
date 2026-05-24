@@ -8,11 +8,47 @@ import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/app_open_ad_service.dart';
 
 /// Widget utama aplikasi user.
-class AppUser extends StatelessWidget {
+class AppUser extends StatefulWidget {
   /// Konstruktor untuk [AppUser].
   const AppUser({super.key});
+
+  @override
+  State<AppUser> createState() => _AppUserState();
+}
+
+class _AppUserState extends State<AppUser> with WidgetsBindingObserver {
+  late final AppOpenAdService _appOpenAdService;
+
+  @override
+  void initState() {
+    super.initState();
+    // 1. Mendaftarkan observer untuk mendengarkan siklus hidup aplikasi.
+    WidgetsBinding.instance.addObserver(this);
+
+    // 2. Membuat instance dan memuat iklan pembuka aplikasi pertama kali.
+    _appOpenAdService = AppOpenAdService();
+    _appOpenAdService.loadAd();
+  }
+
+  @override
+  void dispose() {
+    // 3. Melepaskan observer untuk mencegah memory leak.
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 4. Dipanggil setiap kali status aplikasi berubah (resume, inactive, paused).
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Saat pengguna kembali ke aplikasi, coba tampilkan iklan.
+      _appOpenAdService.showAdIfReady();
+    }
+  }
 
   @override
   Widget build(final BuildContext context) {

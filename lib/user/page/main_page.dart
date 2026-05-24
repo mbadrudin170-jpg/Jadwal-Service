@@ -89,7 +89,7 @@ class _MainPageState extends State<MainPage> {
               children: _pages,
             ),
           ),
-          BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId),
+          BannerAdWidget(adUnitId: AdHelper.bannerAdUnitIdMediasi),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

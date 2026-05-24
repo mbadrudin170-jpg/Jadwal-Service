@@ -85,16 +85,13 @@ class UpdateCheckService {
           architecture: architecture
         );
       }
-
       final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
       final latestBuildNumber = latestApk.latestBuildNumber[architecture] ?? 0;
-
       Log.info('Perbandingan versi', {
         'currentBuild': currentBuildNumber,
         'latestBuild': latestBuildNumber,
         'architecture': architecture.name,
       });
-
       final bool isRequired = latestBuildNumber > currentBuildNumber;
       return (
         isUpdateRequired: isRequired,
@@ -124,9 +121,7 @@ class UpdateCheckService {
       Log.error('BuildContext tidak tersedia untuk checkUpdateAndNavigate.');
       return;
     }
-
     final update = await getUpdateInfo();
-
     if (update.isUpdateRequired &&
         update.apkInfo != null &&
         update.packageInfo != null &&
