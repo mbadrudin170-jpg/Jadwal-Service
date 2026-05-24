@@ -122,8 +122,10 @@ class _AccountListPageState extends State<AccountListPage> {
     final navigator = Navigator.of(context);
     try {
       await _localStorageService.saveCurrentAccount(customer);
-      unawaited(_activityService.pingActivity(customer.id));
-
+      unawaited(
+        _activityService.pingActivity(customer.id, force: true),
+      );
+      Log.info('set waktu terakhir user aktif ',{{customer.id, customer.name}});
       if (!mounted) return;
       final page = widget.mainPageBuilder != null
           ? widget.mainPageBuilder!(customer.id, _localStorageService)
@@ -302,7 +304,7 @@ class _AccountListPageState extends State<AccountListPage> {
                 if (!context.mounted) return;
 
                 ToastUtil.success(
-                    context, 'Anda telah keluar dan akun dihapus'); 
+                    context, 'Anda telah keluar dan akun dihapus');
 
                 await navigator.pushNamedAndRemoveUntil(
                   '/login',

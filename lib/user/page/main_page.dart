@@ -14,8 +14,7 @@ import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
-import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
+import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends StatefulWidget {
@@ -89,7 +88,7 @@ class _MainPageState extends State<MainPage> {
               children: _pages,
             ),
           ),
-          BannerAdWidget(adUnitId: AdHelper.bannerAdUnitId1),
+          BannerWaterfallWidget(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

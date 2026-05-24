@@ -1,14 +1,4 @@
 // path: lib/user/page/user_customer_detail.dart
-// diubah: Memperbaiki nama kelas PoinPageUser → PointsPageUser,
-//         CustomerDetailUi → CustomerDetailUI, idPelanggan → customerId.
-// diubah: Menghapus import yang tidak digunakan.
-// DIPERBAIKI: Menghapus pemanggilan _reloadData yang tidak perlu setelah kembali dari halaman poin.
-// DIPERBAIKI: Mengganti onPopInvoked yang usang dengan onPopInvokedWithResult.
-// diubah: Refaktor untuk menggunakan PointsPage generik.
-// DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
-// DITAMBAHKAN: Iklan banner di bagian bawah halaman.
-// FITUR: Menambahkan Interstitial Ad saat navigasi ke halaman Edit Profile.
-
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -18,9 +8,8 @@ import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
-import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
+import 'package:wifi/user/widget/ads/interestial/interstitial_ad_service.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -43,7 +32,7 @@ class UserCustomerDetailPage extends StatefulWidget {
 class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
-  late final InterstitialAdService _interstitialAdService;
+  // Interstitial service adalah singleton, tidak perlu instance lokal.
 
   Future<_ProfileData>? _dataFuture;
   bool _hasMadeChanges = false;
@@ -54,16 +43,12 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     Log.info(
       'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
     );
-    _interstitialAdService = InterstitialAdService();
-    _interstitialAdService.loadAd(adUnitId: AdHelper.interstitialAdUnitId1);
+    // Iklan sekarang di-preload secara global.
+    // Tidak perlu loadAd() di sini.
     _dataFuture = _loadData();
   }
 
-  @override
-  void dispose() {
-    _interstitialAdService.dispose(); // Wajib untuk membersihkan iklan
-    super.dispose();
-  }
+  // Tidak perlu dispose service singleton
 
   Future<_ProfileData> _loadData() async {
     try {
@@ -130,9 +115,9 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       });
       _reloadData();
     }
-    
+
     // 3. Tampilkan iklan setelah semua proses navigasi & update selesai.
-    _interstitialAdService.showAd(onAdDismissed: () {
+    InterstitialAdService().showAdIfReady(onAdDismissed: () {
       Log.info('Iklan interstisial ditutup setelah kembali dari halaman edit.');
     });
   }
@@ -203,9 +188,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            bottomNavigationBar: BannerAdWidget(
-              adUnitId: AdHelper.profileBannerAdUnitIdMediasi,
-            ),
+            bottomNavigationBar: BannerWaterfallWidget(),
           );
         },
       ),

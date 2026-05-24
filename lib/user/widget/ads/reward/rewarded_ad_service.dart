@@ -1,8 +1,8 @@
-// path: lib/user/widget/ads/rewarded_ad_service.dart
+// path: lib/user/widget/ads/reward/rewarded_ad_service.dart
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
+import 'package:wifi/user/widget/ads/reward/id_reward_ads.dart';
 
 /// Kelas untuk mengelola Iklan Berhadiah (Rewarded Ad).
 /// Pengguna menonton iklan untuk mendapatkan hadiah dalam aplikasi.
@@ -27,7 +27,7 @@ class RewardedAdService {
     }
 
     RewardedAd.load(
-      adUnitId: AdHelper.rewardedAdUnitId,
+      adUnitId: IdRewardAds.rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
@@ -37,7 +37,8 @@ class RewardedAdService {
         },
         onAdFailedToLoad: (error) {
           _rewardedAd = null;
-          Log.error('Failed to load rewarded ad', data: {'error': error.message, 'code': error.code});
+          Log.error('Failed to load rewarded ad',
+              data: {'error': error.message, 'code': error.code});
           onAdFailedToLoad?.call(error);
         },
       ),

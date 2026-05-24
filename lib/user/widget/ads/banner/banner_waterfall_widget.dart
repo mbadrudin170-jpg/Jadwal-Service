@@ -1,31 +1,29 @@
-// path: lib/user/widget/ads/banner_waterfall_widget.dart
+// path: lib/user/widget/ads/banner/banner_waterfall_widget.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart'; // Diperbarui
 
 /// Sebuah widget yang mencoba memuat beberapa unit iklan banner secara siklus dan berurutan.
-/// Jika satu gagal, ia akan mencoba memuat yang berikutnya setelah jeda waktu.
-/// Jika sudah di akhir daftar, ia akan kembali ke awal.
 class BannerWaterfallWidget extends StatefulWidget {
-  /// Daftar ID unit iklan yang akan dicoba secara berurutan.
-  final List<String> adUnitIds;
-
   /// Jeda waktu sebelum mencoba memuat unit iklan berikutnya setelah kegagalan.
   final Duration retryDelay;
 
   const BannerWaterfallWidget({
     super.key,
-    required this.adUnitIds,
     this.retryDelay = const Duration(seconds: 30),
-  }) : assert(adUnitIds.length > 0, 'adUnitIds tidak boleh kosong');
+  });
 
   @override
   State<BannerWaterfallWidget> createState() => _BannerWaterfallWidgetState();
 }
 
 class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
+  // Mengambil daftar ID langsung dari class IdBannerAds
+  final List<String> _adUnitIds = IdBannerAds.bannerAdUnitIds;
+
   BannerAd? _bannerAd;
   int _currentAdIndex = 0;
   Timer? _retryTimer;
@@ -33,14 +31,17 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _loadAd();
+      }
+    });
   }
 
   void _loadAd() {
-    // Hentikan proses jika ada iklan yang sudah berhasil dimuat
-    if (_bannerAd != null) return;
+    if (_bannerAd != null || _adUnitIds.isEmpty) return;
 
-    final adUnitId = widget.adUnitIds[_currentAdIndex];
+    final adUnitId = _adUnitIds[_currentAdIndex];
     Log.info(
         '[Waterfall] Mencoba memuat banner #${_currentAdIndex}: $adUnitId');
 
@@ -51,7 +52,6 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           Log.info('[Waterfall] Banner #${_currentAdIndex} BERHASIL dimuat.');
-          // Pastikan widget masih ada di tree sebelum update state
           if (mounted) {
             setState(() {
               _bannerAd = ad as BannerAd;
@@ -65,10 +65,9 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
           );
           ad.dispose();
 
-          // Pindah ke indeks berikutnya, kembali ke 0 jika sudah di akhir
-          _currentAdIndex = (_currentAdIndex + 1) % widget.adUnitIds.length;
+          _currentAdIndex = (_currentAdIndex + 1) % _adUnitIds.length;
 
-          // Jadwalkan percobaan berikutnya setelah jeda
+          _retryTimer?.cancel();
           _retryTimer = Timer(widget.retryDelay, () {
             if (mounted) {
               _loadAd();
@@ -95,7 +94,6 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
         child: AdWidget(ad: _bannerAd!),
       );
     } else {
-      // Tampilkan placeholder atau kosongkan saat loading atau jika semua gagal
       return const SizedBox.shrink();
     }
   }

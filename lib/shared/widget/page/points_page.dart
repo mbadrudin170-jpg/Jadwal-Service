@@ -1,7 +1,4 @@
 // path: lib/shared/widget/page/points_page.dart
-// DIUBAH: Menambahkan InterstitialAdService yang akan tampil saat pengguna beralih ke tab Riwayat.
-// DIUBAH: Logika iklan (banner dan interstitial) hanya aktif jika showAd bernilai true.
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -14,9 +11,8 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/ad_helper.dart';
-import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial_ad_service.dart';
+import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
+import 'package:wifi/user/widget/ads/interestial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
   final String customerId;
@@ -44,9 +40,6 @@ class _PointsPageState extends State<PointsPage> {
   String? _errorMessage;
   late final Widget _appBarTitle;
 
-  // Tambahan untuk iklan interstitial
-  late final InterstitialAdService _interstitialAdService;
-
   @override
   void initState() {
     super.initState();
@@ -63,21 +56,15 @@ class _PointsPageState extends State<PointsPage> {
       ],
     );
 
-    // Hanya muat iklan jika showAd true
-    if (widget.showAd) {
-      _interstitialAdService = InterstitialAdService();
-      _interstitialAdService.loadAd(adUnitId: AdHelper.interstitialAdUnitId1);
-    }
+    // Iklan interstitial sekarang di-preload secara global di main.dart.
+    // Tidak perlu loadAd() di sini lagi.
 
     unawaited(_loadPointsData());
   }
 
+  // Tidak perlu dispose service singleton
   @override
   void dispose() {
-    // Hanya dispose jika iklan diinisialisasi
-    if (widget.showAd) {
-      _interstitialAdService.dispose();
-    }
     super.dispose();
   }
 
@@ -176,7 +163,9 @@ class _PointsPageState extends State<PointsPage> {
         // Tampilkan iklan saat beralih ke Riwayat & jika iklan diizinkan
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            _interstitialAdService.showAd();
+            // Gunakan API baru: tampilkan jika siap, tanpa callback karena
+            // _loadTransactionHistory dipanggil setelah ini.
+            InterstitialAdService().showAdIfReady();
           }
           // Muat riwayat jika belum ada
           if (_transactionHistory.isEmpty) {
@@ -187,9 +176,7 @@ class _PointsPageState extends State<PointsPage> {
       contentView: _selectedMenu == MenuPoin.penukaran
           ? _buildRewardList()
           : _buildPointsHistory(),
-      bottomWidget: widget.showAd
-          ? BannerAdWidget(adUnitId: AdHelper.bannerAdUnitIdMediasi)
-          : null,
+      bottomWidget: widget.showAd ? BannerWaterfallWidget() : null,
     );
   }
 

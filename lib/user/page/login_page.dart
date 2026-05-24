@@ -147,9 +147,10 @@ class _LoginViewState extends State<_LoginView> {
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
-        unawaited(_activityService.pingActivity(customer.id));
-
+        unawaited(_activityService.pingActivity(customer.id, force: true));
+        Log.info('memperbarui last aktif user ', {customer.id});
         await _localStorageService.saveAccount(customer);
+        Log.info('Menyimpan id akun ke memori lokal');
         await _localStorageService.prefs.setString('userId', customer.id);
 
         await navigator.pushReplacement(

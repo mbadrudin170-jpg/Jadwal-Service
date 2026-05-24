@@ -28,10 +28,14 @@ class UserActivityService {
   ///
   /// Fungsi ini memiliki mekanisme throttling: "ping" hanya akan dikirim jika
   /// panggilan terakhir sudah lebih dari `_pingInterval` yang lalu.
+  /// Throttling bisa diabaikan dengan menyetel `force` menjadi `true`.
   ///
   /// Panggil fungsi ini saat aplikasi dibuka atau kembali ke foreground,
   /// dengan menyediakan `customerId` dari pengguna yang sedang login.
-  Future<void> pingActivity(final String customerId) async {
+  Future<void> pingActivity(
+    final String customerId, {
+    final bool force = false,
+  }) async {
     if (customerId.isEmpty) {
       Log.warning('pingActivity: customerId kosong, proses dibatalkan.');
       return;
@@ -42,7 +46,7 @@ class UserActivityService {
       final lastPingMillis = prefs.getInt(_lastPingTimestampKey);
       final now = DateTime.now();
 
-      if (lastPingMillis != null) {
+      if (lastPingMillis != null && !force) {
         final lastPingTime =
             DateTime.fromMillisecondsSinceEpoch(lastPingMillis);
         if (now.difference(lastPingTime) < _pingInterval) {
@@ -52,14 +56,14 @@ class UserActivityService {
         }
       }
 
-      Log.info('pingActivity: Mengirim ping aktivitas untuk user: $customerId');
+      Log.info('pingActivity: Mengirim ping aktivitas untuk user: $customerId (Force: $force)');
 
       // Panggil update di Firebase.
       // Kita tidak 'await' agar tidak memblokir thread utama.
       // Fungsi updateLastActive sudah punya error handling internal.
       unawaited(_customerOpFirebase.updateLastActive(customerId));
 
-      // Jika ping terkirim, perbarui timestamp lokal.// TODO : 
+      // Jika ping terkirim, perbarui timestamp lokal.
       await prefs.setInt(_lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info('pingActivity: Timestamp ping terakhir diperbarui secara lokal.');
     } catch (e, st) {

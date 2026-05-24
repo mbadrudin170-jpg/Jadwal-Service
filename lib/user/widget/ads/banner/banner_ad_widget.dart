@@ -1,5 +1,7 @@
-// path: lib/user/widget/ads/banner_ad_widget.dart
+// path: lib/user/widget/ads/banner/banner_ad_widget.dart
 // MODIFIED:
+// - Added a 2-second delay in initState before the first ad load.
+// - Increased the retry timer to 30 seconds to reduce log spam.
 // - Added `onAdLoaded` and `onAdFailedToLoad` callbacks to the constructor.
 // - These callbacks are invoked from the `BannerAdListener`.
 // - The widget itself no longer shows notifications.
@@ -43,17 +45,20 @@ class BannerAdWidgetState extends State<BannerAdWidget> {
   @override
   void initState() {
     super.initState();
-    unawaited(loadAd());
+    // Add a short delay to give the SDK time to initialize.
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        unawaited(loadAd());
+      }
+    });
   }
 
   @override
   void didUpdateWidget(covariant final BannerAdWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.adUnitId != widget.adUnitId) {
       Log.info('Ad unit ID changed. Re-initializing banner.');
       _retryTimer?.cancel();
-
       _disposeBanner().then((_) {
         if (mounted) unawaited(loadAd());
       });
@@ -76,10 +81,8 @@ class BannerAdWidgetState extends State<BannerAdWidget> {
         _isLoaded = false;
       });
     }
-
     await _bannerAd?.dispose();
     _bannerAd = null;
-
     _bannerAd = BannerAd(
       adUnitId: widget.adUnitId,
       request: const AdRequest(),
@@ -120,13 +123,13 @@ class BannerAdWidgetState extends State<BannerAdWidget> {
           // Invoke the external callback
           widget.onAdFailedToLoad?.call(error);
 
-          _retryTimer = Timer(const Duration(seconds: 5), () {
+          // Retry with a longer delay to avoid spamming requests.
+          _retryTimer = Timer(const Duration(seconds: 30), () {
             if (mounted) unawaited(loadAd());
           });
         },
       ),
     );
-
     await _bannerAd!.load();
   }
 

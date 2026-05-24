@@ -1,7 +1,4 @@
 // path: lib/user/page/splash_screen_user.dart
-// PERUBAHAN:
-// - Menghapus semua pemanggilan `FlutterNativeSplash.remove()`.
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -18,11 +16,13 @@ import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
+import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
+import 'package:wifi/user/providers/app_readiness_provider.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
@@ -34,17 +34,10 @@ typedef UpdateInfoRecord = ({
 });
 
 /// Halaman splash screen yang ditampilkan saat aplikasi pengguna pertama kali dibuka.
-///
-/// Halaman ini bertanggung jawab untuk inisialisasi awal, pemeriksaan pembaruan,
-/// mode pemeliharaan, dan mengarahkan pengguna ke halaman yang sesuai.
 class SplashScreenUser extends StatefulWidget {
-  /// Instance SharedPreferences untuk mengakses data penyimpanan sederhana.
   final SharedPreferences prefs;
-
-  /// Layanan untuk mengelola penyimpanan data lokal yang lebih kompleks.
   final LocalStorageService localStorageService;
 
-  /// Konstruktor untuk [SplashScreenUser].
   const SplashScreenUser({
     super.key,
     required this.prefs,
@@ -67,7 +60,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   Future<void> _initializeApp() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-
       await _initializeCoreServices();
 
       final internetService = InternetConnectionService();
@@ -90,6 +82,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
+          _setAppReady(); // Tandai aplikasi siap bahkan saat update
           return;
         }
 
@@ -105,19 +98,20 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
+          _setAppReady(); // Tandai aplikasi siap bahkan saat maintenance
           return;
         }
       }
 
       Log.info('Inisialisasi selesai. Menavigasi ke halaman yang sesuai.');
-      _navigateToNextPage();
+      await _navigateToNextPage();
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, st: st);
       if (mounted) {
         ToastUtil.error(context,
             'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.');
       }
-      _navigateToNextPage();
+      await _navigateToNextPage();
     }
   }
 
@@ -171,7 +165,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     return null;
   }
 
-  void _navigateToNextPage() {
+  Future<void> _navigateToNextPage() async {
     if (!mounted) {
       Log.warning(
           'Navigasi dibatalkan karena widget sudah tidak terpasang (unmounted).');
@@ -180,6 +174,10 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
+      // Panggil pingActivity untuk memperbarui waktu aktif terakhir
+      Log.info('Memperbarui waktu aktif terakhir untuk pengguna: $userId');
+      await UserActivityService().pingActivity(userId);
+      
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (final context) => MainPage(
@@ -194,6 +192,13 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         MaterialPageRoute(builder: (final context) => const LoginPage()),
       ));
     }
+    // SETELAH NAVIGASI, TANDAI APLIKASI SIAP
+    _setAppReady();
+  }
+
+  void _setAppReady() {
+    // Menggunakan `context.read` untuk memanggil method dari provider
+    context.read<AppReadinessProvider>().setAppReady();
   }
 
   @override
