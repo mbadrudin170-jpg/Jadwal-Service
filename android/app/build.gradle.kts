@@ -55,9 +55,6 @@ android {
     }
 
     sourceSets {
-        getByName("main") {
-            // Tambahkan ini jika ada sumber daya Java/Kotlin di luar `src/main`
-        }
         getByName("admin") {
             res.srcDirs("src/admin/res")
         }
@@ -68,15 +65,14 @@ android {
 
     buildTypes {
         release {
-            // Aktifkan minifikasi dan penyusutan resource
+            signingConfig = signingConfigs.getByName("debug")
+            // Menambahkan pengaturan ProGuard/R8
             isMinifyEnabled = true
             isShrinkResources = true
-            // Tentukan file ProGuard
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Anda tetap bisa menggunakan signingConfig debug di sini jika 
-            // Anda menandatangani aplikasi secara manual atau melalui CI/CD.
-            // Jika Anda punya setup release signing, ganti di sini.
-            signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

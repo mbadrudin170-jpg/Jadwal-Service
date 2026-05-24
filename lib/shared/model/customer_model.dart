@@ -84,7 +84,6 @@ class CustomerModel implements HasId {
     );
   }
 
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates a [CustomerModel] from a SQLite map.
   factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {

@@ -1,18 +1,14 @@
 // path: lib/admin/halaman/tes/halaman_tes.dart
-// MODIFIED:
-// - Implemented the new callbacks (`onAdLoaded`, `onAdFailedToLoad`) for `BannerAdWidget`.
-// - Added `ToastUtil` to show notifications for banner ad load status.
-// - Imported `ToastUtil` and `LoadAdError`.
-
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner_ad_widget.dart';
+import 'package:wifi/user/widget/ads/banner_waterfall_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial_ad_service.dart';
 import 'package:wifi/user/widget/ads/rewarded_ad_service.dart';
 
-/// A page for testing all types of ads.
+/// Halaman untuk menguji semua jenis iklan.
 class HalamanTes extends StatefulWidget {
   const HalamanTes({super.key});
 
@@ -21,15 +17,16 @@ class HalamanTes extends StatefulWidget {
 }
 
 class _HalamanTesState extends State<HalamanTes> {
-  // --- Ad Services ---
+  // --- Servis Iklan ---
   late final RewardedAdService _rewardedAdService;
   late final InterstitialAdService _interstitialAdServiceMediasi;
   late final InterstitialAdService _interstitialAdService1;
   late final AppOpenAdService _appOpenAdService;
 
-  // --- GlobalKeys for Banner Widgets ---
-  final GlobalKey<BannerAdWidgetState> _bannerMediasiKey =
-      GlobalKey<BannerAdWidgetState>();
+  // --- Variabel State ---
+  bool _isRewardedAdLoading = false;
+
+  // --- Kunci Global untuk Banner (Hanya untuk banner statis) ---
   final GlobalKey<BannerAdWidgetState> _bannerUnit1Key =
       GlobalKey<BannerAdWidgetState>();
 
@@ -41,19 +38,54 @@ class _HalamanTesState extends State<HalamanTes> {
     _interstitialAdService1 = InterstitialAdService();
     _appOpenAdService = AppOpenAdService();
 
-    _rewardedAdService.loadAd();
+    _loadAllAds();
+  }
+
+  void _loadAllAds() {
+    _loadRewardedAd();
     _interstitialAdServiceMediasi.loadAd(
         adUnitId: AdHelper.interstitialAdUnitIdMediasi);
     _interstitialAdService1.loadAd(adUnitId: AdHelper.interstitialAdUnitId1);
     _appOpenAdService.loadAd();
   }
 
-  void _showRewardedAd() {
-    _rewardedAdService.showAd(
-      onReward: () {
-        ToastUtil.success(context, 'Selamat! Anda mendapatkan reward.');
+  void _loadRewardedAd() {
+    setState(() {
+      _isRewardedAdLoading = true;
+    });
+    _rewardedAdService.loadAd(
+      onAdLoaded: () {
+        setState(() {
+          _isRewardedAdLoading = false;
+        });
+        ToastUtil.success(context, 'Iklan Hadiah siap ditonton!');
+      },
+      onAdFailedToLoad: (error) {
+        setState(() {
+          _isRewardedAdLoading = false;
+        });
+        ToastUtil.error(context, 'Iklan Hadiah gagal dimuat.', logData: {
+          'code': error.code,
+          'message': error.message,
+        });
       },
     );
+  }
+
+  void _showRewardedAd() {
+    if (_rewardedAdService.isAdLoaded) {
+      _rewardedAdService.showAd(
+        onReward: () {
+          ToastUtil.success(context, 'Selamat! Anda mendapatkan reward.');
+        },
+        onAdDismissed: _loadRewardedAd,
+      );
+    } else {
+      ToastUtil.info(context, 'Sedang memuat iklan, silakan coba lagi sesaat.');
+      if (!_isRewardedAdLoading) {
+        _loadRewardedAd();
+      }
+    }
   }
 
   void _showInterstitialAdMediasi() {
@@ -66,10 +98,6 @@ class _HalamanTesState extends State<HalamanTes> {
 
   void _showAppOpenAd() {
     _appOpenAdService.showAdIfReady();
-  }
-
-  void _reloadBannerMediasi() {
-    _bannerMediasiKey.currentState?.loadAd();
   }
 
   void _reloadBannerUnit1() {
@@ -102,9 +130,18 @@ class _HalamanTesState extends State<HalamanTes> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: _showRewardedAd,
-                        icon: const Icon(Icons.movie),
-                        label: const Text('Tonton Iklan Hadiah'),
+                        onPressed:
+                            _isRewardedAdLoading ? null : _showRewardedAd,
+                        icon: _isRewardedAdLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
+                            : const Icon(Icons.movie),
+                        label: Text(_isRewardedAdLoading
+                            ? 'Memuat Iklan...'
+                            : 'Tonton Iklan Hadiah'),
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
@@ -133,38 +170,34 @@ class _HalamanTesState extends State<HalamanTes> {
             const Text('Area Iklan Banner',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
+
+            // --- PENGGUNAAN WIDGET BARU ---
             _buildBannerContainer(
-              'Banner (Mediasi)',
-              BannerAdWidget(
-                key: _bannerMediasiKey,
-                adUnitId: AdHelper.bannerAdUnitIdMediasi,
-                onAdLoaded: () {
-                  ToastUtil.success(
-                      context, 'Banner (Mediasi) berhasil dimuat!');
-                },
-                onAdFailedToLoad: (error) {
-                  ToastUtil.error(context, 'Banner (Mediasi) GAGAL dimuat.',
-                      logData: {'error': error.toString()});
-                },
+              title: 'Banner Waterfall (A -> B -> C)',
+              bannerWidget: 
+              // Widget baru kita yang akan menangani logika fallback dan siklus
+              BannerWaterfallWidget(
+                adUnitIds: [
+                  AdHelper.bannerAdUnitId1,       // Akan coba ini dulu (dibuat gagal)
+                  AdHelper.bannerAdUnitIdMediasi, // Lalu coba ini (dibuat gagal)
+                  AdHelper.bannerAdUnitId2,       // Terakhir ini (akan berhasil)
+                ],
               ),
-              _reloadBannerMediasi,
             ),
+            
             const SizedBox(height: 16),
+
+            // --- BANNER LAMA (TETAP ADA SEBAGAI PEMBANDING) ---
             _buildBannerContainer(
-              'Banner (Unit 1)',
-              BannerAdWidget(
+              title: 'Banner Statis Gagal (Unit 1)',
+              bannerWidget: BannerAdWidget(
                 key: _bannerUnit1Key,
-                adUnitId: AdHelper.bannerAdUnitId1,
-                onAdLoaded: () {
-                  ToastUtil.success(
-                      context, 'Banner (Unit 1) berhasil dimuat!');
-                },
+                adUnitId: AdHelper.bannerAdUnitId1, // Ini sengaja dibuat gagal
                 onAdFailedToLoad: (error) {
-                  ToastUtil.error(context, 'Banner (Unit 1) GAGAL dimuat.',
-                      logData: {'error': error.toString()});
+                   // Tidak perlu toast di sini karena kegagalan diharapkan
                 },
               ),
-              _reloadBannerUnit1,
+              onReload: _reloadBannerUnit1,
             ),
           ],
         ),
@@ -172,8 +205,11 @@ class _HalamanTesState extends State<HalamanTes> {
     );
   }
 
-  Widget _buildBannerContainer(
-      String title, Widget bannerWidget, VoidCallback onReload) {
+  Widget _buildBannerContainer({
+    required String title, 
+    required Widget bannerWidget, 
+    VoidCallback? onReload
+  }) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -187,11 +223,12 @@ class _HalamanTesState extends State<HalamanTes> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: onReload,
-                tooltip: 'Muat Ulang Iklan',
-              ),
+              if (onReload != null)
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: onReload,
+                  tooltip: 'Muat Ulang Iklan',
+                ),
             ],
           ),
           const SizedBox(height: 8),

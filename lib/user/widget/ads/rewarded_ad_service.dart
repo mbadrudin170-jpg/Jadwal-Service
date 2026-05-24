@@ -13,25 +13,32 @@ class RewardedAdService {
   bool get isAdLoaded => _rewardedAd != null;
 
   /// Memuat iklan Rewarded.
-  /// Panggil ini di `initState` atau sebelum Anda berencana menampilkan iklan.
-  void loadAd() {
-    // Mencegah pemuatan berulang jika iklan sudah ada atau sedang dimuat.
+  /// [onAdLoaded] akan dipanggil saat iklan berhasil dimuat.
+  /// [onAdFailedToLoad] akan dipanggil saat iklan gagal dimuat.
+  void loadAd({
+    VoidCallback? onAdLoaded,
+    Function(LoadAdError)? onAdFailedToLoad,
+  }) {
+    // Mencegah pemuatan berulang jika iklan sudah ada.
     if (_rewardedAd != null) {
-      Log.info('Rewarded ad is already loaded or loading.');
+      Log.info('Rewarded ad is already loaded.');
+      onAdLoaded?.call();
       return;
     }
 
     RewardedAd.load(
-      adUnitId: AdHelper.rewardedAdUnitId, // Pastikan ID ini benar
+      adUnitId: AdHelper.rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
           Log.info('Rewarded ad loaded successfully.');
           _rewardedAd = ad;
+          onAdLoaded?.call();
         },
         onAdFailedToLoad: (error) {
           _rewardedAd = null;
           Log.error('Failed to load rewarded ad', data: {'error': error.message, 'code': error.code});
+          onAdFailedToLoad?.call(error);
         },
       ),
     );

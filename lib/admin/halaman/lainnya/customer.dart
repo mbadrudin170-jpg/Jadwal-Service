@@ -9,6 +9,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
@@ -403,7 +404,13 @@ class _CustomerPageState extends State<CustomerPage> {
               customer.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(customer.macAddress),
+            subtitle: Text(
+              customer.lastActiveAt == null
+                  ? '-'
+                  : FormatDateTime.formatDateAndTimeCompact(
+                      customer.lastActiveAt!,
+                    ),
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

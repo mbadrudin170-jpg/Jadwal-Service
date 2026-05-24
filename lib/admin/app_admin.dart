@@ -83,9 +83,7 @@ class _AppInitializerState extends State<AppInitializer> {
       final notifikasiServis = context.read<NotifikasiServis>();
 
       Log.info('Menginisialisasi layanan notifikasi...');
-      // DIPERBAIKI: Menggunakan nama ikon notifikasi yang sesuai standar Android.
-      await notifikasiServis.inisialisasi(
-          iconName: 'launcher_icon'); // TODO : memeriksa ikon
+      await notifikasiServis.inisialisasi(iconName: 'launcher_icon');
       await notifikasiServis.requestPermissions();
       Log.info('Inisialisasi notifikasi dan permintaan izin telah selesai.');
 
@@ -95,8 +93,6 @@ class _AppInitializerState extends State<AppInitializer> {
         final payload = launchDetails?.notificationResponse?.payload;
         Log.info(
             'Aplikasi dibuka dari notifikasi (terminated) dengan payload: $payload');
-
-        // Simpan payload ke SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         if (payload != null && payload.isNotEmpty) {
           await prefs.setString('initial_notification_payload', payload);
@@ -104,7 +100,6 @@ class _AppInitializerState extends State<AppInitializer> {
           await prefs.remove('initial_notification_payload');
         }
       } else {
-        // Hapus data lama jika tidak ada
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('initial_notification_payload');
       }
@@ -122,7 +117,6 @@ class _AppInitializerState extends State<AppInitializer> {
       Log.info('Status koneksi: ${isOnline ? "online" : "offline"}');
 
       if (isOnline) {
-        // DIUBAH: Menggunakan SettingsOperation untuk mendapatkan pengaturan
         final settings = await SettingsOperation().getSettings();
         final retentionDays = settings.autoDeleteArchiveDays;
 
