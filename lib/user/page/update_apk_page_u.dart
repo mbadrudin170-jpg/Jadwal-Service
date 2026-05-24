@@ -1,9 +1,9 @@
 // path: lib/user/page/update_apk_page_u.dart
 // PERUBAHAN:
-// - Mengubah tata letak tombol aksi menjadi lebih seimbang dan rapi.
-// - Tombol "Download" kini berukuran penuh.
-// - Tombol "Tutorial" dan "Lewati" ditempatkan berdampingan di bawahnya.
-// - Tombol YouTube diubah menjadi OutlinedButton.icon untuk konsistensi.
+// - Menambahkan state `_isDownloading` dan `_downloadProgress` untuk melacak status unduhan.
+// - Mengubah `_buildUpdateStatusCard` menjadi dinamis: menampilkan progress bar saat mengunduh.
+// - Menonaktifkan tombol "Download" saat unduhan sedang berjalan.
+// - Memperbarui `_downloadUpdate` untuk mengelola state dan menangani error.
 
 import 'dart:async';
 
@@ -44,12 +44,16 @@ class UpdateApkPage extends StatefulWidget {
 
 class _UpdateApkPageState extends State<UpdateApkPage>
     with SingleTickerProviderStateMixin {
-  final String _fileSize = 'Tersedia';
   late final List<String> _changelog;
   final UpdateService _updateService = UpdateService();
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+
+  // State untuk melacak progres unduhan
+  bool _isDownloading = false;
+  double _downloadProgress = 0.0;
+  String _fileSize = 'Memeriksa...'; // Placeholder awal
 
   @override
   void initState() {
@@ -62,6 +66,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         .where((final e) => e.isNotEmpty)
         .toList();
     unawaited(_pulseController.repeat(reverse: true));
+    // TODO: Implementasi pengambilan ukuran file jika memungkinkan
   }
 
   void _initializeAnimations() {
@@ -92,13 +97,39 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       return;
     }
 
+    setState(() {
+      _isDownloading = true;
+      _downloadProgress = 0.0;
+    });
+
     final fileName = 'update_v${widget.apkInfo.latestVersion}.apk';
 
-    await _updateService.downloadAndInstallApk(
-      context: context,
-      url: downloadUrl,
-      fileName: fileName,
-    );
+    try {
+      await _updateService.downloadAndInstallApk(
+        url: downloadUrl,
+        fileName: fileName,
+        onProgress: (final progress) {
+          setState(() {
+            _downloadProgress = progress;
+          });
+        },
+      );
+      // Jika berhasil, instalasi akan dimulai oleh service.
+      // Reset state jika pengguna kembali ke halaman ini.
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+        });
+      }
+    } catch (e, st) {
+      Log.error("Gagal mengunduh atau install pembaruan", e: e, st: st);
+      if (mounted) {
+        ToastUtil.error(context, e.toString());
+        setState(() {
+          _isDownloading = false;
+        });
+      }
+    }
   }
 
   Future<void> _openTutorial() async {
@@ -176,19 +207,26 @@ class _UpdateApkPageState extends State<UpdateApkPage>
 
     return Column(
       children: [
-        // Tombol Download Utama
         SizedBox(
           width: double.infinity,
           height: 56,
           child: FilledButton.icon(
-            onPressed: _downloadUpdate,
-            icon: const Icon(AppIcons.downloadRounded, size: 24),
-            label: const Text(
-              'Download Pembaruan',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-            ),
+            onPressed: _isDownloading ? null : _downloadUpdate,
+            icon: _isDownloading
+                ? const SizedBox.shrink()
+                : const Icon(AppIcons.downloadRounded, size: 24),
+            label: _isDownloading
+                ? const Text(
+                    'Mengunduh...',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  )
+                : const Text(
+                    'Download Pembaruan',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
+              backgroundColor:
+                  _isDownloading ? Colors.grey : const Color(0xFF6C63FF),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
@@ -196,9 +234,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             ),
           ),
         ),
-
-        // Tombol Sekunder (Tutorial dan Lewati)
-        if (hasTutorial || !isUpdateRequired) ...[
+        if (!isUpdateRequired || hasTutorial) ...[
           const SizedBox(height: 12),
           Row(
             children: [
@@ -431,6 +467,45 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   }
 
   Widget _buildUpdateStatusCard() {
+    if (_isDownloading) {
+      return _buildStatusContainer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Mengunduh pembaruan...',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3142),
+              ),
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: _downloadProgress,
+              minHeight: 12,
+              backgroundColor: Colors.grey[200],
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${(_downloadProgress * 100).toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return _buildStatusContainer(
       child: Row(
         children: [

@@ -1,8 +1,5 @@
 // path: lib/admin/halaman/form/active_customer_form.dart
-// diubah: Menambahkan dokumentasi publik dan memperbaiki kurung kurawal.
-// diubah: Mengambil data transaksi di mode edit untuk mengisi dompet & kategori.
-// diubah: Mengganti `initialValue` ke `value` di Dropdown agar update state terlihat.
-// diubah: Memperbaiki error tipe data nullable pada pemanggilan PesanInfoPaket.kirimRincianPaket.
+// diubah: Daftar paket (_paketList) kini diurutkan berdasarkan durasi saat data dimuat.
 
 import 'dart:async';
 
@@ -20,7 +17,6 @@ import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Fungsi untuk menghitung tanggal berakhir berdasarkan tanggal mulai dan durasi paket.
 DateTime hitungTanggalBerakhir(
   final DateTime startDate,
   final PackageModel paket,
@@ -53,30 +49,15 @@ DateTime hitungTanggalBerakhir(
   return hasil;
 }
 
-/// Form untuk menambah atau mengubah data pelanggan yang sedang aktif.
 class FormPelangganAktif extends StatefulWidget {
-  /// Data pelanggan aktif yang akan diedit.
   final ActiveCustomerModel? pelangganAktif;
-
-  /// Operasi untuk data pelanggan
   final CustomerOperation pelangganOperasi;
-
-  /// Operasi untuk data paket
   final PackageOperation paketOperasi;
-
-  /// Operasi untuk data pelanggan aktif
   final ActiveCustomerOperation pelangganAktifOperasi;
-
-  /// Operasi untuk data transaksi
   final TransactionOperation transaksiOperasi;
-
-  /// Operasi untuk data dompet
   final WalletOperation dompetOperasi;
-
-  /// Operasi untuk data kategori
   final CategoryOperation kategoriOperasi;
 
-  /// Konstruktor untuk FormPelangganAktif
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
@@ -147,7 +128,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       case DurationType.days:
         return package.duration * 24 * 60;
       case DurationType.months:
-        // Perkiraan, 1 bulan = 30 hari untuk tujuan pengurutan
         return package.duration * 30 * 24 * 60;
     }
   }
@@ -181,26 +161,37 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
         return;
       }
 
-      setState(() {
-        _pelangganList = (results[0] as List<CustomerModel>)
-          ..sort((final a, final b) =>
-              a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-        _paketList = results[1] as List<PackageModel>;
-        _daftarDompet = (results[2] as List<WalletModel>)
-            .where((final d) => !d.isDeleted)
-            .toList();
-        final semuaKategori = results[3] as List<CategoryModel>;
-        _kategoriPemasukanList = semuaKategori
-            .where((final k) => k.type == CategoryType.income && !k.isDeleted)
-            .toList();
-        _kategoriPengeluaranList = semuaKategori
-            .where((final k) => k.type == CategoryType.expense && !k.isDeleted)
-            .toList();
+      final pelangganList = (results[0] as List<CustomerModel>)
+        ..sort((final a, final b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-        final transaksiTerkait =
-            results.length > 4 && results[4] is TransactionModel
-                ? results[4] as TransactionModel?
-                : null;
+      final paketList = (results[1] as List<PackageModel>)
+        ..sort((a, b) =>
+            _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
+
+      final daftarDompet = (results[2] as List<WalletModel>)
+          .where((final d) => !d.isDeleted)
+          .toList();
+
+      final semuaKategori = results[3] as List<CategoryModel>;
+      final kategoriPemasukanList = semuaKategori
+          .where((final k) => k.type == CategoryType.income && !k.isDeleted)
+          .toList();
+      final kategoriPengeluaranList = semuaKategori
+          .where((final k) => k.type == CategoryType.expense && !k.isDeleted)
+          .toList();
+
+      final transaksiTerkait =
+          results.length > 4 && results[4] is TransactionModel
+              ? results[4] as TransactionModel?
+              : null;
+
+      setState(() {
+        _pelangganList = pelangganList;
+        _paketList = paketList;
+        _daftarDompet = daftarDompet;
+        _kategoriPemasukanList = kategoriPemasukanList;
+        _kategoriPengeluaranList = kategoriPengeluaranList;
 
         if (_isEditMode) {
           _mapEditData(transaksiTerkait);
@@ -508,14 +499,6 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
   }
 
   Widget _buildPaketDropdown() {
-    // Salin dan urutkan daftar paket untuk ditampilkan di dropdown.
-    final sortedPaketList = List<PackageModel>.from(_paketList);
-    sortedPaketList.sort((final a, final b) {
-      final durationA = _getDurationInMinutes(a);
-      final durationB = _getDurationInMinutes(b);
-      return durationA.compareTo(durationB);
-    });
-
     return DropdownButtonFormField<PackageModel>(
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(
