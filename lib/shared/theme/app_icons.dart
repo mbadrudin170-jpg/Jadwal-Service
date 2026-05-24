@@ -1,5 +1,5 @@
 // path: lib/shared/theme/app_icons.dart
-// diubah: Menambahkan ikon-ikon baru tanpa mengubah yang sudah ada.
+// diubah: Menambahkan ikon 'science' untuk tombol halaman tes.
 import 'package:flutter/material.dart';
 
 /// Kelas utilitas untuk mengelola ikon aplikasi secara terpusat.
@@ -246,4 +246,7 @@ class AppIcons {
 
   /// Ikon untuk video YouTube.
   static const IconData youtube = Icons.ondemand_video_rounded;
+  
+  /// Ikon untuk fitur eksperimental atau halaman tes.
+  static const IconData science = Icons.science;
 }
