@@ -1,5 +1,5 @@
 // path: lib/shared/widget/page/poin_page_ui.dart
-// DIUBAH: Menambahkan parameter bottomWidget opsional untuk menampilkan widget tambahan di bawah konten, seperti iklan.
+// DIUBAH: Memindahkan bottomWidget ke properti bottomNavigationBar pada Scaffold untuk memastikan iklan selalu terlihat dan tidak tertimpa oleh konten yang di-scroll.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -15,29 +15,14 @@ enum MenuPoin {
 }
 
 /// UI halaman poin yang dapat digunakan kembali.
-///
-/// Menampilkan header total poin, kontrol tersegmentasi untuk memilih
-/// antara menu Penukaran dan Riwayat, serta [contentView] yang dinamis.
 class PoinPageUi extends StatelessWidget {
-  /// Judul yang ditampilkan di AppBar.
   final Widget appBarTitle;
-
-  /// Total poin yang dimiliki pengguna.
   final int totalPoin;
-
-  /// Menu yang sedang dipilih.
   final MenuPoin menuPilihan;
-
-  /// Callback saat pilihan menu berubah.
   final ValueChanged<Set<MenuPoin>> onSelectionChanged;
-
-  /// Konten utama yang ditampilkan di bawah kontrol tersegmentasi.
   final Widget contentView;
-
-  /// Widget opsional untuk ditampilkan di bagian bawah halaman.
   final Widget? bottomWidget;
 
-  /// Membuat halaman [PoinPageUi].
   const PoinPageUi({
     super.key,
     required this.appBarTitle,
@@ -60,9 +45,10 @@ class PoinPageUi extends StatelessWidget {
           _buildInfoPoinHeader(context),
           _buildSegmentedControl(context),
           Expanded(child: contentView),
-          if (bottomWidget != null) bottomWidget!,
         ],
       ),
+      // DIUBAH: Widget sekarang ditempatkan di sini.
+      bottomNavigationBar: bottomWidget,
     );
   }
 

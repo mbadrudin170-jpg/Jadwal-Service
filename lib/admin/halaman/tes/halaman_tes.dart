@@ -7,6 +7,7 @@
 // - Memperbaiki pemanggilan showAd untuk RewardedAdService.
 
 import 'package:flutter/material.dart';
+import 'package:wifi/user/widget/ads/ad_helper.dart';
 import 'package:wifi/user/widget/ads/interstitial_ad_service.dart';
 import 'package:wifi/user/widget/ads/rewarded_ad_service.dart';
 
@@ -30,7 +31,8 @@ class _HalamanTesState extends State<HalamanTes> {
     _interstitialAdService = InterstitialAdService();
     // Langsung muat iklan saat halaman dibuka agar siap digunakan
     _rewardedAdService.loadAd();
-    _interstitialAdService.loadAd();
+    _interstitialAdService.loadAd(
+        adUnitId: AdHelper.interstitialAdUnitIdMediasi);
   }
 
   void _showRewardedAd() {

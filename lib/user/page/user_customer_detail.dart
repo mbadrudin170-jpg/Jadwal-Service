@@ -55,7 +55,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
     );
     _interstitialAdService = InterstitialAdService();
-    _interstitialAdService.loadAd(); // Muat iklan saat halaman dibuka
+    _interstitialAdService.loadAd(adUnitId: AdHelper.interstitialAdUnitId1);
     _dataFuture = _loadData();
   }
 
