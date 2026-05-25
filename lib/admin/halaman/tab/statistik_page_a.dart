@@ -163,7 +163,6 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   icon: Icons.monetization_on_outlined,
                   color: Colors.orange,
                 ),
-                
                 _buildStatCard(
                   title: 'Feedback Baru',
                   value: _feedbackBaru.toString(),
