@@ -8,11 +8,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
@@ -49,6 +49,9 @@ class SplashScreenUser extends StatefulWidget {
 }
 
 class _SplashScreenUserState extends State<SplashScreenUser> {
+  // Tambahkan instance dari SettingsOpFirebase
+  final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
+
   @override
   void initState() {
     super.initState();
@@ -147,22 +150,23 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     return null;
   }
 
+  // REFAKTOR: Menggunakan SettingsOpFirebase
   Future<SettingsModel?> _checkMaintenanceMode() async {
     Log.info('Memeriksa status server...');
-    final doc = await FirebaseFirestore.instance
-        .collection(TableNameValue.get(TableName.settings))
-        .doc(globalSettingsId)
-        .get(const GetOptions(source: Source.server));
-
-    if (doc.exists && doc.data() != null) {
-      final settings = SettingsModel.fromFirebase(doc.data()!);
+    try {
+      final settingsMap = await _settingsOp.getSettings();
+      final settings = SettingsModel.fromFirebase(settingsMap);
       if (settings.maintenanceMode) {
         Log.info('Server dalam mode pemeliharaan.');
         return settings;
       }
+      Log.info('Server tidak dalam mode pemeliharaan.');
+      return null;
+    } on Exception catch (e, st) {
+      Log.error('Gagal memeriksa mode pemeliharaan', e: e, st: st);
+      // Jika gagal, anggap tidak dalam mode maintenance agar tidak menghalangi user
+      return null;
     }
-    Log.info('Server tidak dalam mode pemeliharaan.');
-    return null;
   }
 
   Future<void> _navigateToNextPage() async {
@@ -177,7 +181,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       // Panggil pingActivity untuk memperbarui waktu aktif terakhir
       Log.info('Memperbarui waktu aktif terakhir untuk pengguna: $userId');
       await UserActivityService().pingActivity(userId);
-      
+
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (final context) => MainPage(

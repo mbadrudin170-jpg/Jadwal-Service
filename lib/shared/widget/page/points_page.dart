@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
@@ -56,13 +57,9 @@ class _PointsPageState extends State<PointsPage> {
       ],
     );
 
-    // Iklan interstitial sekarang di-preload secara global di main.dart.
-    // Tidak perlu loadAd() di sini lagi.
-
     unawaited(_loadPointsData());
   }
 
-  // Tidak perlu dispose service singleton
   @override
   void dispose() {
     super.dispose();
@@ -160,14 +157,10 @@ class _PointsPageState extends State<PointsPage> {
         Log.info('Points menu changed to: $selection');
         setState(() => _selectedMenu = selection);
 
-        // Tampilkan iklan saat beralih ke Riwayat & jika iklan diizinkan
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            // Gunakan API baru: tampilkan jika siap, tanpa callback karena
-            // _loadTransactionHistory dipanggil setelah ini.
             InterstitialAdService().showAdIfReady();
           }
-          // Muat riwayat jika belum ada
           if (_transactionHistory.isEmpty) {
             await _loadTransactionHistory();
           }
@@ -207,10 +200,15 @@ class _PointsPageState extends State<PointsPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('${reward.redemptionPoints} Points'),
+                LinearProgressIndicator(value: progress, minHeight: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${reward.redemptionPoints} Points'),
+                    Text('Points: $_totalPoints / ${reward.redemptionPoints}',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: enoughPoints ? Colors.green : Colors.grey)),
                     Text(
                       '$poinKurang',
                       style: TextStyle(
@@ -220,11 +218,6 @@ class _PointsPageState extends State<PointsPage> {
                     ),
                   ],
                 ),
-                LinearProgressIndicator(value: progress, minHeight: 8),
-                Text('Points: $_totalPoints / ${reward.redemptionPoints}',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: enoughPoints ? Colors.green : Colors.grey)),
               ],
             ),
           ),
@@ -248,6 +241,15 @@ class _PointsPageState extends State<PointsPage> {
         final isAddition = tx.earnedPoints > 0;
         final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
         final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
+
+        // Menentukan warna berdasarkan status pembayaran
+        final bool isUnpaid = tx.paymentStatus == PaymentStatus.unpaid;
+        final Color pointColor = isUnpaid
+            ? Colors.grey
+            : isAddition
+                ? Colors.green
+                : Colors.red;
+
         return InkWell(
           onTap: () => _navigateToDetailTransaksi(tx),
           child: Card(
@@ -255,17 +257,20 @@ class _PointsPageState extends State<PointsPage> {
             child: ListTile(
               leading: Icon(
                 isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
-                color: isAddition ? Colors.green : Colors.red,
+                color: pointColor, // Gunakan warna yang sudah ditentukan
               ),
               title: Text(tx.description),
               subtitle: Text(
                 FormatDate.formatDateBasic(tx.date),
               ),
-              trailing: Text(pointsStr,
-                  style: TextStyle(
-                      color: isAddition ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16)),
+              trailing: Text(
+                pointsStr,
+                style: TextStyle(
+                  color: pointColor, // Gunakan warna yang sudah ditentukan
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ),
         );
