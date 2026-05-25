@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/has_id.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model that represents a single transaction in the application.
@@ -307,4 +307,5 @@ class TransactionModel implements HasId {
       ColumnNames.isActivated: isActivated,
     };
   }
+  
 }

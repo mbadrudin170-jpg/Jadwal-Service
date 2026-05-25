@@ -6,6 +6,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/background_service.dart';
+import 'package:workmanager/workmanager.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
 void main() async {
@@ -13,6 +15,12 @@ void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Inisialisasi Workmanager
+  await Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: false, // Set false untuk production
+  );
 
   // Inisialisasi Firebase
   await Firebase.initializeApp(

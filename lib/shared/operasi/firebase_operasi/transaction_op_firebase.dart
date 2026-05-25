@@ -11,20 +11,35 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
-class TransactionOpFirebase {
-  final FirebaseFirestore _db;
-
+class TransactionOpFirebase extends BaseOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   TransactionOpFirebase({final FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance {
+      : super(firestore: firestore) {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
 
   /// Mendapatkan referensi ke koleksi transaction.
-  CollectionReference get _collection =>
-      _db.collection(TableNameValue.get(TableName.transactions));
+  CollectionReference get _collection => FirebaseFirestore.instance
+      .collection(TableNameValue.get(TableName.transactions));
+
+  /// Menambahkan transaksi baru ke Firestore.
+  Future<void> addTransaction(final TransactionModel transaction) async {
+    Log.info('Menambahkan transaksi baru: ${transaction.id}');
+    try {
+      await insert(
+        TableNameValue.get(TableName.transactions),
+        transaction.id,
+        transaction.toFirebase(),
+      );
+      Log.info('Berhasil menambahkan transaksi: ${transaction.id}');
+    } on FirebaseException catch (e, s) {
+      Log.error('Gagal menambahkan transaksi: ${transaction.id}', e: e, st: s);
+      rethrow;
+    }
+  }
 
   /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
   /// Digunakan untuk menentukan status langganan aktif di sisi user.
@@ -114,7 +129,7 @@ class TransactionOpFirebase {
     Log.warning(
         'Memulai penghapusan permanen transaksi di Firestore: $transactionId');
     try {
-      await _collection.doc(transactionId).delete();
+      await delete(TableNameValue.get(TableName.transactions), transactionId);
       Log.info('Penghapusan permanen transaksi berhasil: $transactionId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus transaksi secara permanen: $transactionId',
@@ -127,11 +142,8 @@ class TransactionOpFirebase {
   Future<void> softDeleteTransaction(final String transactionId) async {
     Log.info('Memulai soft delete transaksi di Firestore: $transactionId');
     try {
-      await _collection.doc(transactionId).update({
-        ColumnNames.isDeleted: true,
-        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
-        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
-      });
+      await softDelete(
+          TableNameValue.get(TableName.transactions), transactionId);
       Log.info('Soft delete transaksi berhasil: $transactionId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $transactionId',

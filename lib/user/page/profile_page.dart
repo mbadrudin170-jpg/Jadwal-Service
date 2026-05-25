@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
@@ -173,6 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
             dataSource:
                 FirebasePointsDataSource(), // Menggunakan data source Firebase
             showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
+            role: UserRole.user,
           ),
         ),
       );

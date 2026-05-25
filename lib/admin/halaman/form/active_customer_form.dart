@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:jiffy/jiffy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
@@ -14,40 +13,9 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-
-DateTime hitungTanggalBerakhir(
-  final DateTime startDate,
-  final PackageModel paket,
-) {
-  Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
-  Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
-  Log.info('  - Nama Paket: ${paket.name}');
-  Log.info('  - Tipe Durasi: ${paket.type.name}');
-  Log.info('  - Durasi: ${paket.duration}');
-
-  DateTime hasil;
-  switch (paket.type) {
-    case DurationType.hours:
-      hasil = startDate.add(Duration(hours: paket.duration));
-      break;
-    case DurationType.days:
-      hasil = startDate.add(Duration(days: paket.duration));
-      break;
-    case DurationType.months:
-      hasil = Jiffy.parseFromDateTime(startDate)
-          .add(months: paket.duration)
-          .dateTime;
-      break;
-    case DurationType.minutes:
-      hasil = startDate.add(Duration(minutes: paket.duration));
-      break;
-  }
-
-  Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
-  return hasil;
-}
 
 class FormPelangganAktif extends StatefulWidget {
   final ActiveCustomerModel? pelangganAktif;
@@ -323,7 +291,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       final tanggalMulai = DateTime(_selectedDate!.year, _selectedDate!.month,
           _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
       final tanggalBerakhir =
-          hitungTanggalBerakhir(tanggalMulai, _selectedPaket!);
+          CalculationUtil.hitungTanggalBerakhir(tanggalMulai, _selectedPaket!);
       final transaksiId =
           (_isEditMode && widget.pelangganAktif?.transactionId != null)
               ? widget.pelangganAktif!.transactionId!
@@ -339,24 +307,24 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           transactionId: transaksiId);
 
       final transaksiData = TransactionModel(
-          id: transaksiId,
-          date: tanggalMulai,
-          description: 'Aktivasi Paket: ${_selectedPaket!.name}',
-          amount: _gunakanPoin ? 0 : _selectedPaket!.price.toDouble(),
-          type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
-          walletId: _selectedDompet!.id,
-          categoryId: _selectedKategori!.id,
-          customerId: _selectedPelanggan!.id,
-          packageId: _selectedPaket!.id,
-          paymentStatus: _statusPembayaran,
-          earnedPoints: _gunakanPoin ? 0 : _selectedPaket!.rewardPoints,
-          usedPoints: _gunakanPoin ? _selectedPaket!.redemptionPoints : 0,
-          packageDuration: _selectedPaket!.duration,
-          durationType: _selectedPaket!.type,
-          startDate: tanggalMulai,
-          endDate: tanggalBerakhir,
-          isActivated: true);
-
+        id: transaksiId,
+        date: tanggalMulai,
+        description: 'Aktivasi Paket: ${_selectedPaket!.name}',
+        amount: _gunakanPoin ? 0 : _selectedPaket!.price.toDouble(),
+        type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
+        walletId: _selectedDompet!.id,
+        categoryId: _selectedKategori!.id,
+        customerId: _selectedPelanggan!.id,
+        packageId: _selectedPaket!.id,
+        paymentStatus: _statusPembayaran,
+        earnedPoints: _gunakanPoin ? 0 : _selectedPaket!.rewardPoints,
+        usedPoints: _gunakanPoin ? _selectedPaket!.redemptionPoints : 0,
+        packageDuration: _selectedPaket!.duration,
+        durationType: _selectedPaket!.type,
+        startDate: tanggalMulai,
+        endDate: tanggalBerakhir,
+        isActivated: true,
+      );
       Log.info(
           'Menyimpan data: customerId=${_selectedPelanggan!.id}, packageId=${_selectedPaket!.id}, transaksiId=$transaksiId');
 
@@ -612,7 +580,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
                 _selectedTime!.hour,
                 _selectedTime!.minute);
             return FormatDateTime.formatDateAndTimeCompact(
-                hitungTanggalBerakhir(startDate, _selectedPaket!));
+                CalculationUtil.hitungTanggalBerakhir(
+                    startDate, _selectedPaket!));
           } else {
             return 'Pilih paket & tanggal mulai';
           }

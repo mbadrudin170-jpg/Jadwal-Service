@@ -402,7 +402,7 @@ class _CustomerPageState extends State<CustomerPage> {
           child: ListTile(
             title: Text(
               customer.name,
-              style: const TextStyle(fontWeight: FontWemdight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
               customer.lastActiveAt == null

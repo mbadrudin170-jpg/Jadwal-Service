@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
@@ -133,6 +134,7 @@ MAC : ${customer.macAddress}
         builder: (final context) => PointsPage(
           customerId: _customer!.id,
           dataSource: SQLitePointsDataSource(),
+          role: UserRole.admin,
         ),
       ),
     );

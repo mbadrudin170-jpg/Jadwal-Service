@@ -4,12 +4,50 @@
 // sisa masa aktif paket pengguna berdasarkan tanggal berakhir.
 
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/model/package_model.dart';
 
 /// Kelas utilitas untuk berbagai perhitungan terkait paket pelanggan.
 ///
 /// Menyediakan fungsi untuk menghitung sisa hari, status hangus,
 /// teks representasi masa aktif, dan warna indikator status.
 class CalculationUtil {
+
+  /// menghitung kapan tanggal berkahirnya sebuah paket user
+  static DateTime hitungTanggalBerakhir(
+    final DateTime startDate,
+    final PackageModel paket,
+  ) {
+    Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
+    Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
+    Log.info('  - Nama Paket: ${paket.name}');
+    Log.info('  - Tipe Durasi: ${paket.type.name}');
+    Log.info('  - Durasi: ${paket.duration}');
+
+    DateTime hasil;
+    switch (paket.type) {
+      case DurationType.hours:
+        hasil = startDate.add(Duration(hours: paket.duration));
+        break;
+      case DurationType.days:
+        hasil = startDate.add(Duration(days: paket.duration));
+        break;
+      case DurationType.months:
+        hasil = Jiffy.parseFromDateTime(startDate)
+            .add(months: paket.duration)
+            .dateTime;
+        break;
+      case DurationType.minutes:
+        hasil = startDate.add(Duration(minutes: paket.duration));
+        break;
+    }
+
+    Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
+    return hasil;
+  }
+
   /// Mengecek apakah poin pelanggan sudah hangus.
   ///
   /// Poin dianggap hangus jika selisih antara [startDate] dan sekarang

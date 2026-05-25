@@ -1,6 +1,7 @@
 // path: lib/user/page/user_customer_detail.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
@@ -131,6 +132,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
           dataSource:
               FirebasePointsDataSource(), // Menggunakan data source Firebase
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
+          role: UserRole.user,
         ),
       ),
     );

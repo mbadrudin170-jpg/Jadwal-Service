@@ -77,7 +77,7 @@ class _WalletFormState extends State<WalletForm> {
     super.dispose();
   }
 
-  Future<void> _simpanForm() async {
+  Future<void> _saveform() async {
     Log.info(
       'Tombol Simpan ditekan. Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}',
     );
@@ -185,7 +185,7 @@ class _WalletFormState extends State<WalletForm> {
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (final _) async {
                   Log.info('Field nama disubmit. Memanggil simpan.');
-                  await _simpanForm();
+                  await _saveform();
                 },
                 onChanged: (final value) {
                   Log.info(
@@ -203,7 +203,7 @@ class _WalletFormState extends State<WalletForm> {
               ElevatedButton(
                 onPressed: () async {
                   Log.info('Tombol Simpan ditekan.');
-                  await _simpanForm();
+                  await _saveform();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
