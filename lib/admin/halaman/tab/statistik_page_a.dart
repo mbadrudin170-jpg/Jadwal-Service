@@ -1,9 +1,17 @@
 // path: lib/admin/halaman/tab/statistik_page_a.dart
-// diubah: Memperbaiki semua error dan warning dari analyzer.
+// diubah: Memperbaiki penggunaan SideTitleWidget yang salah.
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
+
+/// Enum untuk merepresentasikan rentang waktu yang dipilih.
+enum ChartRange {
+  harian,
+  mingguan,
+  bulanan,
+}
 
 /// Halaman untuk menampilkan statistik aplikasi dalam bentuk dasbor.
 class StatistikPageA extends StatefulWidget {
@@ -15,6 +23,9 @@ class StatistikPageA extends StatefulWidget {
 }
 
 class _StatistikPageAState extends State<StatistikPageA> {
+  // State untuk rentang waktu chart
+  ChartRange _selectedRange = ChartRange.bulanan;
+
   // Data dummy untuk layout
   final int _totalPelanggan = 125;
   final int _langgananAktif = 85;
@@ -28,24 +39,85 @@ class _StatistikPageAState extends State<StatistikPageA> {
     {'nama': 'Paket Gaming Pro', 'terjual': 8},
   ];
 
+  // --- Data Dummy untuk Setiap Rentang Waktu ---
+  final List<FlSpot> _monthlySpots = [
+    const FlSpot(0, 3.5), // Jan
+    const FlSpot(1, 4.2), // Feb
+    const FlSpot(2, 3.8), // Mar
+    const FlSpot(3, 5.1), // Apr
+    const FlSpot(4, 4.5), // Mei
+  ];
+
+  final List<FlSpot> _weeklySpots = [
+    const FlSpot(0, 1.2), // M1
+    const FlSpot(1, 1.5), // M2
+    const FlSpot(2, 1.1), // M3
+    const FlSpot(3, 1.8), // M4
+  ];
+
+  final List<FlSpot> _dailySpots = [
+    const FlSpot(0, 0.2), // Sen
+    const FlSpot(1, 0.5), // Sel
+    const FlSpot(2, 0.4), // Rab
+    const FlSpot(3, 0.8), // Kam
+    const FlSpot(4, 0.6), // Jum
+    const FlSpot(5, 1.1), // Sab
+    const FlSpot(6, 1.0), // Min
+  ];
+
   @override
   void initState() {
     super.initState();
-    // Log saat halaman pertama kali dimuat.
     Log.info('StatistikPageA initState');
   }
 
   @override
   void dispose() {
-    // Log saat halaman ditutup.
     Log.info('StatistikPageA dispose');
     super.dispose();
   }
 
+  // --- Fungsi Helper untuk Data Chart ---
+
+  /// Mengembalikan list FlSpot berdasarkan rentang waktu yang dipilih.
+  List<FlSpot> get _currentSpots {
+    switch (_selectedRange) {
+      case ChartRange.harian:
+        return _dailySpots;
+      case ChartRange.mingguan:
+        return _weeklySpots;
+      case ChartRange.bulanan:
+        return _monthlySpots;
+    }
+  }
+
+  /// Mengembalikan nilai X maksimal untuk sumbu chart.
+  double get _maxX {
+    switch (_selectedRange) {
+      case ChartRange.harian:
+        return 6; // 7 hari (0-6)
+      case ChartRange.mingguan:
+        return 3; // 4 minggu (0-3)
+      case ChartRange.bulanan:
+        return 4; // 5 bulan (0-4)
+    }
+  }
+
+  /// Mengembalikan nilai Y maksimal untuk sumbu chart.
+  double get _maxY {
+    // Dibuat sedikit dinamis untuk menunjukkan perubahan
+    switch (_selectedRange) {
+      case ChartRange.harian:
+        return 2; // max 2jt per hari
+      case ChartRange.mingguan:
+        return 3; // max 3jt per minggu
+      case ChartRange.bulanan:
+        return 6; // max 6jt per bulan
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
-    // Log saat widget di-build.
-    Log.info('Membangun tampilan StatistikPageA');
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -58,7 +130,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Bagian Kartu Ringkasan ---
+            // ... (Kartu Ringkasan tetap sama)
             Text(
               'Ringkasan Cepat',
               style: theme.textTheme.titleLarge?.copyWith(
@@ -91,6 +163,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   icon: Icons.monetization_on_outlined,
                   color: Colors.orange,
                 ),
+                
                 _buildStatCard(
                   title: 'Feedback Baru',
                   value: _feedbackBaru.toString(),
@@ -109,27 +182,57 @@ class _StatistikPageAState extends State<StatistikPageA> {
               ),
             ),
             const SizedBox(height: 12),
+            // --- Tombol Pilihan Rentang Waktu ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ToggleButtons(
+                  isSelected: [
+                    _selectedRange == ChartRange.harian,
+                    _selectedRange == ChartRange.mingguan,
+                    _selectedRange == ChartRange.bulanan,
+                  ],
+                  onPressed: (index) {
+                    setState(() {
+                      _selectedRange = ChartRange.values[index];
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  selectedBorderColor: theme.colorScheme.primary,
+                  selectedColor: Colors.white,
+                  fillColor: theme.colorScheme.primary,
+                  color: theme.colorScheme.primary,
+                  constraints: const BoxConstraints(
+                    minHeight: 40.0,
+                    minWidth: 80.0,
+                  ),
+                  children: const [
+                    Text('Harian'),
+                    Text('Mingguan'),
+                    Text('Bulanan'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Container(
-                height: 200,
+                height: 250,
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                child: const Center(
-                  child: Text(
-                    'Placeholder untuk Grafik\n(Akan diimplementasikan dengan fl_chart)',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+                child: LineChart(
+                  _mainLineChartData(),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // --- Bagian Daftar Peringkat ---
+            // ... (Daftar Peringkat tetap sama)
             Text(
               'Paket Terlaris',
               style: theme.textTheme.titleLarge?.copyWith(
@@ -149,8 +252,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                     leading: CircleAvatar(
                       child: Text('#${index + 1}'),
                     ),
-                    title: Text(item['nama']
-                        as String), // diperbaiki: Tipe data diperjelas
+                    title: Text(item['nama'] as String),
                     trailing: Text(
                       '${item['terjual']} terjual',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -167,7 +269,6 @@ class _StatistikPageAState extends State<StatistikPageA> {
     );
   }
 
-  /// Widget pembantu untuk membangun kartu statistik.
   Widget _buildStatCard({
     required final String title,
     required final String value,
@@ -190,8 +291,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundColor:
-                      color.withAlpha(25), // diperbaiki: Mengganti withOpacity
+                  backgroundColor: color.withAlpha(25),
                   radius: 20,
                   child: Icon(icon, color: color, size: 24),
                 ),
@@ -221,5 +321,215 @@ class _StatistikPageAState extends State<StatistikPageA> {
         ),
       );
     });
+  }
+
+  // --- Konfigurasi untuk LineChart (Dinamis) ---
+
+  LineChartData _mainLineChartData() {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: true,
+        horizontalInterval: 1,
+        verticalInterval: 1,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: Colors.grey.withAlpha(50),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: Colors.grey.withAlpha(50),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        rightTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: _bottomTitleWidgets,
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 1,
+            getTitlesWidget: _leftTitleWidgets,
+            reservedSize: 42,
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: Border.all(color: const Color(0xff37434d)),
+      ),
+      minX: 0,
+      maxX: _maxX,
+      minY: 0,
+      maxY: _maxY,
+      lineBarsData: [
+        _mainLineBarData(),
+      ],
+    );
+  }
+
+  LineChartBarData _mainLineBarData() {
+    return LineChartBarData(
+      spots: _currentSpots,
+      isCurved: true,
+      gradient: LinearGradient(
+        colors: [
+          Theme.of(context).colorScheme.primary.withAlpha(80),
+          Theme.of(context).colorScheme.primary,
+        ],
+      ),
+      barWidth: 5,
+      isStrokeCapRound: true,
+      dotData: const FlDotData(show: true),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withAlpha(20),
+            Theme.of(context).colorScheme.primary.withAlpha(50),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 12,
+    );
+    Widget text;
+
+    switch (_selectedRange) {
+      case ChartRange.harian:
+        switch (value.toInt()) {
+          case 0:
+            text = const Text('Sen', style: style);
+            break;
+          case 1:
+            text = const Text('Sel', style: style);
+            break;
+          case 2:
+            text = const Text('Rab', style: style);
+            break;
+          case 3:
+            text = const Text('Kam', style: style);
+            break;
+          case 4:
+            text = const Text('Jum', style: style);
+            break;
+          case 5:
+            text = const Text('Sab', style: style);
+            break;
+          case 6:
+            text = const Text('Min', style: style);
+            break;
+          default:
+            text = const Text('', style: style);
+            break;
+        }
+        break;
+      case ChartRange.mingguan:
+        switch (value.toInt()) {
+          case 0:
+            text = const Text('M1', style: style);
+            break;
+          case 1:
+            text = const Text('M2', style: style);
+            break;
+          case 2:
+            text = const Text('M3', style: style);
+            break;
+          case 3:
+            text = const Text('M4', style: style);
+            break;
+          default:
+            text = const Text('', style: style);
+            break;
+        }
+        break;
+      case ChartRange.bulanan:
+        switch (value.toInt()) {
+          case 0:
+            text = const Text('JAN', style: style);
+            break;
+          case 1:
+            text = const Text('FEB', style: style);
+            break;
+          case 2:
+            text = const Text('MAR', style: style);
+            break;
+          case 3:
+            text = const Text('APR', style: style);
+            break;
+          case 4:
+            text = const Text('MEI', style: style);
+            break;
+          default:
+            text = const Text('', style: style);
+            break;
+        }
+        break;
+    }
+
+    return SideTitleWidget(
+      meta: meta,
+      child: text,
+    );
+  }
+
+  Widget _leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+    String text;
+
+    switch (_selectedRange) {
+      case ChartRange.harian:
+        if (value % 1 == 0 && value != 0) {
+          text = '${value.toInt()}k'; // 200k, 400k, etc
+        } else {
+          return Container();
+        }
+        break;
+      case ChartRange.mingguan:
+        if (value % 1 == 0 && value != 0) {
+          text = '${value.toInt()}JT'; // 1JT, 2JT
+        } else {
+          return Container();
+        }
+        break;
+      case ChartRange.bulanan:
+        switch (value.toInt()) {
+          case 1:
+            text = '1JT';
+            break;
+          case 3:
+            text = '3JT';
+            break;
+          case 5:
+            text = '5JT';
+            break;
+          default:
+            return Container();
+        }
+        break;
+    }
+
+    return Text(text, style: style, textAlign: TextAlign.left);
   }
 }
