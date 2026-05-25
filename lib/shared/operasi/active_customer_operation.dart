@@ -249,7 +249,8 @@ class ActiveCustomerOperation {
         );
       }
 
-      Log.info('Penjadwalan notifikasi selesai');
+      Log.info('Penjadwalan notifikasi selesai',
+          {h3Schedule, h1Schedule, exactTime});
     } on Exception catch (e, st) {
       Log.error('Gagal menjadwalkan notifikasi', e: e, st: st);
     }
