@@ -6,10 +6,7 @@ enum PaymentStatus {
   paid,
 
   /// Status belum lunas, pembayaran masih tertunda.
-  unpaid,
-
-  /// Status jatuh tempo, pembayaran sudah melewati batas waktu.
-  overdue;
+  unpaid;
 
   /// Mengembalikan nama tampilan (display name) untuk setiap status pembayaran.
   String get displayName {
@@ -18,8 +15,6 @@ enum PaymentStatus {
         return 'Lunas';
       case PaymentStatus.unpaid:
         return 'Belum Lunas';
-      case PaymentStatus.overdue:
-        return 'Jatuh Tempo';
     }
   }
 }
