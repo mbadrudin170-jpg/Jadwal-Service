@@ -109,7 +109,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     Workmanager().registerPeriodicTask(
       "1",
       syncTaskName,
-      frequency: const Duration(hours: 1),
+      frequency: const Duration(minutes: 15),
       constraints: Constraints(
         networkType: NetworkType.connected,
       ),
