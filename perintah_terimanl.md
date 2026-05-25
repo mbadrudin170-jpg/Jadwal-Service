@@ -8,3 +8,5 @@ cat (nama file)
 ```
 rm -rf ~/.gradle/caches
 ```
+# melihat apk berjalan
+lsof +L1
