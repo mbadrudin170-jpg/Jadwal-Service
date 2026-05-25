@@ -1,10 +1,12 @@
 // path: lib/admin/halaman/tab/statistik_page_a.dart
-// diubah: Memperbaiki penggunaan SideTitleWidget yang salah.
+// diubah: Memperbaiki kesalahan nama kelas dan parameter widget.
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 
 /// Enum untuk merepresentasikan rentang waktu yang dipilih.
 enum ChartRange {
@@ -145,28 +147,40 @@ class _StatistikPageAState extends State<StatistikPageA> {
                 _buildStatCard(
                   title: 'Total Pelanggan',
                   value: _totalPelanggan.toString(),
-                  icon: Icons.people_outline,
+                  icon: AppIcons.customers,
                   color: Colors.blue,
                 ),
                 _buildStatCard(
                   title: 'Langganan Aktif',
                   value: _langgananAktif.toString(),
-                  icon: Icons.wifi_tethering_rounded,
+                  icon: AppIcons.wifi,
                   color: Colors.green,
                 ),
-                _buildStatCard(
-                  title: 'Pendapatan Bulan Ini',
-                  value: NumberFormat.compactCurrency(
-                    locale: 'id_ID',
-                    symbol: 'Rp ',
-                  ).format(_pendapatanBulanIni),
-                  icon: Icons.monetization_on_outlined,
-                  color: Colors.orange,
+                GestureDetector(
+                  onTap: () {
+                    Log.info(
+                        'Navigasi ke halaman transaksi dari kartu statistik');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TransactionPage(),
+                      ),
+                    );
+                  },
+                  child: _buildStatCard(
+                    title: 'Pendapatan Bulan Ini',
+                    value: NumberFormat.compactCurrency(
+                      locale: 'id_ID',
+                      symbol: 'Rp ',
+                    ).format(_pendapatanBulanIni),
+                    icon: AppIcons.money,
+                    color: Colors.orange,
+                  ),
                 ),
                 _buildStatCard(
                   title: 'Feedback Baru',
                   value: _feedbackBaru.toString(),
-                  icon: Icons.feedback_outlined,
+                  icon: AppIcons.feedback,
                   color: Colors.purple,
                 ),
               ],
@@ -529,6 +543,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
         break;
     }
 
-    return Text(text, style: style, textAlign: TextAlign.left);
+    return SideTitleWidget(
+      meta: meta,
+      child: Text(text, style: style, textAlign: TextAlign.left),
+    );
   }
 }
