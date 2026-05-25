@@ -2,6 +2,7 @@
 // diubah: Menggunakan ikon dari AppIcons untuk konsistensi UI.
 // diperbaiki: Mengganti nama InfoPerangkatService menjadi DeviceInfoService.
 // DIHAPUS: BannerAdWidget karena sudah terpusat di main_page.
+// ditambah: Menambahkan NativeAdvancedWaterfallWidget di bawah list.
 
 import 'dart:async';
 
@@ -228,6 +229,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                   },
                 ),
               ),
+              // Tambahkan widget iklan di sini
             ],
           );
         },

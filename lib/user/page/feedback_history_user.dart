@@ -36,7 +36,7 @@ class FeedbackHistoryPage extends StatefulWidget {
 
 class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
   final FeedbackOpFirebase _operation =
-      FeedbackOpFirebase(FirebaseFirestore.instance);
+      FeedbackOpFirebase(firestore: FirebaseFirestore.instance);
 
   Future<void> _showOptionsDialog(final FeedbackModel feedback) async {
     await showDialog<void>(

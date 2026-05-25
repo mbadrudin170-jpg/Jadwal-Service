@@ -1,10 +1,6 @@
 // path: lib/shared/operasi/firebase_operasi/customer_op_firebase.dart
-// diubah: Menggunakan TableNameValue dan ColumnNames untuk semua referensi
-//         koleksi dan kolom.
-// diperbaiki: Menambahkan logging dan error handling yang lebih konsisten.
-// ditambahkan: Fungsi deleteCustomer untuk menghapus pelanggan secara permanen.
-// ditambahkan: Fungsi softDeleteCustomer untuk menandai pelanggan sebagai terhapus.
-// ditambahkan: Fungsi updateLastActive untuk melacak aktivitas pengguna.
+// direfaktor total: Semua operasi tulis (create, update, delete, soft delete)
+//                 sekarang sepenuhnya didelegasikan ke BaseOpFirebase.
 
 import 'dart:async';
 
@@ -14,45 +10,92 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas ini menangani semua operasi terkait data pelanggan di Firestore.
+/// Bertindak sebagai lapisan "intent" yang mendelegasikan implementasi
+/// ke BaseOpFirebase.
 class CustomerOpFirebase {
-  final CollectionReference _customerCollection;
+  final FirebaseFirestore _firestore;
+  final BaseOpFirebase _baseOp;
+  final String _collectionName = TableNameValue.get(TableName.customer);
 
-  /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  CustomerOpFirebase({final FirebaseFirestore? firestore})
-      : _customerCollection = (firestore ?? FirebaseFirestore.instance)
-            .collection(TableNameValue.get(TableName.customer)) {
+  /// Konstruktor untuk inisialisasi.
+  CustomerOpFirebase({FirebaseFirestore? firestore, BaseOpFirebase? baseOp})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('CustomerOpFirebase diinisialisasi.');
+  }
+
+  /// Referensi ke koleksi pelanggan.
+  CollectionReference get _customerCollection =>
+      _firestore.collection(_collectionName);
+
+  /// Membuat pelanggan baru di Firestore.
+  Future<void> createCustomer(final CustomerModel customer) async {
+    Log.info('Mendelegasikan pembuatan pelanggan: ${customer.id}');
+    await _baseOp.insert(
+      _collectionName,
+      customer.id,
+      customer.toFirebase(),
+    );
   }
 
   /// Memperbarui data pelanggan yang ada di Firestore.
   Future<void> updateCustomer(final CustomerModel customer) async {
-    Log.info('Memulai pembaruan pelanggan di Firestore: ${customer.id}');
-    try {
-      final dataToUpdate = customer.toFirebase()
-        ..[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
-
-      await _customerCollection.doc(customer.id).update(dataToUpdate);
-      Log.info('Pembaruan pelanggan berhasil: ${customer.id}');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal memperbarui pelanggan: ${customer.id}', e: e, st: s);
-      rethrow;
-    }
+    Log.info('Mendelegasikan pembaruan pelanggan: ${customer.id}');
+    await _baseOp.update(
+      _collectionName,
+      customer.id,
+      customer.toFirebase(),
+    );
   }
+
+  /// Melakukan soft delete pada pelanggan di Firestore.
+  Future<void> softDeleteCustomer(final String customerId) async {
+    Log.info('Mendelegasikan soft delete pelanggan: $customerId');
+    await _baseOp.softDelete(_collectionName, customerId);
+  }
+
+  /// Menghapus pelanggan dari Firestore secara permanen.
+  /// PERHATIAN: Operasi ini tidak bisa dibatalkan!
+  Future<void> deleteCustomer(final String customerId) async {
+    Log.warning('Mendelegasikan penghapusan permanen pelanggan: $customerId');
+    await _baseOp.delete(_collectionName, customerId);
+  }
+
+  /// Memperbarui waktu terakhir pengguna aktif.
+  Future<void> updateLastActive(final String customerId) async {
+    Log.info('Mendelegasikan update last active untuk: $customerId');
+    await _baseOp.update(_collectionName, customerId, {
+      ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Menyimpan atau memperbarui token FCM pengguna.
+  Future<void> saveFcmToken(final String userId, final String? token) async {
+    if (token == null || token.isEmpty) {
+      Log.warning('Token FCM kosong, penyimpanan dibatalkan.');
+      return;
+    }
+    Log.info('Mendelegasikan penyimpanan token FCM untuk: $userId');
+    await _baseOp.update(_collectionName, userId, {'fcmToken': token});
+  }
+
+  // =======================================================================
+  // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
+  // =======================================================================
 
   /// Mengambil data pelanggan secara real-time (stream).
   Stream<CustomerModel?> getCustomerStream(final String userId) {
     Log.info('Streaming data pelanggan untuk: $userId');
     return _customerCollection.doc(userId).snapshots().map((final snapshot) {
       if (snapshot.exists) {
-        Log.info('Data pelanggan stream diperbarui: $userId');
         return CustomerModel.fromFirebase(
           snapshot.id,
           snapshot.data()! as Map<String, dynamic>,
         );
       }
-      Log.warning('Pelanggan $userId tidak ditemukan di stream.');
       return null;
     }).handleError((final Object e, final StackTrace s) {
       Log.error('Error pada stream pelanggan untuk: $userId', e: e, st: s);
@@ -62,10 +105,8 @@ class CustomerOpFirebase {
   /// Mengambil data pelanggan sekali (one-time fetch).
   Future<CustomerModel?> getCustomerOnce(final String userId) async {
     try {
-      Log.info('Mengambil pelanggan sekali untuk ID: $userId');
       final doc = await _customerCollection.doc(userId).get();
       if (doc.exists) {
-        Log.info('Pelanggan ditemukan', doc.data());
         return CustomerModel.fromFirebase(
           doc.id,
           doc.data()! as Map<String, dynamic>,
@@ -76,73 +117,6 @@ class CustomerOpFirebase {
     } on Exception catch (e, s) {
       Log.error('Error mengambil pelanggan: $e', e: e, st: s);
       return null;
-    }
-  }
-
-  /// Menyimpan atau memperbarui token FCM pengguna.
-  Future<void> saveFcmToken(final String userId, final String? token) async {
-    if (token == null || token.isEmpty) {
-      Log.warning('Token FCM kosong, penyimpanan dibatalkan.');
-      return;
-    }
-
-    Log.info('Menyimpan token FCM untuk: $userId');
-    try {
-      await _customerCollection.doc(userId).update({'fcmToken': token});
-      Log.info('Token FCM berhasil disimpan.');
-    } on Exception catch (e, s) {
-      Log.error('Gagal menyimpan token FCM untuk $userId', e: e, st: s);
-      rethrow;
-    }
-  }
-
-  /// Menghapus pelanggan dari Firestore secara permanen.
-  Future<void> deleteCustomer(final String customerId) async {
-    Log.warning(
-        'Memulai penghapusan permanen pelanggan di Firestore: $customerId');
-    try {
-      await _customerCollection.doc(customerId).delete();
-      Log.info('Penghapusan permanen pelanggan berhasil: $customerId');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus pelanggan secara permanen: $customerId',
-          e: e, st: s);
-      rethrow;
-    }
-  }
-
-  /// Melakukan soft delete pada pelanggan di Firestore.
-  Future<void> softDeleteCustomer(final String customerId) async {
-    Log.info('Memulai soft delete pelanggan di Firestore: $customerId');
-    try {
-      await _customerCollection.doc(customerId).update({
-        ColumnNames.isDeleted: true,
-        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
-        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
-      });
-      Log.info('Soft delete pelanggan berhasil: $customerId');
-    } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete pelanggan: $customerId',
-          e: e, st: s);
-      rethrow;
-    }
-  }
-
-  /// Memperbarui waktu terakhir pengguna aktif.
-  Future<void> updateLastActive(final String customerId) async {
-    Log.info('Memperbarui waktu aktif terakhir untuk pelanggan: $customerId');
-    try {
-      await _customerCollection.doc(customerId).update({
-        ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
-        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
-      });
-      Log.info('Waktu aktif terakhir berhasil diperbarui untuk: $customerId');
-    } on FirebaseException catch (e, s) {
-      Log.error(
-        'Gagal memperbarui waktu aktif terakhir untuk: $customerId',
-        e: e,
-        st: s,
-      );
-      // Tidak melempar ulang error agar tidak mengganggu alur utama aplikasi klien
     }
   }
 }

@@ -52,6 +52,7 @@ dependencies:
   dio: ^5.9.2
   open_filex: ^4.7.0
   gma_mediation_unity: ^1.7.0
+  workmanager: ^0.9.0+3
 
 dev_dependencies:
   flutter_test:

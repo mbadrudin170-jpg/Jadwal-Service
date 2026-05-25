@@ -49,7 +49,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
   final FeedbackOpFirebase _operation =
-      FeedbackOpFirebase(FirebaseFirestore.instance);
+      FeedbackOpFirebase(firestore: FirebaseFirestore.instance);
 
   @override
   void initState() {
