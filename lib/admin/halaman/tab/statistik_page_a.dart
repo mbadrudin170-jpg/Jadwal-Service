@@ -1,12 +1,12 @@
 // path: lib/admin/halaman/tab/statistik_page_a.dart
-// diubah: Memperbaiki kesalahan nama kelas dan parameter widget.
+// diubah: Mengembalikan nilai pendapatan ke semula.
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 
 /// Enum untuk merepresentasikan rentang waktu yang dipilih.
 enum ChartRange {
@@ -169,12 +169,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   },
                   child: _buildStatCard(
                     title: 'Pendapatan Bulan Ini',
-                    value: NumberFormat.compactCurrency(
-                      locale: 'id_ID',
-                      symbol: 'Rp ',
-                    ).format(_pendapatanBulanIni),
+                    value: CurrencyFormat.formatCurrency(_pendapatanBulanIni),
                     icon: AppIcons.money,
-                    color: Colors.orange,
+                    color: _pendapatanBulanIni < 0 ? Colors.red : Colors.orange,
                   ),
                 ),
                 _buildStatCard(
