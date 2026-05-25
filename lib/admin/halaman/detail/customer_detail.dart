@@ -85,7 +85,8 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
         'Data pelanggan dimuat. Nama: ${_customer?.name}, Poin: $_totalPoints',
       );
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil data pelanggan ID: ${widget.customerId}.', e: e, st: s);
+      Log.error('Gagal mengambil data pelanggan ID: ${widget.customerId}.',
+          e: e, st: s);
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -131,7 +132,7 @@ MAC : ${customer.macAddress}
       MaterialPageRoute<void>(
         builder: (final context) => PointsPage(
           customerId: _customer!.id,
-          dataSource: SQLitePointsDataSource(), // Menggunakan data source SQLite
+          dataSource: SQLitePointsDataSource(),
         ),
       ),
     );
