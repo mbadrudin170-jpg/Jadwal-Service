@@ -13,6 +13,7 @@ import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -80,6 +81,10 @@ class _AppInitializerState extends State<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi sekunder.');
     try {
+      // Menggunakan BackgroundService untuk inisialisasi yang terpusat.
+      Log.info('Menginisialisasi Workmanager di dalam AppInitializer...');
+      await BackgroundService.init();
+      
       final notifikasiServis = context.read<NotifikasiServis>();
 
       Log.info('Menginisialisasi layanan notifikasi...');
