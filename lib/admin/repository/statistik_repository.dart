@@ -1,26 +1,80 @@
 // path: lib/admin/repository/statistik_repository.dart
 // diubah: Logika diubah untuk menghitung (Total Paid) - (Total Unpaid).
 // diubah: Query SQL menggunakan CASE untuk logika penjumlahan & pengurangan.
+// ditambahkan: Metode getBestSellingPackages untuk menghitung paket terlaris.
 
+import 'package:collection/collection.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/feedback_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
 
 /// Repository untuk mengelola semua query data statistik dari database SQLite.
 class StatistikRepository {
-  /// Menghitung total pendapatan bersih (paid - unpaid) dari tabel transaksi untuk bulan ini.
+  final ActiveCustomerOperation _activeCustomerOperation =
+      ActiveCustomerOperation();
+  final FeedbackOperation _feedbackOperation = FeedbackOperation();
+  final PackageOperation _packageOperation = PackageOperation();
+  final TransactionOperation _transactionOperation = TransactionOperation();
+
+  /// Menghitung paket mana yang paling banyak terjual.
   ///
   /// Proses:
-  /// 1. Mendapatkan instance database SQLite.
-  /// 2. Menentukan tanggal awal bulan ini dalam format Unix Timestamp (milidetik).
-  /// 3. Menjalankan query SQL untuk menjumlahkan kolom `amount` secara kondisional:
-  ///    - Ditambah jika status pembayaran adalah 'paid'.
-  ///    - Dikurangi jika status pembayaran adalah 'unpaid'.
-  /// 4. Filter diterapkan untuk transaksi bulan ini yang tidak dihapus.
-  /// 5. Mengembalikan hasil kalkulasi atau 0.0 jika tidak ada data.
+  /// 1. Mengambil semua data paket aktif dan semua data transaksi.
+  /// 2. Menghitung frekuensi kemunculan setiap `packageId` dalam transaksi.
+  /// 3. Menggabungkan data paket dengan jumlah penjualannya.
+  /// 4. Mengurutkan paket dari yang paling laris.
+  /// 5. Mengembalikan daftar [BestSellingPackage] yang sudah diurutkan.
+  Future<List<BestSellingPackage>> getBestSellingPackages(
+      {int limit = 5}) async {
+    Log.info('Mulai menghitung paket terlaris.');
+    try {
+      final allPackages = await _packageOperation.getPackages();
+      final allTransactions = await _transactionOperation.getAllTransactions();
+
+      if (allTransactions.isEmpty) {
+        Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
+        return [];
+      }
+
+      // Hitung frekuensi penjualan setiap paketId
+      final salesCount = allTransactions
+          .where((t) => t.packageId != null)
+          .groupListsBy((t) => t.packageId!)
+          .map((key, value) => MapEntry(key, value.length));
+
+      // Buat list BestSellingPackage
+      final bestSellingPackages = allPackages.map((package) {
+        return BestSellingPackage(
+          package: package,
+          totalSold: salesCount[package.id] ?? 0,
+        );
+      }).toList();
+
+      // Urutkan dari yang paling banyak terjual
+      bestSellingPackages.sort((a, b) => b.totalSold.compareTo(a.totalSold));
+
+      // Ambil sejumlah limit, jika lebih
+      final result = bestSellingPackages.take(limit).toList();
+      Log.info(
+          'Berhasil menghitung ${result.length} paket terlaris: ${result.map((p) => '${p.package.name} (${p.totalSold})').toList()}');
+
+      return result;
+    } on Exception catch (e, st) {
+      Log.error('Gagal menghitung paket terlaris.', e: e, st: st);
+      rethrow;
+    }
+  }
+
+  /// Menghitung total pendapatan bersih (paid - unpaid) dari tabel transaksi untuk bulan ini.
   Future<double> getPendapatanBulanIni() async {
     Log.info(
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
@@ -35,8 +89,6 @@ class StatistikRepository {
       final String paidStatus = PaymentStatus.paid.name;
       final String unpaidStatus = PaymentStatus.unpaid.name;
 
-      // Query ini menghitung total pendapatan bersih dengan menjumlahkan `amount`
-      // untuk transaksi 'paid' dan menguranginya untuk transaksi 'unpaid'.
       final List<Map<String, dynamic>> result = await db.rawQuery(
         '''
         SELECT SUM(
@@ -65,6 +117,73 @@ class StatistikRepository {
     } on Exception catch (e, st) {
       Log.error(
         'Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghitung jumlah total pelanggan yang tidak dihapus dari database.
+  Future<int> getTotalPelanggan() async {
+    Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final String tableName = '"${TableNameValue.get(TableName.customer)}"';
+
+      final result = await db.rawQuery(
+        '''
+        SELECT COUNT(*) 
+        FROM $tableName 
+        WHERE ${ColumnNames.isDeleted} = 0
+        ''',
+      );
+
+      Log.info('Query total pelanggan selesai. Hasil mentah: $result');
+
+      final count = Sqflite.firstIntValue(result) ?? 0;
+      Log.info('Total pelanggan yang dihitung: $count');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal mengambil total pelanggan dari SQLite.',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghitung jumlah langganan aktif dari database.
+  Future<int> getJumlahLanggananAktif() async {
+    Log.info('Mulai mengambil jumlah langganan aktif.');
+    try {
+      final activeCustomers =
+          await _activeCustomerOperation.getAllActiveCustomers();
+      final count = activeCustomers.length;
+      Log.info('Jumlah langganan aktif yang dihitung: $count');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal mengambil jumlah langganan aktif.',
+        e: e,
+        st: st,
+      );
+      rethrow;
+    }
+  }
+
+  /// Menghitung jumlah feedback baru (aktif) dari database.
+  Future<int> getJumlahFeedbackBaru() async {
+    Log.info('Mulai mengambil jumlah feedback baru.');
+    try {
+      final activeFeedback = await _feedbackOperation.getAllActiveFeedback();
+      final count = activeFeedback.length;
+      Log.info('Jumlah feedback baru yang dihitung: $count');
+      return count;
+    } on Exception catch (e, st) {
+      Log.error(
+        'Gagal mengambil jumlah feedback baru.',
         e: e,
         st: st,
       );

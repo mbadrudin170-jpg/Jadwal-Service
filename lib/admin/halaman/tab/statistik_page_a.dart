@@ -1,9 +1,13 @@
 // path: lib/admin/halaman/tab/statistik_page_a.dart
 // PERBAIKAN: Memperbaiki typo comtext -> context.
+// DIUBAH: Mengganti data statis paket terlaris dengan data dinamis dari repository.
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/lainnya/customer.dart';
+import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
+import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/repository/statistik_repository.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -30,40 +34,48 @@ class _StatistikPageAState extends State<StatistikPageA> {
   ChartRange _selectedRange = ChartRange.bulanan;
   final StatistikRepository _repository = StatistikRepository();
   Future<double>? _pendapatanFuture;
-
-  final int _totalPelanggan = 125;
-  final int _langgananAktif = 85;
-  final int _feedbackBaru = 3;
-
-  final List<Map<String, dynamic>> _paketTerlaris = [
-    {'nama': 'Paket Kencang 30 Hari', 'terjual': 58},
-    {'nama': 'Paket Hemat Seminggu', 'terjual': 32},
-    {'nama': 'Paket Malam Full Speed', 'terjual': 15},
-    {'nama': 'Paket Gaming Pro', 'terjual': 8},
-  ];
+  Future<int>? _totalPelangganFuture;
+  Future<int>? _langgananAktifFuture;
+  Future<int>? _feedbackBaruFuture;
+  Future<List<BestSellingPackage>>? _bestSellingPackagesFuture;
 
   final List<FlSpot> _monthlySpots = [
-    const FlSpot(0, 3.5), const FlSpot(1, 4.2), const FlSpot(2, 3.8),
-    const FlSpot(3, 5.1), const FlSpot(4, 4.5),
+    const FlSpot(0, 3.5),
+    const FlSpot(1, 4.2),
+    const FlSpot(2, 3.8),
+    const FlSpot(3, 5.1),
+    const FlSpot(4, 4.5),
   ];
   final List<FlSpot> _weeklySpots = [
-    const FlSpot(0, 1.2), const FlSpot(1, 1.5), const FlSpot(2, 1.1), const FlSpot(3, 1.8),
+    const FlSpot(0, 1.2),
+    const FlSpot(1, 1.5),
+    const FlSpot(2, 1.1),
+    const FlSpot(3, 1.8),
   ];
   final List<FlSpot> _dailySpots = [
-    const FlSpot(0, 0.2), const FlSpot(1, 0.5), const FlSpot(2, 0.4),
-    const FlSpot(3, 0.8), const FlSpot(4, 0.6), const FlSpot(5, 1.1), const FlSpot(6, 1.0),
+    const FlSpot(0, 0.2),
+    const FlSpot(1, 0.5),
+    const FlSpot(2, 0.4),
+    const FlSpot(3, 0.8),
+    const FlSpot(4, 0.6),
+    const FlSpot(5, 1.1),
+    const FlSpot(6, 1.0),
   ];
 
   @override
   void initState() {
     super.initState();
     Log.info('StatistikPageA initState');
-    _loadPendapatan();
+    _loadData();
   }
 
-  void _loadPendapatan() {
+  void _loadData() {
     setState(() {
       _pendapatanFuture = _repository.getPendapatanBulanIni();
+      _totalPelangganFuture = _repository.getTotalPelanggan();
+      _langgananAktifFuture = _repository.getJumlahLanggananAktif();
+      _feedbackBaruFuture = _repository.getJumlahFeedbackBaru();
+      _bestSellingPackagesFuture = _repository.getBestSellingPackages();
     });
   }
 
@@ -74,22 +86,22 @@ class _StatistikPageAState extends State<StatistikPageA> {
   }
 
   List<FlSpot> get _currentSpots => switch (_selectedRange) {
-      ChartRange.harian => _dailySpots,
-      ChartRange.mingguan => _weeklySpots,
-      ChartRange.bulanan => _monthlySpots,
-    };
+        ChartRange.harian => _dailySpots,
+        ChartRange.mingguan => _weeklySpots,
+        ChartRange.bulanan => _monthlySpots,
+      };
 
   double get _maxX => switch (_selectedRange) {
-      ChartRange.harian => 6,
-      ChartRange.mingguan => 3,
-      ChartRange.bulanan => 4,
-    };
+        ChartRange.harian => 6,
+        ChartRange.mingguan => 3,
+        ChartRange.bulanan => 4,
+      };
 
   double get _maxY => switch (_selectedRange) {
-      ChartRange.harian => 2,
-      ChartRange.mingguan => 3,
-      ChartRange.bulanan => 6,
-    };
+        ChartRange.harian => 2,
+        ChartRange.mingguan => 3,
+        ChartRange.bulanan => 6,
+      };
 
   @override
   Widget build(final BuildContext context) {
@@ -102,8 +114,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          Log.info('Pull-to-refresh dipicu, memuat ulang data pendapatan.');
-          _loadPendapatan();
+          Log.info(
+              'Pull-to-refresh dipicu, memuat ulang semua data statistik.');
+          _loadData();
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -113,29 +126,64 @@ class _StatistikPageAState extends State<StatistikPageA> {
             children: [
               Text(
                 'Ringkasan Cepat',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 12.0,
                 runSpacing: 12.0,
                 children: [
-                  _buildStatCard(
-                    title: 'Total Pelanggan',
-                    value: _totalPelanggan.toString(),
-                    icon: AppIcons.customers,
-                    color: Colors.blue,
+                  CustomFutureBuilder<int>(
+                    future: _totalPelangganFuture,
+                    dataBuilder: (context, totalPelanggan) {
+                      return GestureDetector(
+                        onTap: () {
+                          Log.info(
+                              'Navigasi ke halaman pelanggan dari kartu statistik');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CustomerPage()),
+                          );
+                        },
+                        child: _buildStatCard(
+                          title: 'Total Pelanggan',
+                          value: totalPelanggan.toString(),
+                          icon: AppIcons.customers,
+                          color: Colors.blue,
+                        ),
+                      );
+                    },
                   ),
-                  _buildStatCard(
-                    title: 'Langganan Aktif',
-                    value: _langgananAktif.toString(),
-                    icon: AppIcons.wifi,
-                    color: Colors.green,
+                  CustomFutureBuilder<int>(
+                    future: _langgananAktifFuture,
+                    dataBuilder: (context, langgananAktif) {
+                      return GestureDetector(
+                        onTap: () {
+                          Log.info(
+                              'Navigasi ke halaman langganan aktif dari kartu statistik');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ActiveCustomerPage()),
+                          );
+                        },
+                        child: _buildStatCard(
+                          title: 'Langganan Aktif',
+                          value: langgananAktif.toString(),
+                          icon: AppIcons.wifi,
+                          color: Colors.green,
+                        ),
+                      );
+                    },
                   ),
                   CustomFutureBuilder<double>(
                     future: _pendapatanFuture,
                     dataBuilder: (context, pendapatan) {
-                      final cardColor = pendapatan < 0 ? Colors.red : Colors.orange;
+                      final cardColor =
+                          pendapatan < 0 ? Colors.red : Colors.orange;
                       final valueWidget = Text(
                         CurrencyFormat.formatCurrency(pendapatan),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -145,10 +193,12 @@ class _StatistikPageAState extends State<StatistikPageA> {
 
                       return GestureDetector(
                         onTap: () {
-                          Log.info('Navigasi ke halaman transaksi dari kartu statistik');
+                          Log.info(
+                              'Navigasi ke halaman transaksi dari kartu statistik');
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const TransactionPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const TransactionPage()),
                           );
                         },
                         child: _buildStatCard(
@@ -161,18 +211,31 @@ class _StatistikPageAState extends State<StatistikPageA> {
                       );
                     },
                   ),
-                  _buildStatCard(
-                    title: 'Feedback Baru',
-                    value: _feedbackBaru.toString(),
-                    icon: AppIcons.feedback,
-                    color: Colors.purple,
+                  CustomFutureBuilder<int>(
+                    future: _feedbackBaruFuture,
+                    dataBuilder: (context, feedbackBaru) {
+                      return GestureDetector(
+                        onTap: () {
+                          Log.info(
+                              'Navigasi ke halaman feedback dari kartu statistik (belum diimplementasikan).');
+                          // TODO: Implement navigation to feedback page
+                        },
+                        child: _buildStatCard(
+                          title: 'Feedback Baru',
+                          value: feedbackBaru.toString(),
+                          icon: AppIcons.feedback,
+                          color: Colors.purple,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
               const SizedBox(height: 24),
               Text(
                 'Analisis Pertumbuhan',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Row(
@@ -194,44 +257,67 @@ class _StatistikPageAState extends State<StatistikPageA> {
                     selectedColor: Colors.white,
                     fillColor: theme.colorScheme.primary,
                     color: theme.colorScheme.primary,
-                    constraints: const BoxConstraints(minHeight: 40.0, minWidth: 80.0),
-                    children: const [Text('Harian'), Text('Mingguan'), Text('Bulanan')],
+                    constraints:
+                        const BoxConstraints(minHeight: 40.0, minWidth: 80.0),
+                    children: const [
+                      Text('Harian'),
+                      Text('Mingguan'),
+                      Text('Bulanan')
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Container(
                   height: 250,
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 16),
                   child: LineChart(_mainLineChartData()),
                 ),
               ),
               const SizedBox(height: 24),
               Text(
                 'Paket Terlaris',
-                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Column(
-                  children: List.generate(_paketTerlaris.length, (final index) {
-                    final item = _paketTerlaris[index];
-                    return ListTile(
-                      leading: CircleAvatar(child: Text('#${index + 1}')),
-                      title: Text(item['nama'] as String),
-                      trailing: Text(
-                        '${item['terjual']} terjual',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+              CustomFutureBuilder<List<BestSellingPackage>>(
+                future: _bestSellingPackagesFuture,
+                dataBuilder: (context, packages) {
+                  if (packages.isEmpty) {
+                    return const Card(
+                      elevation: 2,
+                      child: ListTile(
+                        title: Text('Belum ada data penjualan paket.'),
                       ),
                     );
-                  }),
-                ),
+                  }
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    child: Column(
+                      children: List.generate(packages.length, (final index) {
+                        final item = packages[index];
+                        return ListTile(
+                          leading: CircleAvatar(child: Text('#${index + 1}')),
+                          title: Text(item.package.name),
+                          trailing: Text(
+                            '${item.totalSold} terjual',
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -255,7 +341,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
         width: cardWidth,
         child: Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -276,12 +363,16 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         style: Theme.of(context).textTheme.bodySmall,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      customValueWidget ?? Text(
-                        value,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
+                      customValueWidget ??
+                          Text(
+                            value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                     ],
                   ),
                 ),
@@ -300,12 +391,15 @@ class _StatistikPageAState extends State<StatistikPageA> {
         drawVerticalLine: true,
         horizontalInterval: 1,
         verticalInterval: 1,
-        getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
-        getDrawingVerticalLine: (value) => FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
+        getDrawingHorizontalLine: (value) =>
+            FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
+        getDrawingVerticalLine: (value) =>
+            FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
         show: true,
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
@@ -324,7 +418,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
           ),
         ),
       ),
-      borderData: FlBorderData(show: true, border: Border.all(color: const Color(0xff37434d))),
+      borderData: FlBorderData(
+          show: true, border: Border.all(color: const Color(0xff37434d))),
       minX: 0,
       maxX: _maxX,
       minY: 0,
@@ -337,13 +432,19 @@ class _StatistikPageAState extends State<StatistikPageA> {
     return LineChartBarData(
       spots: _currentSpots,
       isCurved: true,
-      gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withAlpha(80), Theme.of(context).colorScheme.primary]),
+      gradient: LinearGradient(colors: [
+        Theme.of(context).colorScheme.primary.withAlpha(80),
+        Theme.of(context).colorScheme.primary
+      ]),
       barWidth: 5,
       isStrokeCapRound: true,
       dotData: const FlDotData(show: true),
       belowBarData: BarAreaData(
         show: true,
-        gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary.withAlpha(20), Theme.of(context).colorScheme.primary.withAlpha(50)]),
+        gradient: LinearGradient(colors: [
+          Theme.of(context).colorScheme.primary.withAlpha(20),
+          Theme.of(context).colorScheme.primary.withAlpha(50)
+        ]),
       ),
     );
   }
@@ -392,10 +493,18 @@ class _StatistikPageAState extends State<StatistikPageA> {
     String text;
     switch (_selectedRange) {
       case ChartRange.harian:
-        if (value % 1 == 0 && value != 0) { text = '${value.toInt()}k'; } else { return Container(); }
+        if (value % 1 == 0 && value != 0) {
+          text = '${value.toInt()}k';
+        } else {
+          return Container();
+        }
         break;
       case ChartRange.mingguan:
-        if (value % 1 == 0 && value != 0) { text = '${value.toInt()}JT'; } else { return Container(); }
+        if (value % 1 == 0 && value != 0) {
+          text = '${value.toInt()}JT';
+        } else {
+          return Container();
+        }
         break;
       case ChartRange.bulanan:
         text = switch (value.toInt()) {
@@ -407,6 +516,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
         if (text.isEmpty) return Container();
         break;
     }
-    return SideTitleWidget(meta: meta, child: Text(text, style: style, textAlign: TextAlign.left));
+    return SideTitleWidget(
+        meta: meta, child: Text(text, style: style, textAlign: TextAlign.left));
   }
 }
