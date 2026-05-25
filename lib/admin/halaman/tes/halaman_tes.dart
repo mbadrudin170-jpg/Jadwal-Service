@@ -10,12 +10,13 @@ class HalamanTes extends StatefulWidget {
 }
 
 class _HalamanTesState extends State<HalamanTes> {
-  bool _showNativeAd = false;
+  final InterstitialAdService _adService = InterstitialAdService();
 
   @override
   void initState() {
     super.initState();
-    InterstitialAdService().preloadAd();
+    // Memulai pemuatan iklan di awal
+    _adService.preloadAd();
   }
 
   @override
@@ -33,56 +34,34 @@ class _HalamanTesState extends State<HalamanTes> {
             ElevatedButton(
               child: const Text('Tampilkan Interstitial Ad'),
               onPressed: () {
-                InterstitialAdService().showAdIfReady(onAdDismissed: () {
+                // Panggil service untuk menampilkan iklan
+                _adService.showAdIfReady(onAdDismissed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Iklan ditutup atau gagal tampil.')),
                   );
+                  // Tidak perlu memuat ulang secara manual, service sudah menanganinya
                 });
               },
             ),
-            const SizedBox(height: 20),
-            // Tombol untuk menampilkan/menyembunyikan Iklan Native
-            ElevatedButton(
-              child: Text(
-                  '${_showNativeAd ? 'Sembunyikan' : 'Tampilkan'} Iklan Native'),
-              onPressed: () {
-                setState(() {
-                  _showNativeAd = !_showNativeAd;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            // Menampilkan status untuk debugging
+            const SizedBox(height: 40),
+            // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
             StreamBuilder(
               stream: Stream.periodic(const Duration(seconds: 1)),
               builder: (context, snapshot) {
-                return Column(
-                  children: [
-                    Text(
-                      'Iklan Siap: ${InterstitialAdService().isAdReady}',
-                      style: TextStyle(
-                        color: InterstitialAdService().isAdReady
-                            ? Colors.green
-                            : Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Sedang Memuat: ${InterstitialAdService().isAdLoading}',
-                      style: TextStyle(
-                        color: InterstitialAdService().isAdLoading
-                            ? Colors.orange
-                            : Colors.grey,
-                      ),
-                    ),
-                  ],
+                final isReady = _adService.isAdReady;
+                return Text(
+                  'Iklan Siap: $isReady',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isReady ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
                 );
               },
             ),
-            const Spacer(), // Mendorong widget berikutnya ke bawah
-            // Penampung untuk iklan native
-          
+            const Spacer(),
           ],
         ),
       ),
