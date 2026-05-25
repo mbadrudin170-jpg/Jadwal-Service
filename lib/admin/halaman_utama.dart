@@ -13,9 +13,11 @@ import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:workmanager/workmanager.dart';
 // import 'package:wifi/tes_fitur/halaman_test.dart';
 
 // === INFORMASI DEPENDENCY ===
@@ -84,6 +86,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       await _handleInitialNotification();
+      _scheduleSync(); // Jadwalkan tugas background
       Log.info('Frame pertama selesai dirender.');
       _cekDanTampilkanPesanOffline();
       Log.info('Menjalankan proses pengecekan langganan kadaluarsa.');
@@ -100,6 +103,18 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     Log.info('Menutup HalamanUtama, membersihkan semua listener.');
     await _koneksiSubscription.cancel();
     super.dispose();
+  }
+
+  void _scheduleSync() {
+    Workmanager().registerPeriodicTask(
+      "1",
+      syncTaskName,
+      frequency: const Duration(hours: 12),
+      constraints: Constraints(
+        networkType: NetworkType.connected,
+      ),
+    );
+    Log.info('Tugas sinkronisasi periodik dijadwalkan setiap 12 jam.');
   }
 
   void _onItemTapped(final int index) {
