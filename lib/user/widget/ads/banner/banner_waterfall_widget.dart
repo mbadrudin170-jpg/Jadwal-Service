@@ -31,7 +31,7 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(seconds: 30), () {
       if (mounted) {
         _loadAd();
       }
