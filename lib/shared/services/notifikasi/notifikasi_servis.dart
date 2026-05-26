@@ -13,12 +13,20 @@ import 'package:wifi/shared/debug/log.dart';
 
 /// Fungsi callback global untuk menangani respons notifikasi saat aplikasi
 /// berada di background.
+/// [PERBAIKAN] Fungsi ini harus mandiri dan tidak boleh bergantung pada
+/// kelas atau layanan lain yang mungkin belum diinisialisasi di background isolate,
+/// seperti kelas Log kustom kita. Menggunakan print() atau dart:developer.log()
+/// adalah pilihan yang lebih aman di sini.
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
     final NotificationResponse response) {
-  Log.info(
-    'Notifikasi background di-tap. Payload: ${response.payload}',
-  );
+  final String? payload = response.payload;
+  if (response.payload != null) {
+    debugPrint('notification payload: $payload');
+  }
+  // Menggunakan print() untuk menghindari crash di background isolate.
+  // ignore: avoid_print
+  debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
 }
 
 /// Kelas layanan untuk mengelola notifikasi lokal di seluruh aplikasi.

@@ -9,6 +9,12 @@ class AppOpenAdService {
   AppOpenAd? _appOpenAd;
   bool _isShowingAd = false;
 
+  /// Waktu kapan iklan terakhir berhasil dimuat.
+  DateTime? _appOpenLoadTime;
+
+  /// Durasi maksimal cache iklan sebelum dianggap kedaluwarsa.
+  final Duration maxCacheDuration = const Duration(hours: 4);
+
   /// Memuat App Open Ad.
   void loadAd() {
     // Jangan muat iklan baru jika sudah ada yang sedang ditampilkan.
@@ -30,6 +36,7 @@ class AppOpenAdService {
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
           Log.info('[AppOpenAd] Iklan BERHASIL dimuat.');
+          _appOpenLoadTime = DateTime.now(); // Catat waktu muat
           _appOpenAd = ad;
         },
         onAdFailedToLoad: (error) {
@@ -43,28 +50,48 @@ class AppOpenAdService {
     );
   }
 
-  /// Menampilkan iklan jika tersedia dan tidak sedang ditampilkan.
+  /// Memeriksa apakah iklan yang dimuat masih valid (tidak kedaluwarsa).
+  bool get _isAdValid {
+    if (_appOpenLoadTime == null) {
+      return false;
+    }
+    final now = DateTime.now();
+    final difference = now.difference(_appOpenLoadTime!);
+    return difference < maxCacheDuration;
+  }
+
+  /// Menampilkan iklan jika tersedia, valid, dan tidak sedang ditampilkan.
   void showAdIfAvailable() {
     if (_appOpenAd == null) {
       Log.info('[AppOpenAd] Mencoba menampilkan, tapi iklan tidak tersedia.');
       loadAd(); // Muat iklan untuk kesempatan berikutnya.
       return;
     }
+    // diperbaiki: Pindahkan pengecekan _isShowingAd ke atas untuk efisiensi
     if (_isShowingAd) {
       Log.info(
           '[AppOpenAd] Mencoba menampilkan, tapi iklan lain sedang aktif.');
       return;
     }
 
+    // Periksa apakah iklan sudah kedaluwarsa
+    if (!_isAdValid) {
+      Log.warning('[AppOpenAd] Iklan kedaluwarsa. Memuat yang baru.');
+      _appOpenAd!.dispose();
+      _appOpenAd = null;
+      loadAd();
+      return;
+    }
+
     _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-        Log.info('[AppOpenAd] Iklan ditampilkan.');
+        // State sudah diatur sebelumnya, di sini hanya untuk logging
+        Log.info('[AppOpenAd] Iklan ditampilkan di layar penuh.');
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
         Log.error('[AppOpenAd] GAGAL menampilkan iklan.',
             data: {'code': error.code, 'message': error.message});
-
+        // Reset state agar bisa mencoba lagi
         _isShowingAd = false;
         ad.dispose();
         _appOpenAd = null;
@@ -72,7 +99,7 @@ class AppOpenAdService {
       },
       onAdDismissedFullScreenContent: (ad) {
         Log.info('[AppOpenAd] Iklan ditutup.');
-
+        // Reset state agar bisa mencoba lagi
         _isShowingAd = false;
         ad.dispose();
         _appOpenAd = null;
@@ -80,6 +107,11 @@ class AppOpenAdService {
       },
     );
 
+    // diperbaiki: Atur flag _isShowingAd menjadi true SEBELUM memanggil show().
+    // Ini mencegah race condition di mana showAdIfAvailable dipanggil beberapa kali
+    // sebelum callback onAdShowedFullScreenContent sempat dieksekusi.
+    _isShowingAd = true;
+    Log.info('[AppOpenAd] Memulai proses penampilan iklan...');
     _appOpenAd!.show();
   }
 }

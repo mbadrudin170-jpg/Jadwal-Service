@@ -6,6 +6,9 @@
 // diubah: Refaktor untuk menggunakan PointsPage generik.
 // DIHAPUS: BannerAdWidget dan import terkait karena sudah terpusat di main_page.
 // DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
+// DIUBAH: Tambahkan interstisial ad sebelum menavigasi ke detail pelanggan.
+// DIPERBAIKI: Menggunakan nama method yang benar dari InterstitialAdService (preloadAd, showAdIfReady, dispose).
+// DIUBAH: Tambahkan interstisial ad sebelum menavigasi ke halaman poin.
 
 import 'dart:async';
 
@@ -25,6 +28,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends StatefulWidget {
@@ -49,6 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
   final PackageOpFirebase _packageOp = PackageOpFirebase();
+  final InterstitialAdService _interstitialAdService = InterstitialAdService();
   Future<CustomerModel?>? _futureCustomer;
   Future<int>? _totalPointsFuture;
   Future<List<TransactionModel>>? _activePackagesFuture;
@@ -62,7 +67,14 @@ class _ProfilePageState extends State<ProfilePage> {
     Log.info(
       'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
     );
+    _interstitialAdService.preloadAd();
     unawaited(_initializeData());
+  }
+
+  @override
+  void dispose() {
+    _interstitialAdService.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeData() async {
@@ -136,6 +148,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToDetail(final String userId) async {
+    Log.info('Menampilkan iklan sebelum navigasi ke detail pelanggan.');
+
+    _interstitialAdService.showAdIfReady(
+      onAdDismissed: () {
+        Log.info('Iklan selesai, melanjutkan navigasi ke detail pelanggan.');
+        unawaited(_performDetailNavigation(userId));
+      },
+    );
+  }
+
+  Future<void> _performDetailNavigation(final String userId) async {
     Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
     try {
       final hasChanged = await Navigator.push<bool>(
@@ -164,6 +187,17 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToPointsPage(final String customerId) async {
+    Log.info('Menampilkan iklan sebelum navigasi ke halaman poin.');
+
+    _interstitialAdService.showAdIfReady(
+      onAdDismissed: () {
+        Log.info('Iklan selesai, melanjutkan navigasi ke halaman poin.');
+        unawaited(_performPointsNavigation(customerId));
+      },
+    );
+  }
+
+  Future<void> _performPointsNavigation(final String customerId) async {
     Log.info('Menavigasi ke PointsPage untuk customerId: $customerId');
     try {
       final hasChanged = await Navigator.push<bool>(
