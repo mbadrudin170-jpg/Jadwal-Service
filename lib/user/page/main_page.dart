@@ -66,7 +66,7 @@ class _MainPageState extends State<MainPage> {
     // Inisialisasi AppLifecycleReactor untuk iklan. Konstruktornya ringan.
     _appLifecycleReactor =
         AppLifecycleReactor(appOpenAdService: _appOpenAdService);
-    unawaited(_appLifecycleReactor.listenToAppStateChanges());
+    _appLifecycleReactor.listenToAppStateChanges();
 
     Log.info(
         'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');

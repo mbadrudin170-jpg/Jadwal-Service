@@ -37,10 +37,12 @@ class ActiveCustomerPage extends StatefulWidget {
   const ActiveCustomerPage({super.key});
 
   @override
-  State<ActiveCustomerPage> createState() => _ActiveCustomerPageState();
+  // PERBAIKAN: State class dibuat publik agar methodnya bisa diakses
+  ActiveCustomerPageState createState() => ActiveCustomerPageState();
 }
 
-class _ActiveCustomerPageState extends State<ActiveCustomerPage>
+// PERBAIKAN: State class dibuat publik dengan menghapus underscore
+class ActiveCustomerPageState extends State<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   final ActiveCustomerOperation _activeCustomerOperation =
       ActiveCustomerOperation();
@@ -75,7 +77,8 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
 
   void _onSearchChanged() => _applyFilterAndSort();
 
-  Future<void> _refreshData() => _loadData(forceRefresh: true);
+  // PERBAIKAN: Membuat method refreshData menjadi publik
+  Future<void> refreshData() => _loadData(forceRefresh: true);
 
   Future<void> _loadData({final bool forceRefresh = false}) async {
     if (!mounted) return;
@@ -347,7 +350,7 @@ class _ActiveCustomerPageState extends State<ActiveCustomerPage>
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _refreshData,
+              onRefresh: refreshData, // Menggunakan method publik
               child: _allCustomers.isEmpty
                   ? const Center(
                       child: Text('Tidak ada pelanggan aktif ditemukan.'))

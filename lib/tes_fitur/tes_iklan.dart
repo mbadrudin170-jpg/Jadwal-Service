@@ -45,7 +45,8 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 
     // Jadwalkan untuk 10 detik dari sekarang agar lebih cepat diuji
     final jadwal = DateTime.now().add(const Duration(seconds: 10));
-    Log.info('Memperbarui jadwal notifikasi (ID: $_testNotificationId) untuk $jadwal');
+    Log.info(
+        'Memperbarui jadwal notifikasi (ID: $_testNotificationId) untuk $jadwal');
 
     try {
       await _notifikasiServis.perbaruiJadwalNotifikasi(
@@ -158,7 +159,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
-               const SizedBox(height: 8),
+              const SizedBox(height: 8),
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
