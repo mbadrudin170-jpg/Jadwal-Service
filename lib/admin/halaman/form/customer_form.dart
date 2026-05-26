@@ -109,14 +109,14 @@ class _CustomerFormState extends State<CustomerForm> {
 
         final hasConnection = await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          Log.info("Ada koneksi internet, menjalankan sinkronisasi.");
+          Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
           await SyncCheckService().runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Data pelanggan berhasil disimpan & disinkronkan.');
           }
         } else {
-          Log.info("Tidak ada koneksi internet, sinkronisasi dilewati.");
+          Log.info('Tidak ada koneksi internet, sinkronisasi dilewati.');
           if (mounted) {
             ToastUtil.info(context,
                 'Koneksi offline. Data disimpan lokal, akan sinkron saat online.');

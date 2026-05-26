@@ -10,6 +10,7 @@ import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
+import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/background_service.dart';
@@ -27,16 +28,12 @@ class HalamanUtama extends StatefulWidget {
   State<HalamanUtama> createState() => _HalamanUtamaState();
 }
 
-class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver {
+class _HalamanUtamaState extends State<HalamanUtama>
+    with WidgetsBindingObserver {
   late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
   late final SyncCheckService _syncService;
   bool _sedangSinkronisasi = false;
   int _selectedIndex = 0;
-
-  final GlobalKey<ActiveCustomerPageState> _activeCustomerPageKey =
-      GlobalKey<ActiveCustomerPageState>();
-
-  late final List<Widget> _widgetOptions;
 
   @override
   void initState() {
@@ -44,18 +41,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     FlutterNativeSplash.remove();
     Log.info('HalamanUtama initState. Offline: ${widget.isOffline}');
 
-    _widgetOptions = <Widget>[
-      ActiveCustomerPage(key: _activeCustomerPageKey),
-      const WalletPage(),
-      const TransactionPage(),
-      const StatistikPageA(),
-      const LainnyaPage(),
-    ];
-
     _syncService = SyncCheckService();
     WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((final _) {
       unawaited(_initAsync());
     });
 
@@ -67,7 +56,7 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     await _handleInitialNotification();
     await _scheduleSync();
     Log.info('Frame pertama selesai dirender.');
-    
+
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
 
@@ -84,16 +73,10 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      Log.info('Aplikasi kembali aktif (resumed). Memicu refresh data.');
-      if (_selectedIndex == 0) {
-        // PERBAIKAN FINAL: Bungkus dengan unawaited
-        unawaited(_activeCustomerPageKey.currentState?.refreshData());
-      }
-    }
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   Future<void> _scheduleSync() async {
@@ -104,12 +87,6 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
       constraints: Constraints(networkType: NetworkType.connected),
     );
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
-  }
-
-  void _onItemTapped(final int index) {
-    Log.info('Bottom navigation tapped: $index');
-    if (_selectedIndex == index) return;
-    setState(() => _selectedIndex = index);
   }
 
   Future<void> _onKoneksiBerubah(final List<ConnectivityResult> hasil) async {
@@ -129,7 +106,8 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     if (mounted) setState(() => _sedangSinkronisasi = true);
     try {
       await _syncService.runSyncCheck();
-      Log.info('Sinkronisasi data selesai.');
+      Log.info('Sinkronisasi data selesai. Memberi sinyal refresh.');
+      DataRefreshService().notify(); // Kirim sinyal refresh
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
@@ -140,7 +118,8 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
   void _cekDanTampilkanPesanOffline() {
     if (widget.isOffline) {
       Log.warning('Aplikasi dalam mode offline. Menampilkan pesan.');
-      ToastUtil.warning(context, 'Anda dalam mode offline. Data mungkin tidak terbaru.');
+      ToastUtil.warning(
+          context, 'Anda dalam mode offline. Data mungkin tidak terbaru.');
     }
   }
 
@@ -156,9 +135,16 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
     }
   }
 
+  final _widgetOptions = <Widget>[
+    const ActiveCustomerPage(),
+    const WalletPage(),
+    const TransactionPage(),
+    const StatistikPageA(),
+    const LainnyaPage(),
+  ];
+
   @override
   Widget build(final BuildContext context) {
-    Log.info('Build UI halaman utama. Index: $_selectedIndex');
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
@@ -167,16 +153,20 @@ class _HalamanUtamaState extends State<HalamanUtama> with WidgetsBindingObserver
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(AppIcons.activeCustomer), label: 'Aktif'),
+          BottomNavigationBarItem(
+              icon: Icon(AppIcons.activeCustomer), label: 'Aktif'),
           BottomNavigationBarItem(icon: Icon(AppIcons.wallet), label: 'Dompet'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.receiptLong), label: 'Transaksi'),
-          BottomNavigationBarItem(icon: Icon(AppIcons.report), label: 'Statistik'),
+          BottomNavigationBarItem(
+              icon: Icon(AppIcons.receiptLong), label: 'Transaksi'),
+          BottomNavigationBarItem(
+              icon: Icon(AppIcons.report), label: 'Statistik'),
           BottomNavigationBarItem(icon: Icon(AppIcons.apps), label: 'Lainnya'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurface.withAlpha(179),
         onTap: _onItemTapped,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor:
+            Theme.of(context).colorScheme.onSurface.withAlpha(179),
         showUnselectedLabels: true,
       ),
     );

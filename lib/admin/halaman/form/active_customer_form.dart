@@ -17,15 +17,30 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
+/// Form to add or edit an active customer.
 class FormPelangganAktif extends StatefulWidget {
+  /// The active customer to edit, if any.
   final ActiveCustomerModel? pelangganAktif;
+
+  /// The customer operation.
   final CustomerOperation pelangganOperasi;
+
+  /// The package operation.
   final PackageOperation paketOperasi;
+
+  /// The active customer operation.
   final ActiveCustomerOperation pelangganAktifOperasi;
+
+  /// The transaction operation.
   final TransactionOperation transaksiOperasi;
+
+  /// The wallet operation.
   final WalletOperation dompetOperasi;
+
+  /// The category operation.
   final CategoryOperation kategoriOperasi;
 
+  /// Creates a form for an active customer.
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
@@ -130,8 +145,7 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       }
 
       final pelangganList = (results[0] as List<CustomerModel>)
-        ..sort((final a, final b) =>
-            a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       final paketList = (results[1] as List<PackageModel>)
         ..sort((a, b) =>

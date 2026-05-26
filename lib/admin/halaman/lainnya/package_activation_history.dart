@@ -113,7 +113,7 @@ class _PackageActivationHistoryPageState
         int endingTodayCount = 0;
         final now = DateTime.now();
 
-        for (var transaction in list) {
+        for (final transaction in list) {
           if (transaction.paymentStatus == PaymentStatus.paid) {
             paidCount++;
           } else {
@@ -149,15 +149,15 @@ class _PackageActivationHistoryPageState
     });
   }
 
-  Future<void> _loadCustomerData(List<TransactionModel> transactions) async {
+  Future<void> _loadCustomerData(final List<TransactionModel> transactions) async {
     final customerIds = transactions
-        .map((t) => t.customerId)
+        .map((final t) => t.customerId)
         .whereType<String>()
         .toSet()
         .toList();
     if (customerIds.isNotEmpty) {
       final customers = await _customerOperation.getCustomersByIds(customerIds);
-      _customerMap = {for (var c in customers) c.id: c};
+      _customerMap = {for (final c in customers) c.id: c};
       Log.info('Berhasil memuat ${_customerMap.length} data pelanggan');
     }
   }
@@ -182,7 +182,7 @@ class _PackageActivationHistoryPageState
         Log.info('Pengurutan: Tanggal Berakhir (terdekat di atas)');
         break;
       case SortOption.nameAZ:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final nameA = _customerMap[a.customerId]?.name.toLowerCase() ?? '';
           final nameB = _customerMap[b.customerId]?.name.toLowerCase() ?? '';
           return nameA.compareTo(nameB);
@@ -190,7 +190,7 @@ class _PackageActivationHistoryPageState
         Log.info('Pengurutan: Nama Pelanggan (A-Z)');
         break;
       case SortOption.nameZA:
-        comparator = (a, b) {
+        comparator = (final a, final b) {
           final nameA = _customerMap[a.customerId]?.name.toLowerCase() ?? '';
           final nameB = _customerMap[b.customerId]?.name.toLowerCase() ?? '';
           return nameB.compareTo(nameA);

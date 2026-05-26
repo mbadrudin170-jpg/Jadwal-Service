@@ -100,7 +100,6 @@ class InterstitialAdService {
         // [WAJIB] Muat iklan baru untuk permintaan berikutnya.
         await preloadAd();
       },
-      
       onAdFailedToShowFullScreenContent: (final ad, final error) async {
         Log.error('[InterstitialWaterfall] Gagal menampilkan iklan.',
             data: {'error': error.message});

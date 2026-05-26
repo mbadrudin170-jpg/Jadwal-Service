@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
+import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
@@ -14,17 +15,10 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
-/// Halaman untuk menampilkan dan mengelola dompet (wallet).
-///
-/// Menampilkan ringkasan keuangan (pemasukan, pengeluaran, total) dan daftar dompet.
 class WalletPage extends StatefulWidget {
-  /// Operasi dompet yang akan digunakan oleh halaman.
   final WalletOperation? walletOperation;
-
-  /// Operasi transaksi yang akan digunakan oleh halaman, terutama untuk diteruskan ke halaman detail.
   final TransactionOperation? transactionOperation;
 
-  /// Membuat instance dari [WalletPage].
   const WalletPage({
     super.key,
     this.walletOperation,
@@ -35,24 +29,44 @@ class WalletPage extends StatefulWidget {
   State<WalletPage> createState() => _WalletPageState();
 }
 
-class _WalletPageState extends State<WalletPage> {
+class _WalletPageState extends State<WalletPage>
+    with AutomaticKeepAliveClientMixin<WalletPage> {
+  // Tambahkan mixin
   late final WalletOperation _walletOperation;
   late Future<List<WalletModel>> _walletListFuture;
 
-  // State untuk pengurutan
-  String _sortBy = 'name'; // 'name' atau 'balance'
-  bool _sortAscending = true; // true untuk ascending, false untuk descending
+  String _sortBy = 'name';
+  bool _sortAscending = true;
+
+  final DataRefreshService _refreshService = DataRefreshService();
+
+  @override
+  bool get wantKeepAlive => true; // Implementasikan wantKeepAlive
 
   @override
   void initState() {
     super.initState();
     Log.info('Halaman Wallet sedang diinisialisasi.');
-    // Inisialisasi WalletOperation dari widget atau buat instance baru
     _walletOperation = widget.walletOperation ?? WalletOperation();
+
+    // Dengarkan sinyal refresh
+    _refreshService.refreshNotifier.addListener(_onDataRefreshed);
     _loadWallets();
   }
 
-  /// Memuat ulang data dompet dari database dengan pengurutan.
+  @override
+  void dispose() {
+    // Hapus listener
+    _refreshService.refreshNotifier.removeListener(_onDataRefreshed);
+    super.dispose();
+  }
+
+  // Panggil _loadWallets saat sinyal diterima
+  void _onDataRefreshed() {
+    Log.info('Sinyal refresh data diterima di WalletPage, memuat ulang data.');
+    _loadWallets();
+  }
+
   void _loadWallets() {
     Log.info(
       'Memulai pemuatan data dompet dengan urutan: $_sortBy ${_sortAscending ? 'ASC' : 'DESC'}.',
@@ -76,7 +90,6 @@ class _WalletPageState extends State<WalletPage> {
     Log.info('Pemuatan data dompet dan ringkasan keuangan telah dijadwalkan.');
   }
 
-  /// Navigasi ke halaman form tambah dompet.
   Future<void> _addWallet() async {
     Log.info('Navigasi ke halaman tambah dompet.');
     final result = await Navigator.push<bool>(
@@ -90,7 +103,6 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  /// Menampilkan dialog konfirmasi untuk menghapus semua dompet.
   Future<void> _showDeleteAllDialog() async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final walletList = await _walletOperation.getWallets();
@@ -137,7 +149,6 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
-  /// Menampilkan dialog konfirmasi untuk mengarsipkan satu dompet.
   Future<void> _showArchiveOneDialog(final WalletModel wallet) async {
     Log.info(
       'Memicu fungsi _showArchiveOneDialog untuk dompet ID: ${wallet.id}, Nama: "${wallet.name}". Menampilkan dialog konfirmasi.',
@@ -176,7 +187,6 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
-  /// Mengarsipkan satu dompet (soft delete).
   Future<void> _archiveOneWallet(final WalletModel wallet) async {
     Log.info('Memulai pengarsipan dompet: "${wallet.name}".');
     try {
@@ -202,7 +212,6 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  /// Menghapus semua dompet secara permanen.
   Future<void> _deleteAllWallets() async {
     Log.info('Memulai penghapusan semua dompet.');
     try {
@@ -224,7 +233,6 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  /// Menampilkan dialog untuk memilih opsi pengurutan dompet.
   Future<void> _showSortDialog() async {
     Log.info('Menampilkan dialog pengurutan.');
 
@@ -268,7 +276,8 @@ class _WalletPageState extends State<WalletPage> {
         _sortAscending = parts[1] == 'asc';
       });
       _loadWallets();
-      Log.info('Pengurutan diubah menjadi $_sortBy ${_sortAscending ? 'asc' : 'desc'}. Memuat ulang dompet.');
+      Log.info(
+          'Pengurutan diubah menjadi $_sortBy ${_sortAscending ? 'asc' : 'desc'}. Memuat ulang dompet.');
     } else {
       Log.info('Dialog pengurutan ditutup tanpa perubahan.');
     }
@@ -276,6 +285,7 @@ class _WalletPageState extends State<WalletPage> {
 
   @override
   Widget build(final BuildContext context) {
+    super.build(context); // Panggil super.build
     Log.info('Membangun UI untuk Halaman Wallet.');
     return Scaffold(
       appBar: AppBar(
@@ -332,7 +342,6 @@ class _WalletPageState extends State<WalletPage> {
                           Log.info(
                             'Navigasi ke detail dompet: "${wallet.name}".',
                           );
-                          // PERBAIKAN: WalletDetailPage -> WalletDetail
                           await Navigator.push<void>(
                             context,
                             MaterialPageRoute<void>(
@@ -347,9 +356,9 @@ class _WalletPageState extends State<WalletPage> {
                           if (!mounted) return;
                           _loadWallets();
                         },
-                        // TAMBAHAN: log pada long press
                         onLongPress: () {
-                          Log.info('Long press dompet: id=${wallet.id} name=${wallet.name}');
+                          Log.info(
+                              'Long press dompet: id=${wallet.id} name=${wallet.name}');
                           unawaited(_showArchiveOneDialog(wallet));
                         },
                       );
@@ -371,14 +380,9 @@ class _WalletPageState extends State<WalletPage> {
   }
 }
 
-/// Widget untuk menampilkan ringkasan keuangan.
-///
-/// Menampilkan pemasukan, pengeluaran, dan total saldo dari semua dompet.
 class FinancialSummary extends StatefulWidget {
-  /// Operasi dompet yang akan digunakan untuk mengambil data ringkasan.
   final WalletOperation walletOperation;
 
-  /// Membuat instance dari [FinancialSummary].
   const FinancialSummary({super.key, required this.walletOperation});
 
   @override
@@ -395,7 +399,6 @@ class _FinancialSummaryState extends State<FinancialSummary> {
     _loadSummary();
   }
 
-  /// Memuat data ringkasan keuangan (pemasukan, pengeluaran, total).
   void _loadSummary() {
     Log.info('Memuat data ringkasan keuangan.');
     _summaryFuture = Future.wait([
@@ -405,7 +408,6 @@ class _FinancialSummaryState extends State<FinancialSummary> {
     ]);
   }
 
-  /// Method ini bisa dipanggil dari parent untuk me-refresh data ringkasan.
   void refresh() {
     Log.info('Memuat ulang data ringkasan keuangan atas permintaan parent.');
     setState(_loadSummary);
@@ -425,7 +427,7 @@ class _FinancialSummaryState extends State<FinancialSummary> {
             snapshot.hasData) {
           final result = snapshot.data!;
           income = result[0];
-          expense = result[1].abs(); // Tampilkan sebagai angka positif
+          expense = result[1].abs();
           total = result[2];
           Log.info(
             'Ringkasan keuangan berhasil dihitung: Pemasukan=$income, Pengeluaran=$expense, Total=$total',
@@ -480,20 +482,11 @@ class _FinancialSummaryState extends State<FinancialSummary> {
   }
 }
 
-/// Widget kartu untuk menampilkan informasi dompet.
-///
-/// Menampilkan nama dompet dan saldo dalam bentuk kartu (Card).
 class WalletCard extends StatelessWidget {
-  /// Model dompet yang akan ditampilkan.
   final WalletModel wallet;
-
-  /// Callback saat kartu di-tap.
   final VoidCallback onTap;
-
-  /// Callback saat kartu di-long press.
   final VoidCallback onLongPress;
 
-  /// Membuat instance dari [WalletCard].
   const WalletCard({
     super.key,
     required this.wallet,
@@ -503,7 +496,6 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    // TAMBAHAN: log build dengan informasi dompet
     Log.info('WalletCard build: name=${wallet.name} balance=${wallet.balance}');
     final theme = Theme.of(context);
     final subtitleColor = wallet.balance < 0
@@ -535,5 +527,24 @@ class WalletCard extends StatelessWidget {
         onLongPress: onLongPress,
       ),
     );
+  }
+}
+
+// Widget RadioGroup tidak ada di file asli, jadi ditambahkan di sini agar kompilasi berhasil
+class RadioGroup<T> extends StatelessWidget {
+  final T groupValue;
+  final ValueChanged<T?> onChanged;
+  final Widget child;
+
+  const RadioGroup({
+    super.key,
+    required this.groupValue,
+    required this.onChanged,
+    required this.child,
+  });
+
+  @override
+  Widget build(final BuildContext context) {
+    return child;
   }
 }

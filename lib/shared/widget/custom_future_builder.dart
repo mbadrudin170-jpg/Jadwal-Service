@@ -1,4 +1,5 @@
-// path: lib/shared/widgets/custom_future_builder.dart
+// path: lib/shared/widget/custom_future_builder.dart
+
 // Dibuat: Widget generik untuk menyederhanakan penggunaan FutureBuilder.
 
 import 'package:flutter/material.dart';
@@ -39,10 +40,10 @@ class CustomFutureBuilder<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return FutureBuilder<T>(
       future: future,
-      builder: (context, snapshot) {
+      builder: (final context, final snapshot) {
         // 1. Handle Loading State
         if (snapshot.connectionState == ConnectionState.waiting) {
           return loadingBuilder?.call(context) ??

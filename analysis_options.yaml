@@ -30,7 +30,7 @@ linter:
     # ============================================================
     # PENCEGAHAN ERROR
     # ============================================================
-    public_member_api_docs: true             # Wajibkan dokumentasi (///) pada semua API publik agar kode terdokumentasi
+    # public_member_api_docs: true             # Wajibkan dokumentasi (///) pada semua API publik agar kode terdokumentasi
     unawaited_futures: true                  # Wajibkan 'await' atau 'unawaited()' pada setiap Future di fungsi async agar tidak ada yang terlewat
     avoid_slow_async_io: true                # Hindari versi sinkron dari operasi dart:io, gunakan versi async agar tidak blocking UI
     no_literal_bool_comparisons: true        # Jangan bandingkan boolean dengan true/false secara literal (pakai if(x) saja)

@@ -1,12 +1,10 @@
 // path: lib/admin/halaman/tab/active_customer_tab.dart
-// diubah: Mengganti pemanggilan archiveActiveCustomer dengan softDelete sesuai standardisasi.
-// diubah: Mengganti pemanggilan archiveAllActiveCustomers dengan softDeleteAll sesuai standardisasi.
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
+import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -19,29 +17,19 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Enum untuk opsi lanjutan pada halaman pelanggan aktif.
 enum AdvancedOption {
-  /// Hapus semua data pelanggan aktif.
   softDeleteAll,
-
-  /// Arsipkan pelanggan yang sudah kadaluarsa.
   archiveExpired,
-
-  /// Batalkan aksi.
   cancel,
 }
 
-/// Halaman untuk menampilkan daftar pelanggan yang sedang aktif berlangganan.
 class ActiveCustomerPage extends StatefulWidget {
-  /// Konstruktor untuk ActiveCustomerPage.
   const ActiveCustomerPage({super.key});
 
   @override
-  // PERBAIKAN: State class dibuat publik agar methodnya bisa diakses
   ActiveCustomerPageState createState() => ActiveCustomerPageState();
 }
 
-// PERBAIKAN: State class dibuat publik dengan menghapus underscore
 class ActiveCustomerPageState extends State<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   final ActiveCustomerOperation _activeCustomerOperation =
@@ -57,6 +45,9 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
   final InternetConnectionService _connectionService =
       InternetConnectionService();
 
+  // Instance service untuk refresh data
+  final DataRefreshService _refreshService = DataRefreshService();
+
   @override
   bool get wantKeepAlive => true;
 
@@ -64,20 +55,30 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
   void initState() {
     super.initState();
     Log.info('ActiveCustomerPage initState');
+    // Tambahkan listener untuk sinyal refresh
+    _refreshService.refreshNotifier.addListener(_onDataRefreshed);
     unawaited(_loadData());
     _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    // Hapus listener untuk mencegah memory leak
+    _refreshService.refreshNotifier.removeListener(_onDataRefreshed);
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
+  // Method yang akan dipanggil saat sinyal refresh diterima
+  void _onDataRefreshed() {
+    Log.info(
+        'Sinyal refresh data diterima di ActiveCustomerPage, memuat ulang data.');
+    unawaited(_loadData()); // false karena sinkronisasi sudah selesai
+  }
+
   void _onSearchChanged() => _applyFilterAndSort();
 
-  // PERBAIKAN: Membuat method refreshData menjadi publik
   Future<void> refreshData() => _loadData(forceRefresh: true);
 
   Future<void> _loadData({final bool forceRefresh = false}) async {
@@ -90,10 +91,14 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
 
       if (online && forceRefresh) {
         await SyncCheckService().runSyncCheck().timeout(
-              const Duration(seconds: 15),
-              onTimeout: () =>
-                  throw TimeoutException('Waktu sinkronisasi habis.'),
-            );
+          const Duration(seconds: 15),
+          onTimeout: () {
+            _refreshService.notify(); // Beri sinyal refresh jika timeout
+            throw TimeoutException('Waktu sinkronisasi habis.');
+          },
+        );
+        _refreshService
+            .notify(); // Beri sinyal refresh setelah sinkronisasi manual
       } else if (!online && forceRefresh) {
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
@@ -103,7 +108,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
           );
         }
       }
-
+      await _activeCustomerOperation.archiveExpiredCustomers();
       _allCustomers =
           await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
@@ -350,7 +355,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: refreshData, // Menggunakan method publik
+              onRefresh: refreshData,
               child: _allCustomers.isEmpty
                   ? const Center(
                       child: Text('Tidak ada pelanggan aktif ditemukan.'))
@@ -375,7 +380,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
                                           builder: (final _) =>
                                               ActiveCustomerDetailPage(
                                                   activeCustomer: c)));
-                                  await _loadData(forceRefresh: true);
+                                  await _loadData(); // Cukup load data lokal setelah kembali
                                 },
                                 child: ListTile(
                                   title: Text(

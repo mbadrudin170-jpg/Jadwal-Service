@@ -4,7 +4,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
+/// Halaman untuk melakukan tes fungsionalitas.
 class HalamanTes extends StatefulWidget {
+  /// Konstruktor untuk HalamanTes.
   const HalamanTes({super.key});
 
   @override
@@ -48,7 +50,7 @@ class _HalamanTesState extends State<HalamanTes> {
             ),
             const SizedBox(height: 40),
             // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
-            StreamBuilder(
+            StreamBuilder<void>(
               stream: Stream.periodic(const Duration(seconds: 1)),
               builder: (final context, final snapshot) {
                 final isReady = _adService.isAdReady;

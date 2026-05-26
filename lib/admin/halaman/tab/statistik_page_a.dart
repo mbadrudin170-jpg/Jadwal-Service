@@ -14,12 +14,17 @@ import 'package:wifi/admin/repository/statistik_repository.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widgets/custom_future_builder.dart';
+import 'package:wifi/shared/widget/custom_future_builder.dart';
 
 /// Enum untuk merepresentasikan rentang waktu yang dipilih.
 enum ChartRange {
+  /// Rentang harian.
   harian,
+
+  /// Rentang mingguan.
   mingguan,
+
+  /// Rentang bulanan.
   bulanan,
 }
 
@@ -88,14 +93,16 @@ class _StatistikPageAState extends State<StatistikPageA> {
     // Error pada masing-masing Future akan ditangani oleh CustomFutureBuilder,
     // jadi di sini kita bisa menggunakan catchError untuk memastikan Future.wait tidak gagal.
     await Future.wait([
-      if (_pendapatanFuture != null) _pendapatanFuture!.catchError((_) {}),
+      if (_pendapatanFuture != null)
+        _pendapatanFuture!.catchError((final _) => 0.0),
       if (_totalPelangganFuture != null)
-        _totalPelangganFuture!.catchError((_) {}),
+        _totalPelangganFuture!.catchError((final _) => 0),
       if (_langgananAktifFuture != null)
-        _langgananAktifFuture!.catchError((_) {}),
-      if (_feedbackBaruFuture != null) _feedbackBaruFuture!.catchError((_) {}),
+        _langgananAktifFuture!.catchError((final _) => 0),
+      if (_feedbackBaruFuture != null)
+        _feedbackBaruFuture!.catchError((final _) => 0),
       if (_bestSellingPackagesFuture != null)
-        _bestSellingPackagesFuture!.catchError((_) {}),
+        _bestSellingPackagesFuture!.catchError((final _) => <BestSellingPackage>[]),
     ]);
   }
 
@@ -152,7 +159,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                 children: [
                   CustomFutureBuilder<int>(
                     future: _totalPelangganFuture,
-                    dataBuilder: (context, totalPelanggan) {
+                    dataBuilder: (final context, final totalPelanggan) {
                       return GestureDetector(
                         onTap: () {
                           Log.info(
@@ -160,7 +167,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                           unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const CustomerPage()),
+                                builder: (final context) => const CustomerPage()),
                           ));
                         },
                         child: _buildStatCard(
@@ -174,7 +181,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   ),
                   CustomFutureBuilder<int>(
                     future: _langgananAktifFuture,
-                    dataBuilder: (context, langgananAktif) {
+                    dataBuilder: (final context, final langgananAktif) {
                       return GestureDetector(
                         onTap: () {
                           Log.info(
@@ -182,7 +189,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                           unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
+                                builder: (final context) =>
                                     const ActiveCustomerPage()),
                           ));
                         },
@@ -197,7 +204,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   ),
                   CustomFutureBuilder<double>(
                     future: _pendapatanFuture,
-                    dataBuilder: (context, pendapatan) {
+                    dataBuilder: (final context, final pendapatan) {
                       final cardColor =
                           pendapatan < 0 ? Colors.red : Colors.orange;
                       final valueWidget = Text(
@@ -214,7 +221,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                           unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const TransactionPage()),
+                                builder: (final context) => const TransactionPage()),
                           ));
                         },
                         child: _buildStatCard(
@@ -229,7 +236,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                   ),
                   CustomFutureBuilder<int>(
                     future: _feedbackBaruFuture,
-                    dataBuilder: (context, feedbackBaru) {
+                    dataBuilder: (final context, final feedbackBaru) {
                       return GestureDetector(
                         onTap: () {
                           Log.info(
@@ -263,7 +270,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                       _selectedRange == ChartRange.mingguan,
                       _selectedRange == ChartRange.bulanan,
                     ],
-                    onPressed: (index) {
+                    onPressed: (final index) {
                       setState(() {
                         _selectedRange = ChartRange.values[index];
                       });
@@ -305,7 +312,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
               const SizedBox(height: 12),
               CustomFutureBuilder<List<BestSellingPackage>>(
                 future: _bestSellingPackagesFuture,
-                dataBuilder: (context, packages) {
+                dataBuilder: (final context, final packages) {
                   if (packages.isEmpty) {
                     return const Card(
                       elevation: 2,
@@ -407,9 +414,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
         drawVerticalLine: true,
         horizontalInterval: 1,
         verticalInterval: 1,
-        getDrawingHorizontalLine: (value) =>
+        getDrawingHorizontalLine: (final value) =>
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
-        getDrawingVerticalLine: (value) =>
+        getDrawingVerticalLine: (final value) =>
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
@@ -435,7 +442,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
         ),
       ),
       borderData: FlBorderData(
-          show: true, border: Border.all(color: const Color(0xff37434d))),
+        show: true,
+        border: Border.all(color: const Color(0xff37434d)),
+      ),
       minX: 0,
       maxX: _maxX,
       minY: 0,
@@ -454,7 +463,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
       ]),
       barWidth: 5,
       isStrokeCapRound: true,
-      dotData: const FlDotData(show: true),
+      dotData: const FlDotData(
+        show: false,
+      ),
       belowBarData: BarAreaData(
         show: true,
         gradient: LinearGradient(colors: [
@@ -465,7 +476,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
     );
   }
 
-  Widget _bottomTitleWidgets(double value, TitleMeta meta) {
+  Widget _bottomTitleWidgets(final double value, final TitleMeta meta) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 12);
     Widget text;
     switch (_selectedRange) {
@@ -504,7 +515,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
     return SideTitleWidget(meta: meta, child: text);
   }
 
-  Widget _leftTitleWidgets(double value, TitleMeta meta) {
+  Widget _leftTitleWidgets(final double value, final TitleMeta meta) {
     const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
     String text;
     switch (_selectedRange) {
