@@ -1,6 +1,6 @@
 // path: lib/user/page/main_page.dart
-// diubah: Menambahkan remove() splash screen untuk transisi mulus.
-// DITAMBAHKAN: Menambahkan BannerAdWidget di atas BottomNavigationBar.
+// DITAMBAHKAN: Implementasi App Open Ad saat aplikasi kembali aktif.
+// PERBAIKAN: Menunda inisialisasi berat untuk mencegah jank/lag saat startup.
 
 import 'dart:async';
 
@@ -14,6 +14,8 @@ import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
+import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
@@ -38,6 +40,8 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   late final List<Widget> _pages;
+  late final AppLifecycleReactor _appLifecycleReactor;
+  final AppOpenAdService _appOpenAdService = AppOpenAdService();
 
   @override
   void initState() {
@@ -58,9 +62,16 @@ class _MainPageState extends State<MainPage> {
         localStorageService: widget.localStorageService,
       ),
     ];
+
+    // Inisialisasi AppLifecycleReactor untuk iklan. Konstruktornya ringan.
+    _appLifecycleReactor =
+        AppLifecycleReactor(appOpenAdService: _appOpenAdService);
+    _appLifecycleReactor.listenToAppStateChanges();
+
     Log.info(
         'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
-    // Memanggil logika penjadwalan notifikasi dari file terpisah.
+    
+    // Hapus splash screen agar UI dasar aplikasi terlihat.
     FlutterNativeSplash.remove();
   }
 
@@ -88,7 +99,7 @@ class _MainPageState extends State<MainPage> {
               children: _pages,
             ),
           ),
-          BannerWaterfallWidget(),
+          const BannerWaterfallWidget(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -111,11 +122,5 @@ class _MainPageState extends State<MainPage> {
         onTap: _onItemTapped,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    Log.info('MainPage sedang di-dispose');
-    super.dispose();
   }
 }

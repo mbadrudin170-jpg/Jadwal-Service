@@ -1,4 +1,7 @@
 // path: lib/user/page/splash_screen_user.dart
+// DIUBAH: Menghapus ConsentManager dan semua logika terkait GDPR.
+// Mobile Ads SDK sekarang diinisialisasi secara langsung.
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +52,6 @@ class SplashScreenUser extends StatefulWidget {
 }
 
 class _SplashScreenUserState extends State<SplashScreenUser> {
-  // Tambahkan instance dari SettingsOpFirebase
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
 
   @override
@@ -63,7 +65,8 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   Future<void> _initializeApp() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-      await _initializeCoreServices();
+      // Pindahkan inisialisasi layanan inti yang tidak memerlukan internet ke atas
+      await _initializeOfflineServices();
 
       final internetService = InternetConnectionService();
       final isConnected = await internetService.checkConnection();
@@ -71,6 +74,9 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
           isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
       if (isConnected) {
+        // Hanya jalankan layanan yang butuh internet jika koneksi tersedia
+        await _initializeOnlineServices();
+
         final updateInfo = await _checkAppUpdate();
         if (updateInfo != null) {
           if (!mounted) return;
@@ -85,7 +91,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
-          _setAppReady(); // Tandai aplikasi siap bahkan saat update
+          _setAppReady();
           return;
         }
 
@@ -101,8 +107,14 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
-          _setAppReady(); // Tandai aplikasi siap bahkan saat maintenance
+          _setAppReady();
           return;
+        }
+      } else {
+        // Beri tahu pengguna bahwa mereka offline
+        if (mounted) {
+          ToastUtil.info(context,
+              'Anda sedang offline. Beberapa fitur mungkin tidak tersedia.');
         }
       }
 
@@ -114,28 +126,46 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         ToastUtil.error(context,
             'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.');
       }
+      // Tetap navigasi meskipun ada error agar pengguna tidak terjebak
       await _navigateToNextPage();
     }
   }
 
-  Future<void> _initializeCoreServices() async {
-    Log.info('Menginisialisasi Mobile Ads, Notifikasi, dan lainnya...');
-    try {
-      await MobileAds.instance.initialize();
-    } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
-    }
+  /// Inisialisasi layanan yang bisa berjalan tanpa koneksi internet.
+  Future<void> _initializeOfflineServices() async {
+    Log.info('Memulai inisialisasi layanan offline...');
     await NotifikasiServis().inisialisasi(iconName: 'launcher_icon');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
+    Log.info('Inisialisasi layanan offline selesai.');
+  }
 
-    FirebaseFirestore.instance.settings =
-        const Settings(persistenceEnabled: true);
-    Log.info('Inisialisasi service inti selesai.');
+  /// Inisialisasi layanan yang membutuhkan koneksi internet.
+  Future<void> _initializeOnlineServices() async {
+    Log.info('Memulai inisialisasi layanan online...');
+    try {
+      Log.info('Menginisialisasi Mobile Ads SDK...');
+      await MobileAds.instance.initialize();
+      Log.info('Mobile Ads SDK berhasil diinisialisasi.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
+    }
+
+    try {
+      Log.info('Mengkonfigurasi persistensi Firestore...');
+      FirebaseFirestore.instance.settings =
+          const Settings(persistenceEnabled: true);
+      Log.info('Persistensi Firestore berhasil dikonfigurasi.');
+    } on Exception catch (e, st) {
+      Log.error('Gagal mengkonfigurasi persistensi Firestore', e: e, st: st);
+    }
+
+    Log.info('Inisialisasi layanan online selesai.');
   }
 
   Future<UpdateInfoRecord?> _checkAppUpdate() async {
     Log.info('Memeriksa pembaruan aplikasi...');
+    if (!mounted) return null;
     final updateService = UpdateCheckService(
       prefs: widget.prefs,
       localStorageService: widget.localStorageService,
@@ -150,7 +180,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     return null;
   }
 
-  // REFAKTOR: Menggunakan SettingsOpFirebase
   Future<SettingsModel?> _checkMaintenanceMode() async {
     Log.info('Memeriksa status server...');
     try {
@@ -164,7 +193,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       return null;
     } on Exception catch (e, st) {
       Log.error('Gagal memeriksa mode pemeliharaan', e: e, st: st);
-      // Jika gagal, anggap tidak dalam mode maintenance agar tidak menghalangi user
       return null;
     }
   }
@@ -178,9 +206,11 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      // Panggil pingActivity untuk memperbarui waktu aktif terakhir
-      Log.info('Memperbarui waktu aktif terakhir untuk pengguna: $userId');
-      await UserActivityService().pingActivity(userId);
+      // Pindahkan pingActivity ke dalam blok online jika memungkinkan
+      final isConnected = await InternetConnectionService().checkConnection();
+      if (isConnected) {
+        await UserActivityService().pingActivity(userId);
+      }
 
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -196,20 +226,27 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
         MaterialPageRoute(builder: (final context) => const LoginPage()),
       ));
     }
-    // SETELAH NAVIGASI, TANDAI APLIKASI SIAP
     _setAppReady();
   }
 
   void _setAppReady() {
-    // Menggunakan `context.read` untuk memanggil method dari provider
-    context.read<AppReadinessProvider>().setAppReady();
+    if (mounted) {
+      context.read<AppReadinessProvider>().setAppReady();
+    }
   }
 
   @override
   Widget build(final BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Memuat aplikasi...'),
+          ],
+        ),
       ),
     );
   }

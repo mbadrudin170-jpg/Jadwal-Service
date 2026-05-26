@@ -30,3 +30,6 @@
     public *;
 }
 
+# Ditambahkan untuk memastikan flutter_local_notifications tidak dihapus oleh ProGuard (R8)
+# Aturan ini penting untuk mencegah crash pada mode rilis, terutama untuk callback di background.
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
