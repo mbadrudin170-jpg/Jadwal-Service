@@ -289,8 +289,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
                 'Transaksi disimpan lokal. Sinkronisasi akan dilakukan saat online.');
           }
         }
-
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan transaksi ke database.',

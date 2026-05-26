@@ -262,7 +262,7 @@ class _PointsPageState extends State<PointsPage> {
 
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            InterstitialAdService().showAdIfReady();
+            unawaited(InterstitialAdService().showAdIfReady());
           }
           if (_transactionHistory.isEmpty) {
             await _loadTransactionHistory();

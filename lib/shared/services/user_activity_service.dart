@@ -66,7 +66,7 @@ class UserActivityService {
       // Jika ping terkirim, perbarui timestamp lokal.
       await prefs.setInt(_lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info('pingActivity: Timestamp ping terakhir diperbarui secara lokal.');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       Log.error(
           'pingActivity: Terjadi error pada logika throttling atau SharedPreferences.',
           e: e,

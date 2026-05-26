@@ -53,7 +53,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
   // State untuk melacak progres unduhan
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
-  String _fileSize = 'Memeriksa...'; // Placeholder awal
+  final String _fileSize = 'Memeriksa...'; // Placeholder awal
 
   @override
   void initState() {
@@ -121,8 +121,8 @@ class _UpdateApkPageState extends State<UpdateApkPage>
           _isDownloading = false;
         });
       }
-    } catch (e, st) {
-      Log.error("Gagal mengunduh atau install pembaruan", e: e, st: st);
+    }on Exception catch (e, st) {
+      Log.error('Gagal mengunduh atau install pembaruan', e: e, st: st);
       if (mounted) {
         ToastUtil.error(context, e.toString());
         setState(() {
@@ -145,12 +145,12 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception("Could not launch $url");
+        throw Exception('Could not launch $url');
       }
-    } catch (e, st) {
-      Log.error("Gagal membuka URL Tutorial", e: e, st: st);
+    }on Exception catch (e, st) {
+      Log.error('Gagal membuka URL Tutorial', e: e, st: st);
       if (mounted) {
-        ToastUtil.error(context, "Gagal membuka link tutorial.");
+        ToastUtil.error(context, 'Gagal membuka link tutorial.');
       }
     }
   }

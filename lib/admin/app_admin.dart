@@ -80,12 +80,14 @@ class _AppInitializerState extends State<AppInitializer> {
 
   Future<bool> _initializeAndNavigate() async {
     Log.info('Memulai urutan inisialisasi sekunder.');
+    // PERBAIKAN: Ambil NotifikasiServis dari context SEBELUM ada async gap (await).
+    // Ini untuk menghindari error `use_build_context_synchronously`.
+    final notifikasiServis = context.read<NotifikasiServis>();
+
     try {
       // Menggunakan BackgroundService untuk inisialisasi yang terpusat.
       Log.info('Menginisialisasi Workmanager di dalam AppInitializer...');
       await BackgroundService.init();
-      
-      final notifikasiServis = context.read<NotifikasiServis>();
 
       Log.info('Menginisialisasi layanan notifikasi...');
       await notifikasiServis.inisialisasi(iconName: 'launcher_icon');

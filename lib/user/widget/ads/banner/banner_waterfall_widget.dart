@@ -41,88 +41,74 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
   }
 
   void _loadAd() {
-    // Jangan lakukan apa-apa jika sudah ada iklan atau daftar ID kosong
-    if (_bannerAd != null || _adUnitIds.isEmpty) return;
+    // 1. Jika sudah ada iklan, jangan load lagi
+    if (_bannerAd != null) return;
+    if (_adUnitIds.isEmpty) return;
 
-    // Jika kita sudah melewati semua ID, reset indeks dan tandai siklus gagal
+    // 2. Jika sudah mencapai akhir daftar, set cycle failed
     if (_currentAdIndex >= _adUnitIds.length) {
       _currentAdIndex = 0;
-      _isCycleFailed = true; // Tandai bahwa seluruh siklus telah gagal
+      _isCycleFailed = true;
     }
 
-    // Jika siklus baru saja gagal, terapkan jeda sebelum memulai lagi
+    // 3. Jika siklus gagal, tunggu timer
     if (_isCycleFailed) {
-      Log.warning(
-          '[Waterfall] Semua unit iklan gagal. Menunggu ${widget.retryDelay.inSeconds} detik sebelum mencoba lagi.');
       _retryTimer?.cancel();
       _retryTimer = Timer(widget.retryDelay, () {
         if (mounted) {
-          _isCycleFailed = false; // Reset status gagal sebelum mencoba lagi
+          _isCycleFailed = false;
           _loadAd();
         }
       });
-      return; // Hentikan eksekusi untuk menunggu timer
+      return;
     }
 
+    // 4. Proses Loading
     final adUnitId = _adUnitIds[_currentAdIndex];
-    Log.info(
-        '[Waterfall] Mencoba memuat banner #${_currentAdIndex}: $adUnitId');
 
-    BannerAd(
+    final banner = BannerAd(
       adUnitId: adUnitId,
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          Log.info('[Waterfall] Banner #${_currentAdIndex} BERHASIL dimuat.');
-          if (mounted) {
-            setState(() {
-              _bannerAd = ad as BannerAd;
-            });
-            // Reset indeks jika suatu saat diperlukan untuk memuat ulang
-            _currentAdIndex = 0;
-            _isCycleFailed = false;
-          }
+        onAdLoaded: (final ad) {
+          if (!mounted) return;
+          setState(() {
+            _bannerAd = ad as BannerAd;
+            _currentAdIndex = 0; // Reset index saat sukses
+          });
         },
-        onAdFailedToLoad: (ad, error) {
-          Log.error(
-            '[Waterfall] Banner #${_currentAdIndex} GAGAL dimuat.',
-            data: {'code': error.code, 'message': error.message},
-          );
-          ad.dispose();
+        onAdFailedToLoad: (final ad, final error) {
+          unawaited(ad.dispose()); // PENTING: Wajib dispose jika gagal
+          if (!mounted) return;
 
-          // [PERBAIKAN] Langsung coba unit iklan berikutnya
+          Log.error('Gagal load: $adUnitId. Error: ${error.message}');
           _currentAdIndex++;
-          _loadAd(); // Panggil _loadAd() secara rekursif untuk mencoba ID berikutnya
-        },
-        onAdOpened: (Ad ad) {
-          Log.info('[Waterfall] Iklan banner dibuka.');
-        },
-        onAdImpression: (Ad ad) {
-          Log.info('[Waterfall] Impressi iklan banner tercatat.');
+          _loadAd(); // Panggil lagi untuk mencoba unit berikutnya
         },
       ),
-    ).load();
+    );
+
+    unawaited(banner.load());
   }
 
   @override
   void dispose() {
     _retryTimer?.cancel();
-    _bannerAd?.dispose();
+    unawaited(_bannerAd?.dispose());
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (_bannerAd != null) {
-      return SizedBox(
-        width: _bannerAd!.size.width.toDouble(),
-        height: _bannerAd!.size.height.toDouble(),
-        child: AdWidget(ad: _bannerAd!),
-      );
-    } else {
-      // Tampilkan kontainer kosong saat iklan sedang dimuat atau gagal
-      return const SizedBox.shrink();
-    }
+  Widget build(final BuildContext context) {
+    // Gunakan ukuran tetap agar tidak ada layout shift
+    return SizedBox(
+      width: AdSize.banner.width.toDouble(),
+      height: AdSize.banner.height.toDouble(),
+      child: _bannerAd != null
+          ? AdWidget(ad: _bannerAd!)
+          : const SizedBox
+              .shrink(), // Atau bisa tambahkan indikator loading kecil
+    );
   }
 }

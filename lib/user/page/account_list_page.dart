@@ -309,10 +309,9 @@ class _AccountListPageState extends State<AccountListPage> {
 
                 ToastUtil.success(
                     context, 'Anda telah keluar dan akun dihapus');
-
-                await navigator.pushNamedAndRemoveUntil(
-                  '/login',
-                  (final route) => false,
+                await navigator.pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
                 );
               } on Exception catch (e, st) {
                 Log.error('Gagal keluar & hapus akun', e: e, st: st);

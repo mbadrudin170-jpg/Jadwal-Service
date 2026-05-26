@@ -67,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Log.info(
       'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
     );
-    _interstitialAdService.preloadAd();
+    unawaited(_interstitialAdService.preloadAd());
     unawaited(_initializeData());
   }
 
@@ -148,14 +148,27 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToDetail(final String userId) async {
-    Log.info('Menampilkan iklan sebelum navigasi ke detail pelanggan.');
+    Log.info('Tombol detail ditekan.');
 
-    _interstitialAdService.showAdIfReady(
-      onAdDismissed: () {
-        Log.info('Iklan selesai, melanjutkan navigasi ke detail pelanggan.');
-        unawaited(_performDetailNavigation(userId));
-      },
-    );
+    if (!_interstitialAdService.isAdReady) {
+      Log.warning('Iklan belum siap, mencoba memuat paksa...');
+      // Panggil preload lagi jika belum siap
+      await _interstitialAdService.preloadAd();
+    }
+
+    // Setelah mencoba preload, cek lagi apakah sudah siap
+    if (_interstitialAdService.isAdReady) {
+      await _interstitialAdService.showAdIfReady(
+        onAdDismissed: () {
+          if (!mounted) return;
+          unawaited(_performDetailNavigation(userId));
+        },
+      );
+    } else {
+      // Jika masih tidak siap, langsung navigasi tanpa iklan (fallback)
+      Log.info('Iklan tetap tidak siap, langsung navigasi.');
+      unawaited(_performDetailNavigation(userId));
+    }
   }
 
   Future<void> _performDetailNavigation(final String userId) async {
@@ -189,8 +202,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _navigateToPointsPage(final String customerId) async {
     Log.info('Menampilkan iklan sebelum navigasi ke halaman poin.');
 
-    _interstitialAdService.showAdIfReady(
+    await _interstitialAdService.showAdIfReady(
       onAdDismissed: () {
+        if (!mounted) return;
         Log.info('Iklan selesai, melanjutkan navigasi ke halaman poin.');
         unawaited(_performPointsNavigation(customerId));
       },

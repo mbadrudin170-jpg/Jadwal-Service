@@ -76,6 +76,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
     Log.info(
       'Data pengaturan sebelum edit - Interval: ${pengaturan.autoSyncInterval} jam, Hapus arsip: ${pengaturan.autoDeleteArchiveDays} hari, Mode pemeliharaan: ${pengaturan.maintenanceMode}, Info: ${pengaturan.maintenanceInfo.isNotEmpty ? pengaturan.maintenanceInfo : "(kosong)"}',
     );
+    if (!mounted) return;
 
     final hasil = await Navigator.push<bool>(
       context,
@@ -99,6 +100,8 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
   // Fungsi untuk mereset waktu sinkronisasi
   Future<void> _resetSyncTime() async {
     Log.info('Tombol Reset Waktu Sinkronisasi ditekan.');
+    if (!mounted) return;
+
     final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (final context) => AlertDialog(
@@ -119,7 +122,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
       ),
     );
 
-    if (konfirmasi ?? false) {
+    if ((konfirmasi ?? false) && mounted) {
       Log.info(
         'Pengguna mengonfirmasi reset. Memanggil SyncManager().resetSyncTime().',
       );
@@ -278,7 +281,7 @@ class _SettingsAdminPageState extends State<SettingsAdminPage> {
                         ElevatedButton.icon(
                           icon: const Icon(Icons.sync_problem),
                           label: const Text('Reset Waktu Sinkronisasi'),
-                          onPressed: _resetSyncTime,
+                          onPressed: () => unawaited(_resetSyncTime()),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,

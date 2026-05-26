@@ -15,6 +15,7 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
@@ -48,6 +49,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
+  final InterstitialAdService _interstitialAdService = InterstitialAdService();
 
   /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
@@ -102,6 +104,38 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     setState(() {
       _historyFuture = _loadHistory();
     });
+  }
+
+  Future<void> _showAdAndNavigate(
+    final TransactionModel tx,
+    final Future<PackageModel?> packageFuture,
+  ) async {
+    await _interstitialAdService.showAdIfReady(
+      // Buat fungsi anonim (closure) untuk memanggil navigasi
+      // dengan parameter yang benar.
+      onAdDismissed: () => _navigateToTransactionDetail(tx, packageFuture),
+    );
+  }
+
+  /// Membuka halaman detail transaksi dan me-refresh data setelah kembali.
+  Future<void> _navigateToTransactionDetail(
+    final TransactionModel tx,
+    final Future<PackageModel?> packageFuture,
+  ) async {
+    final package = await packageFuture;
+    if (!mounted) return;
+
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (final context) => TransactionDetailPage(
+          transaction: tx,
+          package: package,
+        ),
+      ),
+    );
+
+    unawaited(_refreshHistory());
   }
 
   @override
@@ -185,43 +219,29 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                             margin: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             child: ListTile(
-                              leading: const Icon(AppIcons.receiptLong),
-                              title: PackageNameWidget(
-                                  packageFuture: packageFuture),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (tx.endDate != null)
+                                leading: const Icon(AppIcons.receiptLong),
+                                title: PackageNameWidget(
+                                    packageFuture: packageFuture),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (tx.endDate != null)
+                                      Text(
+                                          'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
                                     Text(
-                                        'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
-                                  Text(
-                                      'Status: ${tx.paymentStatus.displayName}',
-                                      style: TextStyle(
-                                          color: tx.paymentStatus ==
-                                                  PaymentStatus.paid
-                                              ? Colors.green
-                                              : Colors.red)),
-                                  Text('Masa Aktif: $activeText',
-                                      style: TextStyle(color: activeColor)),
-                                ],
-                              ),
-                              trailing: const Icon(AppIcons.chevronRight),
-                              onTap: () async {
-                                final package = await packageFuture;
-                                if (context.mounted) {
-                                  await Navigator.push<void>(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (final context) =>
-                                          TransactionDetailPage(
-                                              transaction: tx,
-                                              package: package),
-                                    ),
-                                  );
-                                  unawaited(_refreshHistory());
-                                }
-                              },
-                            ),
+                                        'Status: ${tx.paymentStatus.displayName}',
+                                        style: TextStyle(
+                                            color: tx.paymentStatus ==
+                                                    PaymentStatus.paid
+                                                ? Colors.green
+                                                : Colors.red)),
+                                    Text('Masa Aktif: $activeText',
+                                        style: TextStyle(color: activeColor)),
+                                  ],
+                                ),
+                                trailing: const Icon(AppIcons.chevronRight),
+                                onTap: () =>
+                                    _showAdAndNavigate(tx, packageFuture)),
                           );
                         },
                       ),

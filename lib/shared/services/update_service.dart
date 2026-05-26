@@ -20,9 +20,9 @@ class UpdateService {
   /// [onProgress] adalah callback untuk melaporkan progres unduhan (nilai antara 0.0 hingga 1.0).
   /// Melempar exception jika terjadi error.
   Future<void> downloadAndInstallApk({
-    required String url,
-    required String fileName,
-    void Function(double)? onProgress,
+    required final String url,
+    required final String fileName,
+    final void Function(double)? onProgress,
   }) async {
     try {
       final Directory tempDir = await getTemporaryDirectory();
@@ -45,7 +45,7 @@ class UpdateService {
       Log.info('Unduhan selesai: $fullPath');
 
       final File apkFile = File(fullPath);
-      if (!await apkFile.exists()) {
+      if (!apkFile.existsSync()) {
         throw Exception('File APK tidak ditemukan setelah diunduh.');
       }
 
@@ -60,7 +60,7 @@ class UpdateService {
       // Melempar kembali error untuk ditangani oleh pemanggil
       throw Exception(
           'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.');
-    } catch (e, st) {
+    } on Object catch (e, st) {
       Log.error('Error umum saat proses update', e: e, st: st);
       // Melempar kembali error untuk ditangani oleh pemanggil
       throw Exception('Terjadi kesalahan saat proses pembaruan: $e');

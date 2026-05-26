@@ -48,7 +48,6 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     _dataFuture = _loadData();
   }
 
-
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
@@ -114,7 +113,6 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       });
       _reloadData();
     }
-    ;
   }
 
   Future<void> _navigateToPoints(final String customerId) async {

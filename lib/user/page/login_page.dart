@@ -111,11 +111,10 @@ class _LoginViewState extends State<_LoginView> {
 
   Future<void> _processLogin() async {
     final isConnected = await _internetService.checkConnection();
+    if (!mounted) return;
+
     if (!isConnected) {
-      if (mounted) {
-        ToastUtil.error(
-            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
-      }
+      ToastUtil.error(context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
       return;
     }
 
@@ -124,7 +123,6 @@ class _LoginViewState extends State<_LoginView> {
       return;
     }
 
-    final navigator = Navigator.of(context);
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -142,6 +140,8 @@ class _LoginViewState extends State<_LoginView> {
           .limit(1)
           .get();
 
+      if (!mounted) return;
+
       if (querySnapshot.docs.isNotEmpty) {
         final userDoc = querySnapshot.docs.first;
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
@@ -153,7 +153,9 @@ class _LoginViewState extends State<_LoginView> {
         Log.info('Menyimpan id akun ke memori lokal');
         await _localStorageService.prefs.setString('userId', customer.id);
 
-        await navigator.pushReplacement(
+        if (!mounted) return;
+
+        await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (final context) => MainPage(
               userId: customer.id,
@@ -167,6 +169,7 @@ class _LoginViewState extends State<_LoginView> {
       }
     } on Exception catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
+      if (!mounted) return;
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
     }
@@ -175,7 +178,9 @@ class _LoginViewState extends State<_LoginView> {
   // DITAMBAHKAN: Logika untuk menangani pemilihan akun yang ada.
   Future<void> _handleChooseExistingAccount() async {
     if (!_isLocalStorageInitialized) {
-      ToastUtil.warning(context, 'Penyimpanan data lokal belum siap.');
+      if (mounted) {
+        ToastUtil.warning(context, 'Penyimpanan data lokal belum siap.');
+      }
       return;
     }
 

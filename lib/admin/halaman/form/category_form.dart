@@ -428,8 +428,9 @@ class _CategoryFormState extends State<CategoryForm> {
                 'Koneksi offline. Data disimpan lokal dan akan disinkronkan saat online.');
           }
         }
-
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
@@ -447,7 +448,9 @@ class _CategoryFormState extends State<CategoryForm> {
         Log.info(
           'Widget masih mounted. Menampilkan SnackBar error ke pengguna.',
         );
-        ToastUtil.error(context, 'Gagal menyimpan: $e');
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal menyimpan: $e');
+        }
         Log.info('SnackBar error telah ditampilkan.');
       }
     } else {

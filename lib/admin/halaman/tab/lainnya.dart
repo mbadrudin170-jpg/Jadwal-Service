@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
@@ -141,12 +142,13 @@ class _LainnyaPageState extends State<LainnyaPage> {
             title: 'Keluar',
             onTap: _showLogoutConfirmationDialog,
           ),
-          _buildMenuItem(
-            context: context,
-            icon: AppIcons.info,
-            title: 'Halaman Tes',
-            onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes'),
-          ),
+          if (kDebugMode)
+            _buildMenuItem(
+              context: context,
+              icon: AppIcons.info,
+              title: 'Halaman Tes',
+              onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes'),
+            ),
         ],
       ),
     );

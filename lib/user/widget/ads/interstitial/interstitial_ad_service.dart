@@ -27,17 +27,17 @@ class InterstitialAdService {
 
   /// Memulai proses pemuatan iklan di latar belakang.
   /// Metode ini aman untuk dipanggil beberapa kali; ia akan mencegah pemuatan ganda.
-  void preloadAd() {
+  Future<void> preloadAd() async {
     // Jangan memuat jika iklan sudah siap, sedang dimuat, atau daftar ID kosong.
     if (isAdReady || _isAdLoading || _adUnitIds.isEmpty) {
       return;
     }
 
     _isAdLoading = true;
-    _loadWithWaterfall(0); // Mulai proses waterfall dari indeks pertama
+    await _loadWithWaterfall(0); // Mulai proses waterfall dari indeks pertama
   }
 
-  Future<void> _loadWithWaterfall(int adIndex) async {
+  Future<void> _loadWithWaterfall(final int adIndex) async {
     // Jika sudah mencoba semua ID, tunggu sebelum memulai ulang siklus.
     if (adIndex >= _adUnitIds.length) {
       Log.warning(
@@ -49,25 +49,24 @@ class InterstitialAdService {
 
     final adUnitId = _adUnitIds[adIndex];
     Log.info(
-        '[InterstitialWaterfall] Mencoba memuat iklan #${adIndex}: $adUnitId');
+        '[InterstitialWaterfall] Mencoba memuat iklan #$adIndex: $adUnitId');
 
-    InterstitialAd.load(
+    await InterstitialAd.load(
       adUnitId: adUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) {
-          Log.info(
-              '[InterstitialWaterfall] Iklan #${adIndex} BERHASIL dimuat.');
+        onAdLoaded: (final ad) {
+          Log.info('[InterstitialWaterfall] Iklan #$adIndex BERHASIL dimuat.');
           _interstitialAd = ad;
           _isAdLoading = false;
         },
-        onAdFailedToLoad: (error) {
+        onAdFailedToLoad: (final error) async {
           Log.error(
-            '[InterstitialWaterfall] Iklan #${adIndex} GAGAL dimuat.',
+            '[InterstitialWaterfall] Iklan #$adIndex GAGAL dimuat.',
             data: {'code': error.code, 'message': error.message},
           );
           // Langsung coba unit iklan berikutnya tanpa jeda.
-          _loadWithWaterfall(adIndex + 1);
+          await _loadWithWaterfall(adIndex + 1);
         },
       ),
     );
@@ -77,48 +76,48 @@ class InterstitialAdService {
   /// dan iklan baru akan dimuat secara otomatis di latar belakang.
   ///
   /// [onAdDismissed] adalah callback yang dijalankan setelah iklan ditutup.
-  void showAdIfReady({VoidCallback? onAdDismissed}) {
+  Future<void> showAdIfReady({final VoidCallback? onAdDismissed}) async {
     if (!isAdReady) {
       Log.warning(
           '[InterstitialWaterfall] Gagal menampilkan iklan karena belum siap.');
       // Jika tidak siap, coba muat lagi di latar belakang untuk kesempatan berikutnya.
-      preloadAd();
+      await preloadAd();
       // Langsung jalankan callback agar alur aplikasi tidak terhenti.
       onAdDismissed?.call();
       return;
     }
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) =>
+      onAdShowedFullScreenContent: (final ad) =>
           Log.info('[InterstitialWaterfall] Iklan ditampilkan.'),
-      onAdDismissedFullScreenContent: (ad) {
+      onAdDismissedFullScreenContent: (final ad) async {
         Log.info('[InterstitialWaterfall] Iklan ditutup.');
         // [WAJIB] Buang iklan yang sudah ditampilkan.
-        ad.dispose();
+        unawaited(ad.dispose());
         _interstitialAd = null;
         // Panggil callback setelah semua proses internal selesai.
         onAdDismissed?.call();
         // [WAJIB] Muat iklan baru untuk permintaan berikutnya.
-        preloadAd();
+        await preloadAd();
       },
-      onAdFailedToShowFullScreenContent: (ad, error) {
+      onAdFailedToShowFullScreenContent: (final ad, final error) async {
         Log.error('[InterstitialWaterfall] Gagal menampilkan iklan.',
             data: {'error': error.message});
         // Buang iklan yang gagal tampil.
-        ad.dispose();
+        unawaited(ad.dispose());
         _interstitialAd = null;
         onAdDismissed?.call();
         // Coba muat ulang karena yang sebelumnya gagal.
-        preloadAd();
+        await preloadAd();
       },
     );
 
-    _interstitialAd!.show();
+    await _interstitialAd!.show();
   }
 
   /// Membuang sumber daya iklan saat tidak lagi diperlukan.
   void dispose() {
-    _interstitialAd?.dispose();
+    unawaited(_interstitialAd?.dispose());
     _interstitialAd = null;
   }
 }

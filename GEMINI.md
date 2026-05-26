@@ -166,7 +166,7 @@ Tindakan ini **krusial** untuk menjaga riwayat build tetap akurat dan menghindar
 **Contoh Penggunaan (berdasarkan Langkah 1):**
 ```bash
 # Format: fbapkver_admin [nama-versi] [nomor-build]
-# Contoh jika versi terakhir di log adalah 1.0.1+2, maka build selanjutnya adalah 1.0.1+3
+# Contoh jika versi terakhir di log adalah 1.0.1+2, maka build selanjutnya adalah 1.0.2+3
     flutter clean && flutter build apk --split-per-abi --flavor adminProd -t lib/main/main_admin/admin_prod.dart --build-name="$1" --build-number="$2" && bash rename_apk.sh "$1" "$2"
 ```
 
@@ -175,7 +175,7 @@ Tindakan ini **krusial** untuk menjaga riwayat build tetap akurat dan menghindar
 **Contoh Penggunaan (berdasarkan Langkah 1):**
 ```bash
 # Format: fbapkver_user [nama-versi] [nomor-build]
-# Contoh jika versi terakhir di log adalah 1.0.0+1, maka build selanjutnya adalah 1.0.0+2
+# Contoh jika versi terakhir di log adalah 1.0.0+1, maka build selanjutnya adalah 1.0.1+2
  flutter clean && flutter build apk --split-per-abi --flavor userProd -t lib/main/main_user/user_prod.dart --build-name="$1" --build-number="$2" && bash rename_apk.sh "$1" "$2"
 ```
 

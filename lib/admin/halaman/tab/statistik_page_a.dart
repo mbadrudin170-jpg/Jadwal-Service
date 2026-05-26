@@ -2,6 +2,8 @@
 // PERBAIKAN: Memperbaiki typo comtext -> context.
 // DIUBAH: Mengganti data statis paket terlaris dengan data dinamis dari repository.
 
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/lainnya/customer.dart';
@@ -79,6 +81,24 @@ class _StatistikPageAState extends State<StatistikPageA> {
     });
   }
 
+  Future<void> _handleRefresh() async {
+    Log.info('Pull-to-refresh dipicu, memuat ulang semua data statistik.');
+    _loadData();
+    // PERBAIKAN: Await Future.wait agar RefreshIndicator menunggu semua data dimuat ulang.
+    // Error pada masing-masing Future akan ditangani oleh CustomFutureBuilder,
+    // jadi di sini kita bisa menggunakan catchError untuk memastikan Future.wait tidak gagal.
+    await Future.wait([
+      if (_pendapatanFuture != null) _pendapatanFuture!.catchError((_) {}),
+      if (_totalPelangganFuture != null)
+        _totalPelangganFuture!.catchError((_) {}),
+      if (_langgananAktifFuture != null)
+        _langgananAktifFuture!.catchError((_) {}),
+      if (_feedbackBaruFuture != null) _feedbackBaruFuture!.catchError((_) {}),
+      if (_bestSellingPackagesFuture != null)
+        _bestSellingPackagesFuture!.catchError((_) {}),
+    ]);
+  }
+
   @override
   void dispose() {
     Log.info('StatistikPageA dispose');
@@ -113,11 +133,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
         centerTitle: true,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          Log.info(
-              'Pull-to-refresh dipicu, memuat ulang semua data statistik.');
-          _loadData();
-        },
+        onRefresh: _handleRefresh,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           physics: const AlwaysScrollableScrollPhysics(),
@@ -141,11 +157,11 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         onTap: () {
                           Log.info(
                               'Navigasi ke halaman pelanggan dari kartu statistik');
-                          Navigator.push(
+                          unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const CustomerPage()),
-                          );
+                          ));
                         },
                         child: _buildStatCard(
                           title: 'Total Pelanggan',
@@ -163,12 +179,12 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         onTap: () {
                           Log.info(
                               'Navigasi ke halaman langganan aktif dari kartu statistik');
-                          Navigator.push(
+                          unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
                                     const ActiveCustomerPage()),
-                          );
+                          ));
                         },
                         child: _buildStatCard(
                           title: 'Langganan Aktif',
@@ -195,11 +211,11 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         onTap: () {
                           Log.info(
                               'Navigasi ke halaman transaksi dari kartu statistik');
-                          Navigator.push(
+                          unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const TransactionPage()),
-                          );
+                          ));
                         },
                         child: _buildStatCard(
                           title: 'Pendapatan Bulan Ini',

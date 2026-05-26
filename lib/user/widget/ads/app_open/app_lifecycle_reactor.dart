@@ -11,12 +11,12 @@ class AppLifecycleReactor {
   AppLifecycleReactor({required this.appOpenAdService});
 
   /// Mulai mendengarkan perubahan status aplikasi.
-  void listenToAppStateChanges() {
-    AppStateEventNotifier.startListening();
-    AppStateEventNotifier.appStateStream.forEach(_onAppStateChanged);
+  Future<void> listenToAppStateChanges() async {
+    await AppStateEventNotifier.startListening();
+    await AppStateEventNotifier.appStateStream.forEach(_onAppStateChanged);
   }
 
-  void _onAppStateChanged(AppState appState) {
+  void _onAppStateChanged(final AppState appState) {
     Log.info('[AppLifecycle] Status aplikasi berubah menjadi: $appState');
     // Coba tampilkan iklan saat aplikasi kembali ke foreground.
     if (appState == AppState.foreground) {
@@ -25,10 +25,10 @@ class AppLifecycleReactor {
       // yang lebih lambat untuk menghindari jank parah.
       Log.info(
           '[AppLifecycle] Menunggu 1.5 detik sebelum mencoba menampilkan iklan...');
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      Future.delayed(const Duration(milliseconds: 1500), () async {
         Log.info(
             '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.');
-        appOpenAdService.showAdIfAvailable();
+        await appOpenAdService.showAdIfAvailable();
       });
     }
   }

@@ -1,4 +1,6 @@
 // path: lib/admin/halaman/tes/halaman_tes.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
@@ -16,11 +18,12 @@ class _HalamanTesState extends State<HalamanTes> {
   void initState() {
     super.initState();
     // Memulai pemuatan iklan di awal
-    _adService.preloadAd();
+    // PERBAIKAN: Gunakan unawaited untuk Future di dalam initState
+    unawaited(_adService.preloadAd());
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Halaman Tes Iklan'),
@@ -28,27 +31,26 @@ class _HalamanTesState extends State<HalamanTes> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
               child: const Text('Tampilkan Interstitial Ad'),
               onPressed: () {
-                // Panggil service untuk menampilkan iklan
-                _adService.showAdIfReady(onAdDismissed: () {
+                // PERBAIKAN: Gunakan unawaited untuk Future di dalam callback sinkron
+                unawaited(_adService.showAdIfReady(onAdDismissed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Iklan ditutup atau gagal tampil.')),
                   );
                   // Tidak perlu memuat ulang secara manual, service sudah menanganinya
-                });
+                }));
               },
             ),
             const SizedBox(height: 40),
             // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
             StreamBuilder(
               stream: Stream.periodic(const Duration(seconds: 1)),
-              builder: (context, snapshot) {
+              builder: (final context, final snapshot) {
                 final isReady = _adService.isAdReady;
                 return Text(
                   'Iklan Siap: $isReady',

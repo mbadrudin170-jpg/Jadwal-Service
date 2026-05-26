@@ -66,13 +66,7 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
-            // Menambahkan pengaturan ProGuard/R8
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+           
         }
     }
 }

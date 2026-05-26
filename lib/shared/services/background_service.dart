@@ -6,7 +6,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
 
 /// Nama unik untuk tugas sinkronisasi periodik.
-const String syncTaskName = "syncDataTask";
+const String syncTaskName = 'syncDataTask';
 
 /// Fungsi top-level yang dijalankan oleh Workmanager di background isolate.
 @pragma('vm:entry-point')
@@ -25,7 +25,7 @@ void callbackDispatcher() {
           await SyncCheckService().runSyncCheck();
           Log.info('Background task "$task" selesai dengan sukses.');
           return Future.value(true);
-        } catch (e, st) {
+        } on Object catch (e, st) {
           Log.error(
             'Error saat menjalankan background task "$task"',
             e: e,
@@ -49,12 +49,12 @@ class BackgroundService {
       await Workmanager().initialize(
         callbackDispatcher,
       );
-      Log.info("Workmanager berhasil diinisialisasi.");
+      Log.info('Workmanager berhasil diinisialisasi.');
 
       // Langsung daftarkan tugas setelah inisialisasi berhasil
       await registerPeriodicSync();
-    } catch (e, st) {
-      Log.error("Gagal menginisialisasi Workmanager.", e: e, st: st);
+    } on Exception catch (e, st) {
+      Log.error('Gagal menginisialisasi Workmanager.', e: e, st: st);
     }
   }
 
@@ -75,9 +75,9 @@ class BackgroundService {
       Log.info(
         'Tugas sinkronisasi periodik ($syncTaskName) berhasil didaftarkan.',
       );
-    } catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error(
-        "Gagal mendaftarkan tugas periodik.",
+        'Gagal mendaftarkan tugas periodik.',
         e: e,
         st: st,
       );
@@ -87,6 +87,6 @@ class BackgroundService {
   /// Membatalkan semua tugas yang sedang berjalan.
   static Future<void> cancelAllTasks() async {
     await Workmanager().cancelAll();
-    Log.info("Semua background tasks telah dibatalkan.");
+    Log.info('Semua background tasks telah dibatalkan.');
   }
 }

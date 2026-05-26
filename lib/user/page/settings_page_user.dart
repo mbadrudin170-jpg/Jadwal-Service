@@ -72,7 +72,7 @@ class SettingsPageUser extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => const InfoApkPage(),
+                  builder: (final context) => const InfoApkPageUser(),
                 ),
               );
             },

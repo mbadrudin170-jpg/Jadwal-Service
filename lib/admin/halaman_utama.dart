@@ -86,7 +86,7 @@ class _HalamanUtamaState extends State<HalamanUtama> {
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       await _handleInitialNotification();
-      _scheduleSync(); // Jadwalkan tugas background
+      await _scheduleSync(); // Jadwalkan tugas background
       Log.info('Frame pertama selesai dirender.');
       _cekDanTampilkanPesanOffline();
       Log.info('Menjalankan proses pengecekan langganan kadaluarsa.');
@@ -105,9 +105,9 @@ class _HalamanUtamaState extends State<HalamanUtama> {
     super.dispose();
   }
 
-  void _scheduleSync() {
-    Workmanager().registerPeriodicTask(
-      "1",
+  Future<void> _scheduleSync() async {
+    await Workmanager().registerPeriodicTask(
+      '1',
       syncTaskName,
       frequency: const Duration(minutes: 15),
       constraints: Constraints(

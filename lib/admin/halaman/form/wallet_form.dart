@@ -127,15 +127,18 @@ class _WalletFormState extends State<WalletForm> {
         if (hasConnection) {
           await SyncCheckService().runSyncCheck();
           if (mounted) {
-            ToastUtil.success(context, 'Dompet berhasil disimpan dan disinkronkan.');
+            ToastUtil.success(
+                context, 'Dompet berhasil disimpan dan disinkronkan.');
           }
         } else {
           if (mounted) {
-            ToastUtil.info(context, 'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(context,
+                'Dompet disimpan lokal. Sinkronisasi akan dilakukan saat online.');
           }
         }
-
-        Navigator.pop(context, true);
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
       } on Exception catch (e, s) {
         Log.error(
           'Gagal menyimpan dompet. Proses ${_isEditMode ? "update" : "create"} gagal.',

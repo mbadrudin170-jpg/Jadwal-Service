@@ -108,6 +108,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       Log.warning('Form tidak valid, penyimpanan dibatalkan.');
       return;
     }
+    if (!mounted) return;
 
     Log.info(
         'Menyimpan perubahan untuk transaksi ID: ${widget.transaction.id}');
@@ -143,8 +144,8 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
       if (hasConnection) {
         await SyncCheckService().runSyncCheck();
         if (mounted) {
-          ToastUtil.success(
-              context, 'Riwayat langganan berhasil diperbarui dan disinkronkan.');
+          ToastUtil.success(context,
+              'Riwayat langganan berhasil diperbarui dan disinkronkan.');
         }
       } else {
         if (mounted) {
@@ -153,7 +154,9 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
         }
       }
 
-      Navigator.of(context).pop(true); // Return true to indicate success
+      if (mounted) {
+        Navigator.of(context).pop(true); // Return true to indicate success
+      }
     } on Exception catch (e) {
       Log.error('Gagal memperbarui riwayat langganan', e: e);
       if (!mounted) return;

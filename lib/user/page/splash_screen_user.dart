@@ -211,7 +211,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       if (isConnected) {
         await UserActivityService().pingActivity(userId);
       }
-
+      if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (final context) => MainPage(
@@ -222,6 +222,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       ));
     } else {
       Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
+      if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (final context) => const LoginPage()),
       ));
