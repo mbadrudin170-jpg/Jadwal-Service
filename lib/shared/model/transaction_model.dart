@@ -278,7 +278,7 @@ class TransactionModel implements HasId {
   /// Converts this [TransactionModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      // 'id' is not stored here as it is the document ID
+      ColumnNames.id: id,
       ColumnNames.date: Timestamp.fromDate(date.toUtc()),
       ColumnNames.description: description,
       ColumnNames.amount: amount,
@@ -307,5 +307,4 @@ class TransactionModel implements HasId {
       ColumnNames.isActivated: isActivated,
     };
   }
-  
 }
