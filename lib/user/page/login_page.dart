@@ -295,7 +295,6 @@ class _LoginViewState extends State<_LoginView> {
               ),
               const SizedBox(height: 8),
               Align(
-                alignment: Alignment.center,
                 child: TextButton(
                   onPressed: () {
                     unawaited(showDialog<void>(

@@ -145,10 +145,10 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       }
 
       final pelangganList = (results[0] as List<CustomerModel>)
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        ..sort((final a, final b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       final paketList = (results[1] as List<PackageModel>)
-        ..sort((a, b) =>
+        ..sort((final a, final b) =>
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
       final daftarDompet = (results[2] as List<WalletModel>)

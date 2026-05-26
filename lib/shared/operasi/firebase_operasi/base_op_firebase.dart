@@ -17,7 +17,7 @@ class BaseOpFirebase {
   final StatusOpFirebase _statusOp;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
-  BaseOpFirebase({FirebaseFirestore? firestore, StatusOpFirebase? statusOp})
+  BaseOpFirebase({final FirebaseFirestore? firestore, final StatusOpFirebase? statusOp})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
     Log.info('BaseOpFirebase diinisialisasi.');
@@ -29,8 +29,8 @@ class BaseOpFirebase {
   /// [data]: Map data yang akan disimpan.
   /// Mengembalikan [DocumentReference] dari dokumen yang baru dibuat.
   Future<DocumentReference> add(
-    String collectionName,
-    Map<String, dynamic> data,
+    final String collectionName,
+    final Map<String, dynamic> data,
   ) async {
     Log.info('Base add: Menambah dokumen baru di $collectionName');
     try {
@@ -52,9 +52,9 @@ class BaseOpFirebase {
   /// [docId]: ID dokumen yang akan dibuat.
   /// [data]: Map data yang akan disimpan.
   Future<void> insert(
-    String collectionName,
-    String docId,
-    Map<String, dynamic> data,
+    final String collectionName,
+    final String docId,
+    final Map<String, dynamic> data,
   ) async {
     Log.info('Base insert: $collectionName/$docId');
     try {
@@ -75,9 +75,9 @@ class BaseOpFirebase {
   /// [docId]: ID dokumen yang akan diperbarui.
   /// [data]: Map data yang akan diperbarui.
   Future<void> update(
-    String collectionName,
-    String docId,
-    Map<String, dynamic> data,
+    final String collectionName,
+    final String docId,
+    final Map<String, dynamic> data,
   ) async {
     Log.info('Base update: $collectionName/$docId');
     try {
@@ -97,7 +97,7 @@ class BaseOpFirebase {
   /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan di-soft-delete.
-  Future<void> softDelete(String collectionName, String docId) async {
+  Future<void> softDelete(final String collectionName, final String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
       final docRef = _firestore.collection(collectionName).doc(docId);
@@ -117,7 +117,7 @@ class BaseOpFirebase {
   ///
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan dihapus.
-  Future<void> delete(String collectionName, String docId) async {
+  Future<void> delete(final String collectionName, final String docId) async {
     Log.warning('Base delete (permanen): $collectionName/$docId');
     try {
       final docRef = _firestore.collection(collectionName).doc(docId);
@@ -135,7 +135,7 @@ class BaseOpFirebase {
   /// Fungsi ini akan mengambil semua dokumen yang belum di-soft-delete
   /// lalu memperbaruinya dalam satu batch.
   /// Mengembalikan jumlah dokumen yang berhasil di-soft-delete.
-  Future<int> softDeleteAll(String collectionName) async {
+  Future<int> softDeleteAll(final String collectionName) async {
     Log.info('Base softDeleteAll: Memulai untuk koleksi $collectionName');
     try {
       final querySnapshot = await _firestore
@@ -175,9 +175,9 @@ class BaseOpFirebase {
   /// [items]: Daftar Map data yang akan diproses.
   /// [idKey]: Kunci di dalam setiap map yang berisi ID dokumen.
   Future<void> insertOrUpdateBatch(
-    String collectionName,
-    List<Map<String, dynamic>> items,
-    String idKey,
+    final String collectionName,
+    final List<Map<String, dynamic>> items,
+    final String idKey,
   ) async {
     if (items.isEmpty) {
       Log.info('Base insertOrUpdateBatch: Tidak ada item untuk diproses.');

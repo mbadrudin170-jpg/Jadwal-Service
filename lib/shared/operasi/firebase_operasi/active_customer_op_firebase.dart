@@ -12,8 +12,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 /// dan mempercepat query data pelanggan yang sedang aktif berlangganan.
 class ActiveCustomerOpFirebase extends BaseOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  ActiveCustomerOpFirebase({final FirebaseFirestore? firestore})
-      : super(firestore: firestore) {
+  ActiveCustomerOpFirebase({super.firestore}) {
     Log.info('ActiveCustomerOpFirebase diinisialisasi.');
   }
 

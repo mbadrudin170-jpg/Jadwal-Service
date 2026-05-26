@@ -70,7 +70,6 @@ class NotifikasiServis {
   NotifikasiServis.testing(this.plugin);
 
   /// Menginisialisasi konfigurasi zona waktu untuk penjadwalan notifikasi.
-  /// [DIPERBAIKI] Logika ini diubah untuk menangani kasus di mana emulator
   /// mengembalikan 'GMT' yang ambigu, dan menggantinya dengan 'Asia/Jakarta'
   /// agar penjadwalan sesuai dengan waktu lokal Indonesia.
   Future<void> _inisialisasiZonaWaktu() async {
@@ -136,6 +135,7 @@ class NotifikasiServis {
     await _setupAndroidChannel();
 
     final android = AndroidInitializationSettings(iconName);
+    
     const ios = DarwinInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
 

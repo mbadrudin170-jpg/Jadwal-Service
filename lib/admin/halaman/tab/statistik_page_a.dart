@@ -410,8 +410,6 @@ class _StatistikPageAState extends State<StatistikPageA> {
   LineChartData _mainLineChartData() {
     return LineChartData(
       gridData: FlGridData(
-        show: true,
-        drawVerticalLine: true,
         horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (final value) =>
@@ -420,10 +418,9 @@ class _StatistikPageAState extends State<StatistikPageA> {
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
-        show: true,
         rightTitles:
-            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            const AxisTitles(),
+        topTitles: const AxisTitles(),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,

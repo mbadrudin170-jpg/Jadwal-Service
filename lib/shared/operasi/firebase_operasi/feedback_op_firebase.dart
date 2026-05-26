@@ -16,7 +16,7 @@ class FeedbackOpFirebase {
   final String _collectionName = TableNameValue.get(TableName.feedback);
 
   /// Konstruktor untuk inisialisasi.
-  FeedbackOpFirebase({FirebaseFirestore? firestore, BaseOpFirebase? baseOp})
+  FeedbackOpFirebase({final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('FeedbackOpFirebase diinisialisasi.');

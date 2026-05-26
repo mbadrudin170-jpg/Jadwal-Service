@@ -73,7 +73,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(final int index) {
     setState(() {
       _selectedIndex = index;
     });

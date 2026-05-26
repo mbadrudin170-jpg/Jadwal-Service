@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
@@ -14,7 +15,6 @@ import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
-import 'package:flutter/foundation.dart';
 
 /// Halaman pengaturan untuk pengguna.
 class SettingsPageUser extends StatelessWidget {
@@ -131,7 +131,7 @@ class _SettingsMenuItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final color = isDestructive ? colorScheme.error : null;
 

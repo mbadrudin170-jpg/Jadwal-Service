@@ -16,8 +16,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
 class TransactionOpFirebase extends BaseOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  TransactionOpFirebase({final FirebaseFirestore? firestore})
-      : super(firestore: firestore) {
+  TransactionOpFirebase({super.firestore}) {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
 

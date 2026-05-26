@@ -99,7 +99,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tes Fitur Notifikasi'),

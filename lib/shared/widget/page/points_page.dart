@@ -167,7 +167,7 @@ class _PointsPageState extends State<PointsPage> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
       try {
         final now = DateTime.now();

@@ -85,7 +85,6 @@ class LocalStorageService {
     return themeMode;
   }
 
-  /// [DIPERBARUI] Menyimpan atau memperbarui akun pelanggan di penyimpanan lokal.
   ///
   /// Jika akun sudah ada, datanya akan diperbarui.
   /// Jika belum, akun baru akan ditambahkan ke daftar.
@@ -113,7 +112,6 @@ class LocalStorageService {
     await prefs.setString(_accountListKey, jsonEncode(accountList));
   }
 
-  /// [DITAMBAHKAN] Menyimpan akun yang dipilih sebagai akun aktif saat ini.
   ///
   /// Metode ini juga akan memperbarui daftar akun yang ada dengan data terbaru dari
   /// customer yang dipilih, serta menyetel token ID pengguna yang aktif.

@@ -1,4 +1,4 @@
-// path: lib/tes_fitur/halaman_test.dart
+// path: lib/tes_fitur/tes_iklan.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -8,7 +8,7 @@ class TestNotificationPage extends StatefulWidget {
   const TestNotificationPage({super.key});
 
   @override
-  _TestNotificationPageState createState() => _TestNotificationPageState();
+  State<TestNotificationPage> createState() => _TestNotificationPageState();
 }
 
 class _TestNotificationPageState extends State<TestNotificationPage> {

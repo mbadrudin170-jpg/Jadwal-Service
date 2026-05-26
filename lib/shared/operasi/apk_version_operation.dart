@@ -97,7 +97,6 @@ class ApkVersionOperation {
   }
 
   /// Melakukan soft delete pada [ApkVersionModel] berdasarkan [id].
-  /// [DIPERBAIKI] Logika didelegasikan sepenuhnya ke BaseOperation untuk konsistensi.
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -121,7 +120,6 @@ class ApkVersionOperation {
   }
 
   /// Melakukan soft delete untuk semua [ApkVersionModel] yang aktif.
-  /// [DIPERBAIKI] Logika didelegasikan sepenuhnya ke BaseOperation untuk efisiensi.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info(
         'Memulai proses soft delete untuk SEMUA active APK versions via BaseOperation');

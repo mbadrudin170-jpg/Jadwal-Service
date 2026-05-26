@@ -11,7 +11,7 @@ const String syncTaskName = 'syncDataTask';
 /// Fungsi top-level yang dijalankan oleh Workmanager di background isolate.
 @pragma('vm:entry-point')
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
+  Workmanager().executeTask((final task, final inputData) async {
     Log.info('Background task dimulai: $task');
 
     // SOLUSI: Inisialisasi Firebase di dalam background isolate

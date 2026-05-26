@@ -182,7 +182,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            bottomNavigationBar: BannerWaterfallWidget(),
+            bottomNavigationBar: const BannerWaterfallWidget(),
           );
         },
       ),

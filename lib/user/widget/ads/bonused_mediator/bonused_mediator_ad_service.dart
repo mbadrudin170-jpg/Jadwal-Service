@@ -19,7 +19,7 @@ class BonusedMediatorAdService {
   /// [onAdFailedToLoad] will be called when the ad fails to load.
   void loadAd({
     final VoidCallback? onAdLoaded,
-    final Function(LoadAdError)? onAdFailedToLoad,
+    final void Function(LoadAdError)? onAdFailedToLoad,
   }) {
     // Prevents repeated loading if the ad already exists.
     if (_rewardedAd != null) {
@@ -55,7 +55,8 @@ class BonusedMediatorAdService {
     final VoidCallback? onAdDismissed,
   }) async {
     if (!isAdLoaded) {
-      Log.warning('Tried to show Bonused Mediator ad, but it is not ready yet.');
+      Log.warning(
+          'Tried to show Bonused Mediator ad, but it is not ready yet.');
       // If the ad is not ready, call onAdDismissed so that the flow is not interrupted.
       onAdDismissed?.call();
       // Try loading again for the next opportunity.

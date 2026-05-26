@@ -85,20 +85,16 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
     if (!mounted) return;
     setState(() => _isLoading = true);
     Log.info('Memuat data pelanggan aktif (forceRefresh: $forceRefresh)');
-
+    await _activeCustomerOperation.archiveExpiredCustomers();
     try {
       final online = await _connectionService.checkConnection();
 
       if (online && forceRefresh) {
-        await SyncCheckService().runSyncCheck().timeout(
-          const Duration(seconds: 15),
-          onTimeout: () {
-            _refreshService.notify(); // Beri sinyal refresh jika timeout
-            throw TimeoutException('Waktu sinkronisasi habis.');
-          },
-        );
-        _refreshService
-            .notify(); // Beri sinyal refresh setelah sinkronisasi manual
+        await SyncCheckService().runSyncCheck();
+
+        _refreshService.notify(); // Beri sinyal refresh jika timeout
+
+// Beri sinyal refresh setelah sinkronisasi manual
       } else if (!online && forceRefresh) {
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
@@ -108,7 +104,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
           );
         }
       }
-      await _activeCustomerOperation.archiveExpiredCustomers();
       _allCustomers =
           await _activeCustomerOperation.getAllActiveCustomersWithDetails();
       _applyFilterAndSort();
