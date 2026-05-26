@@ -10,7 +10,6 @@ import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -116,11 +115,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       });
       _reloadData();
     }
-
-    // 3. Tampilkan iklan setelah semua proses navigasi & update selesai.
-    InterstitialAdService().showAdIfReady(onAdDismissed: () {
-      Log.info('Iklan interstisial ditutup setelah kembali dari halaman edit.');
-    });
+    ;
   }
 
   Future<void> _navigateToPoints(final String customerId) async {
