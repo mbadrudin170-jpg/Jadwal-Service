@@ -9,7 +9,6 @@ import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
 import 'package:wifi/user/providers/app_readiness_provider.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 
 /// Widget utama aplikasi user.
 class AppUser extends StatefulWidget {
@@ -21,14 +20,11 @@ class AppUser extends StatefulWidget {
 }
 
 class _AppUserState extends State<AppUser> with WidgetsBindingObserver {
-  late final AppOpenAdService _appOpenAdService;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _appOpenAdService = AppOpenAdService();
-    _appOpenAdService.loadAd();
   }
 
   @override
@@ -40,16 +36,7 @@ class _AppUserState extends State<AppUser> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      // Dapatkan status kesiapan dari provider.
-      // `listen: false` penting di sini karena kita tidak sedang dalam `build` method.
-      final bool isAppReady = context.read<AppReadinessProvider>().isReady;
-
-      // Iklan hanya boleh tampil jika aplikasi sudah melewati splash screen.
-      if (isAppReady) {
-        _appOpenAdService.showAdIfAvailable();
-      }
-    }
+    if (state == AppLifecycleState.resumed) {}
   }
 
   @override
