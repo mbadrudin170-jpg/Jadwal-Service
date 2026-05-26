@@ -2,14 +2,16 @@
 import 'dart:async';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 
 /// Kelas yang mendengarkan perubahan status aplikasi (misal: dari background ke foreground)
 /// untuk menampilkan App Open Ad.
 class AppLifecycleReactor {
+  /// Layanan untuk mengelola iklan App Open.
   final AppOpenAdService appOpenAdService;
 
+  /// Konstruktor untuk [AppLifecycleReactor].
   AppLifecycleReactor({required this.appOpenAdService});
 
   /// Mulai mendengarkan perubahan status aplikasi.
@@ -17,15 +19,15 @@ class AppLifecycleReactor {
     // Panggil loadAd() secara langsung karena ini adalah fungsi void.
     appOpenAdService.loadAd();
 
-    // PERBAIKAN: startListening mengembalikan Future, jadi gunakan unawaited.
+    // unawaited() diperlukan karena startListening() adalah Future.
     unawaited(AppStateEventNotifier.startListening());
-    
+
     // Gunakan .listen pada stream, ini tidak mengembalikan Future.
     AppStateEventNotifier.appStateStream.listen(_onAppStateChanged);
   }
 
   void _onAppStateChanged(final AppState appState) {
-    Log.info('[AppLifecycle] Status aplikasi berubah menjadi: $appState');
+    Log.info('[AppLifecycle] Status aplikasi berubah menjadi: \$appState');
     // Coba tampilkan iklan saat aplikasi kembali ke foreground.
     if (appState == AppState.foreground) {
       Log.info(
