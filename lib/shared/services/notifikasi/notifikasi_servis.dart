@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 
 /// Fungsi callback global untuk menangani respons notifikasi saat aplikasi
 /// berada di background.
-/// [PERBAIKAN] Fungsi ini harus mandiri dan tidak boleh bergantung pada
+///  Fungsi ini harus mandiri dan tidak boleh bergantung pada
 /// kelas atau layanan lain yang mungkin belum diinisialisasi di background isolate,
 /// seperti kelas Log kustom kita. Menggunakan print() atau dart:developer.log()
 /// adalah pilihan yang lebih aman di sini.

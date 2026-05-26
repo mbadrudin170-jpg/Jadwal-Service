@@ -71,6 +71,11 @@
             android:exported="false"
             android:stopWithTask="false"/>
 
+        <!-- DITAMBAHKAN: Konfigurasi Ikon Notifikasi Default -->
+        <meta-data
+            android:name="com.dexterous.flutterlocalnotifications.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

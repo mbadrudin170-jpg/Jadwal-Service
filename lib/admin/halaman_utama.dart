@@ -61,8 +61,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
 
   int _selectedIndex = 0;
 
-  late final List<Widget> _widgetOptions;
-
   @override
   void initState() {
     super.initState();
@@ -73,16 +71,6 @@ class _HalamanUtamaState extends State<HalamanUtama> {
 
     // PERBAIKAN 1: Inisialisasi service
     _syncService = SyncCheckService();
-
-    // PERBAIKAN 2: Menggunakan nama class yang benar dari file yang ada
-    _widgetOptions = <Widget>[
-      const ActiveCustomerPage(), // dari active_customer_tab.dart
-      const WalletPage(), // dari wallet_page.dart
-      const TransactionPage(), // dari transaction_page.dart
-      const StatistikPageA(), // dari statistik_page_a.dart
-      const LainnyaPage(), // dari lainnya.dart
-      // const TestNotificationPage(),
-    ];
 
     WidgetsBinding.instance.addPostFrameCallback((final _) async {
       await _handleInitialNotification();
@@ -197,6 +185,16 @@ class _HalamanUtamaState extends State<HalamanUtama> {
       }
     }
   }
+
+  // PERBAIKAN 2: Menggunakan nama class yang benar dari file yang ada
+  final _widgetOptions = <Widget>[
+    const ActiveCustomerPage(), // dari active_customer_tab.dart
+    const WalletPage(), // dari wallet_page.dart
+    const TransactionPage(), // dari transaction_page.dart
+    const StatistikPageA(), // dari statistik_page_a.dart
+    const LainnyaPage(), // dari lainnya.dart
+    // const TestNotificationPage(),
+  ];
 
   @override
   Widget build(final BuildContext context) {

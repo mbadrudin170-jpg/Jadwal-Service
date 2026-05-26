@@ -134,7 +134,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
   /// Inisialisasi layanan yang bisa berjalan tanpa koneksi internet.
   Future<void> _initializeOfflineServices() async {
     Log.info('Memulai inisialisasi layanan offline...');
-    await NotifikasiServis().inisialisasi(iconName: 'launcher_icon');
+    await NotifikasiServis().inisialisasi(iconName: 'ic_notification');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
     Log.info('Inisialisasi layanan offline selesai.');

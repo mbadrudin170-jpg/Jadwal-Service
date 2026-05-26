@@ -90,7 +90,7 @@ class _AppInitializerState extends State<AppInitializer> {
       await BackgroundService.init();
 
       Log.info('Menginisialisasi layanan notifikasi...');
-      await notifikasiServis.inisialisasi(iconName: 'launcher_icon');
+      await notifikasiServis.inisialisasi(iconName: 'ic_notification');
       await notifikasiServis.requestPermissions();
       Log.info('Inisialisasi notifikasi dan permintaan izin telah selesai.');
 

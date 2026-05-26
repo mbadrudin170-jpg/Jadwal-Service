@@ -44,7 +44,7 @@ class _MainPageState extends State<MainPage> {
   final AppOpenAdService _appOpenAdService = AppOpenAdService();
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     unawaited(
         PenjadwalNotifikasi.aturNotifikasiLangganan(context, widget.userId));
@@ -66,11 +66,11 @@ class _MainPageState extends State<MainPage> {
     // Inisialisasi AppLifecycleReactor untuk iklan. Konstruktornya ringan.
     _appLifecycleReactor =
         AppLifecycleReactor(appOpenAdService: _appOpenAdService);
-    await _appLifecycleReactor.listenToAppStateChanges();
+    unawaited(_appLifecycleReactor.listenToAppStateChanges());
 
     Log.info(
         'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
-    
+
     // Hapus splash screen agar UI dasar aplikasi terlihat.
     FlutterNativeSplash.remove();
   }
