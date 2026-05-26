@@ -48,7 +48,6 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     _dataFuture = _loadData();
   }
 
-  // Tidak perlu dispose service singleton
 
   Future<_ProfileData> _loadData() async {
     try {
