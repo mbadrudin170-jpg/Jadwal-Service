@@ -1,5 +1,6 @@
 // path: lib/shared/services/background_service.dart
-
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
@@ -13,13 +14,14 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     Log.info('Background task dimulai: $task');
 
+    // SOLUSI: Inisialisasi Firebase di dalam background isolate
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    Log.info('Firebase berhasil diinisialisasi di background isolate.');
+
     switch (task) {
       case syncTaskName:
         try {
-          // Penting: Pastikan semua dependensi yang dibutuhkan oleh SyncCheckService
-          // juga diinisialisasi jika perlu (misal: Firebase, SharedPreferences).
-          // Untuk saat ini, kita asumsikan SyncCheckService sudah mandiri
-          // dan sudah diinisialisasi di dalam service itu sendiri.
           await SyncCheckService().runSyncCheck();
           Log.info('Background task "$task" selesai dengan sukses.');
           return Future.value(true);
@@ -48,26 +50,24 @@ class BackgroundService {
         callbackDispatcher,
       );
       Log.info("Workmanager berhasil diinisialisasi.");
+
+      // Langsung daftarkan tugas setelah inisialisasi berhasil
+      await registerPeriodicSync();
     } catch (e, st) {
       Log.error("Gagal menginisialisasi Workmanager.", e: e, st: st);
     }
   }
 
   /// Mendaftarkan tugas sinkronisasi periodik untuk dijalankan.
-  /// Panggil ini setelah pengguna login atau saat aplikasi pertama kali dijalankan.
+  /// Metode ini dipanggil secara otomatis oleh `init`.
   static Future<void> registerPeriodicSync() async {
     try {
       await Workmanager().registerPeriodicTask(
-        syncTaskName,
-        syncTaskName,
-        // Frekuensi minimal adalah 15 menit.
-        // Android mungkin menyesuaikan waktu eksekusi untuk menghemat baterai.
+        syncTaskName, // Unique name
+        syncTaskName, // Task name
         frequency: const Duration(minutes: 15),
-        // Kebijakan ini akan menggantikan task lama jika ada task baru didaftarkan
-        // dengan nama unik yang sama.
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
-        // Menambahkan penundaan awal untuk memastikan aplikasi stabil.
-        initialDelay: const Duration(seconds: 30),
+        initialDelay: const Duration(minutes: 1),
         constraints: Constraints(
           networkType: NetworkType.connected,
         ),
