@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
-import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
@@ -31,41 +30,28 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage>
     with AutomaticKeepAliveClientMixin<WalletPage> {
-  // Tambahkan mixin
   late final WalletOperation _walletOperation;
   late Future<List<WalletModel>> _walletListFuture;
 
   String _sortBy = 'name';
   bool _sortAscending = true;
 
-  final DataRefreshService _refreshService = DataRefreshService();
 
   @override
-  bool get wantKeepAlive => true; // Implementasikan wantKeepAlive
-
+  bool get wantKeepAlive => true;
   @override
   void initState() {
     super.initState();
     Log.info('Halaman Wallet sedang diinisialisasi.');
     _walletOperation = widget.walletOperation ?? WalletOperation();
-
-    // Dengarkan sinyal refresh
-    _refreshService.refreshNotifier.addListener(_onDataRefreshed);
     _loadWallets();
   }
 
   @override
   void dispose() {
-    // Hapus listener
-    _refreshService.refreshNotifier.removeListener(_onDataRefreshed);
     super.dispose();
   }
 
-  // Panggil _loadWallets saat sinyal diterima
-  void _onDataRefreshed() {
-    Log.info('Sinyal refresh data diterima di WalletPage, memuat ulang data.');
-    _loadWallets();
-  }
 
   void _loadWallets() {
     Log.info(
@@ -107,7 +93,6 @@ class _WalletPageState extends State<WalletPage>
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
     final walletList = await _walletOperation.getWallets();
     if (!mounted) return;
-
     if (walletList.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus. Dialog tidak ditampilkan.');
       ToastUtil.info(
@@ -401,17 +386,20 @@ class _FinancialSummaryState extends State<FinancialSummary> {
 
   void _loadSummary() {
     Log.info('Memuat data ringkasan keuangan.');
-    _summaryFuture = Future.wait([
-      widget.walletOperation.getPositiveBalance(),
-      widget.walletOperation.getNegativeBalance(),
-      widget.walletOperation.getTotalBalance(),
-    ]);
+    setState(() {
+      _summaryFuture = Future.wait([
+        widget.walletOperation.getPositiveBalance(),
+        widget.walletOperation.getNegativeBalance(),
+        widget.walletOperation.getTotalBalance(),
+      ]);
+    });
   }
 
-  void refresh() {
-    Log.info('Memuat ulang data ringkasan keuangan atas permintaan parent.');
-    setState(_loadSummary);
+  @override
+  void dispose() {
+    super.dispose();
   }
+
 
   @override
   Widget build(final BuildContext context) {

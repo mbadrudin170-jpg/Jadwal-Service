@@ -12,6 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/utils/parser_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk memeriksa apakah ada data baru di SQLite atau Firebase.
@@ -126,10 +127,20 @@ class NewDataCheckService {
 
         if (data.containsKey(ColumnNames.updatedAt)) {
           Log.info(
-            'Field "${ColumnNames.updatedAt}" ditemukan pada dokumen server. Mengonversi tipe data Timestamp Firestore ke objek DateTime Dart.',
+            'Field "${ColumnNames.updatedAt}" ditemukan. Mem-parsing nilai: ${data[ColumnNames.updatedAt]}',
           );
-          final DateTime serverTime =
-              (data[ColumnNames.updatedAt] as Timestamp).toDate();
+          final DateTime? serverTime =
+              ParserUtil.parseDateTime(data[ColumnNames.updatedAt]);
+
+          if (serverTime == null) {
+            Log.warning(
+              'Gagal mem-parsing nilai "${ColumnNames.updatedAt}" dari server. ' 
+              'Nilai tidak valid atau format tidak didukung. '
+              'Mengasumsikan tidak ada data baru.',
+            );
+            return false;
+          }
+          
           Log.info('Waktu pembaruan di server adalah: $serverTime');
 
           final bool isAfter = serverTime.isAfter(localTime);

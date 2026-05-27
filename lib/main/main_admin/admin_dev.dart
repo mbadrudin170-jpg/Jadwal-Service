@@ -4,6 +4,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
@@ -32,5 +33,9 @@ void main() async {
   Log.info(
       '[main-dev] Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
-  runApp(const AppAdmin());
+  runApp(
+    const ProviderScope(
+      child: AppAdmin(),
+    ),
+  );
 }

@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -45,8 +44,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
   final InternetConnectionService _connectionService =
       InternetConnectionService();
 
-  // Instance service untuk refresh data
-  final DataRefreshService _refreshService = DataRefreshService();
 
   @override
   bool get wantKeepAlive => true;
@@ -56,7 +53,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
     super.initState();
     Log.info('ActiveCustomerPage initState');
     // Tambahkan listener untuk sinyal refresh
-    _refreshService.refreshNotifier.addListener(_onDataRefreshed);
     unawaited(_loadData());
     _searchController.addListener(_onSearchChanged);
   }
@@ -64,18 +60,11 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
   @override
   void dispose() {
     // Hapus listener untuk mencegah memory leak
-    _refreshService.refreshNotifier.removeListener(_onDataRefreshed);
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  // Method yang akan dipanggil saat sinyal refresh diterima
-  void _onDataRefreshed() {
-    Log.info(
-        'Sinyal refresh data diterima di ActiveCustomerPage, memuat ulang data.');
-    unawaited(_loadData()); // false karena sinkronisasi sudah selesai
-  }
 
   void _onSearchChanged() => _applyFilterAndSort();
 
@@ -92,7 +81,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
       if (online && forceRefresh) {
         await SyncCheckService().runSyncCheck();
 
-        _refreshService.notify(); // Beri sinyal refresh jika timeout
 
 // Beri sinyal refresh setelah sinkronisasi manual
       } else if (!online && forceRefresh) {

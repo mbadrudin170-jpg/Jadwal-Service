@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
@@ -12,13 +13,14 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/providers/transaction_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form to add or edit an active customer.
-class FormPelangganAktif extends StatefulWidget {
+class FormPelangganAktif extends ConsumerStatefulWidget {
   /// The active customer to edit, if any.
   final ActiveCustomerModel? pelangganAktif;
 
@@ -59,10 +61,10 @@ class FormPelangganAktif extends StatefulWidget {
         kategoriOperasi = kategoriOperasi ?? CategoryOperation();
 
   @override
-  State<FormPelangganAktif> createState() => _FormPelangganAktifState();
+  ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();
 }
 
-class _FormPelangganAktifState extends State<FormPelangganAktif> {
+class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
   List<CustomerModel> _pelangganList = [];
@@ -145,7 +147,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       }
 
       final pelangganList = (results[0] as List<CustomerModel>)
-        ..sort((final a, final b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        ..sort((final a, final b) =>
+            a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       final paketList = (results[1] as List<PackageModel>)
         ..sort((final a, final b) =>
@@ -346,12 +349,15 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
       if (_isEditMode) {
         pelangganAktifHasil = await widget.pelangganAktifOperasi
             .updateActiveCustomer(pelangganAktifData);
-        await widget.transaksiOperasi
-            .updateTransaction(transaksiId, transaksiData);
+        await ref
+            .read(transactionProvider.notifier)
+            .updateTransaction(transaksiData);
       } else {
         pelangganAktifHasil = await widget.pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
-        await widget.transaksiOperasi.addTransaction(transaksiData);
+        await ref
+            .read(transactionProvider.notifier)
+            .addTransaction(transaksiData);
       }
       final internetService = InternetConnectionService();
       final isOnline = await internetService.checkConnection();
@@ -617,11 +623,8 @@ class _FormPelangganAktifState extends State<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
+            navigator.pop(true);
             Log.info('Form berhasil disimpan, snackbar success ditampilkan');
-            await Future<void>.delayed(const Duration(milliseconds: 300));
-            if (mounted) {
-              navigator.pop(true);
-            }
           } else {
             ToastUtil.error(context, hasil.message);
             Log.warning('Form gagal disimpan, pesan: ${hasil.message}');

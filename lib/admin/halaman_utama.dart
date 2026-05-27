@@ -10,7 +10,6 @@ import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
-import 'package:wifi/shared/data/services/data_refresh_service.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/background_service.dart';
@@ -107,7 +106,6 @@ class _HalamanUtamaState extends State<HalamanUtama>
     try {
       await _syncService.runSyncCheck();
       Log.info('Sinkronisasi data selesai. Memberi sinyal refresh.');
-      DataRefreshService().notify(); // Kirim sinyal refresh
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
