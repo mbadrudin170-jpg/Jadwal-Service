@@ -15,24 +15,20 @@ class IdBannerAds {
   static const String _testBannerAd = 'ca-app-pub-3940256099942544/6300978111';
   static const String _testProfileBannerAd =
       'ca-app-pub-3940256099942544/6300978111';
-  static const String _invalidTestBannerAd =
-      'ca-app-pub-3940256099942544/1111111111';
 
   static List<String> get bannerAdUnitIds {
     if (kDebugMode) {
       // Urutan untuk menguji waterfall: gagal, gagal, berhasil.
       return [
-        _invalidTestBannerAd, // Akan gagal
-        _invalidTestBannerAd, // Akan gagal juga
         _testBannerAd, // Akan berhasil
       ];
     }
     // Urutan produksi
     return [
-      _prodBanner1,
-      _prodBanner2,
       _prodBannerAdMediasi1,
       _prodBannerAdMediasi2,
+      _prodBanner1,
+      _prodBanner2,
     ];
   }
 

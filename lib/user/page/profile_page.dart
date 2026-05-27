@@ -28,6 +28,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
@@ -61,6 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isDialogShowing = false;
   Future<PackageModel?>? _futurePackageModel;
   String? _cachePackageId;
+  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
@@ -68,7 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Log.info(
       'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
     );
-    unawaited(_interstitialAdService.preloadAd());
+    unawaited(_interstitialAdService.preloadAd(adUnitId: adUnitId));
     unawaited(_initializeData());
   }
 
@@ -184,7 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // 1. Jika iklan belum siap dan tidak sedang dimuat, pemicu muat ulang
     if (!_interstitialAdService.isAdReady &&
         !_interstitialAdService.isAdLoading) {
-      unawaited(_interstitialAdService.preloadAd());
+      unawaited(_interstitialAdService.preloadAd(adUnitId: adUnitId));
     }
 
     // 2. Jika iklan belum siap, tampilkan dialog loading sebentar (max 5 detik)
@@ -205,6 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     // 3. Tampilkan iklan
     await _interstitialAdService.showAdIfReady(
+      adUnitId: adUnitId,
       onAdDismissed: () {
         if (!mounted) return;
         unawaited(_performDetailNavigation(userId));
@@ -246,7 +249,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Jika iklan belum siap dan tidak sedang dimuat, coba muat.
     if (!_interstitialAdService.isAdReady &&
         !_interstitialAdService.isAdLoading) {
-      unawaited(_interstitialAdService.preloadAd());
+      unawaited(_interstitialAdService.preloadAd(adUnitId: adUnitId));
     }
 
     // Tampilkan loading dialog jika iklan belum siap atau sedang dimuat
@@ -268,6 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     await _interstitialAdService.showAdIfReady(
+      adUnitId: adUnitId,
       onAdDismissed: () {
         if (!mounted) return;
         unawaited(_performPointsNavigation(customerId));

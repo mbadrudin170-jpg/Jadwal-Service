@@ -15,6 +15,7 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
+import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
@@ -110,9 +111,9 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     final TransactionModel tx,
     final Future<PackageModel?> packageFuture,
   ) async {
+    final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
     await _interstitialAdService.showAdIfReady(
-      // Buat fungsi anonim (closure) untuk memanggil navigasi
-      // dengan parameter yang benar.
+      adUnitId: adUnitId,
       onAdDismissed: () => _navigateToTransactionDetail(tx, packageFuture),
     );
   }

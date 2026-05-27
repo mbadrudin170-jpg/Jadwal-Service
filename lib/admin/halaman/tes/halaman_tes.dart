@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Halaman untuk melakukan tes fungsionalitas.
@@ -15,11 +16,12 @@ class HalamanTes extends StatefulWidget {
 
 class _HalamanTesState extends State<HalamanTes> {
   final InterstitialAdService _adService = InterstitialAdService();
+  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
     super.initState();
-    unawaited(_adService.preloadAd());
+    unawaited(_adService.preloadAd(adUnitId: adUnitId));
   }
 
   @override
@@ -37,13 +39,15 @@ class _HalamanTesState extends State<HalamanTes> {
               child: const Text('Tampilkan Interstitial Ad'),
               onPressed: () {
                 // PERBAIKAN: Gunakan unawaited untuk Future di dalam callback sinkron
-                unawaited(_adService.showAdIfReady(onAdDismissed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Iklan ditutup atau gagal tampil.')),
-                  );
-                  // Tidak perlu memuat ulang secara manual, service sudah menanganinya
-                }));
+                unawaited(_adService.showAdIfReady(
+                    adUnitId: adUnitId,
+                    onAdDismissed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Iklan ditutup atau gagal tampil.')),
+                      );
+                      // Tidak perlu memuat ulang secara manual, service sudah menanganinya
+                    }));
               },
             ),
             const SizedBox(height: 40),

@@ -3,20 +3,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:wifi/shared/debug/global_key.dart'; // DITAMBAHKAN
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
-/// Widget yang mengimplementasikan strategi waterfall untuk memuat iklan banner.
-/// Jika satu unit iklan gagal, widget akan segera mencoba memuat unit berikutnya
-/// dalam daftar.
+/// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
+/// Jika gagal memuat, widget akan mencoba memuat ulang ID yang sama
+/// setelah jeda waktu tertentu.
 class BannerWaterfallWidget extends StatefulWidget {
-  /// Jeda waktu sebelum memulai ulang seluruh siklus waterfall setelah semua
-  /// unit iklan gagal dimuat.
+  /// ID unit iklan banner yang akan dimuat.
+  final String adUnitId;
+
+  /// Jeda waktu sebelum mencoba memuat ulang iklan yang sama setelah gagal.
   final Duration retryDelay;
 
   const BannerWaterfallWidget({
     super.key,
+    required this.adUnitId,
     this.retryDelay = const Duration(seconds: 30),
   });
 
@@ -25,98 +26,29 @@ class BannerWaterfallWidget extends StatefulWidget {
 }
 
 class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
-  // Mengambil daftar ID langsung dari class IdBannerAds
-  final List<String> _adUnitIds = IdBannerAds.bannerAdUnitIds;
-
   BannerAd? _bannerAd;
-  int _currentAdIndex = 0;
   Timer? _retryTimer;
-  // [BARU] Melacak apakah satu siklus penuh telah gagal
-  bool _isCycleFailed = false;
+  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    // Memuat iklan segera saat widget diinisialisasi
     _loadAd();
   }
 
-  // --- FUNGSI DEBUGGING SEMENTARA ---
-  void _showDebugToast(final String message, {final bool isError = false}) {
-    final messenger = scaffoldMessengerKey.currentState;
-    if (messenger == null) return;
+  @override
+  void didUpdateWidget(final BannerWaterfallWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.adUnitId != oldWidget.adUnitId) {
+      Log.info('ID Iklan berubah, memuat ulang iklan baru.',
+          {'oldId': oldWidget.adUnitId, 'newId': widget.adUnitId});
 
-    // Hapus toast sebelumnya jika ada
-    messenger.removeCurrentSnackBar();
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text('Banner: $message'), // Tambahkan prefix
-        backgroundColor: isError ? Colors.red.shade700 : Colors.blue.shade700,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  void _loadAd() {
-    // 1. Jika sudah ada iklan, jangan load lagi
-    if (_bannerAd != null) return;
-    if (_adUnitIds.isEmpty) return;
-
-    // 2. Jika sudah mencapai akhir daftar, set cycle failed
-    if (_currentAdIndex >= _adUnitIds.length) {
-      _currentAdIndex = 0;
-      _isCycleFailed = true;
-    }
-
-    // 3. Jika siklus gagal, tunggu timer
-    if (_isCycleFailed) {
-      _showDebugToast(
-          'Semua ID gagal. Mencoba lagi dalam ${widget.retryDelay.inSeconds} detik...',
-          isError: true); // DEBUG
+      unawaited(_bannerAd?.dispose());
+      _bannerAd = null;
+      _isAdLoaded = false;
       _retryTimer?.cancel();
-      _retryTimer = Timer(widget.retryDelay, () {
-        if (mounted) {
-          _isCycleFailed = false;
-          _loadAd();
-        }
-      });
-      return;
+      _loadAd();
     }
-
-    // 4. Proses Loading
-    final adUnitId = _adUnitIds[_currentAdIndex];
-    _showDebugToast('Mencoba memuat iklan banner #$_currentAdIndex'); // DEBUG
-
-    final banner = BannerAd(
-      adUnitId: adUnitId,
-      request: const AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (final ad) {
-          _showDebugToast(
-              'Iklan banner #$_currentAdIndex BERHASIL dimuat.'); // DEBUG
-          if (!mounted) return;
-          setState(() {
-            _bannerAd = ad as BannerAd;
-            _currentAdIndex = 0; // Reset index saat sukses
-          });
-        },
-        onAdFailedToLoad: (final ad, final error) {
-          unawaited(ad.dispose()); // PENTING: Wajib dispose jika gagal
-          _showDebugToast(
-              'Iklan banner #$_currentAdIndex GAGAL: ${error.message}',
-              isError: true); // DEBUG
-          if (!mounted) return;
-
-          Log.error('Gagal load: $adUnitId. Error: ${error.message}');
-          _currentAdIndex++;
-          _loadAd(); // Panggil lagi untuk mencoba unit berikutnya
-        },
-      ),
-    );
-
-    unawaited(banner.load());
   }
 
   @override
@@ -126,16 +58,62 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
     super.dispose();
   }
 
+  void _loadAd() {
+    if (widget.adUnitId.isEmpty) {
+      Log.warning('adUnitId kosong, proses pemuatan iklan dibatalkan.');
+      return;
+    }
+
+    Log.info('Memulai memuat Banner Ad', {'adUnitId': widget.adUnitId});
+
+    _bannerAd = BannerAd(
+      adUnitId: widget.adUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (final Ad ad) {
+          Log.info('Banner Ad berhasil dimuat', {'ad': ad.toString()});
+          if (mounted) {
+            setState(() {
+              _isAdLoaded = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (final Ad ad, final LoadAdError error) {
+          Log.error(
+            'Gagal memuat Banner Ad',
+            e: error,
+            data: {'adUnitId': widget.adUnitId, 'ad': ad.toString()},
+          );
+          unawaited(ad.dispose());
+          _scheduleRetry();
+        },
+      ),
+    );
+    unawaited(_bannerAd?.load());
+  }
+
+  void _scheduleRetry() {
+    _retryTimer?.cancel();
+    _retryTimer = Timer(widget.retryDelay, () {
+      Log.info('Mencoba memuat ulang Banner Ad setelah jeda.',
+          {'adUnitId': widget.adUnitId});
+      if (mounted) {
+        _loadAd();
+      }
+    });
+  }
+
   @override
   Widget build(final BuildContext context) {
-    // Gunakan ukuran tetap agar tidak ada layout shift
-    return SizedBox(
-      width: AdSize.banner.width.toDouble(),
-      height: AdSize.banner.height.toDouble(),
-      child: _bannerAd != null
-          ? AdWidget(ad: _bannerAd!)
-          : const SizedBox
-              .shrink(), // Atau bisa tambahkan indikator loading kecil
-    );
+    if (_bannerAd != null && _isAdLoaded) {
+      return SizedBox(
+        width: _bannerAd!.size.width.toDouble(),
+        height: _bannerAd!.size.height.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 }

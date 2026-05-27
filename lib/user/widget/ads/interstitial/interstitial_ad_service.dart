@@ -1,25 +1,20 @@
 // path: lib/user/widget/ads/interstitial/interstitial_ad_service.dart
 import 'dart:async';
 
-import 'package:flutter/material.dart'; // DITAMBAHKAN
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:wifi/shared/debug/global_key.dart'; // DITAMBAHKAN
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Service singleton untuk mengelola dan menampilkan iklan Interstitial.
-/// Menggunakan strategi waterfall untuk memaksimalkan ketersediaan iklan.
 class InterstitialAdService {
   // --- Singleton Pattern ---
-  static final InterstitialAdService _instance =
-      InterstitialAdService._internal();
+  static final InterstitialAdService _instance = InterstitialAdService._internal();
   factory InterstitialAdService() => _instance;
   InterstitialAdService._internal();
 
   // --- State Iklan ---
   InterstitialAd? _interstitialAd;
   bool _isAdLoading = false;
-  final List<String> _adUnitIds = IdInterstitialAds.interstitialAdUnitIds;
 
   /// Apakah iklan sudah berhasil dimuat dan siap ditampilkan?
   bool get isAdReady => _interstitialAd != null;
@@ -27,66 +22,38 @@ class InterstitialAdService {
   /// Apakah iklan sedang dalam proses pengunduhan?
   bool get isAdLoading => _isAdLoading;
 
-  // --- FUNGSI DEBUGGING SEMENTARA ---
-  void _showDebugToast(final String message, {final bool isError = false}) {
-    final messenger = scaffoldMessengerKey.currentState;
-    if (messenger == null) return;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
   /// Memulai proses pemuatan iklan di latar belakang.
   /// Metode ini aman untuk dipanggil beberapa kali; ia akan mencegah pemuatan ganda.
-  Future<void> preloadAd() async {
-    // Jangan memuat jika iklan sudah siap, sedang dimuat, atau daftar ID kosong.
-    if (isAdReady || _isAdLoading || _adUnitIds.isEmpty) {
+  Future<void> preloadAd({required final String adUnitId}) async {
+    // Jangan memuat jika iklan sudah siap, sedang dimuat, atau ID kosong.
+    if (adUnitId.isEmpty) {
+      Log.warning('[InterstitialAd] Ad Unit ID tidak boleh kosong.');
+      return;
+    }
+    if (isAdReady || _isAdLoading) {
       return;
     }
 
     _isAdLoading = true;
-    await _loadWithWaterfall(0); // Mulai proses waterfall dari indeks pertama
-  }
 
-  Future<void> _loadWithWaterfall(final int adIndex) async {
-    // Jika sudah mencoba semua ID, tunggu sebelum memulai ulang siklus.
-    if (adIndex >= _adUnitIds.length) {
-      Log.warning(
-          '[InterstitialWaterfall] Semua unit iklan dalam waterfall gagal dimuat.');
-      _showDebugToast('Semua ID iklan gagal dimuat.', isError: true); // DEBUG
-      _isAdLoading = false;
-      // Status loading diset false agar pemanggilan preloadAd() berikutnya bisa mencoba lagi
-      return;
-    }
-
-    final adUnitId = _adUnitIds[adIndex];
-    Log.info(
-        '[InterstitialWaterfall] Mencoba memuat iklan #$adIndex: $adUnitId');
-    _showDebugToast('Mencoba memuat iklan #$adIndex'); // DEBUG
+    Log.info('[InterstitialAd] Mencoba memuat iklan dengan ID: $adUnitId');
 
     await InterstitialAd.load(
       adUnitId: adUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (final ad) {
-          Log.info('[InterstitialWaterfall] Iklan #$adIndex BERHASIL dimuat.');
-          _showDebugToast('Iklan #$adIndex berhasil dimuat.'); // DEBUG
+          Log.info('[InterstitialAd] Iklan BERHASIL dimuat.');
           _interstitialAd = ad;
           _isAdLoading = false;
         },
-        onAdFailedToLoad: (final error) async {
+        onAdFailedToLoad: (final error) {
           Log.error(
-            '[InterstitialWaterfall] Iklan #$adIndex GAGAL dimuat.',
-            data: {'code': error.code, 'message': error.message},
+            '[InterstitialAd] Iklan GAGAL dimuat.',
+            e: error,
+            data: {'adUnitId': adUnitId},
           );
-          _showDebugToast('Iklan #$adIndex GAGAL: ${error.message}', isError: true); // DEBUG
-          // Langsung coba unit iklan berikutnya tanpa jeda.
-          await _loadWithWaterfall(adIndex + 1);
+          _isAdLoading = false; // Hentikan proses jika gagal
         },
       ),
     );
@@ -96,13 +63,15 @@ class InterstitialAdService {
   /// dan iklan baru akan dimuat secara otomatis di latar belakang.
   ///
   /// [onAdDismissed] adalah callback yang dijalankan setelah iklan ditutup.
-  Future<void> showAdIfReady({final VoidCallback? onAdDismissed}) async {
+  Future<void> showAdIfReady({
+    required final String adUnitId,
+    final VoidCallback? onAdDismissed,
+  }) async {
     if (!isAdReady) {
       Log.warning(
-          '[InterstitialWaterfall] Gagal menampilkan iklan karena belum siap.');
-      _showDebugToast('Iklan belum siap. Memuat ulang...'); // DEBUG
+          '[InterstitialAd] Gagal menampilkan iklan karena belum siap.');
       // Jika tidak siap, coba muat lagi di latar belakang untuk kesempatan berikutnya.
-      await preloadAd();
+      unawaited(preloadAd(adUnitId: adUnitId));
       // Langsung jalankan callback agar alur aplikasi tidak terhenti.
       onAdDismissed?.call();
       return;
@@ -110,30 +79,26 @@ class InterstitialAdService {
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (final ad) {
-        Log.info('[InterstitialWaterfall] Iklan ditampilkan.');
-        _showDebugToast('Iklan ditampilkan!'); // DEBUG
+        Log.info('[InterstitialAd] Iklan ditampilkan.');
       },
-      onAdDismissedFullScreenContent: (final ad) async {
-        Log.info('[InterstitialWaterfall] Iklan ditutup.');
-        _showDebugToast('Iklan ditutup. Memuat yg baru...'); // DEBUG
+      onAdDismissedFullScreenContent: (final ad) {
+        Log.info('[InterstitialAd] Iklan ditutup, memuat yang baru.');
         // [WAJIB] Buang iklan yang sudah ditampilkan.
         unawaited(ad.dispose());
         _interstitialAd = null;
         // Panggil callback setelah semua proses internal selesai.
         onAdDismissed?.call();
         // [WAJIB] Muat iklan baru untuk permintaan berikutnya.
-        await preloadAd();
+        unawaited(preloadAd(adUnitId: adUnitId));
       },
-      onAdFailedToShowFullScreenContent: (final ad, final error) async {
-        Log.error('[InterstitialWaterfall] Gagal menampilkan iklan.',
-            data: {'error': error.message});
-        _showDebugToast('Gagal menampilkan iklan: ${error.message}', isError: true); // DEBUG
+      onAdFailedToShowFullScreenContent: (final ad, final error) {
+        Log.error('[InterstitialAd] Gagal menampilkan iklan.', e: error);
         // Buang iklan yang gagal tampil.
         unawaited(ad.dispose());
         _interstitialAd = null;
         onAdDismissed?.call();
         // Coba muat ulang karena yang sebelumnya gagal.
-        await preloadAd();
+        unawaited(preloadAd(adUnitId: adUnitId));
       },
     );
 

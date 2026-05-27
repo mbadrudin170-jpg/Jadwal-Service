@@ -10,6 +10,7 @@ import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
+import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -182,7 +183,9 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            bottomNavigationBar: const BannerWaterfallWidget(),
+            bottomNavigationBar: BannerWaterfallWidget(
+              adUnitId: IdBannerAds.bannerAdUnitIds[0],
+            ),
           );
         },
       ),

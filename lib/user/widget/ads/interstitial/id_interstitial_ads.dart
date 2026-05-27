@@ -14,13 +14,11 @@ class IdInterstitialAds {
   // --- ID Iklan Interstitial Tes ---
   static const String _testInterstitialAd =
       'ca-app-pub-3940256099942544/1033173712';
-  static const String _invalidTestAd = 'ca-app-pub-3940256099942544/1111';
 
   /// Daftar ID unit iklan Interstitial untuk waterfall.
   static List<String> get interstitialAdUnitIds {
     if (kDebugMode) {
       return [
-        _invalidTestAd,
         _testInterstitialAd,
       ];
     }

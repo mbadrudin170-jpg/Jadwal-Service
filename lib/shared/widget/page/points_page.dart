@@ -18,6 +18,8 @@ import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
+import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
+import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
@@ -72,7 +74,9 @@ class _PointsPageState extends State<PointsPage> {
     if (widget.showAd) {
       _interstitialAdService = InterstitialAdService();
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_interstitialAdService.preloadAd());
+      unawaited(_interstitialAdService.preloadAd(
+        adUnitId: IdInterstitialAds.interstitialAdUnitIds[0],
+      ));
     }
 
     unawaited(_loadPointsData());
@@ -208,10 +212,10 @@ class _PointsPageState extends State<PointsPage> {
         );
 
         await _activeCustomerOpFirebase.setActiveCustomer(activeCustomer);
-        Log.info('menyimpan transaksi baru untuk tukar poin', {transaction});
+        Log.info('menyimpan transaksi baru untuk tukar poin', transaction);
         await _transactionOpFirebase.addTransaction(transaction);
-        Log.info('menyimpan active customer  baru untuk tukar poin',
-            {activeCustomer});
+        Log.info(
+            'menyimpan active customer  baru untuk tukar poin', activeCustomer);
 
         if (!mounted) return;
         ToastUtil.success(context, '${reward.name} berhasil ditukar!');
@@ -293,10 +297,11 @@ class _PointsPageState extends State<PointsPage> {
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
             final interstitialAdService = _interstitialAdService;
+            final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
             if (!interstitialAdService.isAdReady &&
                 !interstitialAdService.isAdLoading) {
-              unawaited(interstitialAdService.preloadAd());
+              unawaited(interstitialAdService.preloadAd(adUnitId: adUnitId));
             }
 
             if (!interstitialAdService.isAdReady) {
@@ -321,7 +326,7 @@ class _PointsPageState extends State<PointsPage> {
             }
 
             if (context.mounted) {
-              await interstitialAdService.showAdIfReady();
+              await interstitialAdService.showAdIfReady(adUnitId: adUnitId);
             }
           }
           if (_transactionHistory.isEmpty) {
@@ -332,7 +337,9 @@ class _PointsPageState extends State<PointsPage> {
       contentView: _selectedMenu == MenuPoin.penukaran
           ? _buildRewardList()
           : _buildPointsHistory(),
-      bottomWidget: widget.showAd ? const BannerWaterfallWidget() : null,
+      bottomWidget: widget.showAd
+          ? BannerWaterfallWidget(adUnitId: IdBannerAds.bannerAdUnitIds[0])
+          : null,
     );
   }
 
