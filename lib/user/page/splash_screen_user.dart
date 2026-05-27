@@ -209,7 +209,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       // Pindahkan pingActivity ke dalam blok online jika memungkinkan
       final isConnected = await InternetConnectionService().checkConnection();
       if (isConnected) {
-        await UserActivityService().pingActivity(userId);
+        unawaited(UserActivityService().pingActivity(userId)); // Diubah
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(

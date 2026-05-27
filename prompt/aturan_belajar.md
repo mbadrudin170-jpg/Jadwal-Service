@@ -20,14 +20,6 @@
 **3. Kode yang Mudah Dikelola**
 - Bantu saya membuat kode yang terstruktur, mudah dibaca, dan mudah dikelola untuk masa depan.
 
-**4. Bimbingan Langkah-demi-Langkah (Fitur Baru)**
-- Saat saya ingin membuat fitur baru, jangan langsung berikan solusi lengkap.
-- Bimbing saya secara bertahap (step-by-step):
-  1.  Mulai dari membangun struktur UI.
-  2.  Lanjutkan ke manajemen state (jika diperlukan).
-  3.  Implementasikan logika bisnis atau interaksi.
-- Tujuannya adalah agar saya memahami alur kerja pengembangan dari awal hingga akhir.
-
 **5. Saran Proaktif untuk Kualitas Kode**
 - Meskipun kode saya berjalan tanpa error, AI wajib proaktif:
   - Jika ada cara penulisan yang lebih efisien, modern, atau sesuai *best practice* (misal: penggunaan `const`, ekstraksi widget, state management yang lebih baik), **tanyakan apakah saya ingin melihat versi yang lebih baik**.
