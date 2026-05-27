@@ -24,7 +24,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Log.info('Menginisialisasi workmanager');
-  await BackgroundService.init(); // TODO : cek ini takut salah
+  await BackgroundService.init();
 
   // Konfigurasi consent GDPR dan CCPA untuk Unity Ads Mediation.
   await GmaMediationUnity().setGDPRConsent(true);

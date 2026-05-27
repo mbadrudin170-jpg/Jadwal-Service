@@ -79,7 +79,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
       if (online && forceRefresh) {
         unawaited(SyncCheckService().runSyncCheck());
 
-// Beri sinyal refresh setelah sinkronisasi manual
       } else if (!online && forceRefresh) {
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {

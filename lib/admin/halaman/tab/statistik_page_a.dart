@@ -102,7 +102,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
       if (_feedbackBaruFuture != null)
         _feedbackBaruFuture!.catchError((final _) => 0),
       if (_bestSellingPackagesFuture != null)
-        _bestSellingPackagesFuture!.catchError((final _) => <BestSellingPackage>[]),
+        _bestSellingPackagesFuture!
+            .catchError((final _) => <BestSellingPackage>[]),
     ]);
   }
 
@@ -167,7 +168,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
                           unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (final context) => const CustomerPage()),
+                                builder: (final context) =>
+                                    const CustomerPage()),
                           ));
                         },
                         child: _buildStatCard(
@@ -221,7 +223,8 @@ class _StatistikPageAState extends State<StatistikPageA> {
                           unawaited(Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (final context) => const TransactionPage()),
+                                builder: (final context) =>
+                                    const TransactionPage()),
                           ));
                         },
                         child: _buildStatCard(
@@ -418,8 +421,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
             FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
-        rightTitles:
-            const AxisTitles(),
+        rightTitles: const AxisTitles(),
         topTitles: const AxisTitles(),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(

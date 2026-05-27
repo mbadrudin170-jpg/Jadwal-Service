@@ -25,6 +25,9 @@ class InterstitialAdService {
   /// Apakah iklan sudah berhasil dimuat dan siap ditampilkan?
   bool get isAdReady => _interstitialAd != null;
 
+  /// Apakah iklan sedang dalam proses pengunduhan?
+  bool get isAdLoading => _isAdLoading;
+
   /// Memulai proses pemuatan iklan di latar belakang.
   /// Metode ini aman untuk dipanggil beberapa kali; ia akan mencegah pemuatan ganda.
   Future<void> preloadAd() async {
