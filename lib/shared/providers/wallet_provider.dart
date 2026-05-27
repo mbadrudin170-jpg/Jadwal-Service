@@ -108,8 +108,6 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   // Method untuk refresh manual
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() {
-      return _loadData();
-    });
+    state = await AsyncValue.guard(_loadData);
   }
 }
