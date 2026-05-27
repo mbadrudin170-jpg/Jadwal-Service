@@ -27,6 +27,7 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/providers/app_readiness_provider.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
 typedef UpdateInfoRecord = ({
@@ -146,6 +147,10 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     try {
       Log.info('Menginisialisasi Mobile Ads SDK...');
       await MobileAds.instance.initialize();
+
+      // Mulai muat iklan interstitial sejak splash screen agar siap saat dibutuhkan nanti
+      unawaited(InterstitialAdService().preloadAd());
+
       Log.info('Mobile Ads SDK berhasil diinisialisasi.');
     } on Exception catch (e, st) {
       Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);

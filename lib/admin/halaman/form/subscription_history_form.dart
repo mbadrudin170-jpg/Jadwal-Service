@@ -242,7 +242,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
                 items: PaymentStatus.values.map((final status) {
                   return DropdownMenuItem<PaymentStatus>(
                     value: status,
-                    child: Text(status.name.toUpperCase()),
+                    child: Text(status.displayName.toUpperCase()),
                   );
                 }).toList(),
                 onChanged: (final newValue) {

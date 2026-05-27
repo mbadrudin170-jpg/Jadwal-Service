@@ -369,7 +369,11 @@ class _PointsPageState extends State<PointsPage> {
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: ListTile(
               leading: Icon(
-                isAddition ? AppIcons.arrowUp : AppIcons.arrowDown,
+                isUnpaid
+                    ? AppIcons.hourglass // Ikon untuk status belum lunas
+                    : isAddition
+                        ? AppIcons.arrowUp
+                        : AppIcons.arrowDown,
                 color: pointColor, // Gunakan warna yang sudah ditentukan
               ),
               title: Text(tx.description),

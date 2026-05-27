@@ -479,8 +479,8 @@ class TransactionOperation {
       final db = await dbHelper.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.earnedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
-          [customerId]);
+          'SELECT SUM(${ColumnNames.earnedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.paymentStatus} = ?',
+          [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
       return total;
@@ -496,8 +496,8 @@ class TransactionOperation {
       final db = await dbHelper.database;
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.usedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
-          [customerId]);
+          'SELECT SUM(${ColumnNames.usedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.paymentStatus} = ?',
+          [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
       return total;

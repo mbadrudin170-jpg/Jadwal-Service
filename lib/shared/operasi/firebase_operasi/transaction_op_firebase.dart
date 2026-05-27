@@ -106,6 +106,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       final querySnapshot = await _collection
           .where(ColumnNames.customerId, isEqualTo: customerId)
           .where(ColumnNames.isDeleted, isEqualTo: false)
+          .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name) // Tambahkan filter ini
           .get();
 
       int totalPoints = 0;

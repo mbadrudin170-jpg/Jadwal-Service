@@ -19,8 +19,6 @@ class _HalamanTesState extends State<HalamanTes> {
   @override
   void initState() {
     super.initState();
-    // Memulai pemuatan iklan di awal
-    // PERBAIKAN: Gunakan unawaited untuk Future di dalam initState
     unawaited(_adService.preloadAd());
   }
 
