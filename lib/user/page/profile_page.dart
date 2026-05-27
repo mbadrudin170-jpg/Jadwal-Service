@@ -58,6 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<int>? _totalPointsFuture;
   Future<List<TransactionModel>>? _activePackagesFuture;
 
+  bool _isDialogShowing = false;
   Future<PackageModel?>? _futurePackageModel;
   String? _cachePackageId;
 
@@ -69,12 +70,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
     unawaited(_interstitialAdService.preloadAd());
     unawaited(_initializeData());
-  }
-
-  @override
-  void dispose() {
-    _interstitialAdService.dispose();
-    super.dispose();
   }
 
   Future<void> _initializeData() async {
@@ -147,28 +142,74 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _showLoadingDialog(final BuildContext context) {
+    if (_isDialogShowing) return;
+    _isDialogShowing = true;
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (final BuildContext context) {
+        return const PopScope(
+          canPop: false,
+          child: Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text('Memuat iklan...'),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((final _) =>
+        _isDialogShowing = false)); // Reset flag when dialog is dismissed
+  }
+
+  void _hideLoadingDialog(final BuildContext context) {
+    if (_isDialogShowing) {
+      if (!mounted) return;
+      Navigator.of(context, rootNavigator: true).pop();
+      _isDialogShowing = false;
+    }
+  }
+
   Future<void> _navigateToDetail(final String userId) async {
     Log.info('Tombol detail ditekan.');
 
-    if (!_interstitialAdService.isAdReady) {
-      Log.warning('Iklan belum siap, mencoba memuat paksa...');
-      // Panggil preload lagi jika belum siap
-      await _interstitialAdService.preloadAd();
+    // 1. Jika iklan belum siap dan tidak sedang dimuat, pemicu muat ulang
+    if (!_interstitialAdService.isAdReady &&
+        !_interstitialAdService.isAdLoading) {
+      unawaited(_interstitialAdService.preloadAd());
     }
 
-    // Setelah mencoba preload, cek lagi apakah sudah siap
-    if (_interstitialAdService.isAdReady) {
-      await _interstitialAdService.showAdIfReady(
-        onAdDismissed: () {
-          if (!mounted) return;
-          unawaited(_performDetailNavigation(userId));
-        },
-      );
-    } else {
-      // Jika masih tidak siap, langsung navigasi tanpa iklan (fallback)
-      Log.info('Iklan tetap tidak siap, langsung navigasi.');
-      unawaited(_performDetailNavigation(userId));
+    // 2. Jika iklan belum siap, tampilkan dialog loading sebentar (max 5 detik)
+    if (!_interstitialAdService.isAdReady) {
+      _showLoadingDialog(context);
+
+      const maxWaitDuration = Duration(seconds: 5);
+      final startTime = DateTime.now();
+
+      while (!_interstitialAdService.isAdReady &&
+          DateTime.now().difference(startTime) < maxWaitDuration) {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+
+      if (!mounted) return;
+      _hideLoadingDialog(context);
     }
+
+    // 3. Tampilkan iklan
+    await _interstitialAdService.showAdIfReady(
+      onAdDismissed: () {
+        if (!mounted) return;
+        unawaited(_performDetailNavigation(userId));
+      },
+    );
   }
 
   Future<void> _performDetailNavigation(final String userId) async {
@@ -202,10 +243,33 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _navigateToPointsPage(final String customerId) async {
     Log.info('Menampilkan iklan sebelum navigasi ke halaman poin.');
 
+    // Jika iklan belum siap dan tidak sedang dimuat, coba muat.
+    if (!_interstitialAdService.isAdReady &&
+        !_interstitialAdService.isAdLoading) {
+      unawaited(_interstitialAdService.preloadAd());
+    }
+
+    // Tampilkan loading dialog jika iklan belum siap atau sedang dimuat
+    if (!_interstitialAdService.isAdReady) {
+      _showLoadingDialog(context);
+      Log.info('Menampilkan loading dialog sambil menunggu iklan.');
+
+      const maxWaitDuration = Duration(seconds: 5);
+      final startTime = DateTime.now();
+
+      while (!_interstitialAdService.isAdReady &&
+          DateTime.now().difference(startTime) < maxWaitDuration) {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+
+      if (!mounted) return;
+      _hideLoadingDialog(context);
+      Log.info('Loading dialog disembunyikan.');
+    }
+
     await _interstitialAdService.showAdIfReady(
       onAdDismissed: () {
         if (!mounted) return;
-        Log.info('Iklan selesai, melanjutkan navigasi ke halaman poin.');
         unawaited(_performPointsNavigation(customerId));
       },
     );

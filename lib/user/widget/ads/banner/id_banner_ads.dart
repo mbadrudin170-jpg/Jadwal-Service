@@ -18,7 +18,6 @@ class IdBannerAds {
   static const String _invalidTestBannerAd =
       'ca-app-pub-3940256099942544/1111111111';
 
-  /// Daftar ID unit iklan Banner untuk waterfall.
   static List<String> get bannerAdUnitIds {
     if (kDebugMode) {
       // Urutan untuk menguji waterfall: gagal, gagal, berhasil.

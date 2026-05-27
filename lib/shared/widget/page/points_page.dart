@@ -42,6 +42,7 @@ class _PointsPageState extends State<PointsPage> {
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final ActiveCustomerOpFirebase _activeCustomerOpFirebase =
       ActiveCustomerOpFirebase();
+  late final InterstitialAdService _interstitialAdService;
   MenuPoin _selectedMenu = MenuPoin.penukaran;
   int _totalPoints = 0;
   List<PackageModel> _rewardList = [];
@@ -68,12 +69,13 @@ class _PointsPageState extends State<PointsPage> {
       ],
     );
 
-    unawaited(_loadPointsData());
-  }
+    if (widget.showAd) {
+      _interstitialAdService = InterstitialAdService();
+      Log.info('Preloading interstitial ad for PointsPage.');
+      unawaited(_interstitialAdService.preloadAd());
+    }
 
-  @override
-  void dispose() {
-    super.dispose();
+    unawaited(_loadPointsData());
   }
 
   Future<void> _loadPointsData() async {
@@ -248,6 +250,34 @@ class _PointsPageState extends State<PointsPage> {
     );
   }
 
+  void _showLoadingDialog(final BuildContext context) {
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (final BuildContext dialogContext) {
+        return const Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text('Memuat iklan...'),
+              ],
+            ),
+          ),
+        );
+      },
+    ));
+  }
+
+  void _hideLoadingDialog(final BuildContext context) {
+    if (Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
   @override
   Widget build(final BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
@@ -262,7 +292,37 @@ class _PointsPageState extends State<PointsPage> {
 
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            unawaited(InterstitialAdService().showAdIfReady());
+            final interstitialAdService = _interstitialAdService;
+
+            if (!interstitialAdService.isAdReady &&
+                !interstitialAdService.isAdLoading) {
+              unawaited(interstitialAdService.preloadAd());
+            }
+
+            if (!interstitialAdService.isAdReady) {
+              if (!context.mounted) return;
+              _showLoadingDialog(context);
+              Log.info(
+                  'Menampilkan loading dialog sambil menunggu iklan di PointsPage.');
+
+              const maxWaitDuration = Duration(seconds: 5);
+              final startTime = DateTime.now();
+
+              while (!interstitialAdService.isAdReady &&
+                  DateTime.now().difference(startTime) < maxWaitDuration) {
+                await Future<void>.delayed(const Duration(milliseconds: 200));
+                if (!context.mounted) break;
+              }
+
+              if (context.mounted) {
+                _hideLoadingDialog(context);
+                Log.info('Loading dialog disembunyikan di PointsPage.');
+              }
+            }
+
+            if (context.mounted) {
+              await interstitialAdService.showAdIfReady();
+            }
           }
           if (_transactionHistory.isEmpty) {
             await _loadTransactionHistory();
@@ -355,7 +415,6 @@ class _PointsPageState extends State<PointsPage> {
         final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
         final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
 
-        // Menentukan warna berdasarkan status pembayaran
         final bool isUnpaid = tx.paymentStatus == PaymentStatus.unpaid;
         final Color pointColor = isUnpaid
             ? Colors.grey
@@ -370,11 +429,11 @@ class _PointsPageState extends State<PointsPage> {
             child: ListTile(
               leading: Icon(
                 isUnpaid
-                    ? AppIcons.hourglass // Ikon untuk status belum lunas
+                    ? AppIcons.hourglass
                     : isAddition
                         ? AppIcons.arrowUp
                         : AppIcons.arrowDown,
-                color: pointColor, // Gunakan warna yang sudah ditentukan
+                color: pointColor,
               ),
               title: Text(tx.description),
               subtitle: Text(
@@ -383,7 +442,7 @@ class _PointsPageState extends State<PointsPage> {
               trailing: Text(
                 pointsStr,
                 style: TextStyle(
-                  color: pointColor, // Gunakan warna yang sudah ditentukan
+                  color: pointColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),

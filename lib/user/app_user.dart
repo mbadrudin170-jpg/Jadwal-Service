@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
+import 'package:wifi/shared/debug/global_key.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
@@ -20,7 +21,6 @@ class AppUser extends StatefulWidget {
 }
 
 class _AppUserState extends State<AppUser> with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -71,6 +71,7 @@ class _AppUserState extends State<AppUser> with WidgetsBindingObserver {
             builder: (final context, final themeProvider, final child) {
               return ToastificationWrapper(
                 child: MaterialApp(
+                  scaffoldMessengerKey: scaffoldMessengerKey, // DITAMBAHKAN
                   debugShowCheckedModeBanner: false,
                   theme: AppTheme.lightTheme,
                   darkTheme: AppTheme.darkTheme,

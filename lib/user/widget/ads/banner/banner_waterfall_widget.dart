@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:wifi/shared/debug/global_key.dart'; // DITAMBAHKAN
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
@@ -40,6 +41,23 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
     _loadAd();
   }
 
+  // --- FUNGSI DEBUGGING SEMENTARA ---
+  void _showDebugToast(final String message, {final bool isError = false}) {
+    final messenger = scaffoldMessengerKey.currentState;
+    if (messenger == null) return;
+
+    // Hapus toast sebelumnya jika ada
+    messenger.removeCurrentSnackBar();
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('Banner: $message'), // Tambahkan prefix
+        backgroundColor: isError ? Colors.red.shade700 : Colors.blue.shade700,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _loadAd() {
     // 1. Jika sudah ada iklan, jangan load lagi
     if (_bannerAd != null) return;
@@ -53,6 +71,9 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
 
     // 3. Jika siklus gagal, tunggu timer
     if (_isCycleFailed) {
+      _showDebugToast(
+          'Semua ID gagal. Mencoba lagi dalam ${widget.retryDelay.inSeconds} detik...',
+          isError: true); // DEBUG
       _retryTimer?.cancel();
       _retryTimer = Timer(widget.retryDelay, () {
         if (mounted) {
@@ -65,6 +86,7 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
 
     // 4. Proses Loading
     final adUnitId = _adUnitIds[_currentAdIndex];
+    _showDebugToast('Mencoba memuat iklan banner #$_currentAdIndex'); // DEBUG
 
     final banner = BannerAd(
       adUnitId: adUnitId,
@@ -72,6 +94,8 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (final ad) {
+          _showDebugToast(
+              'Iklan banner #$_currentAdIndex BERHASIL dimuat.'); // DEBUG
           if (!mounted) return;
           setState(() {
             _bannerAd = ad as BannerAd;
@@ -80,6 +104,9 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
         },
         onAdFailedToLoad: (final ad, final error) {
           unawaited(ad.dispose()); // PENTING: Wajib dispose jika gagal
+          _showDebugToast(
+              'Iklan banner #$_currentAdIndex GAGAL: ${error.message}',
+              isError: true); // DEBUG
           if (!mounted) return;
 
           Log.error('Gagal load: $adUnitId. Error: ${error.message}');
