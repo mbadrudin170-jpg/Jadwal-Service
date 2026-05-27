@@ -1,5 +1,5 @@
 // path: lib/admin/halaman/form/active_customer_form.dart
-// diubah: Daftar paket (_paketList) kini diurutkan berdasarkan durasi saat data dimuat.
+// diubah: Menambahkan ToastUtil untuk feedback pengguna di _saveForm.
 
 import 'dart:async';
 
@@ -290,6 +290,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
+      if (mounted) {
+        ToastUtil.error(context, 'Data belum lengkap');
+      }
       return SaveResultModel(success: false, message: 'Data belum lengkap');
     }
 
@@ -300,6 +303,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _selectedDompet == null ||
         _selectedKategori == null) {
       Log.warning('Data form belum lengkap');
+      if (mounted) {
+        ToastUtil.error(context, 'Harap lengkapi semua data');
+      }
       return SaveResultModel(
           success: false, message: 'Harap lengkapi semua data');
     }
@@ -375,6 +381,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           success: true, message: successMessage, data: pelangganAktifHasil);
     } on Exception catch (e, s) {
       Log.error('Gagal menyimpan data pelanggan aktif.', e: e, st: s);
+      if (mounted) {
+        ToastUtil.error(context, 'Gagal menyimpan: $e');
+      }
       return SaveResultModel(success: false, message: 'Gagal menyimpan: $e');
     }
   }

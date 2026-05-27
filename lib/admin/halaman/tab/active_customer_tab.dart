@@ -44,7 +44,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
   final InternetConnectionService _connectionService =
       InternetConnectionService();
 
-
   @override
   bool get wantKeepAlive => true;
 
@@ -65,7 +64,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
     super.dispose();
   }
 
-
   void _onSearchChanged() => _applyFilterAndSort();
 
   Future<void> refreshData() => _loadData(forceRefresh: true);
@@ -79,8 +77,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
       final online = await _connectionService.checkConnection();
 
       if (online && forceRefresh) {
-        await SyncCheckService().runSyncCheck();
-
+        unawaited(SyncCheckService().runSyncCheck());
 
 // Beri sinyal refresh setelah sinkronisasi manual
       } else if (!online && forceRefresh) {

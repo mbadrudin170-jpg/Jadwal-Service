@@ -1,4 +1,5 @@
 // path: lib/admin/app_admin.dart
+// diubah: Menggunakan unawaited untuk operasi pembersihan data agar native splash screen lebih cepat hilang.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -130,8 +131,9 @@ class _AppInitializerState extends State<AppInitializer> {
         Log.info(
             'Membersihkan data arsip kadaluarsa (SQLite & Firestore) dengan retensi $retentionDays hari...');
         final dataCleaningOperation = DataCleaningOperation();
-        await dataCleaningOperation.deleteAllExpiredArchivedData(
-            retentionDays: retentionDays);
+        // Mengubah dari await menjadi unawaited untuk mempercepat hilangnya splash screen
+        unawaited(dataCleaningOperation.deleteAllExpiredArchivedData(
+            retentionDays: retentionDays));
       } else {
         Log.warning('Melewati proses pembersihan data karena sedang offline.');
       }
