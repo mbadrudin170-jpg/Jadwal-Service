@@ -41,9 +41,9 @@ class InterstitialAdService {
     // Jika sudah mencoba semua ID, tunggu sebelum memulai ulang siklus.
     if (adIndex >= _adUnitIds.length) {
       Log.warning(
-          '[InterstitialWaterfall] Semua unit iklan gagal. Mencoba lagi dalam 30 detik.');
+          '[InterstitialWaterfall] Semua unit iklan dalam waterfall gagal dimuat.');
       _isAdLoading = false;
-      // Tidak perlu timer di sini, cukup panggil preloadAd() lagi nanti saat diperlukan
+      // Status loading diset false agar pemanggilan preloadAd() berikutnya bisa mencoba lagi
       return;
     }
 
