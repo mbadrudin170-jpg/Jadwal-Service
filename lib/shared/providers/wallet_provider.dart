@@ -21,10 +21,10 @@ class WalletState {
   });
 
   WalletState copyWith({
-    List<WalletModel>? wallets,
-    double? totalPositiveBalance,
-    double? totalNegativeBalance,
-    double? totalBalance,
+    final List<WalletModel>? wallets,
+    final double? totalPositiveBalance,
+    final double? totalNegativeBalance,
+    final double? totalBalance,
   }) {
     return WalletState(
       wallets: wallets ?? this.wallets,
@@ -44,7 +44,7 @@ final walletProvider = AsyncNotifierProvider<WalletNotifier, WalletState>(
 class WalletNotifier extends AsyncNotifier<WalletState> {
   // Method ini akan dipanggil otomatis saat provider pertama kali digunakan.
   @override
-  Future<WalletState> build() async {
+  Future<WalletState> build() {
     return _loadData();
   }
 
@@ -69,16 +69,16 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
 
   // Method untuk aksi dari UI
 
-  Future<void> addWallet(WalletModel wallet) async {
+  Future<void> addWallet(final WalletModel wallet) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = WalletOperation();
-      await operation.insertWallet(wallet);
+      final walletOperation = WalletOperation();
+      await walletOperation.createWallet(wallet);
       return _loadData();
     });
   }
 
-  Future<void> updateWallet(WalletModel wallet) async {
+  Future<void> updateWallet(final WalletModel wallet) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = WalletOperation();
@@ -87,7 +87,7 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
     });
   }
 
-  Future<void> softDelete(String id) async {
+  Future<void> softDelete(final String id) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = WalletOperation();
@@ -108,7 +108,7 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   // Method untuk refresh manual
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
+    state = await AsyncValue.guard(() {
       return _loadData();
     });
   }
