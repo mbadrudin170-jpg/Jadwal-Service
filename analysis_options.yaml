@@ -117,7 +117,6 @@ linter:
     matching_super_parameters: true             # Nama parameter super harus cocok (Dart 3)
     unnecessary_async: true                     # Hapus async jika tidak ada await
     avoid_catching_errors: true                 # Jangan tangkap Error (hanya Exception)
-    # avoid_returning_null_for_future: true       # Jangan return null untuk Future<T>
     literal_only_boolean_expressions: true      # Ekspresi boolean hanya literal = bug
     no_runtimetype_tostring: true               # Jangan panggil toString() pada runtimeType
     test_types_in_equals: true                  # Cek tipe argumen di operator ==
@@ -128,7 +127,6 @@ linter:
     prefer_final_parameters: true               # Gunakan final untuk parameter yang tidak di-reassign
     use_if_null_to_convert_nulls_to_bools: true # Gunakan ?? untuk konversi null ke bool
     prefer_asserts_with_message: true           # Sertakan pesan di assert
-    # avoid_unstable_final_fields: true           # Hindari field final yang tidak stabil
     prefer_constructors_over_static_methods: true # Gunakan konstruktor daripada static method untuk membuat instance
     unnecessary_null_checks: true               # Hapus null check (!) yang tidak diperlukan
 

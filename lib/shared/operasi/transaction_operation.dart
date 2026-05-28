@@ -23,6 +23,8 @@ class TransactionOperation {
   final BaseOperation _baseOperation;
 
   final String _tableName = TableNameValue.get(TableName.transactions);
+  final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
+  final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor untuk `TransactionOperation`.
   TransactionOperation({
@@ -81,7 +83,7 @@ class TransactionOperation {
         TableNameValue.get(TableName.wallet),
         {
           ColumnNames.balance: totalBalance,
-          ColumnNames.updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
+          ColumnNames.updatedAt: _nowEpoch,
         },
         where: '${ColumnNames.id} = ?',
         whereArgs: [walletId],
@@ -104,7 +106,7 @@ class TransactionOperation {
       final id = await _baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.info('Memulai transaksi database untuk addTransaction');
-          final data = transaction.copyWith(updatedAt: DateTime.now().toUtc());
+          final data = transaction.copyWith(updatedAt: _nowUtc);
 
           final newId = await txn.insert(
             _tableName,
@@ -300,9 +302,7 @@ class TransactionOperation {
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransactionModel.fromSqlite(maps.first);
-            final updateData =
-                newTransaction.copyWith(updatedAt: DateTime.now().toUtc());
-
+            final updateData = newTransaction.copyWith(updatedAt: _nowUtc);
             await txn.update(_tableName, updateData.toSqlite(),
                 where: '${ColumnNames.id} = ?', whereArgs: [id]);
             Log.info('Data transaksi ID: $id diperbarui');
@@ -353,18 +353,17 @@ class TransactionOperation {
           }
 
           final oldTransaction = TransactionModel.fromSqlite(maps.first);
-          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-
           await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: now,
-              ColumnNames.archivedAt: now,
+              ColumnNames.updatedAt: _nowEpoch,
+              ColumnNames.archivedAt: _nowEpoch,
             },
             where: '${ColumnNames.id} = ?',
             whereArgs: [id],
           );
+
           Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
           await _recalculateAndUpdateWalletBalance(
@@ -390,14 +389,12 @@ class TransactionOperation {
       final count = await _baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.warning('Memulai soft delete semua transaksi secara atomik');
-          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-
           final rowsAffected = await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: now,
-              ColumnNames.archivedAt: now,
+              ColumnNames.updatedAt: _nowEpoch,
+              ColumnNames.archivedAt: _nowEpoch,
             },
             where: '${ColumnNames.isDeleted} = ?',
             whereArgs: [0],
@@ -408,7 +405,7 @@ class TransactionOperation {
             TableNameValue.get(TableName.wallet),
             {
               ColumnNames.balance: 0,
-              ColumnNames.updatedAt: now,
+              ColumnNames.updatedAt: _nowEpoch,
             },
           );
           Log.info(
@@ -538,7 +535,7 @@ class TransactionOperation {
           for (final item in items) {
             batch.insert(
               _tableName,
-              item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+              item.copyWith(updatedAt: _nowUtc).toSqlite(),
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
             affectedWallets.add(item.walletId);

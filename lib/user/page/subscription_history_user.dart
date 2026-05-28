@@ -55,6 +55,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
   late Future<List<TransactionModel>> _historyFuture;
+  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
@@ -107,17 +108,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     });
   }
 
-  Future<void> _showAdAndNavigate(
-    final TransactionModel tx,
-    final Future<PackageModel?> packageFuture,
-  ) async {
-    final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
-    await _interstitialAdService.showAdIfReady(
-      adUnitId: adUnitId,
-      onAdDismissed: () => _navigateToTransactionDetail(tx, packageFuture),
-    );
-  }
-
   /// Membuka halaman detail transaksi dan me-refresh data setelah kembali.
   Future<void> _navigateToTransactionDetail(
     final TransactionModel tx,
@@ -135,8 +125,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
         ),
       ),
     );
-
-    unawaited(_refreshHistory());
+    await _interstitialAdService.showAdIfReady();
   }
 
   @override
@@ -241,8 +230,8 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                                   ],
                                 ),
                                 trailing: const Icon(AppIcons.chevronRight),
-                                onTap: () =>
-                                    _showAdAndNavigate(tx, packageFuture)),
+                                onTap: () => _navigateToTransactionDetail(
+                                    tx, packageFuture)),
                           );
                         },
                       ),

@@ -19,7 +19,6 @@ import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_waterfall_widget.dart';
 import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
-import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
@@ -44,7 +43,8 @@ class _PointsPageState extends State<PointsPage> {
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final ActiveCustomerOpFirebase _activeCustomerOpFirebase =
       ActiveCustomerOpFirebase();
-  late final InterstitialAdService _interstitialAdService;
+  final _interstitialAdService = InterstitialAdService();
+
   MenuPoin _selectedMenu = MenuPoin.penukaran;
   int _totalPoints = 0;
   List<PackageModel> _rewardList = [];
@@ -72,13 +72,9 @@ class _PointsPageState extends State<PointsPage> {
     );
 
     if (widget.showAd) {
-      _interstitialAdService = InterstitialAdService();
       Log.info('Preloading interstitial ad for PointsPage.');
-      unawaited(_interstitialAdService.preloadAd(
-        adUnitId: IdInterstitialAds.interstitialAdUnitIds[0],
-      ));
+      unawaited(_interstitialAdService.preloadAd());
     }
-
     unawaited(_loadPointsData());
   }
 
@@ -144,11 +140,8 @@ class _PointsPageState extends State<PointsPage> {
           context, 'Admin tidak dapat menukar poin dari antarmuka ini.');
       return;
     }
-
     if (!mounted) return;
-
     final bool enoughPoints = _totalPoints >= reward.redemptionPoints;
-
     if (!enoughPoints) {
       ToastUtil.warning(
           context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
@@ -254,34 +247,6 @@ class _PointsPageState extends State<PointsPage> {
     );
   }
 
-  void _showLoadingDialog(final BuildContext context) {
-    unawaited(showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (final BuildContext dialogContext) {
-        return const Dialog(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text('Memuat iklan...'),
-              ],
-            ),
-          ),
-        );
-      },
-    ));
-  }
-
-  void _hideLoadingDialog(final BuildContext context) {
-    if (Navigator.of(context, rootNavigator: true).canPop()) {
-      Navigator.of(context, rootNavigator: true).pop();
-    }
-  }
-
   @override
   Widget build(final BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
@@ -296,38 +261,7 @@ class _PointsPageState extends State<PointsPage> {
 
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            final interstitialAdService = _interstitialAdService;
-            final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
-
-            if (!interstitialAdService.isAdReady &&
-                !interstitialAdService.isAdLoading) {
-              unawaited(interstitialAdService.preloadAd(adUnitId: adUnitId));
-            }
-
-            if (!interstitialAdService.isAdReady) {
-              if (!context.mounted) return;
-              _showLoadingDialog(context);
-              Log.info(
-                  'Menampilkan loading dialog sambil menunggu iklan di PointsPage.');
-
-              const maxWaitDuration = Duration(seconds: 5);
-              final startTime = DateTime.now();
-
-              while (!interstitialAdService.isAdReady &&
-                  DateTime.now().difference(startTime) < maxWaitDuration) {
-                await Future<void>.delayed(const Duration(milliseconds: 200));
-                if (!context.mounted) break;
-              }
-
-              if (context.mounted) {
-                _hideLoadingDialog(context);
-                Log.info('Loading dialog disembunyikan di PointsPage.');
-              }
-            }
-
-            if (context.mounted) {
-              await interstitialAdService.showAdIfReady(adUnitId: adUnitId);
-            }
+            await _interstitialAdService.showAdIfReady();
           }
           if (_transactionHistory.isEmpty) {
             await _loadTransactionHistory();

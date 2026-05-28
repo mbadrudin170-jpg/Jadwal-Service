@@ -13,8 +13,8 @@ class WalletOperation {
   /// Instance dari DatabaseHelper dan BaseOperation untuk mengakses database.
   final DatabaseHelper dbHelper;
   final BaseOperation _baseOperation;
-
   final String _tableName = TableNameValue.get(TableName.wallet);
+  final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   WalletOperation({
@@ -34,8 +34,7 @@ class WalletOperation {
   }) async {
     Log.info('Memulai createWallet untuk wallet: ${wallet.id}');
     try {
-      final data =
-          wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.insert(
         _tableName,
         data,
@@ -113,8 +112,7 @@ class WalletOperation {
   }) async {
     Log.info('Memulai updateWallet untuk wallet ID: ${wallet.id}');
     try {
-      final data =
-          wallet.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.update(
         _tableName,
         data,
@@ -277,8 +275,7 @@ class WalletOperation {
     try {
       final data = items
           .map(
-            (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
       await _baseOperation.insertOrUpdateBatch(

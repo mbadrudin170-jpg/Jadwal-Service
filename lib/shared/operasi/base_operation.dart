@@ -14,6 +14,7 @@ import 'package:wifi/shared/operasi/upload_status_operation.dart';
 class BaseOperation {
   final DatabaseHelper _dbHelper;
   final UploadStatusOperation _uploadStatusOperasi;
+  final now = DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
@@ -223,7 +224,6 @@ class BaseOperation {
     try {
       await _runInTransaction(
         (final txn) async {
-          final now = DateTime.now().toUtc();
           final rowsAffected = await txn.update(
             table,
             {
@@ -270,7 +270,6 @@ class BaseOperation {
     try {
       final count = await _runInTransaction<int>(
         (final txn) async {
-          final now = DateTime.now().toUtc();
           final rowsAffected = await txn.update(
             table,
             {

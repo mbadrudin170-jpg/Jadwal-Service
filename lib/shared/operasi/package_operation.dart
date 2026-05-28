@@ -20,6 +20,7 @@ class PackageOperation {
   final BaseOperation _baseOperation;
 
   final String _tableName = TableNameValue.get(TableName.package);
+  final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor untuk [PackageOperation].
   PackageOperation({
@@ -35,8 +36,7 @@ class PackageOperation {
       {final bool fromServer = false}) async {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
-      final data =
-          package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.insert(
         _tableName,
         data,
@@ -161,8 +161,7 @@ class PackageOperation {
       {final bool fromServer = false}) async {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
-      final data =
-          package.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
+      final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.update(
         _tableName,
         data,
@@ -177,7 +176,8 @@ class PackageOperation {
   }
 
   /// Melakukan soft delete pada [PackageModel] berdasarkan [id].
-  Future<void> softDelete(final String id, {final bool fromServer = false}) async {
+  Future<void> softDelete(final String id,
+      {final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
       await _baseOperation.softDelete(
@@ -278,8 +278,7 @@ class PackageOperation {
     try {
       final dataList = items
           .map(
-            (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
       await _baseOperation.insertOrUpdateBatch(

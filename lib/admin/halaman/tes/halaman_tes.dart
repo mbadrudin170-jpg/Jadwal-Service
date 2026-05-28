@@ -21,7 +21,7 @@ class _HalamanTesState extends State<HalamanTes> {
   @override
   void initState() {
     super.initState();
-    unawaited(_adService.preloadAd(adUnitId: adUnitId));
+    unawaited(_adService.preloadAd());
   }
 
   @override
@@ -39,15 +39,7 @@ class _HalamanTesState extends State<HalamanTes> {
               child: const Text('Tampilkan Interstitial Ad'),
               onPressed: () {
                 // PERBAIKAN: Gunakan unawaited untuk Future di dalam callback sinkron
-                unawaited(_adService.showAdIfReady(
-                    adUnitId: adUnitId,
-                    onAdDismissed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Iklan ditutup atau gagal tampil.')),
-                      );
-                      // Tidak perlu memuat ulang secara manual, service sudah menanganinya
-                    }));
+                unawaited(_adService.showAdIfReady());
               },
             ),
             const SizedBox(height: 40),
@@ -55,13 +47,11 @@ class _HalamanTesState extends State<HalamanTes> {
             StreamBuilder<void>(
               stream: Stream.periodic(const Duration(seconds: 1)),
               builder: (final context, final snapshot) {
-                final isReady = _adService.isAdReady;
-                return Text(
-                  'Iklan Siap: $isReady',
+                return const Text(
+                  'ok',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: isReady ? Colors.green : Colors.red,
                     fontWeight: FontWeight.bold,
                   ),
                 );
