@@ -110,7 +110,7 @@ final class ThemeNotifierProvider
   ThemeNotifier create() => ThemeNotifier();
 }
 
-String _$themeNotifierHash() => r'0abc8f611b2c03607a13af85dd22198ab8641f2d';
+String _$themeNotifierHash() => r'513544042bfec3fdbaba5942010e85d0bdb8e491';
 
 abstract class _$ThemeNotifier extends $AsyncNotifier<ThemeMode> {
   FutureOr<ThemeMode> build();

@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget_2.dart';
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
@@ -271,7 +271,7 @@ class _PointsPageState extends State<PointsPage> {
           ? _buildRewardList()
           : _buildPointsHistory(),
       bottomWidget: widget.showAd
-          ? BannerAdsWidget2()
+          ? const BannerAdsWidget() // DIUBAH
           : null,
     );
   }

@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
@@ -18,8 +19,8 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
+import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 // PENJELASAN: Kelas ini dibuat untuk menampung semua data yang dibutuhkan oleh halaman profil.
 // Tujuannya adalah memuat semua data ini dalam satu operasi asynchronous,
@@ -39,7 +40,7 @@ class _ProfileData {
 }
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   final String userId;
   final LocalStorageService localStorageService;
 
@@ -50,14 +51,13 @@ class ProfilePage extends StatefulWidget {
   });
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
   final PackageOpFirebase _packageOp = PackageOpFirebase();
-  final InterstitialAdService _interstitialAdService = InterstitialAdService();
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
   Future<_ProfileData>? _futureProfileData;
@@ -67,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     Log.info(
         'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}');
-    _interstitialAdService.preloadAd();
+    ref.read(interstitialAdServiceProvider).preloadAd();
     _initializeData();
   }
 
@@ -294,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToDetail(String userId) async {
-    await _interstitialAdService.show();
+    await ref.read(interstitialAdServiceProvider).show();
     try {
       final hasChanged = await Navigator.push<bool>(
         context,
@@ -302,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context) => UserCustomerDetailPage(userId: userId),
         ),
       );
-      await _interstitialAdService.show();
+      await ref.read(interstitialAdServiceProvider).show();
       if (hasChanged ?? false) {
         _reloadData();
       }
@@ -313,7 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToPointsPage(String customerId) async {
-    await _interstitialAdService.show();
+    await ref.read(interstitialAdServiceProvider).show();
     try {
       final hasChanged = await Navigator.push<bool>(
         context,
@@ -326,7 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       );
-      await _interstitialAdService.show();
+      await ref.read(interstitialAdServiceProvider).show();
       if (hasChanged ?? false) {
         _reloadData();
       }

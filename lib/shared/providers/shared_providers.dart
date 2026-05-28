@@ -8,7 +8,6 @@ part 'shared_providers.g.dart';
 
 @Riverpod(keepAlive: true)
 Future<SharedPreferences> sharedPreferences(Ref ref) {
-  // DIHAPUS: SharedPreferencesRef
   return SharedPreferences.getInstance();
 }
 
@@ -20,21 +19,23 @@ Future<LocalStorageService> localStorageService(Ref ref) async {
 
 @Riverpod(keepAlive: true)
 class ThemeNotifier extends _$ThemeNotifier {
+  // Tidak lagi 'late', akan diinisialisasi di 'build'
   late LocalStorageService _localStorageService;
+
   @override
   Future<ThemeMode> build() async {
-    final localStorage = await ref.watch(localStorageServiceProvider.future);
-    _localStorageService = localStorage;
+    // 1. Dapatkan instance LocalStorageService
+    _localStorageService = await ref.watch(localStorageServiceProvider.future);
+
+    // 2. Baca tema yang tersimpan dan kembalikan sebagai state awal
     return await _localStorageService.getThemeMode();
   }
 
+  // Method untuk mengubah dan menyimpan tema baru
   Future<void> setThemeMode(ThemeMode themeMode) async {
-    state = const AsyncValue.loading();
-    try {
-      await _localStorageService.saveThemeMode(themeMode);
-      state = AsyncValue.data(themeMode);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    // Langsung gunakan _localStorageService yang sudah diinisialisasi di build
+    await _localStorageService.saveThemeMode(themeMode);
+    // Perbarui state provider agar UI ikut berubah
+    state = AsyncValue.data(themeMode);
   }
 }

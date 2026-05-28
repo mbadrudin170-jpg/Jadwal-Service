@@ -1,9 +1,9 @@
 // path: lib/user/page/subscription_history_user.dart
-// DITAMBAHKAN: Memanggil preloadAd di initState dan dispose di dispose.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
@@ -12,32 +12,30 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+import 'package:wifi/user/providers/ad_providers.dart';
 
-/// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
-  endDateNewest, // Urutkan berdasarkan tanggal berakhir terbaru.
-  endDateOldest, // Urutkan berdasarkan tanggal berakhir terlama.
-  statusPaid, // Urutkan berdasarkan status lunas.
-  statusUnpaid, // Urutkan berdasarkan status belum lunas.
+  endDateNewest,
+  endDateOldest,
+  statusPaid,
+  statusUnpaid,
 }
 
-/// Halaman untuk menampilkan riwayat langganan pengguna.
-class SubscriptionHistoryPage extends StatefulWidget {
+class SubscriptionHistoryPage extends ConsumerStatefulWidget {
   final String userId;
 
   const SubscriptionHistoryPage({super.key, required this.userId});
 
   @override
-  State<SubscriptionHistoryPage> createState() =>
+  ConsumerState<SubscriptionHistoryPage> createState() =>
       _SubscriptionHistoryPageState();
 }
 
-class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
+class _SubscriptionHistoryPageState
+    extends ConsumerState<SubscriptionHistoryPage> {
   final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
-  final InterstitialAdService _interstitialAdService = InterstitialAdService();
 
   SortMode _sortMode = SortMode.endDateNewest;
   late Future<List<TransactionModel>> _historyFuture;
@@ -46,15 +44,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   void initState() {
     super.initState();
     _historyFuture = _loadHistory();
-    // PENJELASAN: Memulai pemuatan iklan di awal agar siap saat dibutuhkan.
-    _interstitialAdService.preloadAd();
-  }
-
-  @override
-  void dispose() {
-    // PENJELASAN: Membersihkan iklan saat halaman ditutup untuk mencegah memory leak.
-    _interstitialAdService.dispose();
-    super.dispose();
   }
 
   Future<List<TransactionModel>> _loadHistory() async {
@@ -110,7 +99,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     Future<PackageModel?> packageFuture,
   ) async {
     final package = await packageFuture;
-    await _interstitialAdService.show();
+    await ref.read(interstitialAdServiceProvider).show();
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -120,7 +109,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
         ),
       ),
     );
-    await _interstitialAdService.show();
+    await ref.read(interstitialAdServiceProvider).show();
   }
 
   @override
