@@ -1,103 +1,73 @@
-# Proyek WiFi - Aplikasi Manajemen Layanan & Pelanggan
 
-Selamat datang di dokumentasi proyek WiFi. Proyek ini merupakan sebuah ekosistem aplikasi Flutter yang dirancang untuk mengelola layanan berbasis langganan, dengan pemisahan peran yang jelas antara administrator dan pengguna akhir.
+# Dokumentasi Proyek WiFi Management
 
----
+Selamat datang di dokumentasi proyek aplikasi Manajemen WiFi. Proyek ini dibangun menggunakan Flutter dan dirancang untuk membantu pengelola usaha WiFi dalam mengelola pelanggan, transaksi, dan layanan, serta memberikan aplikasi pendamping bagi pelanggan untuk memeriksa status langganan mereka.
 
-## Ringkasan Proyek
+## 🌟 Ringkasan Proyek
 
-Proyek ini terdiri dari dua aplikasi utama yang berada dalam satu basis kode (monorepo):
+Aplikasi ini dibagi menjadi dua *flavor* atau varian utama:
 
-1.  **Aplikasi Admin:** Sebuah *control panel* lengkap yang berfungsi sebagai pusat manajemen bisnis. Admin dapat mengelola data master (pelanggan, paket layanan, kategori), memproses transaksi, melihat riwayat, dan memantau statistik bisnis.
+1.  **Aplikasi Admin**: Sebuah alat manajemen komprehensif untuk pemilik usaha.
+2.  **Aplikasi User**: Aplikasi yang digunakan oleh pelanggan untuk berinteraksi dengan layanan.
 
-2.  **Aplikasi User:** Aplikasi yang dihadapi oleh pelanggan. Pengguna dapat melihat detail langganan mereka, memeriksa riwayat transaksi, memberikan masukan (*feedback*), dan mendapatkan informasi terbaru mengenai layanan. Aplikasi ini juga terintegrasi dengan iklan (Google AdMob) sebagai salah satu model bisnis.
-
-Arsitektur ini memungkinkan pengembangan fitur yang terfokus untuk setiap peran sambil tetap berbagi logika bisnis, model data, dan utilitas umum.
+Pemisahan ini memungkinkan pengembangan fitur yang terfokus untuk setiap jenis pengguna dan memastikan basis kode yang lebih bersih dan terkelola.
 
 ---
 
-## Fitur Utama
+## 👨‍💼 Aplikasi Admin
 
-### Aplikasi Admin
-- **Manajemen Data Offline-First:** Menggunakan database SQLite lokal sebagai *cache* utama untuk kecepatan dan operasi offline. 
-- **Sinkronisasi Data Dua Arah:** Kemampuan untuk mengunduh data dari Cloud Firestore ke database lokal dan mengunggah perubahan lokal kembali ke cloud.
-- **CRUD Komprehensif:** Manajemen penuh untuk Pelanggan, Paket, Kategori, Transaksi, dan Dompet.
-- **Dashboard & Statistik:** Halaman khusus untuk memvisualisasikan data penting bisnis (misal: paket terlaris, ringkasan keuangan).
-- **Manajemen Versi APK:** Fitur untuk mengelola dan mendistribusikan versi aplikasi kepada pengguna.
-- **Pembersihan Data Otomatis:** Mekanisme untuk membersihkan data arsip yang sudah kadaluarsa secara periodik.
+Aplikasi Admin adalah pusat kendali untuk seluruh operasi bisnis WiFi. Tujuannya adalah untuk mempermudah pencatatan, pengelolaan, dan analisis data bisnis.
 
-### Aplikasi User
-- **Autentikasi & Profil:** Pengguna dapat masuk dan mengelola informasi profil dasar.
-- **Tampilan Informasi Pelanggan:** Menampilkan status langganan aktif, riwayat pembelian, dan detail akun.
-- **Sistem Poin & Reward:** Pengguna dapat mengumpulkan poin dari aktivitas tertentu.
-- **Pemberian Feedback:** Pengguna dapat mengirimkan masukan atau keluhan kepada admin.
-- **Notifikasi Lokal:** Pengingat dan pemberitahuan penting yang dijadwalkan di perangkat.
-- **Integrasi Iklan:** Menampilkan iklan sebagai bagian dari model monetisasi aplikasi.
+### Fitur Utama:
 
----
-
-## Arsitektur & Teknologi
-
-Proyek ini dibangun dengan tumpukan teknologi modern untuk aplikasi Flutter.
-
-- **Bahasa:** Dart
-- **Framework:** Flutter
-
-- **Arsitektur Aplikasi:**
-  - **Flavors:** Menggunakan *flavors* (misal: `adminProd`, `userProd`) untuk memisahkan konfigurasi dan titik masuk (entry point) antara aplikasi admin dan user.
-  - **State Management:** `provider` untuk *dependency injection* dan manajemen state.
-  - **Pemisahan Logika:** Lapisan abstraksi data (`/shared/operasi`) memisahkan logika bisnis dari implementasi sumber data (baik itu Firebase maupun SQLite).
-
-- **Penyimpanan Data:**
-  - **Cloud Database:** `cloud_firestore` sebagai sumber data utama dan untuk sinkronisasi antar perangkat.
-  - **Local Database:** `sqflite` digunakan secara ekstensif di aplikasi admin untuk operasi offline-first yang cepat.
-  - **Key-Value Store:** `shared_preferences` untuk menyimpan pengaturan sederhana seperti tema aplikasi.
-
-- **Lainnya:**
-  - **Tugas Latar Belakang:** `workmanager` untuk menjalankan tugas periodik.
-  - **Navigasi:** `go_router` dan navigator kustom berbasis `NavigatorKey`.
-  - **Notifikasi:** `flutter_local_notifications`.
-  - **Monetisasi:** `google_mobile_ads` dengan mediasi pihak ketiga.
+*   **Dashboard & Statistik (`statistik_page_a.dart`)**: Menampilkan ringkasan visual dari data bisnis, seperti pendapatan, pelanggan baru, dan paket terlaris.
+*   **Manajemen Pelanggan (`customer.dart`, `active_customer_tab.dart`)**:
+    *   Mencatat dan mengelola seluruh daftar pelanggan.
+    *   Melihat daftar pelanggan yang sedang aktif berlangganan.
+    *   Melihat detail riwayat setiap pelanggan.
+*   **Manajemen Transaksi (`transaction_page_a.dart`)**:
+    *   Mencatat semua transaksi pembayaran dari pelanggan.
+    *   Memfilter dan mencari transaksi berdasarkan tanggal atau status.
+*   **Manajemen Dompet (`wallet_page.dart`)**: Mengelola saldo atau deposit yang dapat digunakan untuk transaksi, berfungsi sebagai kas internal.
+*   **Manajemen Paket Layanan (`package.dart`)**: Membuat, mengubah, atau menghapus paket langganan internet yang ditawarkan (misal: Bulanan, Mingguan).
+*   **Manajemen Versi APK (`apk_version_page.dart`)**:
+    *   Mengunggah dan mengelola versi aplikasi user.
+    *   Memberikan notifikasi pembaruan kepada pengguna.
+*   **Umpan Balik Pelanggan (`feedback.dart`)**: Melihat dan merespons umpan balik atau keluhan yang dikirim oleh pengguna melalui aplikasi mereka.
+*   **Pengaturan Global (`settings_page_a.dart`)**: Mengatur konfigurasi umum yang berlaku di seluruh sistem.
 
 ---
 
-## Alur Kerja Pengembangan
+## 📱 Aplikasi User
 
-Proyek ini mengikuti serangkaian aturan dan alur kerja yang terdokumentasi untuk menjaga kualitas dan konsistensi kode.
+Aplikasi User dirancang untuk memberikan kemudahan dan transparansi bagi pelanggan.
 
-### 1. Aturan Koding
-- **Penamaan:** Variabel, fungsi, dan kelas dalam Bahasa Inggris. Komentar dan dokumentasi dalam Bahasa Indonesia.
-- **Kualitas Kode:** Wajib menjalankan `flutter analyze` setelah melakukan perubahan untuk mendeteksi error dan warning.
-- **Ketergantungan Ikon:** Semua ikon harus direferensikan melalui kelas `AppIcons` untuk konsistensi.
+### Fitur Utama:
 
-### 2. Analisis Error
-- Mengikuti prosedur terstruktur untuk menelusuri error, dimulai dari identifikasi file, membaca semua dependensi impor, dan menganalisis dampak perubahan ke file lain.
-
-### 3. Proses Build
-- Proses build APK untuk Admin dan User menggunakan alias shell script yang telah ditentukan (`fbapkver_admin` dan `fbapkver_user`).
-- Setiap build yang berhasil **wajib** dicatat versinya di dalam direktori `docs/build/` untuk menjaga riwayat rilis.
-
-### 4. Logging & Notifikasi Pengguna
-- Penggunaan `Log` kustom untuk debugging terstruktur.
-- Penggunaan `ToastUtil` untuk menampilkan notifikasi *in-app* (snackbar) yang konsisten.
-
-Untuk detail lebih lanjut, silakan merujuk ke dokumen-dokumen di folder `prompt/`.
+*   **Pemeriksaan Status Langganan (`main_page.dart`, `subscription_history_user.dart`)**:
+    *   Fitur utama yang memungkinkan pengguna melihat status aktif paket langganan mereka.
+    *   Melihat sisa waktu paket dan riwayat langganan sebelumnya.
+*   **Poin & Hadiah (`points_page.dart`)**:
+    *   Pengguna mendapatkan poin dari aktivitas tertentu (misal: pembayaran tepat waktu).
+    *   Poin dapat ditukarkan dengan hadiah atau diskon yang tersedia.
+*   **Profil Pengguna (`profile_page.dart`, `edit_profile_page.dart`)**:
+    *   Melihat dan mengubah informasi data diri.
+*   **Kirim Umpan Balik (`user_feedback_form.dart`)**: Memberikan sarana bagi pengguna untuk mengirim keluhan, saran, atau laporan masalah.
+*   **Riwayat Transaksi (`transaction_detail_u.dart`)**: Melihat detail riwayat pembayaran yang telah dilakukan.
+*   **Integrasi Iklan**: Aplikasi ini didukung oleh iklan (Banner, Interstitial, App Open) melalui Google Mobile Ads dengan mediasi Unity untuk memberikan potensi monetisasi.
 
 ---
 
-## Cara Memulai
+## 🏗️ Arsitektur & Teknologi
 
-1.  **Pastikan Flutter terinstal** pada versi yang sesuai (lihat `environment` di `pubspec.yaml`).
-2.  **Konfigurasi Firebase:** Pastikan Anda memiliki file `firebase_options.dart` yang sesuai untuk setiap *flavor* (admin dan user) dan untuk setiap lingkungan (dev dan prod).
-3.  **Jalankan `flutter pub get`** untuk menginstal semua dependensi.
-4.  **Jalankan Aplikasi:** Gunakan perintah `flutter run` dengan *flavor* yang diinginkan.
-
-    *   **Untuk Menjalankan Aplikasi User (Produksi):**
-        ```bash
-        flutter run --flavor userProd -t lib/main/main_user/user_prod.dart
-        ```
-
-    *   **Untuk Menjalankan Aplikasi Admin (Produksi):**
-        ```bash
-        flutter run --flavor adminProd -t lib/main/main_admin/admin_prod.dart
-        ```
+*   **Framework**: Flutter
+*   **State Management**: `flutter_riverpod`
+*   **Struktur Proyek**:
+    *   `lib/admin`: Kode spesifik untuk aplikasi Admin.
+    *   `lib/user`: Kode spesifik untuk aplikasi User.
+    *   `lib/shared`: Kode yang dapat digunakan kembali oleh kedua aplikasi (model data, logika bisnis, servis, tema, widget).
+*   **Database**:
+    *   **Lokal**: SQLite (`sqlite.dart`) digunakan di sisi admin untuk penyimpanan data offline.
+    *   **Backend**: Firebase (Cloud Firestore) digunakan sebagai backend utama untuk sinkronisasi data antara admin dan user (`firebase_operasi`).
+*   **Layanan Latar Belakang**: `background_service.dart` untuk tugas-tugas terjadwal seperti pengecekan langganan yang kedaluwarsa.
+*   **Proses Build**: Menggunakan *flavors* untuk memisahkan build `dev` dan `prod` untuk admin dan user. Riwayat build dicatat dalam direktori `docs/build/`.

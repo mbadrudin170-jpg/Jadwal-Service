@@ -44,21 +44,20 @@ class _HalamanUtamaState extends State<HalamanUtama>
     WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((final _) {
-      unawaited(_initAsync());
+      _initAsync();
     });
 
-    _koneksiSubscription =
-        Connectivity().onConnectivityChanged.listen(_onKoneksiBerubah);
+    _koneksiSubscription = Connectivity().onConnectivityChanged.listen(
+          _onKoneksiBerubah,
+        );
   }
 
   Future<void> _initAsync() async {
     await _handleInitialNotification();
     await _scheduleSync();
     Log.info('Frame pertama selesai dirender.');
-
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
-
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
     await ExpiredSubscriptionCheckService().processExpiredSubscriptions();
     await _sinkronisasiDataSaatOnline();
@@ -117,7 +116,9 @@ class _HalamanUtamaState extends State<HalamanUtama>
     if (widget.isOffline) {
       Log.warning('Aplikasi dalam mode offline. Menampilkan pesan.');
       ToastUtil.warning(
-          context, 'Anda dalam mode offline. Data mungkin tidak terbaru.');
+        context,
+        'Anda dalam mode offline. Data mungkin tidak terbaru.',
+      );
     }
   }
 
@@ -144,27 +145,31 @@ class _HalamanUtamaState extends State<HalamanUtama>
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _widgetOptions,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon: Icon(AppIcons.activeCustomer), label: 'Aktif'),
+            icon: Icon(AppIcons.activeCustomer),
+            label: 'Aktif',
+          ),
           BottomNavigationBarItem(icon: Icon(AppIcons.wallet), label: 'Dompet'),
           BottomNavigationBarItem(
-              icon: Icon(AppIcons.receiptLong), label: 'Transaksi'),
+            icon: Icon(AppIcons.receiptLong),
+            label: 'Transaksi',
+          ),
           BottomNavigationBarItem(
-              icon: Icon(AppIcons.report), label: 'Statistik'),
+            icon: Icon(AppIcons.report),
+            label: 'Statistik',
+          ),
           BottomNavigationBarItem(icon: Icon(AppIcons.apps), label: 'Lainnya'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor:
-            Theme.of(context).colorScheme.onSurface.withAlpha(179),
+        unselectedItemColor: Theme.of(
+          context,
+        ).colorScheme.onSurface.withAlpha(179),
         showUnselectedLabels: true,
       ),
     );

@@ -21,17 +21,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Inisialisasi Workmanager dipindahkan ke AppInitializer untuk memastikan
-  // hanya diinisialisasi sekali.
-
-  // DITAMBAHKAN: Inisialisasi Google Mobile Ads SDK
-  Log.info('[main-dev] Menginisialisasi Google Mobile Ads SDK...');
+  Log.info(' Menginisialisasi Google Mobile Ads SDK...');
   await MobileAds.instance.initialize();
-  Log.info('[main-dev] Inisialisasi Google Mobile Ads SDK selesai.');
+  Log.info(' Inisialisasi Google Mobile Ads SDK selesai.');
 
-  Log.info(
-      '[main-dev] Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
+  Log.info(' Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
   runApp(
     const ProviderScope(

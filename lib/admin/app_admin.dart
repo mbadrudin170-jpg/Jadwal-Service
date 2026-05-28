@@ -44,11 +44,11 @@ class AppAdmin extends StatelessWidget {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider<ThemeProvider>(
-              create: (final _) =>
+              create: (_) =>
                   ThemeProviderImpl(localStorageService: localStorageService),
             ),
             Provider<NotifikasiServis>(
-              create: (final _) => NotifikasiServis(),
+              create: (_) => NotifikasiServis(),
             ),
           ],
           child: const AppInitializer(),
@@ -131,9 +131,8 @@ class _AppInitializerState extends State<AppInitializer> {
         Log.info(
             'Membersihkan data arsip kadaluarsa (SQLite & Firestore) dengan retensi $retentionDays hari...');
         final dataCleaningOperation = DataCleaningOperation();
-        // Mengubah dari await menjadi unawaited untuk mempercepat hilangnya splash screen
-        unawaited(dataCleaningOperation.deleteAllExpiredArchivedData(
-            retentionDays: retentionDays));
+        await dataCleaningOperation.deleteAllExpiredArchivedData(
+            retentionDays: retentionDays);
       } else {
         Log.warning('Melewati proses pembersihan data karena sedang offline.');
       }
@@ -178,7 +177,7 @@ class AppProviders extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<SyncManager>(
-          create: (final _) => SyncManager(),
+          create: (_) => SyncManager(),
         ),
       ],
       child: AppMaterial(isOffline: isOffline),
@@ -202,7 +201,6 @@ class AppMaterial extends StatelessWidget {
         builder: (final context, final themeProvider, final child) {
           return MaterialApp(
             title: 'Admin Wifi',
-            debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,

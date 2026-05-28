@@ -88,7 +88,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
   Future<void> _navigateToEdit(final CustomerModel customer) async {
-    // 1. Langsung navigasi ke halaman edit.
+    await _interstitialAdServices.show();
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -96,7 +96,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
             EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
-
+    await _interstitialAdServices.show();
     // 2. Setelah kembali, periksa jika ada perubahan dan muat ulang data.
     if (result ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');

@@ -34,6 +34,7 @@ class ActiveCustomerOperation {
 
   final NotifikasiServis _notifikasiServis = NotifikasiServis();
   final CustomerOperation _customerOperation = CustomerOperation();
+  final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor untuk `ActiveCustomerOperation`.
   ActiveCustomerOperation() {
@@ -87,7 +88,7 @@ class ActiveCustomerOperation {
       final newId = activeCustomer.id.isEmpty ? uuid.v4() : activeCustomer.id;
       final customerToSave = activeCustomer.copyWith(
         id: newId,
-        updatedAt: DateTime.now().toUtc(),
+        updatedAt: _nowUtc,
       );
 
       Log.info('Membuat active customer baru - ID: $newId');
@@ -169,7 +170,7 @@ class ActiveCustomerOperation {
   }) async {
     try {
       final customerToSave = activeCustomer.copyWith(
-        updatedAt: DateTime.now().toUtc(),
+        updatedAt: _nowUtc,
       );
 
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
@@ -267,8 +268,7 @@ class ActiveCustomerOperation {
 
       final data = items
           .map(
-            (final item) =>
-                item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
+            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
 
@@ -304,9 +304,9 @@ class ActiveCustomerOperation {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           final archivedCustomer = activeCustomer.copyWith(
-            updatedAt: DateTime.now().toUtc(),
+            updatedAt: _nowUtc,
             isDeleted: true,
-            archivedAt: DateTime.now().toUtc(),
+            archivedAt: _nowUtc,
           );
 
           await txn.update(
@@ -337,8 +337,7 @@ class ActiveCustomerOperation {
     try {
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final deadline =
-              DateTime.now().toUtc().subtract(const Duration(days: 30));
+          final deadline = _nowUtc.subtract(const Duration(days: 30));
 
           final List<Map<String, dynamic>> expiredCustomers = await txn.query(
             _tableName,
@@ -380,12 +379,11 @@ class ActiveCustomerOperation {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
       final db = await dbHelper.database;
-      final now = DateTime.now().toUtc();
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _tableName,
         where: '${ColumnNames.endDate} < ? AND ${ColumnNames.isDeleted} = 0',
-        whereArgs: [now.millisecondsSinceEpoch],
+        whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
       if (expiredCustomers.isEmpty) {
@@ -399,14 +397,12 @@ class ActiveCustomerOperation {
 
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final nowMs = DateTime.now().toUtc().millisecondsSinceEpoch;
-
           await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: nowMs,
-              ColumnNames.updatedAt: nowMs,
+              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
             },
             where:
                 '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
@@ -446,14 +442,12 @@ class ActiveCustomerOperation {
 
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
-          final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-
           await txn.update(
             _tableName,
             {
               ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: now,
-              ColumnNames.updatedAt: now,
+              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
+              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
             },
             where:
                 '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',

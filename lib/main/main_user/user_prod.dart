@@ -26,10 +26,12 @@ void main() async {
   Log.info('Menginisialisasi workmanager');
   await BackgroundService.init();
 
+  Log.info('Menginisialisasi GmaMediationUnity');
   // Konfigurasi consent GDPR dan CCPA untuk Unity Ads Mediation.
   await GmaMediationUnity().setGDPRConsent(true);
   await GmaMediationUnity().setCCPAConsent(true);
 
+  Log.info('Menginisialisasi MobileAds');
   await MobileAds.instance.initialize();
 
   Log.info(
