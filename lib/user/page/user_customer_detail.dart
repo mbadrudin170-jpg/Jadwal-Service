@@ -1,5 +1,6 @@
 // path: lib/user/page/user_customer_detail.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -9,8 +10,8 @@ import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
+import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
-import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -21,19 +22,20 @@ class _ProfileData {
 }
 
 /// Halaman untuk menampilkan detail profil pengguna.
-class UserCustomerDetailPage extends StatefulWidget {
+class UserCustomerDetailPage extends ConsumerStatefulWidget {
   final String userId;
 
   const UserCustomerDetailPage({super.key, required this.userId});
 
   @override
-  State<UserCustomerDetailPage> createState() => _UserCustomerDetailPageState();
+  ConsumerState<UserCustomerDetailPage> createState() =>
+      _UserCustomerDetailPageState();
 }
 
-class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
+class _UserCustomerDetailPageState
+    extends ConsumerState<UserCustomerDetailPage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
-  final _interstitialAdServices = InterstitialAdService();
   Future<_ProfileData>? _dataFuture;
   bool _hasMadeChanges = false;
 
@@ -43,15 +45,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     Log.info(
       'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
     );
-    // Memulai pemuatan iklan di latar belakang
-    _interstitialAdServices.preloadAd();
     _dataFuture = _loadData();
-  }
-
-  @override
-  void dispose() {
-    _interstitialAdServices.dispose();
-    super.dispose();
   }
 
   Future<_ProfileData> _loadData() async {
@@ -88,7 +82,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
   Future<void> _navigateToEdit(final CustomerModel customer) async {
-    await _interstitialAdServices.show();
+    await ref.read(interstitialAdServiceProvider).show();
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -96,7 +90,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
             EditProfilePage(customer: customer, userId: widget.userId),
       ),
     );
-    await _interstitialAdServices.show();
+    await ref.read(interstitialAdServiceProvider).show();
     // 2. Setelah kembali, periksa jika ada perubahan dan muat ulang data.
     if (result ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
@@ -108,7 +102,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   }
 
   Future<void> _navigateToPoints(final String customerId) async {
-    await _interstitialAdServices.show();
+    await ref.read(interstitialAdServiceProvider).show();
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -121,7 +115,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         ),
       ),
     );
-    await _interstitialAdServices.show();
+    await ref.read(interstitialAdServiceProvider).show();
     if (result ?? false) {
       Log.info(
           'Kembali dari halaman poin dengan perubahan, memuat ulang data.');

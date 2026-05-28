@@ -1,33 +1,16 @@
 // path: lib/user/page/transaction_detail_user.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman detail transaksi untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget_2.dart';
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
 
-/// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
-///
-/// Menampilkan semua informasi yang relevan dari [TransactionModel] dan
-/// [PackageModel] yang terkait.
 class TransactionDetailPage extends StatelessWidget {
-  /// Data transaksi yang akan ditampilkan.
   final TransactionModel transaction;
-
-  /// Data paket yang terkait dengan transaksi (jika ada).
   final PackageModel? package;
 
-  /// Membuat instance dari [TransactionDetailPage].
   const TransactionDetailPage(
       {super.key, required this.transaction, this.package});
 
@@ -84,7 +67,8 @@ class TransactionDetailPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BannerAdsWidget2(),
+      // DIUBAH
+      bottomNavigationBar: const BannerAdsWidget(),
     );
   }
 
