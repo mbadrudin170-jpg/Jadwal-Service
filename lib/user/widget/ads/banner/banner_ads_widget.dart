@@ -1,20 +1,18 @@
-// path: lib/user/widget/ads/banner/banner_waterfall_widget.dart
+// path: lib/user/widget/ads/banner/banner_ads_widget.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
 /// Jika gagal memuat, widget akan mencoba memuat ulang ID yang sama
 /// setelah jeda waktu tertentu.
 class BannerWaterfallWidget extends StatefulWidget {
-  /// ID unit iklan banner yang akan dimuat.
-  final String adUnitId;
-
   const BannerWaterfallWidget({
     super.key,
-    required this.adUnitId,
   });
   @override
   State<BannerWaterfallWidget> createState() => _BannerWaterfallWidgetState();
@@ -23,6 +21,7 @@ class BannerWaterfallWidget extends StatefulWidget {
 class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  final String adUnitId = IdBannerAds.prodBannerAdMediasi1;
 
   @override
   void initState() {
@@ -38,7 +37,7 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
 
   void _loadAd() {
     _bannerAd = BannerAd(
-      adUnitId: widget.adUnitId,
+      adUnitId: adUnitId,
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
@@ -52,7 +51,7 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
           Log.error(
             'Gagal memuat Banner Ad',
             e: error,
-            data: {'adUnitId': widget.adUnitId, 'ad': ad.toString()},
+            data: {'adUnitId': adUnitId, 'ad': ad.toString()},
           );
           unawaited(ad.dispose());
         },
@@ -64,10 +63,12 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
   @override
   Widget build(final BuildContext context) {
     if (_bannerAd != null && _isAdLoaded) {
-      return SizedBox(
-        width: _bannerAd!.size.width.toDouble(),
-        height: _bannerAd!.size.height.toDouble(),
-        child: AdWidget(ad: _bannerAd!),
+      return SafeArea(
+        child: SizedBox(
+          width: _bannerAd!.size.width.toDouble(),
+          height: _bannerAd!.size.height.toDouble(),
+          child: AdWidget(ad: _bannerAd!),
+        ),
       );
     } else {
       return const SizedBox.shrink();

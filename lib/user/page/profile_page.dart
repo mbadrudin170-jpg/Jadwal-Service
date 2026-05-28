@@ -302,6 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context) => UserCustomerDetailPage(userId: userId),
         ),
       );
+      await _interstitialAdService.showAdIfReady();
       if (hasChanged ?? false) {
         _reloadData();
       }
@@ -325,6 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       );
+      await _interstitialAdService.showAdIfReady();
       if (hasChanged ?? false) {
         _reloadData();
       }

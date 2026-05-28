@@ -13,30 +13,36 @@ class IdBannerAds {
 
   // --- ID Iklan Banner Tes ---
   static const String _testBannerAd = 'ca-app-pub-3940256099942544/6300978111';
-  static const String _testProfileBannerAd =
-      'ca-app-pub-3940256099942544/6300978111';
 
-  static List<String> get bannerAdUnitIds {
+  /// ID unit iklan untuk Banner mediasi 1.
+  static String get prodBannerAdMediasi1 {
     if (kDebugMode) {
-      // Urutan untuk menguji waterfall: gagal, gagal, berhasil.
-      return [
-        _testBannerAd, // Akan berhasil
-      ];
-    }
-    // Urutan produksi
-    return [
-      _prodBannerAdMediasi1,
-      _prodBannerAdMediasi2,
-      _prodBanner1,
-      _prodBanner2,
-    ];
-  }
-
-  /// ID unit iklan untuk Banner di halaman profil (Mediasi).
-  static String get profileBannerAdUnitId {
-    if (kDebugMode) {
-      return _testProfileBannerAd;
+      return _testBannerAd;
     }
     return _prodBannerAdMediasi1;
+  }
+
+  /// ID unit iklan untuk Banner mediasi 2.
+  static String get prodBannerAdMediasi2 {
+    if (kDebugMode) {
+      return _testBannerAd;
+    }
+    return _prodBannerAdMediasi2;
+  }
+
+  /// ID unit iklan untuk Banner 1.
+  static String get prodBanner1 {
+    if (kDebugMode) {
+      return _testBannerAd;
+    }
+    return _prodBanner1;
+  }
+
+  /// ID unit iklan untuk Banner 2.
+  static String get prodBanner2 {
+    if (kDebugMode) {
+      return _testBannerAd;
+    }
+    return _prodBanner2;
   }
 }

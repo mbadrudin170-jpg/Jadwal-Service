@@ -110,8 +110,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     Future<PackageModel?> packageFuture,
   ) async {
     final package = await packageFuture;
-    if (!mounted) return;
-
+    await _interstitialAdService.showAdIfReady();
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -121,7 +120,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
         ),
       ),
     );
-    // Pemanggilan ini sekarang aman berkat perbaikan di InterstitialAdService.
     await _interstitialAdService.showAdIfReady();
   }
 
@@ -174,7 +172,8 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                     }
                     if (historySnapshot.hasError) {
                       return Center(
-                          child: Text('Gagal memuat: ${historySnapshot.error}'));
+                          child:
+                              Text('Gagal memuat: ${historySnapshot.error}'));
                     }
                     if (!historySnapshot.hasData ||
                         historySnapshot.data!.isEmpty) {
