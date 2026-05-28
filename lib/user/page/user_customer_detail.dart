@@ -10,6 +10,7 @@ import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
+import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
@@ -32,8 +33,7 @@ class UserCustomerDetailPage extends StatefulWidget {
 class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   final CustomerOpFirebase _customerOp = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
-  // Interstitial service adalah singleton, tidak perlu instance lokal.
-
+  final _interstitialAdServices = InterstitialAdService();
   Future<_ProfileData>? _dataFuture;
   bool _hasMadeChanges = false;
 
@@ -43,9 +43,15 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
     Log.info(
       'Memulai initState pada UserCustomerDetailPage untuk userId: ${widget.userId}',
     );
-    // Iklan sekarang di-preload secara global.
-    // Tidak perlu loadAd() di sini.
+    // Memulai pemuatan iklan di latar belakang
+    _interstitialAdServices.preloadAd();
     _dataFuture = _loadData();
+  }
+
+  @override
+  void dispose() {
+    _interstitialAdServices.dispose();
+    super.dispose();
   }
 
   Future<_ProfileData> _loadData() async {
@@ -102,6 +108,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
   }
 
   Future<void> _navigateToPoints(final String customerId) async {
+    await _interstitialAdServices.show();
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -114,6 +121,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
         ),
       ),
     );
+    await _interstitialAdServices.show();
     if (result ?? false) {
       Log.info(
           'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
@@ -168,7 +176,7 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            bottomNavigationBar: BannerWaterfallWidget(),
+            bottomNavigationBar: BannerAdsWidget(),
           );
         },
       ),

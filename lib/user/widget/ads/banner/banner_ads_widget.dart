@@ -8,17 +8,15 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
-/// Jika gagal memuat, widget akan mencoba memuat ulang ID yang sama
-/// setelah jeda waktu tertentu.
-class BannerWaterfallWidget extends StatefulWidget {
-  const BannerWaterfallWidget({
+class BannerAdsWidget extends StatefulWidget {
+  const BannerAdsWidget({
     super.key,
   });
   @override
-  State<BannerWaterfallWidget> createState() => _BannerWaterfallWidgetState();
+  State<BannerAdsWidget> createState() => _BannerAdsWidgetState();
 }
 
-class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
+class _BannerAdsWidgetState extends State<BannerAdsWidget> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   final String adUnitId = IdBannerAds.prodBannerAdMediasi1;
@@ -42,16 +40,16 @@ class _BannerWaterfallWidgetState extends State<BannerWaterfallWidget> {
       size: AdSize.banner,
       listener: BannerAdListener(
         onAdLoaded: (final ad) {
-          Log.info('Banner Ad berhasil dimuat', {'ad': ad.toString()});
+          Log.info('''Banner Ad berhasil dimuat''', {'''ad''': ad.toString()});
           setState(() {
             _isAdLoaded = true;
           });
         },
         onAdFailedToLoad: (final ad, final error) {
           Log.error(
-            'Gagal memuat Banner Ad',
+            '''Gagal memuat Banner Ad''',
             e: error,
-            data: {'adUnitId': adUnitId, 'ad': ad.toString()},
+            data: {'''adUnitId''': adUnitId, '''ad''': ad.toString()},
           );
           unawaited(ad.dispose());
         },

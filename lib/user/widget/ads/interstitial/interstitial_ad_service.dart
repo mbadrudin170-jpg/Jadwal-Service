@@ -11,13 +11,13 @@ import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 class InterstitialAdService {
   // --- State Iklan ---
   InterstitialAd? _interstitialAd;
-  
+
   // PENJELASAN: _isPreloading digunakan untuk mencegah beberapa panggilan `preloadAd` berjalan bersamaan.
   bool _isPreloading = false;
 
   // PENJELASAN: _isAdLoaded adalah state yang menandakan apakah iklan sudah dimuat dan siap ditampilkan.
   bool _isAdLoaded = false;
-  
+
   final _adUnitId = IdInterstitialAds.interstitialAdUnitIdMediasi;
 
   /// Memulai proses pemuatan iklan di latar belakang.
@@ -25,7 +25,8 @@ class InterstitialAdService {
   Future<void> preloadAd() async {
     // PENJELASAN: Mencegah pemuatan baru jika sudah ada iklan yang siap atau sedang dalam proses loading.
     if (_isAdLoaded || _isPreloading) {
-      Log.info('[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).');
+      Log.info(
+          '[InterstitialAd] Pemuatan dibatalkan (iklan sudah siap atau sedang dimuat).');
       return;
     }
 
@@ -58,7 +59,7 @@ class InterstitialAdService {
 
   /// Menampilkan iklan jika sudah siap. Setelah ditampilkan, iklan akan dibuang
   /// dan iklan baru akan dimuat secara otomatis di latar belakang.
-  Future<void> showAdIfReady() async {
+  Future<void> show() async {
     // PENJELASAN: Pemeriksaan utama. Hanya jika _interstitialAd tidak null DAN _isAdLoaded true.
     if (_interstitialAd != null && _isAdLoaded) {
       Log.info('[InterstitialAd] Iklan sudah siap, mencoba menampilkan...');
@@ -88,7 +89,6 @@ class InterstitialAdService {
 
       // PENJELASAN: Pemanggilan .show() sekarang aman karena berada di dalam blok `if`.
       await _interstitialAd!.show();
-      
     } else {
       Log.warning('[InterstitialAd] Gagal menampilkan: Iklan belum siap.');
       // Jika tidak siap, coba muat lagi untuk kesempatan berikutnya. Tidak perlu menunggu (no await).

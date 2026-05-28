@@ -39,7 +39,7 @@ class _HalamanTesState extends State<HalamanTes> {
               child: const Text('Tampilkan Interstitial Ad'),
               onPressed: () {
                 // PERBAIKAN: Gunakan unawaited untuk Future di dalam callback sinkron
-                unawaited(_adService.showAdIfReady());
+                unawaited(_adService.show());
               },
             ),
             const SizedBox(height: 40),

@@ -14,7 +14,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget_2.dart';
 
 /// Halaman untuk menampilkan detail lengkap dari sebuah transaksi.
 ///
@@ -84,8 +84,7 @@ class TransactionDetailPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: BannerWaterfallWidget(
-      ),
+      bottomNavigationBar: BannerAdsWidget2(),
     );
   }
 

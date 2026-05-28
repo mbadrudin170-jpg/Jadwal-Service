@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget_2.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 class PointsPage extends StatefulWidget {
@@ -260,7 +260,7 @@ class _PointsPageState extends State<PointsPage> {
 
         if (selection == MenuPoin.riwayat) {
           if (widget.showAd) {
-            await _interstitialAdService.showAdIfReady();
+            await _interstitialAdService.show();
           }
           if (_transactionHistory.isEmpty) {
             await _loadTransactionHistory();
@@ -271,7 +271,7 @@ class _PointsPageState extends State<PointsPage> {
           ? _buildRewardList()
           : _buildPointsHistory(),
       bottomWidget: widget.showAd
-          ? BannerWaterfallWidget()
+          ? BannerAdsWidget2()
           : null,
     );
   }

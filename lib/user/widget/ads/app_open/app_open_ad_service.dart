@@ -63,7 +63,7 @@ class AppOpenAdService {
   }
 
   /// Menampilkan iklan jika tersedia, valid, dan tidak sedang ditampilkan.
-  Future<void> showAdIfAvailable() async {
+  Future<void> show() async {
     if (_appOpenAd == null) {
       Log.info('[AppOpenAd] Mencoba menampilkan, tapi iklan tidak tersedia.');
       loadAd(); // Muat iklan untuk kesempatan berikutnya.

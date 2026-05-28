@@ -99,7 +99,7 @@ class _MainPageState extends State<MainPage> {
               children: _pages,
             ),
           ),
-          BannerWaterfallWidget(),
+          BannerAdsWidget(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

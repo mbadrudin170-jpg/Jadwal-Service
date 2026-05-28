@@ -9,15 +9,15 @@ import 'package:wifi/user/widget/ads/banner/id_banner_ads.dart';
 
 /// Widget yang memuat satu unit iklan banner berdasarkan ID yang diberikan.
 /// Ini adalah widget kedua, menggunakan ID banner yang berbeda.
-class BannerWaterfallWidget2 extends StatefulWidget {
-  const BannerWaterfallWidget2({
+class BannerAdsWidget2 extends StatefulWidget {
+  const BannerAdsWidget2({
     super.key,
   });
   @override
-  State<BannerWaterfallWidget2> createState() => _BannerWaterfallWidgetState2();
+  State<BannerAdsWidget2> createState() => _BannerAdsWidget2State();
 }
 
-class _BannerWaterfallWidgetState2 extends State<BannerWaterfallWidget2> {
+class _BannerAdsWidget2State extends State<BannerAdsWidget2> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   // Menggunakan ID banner kedua dari file ID yang sudah ada

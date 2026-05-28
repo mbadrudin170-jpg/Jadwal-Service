@@ -36,7 +36,7 @@ class AppLifecycleReactor {
         Log.info(
             '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.');
         // showAdIfAvailable mengembalikan Future, jadi gunakan unawaited.
-        unawaited(appOpenAdService.showAdIfAvailable());
+        unawaited(appOpenAdService.show());
       });
     }
   }

@@ -110,7 +110,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     Future<PackageModel?> packageFuture,
   ) async {
     final package = await packageFuture;
-    await _interstitialAdService.showAdIfReady();
+    await _interstitialAdService.show();
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
@@ -120,7 +120,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
         ),
       ),
     );
-    await _interstitialAdService.showAdIfReady();
+    await _interstitialAdService.show();
   }
 
   @override

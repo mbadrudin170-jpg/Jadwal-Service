@@ -294,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToDetail(String userId) async {
-    await _interstitialAdService.showAdIfReady();
+    await _interstitialAdService.show();
     try {
       final hasChanged = await Navigator.push<bool>(
         context,
@@ -302,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context) => UserCustomerDetailPage(userId: userId),
         ),
       );
-      await _interstitialAdService.showAdIfReady();
+      await _interstitialAdService.show();
       if (hasChanged ?? false) {
         _reloadData();
       }
@@ -313,7 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _navigateToPointsPage(String customerId) async {
-    await _interstitialAdService.showAdIfReady();
+    await _interstitialAdService.show();
     try {
       final hasChanged = await Navigator.push<bool>(
         context,
@@ -326,7 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       );
-      await _interstitialAdService.showAdIfReady();
+      await _interstitialAdService.show();
       if (hasChanged ?? false) {
         _reloadData();
       }
