@@ -1,28 +1,15 @@
 // path: lib/shared/services/notifikasi/penjadwal_notifikasi.dart
-// baru: File ini berisi logika terpusat untuk menjadwalkan notifikasi langganan.
-
-import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
-/// Kelas utilitas untuk mengelola penjadwalan notifikasi terkait langganan.
 class PenjadwalNotifikasi {
-  /// Metode statis untuk mengatur (menjadwalkan atau membatalkan) notifikasi
-  /// kadaluwarsa dan notifikasi tengah periode untuk seorang pengguna.
-  ///
-  /// [context] diperlukan untuk mengakses NotifikasiServis melalui Provider.
-  /// [userId] adalah ID pengguna yang notifikasinya akan diatur.
   static Future<void> aturNotifikasiLangganan(
-    final BuildContext context,
-    final String userId,
+ NotifikasiServis notifikasiServis,
+     final String userId,
   ) async {
     Log.info(
         'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId');
-    final notifikasiServis =
-        Provider.of<NotifikasiServis>(context, listen: false);
-
-    // Definisikan ID unik untuk setiap jenis notifikasi.
     final endNotificationId = userId.hashCode;
     final midNotificationId = '${userId}_midpoint'.hashCode;
 

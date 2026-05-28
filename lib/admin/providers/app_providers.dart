@@ -16,28 +16,24 @@ part 'app_providers.g.dart';
 // Provider sederhana untuk NotifikasiServis
 @riverpod
 NotifikasiServis notifikasiServis(ref) {
-  // DIHAPUS: NotifikasiServisRef
   return NotifikasiServis();
 }
 
 // Provider sederhana untuk SyncManager
 @riverpod
 SyncManager syncManager(ref) {
-  // DIHAPUS: SyncManagerRef
   return SyncManager();
 }
 
 // Provider untuk SettingsOperation
 @riverpod
 SettingsOperation settingsOperation(ref) {
-  // DIHAPUS: SettingsOperationRef
   return SettingsOperation();
 }
 
 // FutureProvider untuk mendapatkan data settings secara asinkron
 @riverpod
 Future<SettingsModel> settings(ref) {
-  // DIHAPUS: SettingsRef
   return ref.watch(settingsOperationProvider).getSettings();
 }
 

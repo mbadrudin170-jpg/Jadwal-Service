@@ -1,14 +1,13 @@
 // path: lib/user/page/settings_page_user.dart
 // diubah: Menambahkan tombol navigasi ke Halaman Tes hanya dalam mode debug.
 
-import 'dart:async';
-
+import 'package:wifi/shared/providers/shared_providers.dart'; // tambahkan ini
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
@@ -16,7 +15,7 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
-class SettingsPageUser extends StatelessWidget {
+class SettingsPageUser extends ConsumerWidget {
   final String userId;
   final LocalStorageService localStorageService;
 
@@ -27,7 +26,7 @@ class SettingsPageUser extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun halaman pengaturan untuk pengguna: $userId');
 
     return Scaffold(
@@ -38,13 +37,18 @@ class SettingsPageUser extends StatelessWidget {
           _SettingsMenuItem(
             icon: AppIcons.theme,
             title: 'Tema Aplikasi',
-            trailing: Consumer<ThemeProvider>(
-              builder: (final context, final themeProvider, final child) {
-                return ThemeMenuWidget(
-                  currentThemeMode: themeProvider.themeMode,
-                  onThemeSelected: (final mode) {
-                    unawaited(themeProvider.setTheme(mode));
-                  },
+            trailing: Consumer(
+              builder: (context, ref, child) {
+                final themeAsync = ref.watch(themeProvider);
+                return themeAsync.when(
+                  data: (themeMode) => ThemeMenuWidget(
+                    currentThemeMode: themeMode,
+                    onThemeSelected: (mode) {
+                      ref.read(themeProvider.notifier).setThemeMode(mode);
+                    },
+                  ),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const Icon(Icons.error),
                 );
               },
             ),

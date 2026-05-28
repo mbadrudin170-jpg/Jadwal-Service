@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 
@@ -44,22 +45,27 @@ final transactionProvider =
 
 // 2. Buat Class Notifier yang baru.
 class TransactionNotifier extends AsyncNotifier<TransactionState> {
+TransactionOperation get _operation {
+  try {
+    return ref.read(transactionOperationProvider);
+  } catch (e) {
+    throw Exception('Gagal mendapatkan TransactionOperation: $e');
+  }
+}
   // 3. Implementasi method `build` untuk mengambil data awal.
   // Method ini HANYA akan dipanggil sekali saat provider pertama kali dibaca.
   @override
   Future<TransactionState> build() {
-    // Tidak perlu lagi `watch` trigger, cukup panggil method untuk load data.
     return _loadData();
   }
 
   // Method helper untuk mengambil semua data dari database.
   Future<TransactionState> _loadData() async {
-    final operation = TransactionOperation();
     final results = await Future.wait([
-      operation.getAllTransactions(),
-      operation.getTotalIncome(),
-      operation.getTotalExpense(),
-      operation.getNetTotal(),
+      _operation.getAllTransactions(),
+      _operation.getTotalIncome(),
+      _operation.getTotalExpense(),
+      _operation.getNetTotal(),
     ]);
 
     return TransactionState(
@@ -70,16 +76,10 @@ class TransactionNotifier extends AsyncNotifier<TransactionState> {
     );
   }
 
-  // 4. Buat method untuk setiap aksi (tambah, edit, hapus).
-
   Future<void> addTransaction(final TransactionModel transaction) async {
-    // Mengatur state ke loading untuk memberikan feedback ke UI.
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = TransactionOperation();
-      // Perbaikan: Gunakan nama method yang benar 'addTransaction'
-      await operation.addTransaction(transaction);
-      // Setelah berhasil, panggil ulang _loadData untuk mendapatkan state terbaru.
+      await _operation.addTransaction(transaction);
       return _loadData();
     });
   }
@@ -87,9 +87,7 @@ class TransactionNotifier extends AsyncNotifier<TransactionState> {
   Future<void> updateTransaction(final TransactionModel transaction) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = TransactionOperation();
-      // Perbaikan: Panggil 'updateTransaction' dengan parameter yang benar
-      await operation.updateTransaction(transaction.id, transaction);
+      await _operation.updateTransaction(transaction.id, transaction);
       return _loadData();
     });
   }
@@ -97,8 +95,7 @@ class TransactionNotifier extends AsyncNotifier<TransactionState> {
   Future<void> softDelete(final String id) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = TransactionOperation();
-      await operation.softDelete(id);
+      await _operation.softDelete(id);
       return _loadData();
     });
   }
@@ -106,8 +103,7 @@ class TransactionNotifier extends AsyncNotifier<TransactionState> {
   Future<void> softDeleteAll() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = TransactionOperation();
-      await operation.softDeleteAll();
+      await _operation.softDeleteAll();
       return _loadData();
     });
   }

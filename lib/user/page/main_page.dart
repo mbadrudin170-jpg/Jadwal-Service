@@ -1,11 +1,9 @@
 // path: lib/user/page/main_page.dart
-// DITAMBAHKAN: Implementasi App Open Ad saat aplikasi kembali aktif.
-// PERBAIKAN: Menunda inisialisasi berat untuk mencegah jank/lag saat startup.
 
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/shared/services/user_activity_service.dart';
@@ -13,13 +11,14 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
-class MainPage extends StatefulWidget {
+class MainPage extends ConsumerStatefulWidget {
   /// ID unik pengguna yang sedang login.
   final String userId;
 
@@ -34,10 +33,10 @@ class MainPage extends StatefulWidget {
   });
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  ConsumerState<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends ConsumerState<MainPage> {
   int _selectedIndex = 0;
   late final List<Widget> _pages;
   late final AppLifecycleReactor _appLifecycleReactor;
@@ -46,9 +45,12 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-        PenjadwalNotifikasi.aturNotifikasiLangganan(context, widget.userId));
-    unawaited(UserActivityService().pingActivity(widget.userId));
+    final notifikasiServis = ref.read(notifikasiServisProvider);
+    PenjadwalNotifikasi.aturNotifikasiLangganan(
+      notifikasiServis,
+      widget.userId,
+    );
+    UserActivityService().pingActivity(widget.userId);
     _pages = [
       ProfilePage(
         userId: widget.userId,

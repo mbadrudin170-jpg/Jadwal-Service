@@ -51,7 +51,6 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   // Helper untuk mengambil semua data dalam satu operasi.
   Future<WalletState> _loadData() async {
     final operation = WalletOperation();
-    // Jalankan semua query secara bersamaan untuk efisiensi.
     final results = await Future.wait([
       operation.getWallets(),
       operation.getPositiveBalance(),
