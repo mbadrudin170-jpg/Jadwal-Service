@@ -1,14 +1,5 @@
 // path: lib/user/page/profile_page.dart
-// diubah: Menggunakan getPackageModelById untuk mengambil seluruh objek paket.
-// REFACTOR: Mengekstrak logika paket aktif ke method _buildActivePackageDetails.
-// DITAMBAHKAN: Logging untuk memverifikasi nilai totalPoints yang diterima.
-// DIPERBAIKI: Navigasi kini memeriksa hasil boolean sebelum memanggil _reloadData.
-// diubah: Refaktor untuk menggunakan PointsPage generik.
-// DIHAPUS: BannerAdWidget dan import terkait karena sudah terpusat di main_page.
-// DIUBAH: Menambahkan `showAd: true` saat menavigasi ke PointsPage.
-// DIUBAH: Tambahkan interstisial ad sebelum menavigasi ke detail pelanggan.
-// DIPERBAIKI: Menggunakan nama method yang benar dari InterstitialAdService (preloadAd, showAdIfReady, dispose).
-// DIUBAH: Tambahkan interstisial ad sebelum menavigasi ke halaman poin.
+// REVISI TOTAL: Merombak logika pemuatan data untuk efisiensi dan menghilangkan jank.
 
 import 'dart:async';
 
@@ -28,18 +19,30 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
-import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
+
+// PENJELASAN: Kelas ini dibuat untuk menampung semua data yang dibutuhkan oleh halaman profil.
+// Tujuannya adalah memuat semua data ini dalam satu operasi asynchronous,
+// lalu membangun UI sekali jalan untuk menghindari render berulang.
+class _ProfileData {
+  final CustomerModel customer;
+  final int totalPoints;
+  final TransactionModel? lastActiveSubscription;
+  final PackageModel? packageModel;
+
+  _ProfileData({
+    required this.customer,
+    required this.totalPoints,
+    this.lastActiveSubscription,
+    this.packageModel,
+  });
+}
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends StatefulWidget {
-  /// ID pengguna yang sedang login.
   final String userId;
-
-  /// Service untuk mengakses penyimpanan lokal.
   final LocalStorageService localStorageService;
 
-  /// Membuat instance dari [ProfilePage].
   const ProfilePage({
     super.key,
     required this.userId,
@@ -55,290 +58,186 @@ class _ProfilePageState extends State<ProfilePage> {
   final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
   final PackageOpFirebase _packageOp = PackageOpFirebase();
   final InterstitialAdService _interstitialAdService = InterstitialAdService();
-  Future<CustomerModel?>? _futureCustomer;
-  Future<int>? _totalPointsFuture;
-  Future<List<TransactionModel>>? _activePackagesFuture;
 
-  Future<PackageModel?>? _futurePackageModel;
-  String? _cachePackageId;
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
+  // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
+  Future<_ProfileData>? _futureProfileData;
 
   @override
   void initState() {
     super.initState();
     Log.info(
-      'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}',
-    );
-    unawaited(_interstitialAdService.preloadAd());
-    unawaited(_initializeData());
+        'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}');
+    _interstitialAdService.preloadAd();
+    _initializeData();
   }
 
-  Future<void> _initializeData() async {
-    Log.info('Memulai pengambilan data awal untuk userId: ${widget.userId}.');
-    if (!mounted) return;
-
+  // DIUBAH: Logika inisialisasi data disatukan dalam satu method.
+  void _initializeData() {
     setState(() {
-      _futureCustomer = _customerOp.getCustomerOnce(widget.userId);
+      _futureProfileData = _loadProfileData();
     });
+  }
 
+  // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
+  // mengambil semua data yang diperlukan secara efisien.
+  Future<_ProfileData> _loadProfileData() async {
+    Log.info(
+        'Memulai pengambilan data profil lengkap untuk userId: ${widget.userId}.');
     try {
-      final customer = await _futureCustomer;
-      if (customer != null) {
-        Log.info(
-          'Data pelanggan berhasil diambil: ${customer.name}. Mengambil data terkait...',
-        );
-        if (!mounted) return;
-        setState(() {
-          _totalPointsFuture = _transactionOp.getTotalPoints(customer.id);
-          _activePackagesFuture =
-              _transactionOp.getPaketAktifCustomer(customer.id);
-        });
-      } else {
-        Log.warning(
-          'Pelanggan dengan userId: ${widget.userId} tidak ditemukan di Firestore.',
-        );
+      // 1. Ambil data customer (wajib ada)
+      final customer = await _customerOp.getCustomerOnce(widget.userId);
+      if (customer == null) {
+        throw Exception(
+            'Pelanggan dengan ID ${widget.userId} tidak ditemukan.');
       }
+      Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
+
+      // 2. Ambil total poin dan paket aktif secara bersamaan (paralel)
+      // Ini lebih efisien karena tidak perlu menunggu satu sama lain.
+      final results = await Future.wait([
+        _transactionOp.getTotalPoints(customer.id),
+        _transactionOp.getPaketAktifCustomer(customer.id),
+      ]);
+
+      final totalPoints = results[0] as int;
+      final activeSubscriptions = results[1] as List<TransactionModel>;
+      Log.info(
+          'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.');
+
+      TransactionModel? lastSubscription;
+      PackageModel? packageModel;
+
+      if (activeSubscriptions.isNotEmpty) {
+        // 3. Cari langganan yang paling baru berakhir
+        lastSubscription = activeSubscriptions.reduce(
+          (a, b) => a.endDate!.isAfter(b.endDate!) ? a : b,
+        );
+        Log.info(
+            'Langganan terakhir berakhir pada: ${lastSubscription.endDate}.');
+
+        // 4. Jika ada langganan aktif, ambil detail paketnya
+        if (lastSubscription.packageId != null) {
+          packageModel =
+              await _packageOp.getPackageById(lastSubscription.packageId!);
+          Log.info('Detail paket "${packageModel?.name}" berhasil diambil.');
+        }
+      }
+
+      // 5. Kembalikan semua data dalam satu objek.
+      return _ProfileData(
+        customer: customer,
+        totalPoints: totalPoints,
+        lastActiveSubscription: lastSubscription,
+        packageModel: packageModel,
+      );
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat data awal profil.', e: e, st: st);
+      Log.error('Gagal total memuat data profil.', e: e, st: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data profil.');
       }
+      // Lemparkan kembali error agar FutureBuilder bisa menanganinya di UI.
+      rethrow;
     }
   }
 
+  // Method _reloadData diubah untuk memanggil _initializeData lagi.
   Future<void> _reloadData() async {
     Log.info('Memuat ulang semua data profil via onRefresh.');
-    setState(() {
-      _futureCustomer = _customerOp.getCustomerOnce(widget.userId);
-    });
-    try {
-      final customer = await _futureCustomer;
-      if (customer != null) {
-        setState(() {
-          _totalPointsFuture = _transactionOp.getTotalPoints(customer.id);
-          _activePackagesFuture =
-              _transactionOp.getPaketAktifCustomer(customer.id);
-
-          _futurePackageModel = null;
-          _cachePackageId = null;
-        });
-        await Future.wait([
-          _totalPointsFuture ?? Future<int>.value(0),
-          _activePackagesFuture ?? Future<List<TransactionModel>>.value([]),
-        ]);
-      }
-
-      if (mounted) {
-        Log.info('Data profil berhasil diperbarui.');
-        ToastUtil.success(
-          context,
-          'Data berhasil diperbarui.',
-        );
-      }
-    } on Exception catch (e, st) {
-      Log.error('Gagal saat memuat ulang data profil.', e: e, st: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memperbarui data: $e');
-      }
-    }
-  }
-
-
-
-  Future<void> _navigateToDetail(final String userId) async {
-    Log.info('Tombol detail ditekan.');
-    unawaited(_performDetailNavigation(userId));
-    unawaited(_interstitialAdService.showAdIfReady());
-  }
-
-  Future<void> _performDetailNavigation(final String userId) async {
-    Log.info('Menavigasi ke UserCustomerDetailPage untuk userId: $userId');
-    try {
-      final hasChanged = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute<bool>(
-          builder: (final context) => UserCustomerDetailPage(userId: userId),
-        ),
-      );
-
-      if (hasChanged ?? false) {
-        Log.info(
-          'Kembali dari halaman detail dengan perubahan, memuat ulang data.',
-        );
-        await _reloadData();
-      } else {
-        Log.info(
-          'Kembali dari halaman detail tanpa perubahan.',
-        );
-      }
-    } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke detail pelanggan.', e: e, st: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal membuka halaman detail.');
-      }
-    }
-  }
-
-  Future<void> _navigateToPointsPage(final String customerId) async {
-    Log.info('Menampilkan iklan sebelum navigasi ke halaman poin.');
-    unawaited(_performPointsNavigation(customerId));
-    await _interstitialAdService.showAdIfReady();
-  }
-
-  Future<void> _performPointsNavigation(final String customerId) async {
-    Log.info('Menavigasi ke PointsPage untuk customerId: $customerId');
-    try {
-      final hasChanged = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute<bool>(
-          builder: (final context) => PointsPage(
-            customerId: customerId,
-            dataSource:
-                FirebasePointsDataSource(), // Menggunakan data source Firebase
-            showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
-            role: UserRole.user,
-          ),
-        ),
-      );
-      if (hasChanged ?? false) {
-        Log.info(
-            'Kembali dari halaman poin dengan perubahan, memuat ulang data.');
-        await _reloadData();
-      } else {
-        Log.info('Kembali dari halaman poin tanpa ada perubahan.');
-      }
-    } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke halaman poin.', e: e, st: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal membuka halaman poin.');
-      }
+    _initializeData();
+    // Menunggu future yang baru selesai agar RefreshIndicator berhenti.
+    await _futureProfileData;
+    if (mounted) {
+      ToastUtil.success(context, 'Data berhasil diperbarui.');
     }
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info('Membangun UI untuk ProfilePage.');
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Pelanggan'),
       ),
-      body: _futureCustomer == null
-          ? const Center(child: CircularProgressIndicator())
-          : FutureBuilder<CustomerModel?>(
-              future: _futureCustomer,
-              builder: (final context, final snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting &&
-                    !snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      // DIUBAH: Hanya ada satu FutureBuilder utama yang mengelola state loading/error/data.
+      body: FutureBuilder<_ProfileData>(
+        future: _futureProfileData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                if (snapshot.hasError) {
-                  Log.error(
-                    'FutureBuilder<Customer> mendeteksi error: ${snapshot.error}.',
-                    e: snapshot.error,
-                    st: snapshot.stackTrace,
-                  );
-                  return Center(
-                      child: Text('Terjadi Error: ${snapshot.error}'));
-                }
+          if (snapshot.hasError) {
+            Log.error('FutureBuilder<_ProfileData> error: ${snapshot.error}.',
+                e: snapshot.error, st: snapshot.stackTrace);
+            return Center(
+              child: Text('Terjadi Error: ${snapshot.error}'),
+            );
+          }
 
-                if (!snapshot.hasData || snapshot.data == null) {
-                  Log.warning(
-                    'FutureBuilder<Customer>: Tidak ada data pelanggan ditemukan.',
-                  );
-                  return Center(
-                    child: Text('Profil ID: ${widget.userId} tidak ditemukan.'),
-                  );
-                }
+          if (!snapshot.hasData) {
+            return Center(
+              child: Text('Profil ID: ${widget.userId} tidak ditemukan.'),
+            );
+          }
 
-                final customer = snapshot.data!;
-                return RefreshIndicator(
-                  onRefresh: _reloadData,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16.0),
-                    children: [
-                      _buildInfoCard(
-                        context,
-                        title: 'Informasi Pribadi',
-                        icon: AppIcons.person,
-                        children: [
-                          _InfoItem(
-                            icon: AppIcons.personOutlined,
-                            label: 'Nama Lengkap',
-                            value: customer.name,
-                            trailingIcon: AppIcons.chevronRight,
-                            onTap: () =>
-                                unawaited(_navigateToDetail(customer.id)),
-                          ),
-                          _PointsInfoWidget(
-                            totalPointsFuture: _totalPointsFuture,
-                            onTap: () =>
-                                unawaited(_navigateToPointsPage(customer.id)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoCard(
-                        context,
-                        title: 'Informasi Paket Aktif',
-                        icon: AppIcons.wifi,
-                        children: [
-                          FutureBuilder<List<TransactionModel>>(
-                            future: _activePackagesFuture,
-                            builder: _buildActivePackageDetails,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+          final profileData = snapshot.data!;
+          final customer = profileData.customer;
+
+          return RefreshIndicator(
+            onRefresh: _reloadData,
+            child: ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                _buildInfoCard(
+                  context,
+                  title: 'Informasi Pribadi',
+                  icon: AppIcons.person,
+                  children: [
+                    _InfoItem(
+                      icon: AppIcons.personOutlined,
+                      label: 'Nama Lengkap',
+                      value: customer.name,
+                      trailingIcon: AppIcons.chevronRight,
+                      onTap: () => _navigateToDetail(customer.id),
+                    ),
+                    _InfoItem(
+                      icon: AppIcons.points,
+                      label: 'Poin',
+                      value: profileData.totalPoints.toString(),
+                      trailingIcon: AppIcons.chevronRight,
+                      onTap: () => _navigateToPointsPage(customer.id),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildInfoCard(
+                  context,
+                  title: 'Informasi Paket Aktif',
+                  icon: AppIcons.wifi,
+                  children: [
+                    _buildActivePackageDetails(
+                      context,
+                      profileData.lastActiveSubscription,
+                      profileData.packageModel,
+                    ),
+                  ],
+                ),
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 
-  /// Method yang diekstrak untuk membangun detail paket aktif.
+  // DIUBAH: Method ini sekarang menjadi sinkron dan hanya bertanggung jawab membangun UI
+  // dari data yang sudah siap, bukan lagi melakukan fetching.
   Widget _buildActivePackageDetails(
-    final BuildContext context,
-    final AsyncSnapshot<List<TransactionModel>> activeSnapshot,
+    BuildContext context,
+    TransactionModel? lastSubscription,
+    PackageModel? packageModel,
   ) {
-    if (activeSnapshot.connectionState == ConnectionState.waiting) {
-      return const SizedBox(
-        height: 120,
-        child: Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      );
-    }
-
-    if (activeSnapshot.hasError) {
-      return const _InfoItem(
-        icon: AppIcons.errorOutlined,
-        label: 'Error',
-        value: 'Gagal memuat paket aktif.',
-      );
-    }
-
-    if (!activeSnapshot.hasData || activeSnapshot.data!.isEmpty) {
-      return const _InfoItem(
-        icon: AppIcons.noWifi,
-        label: 'Paket Aktif',
-        value: 'Tidak ada paket aktif.',
-      );
-    }
-
-    final activeSubscriptions = activeSnapshot.data!;
-
-    TransactionModel? lastSubscription;
-    if (activeSubscriptions.isNotEmpty) {
-      lastSubscription = activeSubscriptions.reduce(
-        (final a, final b) => a.endDate!.isAfter(b.endDate!) ? a : b,
-      );
-      Log.info(
-        'Langganan aktif terakhir: berakhir ${FormatDateTime.formatDateAndTimeCompact(lastSubscription.endDate!)}.',
-      );
-    } else {
+    if (lastSubscription == null) {
       return const _InfoItem(
         icon: AppIcons.noWifi,
         label: 'Paket Aktif',
@@ -347,69 +246,34 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     final String activePeriodText =
-        CalculationUtil.getRemainingActivePeriodText(
-      lastSubscription.endDate!,
-    );
+        CalculationUtil.getRemainingActivePeriodText(lastSubscription.endDate!);
     final Color activePeriodColor =
         CalculationUtil.getRemainingActivePeriodColor(
-      lastSubscription.endDate!,
-    );
+            lastSubscription.endDate!);
     final Color paymentStatusColor =
         lastSubscription.paymentStatus == PaymentStatus.paid
             ? Colors.green
             : Colors.red;
 
-    if (lastSubscription.packageId != null &&
-        _cachePackageId != lastSubscription.packageId) {
-      Log.info(
-          'ID paket berubah, ambil model baru: ${lastSubscription.packageId!}.');
-      _futurePackageModel =
-          _packageOp.getPackageById(lastSubscription.packageId!);
-      _cachePackageId = lastSubscription.packageId;
-    }
-
     return Column(
       children: [
-        FutureBuilder<PackageModel?>(
-          future: _futurePackageModel,
-          builder: (final context, final packageSnapshot) {
-            String packageName;
-            if (packageSnapshot.connectionState == ConnectionState.waiting) {
-              packageName = 'Memuat...';
-            } else if (packageSnapshot.hasError) {
-              packageName = 'Gagal memuat';
-              Log.error(
-                'Gagal ambil model paket: ${packageSnapshot.error}',
-                e: packageSnapshot.error,
-                st: packageSnapshot.stackTrace,
-              );
-            } else if (packageSnapshot.hasData) {
-              final package = packageSnapshot.data!;
-              packageName = package.name;
-            } else {
-              packageName = 'Tidak tersedia';
-            }
-            return _InfoItem(
-              icon: AppIcons.wifi,
-              label: 'Paket',
-              value: packageName,
-            );
-          },
+        _InfoItem(
+          icon: AppIcons.wifi,
+          label: 'Paket',
+          value: packageModel?.name ?? 'Tidak tersedia',
         ),
         if (lastSubscription.startDate != null)
           _InfoItem(
             icon: AppIcons.dateRange,
             label: 'Aktif Sejak',
             value: FormatDateTime.formatDateAndTimeCompact(
-              lastSubscription.startDate!,
-            ),
+                lastSubscription.startDate!),
           ),
         _InfoItem(
           icon: AppIcons.dateRange,
           label: 'Berakhir Pada',
           value: FormatDateTime.formatDateAndTimeCompact(
-            lastSubscription.endDate!,
-          ),
+              lastSubscription.endDate!),
         ),
         _InfoItem(
           icon: AppIcons.hourglass,
@@ -429,11 +293,52 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Future<void> _navigateToDetail(String userId) async {
+    await _interstitialAdService.showAdIfReady();
+    try {
+      final hasChanged = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute<bool>(
+          builder: (context) => UserCustomerDetailPage(userId: userId),
+        ),
+      );
+      if (hasChanged ?? false) {
+        _reloadData();
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal navigasi ke detail pelanggan.', e: e, st: st);
+      if (mounted) ToastUtil.error(context, 'Gagal membuka halaman detail.');
+    }
+  }
+
+  Future<void> _navigateToPointsPage(String customerId) async {
+    await _interstitialAdService.showAdIfReady();
+    try {
+      final hasChanged = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute<bool>(
+          builder: (context) => PointsPage(
+            customerId: customerId,
+            dataSource: FirebasePointsDataSource(),
+            showAd: true,
+            role: UserRole.user,
+          ),
+        ),
+      );
+      if (hasChanged ?? false) {
+        _reloadData();
+      }
+    } on Exception catch (e, st) {
+      Log.error('Gagal navigasi ke halaman poin.', e: e, st: st);
+      if (mounted) ToastUtil.error(context, 'Gagal membuka halaman poin.');
+    }
+  }
+
   Widget _buildInfoCard(
-    final BuildContext context, {
-    required final String title,
-    required final IconData icon,
-    required final List<Widget> children,
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
   }) {
     return Card(
       elevation: 3,
@@ -465,61 +370,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-/// Widget untuk menampilkan informasi poin pengguna.
-class _PointsInfoWidget extends StatelessWidget {
-  final Future<int>? totalPointsFuture;
-  final VoidCallback? onTap;
-
-  const _PointsInfoWidget({
-    required this.totalPointsFuture,
-    this.onTap,
-  });
-
-  @override
-  Widget build(final BuildContext context) {
-    return FutureBuilder<int>(
-      future: totalPointsFuture,
-      builder: (final context, final pointsSnapshot) {
-        if (pointsSnapshot.connectionState == ConnectionState.waiting) {
-          return const _InfoItem(
-            icon: AppIcons.points,
-            label: 'Poin',
-            value: 'Menghitung...',
-          );
-        }
-
-        if (pointsSnapshot.hasError) {
-          Log.error(
-            'Gagal ambil total poin: ${pointsSnapshot.error}',
-            e: pointsSnapshot.error,
-            st: pointsSnapshot.stackTrace,
-          );
-          return const _InfoItem(
-            icon: AppIcons.points,
-            label: 'Poin',
-            value: 'Gagal memuat',
-          );
-        }
-
-        final int totalPoints = pointsSnapshot.data ?? 0;
-
-        // Log tambahan untuk verifikasi
-        Log.info(
-            'FutureBuilder di _PointsInfoWidget menampilkan total poin: $totalPoints');
-
-        return _InfoItem(
-          icon: AppIcons.points,
-          label: 'Poin',
-          value: totalPoints.toString(),
-          trailingIcon: AppIcons.chevronRight,
-          onTap: onTap,
-        );
-      },
-    );
-  }
-}
-
-/// Widget item informasi generik.
 class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -538,7 +388,7 @@ class _InfoItem extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final Widget content = Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -550,10 +400,9 @@ class _InfoItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-                ),
+                Text(label,
+                    style:
+                        TextStyle(color: Colors.grey.shade700, fontSize: 14)),
                 const SizedBox(height: 2),
                 Text(
                   value,
@@ -573,12 +422,8 @@ class _InfoItem extends StatelessWidget {
     );
 
     if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        child: content,
-      );
+      return InkWell(onTap: onTap, child: content);
     }
-
     return content;
   }
 }

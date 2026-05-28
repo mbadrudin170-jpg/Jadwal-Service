@@ -61,23 +61,9 @@ class _UserCustomerDetailPageState extends State<UserCustomerDetailPage> {
       Log.info(
         'Pelanggan ditemukan: ${customer.name}. Mengambil riwayat transaksi...',
       );
-
-      final history =
-          await _transactionOp.getTransactionsByCustomerId(customer.id);
-      Log.info('Ditemukan ${history.length} transaksi. Menghitung poin...');
-
-      final int earnedPoints = history.fold<int>(
-        0,
-        (final sum, final item) => sum + item.earnedPoints,
-      );
-      final int usedPoints = history.fold<int>(
-        0,
-        (final sum, final item) => sum + item.usedPoints,
-      );
-      final int totalPoints = earnedPoints - usedPoints;
-
-      Log.info('Perhitungan poin selesai. Total Poin: $totalPoints');
-      return _ProfileData(customer: customer, totalPoints: totalPoints);
+      final totalPoin = await _transactionOp.getTotalPoints(customer.id);
+      Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
+      return _ProfileData(customer: customer, totalPoints: totalPoin);
     } catch (e, s) {
       Log.error(
         'Gagal memuat data profil lengkap dari Firestore.',

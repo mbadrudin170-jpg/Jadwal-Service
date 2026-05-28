@@ -1,8 +1,5 @@
 // path: lib/user/page/subscription_history_user.dart
-// diubah: Menggunakan ikon dari AppIcons untuk konsistensi UI.
-// diperbaiki: Mengganti nama InfoPerangkatService menjadi DeviceInfoService.
-// DIHAPUS: BannerAdWidget karena sudah terpusat di main_page.
-// ditambah: Menambahkan NativeAdvancedWaterfallWidget di bawah list.
+// DITAMBAHKAN: Memanggil preloadAd di initState dan dispose di dispose.
 
 import 'dart:async';
 
@@ -15,30 +12,20 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
 /// Enum untuk mode pengurutan riwayat langganan.
 enum SortMode {
-  /// Urutkan berdasarkan tanggal berakhir terbaru.
-  endDateNewest,
-
-  /// Urutkan berdasarkan tanggal berakhir terlama.
-  endDateOldest,
-
-  /// Urutkan berdasarkan status lunas.
-  statusPaid,
-
-  /// Urutkan berdasarkan status belum lunas.
-  statusUnpaid,
+  endDateNewest, // Urutkan berdasarkan tanggal berakhir terbaru.
+  endDateOldest, // Urutkan berdasarkan tanggal berakhir terlama.
+  statusPaid, // Urutkan berdasarkan status lunas.
+  statusUnpaid, // Urutkan berdasarkan status belum lunas.
 }
 
 /// Halaman untuk menampilkan riwayat langganan pengguna.
 class SubscriptionHistoryPage extends StatefulWidget {
-  /// ID pengguna yang sedang login.
   final String userId;
 
-  /// Membuat instance dari [SubscriptionHistoryPage].
   const SubscriptionHistoryPage({super.key, required this.userId});
 
   @override
@@ -52,15 +39,22 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
   final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
   final InterstitialAdService _interstitialAdService = InterstitialAdService();
 
-  /// Mode pengurutan saat ini.
   SortMode _sortMode = SortMode.endDateNewest;
   late Future<List<TransactionModel>> _historyFuture;
-  final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
   @override
   void initState() {
     super.initState();
     _historyFuture = _loadHistory();
+    // PENJELASAN: Memulai pemuatan iklan di awal agar siap saat dibutuhkan.
+    _interstitialAdService.preloadAd();
+  }
+
+  @override
+  void dispose() {
+    // PENJELASAN: Membersihkan iklan saat halaman ditutup untuk mencegah memory leak.
+    _interstitialAdService.dispose();
+    super.dispose();
   }
 
   Future<List<TransactionModel>> _loadHistory() async {
@@ -69,75 +63,77 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
     return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
   }
 
-  List<TransactionModel> _sortHistory(final List<TransactionModel> history) {
+  List<TransactionModel> _sortHistory(List<TransactionModel> history) {
     switch (_sortMode) {
       case SortMode.endDateNewest:
-        history.sort((final a, final b) {
+        history.sort((a, b) {
           if (a.endDate == null && b.endDate == null) return 0;
           if (a.endDate == null) return 1;
           if (b.endDate == null) return -1;
           return b.endDate!.compareTo(a.endDate!);
         });
+        break;
       case SortMode.endDateOldest:
-        history.sort((final a, final b) {
+        history.sort((a, b) {
           if (a.endDate == null && b.endDate == null) return 0;
           if (a.endDate == null) return 1;
           if (b.endDate == null) return -1;
           return a.endDate!.compareTo(b.endDate!);
         });
+        break;
       case SortMode.statusPaid:
-        history.sort((final a, final b) {
+        history.sort((a, b) {
           final statusA = a.paymentStatus == PaymentStatus.paid ? 0 : 1;
           final statusB = b.paymentStatus == PaymentStatus.paid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
+        break;
       case SortMode.statusUnpaid:
-        history.sort((final a, final b) {
+        history.sort((a, b) {
           final statusA = a.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
           final statusB = b.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
+        break;
     }
     return history;
   }
 
-  // Panggil ini saat kembali dari halaman detail transaksi
   Future<void> _refreshHistory() async {
     setState(() {
       _historyFuture = _loadHistory();
     });
   }
 
-  /// Membuka halaman detail transaksi dan me-refresh data setelah kembali.
   Future<void> _navigateToTransactionDetail(
-    final TransactionModel tx,
-    final Future<PackageModel?> packageFuture,
+    TransactionModel tx,
+    Future<PackageModel?> packageFuture,
   ) async {
     final package = await packageFuture;
     if (!mounted) return;
 
     await Navigator.push<void>(
       context,
-      MaterialPageRoute<void>(
-        builder: (final context) => TransactionDetailPage(
+      MaterialPageRoute(
+        builder: (context) => TransactionDetailPage(
           transaction: tx,
           package: package,
         ),
       ),
     );
+    // Pemanggilan ini sekarang aman berkat perbaikan di InterstitialAdService.
     await _interstitialAdService.showAdIfReady();
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
         actions: [
           PopupMenuButton<SortMode>(
-            onSelected: (final SortMode result) =>
-                setState(() => _sortMode = result),
-            itemBuilder: (final BuildContext context) => [
+            onSelected: (SortMode result) => setState(() => _sortMode = result),
+            itemBuilder: (BuildContext context) => [
               const PopupMenuItem(
                   value: SortMode.endDateNewest,
                   child: Text('Tanggal Berakhir (Terbaru)')),
@@ -156,7 +152,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
       ),
       body: StreamBuilder<CustomerModel?>(
         stream: _customerOpFirebase.getCustomerStream(widget.userId),
-        builder: (final context, final customerSnapshot) {
+        builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -171,15 +167,14 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
               Expanded(
                 child: FutureBuilder<List<TransactionModel>>(
                   future: _historyFuture,
-                  builder: (final context, final historySnapshot) {
+                  builder: (context, historySnapshot) {
                     if (historySnapshot.connectionState ==
                         ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (historySnapshot.hasError) {
                       return Center(
-                          child:
-                              Text('Gagal memuat: ${historySnapshot.error}'));
+                          child: Text('Gagal memuat: ${historySnapshot.error}'));
                     }
                     if (!historySnapshot.hasData ||
                         historySnapshot.data!.isEmpty) {
@@ -191,7 +186,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                       onRefresh: _refreshHistory,
                       child: ListView.builder(
                         itemCount: sorted.length,
-                        itemBuilder: (final context, final index) {
+                        itemBuilder: (context, index) {
                           final tx = sorted[index];
                           final packageFuture = tx.packageId != null
                               ? _packageOpFirebase.getPackageById(tx.packageId!)
@@ -205,7 +200,7 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                                   tx.endDate!)
                               : Colors.grey;
                           return Card(
-                            key: ValueKey(tx.id), // ← tambahkan ini
+                            key: ValueKey(tx.id),
                             margin: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             child: ListTile(
@@ -239,7 +234,6 @@ class _SubscriptionHistoryPageState extends State<SubscriptionHistoryPage> {
                   },
                 ),
               ),
-              // Tambahkan widget iklan di sini
             ],
           );
         },
