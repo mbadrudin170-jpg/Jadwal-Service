@@ -1,7 +1,5 @@
 // path: lib/user/widget/ads/banner/banner_ads_widget.dart
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -29,33 +27,35 @@ class _BannerAdsWidgetState extends State<BannerAdsWidget> {
 
   @override
   void dispose() {
-    unawaited(_bannerAd?.dispose());
+    _bannerAd?.dispose();
     super.dispose();
   }
 
   void _loadAd() {
+    Log.info('Memulai memuat Banner Ad...', {'adUnitId': adUnitId});
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
       request: const AdRequest(),
       size: AdSize.banner,
       listener: BannerAdListener(
-        onAdLoaded: (final ad) {
-          Log.info('''Banner Ad berhasil dimuat''', {'''ad''': ad.toString()});
-          setState(() {
-            _isAdLoaded = true;
-          });
+        onAdLoaded: (ad) {
+          Log.info('Banner Ad berhasil dimuat', {'ad': ad.toString()});
+          if (mounted) {
+            setState(() {
+              _isAdLoaded = true;
+            });
+          }
         },
-        onAdFailedToLoad: (final ad, final error) {
+        onAdFailedToLoad: (ad, error) {
           Log.error(
-            '''Gagal memuat Banner Ad''',
+            'Gagal memuat Banner Ad',
             e: error,
-            data: {'''adUnitId''': adUnitId, '''ad''': ad.toString()},
+            data: {'adUnitId': adUnitId, 'ad': ad.toString()},
           );
-          unawaited(ad.dispose());
+          ad.dispose();
         },
       ),
-    );
-    unawaited(_bannerAd!.load());
+    )..load();
   }
 
   @override
@@ -69,6 +69,7 @@ class _BannerAdsWidgetState extends State<BannerAdsWidget> {
         ),
       );
     } else {
+      // Mengembalikan container kosong jika iklan belum siap
       return const SizedBox.shrink();
     }
   }
