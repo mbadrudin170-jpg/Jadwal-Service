@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -25,7 +24,6 @@ import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
-import 'package:wifi/user/providers/app_readiness_provider.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
@@ -55,7 +53,7 @@ class SplashScreenUser extends StatefulWidget {
 class _SplashScreenUserState extends State<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
-  
+
   @override
   void initState() {
     super.initState();
@@ -93,7 +91,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
-          _setAppReady();
           return;
         }
 
@@ -109,7 +106,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
               ),
             ),
           ));
-          _setAppReady();
           return;
         }
       } else {
@@ -229,13 +225,6 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (final context) => const LoginPage()),
       ));
-    }
-    _setAppReady();
-  }
-
-  void _setAppReady() {
-    if (mounted) {
-      context.read<AppReadinessProvider>().setAppReady();
     }
   }
 

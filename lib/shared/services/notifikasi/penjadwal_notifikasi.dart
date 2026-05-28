@@ -2,7 +2,6 @@
 // baru: File ini berisi logika terpusat untuk menjadwalkan notifikasi langganan.
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';

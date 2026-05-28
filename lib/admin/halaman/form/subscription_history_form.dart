@@ -1,46 +1,32 @@
 // path: lib/admin/halaman/form/subscription_history_form.dart
+// REFAKTOR: Mengubah StatefulWidget menjadi ConsumerStatefulWidget dan menggunakan
+// Riverpod untuk dependency injection (TransactionOperation, NotifikasiServis).
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/detail/subscription_history_detail.dart (SubscriptionHistoryDetailPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/services/notifikasi/notifikasi_servis.dart (NotifikasiServis)
-
-/// Halaman form untuk mengedit riwayat langganan (transaksi).
-class SubscriptionHistoryForm extends StatefulWidget {
-  /// Transaksi yang akan diedit.
+class SubscriptionHistoryForm extends ConsumerStatefulWidget {
   final TransactionModel transaction;
 
-  /// Konstruktor untuk SubscriptionHistoryForm.
   const SubscriptionHistoryForm({super.key, required this.transaction});
 
   @override
-  State<SubscriptionHistoryForm> createState() =>
+  ConsumerState<SubscriptionHistoryForm> createState() =>
       _SubscriptionHistoryFormState();
 }
 
-class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
+class _SubscriptionHistoryFormState
+    extends ConsumerState<SubscriptionHistoryForm> {
   final _formKey = GlobalKey<FormState>();
-  final TransactionOperation _transactionOperation = TransactionOperation();
 
   late DateTime _startDate;
   late DateTime _endDate;
@@ -56,8 +42,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
         'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaction.id}');
   }
 
-  /// Menampilkan dialog pemilih tanggal dan waktu.
-  Future<void> _selectDateTime(final bool isStartDate) async {
+  Future<void> _selectDateTime(bool isStartDate) async {
     final initialDate = isStartDate ? _startDate : _endDate;
 
     if (!mounted) return;
@@ -74,7 +59,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(initialDate),
-      builder: (final context, final child) {
+      builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!,
@@ -102,7 +87,6 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
     }
   }
 
-  /// Menyimpan perubahan ke database.
   Future<void> _saveChanges() async {
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Form tidak valid, penyimpanan dibatalkan.');
@@ -113,9 +97,9 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
     Log.info(
         'Menyimpan perubahan untuk transaksi ID: ${widget.transaction.id}');
 
-    final statusSebelumnya = widget.transaction.paymentStatus;
-    final notifikasiServis =
-        Provider.of<NotifikasiServis>(context, listen: false);
+    // Mengakses dependency melalui Riverpod's ref
+    final transactionOperation = ref.read(transactionOperationProvider);
+    final notifikasiServis = ref.read(notifikasiServisProvider);
 
     try {
       final updatedTransaction = widget.transaction.copyWith(
@@ -125,7 +109,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
         updatedAt: DateTime.now(),
       );
 
-      await _transactionOperation.updateTransaction(
+      await transactionOperation.updateTransaction(
         widget.transaction.id,
         updatedTransaction,
       );
@@ -133,7 +117,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
 
       await _handleExpiryNotification(
         notifikasiServis: notifikasiServis,
-        statusSebelumnya: statusSebelumnya,
+        statusSebelumnya: widget.transaction.paymentStatus,
         statusSekarang: _paymentStatus,
         endDate: _endDate,
       );
@@ -164,36 +148,29 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
     }
   }
 
-  // diubah: Logika disesuaikan untuk notifikasi saat masa aktif berakhir.
   Future<void> _handleExpiryNotification({
-    required final NotifikasiServis notifikasiServis,
-    required final PaymentStatus statusSebelumnya,
-    required final PaymentStatus statusSekarang,
-    required final DateTime endDate,
+    required NotifikasiServis notifikasiServis,
+    required PaymentStatus statusSebelumnya,
+    required PaymentStatus statusSekarang,
+    required DateTime endDate,
   }) async {
     final idNotifikasi = widget.transaction.id.hashCode;
     final wasPaid = statusSebelumnya == PaymentStatus.paid;
     final isNowPaid = statusSekarang == PaymentStatus.paid;
 
-    // Kondisi: Status berubah menjadi LUNAS atau tanggalnya diperbarui saat masih LUNAS
     if ((!wasPaid && isNowPaid) || (wasPaid && isNowPaid)) {
-      // Selalu perbarui atau set jadwal baru
-      final jadwal =
-          endDate; // Notifikasi dijadwalkan TEPAT pada tanggal berakhir
+      final jadwal = endDate;
       if (jadwal.isAfter(DateTime.now())) {
         Log.info(
             'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal');
-        // Kita gunakan perbaruiJadwalNotifikasi agar jika sudah ada, jadwalnya diperbarui.
-        // Jika belum ada, ia akan membuat yang baru.
         await notifikasiServis.perbaruiJadwalNotifikasi(
           id: idNotifikasi,
-          title: 'Langganan Telah Berakhir', // diubah
+          title: 'Langganan Telah Berakhir',
           body:
-              'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.', // diubah
+              'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
           jadwal: jadwal,
         );
       }
-      // Kondisi: Status berubah dari LUNAS menjadi status lain (misal: dibatalkan)
     } else if (wasPaid && !isNowPaid) {
       Log.info(
           'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.');
@@ -202,7 +179,7 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Riwayat Langganan'),
@@ -239,13 +216,13 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.payment),
                 ),
-                items: PaymentStatus.values.map((final status) {
+                items: PaymentStatus.values.map((status) {
                   return DropdownMenuItem<PaymentStatus>(
                     value: status,
                     child: Text(status.displayName.toUpperCase()),
                   );
                 }).toList(),
-                onChanged: (final newValue) {
+                onChanged: (newValue) {
                   if (newValue != null) {
                     setState(() {
                       _paymentStatus = newValue;
@@ -271,11 +248,11 @@ class _SubscriptionHistoryFormState extends State<SubscriptionHistoryForm> {
     );
   }
 
-  /// Widget custom untuk tile pemilih tanggal dan waktu.
-  Widget _buildDateTimePickerTile(
-      {required final String label,
-      required final DateTime date,
-      required final VoidCallback onPressed}) {
+  Widget _buildDateTimePickerTile({
+    required String label,
+    required DateTime date,
+    required VoidCallback onPressed,
+  }) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(

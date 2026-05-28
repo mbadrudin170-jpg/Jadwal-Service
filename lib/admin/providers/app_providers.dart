@@ -1,0 +1,49 @@
+// path: lib/admin/providers/app_providers.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/utils/sync_manager.dart';
+
+part 'app_providers.g.dart';
+
+// Provider yang dipindahkan ke shared_providers.dart:
+// - sharedPreferencesProvider
+// - localStorageServiceProvider
+// - themeNotifierProvider
+
+// Provider sederhana untuk NotifikasiServis
+@riverpod
+NotifikasiServis notifikasiServis(ref) {
+  // DIHAPUS: NotifikasiServisRef
+  return NotifikasiServis();
+}
+
+// Provider sederhana untuk SyncManager
+@riverpod
+SyncManager syncManager(ref) {
+  // DIHAPUS: SyncManagerRef
+  return SyncManager();
+}
+
+// Provider untuk SettingsOperation
+@riverpod
+SettingsOperation settingsOperation(ref) {
+  // DIHAPUS: SettingsOperationRef
+  return SettingsOperation();
+}
+
+// FutureProvider untuk mendapatkan data settings secara asinkron
+@riverpod
+Future<SettingsModel> settings(ref) {
+  // DIHAPUS: SettingsRef
+  return ref.watch(settingsOperationProvider).getSettings();
+}
+
+// Provider untuk TransactionOperation
+@riverpod
+TransactionOperation transactionOperation(ref) {
+  // DIHAPUS: TransactionOperationRef
+  return TransactionOperation();
+}
