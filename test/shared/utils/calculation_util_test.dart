@@ -24,7 +24,8 @@ void main() {
       expect(result, expectedEndDate);
     });
 
-    test('harus menghitung tanggal berakhir dengan benar untuk durasi hari', () {
+    test('harus menghitung tanggal berakhir dengan benar untuk durasi hari',
+        () {
       final paket = PackageModel(
         name: 'Paket Harian',
         price: 5000,
@@ -36,7 +37,8 @@ void main() {
       expect(result, expectedEndDate);
     });
 
-    test('harus menghitung tanggal berakhir dengan benar untuk durasi bulan', () {
+    test('harus menghitung tanggal berakhir dengan benar untuk durasi bulan',
+        () {
       final paket = PackageModel(
         name: 'Paket Bulanan',
         price: 50000,
@@ -49,8 +51,8 @@ void main() {
       expect(result, expectedEndDate);
     });
 
-    test(
-        'harus menghitung tanggal berakhir dengan benar untuk durasi menit', () {
+    test('harus menghitung tanggal berakhir dengan benar untuk durasi menit',
+        () {
       final paket = PackageModel(
         name: 'Paket Menitan',
         price: 500,
@@ -65,7 +67,8 @@ void main() {
   });
 
   group('CalculationUtil.getExpiredPoints', () {
-    test('harus mengembalikan string kosong jika poin belum hangus (<= 30 hari)',
+    test(
+        'harus mengembalikan string kosong jika poin belum hangus (<= 30 hari)',
         () {
       // Selisih 30 hari dari startDate
       final now = DateTime(2024, 8, 31, 10, 0, 0);
@@ -74,8 +77,7 @@ void main() {
       expect(result, '');
     });
 
-    test('harus mengembalikan "Hangus" jika poin sudah hangus (> 30 hari)',
-        () {
+    test('harus mengembalikan "Hangus" jika poin sudah hangus (> 30 hari)', () {
       // Selisih 31 hari dari startDate
       final now = DateTime(2024, 9, 1, 10, 0, 0);
       final result =
@@ -124,8 +126,7 @@ void main() {
       expect(result, 'Sisa 15 jam');
     });
 
-    test(
-        'harus menampilkan "Sisa X menit" jika sisa kurang dari 1 jam', () {
+    test('harus menampilkan "Sisa X menit" jika sisa kurang dari 1 jam', () {
       final endDate = now.add(const Duration(minutes: 45));
       final result =
           CalculationUtil.getRemainingActivePeriodText(endDate, now: now);
@@ -159,18 +160,15 @@ void main() {
       expect(result, Colors.green);
     });
 
-    test(
-        'harus mengembalikan Colors.orange jika sisa antara 1 sampai 7 hari',
+    test('harus mengembalikan Colors.orange jika sisa antara 1 sampai 7 hari',
         () {
       final endDate = now.add(const Duration(days: 7));
       final result =
           CalculationUtil.getRemainingActivePeriodColor(endDate, now: now);
       expect(result, Colors.orange);
     });
-    
-    test(
-        'harus mengembalikan Colors.orange jika sisa 1 hari',
-        () {
+
+    test('harus mengembalikan Colors.orange jika sisa 1 hari', () {
       final endDate = now.add(const Duration(days: 1));
       final result =
           CalculationUtil.getRemainingActivePeriodColor(endDate, now: now);

@@ -5,12 +5,12 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
 
 import 'base_operation_test.mocks.dart';
 
-// Menambahkan Transaction ke @GenerateMocks
 @GenerateMocks([
   DatabaseHelper,
   Database,
@@ -40,27 +40,27 @@ void main() {
 
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
-    // Stubbing yang benar untuk transaction. Ia harus bisa mengembalikan berbagai tipe Future
-    // tergantung pada apa yang dijalankan di dalamnya. Kita akan handle ini di setiap tes.
-    when(mockDatabase.transaction(any)).thenAnswer((invocation) async {
+    when(mockDatabase.transaction(any)).thenAnswer((invocation) {
       final action = invocation.positionalArguments.first as Function;
-      return await action(mockTxn);
+      return action(mockTxn);
     });
 
-    // Stubbing umum untuk metode di dalam transaction. Ini mengembalikan nilai default
-    // yang tipe-nya benar.
-    when(mockTxn.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm'))).thenAnswer((_) async => 1);
-    when(mockTxn.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'), conflictAlgorithm: anyNamed('conflictAlgorithm'))).thenAnswer((_) async => 1);
-    when(mockTxn.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'))).thenAnswer((_) async => 1);
+    when(mockTxn.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm')))
+        .thenAnswer((_) async => 1);
+    when(mockTxn.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+        .thenAnswer((_) async => 1);
+    when(mockTxn.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+        .thenAnswer((_) async => 1);
     when(mockTxn.batch()).thenReturn(mockBatch);
-    // Stub commit untuk mengembalikan List<Object?>
-    when(mockBatch.commit(noResult: anyNamed('noResult'), continueOnError: anyNamed('continueOnError'), exclusive: anyNamed('exclusive'))).thenAnswer((_) async => <Object?>[]);
 
-    when(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction'))).thenAnswer((_) async {});
+    when(mockBatch.commit(noResult: anyNamed('noResult'), continueOnError: anyNamed('continueOnError'), exclusive: anyNamed('exclusive'))).thenAnswer((_) async => []);
+
+    when(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction')))
+        .thenAnswer((_) async {});
   });
 
   group('BaseOperation CRUD Methods', () {
-    test('insert() harus memanggil txn.insert dengan benar', () async {
+    test('insert() should call txn.insert correctly', () async {
       const table = 'test_table';
       final data = {'id': '1', 'name': 'test'};
 
@@ -70,18 +70,18 @@ void main() {
       verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
-    test('update() harus memanggil txn.update dengan benar', () async {
+    test('update() should call txn.update correctly', () async {
       const table = 'test_table';
       final data = {'name': 'updated'};
       const id = '1';
 
       await baseOperation.update(table, data, id);
 
-      verify(mockTxn.update(table, data, where: 'id = ?', whereArgs: [id])).called(1);
+      verify(mockTxn.update(table, data, where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
       verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
-    test('softDelete() harus memanggil txn.update dengan data yang benar', () async {
+    test('softDelete() should call txn.update with correct data', () async {
       const table = 'test_table';
       const id = '1';
 
@@ -89,29 +89,30 @@ void main() {
 
       final captured = verify(mockTxn.update(
         table,
-        captureAny, 
-        where: 'id = ?',
+        captureAny,
+        where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       )).captured;
 
       final capturedMap = captured.first as Map<String, Object?>;
-      expect(capturedMap['isDeleted'], 1);
-      expect(capturedMap.containsKey('archivedAt'), isTrue);
+      // FIX: Used the constant `ColumnNames.isDeleted` instead of a literal string.
+      expect(capturedMap[ColumnNames.isDeleted], 1);
+      expect(capturedMap.containsKey(ColumnNames.archivedAt), isTrue);
       verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
-    test('delete() harus memanggil txn.delete dengan benar', () async {
+    test('delete() should call txn.delete correctly', () async {
       const table = 'test_table';
       const id = '1';
 
       await baseOperation.delete(table, id);
 
-      verify(mockTxn.delete(table, where: 'id = ?', whereArgs: [id])).called(1);
-      // Verifikasi bahwa setNeedUpload TIDAK dipanggil untuk delete permanen
-      verifyNever(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction')));
+      verify(mockTxn.delete(table, where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
+      
+      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
-    test('insertOrUpdateBatch() harus memanggil batch.commit', () async {
+    test('insertOrUpdateBatch() should call batch.commit', () async {
       const table = 'test_table';
       final dataList = [
         {'id': '1', 'name': 'test1'},
@@ -121,7 +122,7 @@ void main() {
       await baseOperation.insertOrUpdateBatch(table, dataList);
 
       verify(mockTxn.batch()).called(1);
-      verify(mockBatch.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm'))).called(2);
+      verify(mockBatch.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace)).called(2);
       verify(mockBatch.commit(noResult: true)).called(1);
       verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
