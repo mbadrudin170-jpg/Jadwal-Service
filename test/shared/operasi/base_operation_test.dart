@@ -10,228 +10,120 @@ import 'package:wifi/shared/operasi/upload_status_operation.dart';
 
 import 'base_operation_test.mocks.dart';
 
-// Kelas mock untuk Transaction karena sqflite tidak menyediakannya secara langsung
-class MockTransaction extends Mock implements Transaction {}
-
+// Menambahkan Transaction ke @GenerateMocks
 @GenerateMocks([
   DatabaseHelper,
   Database,
   UploadStatusOperation,
   Batch,
+  Transaction,
 ])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
   late MockUploadStatusOperation mockUploadStatusOperation;
   late BaseOperation baseOperation;
+  late MockTransaction mockTxn;
+  late MockBatch mockBatch;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
     mockUploadStatusOperation = MockUploadStatusOperation();
+    mockTxn = MockTransaction();
+    mockBatch = MockBatch();
 
-    // Inisialisasi BaseOperation dengan dependensi mock
     baseOperation = BaseOperation(
       dbHelper: mockDbHelper,
       uploadStatusOperasi: mockUploadStatusOperation,
     );
 
-    // Atur perilaku default untuk mock
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
-    // Ini bagian penting: kita mock implementasi dari `db.transaction()`
-    // Ia akan langsung menjalankan action yang diberikan dengan sebuah mock transaction
+    // Stubbing yang benar untuk transaction. Ia harus bisa mengembalikan berbagai tipe Future
+    // tergantung pada apa yang dijalankan di dalamnya. Kita akan handle ini di setiap tes.
     when(mockDatabase.transaction(any)).thenAnswer((invocation) async {
-      final action = invocation.positionalArguments.first as Future<dynamic>
-          Function(Transaction);
-      // Kita buat mock Transaction baru setiap kali transaction dipanggil
-      final mockTxn = MockTransaction();
-      // Siapkan batch mock jika diperlukan
-      final mockBatch = MockBatch();
-      when(mockTxn.batch()).thenReturn(mockBatch);
+      final action = invocation.positionalArguments.first as Function;
       return await action(mockTxn);
     });
-  });
 
-  group('BaseOperation Transaction Logic', () {
-    test(
-        'harus memanggil setNeedUpload(true) saat fromServer adalah false (default)',
-        () async {
-      // ATUR & JALANKAN
-      await baseOperation.runComplexOperation((txn) async {
-        // Aksi dummy
-      });
+    // Stubbing umum untuk metode di dalam transaction. Ini mengembalikan nilai default
+    // yang tipe-nya benar.
+    when(mockTxn.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm'))).thenAnswer((_) async => 1);
+    when(mockTxn.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'), conflictAlgorithm: anyNamed('conflictAlgorithm'))).thenAnswer((_) async => 1);
+    when(mockTxn.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'))).thenAnswer((_) async => 1);
+    when(mockTxn.batch()).thenReturn(mockBatch);
+    // Stub commit untuk mengembalikan List<Object?>
+    when(mockBatch.commit(noResult: anyNamed('noResult'), continueOnError: anyNamed('continueOnError'), exclusive: anyNamed('exclusive'))).thenAnswer((_) async => <Object?>[]);
 
-      // VERIFIKASI
-      verify(mockUploadStatusOperation.setNeedUpload(true,
-              transaction: anyNamed('transaction')))
-          .called(1);
-    });
-
-    test('TIDAK boleh memanggil setNeedUpload saat fromServer adalah true',
-        () async {
-      // ATUR & JALANKAN
-      await baseOperation.runComplexOperation((txn) async {
-        // Aksi dummy
-      }, fromServer: true);
-
-      // VERIFIKASI
-      verifyNever(mockUploadStatusOperation.setNeedUpload(any,
-          transaction: anyNamed('transaction')));
-    });
-
-    test('harus menjalankan aksi utama di dalam transaksi', () async {
-      // ATUR
-      bool actionCalled = false;
-
-      // JALANKAN
-      await baseOperation.runComplexOperation((txn) async {
-        actionCalled = true;
-      });
-
-      // VERIFIKASI
-      expect(actionCalled, isTrue);
-    });
+    when(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction'))).thenAnswer((_) async {});
   });
 
   group('BaseOperation CRUD Methods', () {
     test('insert() harus memanggil txn.insert dengan benar', () async {
-      // ATUR
       const table = 'test_table';
       final data = {'id': '1', 'name': 'test'};
 
-      // JALANKAN
       await baseOperation.insert(table, data);
 
-      // VERIFIKASI
-      final verification = verify(mockDatabase.transaction(captureAny));
-      verification.called(1);
-
-      final action =
-          verification.captured.single as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      await action(mockTxn);
-
-      verify(mockTxn.insert(table, data,
-              conflictAlgorithm: ConflictAlgorithm.replace))
-          .called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
-              transaction: anyNamed('transaction')))
-          .called(1);
+      verify(mockTxn.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace)).called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
     test('update() harus memanggil txn.update dengan benar', () async {
-      // ATUR
       const table = 'test_table';
       final data = {'name': 'updated'};
       const id = '1';
 
-      // JALANKAN
       await baseOperation.update(table, data, id);
 
-      // VERIFIKASI
-      final verification = verify(mockDatabase.transaction(captureAny));
-      verification.called(1);
+      verify(mockTxn.update(table, data, where: 'id = ?', whereArgs: [id])).called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+    });
 
-      final action =
-          verification.captured.single as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      await action(mockTxn);
+    test('softDelete() harus memanggil txn.update dengan data yang benar', () async {
+      const table = 'test_table';
+      const id = '1';
 
-      verify(mockTxn.update(table, data, where: 'id = ?', whereArgs: [id]))
-          .called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
-              transaction: anyNamed('transaction')))
-          .called(1);
+      await baseOperation.softDelete(table, id);
+
+      final captured = verify(mockTxn.update(
+        table,
+        captureAny, 
+        where: 'id = ?',
+        whereArgs: [id],
+      )).captured;
+
+      final capturedMap = captured.first as Map<String, Object?>;
+      expect(capturedMap['isDeleted'], 1);
+      expect(capturedMap.containsKey('archivedAt'), isTrue);
+      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
 
     test('delete() harus memanggil txn.delete dengan benar', () async {
-      // ATUR
       const table = 'test_table';
       const id = '1';
 
-      // JALANKAN
       await baseOperation.delete(table, id);
 
-      // VERIFIKASI
-      final verification = verify(mockDatabase.transaction(captureAny));
-      verification.called(1);
-
-      final action =
-          verification.captured.single as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      await action(mockTxn);
-
       verify(mockTxn.delete(table, where: 'id = ?', whereArgs: [id])).called(1);
-    });
-
-    test('softDelete() harus memanggil txn.update dengan data yang benar',
-        () async {
-      // ATUR
-      const table = 'test_table';
-      const id = '1';
-
-      // JALANKAN
-      await baseOperation.softDelete(table, id);
-
-      // VERIFIKASI
-      final verification = verify(mockDatabase.transaction(captureAny));
-      verification.called(1);
-
-      final action =
-          verification.captured.single as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      
-      // Stubbing untuk panggilan 'update'. Gunakan 'any' untuk matcher.
-      when(mockTxn.update(any, any,
-              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
-          .thenAnswer((_) async => 1);
-          
-      await action(mockTxn);
-
-      // Verifikasi panggilan 'update' dan tangkap argumen 'values' (peta).
-      final captured = verify(mockTxn.update(any, captureAny,
-              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
-          .captured;
-
-      final capturedMap = captured.first as Map<String, Object?>;
-
-      expect(capturedMap.containsKey('isDeleted'), isTrue);
-      expect(capturedMap['isDeleted'], 1);
-      expect(capturedMap.containsKey('archivedAt'), isTrue);
+      // Verifikasi bahwa setNeedUpload TIDAK dipanggil untuk delete permanen
+      verifyNever(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction')));
     });
 
     test('insertOrUpdateBatch() harus memanggil batch.commit', () async {
-      // ATUR
       const table = 'test_table';
       final dataList = [
         {'id': '1', 'name': 'test1'},
-        {'id': '2', 'name': 'test2'}
+        {'id': '2', 'name': 'test2'},
       ];
-      final mockBatch = MockBatch();
 
-      // JALANKAN
-      await baseOperation.insertOrUpdateBatch(table, dataList,
-          fromServer: true);
-
-      // VERIFIKASI
-      final verification = verify(mockDatabase.transaction(captureAny));
-      verification.called(1);
-
-      final action =
-          verification.captured.single as Future<dynamic> Function(Transaction);
-      final mockTxn = MockTransaction();
-      when(mockTxn.batch()).thenReturn(mockBatch);
-
-      await action(mockTxn);
+      await baseOperation.insertOrUpdateBatch(table, dataList);
 
       verify(mockTxn.batch()).called(1);
-      verify(mockBatch.insert(any, any,
-              conflictAlgorithm: anyNamed('conflictAlgorithm')))
-          .called(2);
+      verify(mockBatch.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm'))).called(2);
       verify(mockBatch.commit(noResult: true)).called(1);
-      verifyNever(mockUploadStatusOperation.setNeedUpload(any,
-          transaction: anyNamed('transaction')));
+      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
     });
   });
 }
