@@ -1,7 +1,5 @@
 // path: lib/shared/operasi/feedback_operation.dart
 
-// Menyembunyikan Transaction milik Firestore agar tidak konflik dengan sqflite
-import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -328,35 +326,6 @@ class FeedbackOperation {
     }
   }
 
-  /// Mengunduh semua data kritik dan saran dari Firebase.
-  static Future<List<FeedbackModel>> downloadFromFirebase() async {
-    Log.info('Memulai pengunduhan data dari Firestore koleksi: kritik_saran.');
-    try {
-      final QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection(TableNameValue.get(TableName.feedback))
-          .get();
-      final List<FeedbackModel> data = snapshot.docs
-          .map(
-            (final doc) => FeedbackModel.fromFirebase(
-              doc.id,
-              doc.data() as Map<String, dynamic>,
-            ),
-          )
-          .toList();
-
-      Log.info(
-        'Berhasil mengunduh ${data.length} data kritik dan saran dari Firebase.',
-      );
-      return data;
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengunduh data kritik dan saran dari Firebase',
-        e: e,
-        st: st,
-      );
-      return [];
-    }
-  }
 
   /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
   Future<List<FeedbackModel>> getFeedbackByIds(final List<String> ids) async {

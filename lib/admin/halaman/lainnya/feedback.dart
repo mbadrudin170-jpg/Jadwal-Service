@@ -56,7 +56,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final query = _searchController.text.toLowerCase();
     Log.info('Menerapkan filter dengan query: "$query"');
     setState(() {
-      _hasilFilter = _allFeedback.where((final item) {
+      _hasilFilter = _allFeedback.where((item) {
         final isi = item.content.toLowerCase();
         final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
         return isi.contains(query) || namaPengirim.contains(query);

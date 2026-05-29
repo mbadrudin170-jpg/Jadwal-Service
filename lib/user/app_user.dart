@@ -37,10 +37,12 @@ class AppUser extends ConsumerWidget {
                 );
               },
               loading: () => const MaterialApp(
-                home: Scaffold(body: Center(child: CircularProgressIndicator())),
+                home:
+                    Scaffold(body: Center(child: CircularProgressIndicator())),
               ),
               error: (err, stack) => MaterialApp(
-                home: Scaffold(body: Center(child: Text('Error localStorage: $err'))),
+                home: Scaffold(
+                    body: Center(child: Text('Error localStorage: $err'))),
               ),
             );
           },
@@ -48,7 +50,8 @@ class AppUser extends ConsumerWidget {
             home: Scaffold(body: Center(child: CircularProgressIndicator())),
           ),
           error: (err, stack) => MaterialApp(
-            home: Scaffold(body: Center(child: Text('Error SharedPreferences: $err'))),
+            home: Scaffold(
+                body: Center(child: Text('Error SharedPreferences: $err'))),
           ),
         );
       },

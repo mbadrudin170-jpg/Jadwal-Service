@@ -11,14 +11,14 @@ class FormatDateTime {
   FormatDateTime._();
 
   /// Mengubah [DateTime] menjadi format tanggal dan jam "d MMM yyyy, HH:mm".
-  static String formatDateAndTime(final DateTime date) {
+  static String formatDateAndTime(DateTime date) {
     final format = DateFormat('d MMM yyyy, HH:mm', 'id_ID');
     return format.format(date);
   }
 
   /// Mengubah [DateTime] menjadi format tanggal dan jam ringkas "E, d MMM yy, HH:mm".
   /// Contoh: "Sel, 20 Agu 26, 10:00"
-  static String formatDateAndTimeCompact(final DateTime date) {
+  static String formatDateAndTimeCompact(DateTime date) {
     final format = DateFormat('E, d MMM yy, HH:mm', 'id_ID');
     return format.format(date);
   }

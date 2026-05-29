@@ -21,7 +21,8 @@ class CustomerOpFirebase {
   final String _collectionName = TableNameValue.get(TableName.customer);
 
   /// Konstruktor untuk inisialisasi.
-  CustomerOpFirebase({final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
+  CustomerOpFirebase(
+      {final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('CustomerOpFirebase diinisialisasi.');

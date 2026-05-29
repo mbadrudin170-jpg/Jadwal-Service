@@ -108,7 +108,6 @@ class AppTheme {
     ),
   );
 
-  /// Definisi tema gelap (dark theme).
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
@@ -131,11 +130,14 @@ class AppTheme {
       color: AppColors.darkSurface,
     ),
     listTileTheme: ListTileThemeData(
-      // Tidak perlu override warna di sini lagi, akan diwariskan dari _darkTextTheme
       subtitleTextStyle:
           _darkTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade400),
-      // iconColor: Colors.white70,
     ),
-    // ... tema komponen lainnya ...
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black54,
+      ),
+    ),
   );
 }

@@ -89,8 +89,8 @@ class FeedbackModel implements HasId {
       ColumnNames.content: content,
       ColumnNames.userId: userId,
       ColumnNames.date: date?.millisecondsSinceEpoch,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -115,15 +115,15 @@ class FeedbackModel implements HasId {
   /// Converts [FeedbackModel] to a Map format for Firebase.
   Map<String, dynamic> toFirebase() {
     return {
+      ColumnNames.id: id,
       ColumnNames.content: content,
       ColumnNames.userId: userId,
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.date: date != null ? Timestamp.fromDate(date!.toUtc()) : null,
+      ColumnNames.date: date != null
+          ? Timestamp.fromDate(date!.toUtc())
+          : DateTime.now().toUtc(),
       ColumnNames.isDeleted: isDeleted,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

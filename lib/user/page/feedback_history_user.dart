@@ -5,29 +5,15 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/user_feedback_form.dart';
+import 'package:wifi/user/page/form_feedback_u.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Navigasi dari halaman profil atau menu uaser.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/feedback_model.dart (FeedbackModel)
-//   - lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart (FeedbackOpFirebase)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/user/page/form_kritik_dan_saran_user.dart (FormKritikDanSaran)
-
-/// Halaman untuk menampilkan riwayat kritik dan saran yang telah dikirim
-/// oleh pengguna.
 class FeedbackHistoryPage extends StatefulWidget {
-  /// ID pengguna untuk memfilter riwayat kritik dan saran.
   final String userId;
 
-  /// Membuat instance dari [FeedbackHistoryPage].
   const FeedbackHistoryPage({super.key, required this.userId});
 
   @override
@@ -141,14 +127,6 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
             itemCount: feedbacks.length,
             itemBuilder: (final context, final index) {
               final feedback = feedbacks[index];
-              final formattedDate = feedback.date != null
-                  ? DateFormat.yMMMMd('id_ID').add_jm().format(feedback.date!)
-                  : 'Tanggal tidak tersedia';
-
-              final formattedUpdatedDate = feedback.updatedAt != null
-                  ? ' (diperbarui: ${DateFormat.yMMMMd('id_ID').add_jm().format(feedback.updatedAt!)})'
-                  : '';
-
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
@@ -157,7 +135,10 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      '$formattedDate$formattedUpdatedDate',
+                      feedback.date != null
+                          ? FormatDateTime.formatDateAndTimeCompact(
+                              feedback.date!)
+                          : '',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),

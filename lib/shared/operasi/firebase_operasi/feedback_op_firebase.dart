@@ -1,5 +1,4 @@
 // path: lib/shared/operasi/firebase_operasi/feedback_op_firebase.dart
-// direfaktor: Menggunakan BaseOpFirebase untuk semua operasi tulis.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -16,7 +15,8 @@ class FeedbackOpFirebase {
   final String _collectionName = TableNameValue.get(TableName.feedback);
 
   /// Konstruktor untuk inisialisasi.
-  FeedbackOpFirebase({final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
+  FeedbackOpFirebase(
+      {final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
       : _firestore = firestore ?? FirebaseFirestore.instance,
         _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('FeedbackOpFirebase diinisialisasi.');
@@ -26,10 +26,18 @@ class FeedbackOpFirebase {
   CollectionReference get _collection => _firestore.collection(_collectionName);
 
   /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
-  Future<void> createFeedback(final FeedbackModel feedback) async {
+  Future<void> createFeedback(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
-    // Menggunakan base.add() yang tidak memerlukan ID di awal
-    await _baseOp.add(_collectionName, feedback.toFirebase());
+    
+    // 1. Ambil data dasar dari model
+    final data = feedback.toFirebase();
+
+    // 2. Tambahkan perintah server untuk mengisi tanggal.
+    // Ini adalah tempat yang tepat untuk logika ini, bukan di model atau UI.
+    data[ColumnNames.date] = FieldValue.serverTimestamp();
+
+    // 3. Kirim data yang sudah diperkaya ke operasi dasar.
+    await _baseOp.add(_collectionName, data);
   }
 
   /// Memperbarui isi feedback.
@@ -38,6 +46,8 @@ class FeedbackOpFirebase {
     final String newContent,
   ) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
+    // Di sini kita tidak menambahkan `date` karena ini adalah pembaruan,
+    // tanggal pembuatan asli harus dipertahankan.
     await _baseOp.update(_collectionName, docId, {
       ColumnNames.content: newContent,
     });

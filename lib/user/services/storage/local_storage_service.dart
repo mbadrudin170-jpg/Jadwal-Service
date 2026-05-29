@@ -37,59 +37,46 @@ class LocalStorageService {
   /// Jika tidak, akan disimpan secara global (untuk admin app).
   Future<void> saveThemeMode(final ThemeMode mode) async {
     Log.info('[Simpan Tema] Menyimpan mode tema: $mode.');
-    final userId = prefs.getString(_userIdKey);
-    if (userId == null) {
-      // Untuk app admin atau jika user belum login, simpan secara global
-      await prefs.setString(_themeModePrefixKey, mode.toString());
-      Log.info('[Simpan Tema] Mode tema berhasil disimpan secara global.');
-    } else {
-      // Untuk user app yang sudah login, simpan per-user
-      await prefs.setString('$_themeModePrefixKey$userId', mode.toString());
-      Log.info(
-          '[Simpan Tema] Mode tema berhasil disimpan untuk user ID: $userId.');
-    }
+    await prefs.setString(_themeModePrefixKey, mode.toString());
+    Log.info('[Simpan Tema] Mode tema berhasil disimpan secara global.');
   }
 
-  /// Mengambil mode tema yang disimpan.
-  ///
-  /// Akan mencari tema per-user jika ada. Jika tidak, akan mencari tema global.
-  /// Mengembalikan [ThemeMode.system] jika tidak ada yang ditemukan.
+// Versi yang lebih bersih dan ringkas
   Future<ThemeMode> getThemeMode() async {
-    Log.info('[Ambil Tema] Mengambil mode tema.');
-    final userId = prefs.getString(_userIdKey);
-    String? modeString;
+    try {
+      Log.info('[Ambil Tema] Mengambil mode tema global dari penyimpanan.');
+      // Inisialisasi SharedPreferences di dalam try-catch
+      final prefs = await SharedPreferences.getInstance();
 
-    if (userId == null) {
-      // Coba ambil dari penyimpanan global (untuk admin app)
-      modeString = prefs.getString(_themeModePrefixKey);
-      Log.info(
-          '[Ambil Tema] Mencoba mengambil tema global (tidak ada user login).');
-    } else {
-      // Coba ambil dari penyimpanan per-user
-      modeString = prefs.getString('$_themeModePrefixKey$userId');
-      Log.info('[Ambil Tema] Mencoba mengambil tema untuk user ID: $userId.');
-    }
+      // Langsung ambil string mode tema global
+      final modeString = prefs.getString(_themeModePrefixKey);
 
-    if (modeString == null) {
-      Log.warning(
-        '[Ambil Tema] Mode tema tidak ditemukan, menggunakan ThemeMode.system.',
+      // Gunakan satu blok untuk validasi (menangani null dan string tidak valid)
+      final themeMode = ThemeMode.values.firstWhere(
+        (e) => e.toString() == modeString,
+        orElse: () {
+          // Beri log jika fallback terjadi
+          Log.warning(
+            '[Ambil Tema] Tema global tidak ada atau tidak valid. Fallback ke tema sistem.',
+          );
+          return ThemeMode.system;
+        },
       );
-      return ThemeMode.system;
-    }
 
-    final themeMode = ThemeMode.values.firstWhere(
-      (final e) => e.toString() == modeString,
-      orElse: () => ThemeMode.system,
-    );
-    Log.info('[Ambil Tema] Mode tema ($themeMode) berhasil diambil.');
-    return themeMode;
+      Log.info('[Ambil Tema] Mode tema ($themeMode) berhasil diambil.');
+      return themeMode;
+    } catch (e, st) {
+      Log.error('[Ambil Tema] Gagal mengambil mode tema.', e: e, st: st);
+      return ThemeMode.system; // Fallback jika ada error lain
+    }
   }
 
   ///
   /// Jika akun sudah ada, datanya akan diperbarui.
   /// Jika belum, akun baru akan ditambahkan ke daftar.
   Future<void> saveAccount(final CustomerModel customer) async {
-    Log.info('[Simpan Akun] Menyimpan atau memperbarui akun: ${customer.name}.');
+    Log.info(
+        '[Simpan Akun] Menyimpan atau memperbarui akun: ${customer.name}.');
     final accountListJson = prefs.getString(_accountListKey);
     final List<dynamic> accountList = accountListJson != null
         ? jsonDecode(accountListJson) as List<dynamic>
@@ -116,7 +103,8 @@ class LocalStorageService {
   /// Metode ini juga akan memperbarui daftar akun yang ada dengan data terbaru dari
   /// customer yang dipilih, serta menyetel token ID pengguna yang aktif.
   Future<void> saveCurrentAccount(final CustomerModel customer) async {
-    Log.info('[Simpan Akun Aktif] Mengatur ${customer.name} sebagai akun aktif.');
+    Log.info(
+        '[Simpan Akun Aktif] Mengatur ${customer.name} sebagai akun aktif.');
     // Setel token ID pengguna yang aktif
     await prefs.setString(_userIdKey, customer.id);
     // Simpan atau perbarui detail akun di daftar riwayat
@@ -160,10 +148,8 @@ class LocalStorageService {
     final List<dynamic> accountList =
         jsonDecode(accountListJson) as List<dynamic>;
     final int countBefore = accountList.length;
-    accountList
-        .removeWhere((final p) => (p as Map<String, dynamic>)['id'] == userId);
+    accountList.removeWhere((p) => (p as Map<String, dynamic>)['id'] == userId);
     final int countAfter = accountList.length;
-
     if (countBefore > countAfter) {
       await prefs.setString(_accountListKey, jsonEncode(accountList));
       Log.info('[Hapus Akun] Akun dengan ID $userId berhasil dihapus.');
