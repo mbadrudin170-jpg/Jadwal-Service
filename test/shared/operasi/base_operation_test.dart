@@ -1,4 +1,5 @@
 // path: test/shared/operasi/base_operation_test.dart
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -180,18 +181,24 @@ void main() {
       final action =
           verification.captured.single as Future<dynamic> Function(Transaction);
       final mockTxn = MockTransaction();
+      
+      // Stubbing untuk panggilan 'update'. Gunakan 'any' untuk matcher.
       when(mockTxn.update(any, any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => 1);
+          
       await action(mockTxn);
 
+      // Verifikasi panggilan 'update' dan tangkap argumen 'values' (peta).
       final captured = verify(mockTxn.update(any, captureAny,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .captured;
 
-      expect(captured.first.containsKey('isDeleted'), isTrue);
-      expect(captured.first['isDeleted'], 1);
-      expect(captured.first.containsKey('archivedAt'), isTrue);
+      final capturedMap = captured.first as Map<String, Object?>;
+
+      expect(capturedMap.containsKey('isDeleted'), isTrue);
+      expect(capturedMap['isDeleted'], 1);
+      expect(capturedMap.containsKey('archivedAt'), isTrue);
     });
 
     test('insertOrUpdateBatch() harus memanggil batch.commit', () async {

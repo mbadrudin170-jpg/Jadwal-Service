@@ -32,15 +32,15 @@ void main() {
   group('BaseOpFirebase', () {
     const collectionName = 'test_collection';
 
-    // Helper untuk melakukan casting data dengan aman
+    // Helper untuk melakukan casting data dengan aman (meskipun tidak lagi krusial setelah perbaikan tipe)
     Map<String, dynamic>? dataAsMap(Map<String, dynamic>? data) {
       return data;
     }
 
     test('insert() harus menambahkan dokumen dan memanggil updateGlobalStatus', () async {
-      // ATUR: Data didefinisikan di dalam tes untuk isolasi
+      // ATUR: Tipe Map didefinisikan secara eksplisit
       const docId = 'test_doc_1';
-      final data = {'id': docId, 'value': 'hello'};
+      final data = <String, dynamic>{'id': docId, 'value': 'hello'};
 
       // JALANKAN
       await baseOpFirebase.insert(collectionName, docId, data);
@@ -56,8 +56,8 @@ void main() {
     });
 
     test('add() harus menambahkan dokumen baru dan memanggil updateGlobalStatus', () async {
-      // ATUR
-      final data = {'id': 'new_id', 'value': 'added'};
+      // ATUR: Tipe Map didefinisikan secara eksplisit
+      final data = <String, dynamic>{'id': 'new_id', 'value': 'added'};
 
       // JALANKAN
       final docRef = await baseOpFirebase.add(collectionName, data);
@@ -71,11 +71,11 @@ void main() {
     });
 
     test('update() harus memperbarui dokumen dan memanggil updateGlobalStatus', () async {
-      // ATUR
+      // ATUR: Tipe Map didefinisikan secara eksplisit
       const docId = 'doc_to_update';
-      final initialData = {'id': docId, 'value': 'initial'};
+      final initialData = <String, dynamic>{'id': docId, 'value': 'initial'};
       await fakeFirestore.collection(collectionName).doc(docId).set(initialData);
-      final updateData = {'value': 'updated'};
+      final updateData = <String, dynamic>{'value': 'updated'};
 
       // JALANKAN
       await baseOpFirebase.update(collectionName, docId, updateData);
@@ -89,9 +89,9 @@ void main() {
     });
 
     test('delete() harus menghapus dokumen dan memanggil updateGlobalStatus', () async {
-      // ATUR
+      // ATUR: Tipe Map didefinisikan secara eksplisit
       const docId = 'doc_to_delete';
-      final data = {'id': docId};
+      final data = <String, dynamic>{'id': docId};
       await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
       // JALANKAN
@@ -104,9 +104,9 @@ void main() {
     });
 
     test('softDelete() harus mengatur isDeleted dan memanggil updateGlobalStatus', () async {
-      // ATUR
+      // ATUR: Tipe Map didefinisikan secara eksplisit
       const docId = 'doc_to_soft_delete';
-      final data = {'id': docId, 'isDeleted': false};
+      final data = <String, dynamic>{'id': docId, 'isDeleted': false};
       await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
       // JALANKAN
@@ -122,8 +122,8 @@ void main() {
     });
 
     test('insertOrUpdateBatch() harus memproses semua item dan memanggil updateGlobalStatus', () async {
-      // ATUR
-      final items = [
+      // ATUR: Tipe Map didefinisikan secara eksplisit
+      final items = <Map<String, dynamic>>[
         {'id': 'batch1', 'value': 1, 'isDeleted': false},
         {'id': 'batch2', 'value': 2, 'isDeleted': false},
         {'id': 'batch1', 'value': 3, 'isDeleted': false}, // Akan menimpa batch1
@@ -148,10 +148,10 @@ void main() {
     });
 
     test('softDeleteAll() harus memproses semua item dan memanggil updateGlobalStatus', () async {
-      // ATUR
-      await fakeFirestore.collection(collectionName).doc('doc1').set({'id': 'doc1', 'isDeleted': false});
-      await fakeFirestore.collection(collectionName).doc('doc2').set({'id': 'doc2', 'isDeleted': false});
-      await fakeFirestore.collection(collectionName).doc('doc3').set({'id': 'doc3', 'isDeleted': true});
+      // ATUR: Tipe Map didefinisikan secara eksplisit untuk memastikan query .where() bekerja
+      await fakeFirestore.collection(collectionName).doc('doc1').set(<String, dynamic>{'id': 'doc1', 'isDeleted': false});
+      await fakeFirestore.collection(collectionName).doc('doc2').set(<String, dynamic>{'id': 'doc2', 'isDeleted': false});
+      await fakeFirestore.collection(collectionName).doc('doc3').set(<String, dynamic>{'id': 'doc3', 'isDeleted': true});
 
       // JALANKAN
       final count = await baseOpFirebase.softDeleteAll(collectionName);
