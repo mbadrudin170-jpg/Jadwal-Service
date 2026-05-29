@@ -64,7 +64,41 @@ Setelah menelusuri file impor, lakukan langkah berikut untuk menentukan sumber e
 - Jika ya, sertakan penyesuaian yang diperlukan di file-file itu, atau beri tahu pengguna tentang dampaknya.
 - Jangan hanya fokus pada perbaikan di file yang dikerjakan, pastikan tidak merusak file lain yang menggunakan class tersebut.
 
----# // path: prompt/aturan_kepatuhan_ai.md
+---// path: prompt/aturan_belajar.md
+
+### Aturan Belajar dan Bimbingan (AI)
+
+**Tujuan:** Memastikan AI berperan sebagai mentor yang efektif untuk membantu saya (pengguna) memahami Flutter dan Dart secara mendalam, dari konsep dasar hingga praktik terbaik.
+
+---
+
+**1. Dasar Bimbingan**
+- Karena saya dalam tahap belajar, tujuan utama AI adalah membantu saya memahami *mengapa* dan *bagaimana* suatu kode bekerja.
+- Jika saya bingung, berikan penjelasan konsep yang relevan dengan bahasa yang mudah dipahami.
+
+**2. Penanganan Error dan Kesalahan**
+- Ketika terjadi error, warning, atau kesalahan logika:
+  - Tunjukkan **hanya potongan kode yang salah**.
+  - Jelaskan dengan detail **mengapa kode tersebut salah**.
+  - Berikan **potongan kode perbaikan** dan jelaskan **mengapa versi perbaikan ini benar**.
+- **Larangan:** Jangan menulis ulang seluruh file atau fungsi, agar saya bisa fokus pada bagian yang diperbaiki.
+
+**3. Kode yang Mudah Dikelola**
+- Bantu saya membuat kode yang terstruktur, mudah dibaca, dan mudah dikelola untuk masa depan.
+
+**5. Saran Proaktif untuk Kualitas Kode**
+- Meskipun kode saya berjalan tanpa error, AI wajib proaktif:
+  - Jika ada cara penulisan yang lebih efisien, modern, atau sesuai *best practice* (misal: penggunaan `const`, ekstraksi widget, state management yang lebih baik), **tanyakan apakah saya ingin melihat versi yang lebih baik**.
+  - Jelaskan keuntungan dari pendekatan yang disarankan.
+
+**6. Penjelasan Konsep Fundamental**
+- Jika kode yang saya tulis atau yang kita diskusikan menyentuh konsep penting (contoh: `Future`, `async/await`, `Stream`, `BuildContext`, `StatefulWidget vs StatelessWidget`, immutability), **ambil inisiatif untuk menjelaskannya secara singkat dan sederhana**, bahkan jika saya tidak bertanya. Anggap saya belum familiar dengan konsep tersebut.
+
+**7. Kepatuhan Terhadap Aturan Proyek**
+- Selalu ingatkan saya jika kode yang saya tulis melanggar aturan lain yang sudah didefinisikan di dalam direktori `prompt/`, seperti:
+  - `aturan_penulisan_kode.md` (penamaan, format, dll.).
+  - `aturan_analisis_error.md` (cara menganalisis masalah).
+  - `penyisipan_log_sanckbar.md` (penggunaan `Log` dan `ToastUtil`).# // path: prompt/aturan_kepatuhan_ai.md
 
 
 ---
@@ -246,38 +280,247 @@ File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-ap
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
 
 ---
-// path: prompt/aturan_belajar.md
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-### Aturan Belajar dan Bimbingan (AI)
+/// Testing library for flutter, built on top of `package:test`.
+///
+/// ## Test Configuration
+///
+/// The testing library exposes a few constructs by which projects may configure
+/// their tests.
+///
+/// ### Per test or per file
+///
+/// Due to its use of `package:test` as a foundation, the testing library
+/// allows for tests to be initialized using the existing constructs found in
+/// `package:test`. These include the [setUp] and [setUpAll] methods.
+///
+/// ### Per directory hierarchy
+///
+/// In addition to the constructs provided by `package:test`, this library
+/// supports the configuration of tests at the directory level.
+///
+/// Before a test file is executed, the Flutter test framework will scan up the
+/// directory hierarchy, starting from the directory in which the test file
+/// resides, looking for a file named `flutter_test_config.dart`. If it finds
+/// such a configuration file, the file will be assumed to have a `main` method
+/// with the following signature:
+///
+/// ```dart
+/// Future<void> testExecutable(FutureOr<void> Function() testMain) async { }
+/// ```
+///
+/// The test framework will execute that method and pass it the `main()` method
+/// of the test. It is then the responsibility of the configuration file's
+/// `main()` method to invoke the test's `main()` method.
+///
+/// After the test framework finds a configuration file, it will stop scanning
+/// the directory hierarchy. In other words, the test configuration file that
+/// lives closest to the test file will be selected, and all other test
+/// configuration files will be ignored. Likewise, it will stop scanning the
+/// directory hierarchy when it finds a `pubspec.yaml`, since that signals the
+/// root of the project.
+///
+/// If no configuration file is located, the test will be executed like normal.
+///
+/// See also:
+///
+///  * [WidgetController.hitTestWarningShouldBeFatal], which can be set
+///    in a `flutter_test_config.dart` file to turn warnings printed by
+///    [WidgetTester.tap] and similar APIs into fatal errors.
+///  * [debugCheckIntrinsicSizes], which can be set in a
+///    `flutter_test_config.dart` file to enable deeper [RenderBox]
+///    tests of the intrinsic APIs automatically while laying out widgets.
+///
+/// @docImport 'package:flutter/rendering.dart';
+///
+/// @docImport 'src/controller.dart';
+/// @docImport 'src/test_compat.dart';
+/// @docImport 'src/widget_tester.dart';
+library flutter_test;
 
-**Tujuan:** Memastikan AI berperan sebagai mentor yang efektif untuk membantu saya (pengguna) memahami Flutter dan Dart secara mendalam, dari konsep dasar hingga praktik terbaik.
+export 'dart:async' show Future;
 
----
+export 'src/_goldens_io.dart' if (dart.library.js_interop) 'src/_goldens_web.dart';
+export 'src/_matchers_io.dart' if (dart.library.js_interop) 'src/_matchers_web.dart';
+export 'src/_test_selector_io.dart' if (dart.library.js_interop) 'src/_test_selector_web.dart';
+export 'src/accessibility.dart';
+export 'src/animation_sheet.dart';
+export 'src/binding.dart';
+export 'src/controller.dart';
+export 'src/deprecated.dart';
+export 'src/event_simulation.dart';
+export 'src/finders.dart';
+export 'src/frame_timing_summarizer.dart';
+export 'src/goldens.dart';
+export 'src/image.dart';
+export 'src/matchers.dart';
+export 'src/mock_canvas.dart';
+export 'src/mock_event_channel.dart';
+export 'src/navigator.dart';
+export 'src/nonconst.dart';
+export 'src/platform.dart';
+export 'src/recording_canvas.dart';
+export 'src/restoration.dart';
+export 'src/stack_manipulation.dart';
+export 'src/test_async_utils.dart';
+export 'src/test_compat.dart';
+export 'src/test_default_binary_messenger.dart';
+export 'src/test_exception_reporter.dart';
+export 'src/test_pointer.dart';
+export 'src/test_text_input.dart';
+export 'src/test_vsync.dart';
+export 'src/tree_traversal.dart';
+export 'src/widget_tester.dart';
+export 'src/window.dart';
+// Copyright 2016 Dart Mockito authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-**1. Dasar Bimbingan**
-- Karena saya dalam tahap belajar, tujuan utama AI adalah membantu saya memahami *mengapa* dan *bagaimana* suatu kode bekerja.
-- Jika saya bingung, berikan penjelasan konsep yang relevan dengan bahasa yang mudah dipahami.
+// ignore_for_file: combinators_ordering
 
-**2. Penanganan Error dan Kesalahan**
-- Ketika terjadi error, warning, atau kesalahan logika:
-  - Tunjukkan **hanya potongan kode yang salah**.
-  - Jelaskan dengan detail **mengapa kode tersebut salah**.
-  - Berikan **potongan kode perbaikan** dan jelaskan **mengapa versi perbaikan ini benar**.
-- **Larangan:** Jangan menulis ulang seluruh file atau fungsi, agar saya bisa fokus pada bagian yang diperbaiki.
+// ignore: deprecated_member_use
+export 'package:test_api/fake.dart' show Fake;
 
-**3. Kode yang Mudah Dikelola**
-- Bantu saya membuat kode yang terstruktur, mudah dibaca, dan mudah dikelola untuk masa depan.
+export 'src/dummies.dart'
+    show provideDummy, provideDummyBuilder, MissingDummyValueError;
+export 'src/mock.dart'
+    show
+        Mock,
+        SmartFake,
+        named, // ignore: deprecated_member_use_from_same_package
+        // -- setting behaviour
+        when,
+        any,
+        anyNamed,
+        argThat,
+        captureAny,
+        captureAnyNamed,
+        captureThat,
+        Answering,
+        Expectation,
+        PostExpectation,
+        // -- verification
+        verify,
+        verifyInOrder,
+        verifyNever,
+        verifyNoMoreInteractions,
+        verifyZeroInteractions,
+        VerificationResult,
+        Verification,
+        ListOfVerificationResult,
+        // -- misc
+        throwOnMissingStub,
+        clearInteractions,
+        reset,
+        resetMockitoState,
+        logInvocations,
+        untilCalled,
+        MissingStubError,
+        FakeUsedError,
+        FakeFunctionUsedError;
+import 'dart:async';
 
-**5. Saran Proaktif untuk Kualitas Kode**
-- Meskipun kode saya berjalan tanpa error, AI wajib proaktif:
-  - Jika ada cara penulisan yang lebih efisien, modern, atau sesuai *best practice* (misal: penggunaan `const`, ekstraksi widget, state management yang lebih baik), **tanyakan apakah saya ingin melihat versi yang lebih baik**.
-  - Jelaskan keuntungan dari pendekatan yang disarankan.
+import 'package:sqflite/src/compat.dart';
+import 'package:sqflite/src/constant.dart';
+import 'package:sqflite/src/sqflite_android.dart';
+import 'package:sqflite/src/sqflite_impl.dart';
+import 'package:sqflite/src/utils.dart' as impl;
+import 'package:sqflite/utils/utils.dart' as utils;
 
-**6. Penjelasan Konsep Fundamental**
-- Jika kode yang saya tulis atau yang kita diskusikan menyentuh konsep penting (contoh: `Future`, `async/await`, `Stream`, `BuildContext`, `StatefulWidget vs StatelessWidget`, immutability), **ambil inisiatif untuk menjelaskannya secara singkat dan sederhana**, bahkan jika saya tidak bertanya. Anggap saya belum familiar dengan konsep tersebut.
+import 'sqlite_api.dart';
 
-**7. Kepatuhan Terhadap Aturan Proyek**
-- Selalu ingatkan saya jika kode yang saya tulis melanggar aturan lain yang sudah didefinisikan di dalam direktori `prompt/`, seperti:
-  - `aturan_penulisan_kode.md` (penamaan, format, dll.).
-  - `aturan_analisis_error.md` (cara menganalisis masalah).
-  - `penyisipan_log_sanckbar.md` (penggunaan `Log` dan `ToastUtil`).
+export 'package:sqflite/sql.dart' show ConflictAlgorithm;
+export 'package:sqflite/src/compat.dart';
+export 'package:sqflite_common/sqflite.dart';
+
+export 'sqlite_api.dart';
+export 'src/factory_impl.dart' show databaseFactorySqflitePlugin;
+export 'src/sqflite_darwin.dart' show SqfliteDarwin;
+export 'src/sqflite_plugin.dart' show SqflitePlugin;
+
+///
+/// sqflite plugin
+///
+class Sqflite {
+  /// Turns on debug mode if you want to see the SQL query
+  /// executed natively.
+  @Deprecated('Removed in next major release')
+  static Future<void> setDebugModeOn([bool on = true]) async {
+    await invokeMethod<dynamic>(methodSetDebugModeOn, on);
+  }
+
+  /// Planned Deprecated for 1.1.7
+  @Deprecated('Removed in next major release')
+  static Future<bool> getDebugModeOn() async {
+    return impl.debugModeOn;
+  }
+
+  /// deprecated on purpose to remove from code.
+  ///
+  /// To use during developpment/debugging
+  /// Set extra dart and nativate debug logs
+  @Deprecated('Dev only')
+  static Future<void> devSetDebugModeOn([bool on = true]) {
+    impl.debugModeOn = on;
+    return setDebugModeOn(on);
+  }
+
+  /// Testing only.
+  ///
+  /// deprecated on purpose to remove from code.
+  @Deprecated('Dev only')
+  static Future<void> devSetOptions(SqfliteOptions options) async {
+    await invokeMethod<dynamic>(methodOptions, options.toMap());
+  }
+
+  /// Testing only
+  @Deprecated('Dev only')
+  static Future<void> devInvokeMethod(
+    String method, [
+    Object? arguments,
+  ]) async {
+    await invokeMethod<dynamic>(method, arguments);
+  }
+
+  /// helper to get the first int value in a query
+  /// Useful for COUNT(*) queries
+  static int? firstIntValue(List<Map<String, Object?>> list) =>
+      utils.firstIntValue(list);
+
+  /// Utility to encode a blob to allow blob query using
+  /// 'hex(blob_field) = ?', Sqlite.hex([1,2,3])
+  static String hex(List<int> bytes) => utils.hex(bytes);
+
+  /// Sqlite has a dead lock warning feature that will print some text
+  /// after 10s, you can override the default behavior
+  static void setLockWarningInfo({
+    Duration? duration,
+    void Function()? callback,
+  }) {
+    utils.setLockWarningInfo(duration: duration!, callback: callback!);
+  }
+}
+
+/// Android only API
+extension SqfliteDatabaseAndroidExt on Database {
+  /// Sets the locale for this database. The specified IETF BCP 47 language tag
+  /// string (en-US, zh-CN, fr-FR, zh-Hant-TW, ...) must be as defined in
+  /// `Locale.forLanguageTag` in Android/Java documentation.
+  ///
+  /// Only on Android.
+  Future<void> androidSetLocale(String languageTag) =>
+      SqfliteDatabaseAndroidExtImpl(this).androidSetLocale(languageTag);
+}

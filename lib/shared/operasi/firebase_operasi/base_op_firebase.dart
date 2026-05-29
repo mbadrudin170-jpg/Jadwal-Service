@@ -38,7 +38,7 @@ class BaseOpFirebase {
       final collectionRef = _firestore.collection(collectionName);
       data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
       final docRef = await collectionRef.add(data);
-      _statusOp.updateGlobalStatus();
+      unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base add berhasil: ${docRef.path}');
       return docRef;
     } on FirebaseException catch (e, s) {
@@ -87,7 +87,7 @@ class BaseOpFirebase {
       final docRef = _firestore.collection(collectionName).doc(docId);
       data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
       await docRef.update(data);
-      _statusOp.updateGlobalStatus();
+      unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base update berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base update',
@@ -166,6 +166,7 @@ class BaseOpFirebase {
       }
 
       await batch.commit();
+      // Panggil updateGlobalStatus SATU KALI setelah batch selesai.
       unawaited(_statusOp.updateGlobalStatus());
 
       final count = querySnapshot.docs.length;
