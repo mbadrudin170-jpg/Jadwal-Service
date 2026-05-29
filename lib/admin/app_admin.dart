@@ -26,9 +26,13 @@ class AppAdmin extends ConsumerWidget {
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     return prefsAsync.when(
       data: (prefs) => const AppInitializer(),
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(
-        child: Text('Error memuat SharedPreferences: $err'),
+      loading: () => const MaterialApp(
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+      ),
+      error: (err, stack) => MaterialApp(
+        home: Scaffold(
+          body: Center(child: Text('Error memuat SharedPreferences: $err')),
+        ),
       ),
     );
   }
@@ -107,8 +111,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           }
           return const AppMaterial(isOffline: false);
         }
-        return const Scaffold(
-            body: Center(child: CircularProgressIndicator())); // Initial splash
+        return const MaterialApp(
+          home: Scaffold(
+              body: Center(child: CircularProgressIndicator())), // Initial splash
+        );
       },
     );
   }
@@ -135,12 +141,16 @@ class AppMaterial extends ConsumerWidget {
           navigatorKey: NavigasiServis.navigatorKey,
         ),
       ),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
       ),
-      error: (err, stack) => Scaffold(
-        body: Center(
-          child: Text('Gagal memuat tema: $err'),
+      error: (err, stack) => MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text('Gagal memuat tema: $err'),
+          ),
         ),
       ),
     );

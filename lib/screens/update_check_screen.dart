@@ -1,6 +1,7 @@
 // path: lib/screens/update_check_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/screens/add_apk_version_screen.dart';
 import 'package:wifi/services/apk_version_service.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,6 +62,19 @@ class _UpdateCheckScreenState extends State<UpdateCheckScreen> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const AddApkVersionScreen()),
+          ).then((_) {
+            // Refresh data setelah kembali dari halaman tambah
+            _fetchLatestVersion();
+          });
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -93,6 +107,7 @@ class _UpdateCheckScreenState extends State<UpdateCheckScreen> {
             Center(
               child: ElevatedButton.icon(
                 onPressed: () async {
+                  // Contoh sederhana, ambil link untuk arsitektur pertama yang tersedia
                   if (version.downloadLinks.isNotEmpty) {
                     final downloadLink =
                         version.downloadLinks.entries.first.value;
