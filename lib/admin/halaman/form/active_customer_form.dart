@@ -135,8 +135,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           : Future<TransactionModel?>.value();
 
       final results = await Future.wait([
-        widget.pelangganOperasi.getCustomers(),
-        widget.paketOperasi.getPackages(),
+        widget.pelangganOperasi.getAll(),
+        widget.paketOperasi.getByAktif(),
         widget.dompetOperasi.getWallets(),
         widget.kategoriOperasi.getCategories(),
         transaksiTerkaitFuture,

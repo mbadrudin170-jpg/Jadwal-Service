@@ -41,11 +41,11 @@ class PesanInfoPaket {
       Log.info(
         'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}',
       );
-      final CustomerModel? customer = await customerOperation.getCustomerById(
+      final CustomerModel? customer = await customerOperation.getById(
         activeCustomer.customerId,
       );
       Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');
-      final PackageModel? package = await packageOperation.getPackageById(
+      final PackageModel? package = await packageOperation.getById(
         activeCustomer.packageId,
       );
 
@@ -98,8 +98,10 @@ class PesanInfoPaket {
     final packageName = package.name;
     final packagePrice =
         CurrencyFormat.formatCurrency(package.price.toDouble());
-    final startDate =FormatDateTime.formatDateAndTimeCompact(activeCustomer.startDate);
-    final endDate = FormatDateTime.formatDateAndTimeCompact(activeCustomer.endDate);
+    final startDate =
+        FormatDateTime.formatDateAndTimeCompact(activeCustomer.startDate);
+    final endDate =
+        FormatDateTime.formatDateAndTimeCompact(activeCustomer.endDate);
 
     final message = '''
 *-- Rincian Aktivasi Paket --*

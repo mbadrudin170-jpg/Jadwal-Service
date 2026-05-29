@@ -458,7 +458,7 @@ class _PackageActivationHistoryPageState
                       children: [
                         PackageNameWidget(
                           packageFuture: _packageOperation
-                              .getPackageById(transaction.packageId ?? ''),
+                              .getById(transaction.packageId ?? ''),
                           style: TextStyle(color: paymentStatusColor),
                         ),
                         const SizedBox(height: 4),

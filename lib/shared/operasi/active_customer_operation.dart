@@ -206,7 +206,7 @@ class ActiveCustomerOperation {
           'Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
 
       final customer =
-          await _customerOperation.getCustomerById(activeCustomer.customerId);
+          await _customerOperation.getById(activeCustomer.customerId);
       final customerName = customer?.name ?? 'Tanpa Nama';
 
       // Batalkan notifikasi lama

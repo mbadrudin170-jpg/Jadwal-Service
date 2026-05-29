@@ -41,7 +41,7 @@ class PackageNameWidget extends StatelessWidget {
     final packageOperation = PackageOperation();
 
     return FutureBuilder<PackageModel?>(
-      future: packageOperation.getPackageById(packageId),
+      future: packageOperation.getById(packageId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Menunggu data paket untuk ID: $packageId');

@@ -38,7 +38,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  final FeedbackOpFirebase _operation =
+  final FeedbackOpFirebase _feedbackOpFirebase =
       FeedbackOpFirebase(firestore: FirebaseFirestore.instance);
 
   @override
@@ -55,7 +55,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
 
       try {
         if (widget.kritikId != null) {
-          await _operation.updateFeedback(
+          await _feedbackOpFirebase.update(
               widget.kritikId!, _feedbackController.text);
         } else {
           final newFeedback = FeedbackModel(
@@ -63,7 +63,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
             userId: widget.userId,
             
           );
-          await _operation.createFeedback(newFeedback);
+          await _feedbackOpFirebase.create(newFeedback);
         }
 
         if (mounted) {

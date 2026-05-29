@@ -79,7 +79,7 @@ class CustomerNameWidget extends StatelessWidget {
   Widget _buildFromSqlite() {
     final CustomerOperation customerOperation = CustomerOperation();
     return FutureBuilder<CustomerModel?>(
-      future: customerOperation.getCustomerById(customerId),
+      future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);

@@ -64,7 +64,7 @@ class _PackagePageState extends State<PackagePage> {
   void _refreshPaketList() {
     Log.info('Memperbarui daftar paket dari database');
     setState(() {
-      _paketFuture = _paketOperasi.getPackages();
+      _paketFuture = _paketOperasi.getByAktif();
     });
   }
 

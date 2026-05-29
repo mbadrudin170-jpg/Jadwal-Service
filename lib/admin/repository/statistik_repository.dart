@@ -37,7 +37,7 @@ class StatistikRepository {
       {final int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
-      final allPackages = await _packageOperation.getPackages();
+      final allPackages = await _packageOperation.getByAktif();
       final allTransactions = await _transactionOperation.getAllTransactions();
 
       if (allTransactions.isEmpty) {

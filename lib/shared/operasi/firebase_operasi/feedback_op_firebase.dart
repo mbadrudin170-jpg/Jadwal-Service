@@ -15,10 +15,11 @@ class FeedbackOpFirebase {
   final String _collectionName = TableNameValue.get(TableName.feedback);
 
   /// Konstruktor untuk inisialisasi.
-  FeedbackOpFirebase(
-      {final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
+  FeedbackOpFirebase({
+    final FirebaseFirestore? firestore,
+    final BaseOpFirebase? baseOp,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -26,9 +27,9 @@ class FeedbackOpFirebase {
   CollectionReference get _collection => _firestore.collection(_collectionName);
 
   /// Menyimpan feedback baru dengan ID otomatis dari Firestore.
-  Future<void> createFeedback(FeedbackModel feedback) async {
+  Future<void> create(FeedbackModel feedback) async {
     Log.info('Mendelegasikan pembuatan feedback baru...');
-    
+
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
 
@@ -41,10 +42,7 @@ class FeedbackOpFirebase {
   }
 
   /// Memperbarui isi feedback.
-  Future<void> updateFeedback(
-    final String docId,
-    final String newContent,
-  ) async {
+  Future<void> update(String docId, String newContent) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
     // Di sini kita tidak menambahkan `date` karena ini adalah pembaruan,
     // tanggal pembuatan asli harus dipertahankan.
@@ -54,7 +52,7 @@ class FeedbackOpFirebase {
   }
 
   /// Menghapus feedback secara permanen dari Firestore.
-  Future<void> deleteFeedback(final String docId) async {
+  Future<void> delete(final String docId) async {
     Log.warning('Mendelegasikan penghapusan permanen feedback: $docId');
     await _baseOp.delete(_collectionName, docId);
   }
@@ -70,21 +68,22 @@ class FeedbackOpFirebase {
   // =======================================================================
 
   /// Membaca semua feedback oleh pengguna tertentu.
-  Stream<List<FeedbackModel>> getFeedbacksByUser(final String userId) {
+  Stream<List<FeedbackModel>> getByUser(final String userId) {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(ColumnNames.userId, isEqualTo: userId)
         .orderBy(ColumnNames.updatedAt, descending: true)
         .snapshots()
         .map((final snapshot) {
-      return snapshot.docs.map((final doc) {
-        return FeedbackModel.fromFirebase(
-          doc.id,
-          doc.data() as Map<String, dynamic>,
-        );
-      }).toList();
-    }).handleError((final Object e, final StackTrace s) {
-      Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
-    });
+          return snapshot.docs.map((final doc) {
+            return FeedbackModel.fromFirebase(
+              doc.id,
+              doc.data() as Map<String, dynamic>,
+            );
+          }).toList();
+        })
+        .handleError((final Object e, final StackTrace s) {
+          Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
+        });
   }
 }

@@ -199,7 +199,7 @@ class _PackageFormState extends State<PackageForm> {
 
           Log.info(
               'Memanggil _packageOperation.updatePackage() untuk menyimpan perubahan ke database.');
-          await _packageOperation.updatePackage(newPackage);
+          await _packageOperation.update(newPackage);
           Log.info(
               'Update paket BERHASIL. Data paket telah diperbarui di database.');
         } else {
@@ -209,7 +209,7 @@ class _PackageFormState extends State<PackageForm> {
 
           Log.info(
               'Memanggil _packageOperation.createPackage() untuk menyimpan paket baru ke database.');
-          await _packageOperation.createPackage(newPackage);
+          await _packageOperation.add(newPackage);
           Log.info('Paket baru BERHASIL disimpan ke database.');
         }
 

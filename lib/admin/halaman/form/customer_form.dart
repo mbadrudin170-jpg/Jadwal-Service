@@ -97,7 +97,7 @@ class _CustomerFormState extends State<CustomerForm> {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
           );
-          await CustomerOperation().createCustomer(newCustomer);
+          await CustomerOperation().add(newCustomer);
         } else {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',

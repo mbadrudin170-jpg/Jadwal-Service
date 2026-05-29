@@ -40,7 +40,7 @@ class CustomerNameWidget extends StatelessWidget {
     final customerOperation = CustomerOperation();
 
     return FutureBuilder<CustomerModel?>(
-      future: customerOperation.getCustomerById(customerId),
+      future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Menunggu data pelanggan untuk ID: $customerId');

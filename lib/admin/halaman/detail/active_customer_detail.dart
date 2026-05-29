@@ -93,9 +93,9 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
 
     try {
       final results = await Future.wait<dynamic>([
-        customerOperation.getCustomerById(_activeCustomer.customerId),
+        customerOperation.getById(_activeCustomer.customerId),
         if (packageId.isNotEmpty)
-          packageOperation.getPackageById(packageId)
+          packageOperation.getById(packageId)
         else
           Future<PackageModel?>.value(),
       ]);

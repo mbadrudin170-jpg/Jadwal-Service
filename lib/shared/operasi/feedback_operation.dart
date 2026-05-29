@@ -33,7 +33,7 @@ class FeedbackOperation {
         baseOperation = baseOperation ?? BaseOperation();
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
-  Future<void> createFeedback(
+  Future<void> add(
     final FeedbackModel feedback, {
     final bool fromServer = false,
   }) async {
@@ -55,7 +55,7 @@ class FeedbackOperation {
   }
 
   /// Mengambil semua kritik dan saran dari database, diurutkan berdasarkan tanggal terbaru.
-  Future<List<FeedbackModel>> getAllFeedback() async {
+  Future<List<FeedbackModel>> getAll() async {
     Log.info(
       'Memulai getAllFeedback (mengambil semua, diurutkan berdasarkan tanggal terbaru).',
     );
@@ -100,7 +100,7 @@ class FeedbackOperation {
   }
 
   /// Mengambil [FeedbackModel] berdasarkan [id].
-  Future<FeedbackModel> getFeedbackById(final String id) async {
+  Future<FeedbackModel> getById(final String id) async {
     Log.info('Memulai getFeedbackById untuk ID: $id');
     try {
       final db = await dbHelper.database;
@@ -200,7 +200,7 @@ class FeedbackOperation {
   }
 
   /// Menghapus [FeedbackModel] dari database secara permanen.
-  Future<void> deleteFeedback(
+  Future<void> delete(
     final String id, {
     final bool fromServer = false,
   }) async {
@@ -270,7 +270,7 @@ class FeedbackOperation {
   }
 
   /// Menghapus semua kritik dan saran dari database secara permanen.
-  Future<void> deleteAllFeedback({final bool fromServer = false}) async {
+  Future<void> deleteAll({final bool fromServer = false}) async {
     Log.warning(
       'PERINGATAN: Memulai deleteAllFeedback. Ini adalah operasi destruktif.',
     );
@@ -326,9 +326,8 @@ class FeedbackOperation {
     }
   }
 
-
   /// Mengambil beberapa [FeedbackModel] berdasarkan daftar [ids].
-  Future<List<FeedbackModel>> getFeedbackByIds(final List<String> ids) async {
+  Future<List<FeedbackModel>> getByIds(final List<String> ids) async {
     Log.info('Memulai getFeedbackByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(

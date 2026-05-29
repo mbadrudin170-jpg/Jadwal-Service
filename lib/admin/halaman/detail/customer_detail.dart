@@ -68,7 +68,7 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
         setState(() => _isLoading = true);
       }
 
-      final customerResult = await _customerOperation.getCustomerById(
+      final customerResult = await _customerOperation.getById(
         widget.customerId,
       );
       final pointsResult =

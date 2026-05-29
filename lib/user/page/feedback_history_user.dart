@@ -106,7 +106,7 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
         centerTitle: true,
       ),
       body: StreamBuilder<List<FeedbackModel>>(
-        stream: _operation.getFeedbacksByUser(widget.userId),
+        stream: _operation.getByUser(widget.userId),
         builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

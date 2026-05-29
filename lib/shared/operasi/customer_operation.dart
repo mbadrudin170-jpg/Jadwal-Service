@@ -37,7 +37,7 @@ class CustomerOperation {
   }
 
   /// Menyimpan [CustomerModel] baru ke dalam database.
-  Future<void> createCustomer(
+  Future<void> add(
     final CustomerModel customer, {
     final bool fromServer = false,
   }) async {
@@ -64,7 +64,7 @@ class CustomerOperation {
   }
 
   /// Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).
-  Future<List<CustomerModel>> getCustomers() async {
+  Future<List<CustomerModel>> getAll() async {
     Log.info(
         'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).');
     try {
@@ -108,7 +108,7 @@ class CustomerOperation {
   }
 
   /// Mengambil [CustomerModel] berdasarkan [id].
-  Future<CustomerModel?> getCustomerById(final String id) async {
+  Future<CustomerModel?> getById(final String id) async {
     Log.info('Mencari customer berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;

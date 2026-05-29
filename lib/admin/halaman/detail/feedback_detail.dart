@@ -57,7 +57,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
     );
 
     _feedbackFuture =
-        _feedbackOperation.getFeedbackById(widget.id).then((final value) {
+        _feedbackOperation.getById(widget.id).then((final value) {
       Log.info(
         'Data kritik dan saran berhasil dimuat dari database.',
       );
@@ -156,7 +156,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
           'Memanggil operasi hapus kritik dan saran ke database.',
         );
 
-        await _feedbackOperation.deleteFeedback(
+        await _feedbackOperation.softDelete(
           widget.id,
         );
 

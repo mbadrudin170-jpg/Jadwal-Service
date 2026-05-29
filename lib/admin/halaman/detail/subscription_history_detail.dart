@@ -155,7 +155,7 @@ class _SubscriptionHistoryDetailPageState
                     _buildFutureInfoCard<CustomerModel>(
                       'Informasi Pelanggan',
                       _customerOperation
-                          .getCustomerById(transaction.customerId!),
+                          .getById(transaction.customerId!),
                       'Pelanggan',
                       (final customer) => [
                         _buildDetailRow(
@@ -181,7 +181,7 @@ class _SubscriptionHistoryDetailPageState
                   if (transaction.packageId != null)
                     _buildFutureInfoCard<PackageModel>(
                       'Informasi Paket',
-                      _packageOperation.getPackageById(transaction.packageId!),
+                      _packageOperation.getById(transaction.packageId!),
                       'Paket',
                       (final package) => [
                         _buildDetailRow(

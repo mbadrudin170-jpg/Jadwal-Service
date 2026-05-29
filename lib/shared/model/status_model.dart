@@ -16,15 +16,12 @@ class StatusModel implements HasId {
   final String id;
 
   /// The timestamp of the last update.
-  final DateTime? updatedAt;
-
-  /// Constructor for `StatusModel`.
+  final DateTime updatedAt;
   StatusModel({
     this.id = globalStatusId,
-    this.updatedAt,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
-  /// Creates a copy of this `StatusModel` with some modified values.
   StatusModel copyWith({
     final String? id,
     final DateTime? updatedAt,
@@ -35,15 +32,15 @@ class StatusModel implements HasId {
     );
   }
 
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
-
-  /// Creates a `StatusModel` instance from SQLite map data.
-  factory StatusModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating StatusModel from SQLite');
+  factory StatusModel.fromSqlite(
+    final Map<String, dynamic> map,
+  ) {
     return StatusModel(
       id: map[ColumnNames.id] as String? ?? globalStatusId,
-      // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      updatedAt: ParserUtil.parseDateTime(
+            map[ColumnNames.updatedAt],
+          ) ??
+          DateTime.now(),
     );
   }
 
@@ -51,8 +48,7 @@ class StatusModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -61,17 +57,14 @@ class StatusModel implements HasId {
     Log.info('Creating StatusModel from Firebase');
     return StatusModel(
       id: data[ColumnNames.id] as String? ?? globalStatusId,
-      // DIUBAH: Menggunakan ParserUtil
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
     );
   }
 
-  /// Converts `StatusModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      ColumnNames.id: id,
+      ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

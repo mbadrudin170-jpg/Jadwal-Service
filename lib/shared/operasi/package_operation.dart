@@ -32,7 +32,7 @@ class PackageOperation {
   }
 
   /// Menyimpan [PackageModel] baru ke dalam database.
-  Future<void> createPackage(final PackageModel package,
+  Future<void> add(final PackageModel package,
       {final bool fromServer = false}) async {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
@@ -50,7 +50,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket, termasuk yang diarsipkan.
-  Future<List<PackageModel>> getAllPackages() async {
+  Future<List<PackageModel>> getAll() async {
     Log.info('Memulai proses pengambilan semua data paket');
     try {
       final db = await dbHelper.database;
@@ -77,7 +77,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket aktif (tidak diarsipkan).
-  Future<List<PackageModel>> getPackages() async {
+  Future<List<PackageModel>> getByAktif() async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await dbHelper.database;
@@ -105,7 +105,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket yang bersifat publik.
-  Future<List<PackageModel>> getPublicPackages() async {
+  Future<List<PackageModel>> getByIsPublic() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await dbHelper.database;
@@ -133,7 +133,7 @@ class PackageOperation {
   }
 
   /// Mengambil [PackageModel] berdasarkan [id].
-  Future<PackageModel?> getPackageById(final String id) async {
+  Future<PackageModel?> getById(final String id) async {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
@@ -157,7 +157,7 @@ class PackageOperation {
   }
 
   /// Memperbarui [PackageModel] yang ada di database.
-  Future<void> updatePackage(final PackageModel package,
+  Future<void> update(final PackageModel package,
       {final bool fromServer = false}) async {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
@@ -209,7 +209,7 @@ class PackageOperation {
   }
 
   /// Menghapus [PackageModel] dari database secara permanen.
-  Future<void> deletePackage(final String id,
+  Future<void> delete(final String id,
       {final bool fromServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
@@ -226,7 +226,7 @@ class PackageOperation {
   }
 
   /// Menghapus semua paket dari database secara permanen.
-  Future<void> deleteAllPackages({final bool fromServer = false}) async {
+  Future<void> deleteAll({final bool fromServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
       await _baseOperation.runComplexOperation<void>(
@@ -294,7 +294,7 @@ class PackageOperation {
   }
 
   /// Mengambil beberapa [PackageModel] berdasarkan daftar [ids].
-  Future<List<PackageModel>> getPackagesByIds(final List<String> ids) async {
+  Future<List<PackageModel>> getByIds(final List<String> ids) async {
     Log.info('Memulai pengambilan paket berdasarkan list ID: $ids');
     try {
       if (ids.isEmpty) {

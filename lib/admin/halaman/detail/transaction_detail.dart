@@ -154,7 +154,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getName(
-                  _customerOperation.getCustomerById,
+                  _customerOperation.getById,
                   transaction.customerId!,
                   'Pelanggan',
                 ),
@@ -164,7 +164,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
-                  _packageOperation.getPackageById,
+                  _packageOperation.getById,
                   transaction.packageId!,
                   'Paket',
                 ),

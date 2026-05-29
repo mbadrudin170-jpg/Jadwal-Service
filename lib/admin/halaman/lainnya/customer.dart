@@ -173,7 +173,7 @@ class _CustomerPageState extends State<CustomerPage> {
     if (mounted) setState(() => _isLoading = true);
 
     try {
-      final list = await _customerOperation.getCustomers();
+      final list = await _customerOperation.getAll();
       Log.info('Berhasil mengambil ${list.length} data customer.');
 
       for (final customer in list) {

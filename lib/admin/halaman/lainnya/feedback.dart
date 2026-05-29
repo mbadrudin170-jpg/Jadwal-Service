@@ -74,8 +74,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     try {
       final List<dynamic> results = await Future.wait([
-        _feedbackOperation.getAllFeedback(),
-        _customerOperation.getCustomers(),
+        _feedbackOperation.getAll(),
+        _customerOperation.getAll(),
       ]);
 
       final List<FeedbackModel> kritikSaranList =
