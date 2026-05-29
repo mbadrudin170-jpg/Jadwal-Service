@@ -165,6 +165,7 @@ class _PackageFormState extends State<PackageForm> {
         rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
         redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
         isPublic: _isPublic,
+        updatedAt: DateTime.now().toUtc()
       );
 
       Log.info('Objek PackageModel berhasil dibuat:');

@@ -32,6 +32,7 @@ void main() {
       final feedback = FeedbackModel(
         content: 'Ini adalah feedback pertama.',
         userId: 'user123',
+        updatedAt: DateTime.now().toUtc()
       );
 
       // Act

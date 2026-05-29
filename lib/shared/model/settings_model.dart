@@ -28,7 +28,7 @@ class SettingsModel implements HasId {
   final String maintenanceInfo;
 
   /// The timestamp of the last update.
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
 
   /// Constructor for `SettingsModel`.
   SettingsModel({
@@ -37,8 +37,8 @@ class SettingsModel implements HasId {
     this.autoDeleteArchiveDays = 30,
     this.maintenanceMode = false,
     this.maintenanceInfo = '',
-    this.updatedAt,
-  });
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.now();
 
   /// Creates a copy of this `SettingsModel` with some modified values.
   SettingsModel copyWith({
@@ -69,7 +69,6 @@ class SettingsModel implements HasId {
       autoSyncInterval: map[ColumnNames.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays:
           map[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      // DIUBAH: Menggunakan ParserUtil
       maintenanceMode: ParserUtil.parseBool(map[ColumnNames.maintenanceMode]),
       maintenanceInfo: map[ColumnNames.maintenanceInfo] as String? ?? '',
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
@@ -84,9 +83,7 @@ class SettingsModel implements HasId {
       ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
       ColumnNames.maintenanceMode: maintenanceMode ? 1 : 0,
       ColumnNames.maintenanceInfo: maintenanceInfo,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
+      ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -98,7 +95,6 @@ class SettingsModel implements HasId {
       autoSyncInterval: data[ColumnNames.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays:
           data[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      // DIUBAH: Menggunakan ParserUtil
       maintenanceMode: ParserUtil.parseBool(data[ColumnNames.maintenanceMode]),
       maintenanceInfo: data[ColumnNames.maintenanceInfo] as String? ?? '',
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
@@ -112,9 +108,7 @@ class SettingsModel implements HasId {
       ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
       ColumnNames.maintenanceMode: maintenanceMode,
       ColumnNames.maintenanceInfo: maintenanceInfo,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

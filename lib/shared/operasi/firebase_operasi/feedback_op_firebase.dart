@@ -32,11 +32,7 @@ class FeedbackOpFirebase {
 
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
-
-    // 2. Tambahkan perintah server untuk mengisi tanggal.
-    // Ini adalah tempat yang tepat untuk logika ini, bukan di model atau UI.
     data[ColumnNames.date] = FieldValue.serverTimestamp();
-
     // 3. Kirim data yang sudah diperkaya ke operasi dasar.
     await _baseOp.add(_collectionName, data);
   }

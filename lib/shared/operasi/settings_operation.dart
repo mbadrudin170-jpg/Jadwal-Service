@@ -22,6 +22,8 @@ class SettingsOperation {
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
         _baseOperation = baseOperation ?? BaseOperation();
 
+  final String _tableName = TableNameValue.get(TableName.settings);
+
   /// Mengambil data pengaturan dari database.
   /// Jika tidak ada, akan membuat pengaturan default.
   Future<SettingsModel> getSettings() async {
@@ -32,7 +34,7 @@ class SettingsOperation {
       final db = await _dbHelper.database;
 
       final result = await db.query(
-        TableNameValue.get(TableName.settings),
+        _tableName,
         where: 'id = ?',
         whereArgs: [globalSettingsId],
       );
@@ -79,7 +81,7 @@ class SettingsOperation {
         'Memulai proses simpan/perbarui untuk pengaturan dengan ID: ${settingsToSave.id}',
       );
       await _baseOperation.insert(
-        TableNameValue.get(TableName.settings),
+        _tableName,
         settingsToSave.toSqlite(),
         fromServer: fromServer,
       );
@@ -99,7 +101,7 @@ class SettingsOperation {
   /// Memperbarui sebagian field dari [SettingsModel] di database.
   ///
   /// [data] adalah Map yang berisi field yang akan diperbarui.
-  Future<void> updateSettings(
+  Future<void> update(
     final Map<String, dynamic> data, {
     final bool fromServer = false,
   }) async {
@@ -111,11 +113,11 @@ class SettingsOperation {
       // Selalu tambahkan timestamp `updated_at` pada setiap operasi tulis dalam bentuk epoch millisecond.
       final dataToUpdate = {
         ...data,
-        ColumnNames.updatedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
+        ColumnNames.updatedAt: DateTime.now().millisecondsSinceEpoch,
       };
 
       await _baseOperation.update(
-        TableNameValue.get(TableName.settings),
+        _tableName,
         dataToUpdate,
         globalSettingsId,
         fromServer: fromServer,
@@ -148,7 +150,7 @@ class SettingsOperation {
       final settingsData = settingsToSave.toSqlite();
 
       await _baseOperation.insertOrUpdateBatch(
-        TableNameValue.get(TableName.settings),
+        _tableName,
         [settingsData],
         fromServer: fromServer,
       );

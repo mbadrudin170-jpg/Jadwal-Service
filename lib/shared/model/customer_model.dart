@@ -84,7 +84,6 @@ class CustomerModel implements HasId {
     );
   }
 
-
   /// Creates a [CustomerModel] from a SQLite map.
   factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[ColumnNames.id]}');
@@ -114,14 +113,16 @@ class CustomerModel implements HasId {
       ColumnNames.macAddress: macAddress,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
       ColumnNames.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
     };
   }
 
   /// Creates a [CustomerModel] from a Firebase document.
-  factory CustomerModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory CustomerModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
     return CustomerModel(
       id: id,
@@ -141,7 +142,7 @@ class CustomerModel implements HasId {
   /// Converts the [CustomerModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id:id,
+      ColumnNames.id: id,
       ColumnNames.name: name,
       ColumnNames.phone: phone,
       ColumnNames.address: address,
@@ -154,8 +155,9 @@ class CustomerModel implements HasId {
       // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      ColumnNames.lastActiveAt:
-          lastActiveAt != null ? Timestamp.fromDate(lastActiveAt!.toUtc()) : null,
+      ColumnNames.lastActiveAt: lastActiveAt != null
+          ? Timestamp.fromDate(lastActiveAt!.toUtc())
+          : null,
     };
   }
 }

@@ -107,7 +107,8 @@ class _CustomerFormState extends State<CustomerForm> {
 
         if (!mounted) return;
 
-        final hasConnection = await InternetConnectionService().checkConnection();
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
         if (hasConnection) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
           await SyncCheckService().runSyncCheck();
@@ -174,8 +175,9 @@ class _CustomerFormState extends State<CustomerForm> {
                   label: 'Nama Pelanggan',
                   icon: Icons.person_outline,
                   nextFocus: _teleponFocusNode,
-                  validator: (final v) =>
-                      (v == null || v.isEmpty) ? 'Nama tidak boleh kosong' : null,
+                  validator: (final v) => (v == null || v.isEmpty)
+                      ? 'Nama tidak boleh kosong'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(

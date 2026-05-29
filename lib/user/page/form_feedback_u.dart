@@ -61,7 +61,6 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
           final newFeedback = FeedbackModel(
             content: _feedbackController.text,
             userId: widget.userId,
-            
           );
           await _feedbackOpFirebase.create(newFeedback);
         }
