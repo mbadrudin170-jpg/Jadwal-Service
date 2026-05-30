@@ -1,3 +1,4 @@
+// path: lib/shared/enum/table_name_enum.dart
 /// Enum yang merepresentasikan nama-nama tabel dalam database.
 /// Digunakan untuk sinkronisasi dan operasi terkait database lainnya.
 enum TableName {

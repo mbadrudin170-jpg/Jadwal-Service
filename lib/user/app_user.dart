@@ -1,3 +1,4 @@
+// path: lib/user/app_user.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:toastification/toastification.dart';
@@ -15,51 +16,81 @@ class AppUser extends ConsumerWidget {
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     final localStorageAsync = ref.watch(localStorageServiceProvider);
 
-    // Gabungkan ketiga async state
-    return themeAsync.when(
-      data: (themeMode) {
-        return prefsAsync.when(
-          data: (prefs) {
-            return localStorageAsync.when(
-              data: (localStorage) {
-                return ToastificationWrapper(
-                  child: MaterialApp(
-                    scaffoldMessengerKey: scaffoldMessengerKey,
-                    debugShowCheckedModeBanner: false,
-                    theme: AppTheme.lightTheme,
-                    darkTheme: AppTheme.darkTheme,
-                    themeMode: themeMode,
-                    home: SplashScreenUser(
-                      prefs: prefs,
-                      localStorageService: localStorage,
-                    ),
-                  ),
-                );
-              },
-              loading: () => const MaterialApp(
-                home:
-                    Scaffold(body: Center(child: CircularProgressIndicator())),
-              ),
-              error: (err, stack) => MaterialApp(
-                home: Scaffold(
-                    body: Center(child: Text('Error localStorage: $err'))),
-              ),
-            );
-          },
-          loading: () => const MaterialApp(
-            home: Scaffold(body: Center(child: CircularProgressIndicator())),
-          ),
-          error: (err, stack) => MaterialApp(
-            home: Scaffold(
-                body: Center(child: Text('Error SharedPreferences: $err'))),
-          ),
-        );
-      },
-      loading: () => const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
+    // 1. Gabungkan semua state provider ke dalam satu list.
+    final allProviders = [themeAsync, prefsAsync, localStorageAsync];
+
+    // 2. Cek apakah ada provider yang sedang dalam status error.
+    final firstError = allProviders.firstWhere(
+      (provider) => provider.hasError && provider.error != null,
+      // Perbaikan 1: Gunakan nilai non-null untuk `orElse` agar sesuai tipe.
+      orElse: () => const AsyncValue.data(true),
+    );
+
+    if (firstError.hasError) {
+      // Perbaikan 2: Gunakan properti `stackTrace` yang benar.
+      return _ErrorApp(
+          error: firstError.error, stackTrace: firstError.stackTrace);
+    }
+
+    // 3. Cek apakah ada provider yang masih loading.
+    final isLoading = allProviders.any((provider) => provider.isLoading);
+    if (isLoading) {
+      return const _LoadingApp();
+    }
+
+    // 4. Jika semua provider berhasil mendapatkan data, bangun UI utama.
+    return ToastificationWrapper(
+      child: MaterialApp(
+        scaffoldMessengerKey: scaffoldMessengerKey,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeAsync.asData!.value,
+        home: SplashScreenUser(
+          prefs: prefsAsync.asData!.value,
+          localStorageService: localStorageAsync.asData!.value,
+        ),
       ),
-      error: (err, stack) => MaterialApp(
-        home: Scaffold(body: Center(child: Text('Error tema: $err'))),
+    );
+  }
+}
+
+/// Widget untuk menampilkan state loading aplikasi.
+class _LoadingApp extends StatelessWidget {
+  const _LoadingApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget untuk menampilkan state error aplikasi.
+class _ErrorApp extends StatelessWidget {
+  final Object? error;
+  final StackTrace? stackTrace;
+
+  const _ErrorApp({this.error, this.stackTrace});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Terjadi kesalahan saat memuat aplikasi: $error',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
       ),
     );
   }
