@@ -245,44 +245,4 @@ class ApkVersionModel implements HasId {
       ColumnNames.isDeleted: isDeleted,
     };
   }
-
-  // =========================
-  // SUPABASE
-  // =========================
-
-  /// Factory to create `ApkVersionModel` from Supabase data (Map).
-  factory ApkVersionModel.fromSupabase(Map<String, dynamic> map) {
-    return ApkVersionModel(
-      id: map[ColumnNames.id],
-      releaseNotes: map[ColumnNames.releaseNotes],
-      latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
-      downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
-      latestVersion: map[ColumnNames.latestVersion],
-      isUpdateRequired: map[ColumnNames.isUpdateRequired] ?? false,
-      youtubeTutorial: map[ColumnNames.youtubeTutorial],
-      isDeleted: map[ColumnNames.isDeleted] ?? false,
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-    );
-  }
-
-  /// Converts the model to a Map for Supabase (jsonb compatible).
-  Map<String, dynamic> toSupabase() {
-    final buildNumForJson = latestBuildNumber.map(
-      (key, value) => MapEntry(key.name, value),
-    );
-    final downloadLinksForJson = downloadLinks.map(
-      (key, value) => MapEntry(key.name, value),
-    );
-
-    return {
-      ColumnNames.releaseNotes: releaseNotes,
-      ColumnNames.latestVersion: latestVersion,
-      ColumnNames.youtubeTutorial: youtubeTutorial,
-      ColumnNames.isUpdateRequired: isUpdateRequired,
-      ColumnNames.latestBuildNumber: buildNumForJson,
-      ColumnNames.downloadLinks: downloadLinksForJson,
-      ColumnNames.isDeleted: isDeleted,
-    };
-  }
 }

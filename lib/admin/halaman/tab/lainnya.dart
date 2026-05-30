@@ -13,7 +13,7 @@ import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/admin/halaman/lainnya/settings_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
-import 'package:wifi/screens/update_check_screen.dart';
+import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -147,8 +147,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
               context: context,
               icon: AppIcons.info,
               title: 'Halaman Tes',
-              onTap: () =>
-                  _navigateTo(const UpdateCheckScreen(), 'Halaman Tes'),
+              onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes'),
             ),
         ],
       ),
