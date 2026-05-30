@@ -214,7 +214,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             onPressed: _isDownloading ? null : _downloadUpdate,
             icon: _isDownloading
                 ? const SizedBox.shrink()
-                : const Icon(AppIcons.downloadRounded, size: 24),
+                : const Icon(TIcons.downloadRounded, size: 24),
             label: _isDownloading
                 ? const Text(
                     'Mengunduh...',
@@ -244,7 +244,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                     height: 50,
                     child: OutlinedButton.icon(
                       onPressed: _openTutorial,
-                      icon: const Icon(AppIcons.youtube, color: Colors.red),
+                      icon: const Icon(TIcons.youtube, color: Colors.red),
                       label: const Text(
                         'Tutorial',
                         style: TextStyle(
@@ -319,7 +319,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         ),
         child: const Center(
           child: Icon(
-            AppIcons.systemUpdate,
+            TIcons.systemUpdate,
             size: 65,
             color: Colors.white,
           ),
@@ -346,7 +346,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       child: Column(
         children: [
           _buildVersionRow(
-            icon: AppIcons.phoneAndroid,
+            icon: TIcons.phoneAndroid,
             iconColor: const Color(0xFF6C63FF),
             label: 'Versi Saat Ini',
             version: widget.packageInfo.version.split('-').first,
@@ -357,7 +357,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             child: Divider(height: 1, thickness: 1),
           ),
           _buildVersionRow(
-            icon: AppIcons.cloudDone,
+            icon: TIcons.cloudDone,
             iconColor: Colors.orange,
             label: 'Versi Terbaru',
             version: widget.apkInfo.latestVersion.split('-').first,
@@ -449,7 +449,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(AppIcons.check, color: Colors.green, size: 16),
+                Icon(TIcons.check, color: Colors.green, size: 16),
                 SizedBox(width: 4),
                 Text(
                   'Aktif',
@@ -515,7 +515,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
               color: Colors.orange.withAlpha(26),
               shape: BoxShape.circle,
             ),
-            child: const Icon(AppIcons.warningAmber,
+            child: const Icon(TIcons.warningAmber,
                 color: Colors.orange, size: 22),
           ),
           const SizedBox(width: 12),
@@ -589,7 +589,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                   color: const Color(0xFFFF6B6B).withAlpha(26),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(AppIcons.listAlt,
+                child: const Icon(TIcons.listAlt,
                     color: Color(0xFFFF6B6B), size: 22),
               ),
               const SizedBox(width: 12),

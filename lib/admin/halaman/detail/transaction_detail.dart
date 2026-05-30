@@ -5,6 +5,7 @@ import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
@@ -201,8 +202,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(width: 16),
-          Flexible(child: Text(value, textAlign: TextAlign.end)),
+gapH16,          Flexible(child: Text(value, textAlign: TextAlign.end)),
         ],
       ),
     );

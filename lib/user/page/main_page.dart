@@ -107,15 +107,15 @@ class _MainPageState extends ConsumerState<MainPage> {
         type: BottomNavigationBarType.fixed, // Agar semua label terlihat
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.person),
+            icon: Icon(TIcons.person),
             label: 'Profil',
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.history),
+            icon: Icon(TIcons.history),
             label: 'Riwayat',
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.settings),
+            icon: Icon(TIcons.settings),
             label: 'Pengaturan',
           ),
         ],

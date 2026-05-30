@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 /// Kelas yang mendefinisikan palet warna untuk aplikasi.
-class AppColors {
+class TColors {
   // Warna Inti
   /// Warna utama aplikasi.
   static const MaterialColor primaryColor = Colors.deepPurple;

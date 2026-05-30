@@ -6,7 +6,7 @@
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/customer_model.dart (CustomerModel)
 //   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
-//   - lib/shared/theme/app_colors.dart (AppColors)
+//   - lib/shared/theme/app_colors.dart (TColors)
 //   - lib/shared/utils/toast_util.dart (ToastUtil)
 //   - lib/shared/debug/log.dart (Log)
 
@@ -169,7 +169,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ElevatedButton(
                 onPressed: _saveChanges,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
+                  backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text(

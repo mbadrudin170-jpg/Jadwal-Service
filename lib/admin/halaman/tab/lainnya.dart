@@ -88,64 +88,64 @@ class _LainnyaPageState extends State<LainnyaPage> {
         children: [
           _buildMenuItem(
             context: context,
-            icon: AppIcons.customers,
+            icon: TIcons.customers,
             title: 'Data Pelanggan',
             onTap: () => _navigateTo(const CustomerPage(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.filter,
+            icon: TIcons.filter,
             title: 'Kategori',
             onTap: () => _navigateTo(const CategoryPage(), 'Kategori'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.packages,
+            icon: TIcons.packages,
             title: 'Paket',
             onTap: () => _navigateTo(const PackagePage(), 'Paket'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.clock,
+            icon: TIcons.clock,
             title: 'Riwayat Aktivasi Paket',
             onTap: () => _navigateTo(
                 const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.help,
+            icon: TIcons.help,
             title: 'Kritik dan Saran',
             onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.report,
+            icon: TIcons.report,
             title: 'Versi Aplikasi',
             onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.settings,
+            icon: TIcons.settings,
             title: 'Pengaturan',
             onTap: () => _navigateTo(const SettingsAdminPage(), 'Pengaturan'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.info,
+            icon: TIcons.info,
             title: 'Tentang Aplikasi',
             onTap: () =>
                 _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
           ),
           _buildMenuItem(
             context: context,
-            icon: AppIcons.logout,
+            icon: TIcons.logout,
             title: 'Keluar',
             onTap: _showLogoutConfirmationDialog,
           ),
           if (kDebugMode)
             _buildMenuItem(
               context: context,
-              icon: AppIcons.info,
+              icon: TIcons.info,
               title: 'Halaman Tes',
               onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes'),
             ),

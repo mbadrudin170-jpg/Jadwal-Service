@@ -16,6 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah versi APK.
@@ -50,7 +51,8 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
   }
 
   Future<void> _navigateToEditForm() async {
-    Log.info('Tombol edit APK ditekan, versi=${_currentApkVersion.latestVersion}');
+    Log.info(
+        'Tombol edit APK ditekan, versi=${_currentApkVersion.latestVersion}');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -76,7 +78,8 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
       // Temukan data yang baru berdasarkan ID
       final freshData = allData.firstWhere(
         (final data) => data.id == _currentApkVersion.id,
-        orElse: () => _currentApkVersion, // Kembali ke data lama jika tidak ditemukan
+        orElse: () =>
+            _currentApkVersion, // Kembali ke data lama jika tidak ditemukan
       );
 
       if (mounted) {
@@ -104,7 +107,7 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
         title: const Text('Detail Versi APK'),
         actions: [
           IconButton(
-            icon: const Icon(AppIcons.edit),
+            icon: const Icon(TIcons.edit),
             tooltip: 'Edit Data',
             onPressed: _navigateToEditForm,
           ),
@@ -114,10 +117,10 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
         padding: const EdgeInsets.all(16.0),
         children: [
           _buildInfoRow('Versi Terbaru', _currentApkVersion.latestVersion),
-          _buildInfoRow(
-              'Wajib Update', _currentApkVersion.isUpdateRequired ? 'Ya' : 'Tidak'),
+          _buildInfoRow('Wajib Update',
+              _currentApkVersion.isUpdateRequired ? 'Ya' : 'Tidak'),
           _buildInfoRow('Catatan Rilis', _currentApkVersion.releaseNotes),
-          const SizedBox(height: 16),
+          gapH16,
           const Text(
             'Nomor Build Terbaru',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -126,7 +129,7 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
             (final entry) =>
                 _buildInfoRow(entry.key.name, entry.value.toString()),
           ),
-          const SizedBox(height: 16),
+          gapH16,
           const Text(
             'Tautan Unduhan',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -134,7 +137,7 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
           ..._currentApkVersion.downloadLinks.entries.map(
             (final entry) => _buildInfoRow(entry.key.name, entry.value),
           ),
-          const SizedBox(height: 16),
+          gapH16,
           _buildInfoRow('Youtube Tutorial', _currentApkVersion.youtubeTutorial),
         ],
       ),

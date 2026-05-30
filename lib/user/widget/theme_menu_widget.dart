@@ -1,5 +1,5 @@
 // path: lib/user/widget/theme_menu_widget.dart
-// diubah: Menggunakan ikon terpusat dari kelas AppIcons.
+// diubah: Menggunakan ikon terpusat dari kelas TIcons.
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -33,11 +33,11 @@ class ThemeMenuWidget extends StatelessWidget {
     );
     switch (mode) {
       case ThemeMode.light:
-        return AppIcons.themeLight;
+        return TIcons.themeLight;
       case ThemeMode.dark:
-        return AppIcons.themeDark;
+        return TIcons.themeDark;
       case ThemeMode.system:
-        return AppIcons.themeAuto;
+        return TIcons.themeAuto;
     }
   }
 
@@ -55,7 +55,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.system,
             child: Row(
               children: [
-                Icon(AppIcons.themeSystem),
+                Icon(TIcons.themeSystem),
                 SizedBox(width: 10),
                 Text('Otomatis'),
               ],
@@ -65,7 +65,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.light,
             child: Row(
               children: [
-                Icon(AppIcons.themeLightOutlined),
+                Icon(TIcons.themeLightOutlined),
                 SizedBox(width: 10),
                 Text('Terang'),
               ],
@@ -75,7 +75,7 @@ class ThemeMenuWidget extends StatelessWidget {
             value: ThemeMode.dark,
             child: Row(
               children: [
-                Icon(AppIcons.themeDarkOutlined),
+                Icon(TIcons.themeDarkOutlined),
                 SizedBox(width: 10),
                 Text('Gelap'),
               ],

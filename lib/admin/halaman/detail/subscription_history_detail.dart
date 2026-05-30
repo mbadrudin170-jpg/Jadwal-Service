@@ -10,6 +10,7 @@ import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -177,8 +178,7 @@ class _SubscriptionHistoryDetailPageState
                         }
                       },
                     ),
-                  const SizedBox(height: 16),
-                  if (transaction.packageId != null)
+gapH16,                  if (transaction.packageId != null)
                     _buildFutureInfoCard<PackageModel>(
                       'Informasi Paket',
                       _packageOperation.getById(transaction.packageId!),
@@ -212,10 +212,8 @@ class _SubscriptionHistoryDetailPageState
                         }
                       },
                     ),
-                  const SizedBox(height: 16),
-                  _buildInfoPoints(transaction),
-                  const SizedBox(height: 16),
-                  if (transaction.startDate != null &&
+gapH16,                  _buildInfoPoints(transaction),
+gapH16,                  if (transaction.startDate != null &&
                       transaction.endDate != null)
                     _buildInfoCard('Waktu Langganan', [
                       _buildDetailRow(

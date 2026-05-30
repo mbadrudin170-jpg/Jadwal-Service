@@ -371,7 +371,7 @@ class _PackageActivationHistoryPageState
         ),
         actions: [
           IconButton(
-            icon: const Icon(AppIcons.filter),
+            icon: const Icon(TIcons.filter),
             onPressed: _showSortDialog,
             tooltip: 'Urutkan',
           ),

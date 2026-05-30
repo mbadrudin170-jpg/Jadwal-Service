@@ -15,6 +15,7 @@ import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -207,8 +208,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            const Divider(),
+gapH16,                            const Divider(),
                             _buildWhatsAppInfoRow(
                               'No HP',
                               _customer?.phone ?? 'Tidak ditemukan',
@@ -254,7 +254,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                   _activeCustomer.endDate),
                             ),
                             const Divider(),
-                            const SizedBox(height: 16),
+                            gapH16,
                             Text(
                               CalculationUtil.getRemainingActivePeriodText(
                                 _activeCustomer.endDate,
@@ -271,7 +271,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                   ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 24),
+                            gapH24,
                             ElevatedButton.icon(
                               icon: const Icon(Icons.send_to_mobile),
                               label: const Text('Kirim Info via WhatsApp'),
@@ -309,7 +309,7 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(width: 8),
+          gapH8,
           Expanded(
             child: Text(
               value,
@@ -349,11 +349,11 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                           decoration: TextDecoration.underline,
                         ),
                   ),
-                  const SizedBox(width: 8),
+                  gapH8,
                   FaIcon(
                     FontAwesomeIcons.whatsapp,
                     color: Colors.green.shade700,
-                    size: 20,
+                    size: TSizes.p20,
                   ),
                 ],
               ),

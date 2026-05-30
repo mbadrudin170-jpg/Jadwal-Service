@@ -5,7 +5,7 @@
 //
 // 📂 FILE INI MENGGUNAKAN:
 //   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/theme/app_colors.dart (AppColors)
+//   - lib/shared/theme/app_colors.dart (TColors)
 //   - lib/user/page/login_page.dart (LoginPage)
 //   - lib/user/page/main_page.dart (MainPage)
 //   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
@@ -206,7 +206,7 @@ class _AccountListPageState extends State<AccountListPage> {
                             TextButton(
                               child: const Text(
                                 'Hapus & Keluar',
-                                style: TextStyle(color: AppColors.errorColor),
+                                style: TextStyle(color: TColors.errorColor),
                               ),
                               onPressed: () async {
                                 final navigator =
@@ -322,15 +322,15 @@ class _AccountListPageState extends State<AccountListPage> {
               }
             },
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.errorColor,
-              foregroundColor: AppColors.textOnDark,
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
             ),
             child: const Text('Keluar/Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
-              backgroundColor: AppColors.errorColor,
-              foregroundColor: AppColors.textOnDark,
+              backgroundColor: TColors.errorColor,
+              foregroundColor: TColors.textOnDark,
             ),
             onPressed: () async {
               final pageNavigator = Navigator.of(context);
@@ -439,7 +439,7 @@ class _AccountListPageState extends State<AccountListPage> {
               child: ElevatedButton(
                 onPressed: () => _showExitDialog(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.errorColor.withAlpha(200),
+                  backgroundColor: TColors.errorColor.withAlpha(200),
                   foregroundColor: Colors.white,
                   elevation: 2,
                   padding: const EdgeInsets.symmetric(vertical: 14),

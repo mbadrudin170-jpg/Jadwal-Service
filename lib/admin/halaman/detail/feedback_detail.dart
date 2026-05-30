@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
@@ -56,8 +57,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
       'Memulai proses pengambilan data kritik dan saran dari database.',
     );
 
-    _feedbackFuture =
-        _feedbackOperation.getById(widget.id).then((final value) {
+    _feedbackFuture = _feedbackOperation.getById(widget.id).then((final value) {
       Log.info(
         'Data kritik dan saran berhasil dimuat dari database.',
       );
@@ -289,11 +289,9 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
                           Icon(
                             Icons.person_pin,
                             color: Theme.of(context).colorScheme.primary,
-                            size: 24,
+                            size: TSizes.p12,
                           ),
-                          const SizedBox(
-                            width: 12,
-                          ),
+                          gapH12,
                           Expanded(
                             child: CustomerNameWidget(
                               customerId: kritikSaran.userId,
@@ -305,9 +303,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      gapH12,
                       const Text(
                         'Pesan:',
                         style: TextStyle(
@@ -315,9 +311,7 @@ class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(
-                        height: 8,
-                      ),
+                      gapH8,
                       Text(
                         kritikSaran.content,
                         style: const TextStyle(

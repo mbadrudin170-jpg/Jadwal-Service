@@ -277,12 +277,12 @@ class _WalletPageState extends State<WalletPage>
         title: const Text('Dompet'),
         actions: [
           IconButton(
-            icon: const Icon(AppIcons.filter),
+            icon: const Icon(TIcons.filter),
             onPressed: _showSortDialog,
             tooltip: 'Urutkan Dompet',
           ),
           IconButton(
-            icon: const Icon(AppIcons.delete),
+            icon: const Icon(TIcons.delete),
             onPressed: _showDeleteAllDialog,
             tooltip: 'Hapus Semua Dompet',
           ),
@@ -359,7 +359,7 @@ class _WalletPageState extends State<WalletPage>
         heroTag: 'fab_wallet',
         onPressed: _addWallet,
         tooltip: 'Tambah Dompet',
-        child: const Icon(AppIcons.add),
+        child: const Icon(TIcons.add),
       ),
     );
   }

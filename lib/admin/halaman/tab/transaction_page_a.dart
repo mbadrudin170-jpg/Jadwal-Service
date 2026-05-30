@@ -244,19 +244,19 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
         actions: [
           IconButton(
             onPressed: _showSortDialog,
-            icon: const Icon(AppIcons.filter),
+            icon: const Icon(TIcons.filter),
             tooltip: 'Urutkan',
           ),
           IconButton(
             onPressed: () {
               unawaited(ref.read(transactionProvider.notifier).refresh());
             },
-            icon: const Icon(AppIcons.refresh),
+            icon: const Icon(TIcons.refresh),
             tooltip: 'Refresh Data',
           ),
           IconButton(
             onPressed: _deleteAllTransactions,
-            icon: const Icon(AppIcons.delete),
+            icon: const Icon(TIcons.delete),
             tooltip: 'Hapus Semua Transaksi',
           ),
         ],
@@ -272,7 +272,7 @@ class _TransactionPageState extends ConsumerState<TransactionPage> {
           // Perbaikan: Menambahkan unawaited
           unawaited(_navigateToTransactionForm());
         },
-        child: const Icon(AppIcons.add),
+        child: const Icon(TIcons.add),
       ),
     );
   }

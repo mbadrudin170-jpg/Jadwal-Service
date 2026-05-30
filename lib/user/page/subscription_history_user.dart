@@ -133,7 +133,7 @@ class _SubscriptionHistoryPageState
                   value: SortMode.statusUnpaid,
                   child: Text('Status: Belum Lunas')),
             ],
-            icon: const Icon(AppIcons.sort),
+            icon: const Icon(TIcons.sort),
           ),
         ],
       ),
@@ -192,7 +192,7 @@ class _SubscriptionHistoryPageState
                             margin: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             child: ListTile(
-                                leading: const Icon(AppIcons.receiptLong),
+                                leading: const Icon(TIcons.receiptLong),
                                 title: PackageNameWidget(
                                     packageFuture: packageFuture),
                                 subtitle: Column(
@@ -212,7 +212,7 @@ class _SubscriptionHistoryPageState
                                         style: TextStyle(color: activeColor)),
                                   ],
                                 ),
-                                trailing: const Icon(AppIcons.chevronRight),
+                                trailing: const Icon(TIcons.chevronRight),
                                 onTap: () => _navigateToTransactionDetail(
                                     tx, packageFuture)),
                           );

@@ -85,7 +85,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                AppIcons.warningAmber, // Menggunakan AppIcons
+                TIcons.warningAmber, // Menggunakan TIcons
                 size: 80,
                 color: Colors.orange,
               ),
@@ -116,7 +116,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                           strokeWidth: 3,
                         ),
                       )
-                    : const Icon(AppIcons.refresh), // Menggunakan AppIcons
+                    : const Icon(TIcons.refresh), // Menggunakan TIcons
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
                   padding:
@@ -130,7 +130,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                   Log.info('[Aksi Pengguna] Tombol "Keluar" ditekan.');
                   widget.onExit();
                 },
-                icon: const Icon(AppIcons.logout), // Menggunakan AppIcons
+                icon: const Icon(TIcons.logout), // Menggunakan TIcons
                 label: const Text('Keluar'),
               ),
             ],

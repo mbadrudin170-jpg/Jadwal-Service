@@ -26,8 +26,8 @@ class TotalPointCard extends StatelessWidget {
   const TotalPointCard({
     super.key,
     required this.points,
-    this.icon = AppIcons.points,
-    this.themeColor = AppColors.pointColor,
+    this.icon = TIcons.points,
+    this.themeColor = TColors.pointColor,
     this.onTap,
   });
 

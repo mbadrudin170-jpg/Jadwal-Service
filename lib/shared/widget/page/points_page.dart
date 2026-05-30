@@ -369,10 +369,10 @@ class _PointsPageState extends State<PointsPage> {
             child: ListTile(
               leading: Icon(
                 isUnpaid
-                    ? AppIcons.hourglass
+                    ? TIcons.hourglass
                     : isAddition
-                        ? AppIcons.arrowUp
-                        : AppIcons.arrowDown,
+                        ? TIcons.arrowUp
+                        : TIcons.arrowDown,
                 color: pointColor,
               ),
               title: Text(tx.description),

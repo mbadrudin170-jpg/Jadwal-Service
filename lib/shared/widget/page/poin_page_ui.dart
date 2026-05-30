@@ -146,8 +146,8 @@ class PoinPageUi extends StatelessWidget {
           ),
           Row(
             children: [
-              buildSegment(MenuPoin.penukaran, 'Tukar Hadiah', AppIcons.gift),
-              buildSegment(MenuPoin.riwayat, 'Riwayat Poin', AppIcons.history),
+              buildSegment(MenuPoin.penukaran, 'Tukar Hadiah', TIcons.gift),
+              buildSegment(MenuPoin.riwayat, 'Riwayat Poin', TIcons.history),
             ],
           ),
         ],

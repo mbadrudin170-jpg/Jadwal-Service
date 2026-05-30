@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// A stateless widget that displays a splash screen.
 class SplashScreen extends StatelessWidget {
@@ -30,7 +31,7 @@ class SplashScreen extends StatelessWidget {
               'assets/image/ikon_apk.png',
               width: 150,
             ),
-            const SizedBox(height: 24),
+            gapH12,
             Text(
               'Admin WiFi',
               style: theme.textTheme.headlineMedium?.copyWith(
@@ -38,11 +39,11 @@ class SplashScreen extends StatelessWidget {
                     .colorScheme.onSurface, // diubah: Menggunakan onSurface
               ),
             ),
-            const SizedBox(height: 40),
+            gapH48,
             CircularProgressIndicator(
               color: theme.colorScheme.primary,
             ),
-            const SizedBox(height: 20),
+            gapH20,
             Text(
               loadingMessage,
               style: theme.textTheme.bodyMedium?.copyWith(

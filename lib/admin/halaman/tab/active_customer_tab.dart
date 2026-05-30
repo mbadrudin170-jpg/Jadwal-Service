@@ -313,7 +313,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
         actions: _isSearching
             ? [
                 IconButton(
-                    icon: const Icon(AppIcons.close),
+                    icon: const Icon(TIcons.close),
                     onPressed: () {
                       setState(() => _isSearching = false);
                       _searchController.clear();
@@ -321,13 +321,13 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
               ]
             : [
                 IconButton(
-                    icon: const Icon(AppIcons.search),
+                    icon: const Icon(TIcons.search),
                     onPressed: () => setState(() => _isSearching = true)),
                 IconButton(
-                    icon: const Icon(AppIcons.filter),
+                    icon: const Icon(TIcons.filter),
                     onPressed: _showSortDialog),
                 IconButton(
-                    icon: const Icon(AppIcons.settings),
+                    icon: const Icon(TIcons.settings),
                     onPressed: _advancedOptions),
               ],
       ),
@@ -401,7 +401,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
       floatingActionButton: FloatingActionButton(
           heroTag: 'fab_active_customer',
           onPressed: _addActiveCustomer,
-          child: const Icon(AppIcons.add)),
+          child: const Icon(TIcons.add)),
     );
   }
 }

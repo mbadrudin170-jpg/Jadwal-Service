@@ -82,15 +82,15 @@ class AppTheme {
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    primaryColor: AppColors.primaryColor,
-    scaffoldBackgroundColor: AppColors.lightBackground,
+    primaryColor: TColors.primaryColor,
+    scaffoldBackgroundColor: TColors.lightBackground,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primaryColor,
+      seedColor: TColors.primaryColor,
     ),
     textTheme:
         _lightTextTheme, // Menggunakan TextTheme terang yang sudah diisolasi
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.primaryColor,
+      backgroundColor: TColors.primaryColor,
       foregroundColor: Colors.white,
       titleTextStyle:
           _lightTextTheme.headlineSmall?.copyWith(color: Colors.white),
@@ -103,7 +103,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: AppColors.primaryColor,
+        backgroundColor: TColors.primaryColor,
       ),
     ),
   );
@@ -111,23 +111,23 @@ class AppTheme {
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: AppColors.primaryColor,
-    scaffoldBackgroundColor: AppColors.darkBackground,
-    canvasColor: AppColors.darkBackground,
+    primaryColor: TColors.primaryColor,
+    scaffoldBackgroundColor: TColors.darkBackground,
+    canvasColor: TColors.darkBackground,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primaryColor,
+      seedColor: TColors.primaryColor,
       brightness: Brightness.dark,
-      surface: AppColors.darkSurface,
+      surface: TColors.darkSurface,
     ),
     textTheme:
         _darkTextTheme, // Menggunakan TextTheme gelap yang sudah diisolasi
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.darkSurface,
+      backgroundColor: TColors.darkSurface,
       foregroundColor: Colors.white,
       titleTextStyle: _darkTextTheme.headlineSmall,
     ),
     cardTheme: const CardThemeData(
-      color: AppColors.darkSurface,
+      color: TColors.darkSurface,
     ),
     listTileTheme: ListTileThemeData(
       subtitleTextStyle:
@@ -135,8 +135,8 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black54,
+        foregroundColor: TColors.lightBackground,
+        backgroundColor: TColors.darkBackground,
       ),
     ),
   );

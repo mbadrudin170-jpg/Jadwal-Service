@@ -10,6 +10,8 @@ import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengelola versi APK pengguna.
@@ -168,8 +170,8 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         builder: (final context) => AlertDialog(
           title: const Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.blue),
-              SizedBox(width: 10),
+              Icon(TIcons.infoOutlined, color: Colors.blue),
+              gapW12,
               Text('Konfirmasi Simpan'),
             ],
           ),
@@ -288,7 +290,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
                       labelText: 'Versi Terbaru (Contoh: 1.0.0)',
-                      prefixIcon: Icon(Icons.info_outline),
+                      prefixIcon: Icon(TIcons.infoOutlined),
                       border: OutlineInputBorder(),
                     ),
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
@@ -297,7 +299,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                           .requestFocus(_buildUniversalFocusNode);
                     },
                   ),
-                  const SizedBox(height: 24),
+                  gapH24,
                   _buildSectionTitle('Nomor Build'),
                   _buildNumberField(
                     _buildUniversalController,
@@ -317,7 +319,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     _build64FocusNode,
                     _universalLinkFocusNode,
                   ),
-                  const SizedBox(height: 24),
+                  gapH24,
                   _buildSectionTitle('Tautan Unduhan'),
                   _buildUrlField(
                     _universalLinkController,
@@ -337,7 +339,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     _link64FocusNode,
                     _releaseNotesFocusNode,
                   ),
-                  const SizedBox(height: 24),
+                  gapH24,
                   TextFormField(
                     controller: _releaseNotesController,
                     focusNode: _releaseNotesFocusNode,
@@ -349,7 +351,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     maxLines: 3,
                     validator: (final v) => v!.isEmpty ? 'Wajib diisi' : null,
                   ),
-                  const SizedBox(height: 16),
+                  gapH16,
                   TextFormField(
                     controller: _youtubeTutorialController,
                     focusNode: _youtubeTutorialFocusNode,
@@ -357,7 +359,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                     decoration: const InputDecoration(
                       labelText: 'URL Tutorial YouTube',
                       prefixIcon: Icon(
-                        Icons.play_circle_fill,
+                        TIcons.youtube,
                         color: Colors.red,
                       ),
                       border: OutlineInputBorder(),
@@ -384,7 +386,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(),
-                    SizedBox(height: 10),
+                    gapH12,
                     Text('Menyimpan...', style: TextStyle(color: Colors.white)),
                   ],
                 ),
@@ -462,7 +464,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
-          prefixIcon: const Icon(Icons.link),
+          prefixIcon: const Icon(TIcons.link),
         ),
         keyboardType: TextInputType.url,
         onFieldSubmitted: (final _) {

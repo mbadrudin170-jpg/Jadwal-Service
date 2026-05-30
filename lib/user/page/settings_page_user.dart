@@ -35,7 +35,7 @@ class SettingsPageUser extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         children: <Widget>[
           _SettingsMenuItem(
-            icon: AppIcons.theme,
+            icon: TIcons.theme,
             title: 'Tema Aplikasi',
             trailing: Consumer(
               builder: (context, ref, child) {
@@ -54,7 +54,7 @@ class SettingsPageUser extends ConsumerWidget {
             ),
           ),
           _SettingsMenuItem(
-            icon: AppIcons.feedback,
+            icon: TIcons.feedback,
             title: 'Kritik dan Saran',
             onTap: () async {
               Log.info('Navigasi ke halaman riwayat masukan.');
@@ -68,7 +68,7 @@ class SettingsPageUser extends ConsumerWidget {
             },
           ),
           _SettingsMenuItem(
-            icon: AppIcons.infoOutlined,
+            icon: TIcons.infoOutlined,
             title: 'Info Aplikasi & Perangkat',
             onTap: () async {
               Log.info('Navigasi ke halaman info aplikasi.');
@@ -83,7 +83,7 @@ class SettingsPageUser extends ConsumerWidget {
           // Hanya tampilkan tombol ini dalam mode debug
           if (kDebugMode)
             _SettingsMenuItem(
-              icon: AppIcons.science,
+              icon: TIcons.science,
               title: 'Halaman Uji Fitur',
               onTap: () async {
                 Log.info('Navigasi ke halaman tes fitur.');
@@ -96,7 +96,7 @@ class SettingsPageUser extends ConsumerWidget {
               },
             ),
           _SettingsMenuItem(
-            icon: AppIcons.logout,
+            icon: TIcons.logout,
             title: 'Ganti Akun/Keluar',
             isDestructive: true,
             onTap: () async {

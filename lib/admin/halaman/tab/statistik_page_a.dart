@@ -175,7 +175,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         child: _buildStatCard(
                           title: 'Total Pelanggan',
                           value: totalPelanggan.toString(),
-                          icon: AppIcons.customers,
+                          icon: TIcons.customers,
                           color: Colors.blue,
                         ),
                       );
@@ -198,7 +198,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         child: _buildStatCard(
                           title: 'Langganan Aktif',
                           value: langgananAktif.toString(),
-                          icon: AppIcons.wifi,
+                          icon: TIcons.wifi,
                           color: Colors.green,
                         ),
                       );
@@ -230,7 +230,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         child: _buildStatCard(
                           title: 'Pendapatan Bulan Ini',
                           value: '', // Kosongkan
-                          icon: AppIcons.money,
+                          icon: TIcons.money,
                           color: cardColor,
                           customValueWidget: valueWidget,
                         ),
@@ -249,7 +249,7 @@ class _StatistikPageAState extends State<StatistikPageA> {
                         child: _buildStatCard(
                           title: 'Feedback Baru',
                           value: feedbackBaru.toString(),
-                          icon: AppIcons.feedback,
+                          icon: TIcons.feedback,
                           color: Colors.purple,
                         ),
                       );

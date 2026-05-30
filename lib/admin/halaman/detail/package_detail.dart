@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah paket.
 class PackageDetailPage extends StatefulWidget {
@@ -90,8 +91,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 Row(
                   children: [
                     const Icon(Icons.inventory_2, color: Colors.blueAccent),
-                    const SizedBox(width: 8),
-                    Text(
+gapH8,                    Text(
                       'Informasi Layanan',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -99,8 +99,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                _buildDetailRow('Nama Paket', _package.name),
+gapH20,                _buildDetailRow('Nama Paket', _package.name),
                 _buildDetailRow('Harga Sewa', 'Rp ${_package.price}'),
                 _buildDetailRow(
                     'Masa Aktif', '${_package.duration} ${_package.type.displayName}'),
@@ -111,8 +110,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 Row(
                   children: [
                     const Icon(Icons.stars, color: Colors.orange),
-                    const SizedBox(width: 8),
-                    Text(
+gapH8,                    Text(
                       'Sistem Poin',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -120,8 +118,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
+gapH12,                _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
                     subTitle: 'Didapat saat beli paket'),
                 _buildDetailRow(
                     'Poin Penukaran', '${_package.redemptionPoints} Poin',

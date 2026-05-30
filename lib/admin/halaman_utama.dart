@@ -150,19 +150,19 @@ class _HalamanUtamaState extends State<HalamanUtama>
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.activeCustomer),
+            icon: Icon(TIcons.activeCustomer),
             label: 'Aktif',
           ),
-          BottomNavigationBarItem(icon: Icon(AppIcons.wallet), label: 'Dompet'),
+          BottomNavigationBarItem(icon: Icon(TIcons.wallet), label: 'Dompet'),
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.receiptLong),
+            icon: Icon(TIcons.receiptLong),
             label: 'Transaksi',
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcons.report),
+            icon: Icon(TIcons.report),
             label: 'Statistik',
           ),
-          BottomNavigationBarItem(icon: Icon(AppIcons.apps), label: 'Lainnya'),
+          BottomNavigationBarItem(icon: Icon(TIcons.apps), label: 'Lainnya'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

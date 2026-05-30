@@ -258,7 +258,7 @@ class _LoginViewState extends State<_LoginView> {
               ElevatedButton(
                 onPressed: _processLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
+                  backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

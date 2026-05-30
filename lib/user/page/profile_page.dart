@@ -191,20 +191,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 _buildInfoCard(
                   context,
                   title: 'Informasi Pribadi',
-                  icon: AppIcons.person,
+                  icon: TIcons.person,
                   children: [
                     _InfoItem(
-                      icon: AppIcons.personOutlined,
+                      icon: TIcons.personOutlined,
                       label: 'Nama Lengkap',
                       value: customer.name,
-                      trailingIcon: AppIcons.chevronRight,
+                      trailingIcon: TIcons.chevronRight,
                       onTap: () => _navigateToDetail(customer.id),
                     ),
                     _InfoItem(
-                      icon: AppIcons.points,
+                      icon: TIcons.points,
                       label: 'Poin',
                       value: profileData.totalPoints.toString(),
-                      trailingIcon: AppIcons.chevronRight,
+                      trailingIcon: TIcons.chevronRight,
                       onTap: () => _navigateToPointsPage(customer.id),
                     ),
                   ],
@@ -213,7 +213,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 _buildInfoCard(
                   context,
                   title: 'Informasi Paket Aktif',
-                  icon: AppIcons.wifi,
+                  icon: TIcons.wifi,
                   children: [
                     _buildActivePackageDetails(
                       context,
@@ -239,7 +239,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   ) {
     if (lastSubscription == null) {
       return const _InfoItem(
-        icon: AppIcons.noWifi,
+        icon: TIcons.noWifi,
         label: 'Paket Aktif',
         value: 'Tidak ada paket aktif.',
       );
@@ -258,31 +258,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Column(
       children: [
         _InfoItem(
-          icon: AppIcons.wifi,
+          icon: TIcons.wifi,
           label: 'Paket',
           value: packageModel?.name ?? 'Tidak tersedia',
         ),
         if (lastSubscription.startDate != null)
           _InfoItem(
-            icon: AppIcons.dateRange,
+            icon: TIcons.dateRange,
             label: 'Aktif Sejak',
             value: FormatDateTime.formatDateAndTimeCompact(
                 lastSubscription.startDate!),
           ),
         _InfoItem(
-          icon: AppIcons.dateRange,
+          icon: TIcons.dateRange,
           label: 'Berakhir Pada',
           value: FormatDateTime.formatDateAndTimeCompact(
               lastSubscription.endDate!),
         ),
         _InfoItem(
-          icon: AppIcons.hourglass,
+          icon: TIcons.hourglass,
           label: 'Masa Aktif',
           value: activePeriodText,
           valueColor: activePeriodColor,
         ),
         _InfoItem(
-          icon: AppIcons.successOutlined,
+          icon: TIcons.successOutlined,
           label: 'Status Pembayaran',
           value: lastSubscription.paymentStatus.displayName
               .replaceAll('_', ' ')

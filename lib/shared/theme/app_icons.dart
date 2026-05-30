@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 /// Contoh Penggunaan:
 /// /// Icon(AppIcons.save)
 /// ///
-class AppIcons {
+class TIcons {
   // Mencegah class ini diinstansiasi.
-  AppIcons._();
+  TIcons._();
 
   // --- Navigasi & Aksi Umum ---
   /// Ikon untuk aksi tambah.
@@ -59,6 +59,9 @@ class AppIcons {
 
   /// Ikon untuk aksi muat ulang.
   static const IconData refresh = Icons.refresh_rounded;
+
+  /// Ikon untuk tautan/link.
+  static const IconData link = Icons.link;
 
   // --- Menu Utama & Halaman ---
   /// Ikon untuk menu dasbor.

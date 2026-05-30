@@ -1,5 +1,4 @@
 // path: lib/admin/halaman/form/active_customer_form.dart
-// diubah: Menambahkan ToastUtil untuk feedback pengguna di _saveForm.
 
 import 'dart:async';
 
@@ -15,6 +14,7 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/providers/transaction_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -397,7 +397,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(TSizes.p16),
               child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
@@ -405,24 +405,24 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildPoinSwitch(),
-                      const SizedBox(height: 16),
+                      gapH16,
                       _buildPelangganDropdown(),
-                      const SizedBox(height: 16),
+                      gapH16,
                       _buildPaketDropdown(),
-                      const SizedBox(height: 16),
+                      gapH16,
                       _buildDompetDropdown(),
-                      const SizedBox(height: 16),
+                      gapH16,
                       _buildKategoriDropdown(),
-                      const SizedBox(height: 24),
+                      gapH24,
                       DateTimePickerWidget(
                         selectedDate: _selectedDate,
                         selectedTime: _selectedTime,
                         onSelectDate: () => _selectDate(context),
                         onSelectTime: () => _selectTime(context),
                       ),
-                      const SizedBox(height: 8),
+                      gapH8,
                       _buildStatusPembayaranButtons(),
-                      const SizedBox(height: 16),
+                      gapH24,
                       _buildInfoTanggalBerakhir(),
                     ],
                   ),
@@ -435,7 +435,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Widget _buildPoinSwitch() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: TSizes.p16, vertical: TSizes.p8),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12)),
@@ -443,7 +443,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Gunakan Poin',
               style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
+          gapH4,
           if (_gunakanPoin)
             Text('Poin dipakai: ${hitungPoinEfektif()}',
                 style: TextStyle(color: Colors.grey[600], fontSize: 12)),
@@ -562,7 +562,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 setState(() => _statusPembayaran = PaymentStatus.paid);
               },
               child: const Text('Lunas'))),
-      const SizedBox(width: 8),
+      gapW8,
       Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -594,7 +594,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 _selectedTime!.hour,
                 _selectedTime!.minute)))
       ]),
-      const SizedBox(height: 8),
+      gapH8,
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Tanggal Berakhir:',
             style: TextStyle(fontWeight: FontWeight.bold)),
@@ -621,7 +621,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Widget _buildSaveButton() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(TSizes.p16),
       child: ElevatedButton(
         onPressed: () async {
           Log.info('Tombol Simpan ditekan');
