@@ -2,64 +2,58 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/halaman/tab/transaction_page_a.dart'; // Impor enum SortBy
 import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 
-// State class SAMA, tidak perlu diubah.
 class TransactionState {
   final List<TransactionModel> transactions;
   final double totalIncome;
   final double totalExpense;
   final double netTotal;
+  final SortBy sortBy; 
 
-  // isLoading dan error akan ditangani oleh AsyncValue, jadi bisa dihapus dari sini.
   TransactionState({
     this.transactions = const [],
     this.totalIncome = 0.0,
     this.totalExpense = 0.0,
     this.netTotal = 0.0,
+    this.sortBy = SortBy.newest, 
   });
 
   TransactionState copyWith({
-    final List<TransactionModel>? transactions,
-    final double? totalIncome,
-    final double? totalExpense,
-    final double? netTotal,
+    List<TransactionModel>? transactions,
+    double? totalIncome,
+    double? totalExpense,
+    double? netTotal,
+    SortBy? sortBy, 
   }) {
     return TransactionState(
       transactions: transactions ?? this.transactions,
       totalIncome: totalIncome ?? this.totalIncome,
       totalExpense: totalExpense ?? this.totalExpense,
       netTotal: netTotal ?? this.netTotal,
+      sortBy: sortBy ?? this.sortBy, 
     );
   }
 }
 
-// 1. Ubah provider menjadi satu AsyncNotifierProvider.
-// Ini akan mengelola state (AsyncValue<TransactionState>) secara otomatis.
 final transactionProvider =
     AsyncNotifierProvider<TransactionNotifier, TransactionState>(
   TransactionNotifier.new,
 );
 
-// 2. Buat Class Notifier yang baru.
 class TransactionNotifier extends AsyncNotifier<TransactionState> {
-TransactionOperation get _operation {
-  try {
+  TransactionOperation get _operation {
     return ref.read(transactionOperationProvider);
-  } catch (e) {
-    throw Exception('Gagal mendapatkan TransactionOperation: $e');
   }
-}
-  // 3. Implementasi method `build` untuk mengambil data awal.
-  // Method ini HANYA akan dipanggil sekali saat provider pertama kali dibaca.
+
   @override
   Future<TransactionState> build() {
     return _loadData();
   }
 
-  // Method helper untuk mengambil semua data dari database.
   Future<TransactionState> _loadData() async {
     final results = await Future.wait([
       _operation.getAllTransactions(),
@@ -68,15 +62,53 @@ TransactionOperation get _operation {
       _operation.getNetTotal(),
     ]);
 
+    final transactions = results[0] as List<TransactionModel>;
+    final currentSortBy = state.value?.sortBy ?? SortBy.newest;
+
+    _performSort(transactions, currentSortBy);
+
     return TransactionState(
-      transactions: results[0] as List<TransactionModel>,
+      transactions: transactions,
       totalIncome: results[1] as double,
       totalExpense: results[2] as double,
       netTotal: results[3] as double,
+      sortBy: currentSortBy,
     );
   }
 
-  Future<void> addTransaction(final TransactionModel transaction) async {
+  void sortTransactions(SortBy newSortBy) {
+    // PERBAIKAN: Gunakan `state.hasValue` dan `state.value`
+    if (!state.hasValue) return;
+    final currentState = state.value!;
+
+    final List<TransactionModel> sortedTransactions = List.from(currentState.transactions);
+    
+    _performSort(sortedTransactions, newSortBy);
+
+    state = AsyncValue.data(currentState.copyWith(
+      transactions: sortedTransactions,
+      sortBy: newSortBy,
+    ));
+  }
+
+  void _performSort(List<TransactionModel> transactions, SortBy sortBy) {
+    switch (sortBy) {
+      case SortBy.newest:
+        transactions.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case SortBy.oldest:
+        transactions.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case SortBy.highestAmount:
+        transactions.sort((a, b) => b.amount.compareTo(a.amount));
+        break;
+      case SortBy.lowestAmount:
+        transactions.sort((a, b) => a.amount.compareTo(b.amount));
+        break;
+    }
+  }
+
+  Future<void> addTransaction(TransactionModel transaction) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.addTransaction(transaction);
@@ -84,7 +116,7 @@ TransactionOperation get _operation {
     });
   }
 
-  Future<void> updateTransaction(final TransactionModel transaction) async {
+  Future<void> updateTransaction(TransactionModel transaction) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.updateTransaction(transaction.id, transaction);
@@ -92,7 +124,7 @@ TransactionOperation get _operation {
     });
   }
 
-  Future<void> softDelete(final String id) async {
+  Future<void> softDelete(String id) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDelete(id);
@@ -108,7 +140,6 @@ TransactionOperation get _operation {
     });
   }
 
-  // Method untuk me-refresh data secara manual dari luar (misal: pull-to-refresh)
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);

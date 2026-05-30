@@ -15,7 +15,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 import 'package:wifi/shared/widget/transaction_list_widgets.dart';
 
-// Enum SortBy tetap sama
+//===============[ ENUM & EXTENSION ]===============================
+
+/// Mendefinisikan kriteria pengurutan untuk daftar transaksi.
 enum SortBy {
   newest,
   oldest,
@@ -23,7 +25,259 @@ enum SortBy {
   lowestAmount,
 }
 
-// Widget TransactionSummary tetap sama
+/// Extension untuk memberikan fungsionalitas tambahan pada [SortBy].
+extension SortByX on SortBy {
+  /// Mengembalikan nama yang mudah dibaca untuk setiap kriteria urutan.
+  String get name {
+    switch (this) {
+      case SortBy.newest:
+        return 'Terbaru';
+      case SortBy.oldest:
+        return 'Terlama';
+      case SortBy.highestAmount:
+        return 'Jumlah Tertinggi';
+      case SortBy.lowestAmount:
+        return 'Jumlah Terendah';
+    }
+  }
+}
+
+//===============[ REFACTORED WIDGETS ]===============================
+
+/// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
+class TransactionPage extends ConsumerWidget {
+  const TransactionPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncState = ref.watch(transactionProvider);
+
+    return Scaffold(
+      appBar: const _TransactionAppBar(), // Widget AppBar yang diekstrak
+      body: asyncState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (state) => _TransactionBody(state: state), // Widget Body yang diekstrak
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Log.info('FAB tambah transaksi ditekan.');
+          unawaited(_navigateToTransactionForm(context));
+        },
+        child: const Icon(TIcons.add),
+      ),
+    );
+  }
+
+  /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
+  Future<void> _navigateToTransactionForm(BuildContext context, {
+    TransactionModel? transaction,
+  }) async {
+    Log.info(
+      transaction == null
+          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
+          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaction.id}',
+    );
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (context) => FormTransaksiPage(transaction: transaction),
+      ),
+    );
+  }
+}
+
+/// AppBar khusus untuk Halaman Transaksi, meng-handle semua aksi.
+class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _TransactionAppBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Dapatkan state sorting saat ini langsung dari provider
+    final currentSortBy = ref.watch(transactionProvider).value?.sortBy ?? SortBy.newest;
+
+    return AppBar(
+      title: const Text('Transaksi'),
+      actions: [
+        // Tombol Sort
+        IconButton(
+          onPressed: () => _showSortDialog(context, ref, currentSortBy),
+          icon: const Icon(TIcons.filter),
+          tooltip: 'Urutkan',
+        ),
+        // Tombol Refresh
+        IconButton(
+          onPressed: () => ref.read(transactionProvider.notifier).refresh(),
+          icon: const Icon(TIcons.refresh),
+          tooltip: 'Refresh Data',
+        ),
+        // Tombol Hapus Semua
+        IconButton(
+          onPressed: () => _deleteAllTransactions(context, ref),
+          icon: const Icon(TIcons.delete),
+          tooltip: 'Hapus Semua Transaksi',
+        ),
+      ],
+    );
+  }
+
+  /// Menampilkan dialog untuk memilih metode pengurutan.
+  Future<void> _showSortDialog(
+      BuildContext context, WidgetRef ref, SortBy currentSortBy) async {
+    final newSort = await showDialog<SortBy>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        children: SortBy.values
+            .map((sort) => RadioListTile<SortBy>(
+                  title: Text(sort.name), // Menggunakan extension
+                  value: sort,
+                  groupValue: currentSortBy,
+                  onChanged: (value) => Navigator.pop(context, value),
+                ))
+            .toList(),
+      ),
+    );
+
+    if (newSort != null) {
+      // Memanggil method di notifier untuk mengubah urutan
+      ref.read(transactionProvider.notifier).sortTransactions(newSort);
+    }
+  }
+
+  /// Menampilkan dialog konfirmasi untuk menghapus semua transaksi.
+  Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text(
+          'Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await ref.read(transactionProvider.notifier).softDeleteAll();
+        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
+      } on Exception catch (e, s) {
+        Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
+        ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
+      }
+    }
+  }
+  
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+/// Body utama Halaman Transaksi.
+class _TransactionBody extends ConsumerWidget {
+  final TransactionState state;
+
+  const _TransactionBody({required this.state});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (state.transactions.isEmpty) {
+      return const Center(child: Text('Tidak ada transaksi'));
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => ref.read(transactionProvider.notifier).refresh(),
+      child: Column(
+        children: [
+          // Ringkasan Keuangan
+          TransactionSummary(
+            income: state.totalIncome,
+            expense: state.totalExpense,
+            total: state.netTotal,
+          ),
+          // Daftar Transaksi
+          Expanded(
+            child: _TransactionListView(transactions: state.transactions),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
+class _TransactionListView extends ConsumerWidget {
+  final List<TransactionModel> transactions;
+
+  const _TransactionListView({required this.transactions});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupedTransactions = groupTransactionsByDate(transactions);
+
+    return ListView.builder(
+      key: const PageStorageKey('transaction_list_key'),
+      itemCount: groupedTransactions.length,
+      itemBuilder: (context, index) {
+        final date = groupedTransactions.keys.elementAt(index);
+        final transactionsOnDate = groupedTransactions[date]!;
+        final dailyTotal = transactionsOnDate.fold<double>(
+          0.0,
+          (sum, item) => sum + (item.type == TransactionType.income ? item.amount : -item.amount),
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildSectionHeader(date, dailyTotal),
+            ...transactionsOnDate.map((transaction) => buildTransactionItem(
+                  context,
+                  transaction,
+                  onTap: () => _navigateToTransactionDetail(context, transaction),
+                  onEdit: () => _navigateToTransactionForm(context, transaction: transaction),
+                  onDelete: () => ref.read(transactionProvider.notifier).softDelete(transaction.id),
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Navigasi ke halaman detail transaksi.
+  Future<void> _navigateToTransactionDetail(
+      BuildContext context, TransactionModel transaction) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TransactionDetailPage(transaction: transaction),
+      ),
+    );
+  }
+
+  /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
+  Future<void> _navigateToTransactionForm(BuildContext context, {
+    TransactionModel? transaction,
+  }) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (context) => FormTransaksiPage(transaction: transaction),
+      ),
+    );
+  }
+}
+
+//===============[ UNCHANGED WIDGETS ]===============================
+// Widget TransactionSummary dan buildFinancialSummaryInfo tidak perlu diubah
+// karena sudah cukup baik dan bisa digunakan kembali.
+
 class TransactionSummary extends StatelessWidget {
   final double income;
   final double expense;
@@ -38,9 +292,6 @@ class TransactionSummary extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    Log.info(
-      'Membangun UI TransactionSummary dengan data: Pemasukan=${income.toStringAsFixed(2)}, Pengeluaran=${expense.toStringAsFixed(2)}, Total=${total.toStringAsFixed(2)}',
-    );
     return Card(
       margin: const EdgeInsets.all(8.0),
       elevation: 2,
@@ -70,288 +321,6 @@ class TransactionSummary extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class TransactionPage extends ConsumerStatefulWidget {
-  const TransactionPage({super.key});
-
-  @override
-  ConsumerState<TransactionPage> createState() => _TransactionPageState();
-}
-
-class _TransactionPageState extends ConsumerState<TransactionPage> {
-  SortBy _currentSortBy = SortBy.newest;
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Halaman Transaksi sedang diinisialisasi (initState).');
-  }
-
-  void _sortTransactions(final List<TransactionModel> transactions) {
-    Log.info('Mengurutkan daftar transaksi berdasarkan: $_currentSortBy');
-    switch (_currentSortBy) {
-      case SortBy.newest:
-        transactions.sort((final a, final b) => b.date.compareTo(a.date));
-        break;
-      case SortBy.oldest:
-        transactions.sort((final a, final b) => a.date.compareTo(b.date));
-        break;
-      case SortBy.highestAmount:
-        transactions.sort((final a, final b) => b.amount.compareTo(a.amount));
-        break;
-      case SortBy.lowestAmount:
-        transactions.sort((final a, final b) => a.amount.compareTo(b.amount));
-        break;
-    }
-  }
-
-  Future<void> _navigateToTransactionDetail(
-      final TransactionModel transaction) async {
-    Log.info(
-      'Navigasi ke TransactionDetailPage untuk transaksi ID: ${transaction.id}',
-    );
-    await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (final context) =>
-            TransactionDetailPage(transaction: transaction),
-      ),
-    );
-  }
-
-  Future<void> _navigateToTransactionForm({
-    final TransactionModel? transaction,
-  }) async {
-    Log.info(
-      transaction == null
-          ? 'Membuka FormTransaksiPage untuk menambah entri baru.'
-          : 'Membuka FormTransaksiPage untuk mengedit transaksi: ${transaction.id}',
-    );
-    await Navigator.push(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (final context) => FormTransaksiPage(transaction: transaction),
-      ),
-    );
-  }
-
-  Future<void> _deleteAllTransactions() async {
-    Log.info(
-        'Tombol hapus semua transaksi ditekan, menampilkan dialog konfirmasi.');
-    try {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (final context) {
-          return AlertDialog(
-            title: const Text('Konfirmasi'),
-            content: const Text(
-              'Apakah Anda yakin ingin menghapus semua transaksi? Tindakan ini tidak dapat diurungkan.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Batal'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Hapus'),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (confirmed ?? false) {
-        // Panggil method dari notifier
-        await ref.read(transactionProvider.notifier).softDeleteAll();
-        if (!mounted) return;
-        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
-      } else {
-        Log.info('Penghapusan semua transaksi dibatalkan oleh pengguna.');
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
-      if (!mounted) return;
-      ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
-    }
-  }
-
-  String _getSortByName(final SortBy sort) {
-    switch (sort) {
-      case SortBy.newest:
-        return 'Terbaru';
-      case SortBy.oldest:
-        return 'Terlama';
-      case SortBy.highestAmount:
-        return 'Jumlah Tertinggi';
-      case SortBy.lowestAmount:
-        return 'Jumlah Terendah';
-    }
-  }
-
-  Future<void> _showSortDialog() async {
-    Log.info('Menampilkan dialog pengurutan. Sort aktif: $_currentSortBy');
-    final newSort = await showDialog<SortBy>(
-      context: context,
-      builder: (final context) {
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: [
-            RadioGroup<SortBy>(
-              groupValue: _currentSortBy,
-              onChanged: (final value) {
-                Navigator.pop(context, value);
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: SortBy.values
-                    .map(
-                      (final sort) => RadioListTile<SortBy>(
-                        title: Text(_getSortByName(sort)),
-                        value: sort,
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (newSort != null && newSort != _currentSortBy) {
-      Log.info('Opsi urutan diubah ke: $newSort. Memperbarui UI.');
-      setState(() {
-        _currentSortBy = newSort;
-      });
-    } else {
-      Log.info('Dialog pengurutan ditutup tanpa perubahan.');
-    }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    final asyncState = ref.watch(transactionProvider);
-    Log.info('Membangun UI utama Halaman Transaksi (build method).');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transaksi'),
-        actions: [
-          IconButton(
-            onPressed: _showSortDialog,
-            icon: const Icon(TIcons.filter),
-            tooltip: 'Urutkan',
-          ),
-          IconButton(
-            onPressed: () {
-              unawaited(ref.read(transactionProvider.notifier).refresh());
-            },
-            icon: const Icon(TIcons.refresh),
-            tooltip: 'Refresh Data',
-          ),
-          IconButton(
-            onPressed: _deleteAllTransactions,
-            icon: const Icon(TIcons.delete),
-            tooltip: 'Hapus Semua Transaksi',
-          ),
-        ],
-      ),
-      body: asyncState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (final err, final stack) => Center(child: Text('Error: $err')),
-        data: _buildBody, // Perbaikan: Menggunakan tear-off
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Log.info('FAB tambah transaksi ditekan.');
-          // Perbaikan: Menambahkan unawaited
-          unawaited(_navigateToTransactionForm());
-        },
-        child: const Icon(TIcons.add),
-      ),
-    );
-  }
-
-  Widget _buildBody(final TransactionState state) {
-    if (state.transactions.isEmpty) {
-      return const Center(child: Text('Tidak ada transaksi'));
-    }
-    final transactions = List<TransactionModel>.from(state.transactions);
-    _sortTransactions(transactions);
-
-    return RefreshIndicator(
-      onRefresh: () => ref.read(transactionProvider.notifier).refresh(),
-      child: Column(
-        children: [
-          TransactionSummary(
-            key: const Key('transaction_summary'),
-            income: state.totalIncome,
-            expense: state.totalExpense,
-            total: state.netTotal,
-          ),
-          Expanded(
-            child: _buildTransactionList(transactions),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionList(final List<TransactionModel> transactionsData) {
-    Log.info(
-      'Membangun daftar transaksi (_buildTransactionList) dengan ${transactionsData.length} item.',
-    );
-    final groupedTransactions = groupTransactionsByDate(transactionsData);
-
-    return ListView.builder(
-      key: const PageStorageKey('transaction_list_key'),
-      itemCount: groupedTransactions.length,
-      itemBuilder: (final context, final index) {
-        final date = groupedTransactions.keys.elementAt(index);
-        final transactionsOnDate = groupedTransactions[date]!;
-        final dailyTotal = transactionsOnDate.fold<double>(
-          0.0,
-          (final double sum, final TransactionModel item) =>
-              sum +
-              (item.type == TransactionType.income
-                  ? item.amount
-                  : -item.amount),
-        );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildSectionHeader(date, dailyTotal),
-            ...transactionsOnDate.map(
-              (final transaction) => buildTransactionItem(
-                context,
-                transaction,
-                onTap: () {
-                  Log.info('Transaksi di-tap: id=${transaction.id}');
-                  unawaited(_navigateToTransactionDetail(transaction));
-                },
-                onEdit: () {
-                  Log.info('Edit transaksi: id=${transaction.id}');
-                  unawaited(
-                    _navigateToTransactionForm(transaction: transaction),
-                  );
-                },
-                onDelete: () async {
-                  Log.info('Hapus transaksi: id=${transaction.id}');
-                  await ref
-                      .read(transactionProvider.notifier)
-                      .softDelete(transaction.id);
-                },
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
