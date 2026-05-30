@@ -90,24 +90,28 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.customers,
             title: 'Data Pelanggan',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const CustomerPage(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.filter,
             title: 'Kategori',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const CategoryPage(), 'Kategori'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.packages,
             title: 'Paket',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const PackagePage(), 'Paket'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.clock,
             title: 'Riwayat Aktivasi Paket',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(
                 const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
           ),
@@ -115,24 +119,28 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.help,
             title: 'Kritik dan Saran',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const FeedbackPage(), 'Kritik dan Saran'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.report,
             title: 'Versi Aplikasi',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const ApkVersionPage(), 'Versi Aplikasi'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.settings,
             title: 'Pengaturan',
+            rightIcons: TIcons.chevronRight,
             onTap: () => _navigateTo(const SettingsAdminPage(), 'Pengaturan'),
           ),
           _buildMenuItem(
             context: context,
             icon: TIcons.info,
             title: 'Tentang Aplikasi',
+            rightIcons: TIcons.chevronRight,
             onTap: () =>
                 _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
           ),
@@ -140,13 +148,15 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.logout,
             title: 'Keluar',
+            rightIcons: TIcons.chevronRight,
             onTap: _showLogoutConfirmationDialog,
           ),
           if (kDebugMode)
             _buildMenuItem(
               context: context,
-              icon: TIcons.info,
+              icon: TIcons.science,
               title: 'Halaman Tes',
+              rightIcons: TIcons.chevronRight,
               onTap: () => _navigateTo(const HalamanTes(), 'Halaman Tes'),
             ),
         ],
@@ -160,6 +170,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
     required final IconData icon,
     required final String title,
     required final VoidCallback onTap,
+    required final IconData rightIcons,
   }) {
     // Ambil textTheme dari context.
     final textTheme = Theme.of(context).textTheme;
@@ -168,6 +179,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
       leading: Icon(icon),
       // Terapkan gaya teks dari tema untuk konsistensi.
       title: Text(title, style: textTheme.titleMedium),
+      trailing: Icon(rightIcons),
       onTap: onTap,
     );
   }

@@ -79,56 +79,71 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TotalPointCard(
-              points: widget.totalPoints,
-              onTap: () {
-                if (widget.onNavigateToPoints != null) {
-                  Log.info('Kartu Poin ditekan, navigasi ke halaman poin.');
-                  widget.onNavigateToPoints!();
-                }
-              },
-            ),
+            _buildPointCard(),
             const SizedBox(height: 24),
-            _buildDetailRow('Nama', widget.customer.name, () async {
-              await _copyData('Nama', widget.customer.name);
-            }),
-            const Divider(),
-            _buildDetailRow('Telepon', widget.customer.phone, () async {
-              await _copyData('No Telepon', widget.customer.phone);
-            }),
-            const Divider(),
-            _buildDetailRow('Alamat', widget.customer.address, () async {
-              await _copyData('Alamat', widget.customer.address);
-            }),
-            const Divider(),
-            _buildDetailRow('Password', widget.customer.password, () async {
-              await _copyData('Password', widget.customer.password);
-            }),
-            const Divider(),
-            _buildDetailRow('MAC Address', widget.customer.macAddress,
-                () async {
-              await _copyData('MAC Address', widget.customer.macAddress);
-            }),
+            _buildCustomerInfoSection(),
             const SizedBox(height: 24),
-            if (widget.onCopyAll != null)
-              ElevatedButton.icon(
-                onPressed: () {
-                  Log.info('Tombol Salin Semua Info ditekan.');
-                  widget.onCopyAll!();
-                },
-                icon: const Icon(Icons.copy_all),
-                label: const Text('Salin Semua Info'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 45),
-                ),
-              ),
+            if (widget.onCopyAll != null) _buildCopyAllButton(),
           ],
         ),
       ),
     );
   }
 
+  /// Membangun kartu yang menampilkan total poin pelanggan.
+  Widget _buildPointCard() {
+    return TotalPointCard(
+      points: widget.totalPoints,
+      onTap: () {
+        if (widget.onNavigateToPoints != null) {
+          Log.info('Kartu Poin ditekan, navigasi ke halaman poin.');
+          widget.onNavigateToPoints!();
+        }
+      },
+    );
+  }
+
+  /// Membangun bagian yang menampilkan semua detail informasi pelanggan.
+  Widget _buildCustomerInfoSection() {
+    return Column(
+      children: [
+        _buildDetailRow('Nama', widget.customer.name, () async {
+          await _copyData('Nama', widget.customer.name);
+        }),
+        _buildDetailRow('Telepon', widget.customer.phone, () async {
+          await _copyData('No Telepon', widget.customer.phone);
+        }),
+        _buildDetailRow('Alamat', widget.customer.address, () async {
+          await _copyData('Alamat', widget.customer.address);
+        }),
+        _buildDetailRow('Password', widget.customer.password, () async {
+          await _copyData('Password', widget.customer.password);
+        }),
+        _buildDetailRow('MAC Address', widget.customer.macAddress, () async {
+          await _copyData('MAC Address', widget.customer.macAddress);
+        }),
+      ],
+    );
+  }
+
+  /// Membangun tombol untuk menyalin semua informasi pelanggan.
+  Widget _buildCopyAllButton() {
+    return ElevatedButton.icon(
+      onPressed: () {
+        Log.info('Tombol Salin Semua Info ditekan.');
+        widget.onCopyAll!();
+      },
+      icon: const Icon(Icons.copy_all),
+      label: const Text('Salin Semua Info'),
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 45),
+      ),
+    );
+  }
+
+  /// Membangun baris detail individu (misal: Nama, Telepon).
   Widget _buildDetailRow(
     final String title,
     final String detail,
