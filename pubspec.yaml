@@ -57,6 +57,7 @@ dependencies:
   image: ^4.8.0
   flutter_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.2
+  android_alarm_manager_plus: ^5.0.0
 
 dev_dependencies:
   flutter_test:

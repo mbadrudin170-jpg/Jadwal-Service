@@ -1,17 +1,24 @@
 // path: lib/shared/services/notifikasi/penjadwal_notifikasi.dart
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 class PenjadwalNotifikasi {
   static Future<void> aturNotifikasiLangganan(
- NotifikasiServis notifikasiServis,
-     final String userId,
+    NotifikasiServis notifikasiServis,
+    final String userId,
   ) async {
     Log.info(
         'Memulai pengecekan untuk penjadwalan notifikasi untuk pengguna: $userId');
     final endNotificationId = userId.hashCode;
     final midNotificationId = '${userId}_midpoint'.hashCode;
+
+    // ID untuk AlarmManager harus unik per alarm.
+    final int alarmId = endNotificationId;
 
     try {
       final transactionOperation = TransactionOpFirebase();
@@ -25,19 +32,33 @@ class PenjadwalNotifikasi {
           transaction.startDate != null &&
           transaction.endDate != null &&
           transaction.endDate!.isAfter(DateTime.now())) {
-        // -- 1. Jadwalkan Notifikasi di Akhir Periode --
+        
+        // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
+        final scheduledTime = transaction.endDate!;
         Log.info(
-            'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi akhir pada ${transaction.endDate}');
+            'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime');
+        
+        // 1. Jadwalkan Notifikasi Visual
         await notifikasiServis.perbaruiJadwalNotifikasi(
           id: endNotificationId,
           title: 'Langganan Telah Berakhir',
           body:
               'Masa aktif paket Anda telah berakhir. Perpanjang sekarang untuk terhubung lagi.',
-          jadwal: transaction.endDate!,
+          jadwal: scheduledTime,
           payload: 'subscription_expired',
         );
 
-        // -- 2. Jadwalkan Notifikasi di Tengah Periode (50%) --
+        // 2. Jadwalkan Alarm untuk Eksekusi Background
+        await AndroidAlarmManager.oneShotAt(
+          scheduledTime,
+          alarmId,
+          _callbackAlarm, // Fungsi top-level
+          exact: true, // Memastikan eksekusi tepat waktu
+          wakeup: true, // Membangunkan perangkat jika dalam mode sleep
+        );
+        Log.info('Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime');
+
+        // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
         final totalDuration =
             transaction.endDate!.difference(transaction.startDate!);
         final midpointDuration = totalDuration.inSeconds ~/ 2;
@@ -55,23 +76,42 @@ class PenjadwalNotifikasi {
             payload: 'subscription_midpoint',
           );
         } else {
-          // Jika tanggal tengah sudah lewat, batalkan notifikasi tengah periode yg mungkin ada sebelumnya
           Log.info(
               'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.');
           await notifikasiServis.batalNotifikasi(midNotificationId);
         }
+
       } else {
-        // Jika tidak ada langganan lunas yang aktif, batalkan semua notifikasi terkait.
+        // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
-            'Tidak ada langganan aktif. Membatalkan semua notifikasi untuk pengguna ini.');
+            'Tidak ada langganan aktif. Membatalkan semua notifikasi dan alarm untuk pengguna ini.');
         await notifikasiServis.batalNotifikasi(endNotificationId);
         await notifikasiServis.batalNotifikasi(midNotificationId);
+        await AndroidAlarmManager.cancel(alarmId);
+        Log.info("Alarm dengan ID $alarmId juga dibatalkan.");
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, st: st);
-      // Jika terjadi error, coba batalkan semua notifikasi untuk kebersihan
+      // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
       await notifikasiServis.batalNotifikasi(endNotificationId);
       await notifikasiServis.batalNotifikasi(midNotificationId);
+      await AndroidAlarmManager.cancel(alarmId);
+       Log.info("Alarm dengan ID $alarmId juga dibatalkan karena error.");
     }
   }
+}
+
+/// Fungsi callback yang akan dieksekusi oleh AlarmManager.
+/// Harus berupa top-level function atau static method.
+@pragma('vm:entry-point')
+void _callbackAlarm() async {
+  // Isolate baru tidak berbagi memori atau inisialisasi.
+  // Kita harus menginisialisasi semua service yang dibutuhkan di sini.
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
+  // Pastikan ExpiredSubscriptionCheckService diimpor dengan benar di atas.
+  await ExpiredSubscriptionCheckService().processExpiredSubscriptions();
+  Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
 }

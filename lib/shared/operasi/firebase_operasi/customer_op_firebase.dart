@@ -87,6 +87,34 @@ class CustomerOpFirebase {
   // OPERASI BACA (Tidak didelegasikan karena spesifik untuk model)
   // =======================================================================
 
+  /// Mengambil semua data pelanggan yang tidak di-soft-delete.
+  Future<List<CustomerModel>> getAllCustomers() async {
+    Log.info('Mengambil semua pelanggan aktif...');
+    try {
+      final querySnapshot = await _customerCollection
+          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        Log.warning('Tidak ada pelanggan aktif yang ditemukan.');
+        return [];
+      }
+
+      final customers = querySnapshot.docs.map((doc) {
+        return CustomerModel.fromFirebase(
+          doc.id,
+          doc.data()! as Map<String, dynamic>,
+        );
+      }).toList();
+      
+      Log.info('Berhasil mengambil ${customers.length} pelanggan.');
+      return customers;
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengambil semua pelanggan', e: e, st: s);
+      return []; // Kembalikan list kosong jika terjadi error
+    }
+  }
+
   /// Mengambil data pelanggan secara real-time (stream).
   Stream<CustomerModel?> getCustomerStream(final String userId) {
     Log.info('Streaming data pelanggan untuk: $userId');

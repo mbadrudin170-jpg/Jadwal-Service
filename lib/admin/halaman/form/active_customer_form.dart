@@ -7,42 +7,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
+import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/providers/transaction_provider.dart';
+import 'package:wifi/shared/providers/wallet_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Form to add or edit an active customer.
 class FormPelangganAktif extends ConsumerStatefulWidget {
-  /// The active customer to edit, if any.
   final ActiveCustomerModel? pelangganAktif;
-
-  /// The customer operation.
   final CustomerOperation pelangganOperasi;
-
-  /// The package operation.
   final PackageOperation paketOperasi;
-
-  /// The active customer operation.
   final ActiveCustomerOperation pelangganAktifOperasi;
-
-  /// The transaction operation.
   final TransactionOperation transaksiOperasi;
-
-  /// The wallet operation.
   final WalletOperation dompetOperasi;
-
-  /// The category operation.
   final CategoryOperation kategoriOperasi;
 
-  /// Creates a form for an active customer.
   FormPelangganAktif({
     super.key,
     this.pelangganAktif,
@@ -435,7 +422,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Widget _buildPoinSwitch() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: TSizes.p16, vertical: TSizes.p8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: TSizes.p16, vertical: TSizes.p8),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12)),
@@ -632,8 +620,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
+            ref.read(walletProvider.notifier).refresh();
+            ref.read(statistikProvider.notifier).refresh();
             navigator.pop(true);
-            Log.info('Form berhasil disimpan, snackbar success ditampilkan');
+            Log.info(
+                'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.');
           } else {
             ToastUtil.error(context, hasil.message);
             Log.warning('Form gagal disimpan, pesan: ${hasil.message}');
