@@ -17,6 +17,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
@@ -314,7 +316,7 @@ class _PackageFormState extends State<PackageForm> {
       appBar: AppBar(
         title: Text(_isEditMode ? 'Edit Paket' : 'Tambah Paket'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(TIcons.back),
           onPressed: () {
             Log.info(
                 'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).');
@@ -323,7 +325,7 @@ class _PackageFormState extends State<PackageForm> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -352,7 +354,7 @@ class _PackageFormState extends State<PackageForm> {
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
                 ),
-                const SizedBox(height: 12),
+                gapH12,
                 TextFormField(
                   controller: _priceController,
                   focusNode: _priceFocusNode,
@@ -387,7 +389,7 @@ class _PackageFormState extends State<PackageForm> {
                     FocusScope.of(context).requestFocus(_durationFocusNode);
                   },
                 ),
-                const SizedBox(height: 12),
+                gapH12,
                 TextFormField(
                   controller: _durationController,
                   focusNode: _durationFocusNode,
@@ -418,7 +420,7 @@ class _PackageFormState extends State<PackageForm> {
                     FocusScope.of(context).requestFocus(_rewardPointsFocusNode);
                   },
                 ),
-                const SizedBox(height: 12),
+                gapH12,
                 TextFormField(
                   controller: _rewardPointsController,
                   focusNode: _rewardPointsFocusNode,
@@ -451,7 +453,7 @@ class _PackageFormState extends State<PackageForm> {
                         .requestFocus(_redemptionPointsFocusNode);
                   },
                 ),
-                const SizedBox(height: 12),
+                gapH12,
                 TextFormField(
                   controller: _redemptionPointsController,
                   focusNode: _redemptionPointsFocusNode,
@@ -484,7 +486,7 @@ class _PackageFormState extends State<PackageForm> {
                     await _saveForm();
                   },
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 DropdownButtonFormField<DurationType>(
                   initialValue: _selectedType,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
@@ -507,7 +509,7 @@ class _PackageFormState extends State<PackageForm> {
                     }
                   },
                 ),
-                const SizedBox(height: 12),
+                gapH12,
                 SwitchListTile(
                   title: const Text('Paket Aktif (Public)'),
                   subtitle: const Text('Jika OFF, paket tidak tampil ke user'),
@@ -525,7 +527,7 @@ class _PackageFormState extends State<PackageForm> {
                         'State _isPublic berhasil diperbarui ke: $_isPublic');
                   },
                 ),
-                const SizedBox(height: 20),
+                gapH20,
                 ElevatedButton(
                   onPressed: () async {
                     Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');

@@ -9,6 +9,8 @@ import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
@@ -500,7 +502,7 @@ class _CategoryFormState extends State<CategoryForm> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(TSizes.p16),
           child: Form(
             key: _formKey,
             child: Column(
@@ -541,7 +543,7 @@ class _CategoryFormState extends State<CategoryForm> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 if (!_isSubKategoriMode) ...[
                   DropdownButtonFormField<CategoryType>(
                     initialValue: _tipe,
@@ -574,7 +576,7 @@ class _CategoryFormState extends State<CategoryForm> {
                       }
                     },
                   ),
-                  const SizedBox(height: 24),
+                  gapH24,
                 ],
                 if (!_isSubKategoriMode) ...[
                   const Text(
@@ -588,7 +590,7 @@ class _CategoryFormState extends State<CategoryForm> {
                     itemCount: _subKategoriControllers.length,
                     itemBuilder: (final context, final index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
                         child: Row(
                           children: [
                             Expanded(
@@ -607,7 +609,7 @@ class _CategoryFormState extends State<CategoryForm> {
                             ),
                             IconButton(
                               icon: const Icon(
-                                Icons.delete_outline,
+                                TIcons.delete,
                                 color: Colors.red,
                               ),
                               onPressed: () {
@@ -622,7 +624,7 @@ class _CategoryFormState extends State<CategoryForm> {
                       );
                     },
                   ),
-                  const SizedBox(height: 8),
+                  gapH8,
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton.icon(
@@ -632,12 +634,12 @@ class _CategoryFormState extends State<CategoryForm> {
                         );
                         _tambahInputSubKategori();
                       },
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(TIcons.add),
                       label: const Text('Tambah Input'),
                     ),
                   ),
                 ],
-                const SizedBox(height: 20),
+                gapH20,
                 ElevatedButton(
                   onPressed: () async {
                     Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');

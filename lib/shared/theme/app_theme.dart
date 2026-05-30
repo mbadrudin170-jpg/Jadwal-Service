@@ -1,6 +1,7 @@
 // path: lib/shared/theme/app_theme.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 
 // Gaya teks sekarang didefinisikan langsung di sini untuk isolasi tema.
 // Ini mencegah "kebocoran" gaya antara mode terang dan gelap.
@@ -14,16 +15,16 @@ const TextTheme _baseTextTheme = TextTheme(
   displaySmall: TextStyle(
       fontFamily: 'Poppins', fontSize: 36, fontWeight: FontWeight.bold),
   headlineLarge: TextStyle(
-      fontFamily: 'Poppins', fontSize: 32, fontWeight: FontWeight.bold),
+      fontFamily: 'Poppins', fontSize: TSizes.p32, fontWeight: FontWeight.bold),
   headlineMedium: TextStyle(
       fontFamily: 'Poppins', fontSize: 28, fontWeight: FontWeight.bold),
   headlineSmall: TextStyle(
-      fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w500),
+      fontFamily: 'Poppins', fontSize: TSizes.p24, fontWeight: FontWeight.w500),
   titleLarge: TextStyle(
-      fontFamily: 'Poppins', fontSize: 22, fontWeight: FontWeight.w500),
+      fontFamily: 'Poppins', fontSize: TSizes.p20, fontWeight: FontWeight.w500),
   titleMedium: TextStyle(
       fontFamily: 'Open Sans',
-      fontSize: 16,
+      fontSize: TSizes.p16,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.15),
   titleSmall: TextStyle(
@@ -33,7 +34,7 @@ const TextTheme _baseTextTheme = TextTheme(
       letterSpacing: 0.1),
   bodyLarge: TextStyle(
       fontFamily: 'Open Sans',
-      fontSize: 16,
+      fontSize: TSizes.p16,
       fontWeight: FontWeight.normal,
       letterSpacing: 0.5),
   bodyMedium: TextStyle(
@@ -43,7 +44,7 @@ const TextTheme _baseTextTheme = TextTheme(
       letterSpacing: 0.25),
   bodySmall: TextStyle(
       fontFamily: 'Open Sans',
-      fontSize: 12,
+      fontSize: TSizes.p12,
       fontWeight: FontWeight.normal,
       letterSpacing: 0.4),
   labelLarge: TextStyle(
@@ -53,12 +54,12 @@ const TextTheme _baseTextTheme = TextTheme(
       letterSpacing: 1.25),
   labelMedium: TextStyle(
       fontFamily: 'Open Sans',
-      fontSize: 12,
+      fontSize: TSizes.p12,
       fontWeight: FontWeight.w500,
       letterSpacing: 0.5),
   labelSmall: TextStyle(
       fontFamily: 'Open Sans',
-      fontSize: 10,
+      fontSize: TSizes.p8, // Anda sudah mengubah ini dari 10, saya pertahankan.
       fontWeight: FontWeight.normal,
       letterSpacing: 1.5),
 );
@@ -104,6 +105,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: TColors.primaryColor,
+        textStyle: _lightTextTheme.labelLarge, // Ditambahkan
       ),
     ),
   );
@@ -137,6 +139,7 @@ class AppTheme {
       style: ElevatedButton.styleFrom(
         foregroundColor: TColors.lightBackground,
         backgroundColor: TColors.darkBackground,
+        textStyle: _darkTextTheme.labelLarge, // Ditambahkan
       ),
     ),
   );

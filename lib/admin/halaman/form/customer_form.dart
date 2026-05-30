@@ -6,6 +6,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
@@ -162,7 +164,7 @@ class _CustomerFormState extends State<CustomerForm> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -173,47 +175,47 @@ class _CustomerFormState extends State<CustomerForm> {
                   controller: _namaController,
                   focusNode: _namaFocusNode,
                   label: 'Nama Pelanggan',
-                  icon: Icons.person_outline,
+                  icon: TIcons.personOutlined,
                   nextFocus: _teleponFocusNode,
                   validator: (final v) => (v == null || v.isEmpty)
                       ? 'Nama tidak boleh kosong'
                       : null,
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 _buildTextField(
                   controller: _teleponController,
                   focusNode: _teleponFocusNode,
                   label: 'Nomor Telepon (WhatsApp)',
-                  icon: Icons.phone_android_outlined,
+                  icon: TIcons.phoneAndroid,
                   keyboard: TextInputType.phone,
                   nextFocus: _alamatFocusNode,
                   validator: (final v) => (v == null || v.isEmpty)
                       ? 'Telepon tidak boleh kosong'
                       : null,
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 _buildTextField(
                   controller: _alamatController,
                   focusNode: _alamatFocusNode,
                   label: 'Alamat Lengkap',
-                  icon: Icons.home_outlined,
+                  icon: TIcons.home,
                   nextFocus: _passwordFocusNode,
                   validator: (final v) => (v == null || v.isEmpty)
                       ? 'Alamat tidak boleh kosong'
                       : null,
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 TextFormField(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIcon: const Icon(TIcons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordVisible
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
+                            ? TIcons.show
+                            : TIcons.hide,
                       ),
                       onPressed: () {
                         Log.info('Visibilitas password diubah.');
@@ -234,12 +236,12 @@ class _CustomerFormState extends State<CustomerForm> {
                       ? 'Password tidak boleh kosong'
                       : null,
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 _buildTextField(
                   controller: _macAddressController,
                   focusNode: _macAddressFocusNode,
                   label: 'MAC Address',
-                  icon: Icons.router_outlined,
+                  icon: TIcons.router,
                   hint: 'XX:XX:XX:XX:XX:XX',
                   action: TextInputAction.done,
                   onSubmitted: (final _) => _macAddressFocusNode.unfocus(),
@@ -247,7 +249,7 @@ class _CustomerFormState extends State<CustomerForm> {
                       ? 'MAC Address tidak boleh kosong'
                       : null,
                 ),
-                const SizedBox(height: 32),
+                gapH32,
                 ElevatedButton(
                   onPressed: _isSaving ? null : _saveForm,
                   style: ElevatedButton.styleFrom(
@@ -267,7 +269,6 @@ class _CustomerFormState extends State<CustomerForm> {
                         )
                       : const Text(
                           'SIMPAN',
-                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                 ),
               ],

@@ -182,6 +182,15 @@ class TIcons {
   /// Ikon untuk riwayat.
   static const IconData history = Icons.history;
 
+  /// Ikon untuk rumah atau alamat.
+  static const IconData home = Icons.home_outlined;
+
+  /// Ikon untuk kunci atau password.
+  static const IconData lock = Icons.lock_outline;
+
+  /// Ikon untuk router.
+  static const IconData router = Icons.router_outlined;
+
   // --- Sinkronisasi & Data ---
   /// Ikon untuk aksi unggah (upload).
   static const IconData upload = Icons.upload;
@@ -218,10 +227,10 @@ class TIcons {
 
   // --- UI Lainnya ---
   /// Ikon untuk menampilkan (misal: password).
-  static const IconData show = Icons.visibility;
+  static const IconData show = Icons.visibility_outlined;
 
   /// Ikon untuk menyembunyikan (misal: password).
-  static const IconData hide = Icons.visibility_off;
+  static const IconData hide = Icons.visibility_off_outlined;
 
   /// Ikon untuk menu pilihan tema.
   static const IconData theme = Icons.brightness_6_outlined;

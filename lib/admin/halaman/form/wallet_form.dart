@@ -7,6 +7,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
@@ -164,7 +166,7 @@ class _WalletFormState extends State<WalletForm> {
       appBar: AppBar(
         title: Text(_isEditMode ? 'Edit Nama Dompet' : 'Tambah Dompet Baru'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(TIcons.back),
           onPressed: () {
             Log.info('Tombol Kembali ditekan. Kembali tanpa perubahan.');
             Navigator.pop(context, false);
@@ -172,7 +174,7 @@ class _WalletFormState extends State<WalletForm> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -183,7 +185,7 @@ class _WalletFormState extends State<WalletForm> {
                 decoration: const InputDecoration(
                   labelText: 'Nama Dompet',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.account_balance_wallet),
+                  prefixIcon: Icon(TIcons.wallet),
                 ),
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (final _) async {
@@ -202,7 +204,7 @@ class _WalletFormState extends State<WalletForm> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              gapH24,
               ElevatedButton(
                 onPressed: () async {
                   Log.info('Tombol Simpan ditekan.');
