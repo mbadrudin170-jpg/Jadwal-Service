@@ -1,4 +1,4 @@
-// path: lib/main/main_admin/admin_dev.dart
+// path: lib/main/main_admin/admin_prod.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +15,7 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 @pragma('vm:entry-point')
 void _callbackAlarm() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
 
   final container = ProviderContainer();
@@ -34,12 +32,24 @@ void _callbackAlarm() async {
 @pragma('vm:entry-point')
 void _rescheduleOnBoot() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // Inisialisasi Firebase dengan opsi prod
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   Log.info("BOOT DETECTED: Menjalankan BootService untuk penjadwalan ulang...");
-  await BootService().rescheduleAlarmsOnBoot();
+
+  // Penting: Gunakan ProviderContainer di isolate background untuk akses Operation
+  final container = ProviderContainer();
+  try {
+    // Panggil service yang mengambil semua pelanggan aktif dan menjadwalkan ulang notifikasinya
+    await container.read(bootServiceProvider).rescheduleAlarmsOnBoot(container);
+  } finally {
+    container.dispose();
+  }
 }
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan.
+/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
@@ -53,10 +63,12 @@ void main() async {
   await AndroidAlarmManager.initialize();
   Log.info('Inisialisasi Android Alarm Manager selesai.');
 
-  Log.info(' Menginisialisasi Google Mobile Ads SDK...');
+  Log.info('Menginisialisasi Google Mobile Ads SDK...');
   await MobileAds.instance.initialize();
-  Log.info(' Inisialisasi Google Mobile Ads SDK selesai.');
-  Log.info(' Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
+  Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
+
+  Log.info('Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
+
   runApp(
     const ProviderScope(
       child: AppAdmin(),
@@ -64,16 +76,28 @@ void main() async {
   );
 
   // Daftarkan alarm yang akan aktif saat boot.
+
+  // 1. Alarm berkala untuk cek langganan (Misal: setiap 1 jam)
+  const int subscriptionCheckAlarmId = 1000;
+  await AndroidAlarmManager.periodic(
+    const Duration(hours: 1),
+    subscriptionCheckAlarmId,
+    _callbackAlarm,
+    exact: true,
+    wakeup: true,
+  );
+
   // ID harus unik. Menggunakan nilai int besar yang acak.
   const int rebootAlarmId = 9999;
   await AndroidAlarmManager.periodic(
     const Duration(
-        days: 1), // Durasi tidak relevan, ini hanya untuk mengaktifkan receiver
+        days:
+            365), // Interval lama tidak masalah karena kita mengandalkan flag rescheduleOnReboot
     rebootAlarmId,
     _rescheduleOnBoot,
     startAt: DateTime.now(),
     wakeup: true,
-    rescheduleOnReboot: true,
+    rescheduleOnReboot: true, // Ini adalah kunci utamanya!
   );
   Log.info(
       "Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId");

@@ -50,7 +50,8 @@ class ActiveCustomerOperation {
   final String _customerTableName = TableNameValue.get(TableName.customer);
   final String _packageTableName = TableNameValue.get(TableName.package);
 
-  final _nowUtc = DateTime.now().toUtc();
+  /// Mengambil waktu UTC sekarang secara dinamis agar tidak basi (stale).
+  DateTime get _nowUtc => DateTime.now().toUtc();
 
   ActiveCustomerOperation({
     required this.dbHelper,

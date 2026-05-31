@@ -44,8 +44,16 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
-    Future.microtask(
-        () => ref.read(activeCustomerProvider.notifier).fetchActiveCustomers);
+    
+    // Jalankan pembersihan otomatis saat halaman pertama kali dimuat
+    Future.microtask(() async {
+      try {
+        await _activeCustomerOperation.archiveExpiredCustomers();
+      } catch (e) {
+        Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
+      }
+      await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
+    });
   }
 
   @override
@@ -65,6 +73,11 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   }
 
   Future<void> refreshData() async {
+    try {
+      await _activeCustomerOperation.archiveExpiredCustomers();
+    } catch (e) {
+      Log.error('Gagal arsip otomatis saat refresh', e: e);
+    }
     await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
   }
 

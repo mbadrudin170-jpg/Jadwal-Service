@@ -1,32 +1,39 @@
 // path: lib/shared/services/boot_service.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/alarm_utils.dart'; // import callback
 
-class BootService {
-  final _customerOp = CustomerOpFirebase();
-  final _transactionOp = TransactionOpFirebase();
+final bootServiceProvider = Provider((ref) => BootService());
 
-  Future<void> rescheduleAlarmsOnBoot() async {
+class BootService {
+  // Anda bisa menambahkan 'final Ref ref;' dan constructor jika ingin
+  // mengakses provider lain di masa depan.
+  BootService();
+
+  Future<void> rescheduleAlarmsOnBoot(ProviderContainer container) async {
     Log.info('[BOOT] Memulai proses penjadwalan ulang alarm setelah boot.');
     try {
-      final allCustomers = await _customerOp.getAllCustomers();
-      if (allCustomers.isEmpty) {
-        Log.warning('[BOOT] Tidak ada pelanggan ditemukan.');
+      // Gunakan data LOKAL (SQLite) karena internet mungkin belum siap saat boot
+      final activeCustomerOp = container.read(activeCustomerOperationProvider);
+      final activeCustomers = await activeCustomerOp.getAllActiveCustomers();
+
+      if (activeCustomers.isEmpty) {
+        Log.warning(
+            '[BOOT] Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
         return;
       }
+
       int scheduledCount = 0;
-      for (final customer in allCustomers) {
-        final transaction =
-            await _transactionOp.getLatestPaidTransactionByUserId(customer.id);
-        if (transaction != null &&
-            transaction.startDate != null &&
-            transaction.endDate != null &&
-            transaction.endDate!.isAfter(DateTime.now())) {
+      for (final customer in activeCustomers) {
+        if (customer.endDate.isAfter(DateTime.now())) {
           final alarmId = customer.id.hashCode;
-          final scheduledTime = transaction.endDate!;
+          final scheduledTime = customer.endDate;
+
+          // BATALKAN alarm lama dengan ID yang sama sebelum menjadwalkan ulang
+          await AndroidAlarmManager.cancel(alarmId);
+
           await AndroidAlarmManager.oneShotAt(
             scheduledTime,
             alarmId,
@@ -35,7 +42,7 @@ class BootService {
             wakeup: true,
           );
           Log.info(
-              '[BOOT] Alarm dijadwalkan untuk customer ${customer.name} pada $scheduledTime');
+              '[BOOT] Alarm dijadwalkan untuk customer ${customer} pada $scheduledTime');
           scheduledCount++;
         }
       }

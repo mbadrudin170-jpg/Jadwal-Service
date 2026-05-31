@@ -32,9 +32,21 @@ void _callbackAlarm() async {
 @pragma('vm:entry-point')
 void _rescheduleOnBoot() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // Inisialisasi Firebase dengan opsi prod
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   Log.info("BOOT DETECTED: Menjalankan BootService untuk penjadwalan ulang...");
-  await BootService().rescheduleAlarmsOnBoot();
+
+  // Penting: Gunakan ProviderContainer di isolate background untuk akses Operation
+  final container = ProviderContainer();
+  try {
+    // Panggil service yang mengambil semua pelanggan aktif dan menjadwalkan ulang notifikasinya
+    await container.read(bootServiceProvider).rescheduleAlarmsOnBoot(container);
+  } finally {
+    container.dispose();
+  }
 }
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
@@ -64,11 +76,23 @@ void main() async {
   );
 
   // Daftarkan alarm yang akan aktif saat boot.
+
+  // 1. Alarm berkala untuk cek langganan (Misal: setiap 1 jam)
+  const int subscriptionCheckAlarmId = 1000;
+  await AndroidAlarmManager.periodic(
+    const Duration(hours: 1),
+    subscriptionCheckAlarmId,
+    _callbackAlarm,
+    exact: true,
+    wakeup: true,
+  );
+
   // ID harus unik. Menggunakan nilai int besar yang acak.
   const int rebootAlarmId = 9999;
   await AndroidAlarmManager.periodic(
     const Duration(
-        days: 1), // Durasi tidak relevan, ini hanya untuk mengaktifkan receiver
+        days:
+            365), // Interval lama tidak masalah karena kita mengandalkan flag rescheduleOnReboot
     rebootAlarmId,
     _rescheduleOnBoot,
     startAt: DateTime.now(),

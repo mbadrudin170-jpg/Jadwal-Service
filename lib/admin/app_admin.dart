@@ -8,17 +8,15 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/theme/app_theme.dart';
 
 class AppAdmin extends ConsumerWidget {
   const AppAdmin({super.key});
@@ -61,7 +59,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(notifikasiServisProvider);
     try {
+      // Inisialisasi Workmanager untuk tugas latar belakang.
+      // Ini juga dipanggil di main_prod.dart untuk memastikan kehandalan.
       await BackgroundService.init();
+
       await notifikasiServis.inisialisasi(iconName: 'ic_notification');
       await notifikasiServis.requestPermissions();
 
@@ -80,17 +81,36 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       }
 
       await initializeDateFormatting('id_ID');
+
+      // Inisialisasi Database
       await DatabaseHelper.instance.database;
-final initialDownloadService = ref.read(initialDownloadServiceProvider);
-await initialDownloadService.runInitialDownload();
+
+      // Pembersihan: Arsipkan pelanggan yang masa aktifnya sudah habis (Soft Delete)
+      final activeCustomerOp = ref.read(activeCustomerOperationProvider);
+      await activeCustomerOp.archiveExpiredCustomers();
+
       final isOnline = await _connectionService.checkConnection();
       if (isOnline) {
+        // Jalankan unduhan awal hanya jika perangkat online
+        final initialDownloadService = ref.read(initialDownloadServiceProvider);
+        try {
+          // Menambahkan batas waktu (timeout) 30 detik agar inisialisasi tidak macet
+          await initialDownloadService.runInitialDownload().timeout(
+                const Duration(seconds: 30),
+              );
+          Log.info('Initial download berhasil diselesaikan.');
+        } on TimeoutException {
+          Log.warning(
+              'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi...');
+        }
+
         final settingsOperation = await ref.read(settingsOperationProvider);
         final settingsModel = await settingsOperation.getSettings();
         final retentionDays = settingsModel.autoDeleteArchiveDays;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
-        await dataCleaningOperation.deleteAllExpiredArchivedData(
-            retentionDays: retentionDays);
+        await dataCleaningOperation
+            .deleteAllExpiredArchivedData(retentionDays: retentionDays)
+            .timeout(const Duration(seconds: 10));
       } else {
         Log.warning('Melewati proses pembersihan data karena sedang offline.');
       }
