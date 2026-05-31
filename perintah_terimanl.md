@@ -12,7 +12,7 @@ rm -rf ~/.gradle/caches
 lsof +L1
 
 # menempelkan semua isi file di folder prompt ke GEMINI.md
-find prompt/paket -name "*.md" -exec cat {} + > GEMINI.md
+find prompt -name "*.md" -exec cat {} + > GEMINI.md
 
 # build runner
 flutter pub run build_runner build --delete-conflicting-outputs

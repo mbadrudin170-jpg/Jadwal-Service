@@ -130,11 +130,13 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                 ref.read(activeCustomerProvider.notifier).setSortBy(o);
                 Navigator.pop(ctx);
               },
-              child: Text(o.name,
-                  style: TextStyle(
-                      fontWeight: state.sortBy == o
-                          ? FontWeight.bold
-                          : FontWeight.normal)),
+              child: Text(
+                o.name,
+                style: TextStyle(
+                    fontWeight: state.sortBy == o
+                        ? FontWeight.bold
+                        : FontWeight.normal),
+              ),
             ),
           SimpleDialogOption(
               onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
