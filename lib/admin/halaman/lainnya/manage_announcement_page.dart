@@ -37,7 +37,7 @@ class _ManageAnnouncementPageState
     _isSwitched = false; // Defaultnya tidak aktif
     _imageUrlController
         .addListener(() => setState(() {})); // Update UI saat text berubah
-
+    _loadAnnouncements;
     // Ambil data pengumuman saat widget pertama kali dibuat
     // Gunakan FutureBuilder atau StateNotifierProvider jika ingin lebih canggih
     // Untuk kesederhanaan, kita akan panggil di initState dan simpan di state
@@ -62,25 +62,15 @@ class _ManageAnnouncementPageState
       final announcements = await operator.getAll();
 
       // Cari pengumuman yang aktif
-      final activeAnnouncement = announcements.firstWhereOrNull(
+      final activeAnnouncement = announcements.firstWhere(
         (ann) => ann.isActive,
       );
 
-      if (activeAnnouncement != null) {
-        setState(() {
-          _selectedAnnouncement = activeAnnouncement;
-          _imageUrlController.text = activeAnnouncement.imageUrl;
-          _isSwitched = activeAnnouncement.isActive;
-        });
-      } else if (announcements.isNotEmpty) {
-        // Jika tidak ada yang aktif, tapi ada data, pilih yang pertama sebagai contoh
-        // Atau bisa juga biarkan kosong untuk menambah baru
-        // setState(() {
-        //   _selectedAnnouncement = announcements.first;
-        //   _imageUrlController.text = announcements.first.imageUrl;
-        //   _isSwitched = announcements.first.isActive;
-        // });
-      }
+      setState(() {
+        _selectedAnnouncement = activeAnnouncement;
+        _imageUrlController.text = activeAnnouncement.imageUrl;
+        _isSwitched = activeAnnouncement.isActive;
+      });
     } catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
@@ -90,7 +80,6 @@ class _ManageAnnouncementPageState
   /// Menyimpan pengumuman (baru atau update).
   Future<void> _saveAnnouncement() async {
     if (!_formKey.currentState!.validate()) {
-      // Jika validasi gagal, scroll ke field yang error
       _scrollController.animateTo(
         0.0, // Scroll ke atas halaman
         duration: const Duration(milliseconds: 300),
@@ -257,8 +246,7 @@ class _ManageAnnouncementPageState
                   'Jika diaktifkan, pengumuman ini akan tampil di aplikasi.',
                 ),
                 value: _isSwitched,
-                secondary:
-                    const Icon(TIcons.toggle_on), 
+                secondary: const Icon(TIcons.toggle_on),
                 onChanged: (final bool value) {
                   setState(() {
                     _isSwitched = value;

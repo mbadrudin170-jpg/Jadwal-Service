@@ -53,6 +53,8 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   final _link64FocusNode = FocusNode();
   final _releaseNotesFocusNode = FocusNode();
   final _youtubeTutorialFocusNode = FocusNode();
+  final _scrollController =
+      ScrollController(); // Untuk scroll ke error jika ada
 
   @override
   void initState() {
@@ -151,11 +153,21 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     _link64FocusNode.dispose();
     _releaseNotesFocusNode.dispose();
     _youtubeTutorialFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _saveForm() async {
     final apkVersionOperasi = ref.read(apkVersionOperationProvider);
+    if (!_formKey.currentState!.validate()) {
+      _scrollController.animateTo(
+        0.0, // Scroll ke atas halaman
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       Log.info('Menampilkan dialog konfirmasi kepada pengguna');
       FocusScope.of(context).unfocus();
