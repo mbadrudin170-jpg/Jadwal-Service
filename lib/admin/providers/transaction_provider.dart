@@ -1,4 +1,5 @@
-// path: lib/shared/providers/transaction_provider.dart
+// path: lib/admin/providers/transaction_provider.dart
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,14 +13,14 @@ class TransactionState {
   final double totalIncome;
   final double totalExpense;
   final double netTotal;
-  final SortBy sortBy; 
+  final SortBy sortBy;
 
   TransactionState({
     this.transactions = const [],
     this.totalIncome = 0.0,
     this.totalExpense = 0.0,
     this.netTotal = 0.0,
-    this.sortBy = SortBy.newest, 
+    this.sortBy = SortBy.newest,
   });
 
   TransactionState copyWith({
@@ -27,14 +28,14 @@ class TransactionState {
     double? totalIncome,
     double? totalExpense,
     double? netTotal,
-    SortBy? sortBy, 
+    SortBy? sortBy,
   }) {
     return TransactionState(
       transactions: transactions ?? this.transactions,
       totalIncome: totalIncome ?? this.totalIncome,
       totalExpense: totalExpense ?? this.totalExpense,
       netTotal: netTotal ?? this.netTotal,
-      sortBy: sortBy ?? this.sortBy, 
+      sortBy: sortBy ?? this.sortBy,
     );
   }
 }
@@ -81,8 +82,9 @@ class TransactionNotifier extends AsyncNotifier<TransactionState> {
     if (!state.hasValue) return;
     final currentState = state.value!;
 
-    final List<TransactionModel> sortedTransactions = List.from(currentState.transactions);
-    
+    final List<TransactionModel> sortedTransactions =
+        List.from(currentState.transactions);
+
     _performSort(sortedTransactions, newSortBy);
 
     state = AsyncValue.data(currentState.copyWith(

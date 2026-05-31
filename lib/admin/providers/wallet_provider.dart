@@ -1,4 +1,5 @@
-// path: lib/shared/providers/wallet_provider.dart
+// path: lib/admin/providers/wallet_provider.dart
+
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
