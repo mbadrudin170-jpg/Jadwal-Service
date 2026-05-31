@@ -5,6 +5,7 @@ import 'dart:async';
 // 1. Ubah import ke riverpod_annotation agar seragam dengan file lainnya
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
+import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/admin/repository/statistik_repository.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -46,7 +47,10 @@ class StatistikState {
 // 3. Pasang anotasi @riverpod. Variabel 'statistikProvider' otomatis tercipta.
 @riverpod
 class Statistik extends _$Statistik {
-  // 4. Di Riverpod modern, AsyncNotifier diubah menjadi method build() yang mengembalikan Future
+  StatistikRepository get _repository {
+    return ref.read(statistikRepositoryProvider);
+  }
+
   @override
   Future<StatistikState> build() async {
     Log.info('[StatistikNotifier] Build dipanggil, memuat data awal.');
@@ -54,15 +58,12 @@ class Statistik extends _$Statistik {
   }
 
   Future<StatistikState> _loadData() async {
-    Log.info('[StatistikNotifier] Memulai _loadData.');
-    final repository = StatistikRepository();
-
     final results = await Future.wait([
-      repository.getPendapatanBulanIni(),
-      repository.getTotalPelanggan(),
-      repository.getJumlahLanggananAktif(),
-      repository.getJumlahFeedbackBaru(),
-      repository.getBestSellingPackages(),
+      _repository.getPendapatanBulanIni(),
+      _repository.getTotalPelanggan(),
+      _repository.getJumlahLanggananAktif(),
+      _repository.getJumlahFeedbackBaru(),
+      _repository.getBestSellingPackages(),
     ]);
     Log.info('[StatistikNotifier] Semua future dari repository selesai.');
 

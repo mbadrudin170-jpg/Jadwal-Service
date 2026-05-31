@@ -25,15 +25,12 @@ ActiveCustomerOperation activeCustomerOperation(Ref ref) {
 
 @Riverpod(keepAlive: true)
 class ThemeNotifier extends _$ThemeNotifier {
-  // Tidak lagi 'late', akan diinisialisasi di 'build'
   late LocalStorageService _localStorageService;
 
   @override
   Future<ThemeMode> build() async {
-    // 1. Dapatkan instance LocalStorageService
     _localStorageService = await ref.watch(localStorageServiceProvider.future);
 
-    // 2. Baca tema yang tersimpan dan kembalikan sebagai state awal
     return await _localStorageService.getThemeMode();
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
+import 'package:wifi/admin/providers/active_customer_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -273,7 +274,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<SaveResultModel<ActiveCustomerModel>> _saveForm() async {
+  Future<SaveResultModel<ActiveCustomerModel>> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -614,14 +615,16 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         onPressed: () async {
           Log.info('Tombol Simpan ditekan');
           final navigator = Navigator.of(context);
-          final hasil = await _saveForm();
+          final hasil = await _simpanData();
           if (!mounted) {
             return;
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
+            ref.invalidate(activeCustomerProvider);
             ref.read(walletProvider.notifier).refresh();
             ref.read(statistikProvider.notifier).refresh();
+            ref.invalidate(statistikProvider);
             navigator.pop(true);
             Log.info(
                 'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.');

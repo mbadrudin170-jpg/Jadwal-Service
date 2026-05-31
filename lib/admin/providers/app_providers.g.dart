@@ -212,3 +212,91 @@ final class TransactionOperationProvider extends $FunctionalProvider<
 
 String _$transactionOperationHash() =>
     r'3b81eeeb514447f24caa55a120b73a9b680da382';
+
+@ProviderFor(statistikRepository)
+final statistikRepositoryProvider = StatistikRepositoryProvider._();
+
+final class StatistikRepositoryProvider extends $FunctionalProvider<
+    StatistikRepository,
+    StatistikRepository,
+    StatistikRepository> with $Provider<StatistikRepository> {
+  StatistikRepositoryProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'statistikRepositoryProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$statistikRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<StatistikRepository> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  StatistikRepository create(Ref ref) {
+    return statistikRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(StatistikRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<StatistikRepository>(value),
+    );
+  }
+}
+
+String _$statistikRepositoryHash() =>
+    r'3de8aa9a7b29e99a7c26e22daf17227616902de4';
+
+@ProviderFor(activeCustomerOperation)
+final activeCustomerOperationProvider = ActiveCustomerOperationProvider._();
+
+final class ActiveCustomerOperationProvider extends $FunctionalProvider<
+    ActiveCustomerOperation,
+    ActiveCustomerOperation,
+    ActiveCustomerOperation> with $Provider<ActiveCustomerOperation> {
+  ActiveCustomerOperationProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'activeCustomerOperationProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeCustomerOperationHash();
+
+  @$internal
+  @override
+  $ProviderElement<ActiveCustomerOperation> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ActiveCustomerOperation create(Ref ref) {
+    return activeCustomerOperation(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ActiveCustomerOperation value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ActiveCustomerOperation>(value),
+    );
+  }
+}
+
+String _$activeCustomerOperationHash() =>
+    r'1fce7a314c76be7a826877d54cb108921c0fc180';

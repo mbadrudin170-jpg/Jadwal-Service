@@ -1,5 +1,7 @@
 // path: lib/admin/providers/app_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/admin/repository/statistik_repository.dart';
+import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
@@ -40,6 +42,15 @@ Future<SettingsModel> settings(ref) {
 // Provider untuk TransactionOperation
 @riverpod
 TransactionOperation transactionOperation(ref) {
-  // DIHAPUS: TransactionOperationRef
   return TransactionOperation();
+}
+
+@riverpod
+StatistikRepository statistikRepository(ref) {
+  return StatistikRepository();
+}
+
+@riverpod
+ActiveCustomerOperation activeCustomerOperation(ref) {
+  return ActiveCustomerOperation();
 }

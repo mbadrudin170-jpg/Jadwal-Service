@@ -5,28 +5,33 @@ import 'dart:async';
 // Menggunakan anotasi Riverpod terbaru
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 
 // Wajib ditambahkan agar generator build_runner bisa bekerja
 part 'active_customer_provider.g.dart';
 
-enum SortBy { newest, oldest }
+enum SortOption {
+  newest,
+  endDate,
+  startDate,
+}
 
 class ActiveCustomerState {
-  final List<ActiveCustomerModel> activeCustomers;
-  final SortBy sortBy;
+  final List<ActiveCustomerDetailModel> activeCustomers;
+  final SortOption sortBy;
 
   ActiveCustomerState({
     this.activeCustomers = const [],
-    this.sortBy = SortBy.newest,
+    this.sortBy = SortOption.newest,
   });
 
   ActiveCustomerState copyWith({
-    List<ActiveCustomerModel>? activeCustomers,
-    SortBy? sortBy,
+    List<ActiveCustomerDetailModel>? activeCustomers,
+    SortOption? sortBy,
   }) {
     return ActiveCustomerState(
       activeCustomers: activeCustomers ?? this.activeCustomers,
@@ -38,32 +43,43 @@ class ActiveCustomerState {
 // Memicu pembuatan kode otomatis untuk 'activeCustomerProvider'
 @riverpod
 class ActiveCustomer extends _$ActiveCustomer {
-  // Method build() menggantikan konstruktor lama untuk inisialisasi state awal
-  @override
   ActiveCustomerState build() {
-    // Memanggil fungsi fetch secara aman setelah widget selesai dirender pertama kali
     Future.microtask(() => fetchActiveCustomers());
-    return ActiveCustomerState();
+    return ActiveCustomerState(activeCustomers: [], sortBy: SortOption.endDate);
+  }
+
+  late final ActiveCustomerOperation operation =
+      ref.read(activeCustomerOperationProvider);
+
+  List<ActiveCustomerDetailModel> _sortData(
+      List<ActiveCustomerDetailModel> data, SortOption sortBy) {
+    final sorted = List<ActiveCustomerDetailModel>.from(data);
+    sorted.sort((a, b) {
+      switch (sortBy) {
+        case SortOption.endDate:
+          return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
+        case SortOption.startDate:
+          return a.activeCustomer.startDate
+              .compareTo(b.activeCustomer.startDate);
+        default:
+          return 0;
+      }
+    });
+    return sorted;
   }
 
   Future<void> fetchActiveCustomers() async {
     Log.info('Memulai pengambilan data pelanggan aktif.');
     try {
-      // Menggunakan objek 'ref' bawaan kelas Notifier secara langsung
-      final operation = ref.read(activeCustomerOperationProvider);
-      final data = await operation.getAllActiveCustomers();
+      final List<ActiveCustomerDetailModel> data =
+          await operation.getAllActiveCustomersWithDetails();
 
-      data.sort((a, b) {
-        if (state.sortBy == SortBy.newest) {
-          return b.startDate.compareTo(a.startDate);
-        } else {
-          return a.startDate.compareTo(b.startDate);
-        }
-      });
+      final sortedData = _sortData(data, state.sortBy);
 
-      state = state.copyWith(activeCustomers: data);
+      state = state.copyWith(activeCustomers: sortedData);
 
       final context = NavigasiServis.navigatorKey.currentContext;
+
       if (context != null) {
         ToastUtil.success(context, 'Data pelanggan aktif berhasil dimuat.');
       } else {
@@ -81,18 +97,9 @@ class ActiveCustomer extends _$ActiveCustomer {
     }
   }
 
-  void sortCustomers(SortBy newSortBy) {
+  void setSortBy(SortOption newSortBy) {
     if (state.sortBy == newSortBy) return;
-
-    final sortedCustomers =
-        List<ActiveCustomerModel>.from(state.activeCustomers);
-    sortedCustomers.sort((a, b) {
-      if (newSortBy == SortBy.newest) {
-        return b.startDate.compareTo(a.startDate);
-      } else {
-        return a.startDate.compareTo(b.startDate);
-      }
-    });
+    final sortedCustomers = _sortData(state.activeCustomers, newSortBy);
 
     state = state.copyWith(activeCustomers: sortedCustomers, sortBy: newSortBy);
   }
