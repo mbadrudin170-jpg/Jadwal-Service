@@ -600,9 +600,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
-            ref.invalidate(activeCustomerProvider);
-            ref.read(walletProvider.notifier).refresh();
-            ref.read(statistikProvider.notifier).refresh();
+            final _ = ref.refresh(activeCustomerProvider);
+            ref.invalidate(walletProvider);
             ref.invalidate(statistikProvider);
             navigator.pop(true);
             Log.info(
