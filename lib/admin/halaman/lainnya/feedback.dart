@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -17,17 +18,17 @@ import 'package:wifi/shared/widget/customer_name.dart';
 ///
 /// Admin dapat melihat, membuka detail, dan menghapus kritik dan saran
 /// yang masuk melalui halaman ini.
-class FeedbackPage extends StatefulWidget {
+class FeedbackPage extends ConsumerStatefulWidget {
   /// Membuat instance dari [FeedbackPage].
   const FeedbackPage({super.key});
 
   @override
-  State<FeedbackPage> createState() => _FeedbackPageState();
+  ConsumerState<FeedbackPage> createState() => _FeedbackPageState();
 }
 
-class _FeedbackPageState extends State<FeedbackPage> {
-  final FeedbackOperation _feedbackOperation = FeedbackOperation();
-  final CustomerOperation _customerOperation = CustomerOperation();
+class _FeedbackPageState extends ConsumerState<FeedbackPage> {
+  late final FeedbackOperation _feedbackOperation;
+  late final CustomerOperation _customerOperation;
 
   List<FeedbackModel> _allFeedback = [];
   List<FeedbackModel> _hasilFilter = [];
@@ -40,6 +41,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
+    _feedbackOperation = ref.read(feedbackOperationProvider);
+     _customerOperation = ref.read(customerOperationProvider);
     unawaited(_loadFeedback());
     _searchController.addListener(_applyFilter);
   }

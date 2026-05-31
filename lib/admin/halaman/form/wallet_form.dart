@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/form/wallet_form.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,7 +13,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
-class WalletForm extends StatefulWidget {
+class WalletForm extends ConsumerStatefulWidget {
   /// Model dompet yang akan diedit. Jika null, maka form akan membuat dompet baru.
   final WalletModel? wallet;
 
@@ -20,13 +21,13 @@ class WalletForm extends StatefulWidget {
   const WalletForm({super.key, this.wallet});
 
   @override
-  State<WalletForm> createState() => _WalletFormState();
+  ConsumerState<WalletForm> createState() => _WalletFormState();
 }
 
-class _WalletFormState extends State<WalletForm> {
+class _WalletFormState extends ConsumerState<WalletForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  final WalletOperation _walletOperation = WalletOperation();
+  late final WalletOperation _walletOperation;
 
   late FocusNode _namaFocusNode;
 
@@ -36,26 +37,14 @@ class _WalletFormState extends State<WalletForm> {
   void initState() {
     super.initState();
     final isEditMode = widget.wallet != null;
-    Log.info(
-      'Membuat state WalletForm. '
-      'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.name}, Saldo: ${widget.wallet!.balance})" : "TAMBAH BARU"}',
-    );
+    Log.info('Membuat state WalletForm. '
+        'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.name}, Saldo: ${widget.wallet!.balance})" : "TAMBAH BARU"}');
+    _walletOperation = ref.read(walletOperationProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
 
     if (_isEditMode) {
-      Log.info('MODE EDIT terdeteksi. Data dompet yang akan diedit:');
-      Log.info('  - ID: ${widget.wallet!.id}');
-      Log.info('  - Nama Lama: ${widget.wallet!.name}');
-      Log.info('  - Saldo: ${widget.wallet!.balance}');
-      Log.info('  - Diperbarui: ${widget.wallet!.updatedAt}');
-      Log.info('  - isDeleted: ${widget.wallet!.isDeleted}');
-      Log.info('  - Diarsipkan: ${widget.wallet!.archivedAt ?? "NULL"}');
-
-      Log.info(
-        'Mengisi TextEditingController dengan nama dompet lama: "${widget.wallet!.name}"',
-      );
       _namaController.text = widget.wallet!.name;
     } else {
       Log.info('MODE TAMBAH BARU terdeteksi.');
@@ -125,7 +114,8 @@ class _WalletFormState extends State<WalletForm> {
 
         if (!mounted) return;
 
-        final hasConnection = await InternetConnectionService().checkConnection();
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
         if (hasConnection) {
           await SyncCheckService().runSyncCheck();
           if (mounted) {

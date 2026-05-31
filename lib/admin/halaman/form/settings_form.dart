@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/form/settings_form.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
@@ -13,26 +14,18 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Form ini memungkinkan administrator untuk mengubah berbagai parameter
 /// aplikasi seperti interval sinkronisasi, kebijakan penghapusan arsip,
 /// dan mode pemeliharaan.
-class SettingsForm extends StatefulWidget {
-  /// Pengaturan saat ini yang akan diedit.
+class SettingsForm extends ConsumerStatefulWidget {
   final SettingsModel settings;
 
-  /// Operasi untuk berinteraksi dengan data pengaturan.
-  /// Ini opsional dan akan dibuat instance-nya jika tidak disediakan.
-  final SettingsOperation? settingsOperation;
-
-  /// Membuat instance dari [SettingsForm].
-  const SettingsForm(
-      {super.key, required this.settings, this.settingsOperation});
+  const SettingsForm({super.key, required this.settings});
 
   @override
-  State<SettingsForm> createState() => _SettingsFormState();
+  ConsumerState<SettingsForm> createState() => _SettingsFormState();
 }
 
-class _SettingsFormState extends State<SettingsForm> {
+class _SettingsFormState extends ConsumerState<SettingsForm> {
   final _formKey = GlobalKey<FormState>();
   late final SettingsOperation _settingsOperation;
-
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;
@@ -41,7 +34,7 @@ class _SettingsFormState extends State<SettingsForm> {
   @override
   void initState() {
     super.initState();
-    _settingsOperation = widget.settingsOperation ?? SettingsOperation();
+    _settingsOperation = ref.read(settingsOperationProvider);
     Log.info('Menginisialisasi SettingsForm.', {
       'interval': widget.settings.autoSyncInterval,
       'hapus_arsip': widget.settings.autoDeleteArchiveDays,
@@ -83,15 +76,18 @@ class _SettingsFormState extends State<SettingsForm> {
         await _settingsOperation.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
 
-        final hasConnection = await InternetConnectionService().checkConnection();
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
         if (hasConnection) {
           await SyncCheckService().runSyncCheck();
           if (mounted) {
-            ToastUtil.success(context, 'Pengaturan berhasil disimpan dan disinkronkan.');
+            ToastUtil.success(
+                context, 'Pengaturan berhasil disimpan dan disinkronkan.');
           }
         } else {
           if (mounted) {
-            ToastUtil.info(context, 'Pengaturan disimpan lokal. Sinkronisasi akan dilakukan saat online.');
+            ToastUtil.info(context,
+                'Pengaturan disimpan lokal. Sinkronisasi akan dilakukan saat online.');
           }
         }
 

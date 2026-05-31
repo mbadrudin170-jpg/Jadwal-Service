@@ -1,11 +1,9 @@
 // path: lib/shared/widget/transaction_list_widgets.dart
-// Diperbarui: Aksi didelegasikan ke pemanggil melalui callback.
-// Diperbaiki: Menambahkan logging pada lifecycle dan error handling di TransactionTile.
-// Diperbaiki: Menggunakan Theme.of(context) untuk gaya teks yang konsisten.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -28,7 +26,6 @@ Map<DateTime, List<TransactionModel>> groupTransactionsByDate(
 
 /// Membangun widget header untuk sebuah seksi transaksi berdasarkan tanggal.
 Widget buildSectionHeader(final DateTime date, final double total) {
-  // Menggunakan Builder untuk mendapatkan context agar bisa mengakses Theme
   return Builder(builder: (final context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
@@ -54,23 +51,12 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 }
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
-///
-/// Widget ini bersifat pasif. Semua aksi (tap, edit, hapus) didelegasikan
-/// ke pemanggil melalui parameter callback.
-class TransactionTile extends StatefulWidget {
-  /// Data transaksi yang akan ditampilkan.
+class TransactionTile extends ConsumerStatefulWidget {
   final TransactionModel transaction;
-
-  /// Callback yang dipanggil saat item di-tap.
   final VoidCallback? onTap;
-
-  /// Callback yang dipanggil saat tombol "Edit" ditekan.
   final VoidCallback? onEdit;
-
-  /// Callback yang dipanggil saat tombol "Hapus" ditekan.
   final VoidCallback? onDelete;
 
-  /// Membuat instance dari [TransactionTile].
   const TransactionTile({
     super.key,
     required this.transaction,
@@ -80,24 +66,24 @@ class TransactionTile extends StatefulWidget {
   });
 
   @override
-  State<TransactionTile> createState() => _TransactionTileState();
+  ConsumerState<TransactionTile> createState() => _TransactionTileState();
 }
 
-class _TransactionTileState extends State<TransactionTile> {
-  final CategoryOperation _categoryOperation = CategoryOperation();
-  final WalletOperation _walletOperation = WalletOperation();
+class _TransactionTileState extends ConsumerState<TransactionTile> {
+  late final CategoryOperation _categoryOperation;
+  late final WalletOperation _walletOperation;
 
   @override
   void initState() {
     super.initState();
-    Log.info(
-        'TransactionTile initState for transaction ID: ${widget.transaction.id}');
+    _categoryOperation = ref.read(categoryOperationProvider);
+    _walletOperation = ref.read(walletOperationProvider);
+    Log.info('TransactionTile initState for ID: ${widget.transaction.id}');
   }
 
   @override
   void dispose() {
-    Log.info(
-        'TransactionTile dispose for transaction ID: ${widget.transaction.id}');
+    Log.info('TransactionTile dispose for ID: ${widget.transaction.id}');
     super.dispose();
   }
 
@@ -220,9 +206,7 @@ class _TransactionTileState extends State<TransactionTile> {
                 color: iconColor,
               ),
             ),
-            const SizedBox(
-              height: 4,
-            ),
+            const SizedBox(height: 4),
             Text(
               TimeFormat.formatHourMinute(widget.transaction.date),
               style: textTheme.bodySmall,

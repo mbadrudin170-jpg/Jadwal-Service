@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -24,17 +25,17 @@ enum SortOption {
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
 ///
 /// Admin dapat mencari, mengurutkan, menambah, mengedit, dan mengarsipkan customer.
-class CustomerPage extends StatefulWidget {
+class CustomerPage extends ConsumerStatefulWidget {
   /// Membuat instance dari [CustomerPage].
   const CustomerPage({super.key});
 
   @override
-  State<CustomerPage> createState() => _CustomerPageState();
+  ConsumerState<CustomerPage> createState() => _CustomerPageState();
 }
 
-class _CustomerPageState extends State<CustomerPage> {
-  final CustomerOperation _customerOperation = CustomerOperation();
-  final SQLitePointsDataSource _pointsDataSource = SQLitePointsDataSource();
+class _CustomerPageState extends ConsumerState<CustomerPage> {
+ late final CustomerOperation _customerOperation ;
+  final SQLitePointsDataSource _pointsDataSource = SQLitePointsDataSource(); // TODO : mengganti ke provider
 
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
@@ -51,6 +52,7 @@ class _CustomerPageState extends State<CustomerPage> {
     Log.info(
       'Menginisialisasi state untuk CustomerPage. Memanggil _refreshCustomerList untuk pertama kali.',
     );
+   _customerOperation = ref.read(customerOperationProvider);
     unawaited(_refreshCustomerList());
     _searchController.addListener(_filterCustomers);
   }

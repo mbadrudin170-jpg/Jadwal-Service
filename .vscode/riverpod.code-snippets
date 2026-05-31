@@ -1,0 +1,137 @@
+{
+	"ref.read (satu kali, di method)": {
+		"prefix": "/riv_read",
+		"body": "final ${1:variable} = ref.read(${2:provider});",
+		"description": "ref.read untuk membaca nilai sekali (onPressed, async method)"
+	},
+	"ref.read di initState (late final)": {
+		"prefix": "/riv_read_init",
+		"body": [
+			"late final ${1:Type} _${2:variable};",
+			"",
+			"@override",
+			"void initState() {",
+			"  super.initState();",
+			"  _${2:variable} = ref.read(${3:provider});",
+			"}"
+		],
+		"description": "Deklarasi late final + inisialisasi ref.read di initState"
+	},
+	"ref.watch (reaktif, di build)": {
+		"prefix": "/riv_watch",
+		"body": "final ${1:value} = ref.watch(${2:provider});",
+		"description": "ref.watch untuk mendengarkan perubahan (hanya di build)"
+	},
+	"ref.watch dengan select (optimasi)": {
+		"prefix": "/riv_watch_select",
+		"body": "final ${1:value} = ref.watch(${2:provider}.select((state) => state.${3:property}));",
+		"description": "ref.watch dengan select untuk rebuild hanya pada properti tertentu"
+	},
+	"ref.watch dengan .when (AsyncValue)": {
+		"prefix": "/riv_watch_when",
+		"body": [
+			"final ${1:asyncValue} = ref.watch(${2:provider});",
+			"",
+			"${1:asyncValue}.when(",
+			"  loading: () => const CircularProgressIndicator(),",
+			"  error: (err, stack) => Text('Error: $err'),",
+			"  data: (data) => Text(data.toString()),",
+			");"
+		],
+		"description": "Pattern AsyncValue.when untuk FutureProvider/StreamProvider"
+	},
+	"ref.listen (side effect tanpa rebuild)": {
+		"prefix": "/riv_listen",
+		"body": [
+			"ref.listen<${1:StateType}>(",
+			"  ${2:provider},",
+			"  (previous, next) {",
+			"    Log.info('State berubah: $previous -> $next');",
+			"  },",
+			");"
+		],
+		"description": "ref.listen untuk efek samping (snackbar, navigasi, log)"
+	},
+	"ref.listen dengan onError": {
+		"prefix": "/riv_listen_error",
+		"body": [
+			"ref.listen<${1:StateType}>(",
+			"  ${2:provider},",
+			"  (previous, next) {",
+			"    // handler sukses",
+			"  },",
+			"  onError: (error, stackTrace) {",
+			"    Log.error('Error: $error', e: error, st: stackTrace);",
+			"    ToastUtil.error(context, 'Terjadi kesalahan');",
+			"  },",
+			");"
+		],
+		"description": "ref.listen dengan penanganan error"
+	},
+	"ConsumerWidget (stateless) sederhana": {
+		"prefix": "/riv_consumer_widget",
+		"body": [
+			"class ${1:MyWidget} extends ConsumerWidget {",
+			"  const ${1:MyWidget}({super.key});",
+			"",
+			"  @override",
+			"  Widget build(BuildContext context, WidgetRef ref) {",
+			"    final ${2:data} = ref.watch(${3:provider});",
+			"    return ${4:Container()};",
+			"  }",
+			"}"
+		],
+		"description": "Template ConsumerWidget dengan ref.watch"
+	},
+	"ConsumerStatefulWidget (stateful) + initState + loading": {
+		"prefix": "/riv_consumer_state",
+		"body": [
+			"class ${1:MyPage} extends ConsumerStatefulWidget {",
+			"  const ${1:MyPage}({super.key});",
+			"",
+			"  @override",
+			"  ConsumerState<${1:MyPage}> createState() => _${1:MyPage}State();",
+			"}",
+			"",
+			"class _${1:MyPage}State extends ConsumerState<${1:MyPage}> {",
+			"  late final ${2:Repository} _repository;",
+			"  bool _isLoading = true;",
+			"",
+			"  @override",
+			"  void initState() {",
+			"    super.initState();",
+			"    _repository = ref.read(${3:repositoryProvider});",
+			"    _loadData();",
+			"  }",
+			"",
+			"  Future<void> _loadData() async {",
+			"    setState(() => _isLoading = true);",
+			"    try {",
+			"      // panggil repository",
+			"      if (mounted) setState(() => _isLoading = false);",
+			"    } on Exception catch (e, st) {",
+			"      Log.error('Error', e: e, st: st);",
+			"      if (mounted) {",
+			"        setState(() => _isLoading = false);",
+			"        ToastUtil.error(context, 'Gagal memuat data');",
+			"      }",
+			"    }",
+			"  }",
+			"",
+			"  @override",
+			"  Widget build(BuildContext context) {",
+			"    if (_isLoading) {",
+			"      return const Scaffold(",
+			"        body: Center(child: CircularProgressIndicator()),",
+			"      );",
+			"    }",
+			"    return Scaffold(",
+			"      appBar: AppBar(title: const Text('${1:MyPage}')),",
+			"      body: Container(),",
+			"    );",
+			"  }",
+			"}"
+		],
+		"description": "Template lengkap ConsumerStatefulWidget dengan initState dan loading"
+	}
+}

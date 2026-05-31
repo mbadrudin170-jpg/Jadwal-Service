@@ -9,7 +9,7 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
-final feedbackOperationProvider = Provider<SubCategoryOperation>((ref) {
+final subCategoryOperationProvider = Provider<SubCategoryOperation>((ref) {
   Log.info('Membuat instance FeedbackOperation...');
   final dbHelper = ref.read(databaseHelperProvider);
   final baseOperation = ref.read(baseOperationProvider);

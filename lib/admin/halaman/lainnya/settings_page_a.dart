@@ -5,9 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/settings_form.dart';
-import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -33,7 +33,7 @@ class SettingsAdminPage extends ConsumerWidget {
     if (result == true && context.mounted) {
       Log.info('Pengaturan diperbarui, memuat ulang data...');
       // Invalidate provider untuk memicu pembaruan data
-      ref.invalidate(settingsProvider);
+      ref.invalidate(settingsOperationProvider);
     }
   }
 
@@ -63,7 +63,7 @@ class SettingsAdminPage extends ConsumerWidget {
     if (confirm == true && context.mounted) {
       try {
         // Mengakses SyncManager melalui provider
-        await ref.read(syncManagerProvider).resetSyncTime();
+        await ref.read().resetSyncTime();
         ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
       } on Exception catch (e, st) {
         Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);

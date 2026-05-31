@@ -9,6 +9,7 @@
 // diperbaiki: Menambahkan final pada parameter dan dokumentasi untuk member publik.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/category_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
@@ -19,18 +20,18 @@ import 'package:wifi/shared/operasi/sub_category_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
-class CategoryPage extends StatefulWidget {
+class CategoryPage extends ConsumerStatefulWidget {
   /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
   const CategoryPage({super.key});
 
   @override
-  State<CategoryPage> createState() => _CategoryPageState();
+  ConsumerState<CategoryPage> createState() => _CategoryPageState();
 }
 
 /// State untuk [CategoryPage].
-class _CategoryPageState extends State<CategoryPage> {
-  final CategoryOperation _categoryOperation = CategoryOperation();
-  final SubCategoryOperation _subCategoryOperation = SubCategoryOperation();
+class _CategoryPageState extends ConsumerState<CategoryPage> {
+  late final CategoryOperation _categoryOperation;
+  late final SubCategoryOperation _subCategoryOperation;
   late Future<List<CategoryModel>> _categoryListFuture;
   CategoryType _selectedType = CategoryType.income;
   bool _isEdit = false;
@@ -39,6 +40,8 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   void initState() {
     super.initState();
+    _categoryOperation = ref.read(categoryOperationProvider);
+    _subCategoryOperation = ref.read(subCategoryOperationProvider);
     Log.info('Menginisialisasi halaman Kategori');
     _loadCategories();
   }

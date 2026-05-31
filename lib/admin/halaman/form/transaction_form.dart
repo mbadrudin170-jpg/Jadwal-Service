@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/halaman/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
@@ -20,7 +21,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 ///
 /// Form ini mendukung tiga jenis transaksi: pemasukan, pengeluaran, dan transfer.
 /// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
-class FormTransaksiPage extends StatefulWidget {
+class FormTransaksiPage extends ConsumerStatefulWidget {
   /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final TransactionModel? transaction;
 
@@ -28,10 +29,10 @@ class FormTransaksiPage extends StatefulWidget {
   const FormTransaksiPage({super.key, this.transaction});
 
   @override
-  State<FormTransaksiPage> createState() => _FormTransaksiPageState();
+  ConsumerState<FormTransaksiPage> createState() => _FormTransaksiPageState();
 }
 
-class _FormTransaksiPageState extends State<FormTransaksiPage> {
+class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
   final _formKey = GlobalKey<FormState>();
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
@@ -45,9 +46,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
   WalletModel? _selectedDompet;
   WalletModel? _selectedDompetTujuan;
 
-  final WalletOperation _dompetOperasi = WalletOperation();
-  final CategoryOperation _kategoriOperasi = CategoryOperation();
-  final TransactionOperation _transaksiOperasi = TransactionOperation();
+  late final WalletOperation _dompetOperasi;
+  late final CategoryOperation _kategoriOperasi;
+  late final TransactionOperation _transaksiOperasi;
 
   List<CategoryModel> _kategoriList = [];
   List<WalletModel> _dompetList = [];
@@ -63,6 +64,9 @@ class _FormTransaksiPageState extends State<FormTransaksiPage> {
     Log.info(
       'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
     );
+    _dompetOperasi = ref.read(walletOperationProvider);
+    _kategoriOperasi = ref.read(categoryOperationProvider);
+    _transaksiOperasi = ref.read(transactionOperationProvider);
     unawaited(_loadAndPopulateInitialData());
   }
 

@@ -3,19 +3,17 @@
 // diperbaiki: Mengubah semua metode menjadi statis agar konsisten dengan kelas utilitas lainnya.
 // diperbaiki: Menambahkan konstruktor privat untuk mencegah instansiasi.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/preference_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Manajer untuk mengelola timestamp sinkronisasi data.
-///
-/// Menyimpan dan mengambil timestamp terakhir unduh dan unggah
-/// melalui [PreferenceService], serta menyediakan fungsi reset.
-/// Kelas ini hanya berisi metode statis dan tidak untuk diinstansiasi.
+final syncManagerProvider = Provider<SyncManager>((ref) {
+  Log.info('Membuat instance SyncManager melalui Riverpod provider');
+  return SyncManager();
+});
+
+
 class SyncManager {
-  /// Mengambil timestamp terakhir unduh.
-  ///
-  /// Mengembalikan [DateTime] dari [PreferenceService], atau
-  /// Epoch 0 jika belum pernah disimpan.
   Future<DateTime> getLastDownload() async {
     Log.info('Meminta timestamp terakhir unduh dari PreferenceService');
     final result = await PreferenceService.getLastDownload();

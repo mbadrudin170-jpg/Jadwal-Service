@@ -9,19 +9,19 @@ import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
-/// [InitialDownloadService] bertanggung jawab untuk mengisi database lokal dengan
-/// data dari server jika tabel-tabel tertentu masih kosong.
 class InitialDownloadService {
   final DatabaseHelper _dbHelper;
   final DownloadDataService _downloadService;
 
-  /// Konstruktor utama.
-  /// Menerima [dbHelper] dan [downloadService] opsional, berguna untuk pengujian.
+  /// Konstruktor dengan injeksi dependensi (wajib).
   InitialDownloadService({
-    final DatabaseHelper? dbHelper,
-    final DownloadDataService? downloadService,
-  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _downloadService = downloadService ?? DownloadDataService();
+    required DatabaseHelper dbHelper,
+    required DownloadDataService downloadService,
+  })  : _dbHelper = dbHelper,
+        _downloadService = downloadService {
+    Log.info(
+        'InitialDownloadService diinisialisasi dengan dependency injection.');
+  }
 
   /// Menjalankan pengecekan dan pengunduhan data awal untuk seluruh tabel.
   Future<void> runInitialDownload() async {

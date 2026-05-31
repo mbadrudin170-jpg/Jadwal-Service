@@ -1,5 +1,6 @@
-// path: lib/shared/operasi/poin/sqlite_points_data_source.dart]
+// path: lib/shared/operasi/poin/sqlite_points_data_source.dart
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
@@ -8,8 +9,15 @@ import 'package:wifi/shared/operasi/transaction_operation.dart';
 
 /// Implementasi [PointsPageDataSource] untuk mengambil data dari database SQLite lokal.
 class SQLitePointsDataSource implements PointsPageDataSource {
-  final TransactionOperation _transactionOperation = TransactionOperation();
-  final PackageOperation _packageOperation = PackageOperation();
+  final TransactionOperation _transactionOperation;
+  final PackageOperation _packageOperation;
+
+  /// Konstruktor dengan injeksi dependensi.
+  SQLitePointsDataSource({
+    required TransactionOperation transactionOperation,
+    required PackageOperation packageOperation,
+  })  : _transactionOperation = transactionOperation,
+        _packageOperation = packageOperation;
 
   @override
   Future<int> getTotalPoints(final String customerId) {
@@ -39,3 +47,19 @@ class SQLitePointsDataSource implements PointsPageDataSource {
   @override
   bool get isFirebase => false;
 }
+
+// ============================================================
+// Provider Riverpod untuk SQLitePointsDataSource
+// ============================================================
+final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
+  return SQLitePointsDataSource(
+    transactionOperation: ref.read(transactionOperationProvider),
+    packageOperation: ref.read(packageOperationProvider),
+  );
+});
+
+// Jika PointsPageDataSource adalah interface yang digunakan di tempat lain,
+// kita bisa menyediakan provider yang mengembalikan interface tersebut.
+final pointsPageDataSourceProvider = Provider<PointsPageDataSource>((ref) {
+  return ref.read(sqlitePointsDataSourceProvider);
+});

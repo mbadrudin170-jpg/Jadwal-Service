@@ -12,12 +12,11 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
+// lib/shared/data/sync/download_data.dart
 
-/// Layanan untuk mengunduh semua data dari Firebase.
 class DownloadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-
   final WalletOperation _walletOperation;
   final CategoryOperation _categoryOperation;
   final PackageOperation _packageOperation;
@@ -30,24 +29,35 @@ class DownloadDataService {
   final ApkVersionOperation _apkVersionOperation;
   final SettingsOperation _settingsOperation;
 
-  /// Konstruktor untuk penggunaan produksi.
+  /// Konstruktor dengan injeksi dependensi (untuk produksi dan testing)
   DownloadDataService({
-    final FirebaseFirestore? firestore,
-    final SyncManager? syncManager,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _syncManager = syncManager ?? SyncManager(),
-        _walletOperation = WalletOperation(),
-        _categoryOperation = CategoryOperation(),
-        _packageOperation = PackageOperation(),
-        _customerOperation = CustomerOperation(),
-        _activeCustomerOperation = ActiveCustomerOperation(),
-        _transactionOperation = TransactionOperation(),
-        _feedbackOperation = FeedbackOperation(),
-        _orderOperation = OrderOperation(),
-        _subCategoryOperation = SubCategoryOperation(),
-        _apkVersionOperation = ApkVersionOperation(),
-        _settingsOperation = SettingsOperation() {
-    Log.info('DownloadDataService berhasil diinisialisasi untuk produksi.');
+    required FirebaseFirestore firestore,
+    required SyncManager syncManager,
+    required WalletOperation walletOperation,
+    required CategoryOperation categoryOperation,
+    required PackageOperation packageOperation,
+    required CustomerOperation customerOperation,
+    required ActiveCustomerOperation activeCustomerOperation,
+    required TransactionOperation transactionOperation,
+    required FeedbackOperation feedbackOperation,
+    required OrderOperation orderOperation,
+    required SubCategoryOperation subCategoryOperation,
+    required ApkVersionOperation apkVersionOperation,
+    required SettingsOperation settingsOperation,
+  })  : _firestore = firestore,
+        _syncManager = syncManager,
+        _walletOperation = walletOperation,
+        _categoryOperation = categoryOperation,
+        _packageOperation = packageOperation,
+        _customerOperation = customerOperation,
+        _activeCustomerOperation = activeCustomerOperation,
+        _transactionOperation = transactionOperation,
+        _feedbackOperation = feedbackOperation,
+        _orderOperation = orderOperation,
+        _subCategoryOperation = subCategoryOperation,
+        _apkVersionOperation = apkVersionOperation,
+        _settingsOperation = settingsOperation {
+    Log.info('DownloadDataService diinisialisasi dengan dependency injection.');
   }
 
   /// Konstruktor khusus untuk pengujian dengan dependensi mock.

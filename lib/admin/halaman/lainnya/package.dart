@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -40,16 +41,16 @@ enum UrutanPaket {
 ///
 /// Dari halaman ini, admin dapat melihat, menambah, mengubah,
 /// menghapus, dan mengurutkan daftar paket yang ditawarkan.
-class PackagePage extends StatefulWidget {
+class PackagePage extends ConsumerStatefulWidget {
   /// Membuat instance dari [PackagePage].
   const PackagePage({super.key});
 
   @override
-  State<PackagePage> createState() => _PackagePageState();
+  ConsumerState<PackagePage> createState() => _PackagePageState();
 }
 
-class _PackagePageState extends State<PackagePage> {
-  final PackageOperation _paketOperasi = PackageOperation();
+class _PackagePageState extends ConsumerState<PackagePage> {
+ late final PackageOperation _paketOperasi;
   late Future<List<PackageModel>> _paketFuture;
   // diubah: Variabel untuk menyimpan status pengurutan saat ini, defaultnya durasi terpendek.
   UrutanPaket _urutanSaatIni = UrutanPaket.durasiTerpendek;
@@ -57,6 +58,7 @@ class _PackagePageState extends State<PackagePage> {
   @override
   void initState() {
     super.initState();
+     _paketOperasi = ref.read(packageOperationProvider);
     Log.info('Menginisialisasi halaman Paket');
     _refreshPaketList();
   }

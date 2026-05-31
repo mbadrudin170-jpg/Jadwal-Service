@@ -1,8 +1,7 @@
 // path: lib/shared/widget/customer_name.dart
-// diubah: Menambahkan parameter useFirebase untuk fleksibilitas data source.
-// ditambah: Menambahkan logging untuk error di FutureBuilder dan StreamBuilder.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
@@ -12,7 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 ///
 /// Secara default, mengambil data dari SQLite. Jika [useFirebase] diatur ke true,
 /// maka akan mengambil data dari Firebase secara real-time.
-class CustomerNameWidget extends StatelessWidget {
+class CustomerNameWidget extends ConsumerWidget {
   /// ID pelanggan yang akan dicari namanya.
   final String customerId;
 
@@ -22,26 +21,24 @@ class CustomerNameWidget extends StatelessWidget {
   /// Tentukan `true` untuk menggunakan Firebase, `false` (default) untuk SQLite.
   final bool useFirebase;
 
-  /// Membuat widget [CustomerNameWidget].
   const CustomerNameWidget({
     super.key,
     required this.customerId,
     this.style,
-    this.useFirebase = false, // Default ke SQLite agar tidak merusak admin.
+    this.useFirebase = false,
   });
 
   @override
-  Widget build(final BuildContext context) {
-    // Memilih sumber data berdasarkan flag `useFirebase`.
+  Widget build(BuildContext context, WidgetRef ref) {
     if (useFirebase) {
       return _buildFromFirebase();
     }
-    return _buildFromSqlite();
+    return _buildFromSqlite(ref);
   }
 
   /// Membangun widget menggunakan data dari Firebase (Stream).
   Widget _buildFromFirebase() {
-    final CustomerOpFirebase customerOpFirebase = CustomerOpFirebase();
+    final customerOpFirebase = CustomerOpFirebase();
     return StreamBuilder<CustomerModel?>(
       stream: customerOpFirebase.getCustomerStream(customerId),
       builder: (final context, final snapshot) {
@@ -49,7 +46,6 @@ class CustomerNameWidget extends StatelessWidget {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
-          // ditambah: Logging untuk error saat mengambil data dari Firebase.
           Log.error(
             'Error di CustomerNameWidget (Firebase) untuk ID: $customerId',
             e: snapshot.error,
@@ -76,8 +72,8 @@ class CustomerNameWidget extends StatelessWidget {
   }
 
   /// Membangun widget menggunakan data dari SQLite (Future).
-  Widget _buildFromSqlite() {
-    final CustomerOperation customerOperation = CustomerOperation();
+  Widget _buildFromSqlite(WidgetRef ref) {
+    final customerOperation = ref.read(customerOperationProvider);
     return FutureBuilder<CustomerModel?>(
       future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {
@@ -85,7 +81,6 @@ class CustomerNameWidget extends StatelessWidget {
           return Text('...', style: style);
         }
         if (snapshot.hasError) {
-          // ditambah: Logging untuk error saat mengambil data dari SQLite.
           Log.error(
             'Error di CustomerNameWidget (SQLite) untuk ID: $customerId',
             e: snapshot.error,

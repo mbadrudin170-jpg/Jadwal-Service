@@ -63,19 +63,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
         'Instance: ${_packageOperation.hashCode}, ');
 
     if (_isEditMode) {
-      Log.info('MODE EDIT terdeteksi. Data paket yang akan diedit:');
-      Log.info('  - ID: ${widget.package!.id}');
-      Log.info('  - Nama: ${widget.package!.name}');
-      Log.info('  - Harga: ${widget.package!.price}');
-      Log.info('  - Durasi: ${widget.package!.duration}');
-      Log.info('  - Tipe Durasi: ${widget.package!.type.name}');
-      Log.info('  - Poin Hadiah: ${widget.package!.rewardPoints}');
-      Log.info('  - Poin Penukaran: ${widget.package!.redemptionPoints}');
-      Log.info('  - isPublic: ${widget.package!.isPublic}');
-      Log.info('  - isDeleted: ${widget.package!.isDeleted}');
-      Log.info('  - Diperbarui: ${widget.package!.updatedAt}');
-      Log.info('  - Diarsipkan: ${widget.package!.archivedAt ?? "NULL"}');
-
       Log.info(
           'Mengisi TextEditingController dengan data dari paket yang diedit.');
       _nameController.text = widget.package!.name;
@@ -112,19 +99,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
 
     Log.info('Memvalidasi form...');
     if (_formKey.currentState!.validate()) {
-      Log.info('Data yang akan disimpan:');
-      Log.info('  - Nama: "${_nameController.text}"');
-      Log.info('  - Harga: ${_priceController.text}');
-      Log.info('  - Durasi: ${_durationController.text}');
-      Log.info('  - Tipe Durasi: ${_selectedType.name}');
-      Log.info(
-          '  - Poin Hadiah: ${_rewardPointsController.text.isNotEmpty ? _rewardPointsController.text : "0 (default)"}');
-      Log.info(
-          '  - Poin Penukaran: ${_redemptionPointsController.text.isNotEmpty ? _redemptionPointsController.text : "0 (default)"}');
-      Log.info('  - isPublic: $_isPublic');
-      Log.info(
-          '  - ID: ${_isEditMode ? widget.package!.id : "Akan digenerate otomatis"}');
-
       Log.info('Membuat objek PackageModel baru dari data form.');
       final newPackage = PackageModel(
           id: _isEditMode ? widget.package!.id : null,
@@ -137,34 +111,8 @@ class _PackageFormState extends ConsumerState<PackageForm> {
           isPublic: _isPublic,
           updatedAt: DateTime.now().toUtc());
 
-      Log.info('Objek PackageModel berhasil dibuat:');
-      Log.info('  - ID: ${newPackage.id}');
-      Log.info('  - Nama: ${newPackage.name}');
-      Log.info('  - Harga: ${newPackage.price}');
-      Log.info('  - Durasi: ${newPackage.duration}');
-      Log.info('  - Tipe: ${newPackage.type.name}');
-      Log.info('  - Poin Hadiah: ${newPackage.rewardPoints}');
-      Log.info('  - Poin Penukaran: ${newPackage.redemptionPoints}');
-      Log.info('  - isPublic: ${newPackage.isPublic}');
-
       try {
         if (_isEditMode) {
-          Log.info('PROSES UPDATE PAKET (MODE EDIT)');
-          Log.info('Data sebelum update:');
-          Log.info('  - Nama: ${widget.package!.name} -> ${newPackage.name}');
-          Log.info(
-              '  - Harga: ${widget.package!.price} -> ${newPackage.price}');
-          Log.info(
-              '  - Durasi: ${widget.package!.duration} -> ${newPackage.duration}');
-          Log.info(
-              '  - Tipe: ${widget.package!.type.name} -> ${newPackage.type.name}');
-          Log.info(
-              '  - Poin Hadiah: ${widget.package!.rewardPoints} -> ${newPackage.rewardPoints}');
-          Log.info(
-              '  - Poin Penukaran: ${widget.package!.redemptionPoints} -> ${newPackage.redemptionPoints}');
-          Log.info(
-              '  - isPublic: ${widget.package!.isPublic} -> ${newPackage.isPublic}');
-
           Log.info(
               'Memanggil _packageOperation.updatePackage() untuk menyimpan perubahan ke database.');
           await _packageOperation.update(newPackage);

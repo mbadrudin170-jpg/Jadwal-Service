@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -30,7 +31,7 @@ enum SortOrder {
 }
 
 /// Halaman untuk mengelola versi APK yang tersedia untuk pengguna.
-class ApkVersionPage extends StatefulWidget {
+class ApkVersionPage extends ConsumerStatefulWidget {
   /// Operasi untuk berinteraksi dengan data versi APK.
   final ApkVersionOperation? operation;
 
@@ -38,10 +39,10 @@ class ApkVersionPage extends StatefulWidget {
   const ApkVersionPage({super.key, this.operation});
 
   @override
-  State<ApkVersionPage> createState() => _ApkVersionPageState();
+  ConsumerState<ApkVersionPage> createState() => _ApkVersionPageState();
 }
 
-class _ApkVersionPageState extends State<ApkVersionPage> {
+class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
   late final ApkVersionOperation _apkVersionOperation;
   List<ApkVersionModel> _apkVersionList = [];
   bool _isLoading = true;
@@ -52,7 +53,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Versi APK User');
-    _apkVersionOperation = widget.operation ?? ApkVersionOperation();
+    _apkVersionOperation = ref.read(apkVersionOperationProvider);
     unawaited(_loadData());
   }
 
@@ -204,10 +205,15 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       context: context,
       builder: (final c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
-        content: Text('Anda yakin ingin mengarsipkan versi ${version.latestVersion}?'),
+        content: Text(
+            'Anda yakin ingin mengarsipkan versi ${version.latestVersion}?'),
         actions: [
-          TextButton(child: const Text('Batal'), onPressed: () => Navigator.pop(c, false)),
-          TextButton(child: const Text('Arsipkan'), onPressed: () => Navigator.pop(c, true)),
+          TextButton(
+              child: const Text('Batal'),
+              onPressed: () => Navigator.pop(c, false)),
+          TextButton(
+              child: const Text('Arsipkan'),
+              onPressed: () => Navigator.pop(c, true)),
         ],
       ),
     );
@@ -215,7 +221,7 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       unawaited(_softDelete(version));
     }
   }
-  
+
   Future<void> _softDelete(final ApkVersionModel version) async {
     Log.info('Memulai proses soft delete untuk ID: ${version.id}');
     try {
@@ -224,7 +230,8 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       setState(() {
         _apkVersionList.removeWhere((final v) => v.id == version.id);
       });
-      ToastUtil.success(context, 'Versi ${version.latestVersion} berhasil diarsipkan.');
+      ToastUtil.success(
+          context, 'Versi ${version.latestVersion} berhasil diarsipkan.');
     } on Exception catch (e, s) {
       Log.error('Gagal soft delete data ID: ${version.id}', e: e, st: s);
       if (!mounted) return;
@@ -238,10 +245,15 @@ class _ApkVersionPageState extends State<ApkVersionPage> {
       context: context,
       builder: (final c) => AlertDialog(
         title: const Text('Arsipkan Semua Versi?'),
-        content: const Text('Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
+        content: const Text(
+            'Anda yakin ingin mengarsipkan semua versi APK yang aktif?'),
         actions: [
-          TextButton(child: const Text('Batal'), onPressed: () => Navigator.pop(c, false)),
-          TextButton(child: const Text('Arsipkan Semua'), onPressed: () => Navigator.pop(c, true)),
+          TextButton(
+              child: const Text('Batal'),
+              onPressed: () => Navigator.pop(c, false)),
+          TextButton(
+              child: const Text('Arsipkan Semua'),
+              onPressed: () => Navigator.pop(c, true)),
         ],
       ),
     );

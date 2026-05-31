@@ -14,10 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 
-/// Service untuk mengelola penyimpanan data lokal menggunakan [SharedPreferences].
-///
-/// Menyediakan fungsi untuk menyimpan dan mengambil data seperti tema aplikasi,
-/// daftar akun, dan status login pengguna.
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.
   final SharedPreferences prefs;

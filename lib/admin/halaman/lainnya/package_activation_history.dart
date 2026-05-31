@@ -8,6 +8,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -69,20 +70,20 @@ enum SortOption {
 ///
 /// Admin dapat melihat, mengurutkan, dan membuka detail setiap transaksi
 /// aktivasi paket yang pernah dilakukan.
-class PackageActivationHistoryPage extends StatefulWidget {
+class PackageActivationHistoryPage extends ConsumerStatefulWidget {
   /// Membuat instance dari [PackageActivationHistoryPage].
   const PackageActivationHistoryPage({super.key});
 
   @override
-  State<PackageActivationHistoryPage> createState() =>
+  ConsumerState<PackageActivationHistoryPage> createState() =>
       _PackageActivationHistoryPageState();
 }
 
 class _PackageActivationHistoryPageState
-    extends State<PackageActivationHistoryPage> {
-  final TransactionOperation _transactionOperation = TransactionOperation();
-  final PackageOperation _packageOperation = PackageOperation();
-  final CustomerOperation _customerOperation = CustomerOperation();
+    extends ConsumerState<PackageActivationHistoryPage> {
+  late final TransactionOperation _transactionOperation;
+  late final PackageOperation _packageOperation;
+  late final CustomerOperation _customerOperation;
 
   late Future<List<TransactionModel>> _transactionListFuture;
   Map<String, CustomerModel> _customerMap = {};
@@ -91,6 +92,9 @@ class _PackageActivationHistoryPageState
   @override
   void initState() {
     super.initState();
+     _transactionOperation = ref.read(transactionOperationProvider);
+     _packageOperation = ref.read(packageOperationProvider);
+     _customerOperation = ref.read(customerOperationProvider);
     Log.info('Menginisialisasi halaman Riwayat Aktivasi Paket');
     unawaited(_loadHistory());
   }
@@ -149,7 +153,8 @@ class _PackageActivationHistoryPageState
     });
   }
 
-  Future<void> _loadCustomerData(final List<TransactionModel> transactions) async {
+  Future<void> _loadCustomerData(
+      final List<TransactionModel> transactions) async {
     final customerIds = transactions
         .map((final t) => t.customerId)
         .whereType<String>()
