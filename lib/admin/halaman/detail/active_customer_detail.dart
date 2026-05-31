@@ -279,8 +279,10 @@ class _ActiveCustomerDetailPageState
                               label: const Text('Kirim Info via WhatsApp'),
                               onPressed: () {
                                 Log.info('Tombol kirim info WhatsApp ditekan.');
-                                unawaited(PesanInfoPaket.kirimRincianPaket(
-                                    _activeCustomer));
+                                final pesanInfoPaket =
+                                    ref.read(pesanInfoPaketProvider);
+                                unawaited(pesanInfoPaket
+                                    .kirimRincianPaket(_activeCustomer));
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(

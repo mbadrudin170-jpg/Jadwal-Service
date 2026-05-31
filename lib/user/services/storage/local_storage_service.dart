@@ -13,6 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final localStorageServiceProvider =
+    FutureProvider<LocalStorageService>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return LocalStorageService(prefs: prefs);
+});
 
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.

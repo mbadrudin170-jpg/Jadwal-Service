@@ -10,7 +10,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+// import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -33,8 +33,8 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
-  final InternetConnectionService _connectionService =
-      InternetConnectionService();
+  // final InternetConnectionService _connectionService =
+  //     InternetConnectionService();
 
   @override
   bool get wantKeepAlive => true;
