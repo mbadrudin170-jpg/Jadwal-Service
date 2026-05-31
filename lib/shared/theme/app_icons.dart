@@ -1,5 +1,5 @@
 // path: lib/shared/theme/app_icons.dart
-// diubah: Menambahkan ikon 'science' untuk tombol halaman tes.
+// diubah: Menambahkan ikon 'event' untuk halaman pengumuman.
 import 'package:flutter/material.dart';
 
 /// Kelas utilitas untuk mengelola ikon aplikasi secara terpusat.
@@ -261,4 +261,7 @@ class TIcons {
   
   /// Ikon untuk fitur eksperimental atau halaman tes.
   static const IconData science = Icons.science;
+
+  /// Ikon untuk acara atau pengumuman.
+  static const IconData event = Icons.event;
 }

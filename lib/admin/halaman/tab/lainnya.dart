@@ -17,6 +17,7 @@ import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/user/page/event_page_u.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
 class LainnyaPage extends StatefulWidget {
@@ -143,6 +144,13 @@ class _LainnyaPageState extends State<LainnyaPage> {
             rightIcons: TIcons.chevronRight,
             onTap: () =>
                 _navigateTo(const TentangAplikasiPage(), 'Tentang Aplikasi'),
+          ),
+          _buildMenuItem(
+            context: context,
+            icon: TIcons.event,
+            title: 'Halaman Pengumuman',
+            rightIcons: TIcons.chevronRight,
+            onTap: () => _navigateTo(const EventPageU(), 'Halaman Pengumuman'),
           ),
           _buildMenuItem(
             context: context,
