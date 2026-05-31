@@ -1,6 +1,8 @@
 // path: lib/user/page/event_page_u.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Halaman untuk menampilkan pengumuman kepada pengguna.
@@ -61,6 +63,17 @@ class _EventPageUState extends State<EventPageU> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (final context) => const ManageAnnouncementPage(),
+            ),
+          );
+        },
+        child: const Icon(TIcons.add),
       ),
     );
   }
