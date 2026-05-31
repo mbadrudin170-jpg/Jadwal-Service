@@ -42,7 +42,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
     _feedbackOperation = ref.read(feedbackOperationProvider);
-     _customerOperation = ref.read(customerOperationProvider);
+    _customerOperation = ref.read(customerOperationProvider);
     unawaited(_loadFeedback());
     _searchController.addListener(_applyFilter);
   }
@@ -93,9 +93,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           _applyFilter();
           _isLoading = false;
         });
-        // Sisipan: ganti Log.info sukses dengan ToastUtil.info
-        ToastUtil.info(context, 'Data kritik & saran dimuat',
-            logData: {'jumlah': _allFeedback.length});
       }
     } on Exception catch (e, st) {
       Log.error(

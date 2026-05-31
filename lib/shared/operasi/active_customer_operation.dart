@@ -64,12 +64,15 @@ class ActiveCustomerOperation {
   }
 
   /// Mengambil semua pelanggan aktif dengan detail nama pelanggan dan nama paket
-  /// menggunakan satu query JOIN yang efisien.
+  /// yang masa aktifnya belum berakhir.
   Future<List<ActiveCustomerDetailModel>>
       getAllActiveCustomersWithDetails() async {
     final db = await dbHelper.database;
-    Log.info('Mengambil semua pelanggan aktif dengan detail (JOIN)');
+    Log.info(
+        'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)');
 
+    // Pastikan ColumnNames.endDate sesuai dengan nama kolom di tabel Anda.
+    // Jika nama kolomnya berbeda, sesuaikan di sini.
     final query = '''
       SELECT
         ac.*,
@@ -79,12 +82,19 @@ class ActiveCustomerOperation {
       LEFT JOIN $_customerTableName c ON ac.${ColumnNames.customerId} = c.${ColumnNames.id}
       LEFT JOIN $_packageTableName p ON ac.${ColumnNames.packageId} = p.${ColumnNames.id}
       WHERE ac.${ColumnNames.isDeleted} = 0
+        AND ac.${ColumnNames.endDate} >= ?
     ''';
 
     try {
-      final List<Map<String, dynamic>> maps = await db.rawQuery(query);
+      // Gunakan millisecondsSinceEpoch untuk perbandingan dengan tipe data integer di SQLite.
+      final List<Map<String, dynamic>> maps = await db.rawQuery(
+        query,
+        [
+          _nowUtc.millisecondsSinceEpoch
+        ], // Tambahkan _nowUtc sebagai argumen query
+      );
       Log.info(
-          'Berhasil mengambil ${maps.length} pelanggan aktif dengan detail.');
+          'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.');
 
       return List.generate(maps.length, (final i) {
         final map = maps[i];
@@ -95,8 +105,10 @@ class ActiveCustomerOperation {
         );
       });
     } on Exception catch (e, st) {
-      Log.error('Gagal melakukan query JOIN untuk pelanggan aktif',
-          e: e, st: st);
+      Log.error(
+          'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
+          e: e,
+          st: st);
       rethrow;
     }
   }

@@ -9,20 +9,11 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormKritikDanSaran extends StatefulWidget {
-  /// ID unik pengguna yang memberikan masukan.
   final String userId;
 
-  /// ID kritik/saran jika dalam mode edit.
-  /// Jika null, berarti formulir dalam mode pembuatan baru.
   final String? kritikId;
 
-  /// Nilai awal teks untuk kolom masukan, digunakan saat mengedit.
   final String? initialValue;
-
-  /// Konstruktor untuk [FormKritikDanSaran].
-  ///
-  /// Membutuhkan [userId] dan secara opsional menerima [kritikId] dan
-  /// [initialValue] untuk mode edit.
   const FormKritikDanSaran({
     super.key,
     required this.userId,
