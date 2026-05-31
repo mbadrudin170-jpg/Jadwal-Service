@@ -5,6 +5,7 @@
 // - BackgroundSyncManager (untuk sinkronisasi latar belakang)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -363,3 +364,21 @@ class DownloadDataService {
     }
   }
 }
+
+final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
+  return DownloadDataService(
+    firestore: FirebaseFirestore.instance,
+    syncManager: ref.read(syncManagerProvider),
+    walletOperation: ref.read(walletOperationProvider),
+    categoryOperation: ref.read(categoryOperationProvider),
+    packageOperation: ref.read(packageOperationProvider),
+    customerOperation: ref.read(customerOperationProvider),
+    activeCustomerOperation: ref.read(activeCustomerOperationProvider),
+    transactionOperation: ref.read(transactionOperationProvider),
+    feedbackOperation: ref.read(feedbackOperationProvider),
+    orderOperation: ref.read(orderOperationProvider),
+    subCategoryOperation: ref.read(subCategoryOperationProvider),
+    apkVersionOperation: ref.read(apkVersionOperationProvider),
+    settingsOperation: ref.read(settingsOperationProvider),
+  );
+});

@@ -242,7 +242,8 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          unawaited(syncCheckService.runSyncCheck());
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {

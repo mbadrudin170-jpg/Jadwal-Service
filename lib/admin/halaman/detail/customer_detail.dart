@@ -113,7 +113,7 @@ MAC : ${customer.macAddress}
   }
 
   Future<void> _navigateToPoints() async {
-    final dataSource = ref.watch(pointsPageDataSourceProvider);
+    final sqLitePointsDataSource = ref.read(sqlitePointsDataSourceProvider);
     if (_customer == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${_customer!.name}');
     await Navigator.push<void>(
@@ -121,7 +121,7 @@ MAC : ${customer.macAddress}
       MaterialPageRoute<void>(
         builder: (final context) => PointsPage(
           customerId: _customer!.id,
-          dataSource: dataSource,
+          dataSource: sqLitePointsDataSource,
           role: UserRole.admin,
         ),
       ),

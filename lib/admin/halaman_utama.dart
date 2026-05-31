@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
@@ -18,16 +19,16 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
 
-class HalamanUtama extends StatefulWidget {
+class HalamanUtama extends ConsumerStatefulWidget {
   final bool isOffline;
 
   const HalamanUtama({super.key, this.isOffline = false});
 
   @override
-  State<HalamanUtama> createState() => _HalamanUtamaState();
+  ConsumerState<HalamanUtama> createState() => _HalamanUtamaState();
 }
 
-class _HalamanUtamaState extends State<HalamanUtama>
+class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     with WidgetsBindingObserver {
   late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
   late final SyncCheckService _syncService;
@@ -40,7 +41,7 @@ class _HalamanUtamaState extends State<HalamanUtama>
     FlutterNativeSplash.remove();
     Log.info('HalamanUtama initState. Offline: ${widget.isOffline}');
 
-    _syncService = SyncCheckService();
+    _syncService = ref.read(syncCheckServiceProvider);
     WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((final _) {

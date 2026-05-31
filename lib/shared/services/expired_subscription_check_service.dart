@@ -1,60 +1,45 @@
 // path: lib/shared/services/expired_subscription_check_service.dart
-// diperbaiki: Menambahkan logging inisialisasi.
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/active_customer_operation.dart';
 
-/// Service ini bertanggung jawab untuk memeriksa dan mengarsipkan
-/// langganan pelanggan aktif yang telah kedaluwarsa secara berkala.
+/// Service untuk memeriksa dan mengarsipkan langganan yang kadaluwarsa.
 class ExpiredSubscriptionCheckService {
-  ActiveCustomerOperation _activeCustomerOperation = ActiveCustomerOperation();
+  final ActiveCustomerOperation _activeCustomerOperation;
 
-  /// Konstruktor untuk inisialisasi service.
-  ExpiredSubscriptionCheckService() {
-    // DITAMBAHKAN: Logging saat inisialisasi
-    Log.info('ExpiredSubscriptionCheckService diinisialisasi.');
-  }
-
-  @visibleForTesting
-  set activeCustomerOperation(final ActiveCustomerOperation operation) {
-    _activeCustomerOperation = operation;
+  /// Konstruktor dengan injeksi dependensi.
+  ExpiredSubscriptionCheckService({
+    required ActiveCustomerOperation activeCustomerOperation,
+  }) : _activeCustomerOperation = activeCustomerOperation {
+    Log.info(
+        'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Memproses semua pelanggan aktif, menemukan yang kedaluwarsa,
-  /// dan memanggil operasi untuk mengarsipkan mereka.
+  /// dan mengarsipkannya.
   Future<void> processExpiredSubscriptions() async {
-    Log.info(
-      'Memulai siklus pengecekan dan pengarsipan langganan yang telah kedaluwarsa...',
-    );
-
+    Log.info('Memulai siklus pengecekan langganan yang kadaluwarsa...');
     try {
-      Log.info(
-        'Menghubungi ActiveCustomerOperation untuk mengeksekusi batch pengarsipan otomatis...',
-      );
-
       final archivedCount =
           await _activeCustomerOperation.archiveExpiredCustomers();
-
       if (archivedCount > 0) {
-        Log.info(
-          'Operasi berhasil! Sebanyak $archivedCount data pelanggan kedaluwarsa telah dipindahkan ke tabel arsip.',
-        );
+        Log.info('Berhasil mengarsipkan $archivedCount langganan kadaluwarsa.');
       } else {
-        Log.info(
-          'Hasil pengecekan bersih. Tidak ditemukan data pelanggan yang memenuhi kriteria kedaluwarsa saat ini.',
-        );
+        Log.info('Tidak ada langganan kadaluwarsa.');
       }
-
-      Log.info(
-        'Seluruh rangkaian proses pengecekan langganan kedaluwarsa telah diselesaikan dengan sukses.',
-      );
     } on Exception catch (e, s) {
-      Log.error(
-        'Terjadi kesalahan fatal selama proses pengolahan data kedaluwarsa!',
-        e: e,
-        st: s,
-      );
+      Log.error('Gagal memproses langganan kadaluwarsa.', e: e, st: s);
     }
   }
 }
+
+// ============================================================
+// Provider untuk ExpiredSubscriptionCheckService
+// ============================================================
+final expiredSubscriptionCheckServiceProvider =
+    Provider<ExpiredSubscriptionCheckService>((ref) {
+  return ExpiredSubscriptionCheckService(
+    activeCustomerOperation: ref.read(activeCustomerOperationProvider),
+  );
+});

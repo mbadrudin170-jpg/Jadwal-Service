@@ -336,7 +336,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        unawaited(SyncCheckService().runSyncCheck());
+        final syncCheckService = ref.read(syncCheckServiceProvider);
+        unawaited(syncCheckService.runSyncCheck());
         successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');

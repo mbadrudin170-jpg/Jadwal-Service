@@ -115,7 +115,8 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          syncCheckService.runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Data pelanggan berhasil disimpan & disinkronkan.');

@@ -4,23 +4,12 @@
 // diubah: Mengganti nama file dari nama_paket.dart menjadi package_name_widget.dart.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/tab/active_customer_tab.dart (ActiveCustomerPage)
-//   - lib/admin/halaman/detail/active_customer_detail.dart (ActiveCustomerDetailPage)
-//   - Dan file lain yang memerlukan tampilan nama paket berdasarkan ID
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/debug/log.dart (Log)
-
-/// Sebuah widget untuk menampilkan nama paket berdasarkan ID paket.
-class PackageNameWidget extends StatelessWidget {
+class PackageNameWidget extends ConsumerWidget {
   /// ID dari paket yang akan ditampilkan namanya.
   final String packageId;
 
@@ -35,11 +24,10 @@ class PackageNameWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, WidgetRef ref) {
     Log.info('Membangun PackageNameWidget untuk packageId: $packageId');
 
-    final packageOperation = PackageOperation();
-
+final packageOperation = ref.read(packageOperationProvider);
     return FutureBuilder<PackageModel?>(
       future: packageOperation.getById(packageId),
       builder: (final context, final snapshot) {

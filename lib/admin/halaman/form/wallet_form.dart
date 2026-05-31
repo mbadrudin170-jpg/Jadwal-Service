@@ -117,7 +117,8 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          syncCheckService.runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Dompet berhasil disimpan dan disinkronkan.');

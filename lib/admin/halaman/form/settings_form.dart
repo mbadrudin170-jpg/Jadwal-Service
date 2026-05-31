@@ -79,7 +79,8 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          syncCheckService.runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Pengaturan berhasil disimpan dan disinkronkan.');

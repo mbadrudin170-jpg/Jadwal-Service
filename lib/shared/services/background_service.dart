@@ -22,7 +22,8 @@ void callbackDispatcher() {
     switch (task) {
       case syncTaskName:
         try {
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          await syncCheckService.runSyncCheck();
           Log.info('Background task "$task" selesai dengan sukses.');
           return Future.value(true);
         } on Object catch (e, st) {

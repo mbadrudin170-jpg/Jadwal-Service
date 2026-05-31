@@ -1,6 +1,7 @@
 // path: lib/shared/data/services/sync_check_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/data/services/new_data_check_service.dart';
@@ -19,23 +20,19 @@ class SyncCheckService {
   final NewDataCheckService _newDataCheck;
   final FirebaseFirestore _firestore;
 
-  /// Konstruktor untuk SyncCheckService.
-  ///
-  /// Menginisialisasi semua layanan yang dibutuhkan untuk proses sinkronisasi.
+  /// Konstruktor dengan injeksi dependensi (wajib).
   SyncCheckService({
-    final SyncManager? syncManager,
-    final UploadDataService? uploadService,
-    final DownloadDataService? downloadService,
-    final NewDataCheckService? newDataCheck,
-    final FirebaseFirestore? firestore,
-  })  : _syncManager = syncManager ?? SyncManager(),
-        _uploadService = uploadService ?? UploadDataService(),
-        _downloadService = downloadService ?? DownloadDataService(),
-        _newDataCheck = newDataCheck ?? NewDataCheckService(),
-        _firestore = firestore ?? FirebaseFirestore.instance {
-    Log.info(
-      'Inisialisasi SyncCheckService berhasil.',
-    );
+    required SyncManager syncManager,
+    required UploadDataService uploadService,
+    required DownloadDataService downloadService,
+    required NewDataCheckService newDataCheck,
+    required FirebaseFirestore firestore,
+  })  : _syncManager = syncManager,
+        _uploadService = uploadService,
+        _downloadService = downloadService,
+        _newDataCheck = newDataCheck,
+        _firestore = firestore {
+    Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Menjalankan seluruh proses pengecekan dan sinkronisasi data.
@@ -49,8 +46,6 @@ class SyncCheckService {
       Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
       await _updateGlobalStatus();
-    } else {
-      Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
     }
 
     Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
@@ -80,9 +75,7 @@ class SyncCheckService {
   Future<void> _updateGlobalStatus() async {
     try {
       await _firestore
-          .collection(
-            TableNameValue.get(TableName.statusGlobal),
-          )
+          .collection(TableNameValue.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .set(
         {ColumnNames.updatedAt: FieldValue.serverTimestamp()},
@@ -92,14 +85,12 @@ class SyncCheckService {
           'Dokumen ${TableNameValue.get(TableName.statusGlobal)}/global berhasil diperbarui.');
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal memperbarui dokumen ${TableNameValue.get(TableName.statusGlobal)}/global.',
-        e: e,
-        st: s,
-      );
+          'Gagal memperbarui dokumen ${TableNameValue.get(TableName.statusGlobal)}/global.',
+          e: e,
+          st: s);
     }
   }
 
-  /// Memeriksa dan menjalankan proses unduh jika ada data baru di server.
   Future<void> _checkAndRunDownload() async {
     try {
       final bool hasNewServerData = await _newDataCheck.hasNewFirebaseData(
@@ -120,3 +111,16 @@ class SyncCheckService {
     }
   }
 }
+
+// ============================================================
+// Provider Riverpod untuk SyncCheckService
+// ============================================================
+final syncCheckServiceProvider = Provider<SyncCheckService>((ref) {
+  return SyncCheckService(
+    syncManager: ref.read(syncManagerProvider),
+    uploadService: ref.read(uploadDataServiceProvider), // harus sudah ada
+    downloadService: ref.read(downloadDataServiceProvider), // sudah ada
+    newDataCheck: ref.read(newDataCheckServiceProvider), // harus sudah ada
+    firestore: FirebaseFirestore.instance,
+  );
+});

@@ -3,23 +3,13 @@
 // diubah: Memperbaiki import path yang salah.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/tab/active_customer_tab.dart (ActiveCustomerPage)
-//   - lib/admin/halaman/detail/active_customer_detail.dart (ActiveCustomerDetailPage)
-//   - Dan file lain yang memerlukan tampilan nama pelanggan berdasarkan ID
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/debug/log.dart (Log)
-
 /// Sebuah widget untuk menampilkan nama pelanggan berdasarkan ID pelanggan.
-class CustomerNameWidget extends StatelessWidget {
+class CustomerNameWidget extends ConsumerWidget {
   /// ID dari pelanggan yang akan ditampilkan namanya.
   final String customerId;
 
@@ -34,11 +24,9 @@ class CustomerNameWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun CustomerNameWidget untuk customerId: $customerId');
-
-    final customerOperation = CustomerOperation();
-
+    final customerOperation = ref.read(customerOperationProvider);
     return FutureBuilder<CustomerModel?>(
       future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {

@@ -282,7 +282,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          await SyncCheckService().runSyncCheck();
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+           syncCheckService.runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Transaksi berhasil disimpan dan disinkronkan.');

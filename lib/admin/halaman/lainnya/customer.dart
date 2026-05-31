@@ -34,8 +34,8 @@ class CustomerPage extends ConsumerStatefulWidget {
 }
 
 class _CustomerPageState extends ConsumerState<CustomerPage> {
- late final CustomerOperation _customerOperation ;
-  final SQLitePointsDataSource _pointsDataSource = SQLitePointsDataSource(); // TODO : mengganti ke provider
+  late final CustomerOperation _customerOperation;
+  late final SQLitePointsDataSource _pointsDataSource;
 
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
@@ -52,7 +52,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     Log.info(
       'Menginisialisasi state untuk CustomerPage. Memanggil _refreshCustomerList untuk pertama kali.',
     );
-   _customerOperation = ref.read(customerOperationProvider);
+    _pointsDataSource = ref.read(sqlitePointsDataSourceProvider);
+    _customerOperation = ref.read(customerOperationProvider);
     unawaited(_refreshCustomerList());
     _searchController.addListener(_filterCustomers);
   }

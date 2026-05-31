@@ -1,6 +1,7 @@
 // path: lib/shared/data/sync/upload_data.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -15,20 +16,14 @@ class UploadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
 
-  /// Konstruktor untuk `UploadDataService`.
   UploadDataService({
-    final DatabaseHelper? dbHelper,
-    final FirebaseFirestore? firestore,
-    final SyncManager? syncManager,
-  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        _syncManager = syncManager ?? SyncManager() {
-    Log.info(
-      'UploadDataService instance dibuat. '
-      'Menggunakan DatabaseHelper: ${_dbHelper.hashCode}, '
-      'FirebaseFirestore: ${_firestore.hashCode}, '
-      'SyncManager: ${_syncManager.hashCode}',
-    );
+    required DatabaseHelper dbHelper,
+    required FirebaseFirestore firestore,
+    required SyncManager syncManager,
+  })  : _dbHelper = dbHelper,
+        _firestore = firestore,
+        _syncManager = syncManager {
+    Log.info('UploadDataService diinisialisasi dengan dependency injection.');
   }
 
   /// Mengunggah semua data dari semua tabel lokal ke koleksi Firestore yang sesuai.
@@ -602,3 +597,11 @@ class UploadDataService {
     }
   }
 }
+
+final uploadDataServiceProvider = Provider<UploadDataService>((ref) {
+  return UploadDataService(
+    dbHelper: ref.read(databaseHelperProvider),
+    firestore: FirebaseFirestore.instance,
+    syncManager: ref.read(syncManagerProvider),
+  );
+});

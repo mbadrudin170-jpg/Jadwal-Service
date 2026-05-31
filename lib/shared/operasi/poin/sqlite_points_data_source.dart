@@ -57,9 +57,3 @@ final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
     packageOperation: ref.read(packageOperationProvider),
   );
 });
-
-// Jika PointsPageDataSource adalah interface yang digunakan di tempat lain,
-// kita bisa menyediakan provider yang mengembalikan interface tersebut.
-final pointsPageDataSourceProvider = Provider<PointsPageDataSource>((ref) {
-  return ref.read(sqlitePointsDataSourceProvider);
-});

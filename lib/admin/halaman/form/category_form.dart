@@ -413,7 +413,8 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
-          await SyncCheckService().runSyncCheck();
+        final syncCheckService = ref.read(syncCheckServiceProvider);
+        unawaited(syncCheckService.runSyncCheck());
           if (mounted) {
             ToastUtil.success(
                 context, 'Kategori berhasil disimpan dan disinkronkan.');

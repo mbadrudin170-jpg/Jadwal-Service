@@ -9,33 +9,27 @@
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-/// Layanan untuk memeriksa apakah ada data baru di SQLite atau Firebase.
 class NewDataCheckService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
   final UploadStatusOperation _uploadStatusOperation;
 
-  /// Konstruktor untuk NewDataCheckService.
-  ///
-  /// Menginisialisasi [_firestore], [_syncManager], dan [_uploadStatusOperation].
-  /// Jika tidak ada instance yang diberikan, maka akan membuat instance baru.
+  /// Konstruktor dengan injeksi dependensi.
   NewDataCheckService({
-    final FirebaseFirestore? firestore,
-    final SyncManager? syncManager,
-    final UploadStatusOperation? uploadStatusOperation,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _syncManager = syncManager ?? SyncManager(),
-        _uploadStatusOperation =
-            uploadStatusOperation ?? UploadStatusOperation() {
-    Log.info(
-      'Inisialisasi NewDataCheckService berhasil. Komponen FirebaseFirestore untuk akses cloud, SyncManager untuk manajemen waktu lokal, dan UploadStatusOperation untuk akses bendera SQLite telah siap digunakan.',
-    );
+    required FirebaseFirestore firestore,
+    required SyncManager syncManager,
+    required UploadStatusOperation uploadStatusOperation,
+  })  : _firestore = firestore,
+        _syncManager = syncManager,
+        _uploadStatusOperation = uploadStatusOperation {
+    Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Memeriksa apakah ada data baru di SQLite yang perlu diunggah.
@@ -134,13 +128,13 @@ class NewDataCheckService {
 
           if (serverTime == null) {
             Log.warning(
-              'Gagal mem-parsing nilai "${ColumnNames.updatedAt}" dari server. ' 
+              'Gagal mem-parsing nilai "${ColumnNames.updatedAt}" dari server. '
               'Nilai tidak valid atau format tidak didukung. '
               'Mengasumsikan tidak ada data baru.',
             );
             return false;
           }
-          
+
           Log.info('Waktu pembaruan di server adalah: $serverTime');
 
           final bool isAfter = serverTime.isAfter(localTime);
@@ -176,3 +170,11 @@ class NewDataCheckService {
     }
   }
 }
+
+final newDataCheckServiceProvider = Provider<NewDataCheckService>((ref) {
+  return NewDataCheckService(
+    firestore: FirebaseFirestore.instance,
+    syncManager: ref.read(syncManagerProvider),
+    uploadStatusOperation: ref.read(uploadStatusOperationProvider),
+  );
+});
