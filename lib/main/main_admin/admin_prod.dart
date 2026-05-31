@@ -1,4 +1,3 @@
-
 // path: lib/main/main_admin/admin_prod.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,7 +17,14 @@ void _callbackAlarm() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
-  await ExpiredSubscriptionCheckService().processExpiredSubscriptions();
+
+  final container = ProviderContainer();
+  try {
+    final service = container.read(expiredSubscriptionCheckServiceProvider);
+    await service.processExpiredSubscriptions();
+  } finally {
+    container.dispose();
+  }
   Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
 }
 
@@ -61,12 +67,14 @@ void main() async {
   // ID harus unik. Menggunakan nilai int besar yang acak.
   const int rebootAlarmId = 9999;
   await AndroidAlarmManager.periodic(
-    const Duration(days: 1), // Durasi tidak relevan, ini hanya untuk mengaktifkan receiver
+    const Duration(
+        days: 1), // Durasi tidak relevan, ini hanya untuk mengaktifkan receiver
     rebootAlarmId,
     _rescheduleOnBoot,
     startAt: DateTime.now(),
     wakeup: true,
     rescheduleOnReboot: true, // Ini adalah kunci utamanya!
   );
-  Log.info("Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId");
+  Log.info(
+      "Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId");
 }

@@ -2,6 +2,7 @@
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
@@ -32,12 +33,11 @@ class PenjadwalNotifikasi {
           transaction.startDate != null &&
           transaction.endDate != null &&
           transaction.endDate!.isAfter(DateTime.now())) {
-        
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
         final scheduledTime = transaction.endDate!;
         Log.info(
             'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime');
-        
+
         // 1. Jadwalkan Notifikasi Visual
         await notifikasiServis.perbaruiJadwalNotifikasi(
           id: endNotificationId,
@@ -56,7 +56,8 @@ class PenjadwalNotifikasi {
           exact: true, // Memastikan eksekusi tepat waktu
           wakeup: true, // Membangunkan perangkat jika dalam mode sleep
         );
-        Log.info('Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime');
+        Log.info(
+            'Alarm untuk ID $alarmId berhasil dijadwalkan pada $scheduledTime');
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
         final totalDuration =
@@ -80,7 +81,6 @@ class PenjadwalNotifikasi {
               'Tanggal tengah periode sudah lewat. Membatalkan notifikasi jika ada.');
           await notifikasiServis.batalNotifikasi(midNotificationId);
         }
-
       } else {
         // Jika tidak ada langganan aktif, batalkan semua notifikasi DAN alarm.
         Log.info(
@@ -96,7 +96,7 @@ class PenjadwalNotifikasi {
       await notifikasiServis.batalNotifikasi(endNotificationId);
       await notifikasiServis.batalNotifikasi(midNotificationId);
       await AndroidAlarmManager.cancel(alarmId);
-       Log.info("Alarm dengan ID $alarmId juga dibatalkan karena error.");
+      Log.info("Alarm dengan ID $alarmId juga dibatalkan karena error.");
     }
   }
 }
@@ -112,6 +112,13 @@ void _callbackAlarm() async {
 
   Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
   // Pastikan ExpiredSubscriptionCheckService diimpor dengan benar di atas.
-  await ExpiredSubscriptionCheckService().processExpiredSubscriptions();
+
+  final container = ProviderContainer();
+  try {
+    final service = container.read(expiredSubscriptionCheckServiceProvider);
+    await service.processExpiredSubscriptions();
+  } finally {
+    container.dispose();
+  }
   Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
 }

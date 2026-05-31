@@ -60,7 +60,11 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
-    await ExpiredSubscriptionCheckService().processExpiredSubscriptions();
+
+    // ✅ Perbaikan: gunakan provider, bukan constructor langsung
+    final expiredService = ref.read(expiredSubscriptionCheckServiceProvider);
+    await expiredService.processExpiredSubscriptions();
+
     await _sinkronisasiDataSaatOnline();
   }
 

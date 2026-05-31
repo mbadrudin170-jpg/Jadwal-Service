@@ -1,6 +1,7 @@
 // path: lib/shared/services/background_service.dart
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
@@ -14,29 +15,37 @@ void callbackDispatcher() {
   Workmanager().executeTask((final task, final inputData) async {
     Log.info('Background task dimulai: $task');
 
-    // SOLUSI: Inisialisasi Firebase di dalam background isolate
+    // Inisialisasi Flutter binding dan Firebase di isolate
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     Log.info('Firebase berhasil diinisialisasi di background isolate.');
 
-    switch (task) {
-      case syncTaskName:
-        try {
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          await syncCheckService.runSyncCheck();
-          Log.info('Background task "$task" selesai dengan sukses.');
-          return Future.value(true);
-        } on Object catch (e, st) {
-          Log.error(
-            'Error saat menjalankan background task "$task"',
-            e: e,
-            st: st,
-          );
-          return Future.value(false);
-        }
-      default:
-        Log.warning('Task tidak dikenal: $task');
-        return Future.value(false);
+    // Buat ProviderContainer lokal untuk mengakses provider
+    final container = ProviderContainer();
+
+    try {
+      switch (task) {
+        case syncTaskName:
+          try {
+            final syncCheckService = container.read(syncCheckServiceProvider);
+            await syncCheckService.runSyncCheck();
+            Log.info('Background task "$task" selesai dengan sukses.');
+            return true;
+          } on Object catch (e, st) {
+            Log.error(
+              'Error saat menjalankan background task "$task"',
+              e: e,
+              st: st,
+            );
+            return false;
+          }
+        default:
+          Log.warning('Task tidak dikenal: $task');
+          return false;
+      }
+    } finally {
+      // Penting: bersihkan container setelah selesai
+      container.dispose();
     }
   });
 }
@@ -44,7 +53,6 @@ void callbackDispatcher() {
 /// Kelas helper untuk mengelola inisialisasi dan pendaftaran background service.
 class BackgroundService {
   /// Melakukan inisialisasi Workmanager dengan callback dispatcher.
-  /// Panggil ini sekali di main.dart.
   static Future<void> init() async {
     try {
       await Workmanager().initialize(
@@ -59,13 +67,12 @@ class BackgroundService {
     }
   }
 
-  /// Mendaftarkan tugas sinkronisasi periodik untuk dijalankan.
-  /// Metode ini dipanggil secara otomatis oleh `init`.
+  /// Mendaftarkan tugas sinkronisasi periodik.
   static Future<void> registerPeriodicSync() async {
     try {
       await Workmanager().registerPeriodicTask(
-        syncTaskName, // Unique name
-        syncTaskName, // Task name
+        syncTaskName,
+        syncTaskName,
         frequency: const Duration(minutes: 15),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
         initialDelay: const Duration(minutes: 1),
@@ -77,11 +84,7 @@ class BackgroundService {
         'Tugas sinkronisasi periodik ($syncTaskName) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mendaftarkan tugas periodik.',
-        e: e,
-        st: st,
-      );
+      Log.error('Gagal mendaftarkan tugas periodik.', e: e, st: st);
     }
   }
 
