@@ -36,13 +36,12 @@ class _EventPageUState extends State<EventPageU> {
             gapH16,
             if (_dummyIsActive)
               Container(
-                  height: 200,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: _dummyImageUrl.isNotEmpty
                       ? Image.network(_dummyImageUrl,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover, // Diubah menjadi BoxFit.cover
                           errorBuilder: (final _, final __, final ___) =>
                               const Center(
                                   child:
