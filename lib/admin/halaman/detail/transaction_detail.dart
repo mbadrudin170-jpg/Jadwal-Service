@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/detail/transaction_detail.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -9,7 +10,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
-class TransactionDetailPage extends StatefulWidget {
+class TransactionDetailPage extends ConsumerStatefulWidget {
   /// Model transaksi yang akan ditampilkan.
   final TransactionModel transaction;
 
@@ -17,15 +18,15 @@ class TransactionDetailPage extends StatefulWidget {
   const TransactionDetailPage({super.key, required this.transaction});
 
   @override
-  State<TransactionDetailPage> createState() => _TransactionDetailPageState();
+  ConsumerState<TransactionDetailPage> createState() => _TransactionDetailPageState();
 }
 
-class _TransactionDetailPageState extends State<TransactionDetailPage> {
-  final WalletOperation _walletOperation = WalletOperation();
-  final CategoryOperation _categoryOperation = CategoryOperation();
-  final CustomerOperation _customerOperation = CustomerOperation();
-  final PackageOperation _packageOperation = PackageOperation();
-  final SubCategoryOperation _subCategoryOperation = SubCategoryOperation();
+class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
+  late final WalletOperation _walletOperation;
+  late final CategoryOperation _categoryOperation;
+  late final CustomerOperation _customerOperation;
+  late final PackageOperation _packageOperation;
+  late final SubCategoryOperation _subCategoryOperation;
 
   late TransactionModel _currentTransaction;
   bool _diUpdate = false;
@@ -33,6 +34,11 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
   @override
   void initState() {
     super.initState();
+    _walletOperation = ref.read(walletOperationProvider);
+    _categoryOperation = ref.read(categoryOperationProvider);
+    _customerOperation = ref.read(customerOperationProvider);
+    _packageOperation = ref.read(packageOperationProvider);
+
     _currentTransaction = widget.transaction;
     Log.info('Membuka halaman Detail Transaksi ID: ${_currentTransaction.id}');
   }
@@ -202,7 +208,8 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-gapH16,          Flexible(child: Text(value, textAlign: TextAlign.end)),
+          gapH16,
+          Flexible(child: Text(value, textAlign: TextAlign.end)),
         ],
       ),
     );

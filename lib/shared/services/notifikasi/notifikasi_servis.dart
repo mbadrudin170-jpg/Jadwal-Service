@@ -5,18 +5,18 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
 
-/// Fungsi callback global untuk menangani respons notifikasi saat aplikasi
-/// berada di background.
-///  Fungsi ini harus mandiri dan tidak boleh bergantung pada
-/// kelas atau layanan lain yang mungkin belum diinisialisasi di background isolate,
-/// seperti kelas Log kustom kita. Menggunakan print() atau dart:developer.log()
-/// adalah pilihan yang lebih aman di sini.
+final notifikasiServisProvider = Provider<NotifikasiServis>((ref) {
+  Log.info('Membuat instance NotifikasiServis melalui Riverpod provider');
+  // Factory constructor NotifikasiServis() sudah mengembalikan instance singleton
+  return NotifikasiServis();
+});
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
     final NotificationResponse response) {
@@ -24,15 +24,9 @@ void onDidReceiveBackgroundNotificationResponse(
   if (response.payload != null) {
     debugPrint('notification payload: $payload');
   }
-  // Menggunakan print() untuk menghindari crash di background isolate.
-  // ignore: avoid_print
   debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
 }
 
-/// Kelas layanan untuk mengelola notifikasi lokal di seluruh aplikasi.
-///
-/// Menggunakan pola Singleton untuk memastikan hanya ada satu instance
-/// dari layanan ini.
 class NotifikasiServis {
   static NotifikasiServis? _instance;
 
@@ -135,7 +129,7 @@ class NotifikasiServis {
     await _setupAndroidChannel();
 
     final android = AndroidInitializationSettings(iconName);
-    
+
     const ios = DarwinInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
 

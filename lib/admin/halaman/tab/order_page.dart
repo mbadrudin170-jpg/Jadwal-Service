@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/order_model.dart';
@@ -13,17 +14,15 @@ import 'package:wifi/shared/operasi/order_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan dan mengelola daftar pesanan.
-class OrderPage extends StatefulWidget {
+class OrderPage extends ConsumerStatefulWidget {
   /// Halaman untuk menampilkan dan mengelola daftar pesanan.
   const OrderPage({super.key});
 
   @override
-  State<OrderPage> createState() => _OrderPageState();
+  ConsumerState<OrderPage> createState() => _OrderPageState();
 }
 
-class _OrderPageState extends State<OrderPage> {
-  final OrderOperation _orderOperation = OrderOperation();
-
+class _OrderPageState extends ConsumerState<OrderPage> {
   List<OrderModel> _orderList = [];
   bool _isLoading = true;
   String _filterStatus = 'semua';
@@ -36,6 +35,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Future<void> _loadOrders() async {
+    final _orderOperation = ref.read(orderOperationProvider);
     Log.info('Memuat pesanan dengan filter: $_filterStatus');
     setState(() => _isLoading = true);
 
@@ -59,8 +59,11 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Future<void> _updateStatus(final OrderModel order, final String newStatus) async {
+  Future<void> _updateStatus(
+      final OrderModel order, final String newStatus) async {
     Log.info('Mengubah status pesanan ID: ${order.id} ke "$newStatus"');
+    final _orderOperation = ref.read(orderOperationProvider);
+
     try {
       await _orderOperation.updateOrderStatus(order.id, newStatus);
       await _loadOrders();
@@ -81,9 +84,12 @@ class _OrderPageState extends State<OrderPage> {
       context: context,
       builder: (final context) => AlertDialog(
         title: const Text('Arsipkan Pesanan'),
-        content: Text('Yakin ingin mengarsipkan pesanan dari ${order.customerId}?'),
+        content:
+            Text('Yakin ingin mengarsipkan pesanan dari ${order.customerId}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -95,6 +101,7 @@ class _OrderPageState extends State<OrderPage> {
 
     if (confirmed ?? false) {
       try {
+        final _orderOperation = ref.read(orderOperationProvider);
         await _orderOperation.softDelete(order.id);
         await _loadOrders();
         if (mounted) {
@@ -108,16 +115,19 @@ class _OrderPageState extends State<OrderPage> {
       }
     }
   }
-  
+
   Future<void> _softDeleteAllOrders() async {
     Log.info('Memulai soft delete untuk semua pesanan');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (final context) => AlertDialog(
         title: const Text('Arsipkan Semua Pesanan?'),
-        content: const Text('Anda yakin ingin mengarsipkan semua pesanan yang aktif?'),
+        content: const Text(
+            'Anda yakin ingin mengarsipkan semua pesanan yang aktif?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal')),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -126,9 +136,10 @@ class _OrderPageState extends State<OrderPage> {
         ],
       ),
     );
-    
+
     if (confirmed ?? false) {
       try {
+        final _orderOperation = ref.read(orderOperationProvider);
         final count = await _orderOperation.softDeleteAll();
         await _loadOrders();
         if (mounted) {
@@ -188,7 +199,10 @@ class _OrderPageState extends State<OrderPage> {
             _filterChip('Diproses', 'diproses'),
             _filterChip('Selesai', 'selesai'),
             _filterChip('Ditolak', 'ditolak'),
-          ].map((final e) => Padding(padding: const EdgeInsets.only(right: 8), child: e)).toList(),
+          ]
+              .map((final e) =>
+                  Padding(padding: const EdgeInsets.only(right: 8), child: e))
+              .toList(),
         ),
       ),
     );
@@ -239,14 +253,18 @@ class _OrderPageState extends State<OrderPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(order.customerId, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(order.customerId,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: statusColor.withAlpha(30),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(_getStatusText(order), style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
+                    child: Text(_getStatusText(order),
+                        style: TextStyle(
+                            color: statusColor, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -258,9 +276,12 @@ class _OrderPageState extends State<OrderPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _actionButton('Proses', () => unawaited(_updateStatus(order, 'diproses'))),
-                  _actionButton('Selesai', () => unawaited(_updateStatus(order, 'selesai'))),
-                  _actionButton('Tolak', () => unawaited(_updateStatus(order, 'ditolak'))),
+                  _actionButton('Proses',
+                      () => unawaited(_updateStatus(order, 'diproses'))),
+                  _actionButton('Selesai',
+                      () => unawaited(_updateStatus(order, 'selesai'))),
+                  _actionButton('Tolak',
+                      () => unawaited(_updateStatus(order, 'ditolak'))),
                   IconButton(
                     icon: const Icon(Icons.archive, color: Colors.grey),
                     onPressed: () => unawaited(_softDeleteOrder(order)),
@@ -284,16 +305,22 @@ class _OrderPageState extends State<OrderPage> {
 
   Color _getStatusColor(final OrderModel order) {
     switch (order.status) {
-      case 'baru': return Colors.blue;
-      case 'diproses': return Colors.orange;
-      case 'selesai': return Colors.green;
-      case 'ditolak': return Colors.red;
-      default: return Colors.grey;
+      case 'baru':
+        return Colors.blue;
+      case 'diproses':
+        return Colors.orange;
+      case 'selesai':
+        return Colors.green;
+      case 'ditolak':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   String _getStatusText(final OrderModel order) {
-    return order.status.substring(0, 1).toUpperCase() + order.status.substring(1);
+    return order.status.substring(0, 1).toUpperCase() +
+        order.status.substring(1);
   }
 
   Future<void> _showOrderDetail(final OrderModel order) async {
@@ -305,11 +332,14 @@ class _OrderPageState extends State<OrderPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Detail Pesanan #${order.id}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text('Detail Pesanan #${order.id}',
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             _detailRow('Nama Pelanggan', order.customerId),
             _detailRow('Paket', order.packageId),
-            _detailRow('Tanggal', DateFormat('dd MMM yyyy HH:mm').format(order.date)),
+            _detailRow(
+                'Tanggal', DateFormat('dd MMM yyyy HH:mm').format(order.date)),
           ],
         ),
       ),
@@ -320,7 +350,12 @@ class _OrderPageState extends State<OrderPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        children: [SizedBox(width: 120, child: Text(label, style: const TextStyle(color: Colors.grey))), Text(value)],
+        children: [
+          SizedBox(
+              width: 120,
+              child: Text(label, style: const TextStyle(color: Colors.grey))),
+          Text(value)
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 // path: lib/admin/halaman/form/customer_form.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11,7 +12,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
-class CustomerForm extends StatefulWidget {
+class CustomerForm extends ConsumerStatefulWidget {
   /// Model pelanggan yang akan diedit. Jika null, maka form dalam mode tambah baru.
   final CustomerModel? customer;
 
@@ -19,10 +20,10 @@ class CustomerForm extends StatefulWidget {
   const CustomerForm({super.key, this.customer});
 
   @override
-  State<CustomerForm> createState() => _CustomerFormState();
+  ConsumerState<CustomerForm> createState() => _CustomerFormState();
 }
 
-class _CustomerFormState extends State<CustomerForm> {
+class _CustomerFormState extends ConsumerState<CustomerForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -77,6 +78,7 @@ class _CustomerFormState extends State<CustomerForm> {
   }
 
   Future<void> _saveForm() async {
+    final customerOperation = ref.read(customerOperationProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -99,12 +101,12 @@ class _CustomerFormState extends State<CustomerForm> {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
           );
-          await CustomerOperation().add(newCustomer);
+          await customerOperation.add(newCustomer);
         } else {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',
           );
-          await CustomerOperation().updateCustomer(newCustomer);
+          await customerOperation.updateCustomer(newCustomer);
         }
 
         if (!mounted) return;
@@ -213,9 +215,7 @@ class _CustomerFormState extends State<CustomerForm> {
                     prefixIcon: const Icon(TIcons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
-                            ? TIcons.show
-                            : TIcons.hide,
+                        _isPasswordVisible ? TIcons.show : TIcons.hide,
                       ),
                       onPressed: () {
                         Log.info('Visibilitas password diubah.');

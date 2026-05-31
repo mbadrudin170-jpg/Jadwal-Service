@@ -49,9 +49,8 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
     return _loadData();
   }
 
-  // Helper untuk mengambil semua data dalam satu operasi.
   Future<WalletState> _loadData() async {
-    final operation = WalletOperation();
+    final operation = ref.read(walletOperationProvider);
     final results = await Future.wait([
       operation.getWallets(),
       operation.getPositiveBalance(),
@@ -72,8 +71,8 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   Future<void> addWallet(final WalletModel wallet) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final walletOperation = WalletOperation();
-      await walletOperation.createWallet(wallet);
+      final operation = ref.read(walletOperationProvider);
+      await operation.createWallet(wallet);
       return _loadData();
     });
   }
@@ -81,7 +80,7 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   Future<void> updateWallet(final WalletModel wallet) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = WalletOperation();
+      final operation = ref.read(walletOperationProvider);
       await operation.updateWallet(wallet);
       return _loadData();
     });
@@ -90,7 +89,7 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   Future<void> softDelete(final String id) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = WalletOperation();
+      final operation = ref.read(walletOperationProvider);
       await operation.softDelete(id);
       return _loadData();
     });
@@ -99,7 +98,7 @@ class WalletNotifier extends AsyncNotifier<WalletState> {
   Future<void> deleteAllWallets() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final operation = WalletOperation();
+      final operation = ref.read(walletOperationProvider);
       await operation.deleteAllWallets();
       return _loadData();
     });

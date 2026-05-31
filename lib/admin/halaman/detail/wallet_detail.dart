@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
 import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -40,7 +41,7 @@ class WalletDetailData {
 
 /// Halaman yang menampilkan detail dari sebuah dompet,
 /// termasuk ringkasan saldo dan daftar transaksinya.
-class WalletDetail extends StatefulWidget {
+class WalletDetail extends ConsumerStatefulWidget {
   /// Model dompet yang akan ditampilkan.
   final WalletModel wallet;
 
@@ -59,32 +60,29 @@ class WalletDetail extends StatefulWidget {
   });
 
   @override
-  State<WalletDetail> createState() => _WalletDetailState();
+  ConsumerState<WalletDetail> createState() => _WalletDetailState();
 }
 
-class _WalletDetailState extends State<WalletDetail> {
+class _WalletDetailState extends ConsumerState<WalletDetail> {
   late Future<WalletDetailData> _futureDetailData;
-  late final WalletOperation _walletOperation;
-  late final TransactionOperation _transactionOperation;
   String? _latestWalletName;
 
   @override
   void initState() {
     super.initState();
     Log.info('Membuat state untuk WalletDetail. ID: ${widget.wallet.id}');
-    _walletOperation = widget.walletOperation ?? WalletOperation();
-    _transactionOperation =
-        widget.transactionOperation ?? TransactionOperation();
     _futureDetailData = _loadData();
   }
 
   Future<WalletDetailData> _loadData() async {
     Log.info('Memuat data detail dompet ID: ${widget.wallet.id}');
+    final walletOperation = ref.read(walletOperationProvider);
+    final transactionOperation = ref.read(transactionOperationProvider);
 
     try {
       final results = await Future.wait([
-        _walletOperation.getWalletById(widget.wallet.id),
-        _transactionOperation.getTransactionsByWalletId(widget.wallet.id),
+        walletOperation.getWalletById(widget.wallet.id),
+        transactionOperation.getTransactionsByWalletId(widget.wallet.id),
       ]);
 
       final latestWallet = results[0] as WalletModel?;
@@ -138,7 +136,8 @@ class _WalletDetailState extends State<WalletDetail> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) => TransactionDetailPage(transaction: transaction),
+        builder: (final context) =>
+            TransactionDetailPage(transaction: transaction),
       ),
     );
 
@@ -244,7 +243,7 @@ class _WalletDetailState extends State<WalletDetail> {
 
   Widget _buildTransactionList(final List<TransactionModel> transactionData) {
     final groupedTransactions = groupTransactionsByDate(transactionData);
-
+    final transactionOperation = ref.read(transactionOperationProvider);
     return ListView.builder(
       itemCount: groupedTransactions.length,
       itemBuilder: (final context, final index) {
@@ -277,7 +276,7 @@ class _WalletDetailState extends State<WalletDetail> {
                 },
                 onDelete: () async {
                   Log.info('Hapus transaksi: ${transaction.id}');
-                  await _transactionOperation.softDelete(transaction.id);
+                  await transactionOperation.softDelete(transaction.id);
                   _reloadData();
                 },
               ),

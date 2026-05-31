@@ -8,7 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/admin/providers/app_providers.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
@@ -16,6 +16,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 
 class AppAdmin extends ConsumerWidget {
@@ -83,10 +84,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       final isOnline = await _connectionService.checkConnection();
       if (isOnline) {
-        // Gunakan ref.read untuk mengakses provider settings
-        final settings = await ref.read(settingsProvider.future);
-        final retentionDays = settings.autoDeleteArchiveDays;
-        final dataCleaningOperation = DataCleaningOperation();
+        final settingsOperation = await ref.read(settingsOperationProvider);
+        final settingsModel = await settingsOperation.getSettings();
+        final retentionDays = settingsModel.autoDeleteArchiveDays;
+        final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation.deleteAllExpiredArchivedData(
             retentionDays: retentionDays);
       } else {
@@ -113,7 +114,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         }
         return const MaterialApp(
           home: Scaffold(
-              body: Center(child: CircularProgressIndicator())), // Initial splash
+              body:
+                  Center(child: CircularProgressIndicator())), // Initial splash
         );
       },
     );

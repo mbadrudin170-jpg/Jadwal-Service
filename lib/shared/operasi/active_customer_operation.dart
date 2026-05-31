@@ -4,6 +4,7 @@
 // diubah: Mengganti nama class dari PelangganAktifOperasi menjadi ActiveCustomerOperation.
 // diubah: Menggunakan BaseOperation dan ActiveCustomerModel.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -21,23 +22,44 @@ import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 /// Konstanta untuk generate UUID.
 const uuid = Uuid();
 
+final activeCustomerOperationProvider =
+    Provider<ActiveCustomerOperation>((ref) {
+  Log.info('Membuat instance ActiveCustomerOperation...');
+  final dbHelper = ref.read(databaseHelperProvider);
+  final baseOperation = ref.read(baseOperationProvider);
+  final customerOperation =
+      ref.read(customerOperationProvider); // pastikan provider ini ada
+  final notifikasiServis =
+      ref.read(notifikasiServisProvider); // sudah ada di app_providers.dart
+  return ActiveCustomerOperation(
+    dbHelper: dbHelper,
+    baseOperation: baseOperation,
+    customerOperation: customerOperation,
+    notifikasiServis: notifikasiServis,
+  );
+});
+
 /// Kelas untuk operasi terkait data pelanggan aktif di database lokal.
 class ActiveCustomerOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final DatabaseHelper dbHelper = DatabaseHelper.instance;
-  final BaseOperation _baseOperation = BaseOperation();
-
-  // DIUBAH: Menggunakan TableNameValue dinamis untuk konsistensi migrasi v50
+  final DatabaseHelper dbHelper;
+  final BaseOperation _baseOperation;
+  final NotifikasiServis _notifikasiServis;
+  final CustomerOperation _customerOperation;
   final String _tableName = TableNameValue.get(TableName.activeCustomer);
   final String _customerTableName = TableNameValue.get(TableName.customer);
   final String _packageTableName = TableNameValue.get(TableName.package);
 
-  final NotifikasiServis _notifikasiServis = NotifikasiServis();
-  final CustomerOperation _customerOperation = CustomerOperation();
   final _nowUtc = DateTime.now().toUtc();
 
-  /// Konstruktor untuk `ActiveCustomerOperation`.
-  ActiveCustomerOperation() {
+  ActiveCustomerOperation({
+    required this.dbHelper,
+    required BaseOperation baseOperation,
+    required CustomerOperation customerOperation,
+    required NotifikasiServis notifikasiServis,
+  })  : _baseOperation = baseOperation,
+        _customerOperation = customerOperation,
+        _notifikasiServis = notifikasiServis {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 

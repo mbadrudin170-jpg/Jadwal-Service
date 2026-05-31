@@ -24,29 +24,8 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
   final ActiveCustomerModel? pelangganAktif;
-  final CustomerOperation pelangganOperasi;
-  final PackageOperation paketOperasi;
-  final ActiveCustomerOperation pelangganAktifOperasi;
-  final TransactionOperation transaksiOperasi;
-  final WalletOperation dompetOperasi;
-  final CategoryOperation kategoriOperasi;
 
-  FormPelangganAktif({
-    super.key,
-    this.pelangganAktif,
-    final CustomerOperation? pelangganOperasi,
-    final PackageOperation? paketOperasi,
-    final ActiveCustomerOperation? pelangganAktifOperasi,
-    final TransactionOperation? transaksiOperasi,
-    final WalletOperation? dompetOperasi,
-    final CategoryOperation? kategoriOperasi,
-  })  : pelangganOperasi = pelangganOperasi ?? CustomerOperation(),
-        paketOperasi = paketOperasi ?? PackageOperation(),
-        pelangganAktifOperasi =
-            pelangganAktifOperasi ?? ActiveCustomerOperation(),
-        transaksiOperasi = transaksiOperasi ?? TransactionOperation(),
-        dompetOperasi = dompetOperasi ?? WalletOperation(),
-        kategoriOperasi = kategoriOperasi ?? CategoryOperation();
+  FormPelangganAktif({super.key, this.pelangganAktif});
 
   @override
   ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();
@@ -60,26 +39,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   List<WalletModel> _daftarDompet = [];
   List<CategoryModel> _kategoriPemasukanList = [];
   List<CategoryModel> _kategoriPengeluaranList = [];
-
   List<CategoryModel> get _kategoriList =>
       _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
-
   CustomerModel? _selectedPelanggan;
   PackageModel? _selectedPaket;
   WalletModel? _selectedDompet;
   CategoryModel? _selectedKategori;
-
   bool _isLoading = true;
   bool _gunakanPoin = false;
   int _saldoPoinPelanggan = 0;
-
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-
   PaymentStatus _statusPembayaran = PaymentStatus.paid;
-
   bool get _isEditMode => widget.pelangganAktif != null;
-
   int hitungPoinEfektif() {
     if (_selectedPaket == null) {
       return 0;
@@ -115,18 +87,22 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
-
+    final pelangganOperasi = ref.read(customerOperationProvider);
+    final paketOperasi = ref.read(packageOperationProvider);
+    final transaksiOperasi = ref.read(transactionOperationProvider);
+    final dompetOperasi = ref.read(walletOperationProvider);
+    final kategoriOperasi = ref.read(categoryOperationProvider);
     try {
       final pa = widget.pelangganAktif;
       final transaksiTerkaitFuture = pa?.transactionId != null
-          ? widget.transaksiOperasi.getTransactionById(pa!.transactionId!)
+          ? transaksiOperasi.getTransactionById(pa!.transactionId!)
           : Future<TransactionModel?>.value();
 
       final results = await Future.wait([
-        widget.pelangganOperasi.getAll(),
-        widget.paketOperasi.getByAktif(),
-        widget.dompetOperasi.getWallets(),
-        widget.kategoriOperasi.getCategories(),
+        pelangganOperasi.getAll(),
+        paketOperasi.getByAktif(),
+        dompetOperasi.getWallets(),
+        kategoriOperasi.getCategories(),
         transaksiTerkaitFuture,
       ]);
 
@@ -185,6 +161,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   void _mapEditData(final TransactionModel? transaksi) {
+    final transaksiOperasi = ref.read(transactionOperationProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
@@ -217,13 +194,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     _statusPembayaran = pa.status;
 
     if (_selectedPelanggan != null) {
-      unawaited(widget.transaksiOperasi
+      transaksiOperasi
           .getTotalPoints(_selectedPelanggan!.id)
           .then((final poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
         }
-      }));
+      });
     }
 
     Log.info('Pemetaan data edit selesai.');
@@ -276,6 +253,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Future<SaveResultModel<ActiveCustomerModel>> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
+    final pelangganAktifOperasi = ref.read(activeCustomerOperationProvider);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -341,13 +319,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       ActiveCustomerModel pelangganAktifHasil;
       if (_isEditMode) {
-        pelangganAktifHasil = await widget.pelangganAktifOperasi
+        pelangganAktifHasil = await pelangganAktifOperasi
             .updateActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
             .updateTransaction(transaksiData);
       } else {
-        pelangganAktifHasil = await widget.pelangganAktifOperasi
+        pelangganAktifHasil = await pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
@@ -457,6 +435,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildPelangganDropdown() {
+    final transaksiOperasi = ref.read(transactionOperationProvider);
     return DropdownButtonFormField<CustomerModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
@@ -469,8 +448,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         if (newValue == null) {
           return;
         }
-        final saldoPoin =
-            await widget.transaksiOperasi.getTotalPoints(newValue.id);
+        final saldoPoin = await transaksiOperasi.getTotalPoints(newValue.id);
         if (mounted) {
           setState(() {
             Log.info(

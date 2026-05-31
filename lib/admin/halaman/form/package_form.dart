@@ -1,17 +1,8 @@
 // path: lib/admin/halaman/form/package_form.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/enum/duration_type_enum.dart (DurationType)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
@@ -23,28 +14,25 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 
 /// Halaman form untuk menambah atau mengedit paket.
-class PackageForm extends StatefulWidget {
+class PackageForm extends ConsumerStatefulWidget {
   /// Model paket yang akan diedit. Jika null, maka form akan membuat paket baru.
   final PackageModel? package;
 
-  /// Operasi paket untuk berinteraksi dengan database.
-  final PackageOperation? packageOperation;
-
   /// Konstruktor untuk PackageForm.
-  const PackageForm({super.key, this.package, this.packageOperation});
+  const PackageForm({super.key, this.package});
 
   @override
-  State<PackageForm> createState() => _PackageFormState();
+  ConsumerState<PackageForm> createState() => _PackageFormState();
 }
 
-class _PackageFormState extends State<PackageForm> {
+class _PackageFormState extends ConsumerState<PackageForm> {
+  late final PackageOperation _packageOperation;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _durationController = TextEditingController();
   final _rewardPointsController = TextEditingController();
   final _redemptionPointsController = TextEditingController();
-  late final PackageOperation _packageOperation;
 
   final _nameFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
@@ -60,25 +48,19 @@ class _PackageFormState extends State<PackageForm> {
   @override
   void initState() {
     super.initState();
-    Log.info('========================================');
     Log.info('LIFECYCLE: initState() - Halaman PackageForm');
-    Log.info('========================================');
 
     Log.info(
       'Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}, '
       '${_isEditMode ? "ID: ${widget.package!.id}, Nama: ${widget.package!.name}, Harga: ${widget.package!.price}, Durasi: ${widget.package!.duration} ${widget.package!.type.name}" : ""}',
     );
-
     Log.info(
       'Menginisialisasi PackageOperation. '
       'Menggunakan instance dari widget jika tersedia, jika tidak membuat instance baru.',
     );
-    _packageOperation = widget.packageOperation ?? PackageOperation();
-    Log.info(
-      'PackageOperation berhasil diinisialisasi. '
-      'Instance: ${_packageOperation.hashCode}, '
-      'Sumber: ${widget.packageOperation != null ? "Dependency Injection" : "Instance Baru"}',
-    );
+    _packageOperation = ref.read(packageOperationProvider);
+    Log.info('PackageOperation berhasil diinisialisasi. '
+        'Instance: ${_packageOperation.hashCode}, ');
 
     if (_isEditMode) {
       Log.info('MODE EDIT terdeteksi. Data paket yang akan diedit:');
@@ -119,31 +101,17 @@ class _PackageFormState extends State<PackageForm> {
 
       _isPublic = widget.package!.isPublic;
       Log.info('  - _isPublic = ${widget.package!.isPublic}');
-    } else {
-      Log.info('MODE TAMBAH BARU terdeteksi.');
-      Log.info('Form akan membuat paket baru dengan:');
-      Log.info('  - ID: Akan digenerate otomatis oleh database');
-      Log.info('  - isPublic default: true (paket aktif)');
-      Log.info('  - Tipe Durasi default: hari');
-      Log.info('  - isDeleted default: 0');
-      Log.info('  - Diarsipkan default: NULL');
-      Log.info('  - Diperbarui: Akan diisi otomatis');
-    }
+    } else {}
 
     Log.info(
         'Inisialisasi PackageForm selesai. Semua controller siap menerima input.');
   }
 
   Future<void> _saveForm() async {
-    Log.info('========================================');
-    Log.info('AKSI: Tombol Simpan Ditekan');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
-    Log.info('========================================');
 
     Log.info('Memvalidasi form...');
     if (_formKey.currentState!.validate()) {
-      Log.info('Validasi form BERHASIL. Semua input valid.');
-
       Log.info('Data yang akan disimpan:');
       Log.info('  - Nama: "${_nameController.text}"');
       Log.info('  - Harga: ${_priceController.text}');
@@ -159,16 +127,15 @@ class _PackageFormState extends State<PackageForm> {
 
       Log.info('Membuat objek PackageModel baru dari data form.');
       final newPackage = PackageModel(
-        id: _isEditMode ? widget.package!.id : null,
-        name: _nameController.text,
-        price: int.parse(_priceController.text.replaceAll('.', '')),
-        duration: int.parse(_durationController.text),
-        type: _selectedType,
-        rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
-        redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
-        isPublic: _isPublic,
-        updatedAt: DateTime.now().toUtc()
-      );
+          id: _isEditMode ? widget.package!.id : null,
+          name: _nameController.text,
+          price: int.parse(_priceController.text.replaceAll('.', '')),
+          duration: int.parse(_durationController.text),
+          type: _selectedType,
+          rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
+          redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
+          isPublic: _isPublic,
+          updatedAt: DateTime.now().toUtc());
 
       Log.info('Objek PackageModel berhasil dibuat:');
       Log.info('  - ID: ${newPackage.id}');
@@ -182,9 +149,7 @@ class _PackageFormState extends State<PackageForm> {
 
       try {
         if (_isEditMode) {
-          Log.info('========================================');
           Log.info('PROSES UPDATE PAKET (MODE EDIT)');
-          Log.info('========================================');
           Log.info('Data sebelum update:');
           Log.info('  - Nama: ${widget.package!.name} -> ${newPackage.name}');
           Log.info(
@@ -206,9 +171,7 @@ class _PackageFormState extends State<PackageForm> {
           Log.info(
               'Update paket BERHASIL. Data paket telah diperbarui di database.');
         } else {
-          Log.info('========================================');
           Log.info('PROSES TAMBAH PAKET BARU (MODE TAMBAH)');
-          Log.info('========================================');
 
           Log.info(
               'Memanggil _packageOperation.createPackage() untuk menyimpan paket baru ke database.');
@@ -222,9 +185,7 @@ class _PackageFormState extends State<PackageForm> {
           return;
         }
 
-        Log.info('========================================');
         Log.info('PENYIMPANAN DATA PAKET BERHASIL');
-        Log.info('========================================');
 
         ToastUtil.success(
           context,
@@ -286,7 +247,6 @@ class _PackageFormState extends State<PackageForm> {
         Log.info('Toast error telah ditampilkan.');
       }
     } else {
-      Log.warning('Validasi form GAGAL. Terdapat input yang tidak valid.');
       Log.warning('Kemungkinan penyebab:');
       Log.warning('  - Nama paket kosong');
       Log.warning('  - Harga kosong atau bukan angka');
@@ -299,8 +259,6 @@ class _PackageFormState extends State<PackageForm> {
 
   @override
   Widget build(final BuildContext context) {
-    Log.info('========================================');
-    Log.info('LIFECYCLE: build() - Membangun UI PackageForm');
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info('Data form saat ini:');
     Log.info('  - Nama: "${_nameController.text}"');
@@ -310,7 +268,6 @@ class _PackageFormState extends State<PackageForm> {
     Log.info('  - Poin Hadiah: "${_rewardPointsController.text}"');
     Log.info('  - Poin Penukaran: "${_redemptionPointsController.text}"');
     Log.info('  - isPublic: $_isPublic');
-    Log.info('========================================');
 
     return Scaffold(
       appBar: AppBar(

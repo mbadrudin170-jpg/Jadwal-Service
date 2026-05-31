@@ -21,15 +21,11 @@ class WalletPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI untuk Halaman Wallet (ConsumerWidget).');
-
-    // Menggunakan ref.watch untuk mendengarkan perubahan pada walletProvider
     final walletStateAsync = ref.watch(walletProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dompet'),
         actions: [
-          // IconButton untuk refresh data secara manual
           IconButton(
             icon: const Icon(TIcons.refresh),
             onPressed: () {
@@ -48,7 +44,6 @@ class WalletPage extends ConsumerWidget {
         ],
       ),
       body: walletStateAsync.when(
-        // Menampilkan loading indicator saat data sedang dimuat
         loading: () {
           Log.info('WalletProvider sedang loading.');
           return const Center(child: CircularProgressIndicator());
@@ -66,15 +61,12 @@ class WalletPage extends ConsumerWidget {
             'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
           );
           final wallets = walletState.wallets;
-          // Tampilkan pesan jika tidak ada dompet
           if (wallets.isEmpty) {
             return const Center(child: Text('Tidak ada dompet ditemukan.'));
           }
 
-          // UI utama dengan data yang sudah siap
           return Column(
             children: [
-              // FinancialSummary sekarang juga bisa menggunakan data dari provider
               FinancialSummary(
                 totalPositiveBalance: walletState.totalPositiveBalance,
                 totalNegativeBalance: walletState.totalNegativeBalance,
@@ -107,8 +99,6 @@ class WalletPage extends ConsumerWidget {
       ),
     );
   }
-
-  // Helper methods diubah menjadi fungsi biasa yang menerima context dan ref
 
   Future<void> _navigateToAddForm(BuildContext context, WidgetRef ref) async {
     Log.info('Navigasi ke halaman tambah dompet.');

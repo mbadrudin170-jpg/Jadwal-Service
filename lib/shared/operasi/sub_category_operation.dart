@@ -1,6 +1,6 @@
 // path: lib/shared/operasi/sub_category_operation.dart
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -9,27 +9,32 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
+final feedbackOperationProvider = Provider<SubCategoryOperation>((ref) {
+  Log.info('Membuat instance FeedbackOperation...');
+  final dbHelper = ref.read(databaseHelperProvider);
+  final baseOperation = ref.read(baseOperationProvider);
+
+  return SubCategoryOperation(
+    dbHelper: dbHelper,
+    baseOperation: baseOperation,
+  );
+});
+
 /// Kelas untuk operasi terkait data sub-kategori di database lokal.
 class SubCategoryOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  @visibleForTesting
   final DatabaseHelper dbHelper;
 
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  @visibleForTesting
   final BaseOperation baseOperation;
 
   final String _tableName = TableNameValue.get(TableName.subCategory);
 
-  /// Konstruktor untuk [SubCategoryOperation].
-  ///
-  /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
-  /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   SubCategoryOperation({
-    final DatabaseHelper? dbHelper,
-    final BaseOperation? baseOperation,
-  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
-        baseOperation = baseOperation ?? BaseOperation();
+    required final DatabaseHelper dbHelper,
+    required final BaseOperation baseOperation,
+  })  : dbHelper = dbHelper,
+        baseOperation = baseOperation;
 
   /// Menyimpan [SubCategoryModel] baru ke dalam database.
   Future<void> createSubCategory(

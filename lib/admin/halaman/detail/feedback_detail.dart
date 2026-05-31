@@ -9,6 +9,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
@@ -21,7 +22,7 @@ import 'package:wifi/shared/widget/customer_name.dart';
 ///
 /// Pengguna dapat melihat isi pesan, pengirim, dan tanggal.
 /// Terdapat juga opsi untuk menghapus item ini dari database.
-class FeedbackDetailPage extends StatefulWidget {
+class FeedbackDetailPage extends ConsumerStatefulWidget {
   /// ID unik dari dokumen kritik dan saran di Firestore.
   final String id;
 
@@ -32,23 +33,21 @@ class FeedbackDetailPage extends StatefulWidget {
   });
 
   @override
-  State<FeedbackDetailPage> createState() => _FeedbackDetailPageState();
+  ConsumerState<FeedbackDetailPage> createState() => _FeedbackDetailPageState();
 }
 
 /// State untuk [FeedbackDetailPage].
-class _FeedbackDetailPageState extends State<FeedbackDetailPage> {
-  final FeedbackOperation _feedbackOperation = FeedbackOperation();
+class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
+  late final FeedbackOperation _feedbackOperation;
 
   late Future<FeedbackModel> _feedbackFuture;
 
   @override
   void initState() {
     super.initState();
-
+    _feedbackOperation = ref.read(feedbackOperationProvider);
     Log.info(
-      'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.',
-    );
-
+        'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.');
     _loadData();
   }
 

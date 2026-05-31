@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -19,26 +20,17 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Form ini digunakan untuk menambah atau mengubah informasi mengenai
 /// versi APK yang tersedia untuk diunduh oleh pengguna, termasuk nomor build,
 /// tautan unduhan, dan catatan rilis.
-class ApkVersionForm extends StatefulWidget {
+class ApkVersionForm extends ConsumerStatefulWidget {
   /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final ApkVersionModel? apkVersion;
 
-  /// Operasi untuk berinteraksi dengan data versi APK di database.
-  final ApkVersionOperation operasi;
-
-  /// Membuat instance dari [ApkVersionForm].
-  ///
-  /// Parameter [operasi] bersifat opsional dan akan diinisialisasi
-  /// dengan instance default jika tidak disediakan. Ini berguna untuk
-  /// injeksi dependensi saat testing.
   ApkVersionForm(
-      {super.key, this.apkVersion, final ApkVersionOperation? operasi})
-      : operasi = operasi ?? ApkVersionOperation();
+      {super.key, this.apkVersion, final ApkVersionOperation? operasi});
   @override
-  State<ApkVersionForm> createState() => _ApkVersionFormState();
+  ConsumerState<ApkVersionForm> createState() => _ApkVersionFormState();
 }
 
-class _ApkVersionFormState extends State<ApkVersionForm> {
+class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool get _isEdit => widget.apkVersion != null;
@@ -86,10 +78,11 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
   }
 
   Future<void> _muatDataVersiTerakhir() async {
+    final apkVersionOperasi = ref.read(apkVersionOperationProvider);
     Log.info('Memuat data rilis terakhir untuk otomatisasi input.');
     setState(() => _isLoading = true);
     try {
-      final versiTerakhir = await widget.operasi.getLatestApkVersion();
+      final versiTerakhir = await apkVersionOperasi.getLatestApkVersion();
       if (versiTerakhir != null && mounted) {
         _latestVersionController.text = versiTerakhir.latestVersion;
         _youtubeTutorialController.text = versiTerakhir.youtubeTutorial;
@@ -162,6 +155,7 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
   }
 
   Future<void> _saveForm() async {
+    final apkVersionOperasi = ref.read(apkVersionOperationProvider);
     if (_formKey.currentState!.validate()) {
       Log.info('Menampilkan dialog konfirmasi kepada pengguna');
       FocusScope.of(context).unfocus();
@@ -239,13 +233,14 @@ class _ApkVersionFormState extends State<ApkVersionForm> {
       try {
         if (_isEdit) {
           Log.info('Menjalankan perintah update data...');
-          await widget.operasi.updateApkVersion(dataToSave);
+          await apkVersionOperasi.updateApkVersion(dataToSave);
         } else {
           Log.info('Menjalankan perintah tambah data baru...');
-          await widget.operasi.addApkVersion(dataToSave);
+          await apkVersionOperasi.addApkVersion(dataToSave);
         }
 
-        final hasConnection = await InternetConnectionService().checkConnection();
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
         if (hasConnection) {
           await SyncCheckService().runSyncCheck();
         } else {

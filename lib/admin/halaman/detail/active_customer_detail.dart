@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
@@ -22,7 +23,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
 /// Halaman untuk menampilkan detail pelanggan aktif.
-class ActiveCustomerDetailPage extends StatefulWidget {
+class ActiveCustomerDetailPage extends ConsumerStatefulWidget {
   /// Model pelanggan aktif yang akan ditampilkan.
   final ActiveCustomerModel activeCustomer;
 
@@ -30,11 +31,12 @@ class ActiveCustomerDetailPage extends StatefulWidget {
   const ActiveCustomerDetailPage({super.key, required this.activeCustomer});
 
   @override
-  State<ActiveCustomerDetailPage> createState() =>
+  ConsumerState<ActiveCustomerDetailPage> createState() =>
       _ActiveCustomerDetailPageState();
 }
 
-class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
+class _ActiveCustomerDetailPageState
+    extends ConsumerState<ActiveCustomerDetailPage> {
   late ActiveCustomerModel _activeCustomer;
   CustomerModel? _customer;
   PackageModel? _package;
@@ -88,8 +90,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
     setState(() => _isLoading = true);
     Log.info('Memuat detail pelanggan dan paket...');
 
-    final customerOperation = CustomerOperation();
-    final packageOperation = PackageOperation();
+    final customerOperation = ref.read(customerOperationProvider);
+    final packageOperation = ref.read(packageOperationProvider);
     final packageId = _activeCustomer.packageId;
 
     try {
@@ -130,10 +132,9 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
 
     if (result ?? false) {
       Log.info('Kembali dari edit dengan perubahan. Memuat ulang data.');
-      final operation = ActiveCustomerOperation();
+      final operation = ref.read(activeCustomerOperationProvider);
       final updatedActiveCustomer =
           await operation.getActiveCustomerById(_activeCustomer.id);
-
       if (mounted && updatedActiveCustomer != null) {
         setState(() {
           _activeCustomer = updatedActiveCustomer;
@@ -208,7 +209,8 @@ class _ActiveCustomerDetailPageState extends State<ActiveCustomerDetailPage> {
                                 ),
                               ),
                             ),
-gapH16,                            const Divider(),
+                            gapH16,
+                            const Divider(),
                             _buildWhatsAppInfoRow(
                               'No HP',
                               _customer?.phone ?? 'Tidak ditemukan',

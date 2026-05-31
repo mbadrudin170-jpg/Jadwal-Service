@@ -3,12 +3,25 @@
 // diubah: Mengganti StatusUnggahOperasi menjadi UploadStatusOperation.
 // diubah: Mengganti nama class dari OperasiDasar menjadi BaseOperation.
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
+
+final baseOperationProvider = Provider<BaseOperation>((ref) {
+  Log.info('Membuat instance BaseOperation...');
+
+  final dbHelper = ref.read(databaseHelperProvider);
+
+  final uploadStatusOperasi = ref.read(uploadStatusOperationProvider);
+
+  return BaseOperation(
+    dbHelper: dbHelper,
+    uploadStatusOperasi: uploadStatusOperasi,
+  );
+});
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
 class BaseOperation {
@@ -21,10 +34,10 @@ class BaseOperation {
   /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperation`
   /// untuk memfasilitasi pengujian.
   BaseOperation({
-    @visibleForTesting final DatabaseHelper? dbHelper,
-    @visibleForTesting final UploadStatusOperation? uploadStatusOperasi,
-  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _uploadStatusOperasi = uploadStatusOperasi ?? UploadStatusOperation() {
+    required final DatabaseHelper dbHelper,
+    required final UploadStatusOperation uploadStatusOperasi,
+  })  : _dbHelper = dbHelper,
+        _uploadStatusOperasi = uploadStatusOperasi {
     Log.info('BaseOperation instance dibuat.');
   }
 

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
-import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/operation.dart';

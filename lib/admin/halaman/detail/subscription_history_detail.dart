@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
@@ -33,7 +34,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 //   - lib/shared/debug/log.dart (Log)
 
 /// Halaman untuk menampilkan detail transaksi langganan.
-class SubscriptionHistoryDetailPage extends StatefulWidget {
+class SubscriptionHistoryDetailPage extends ConsumerStatefulWidget {
   /// ID transaksi yang akan ditampilkan.
   final String transactionId;
 
@@ -41,21 +42,24 @@ class SubscriptionHistoryDetailPage extends StatefulWidget {
   const SubscriptionHistoryDetailPage({super.key, required this.transactionId});
 
   @override
-  State<SubscriptionHistoryDetailPage> createState() =>
+  ConsumerState<SubscriptionHistoryDetailPage> createState() =>
       _SubscriptionHistoryDetailPageState();
 }
 
 class _SubscriptionHistoryDetailPageState
-    extends State<SubscriptionHistoryDetailPage> {
-  final TransactionOperation _transactionOperation = TransactionOperation();
-  final PackageOperation _packageOperation = PackageOperation();
-  final CustomerOperation _customerOperation = CustomerOperation();
+    extends ConsumerState<SubscriptionHistoryDetailPage> {
+  late final TransactionOperation _transactionOperation;
+  late final PackageOperation _packageOperation;
+  late final CustomerOperation _customerOperation;
 
   late Future<TransactionModel?> _transactionFuture;
 
   @override
   void initState() {
     super.initState();
+    _transactionOperation = ref.read(transactionOperationProvider);
+    _packageOperation = ref.read(packageOperationProvider);
+    _customerOperation = ref.read(customerOperationProvider);
     _loadTransactionDetails();
   }
 
@@ -155,8 +159,7 @@ class _SubscriptionHistoryDetailPageState
                   if (transaction.customerId != null)
                     _buildFutureInfoCard<CustomerModel>(
                       'Informasi Pelanggan',
-                      _customerOperation
-                          .getById(transaction.customerId!),
+                      _customerOperation.getById(transaction.customerId!),
                       'Pelanggan',
                       (final customer) => [
                         _buildDetailRow(
@@ -178,7 +181,8 @@ class _SubscriptionHistoryDetailPageState
                         }
                       },
                     ),
-gapH16,                  if (transaction.packageId != null)
+                  gapH16,
+                  if (transaction.packageId != null)
                     _buildFutureInfoCard<PackageModel>(
                       'Informasi Paket',
                       _packageOperation.getById(transaction.packageId!),
@@ -212,8 +216,10 @@ gapH16,                  if (transaction.packageId != null)
                         }
                       },
                     ),
-gapH16,                  _buildInfoPoints(transaction),
-gapH16,                  if (transaction.startDate != null &&
+                  gapH16,
+                  _buildInfoPoints(transaction),
+                  gapH16,
+                  if (transaction.startDate != null &&
                       transaction.endDate != null)
                     _buildInfoCard('Waktu Langganan', [
                       _buildDetailRow(

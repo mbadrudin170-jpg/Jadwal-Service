@@ -4,6 +4,7 @@
 // ditambahkan: Metode getBestSellingPackages untuk menghitung paket terlaris.
 
 import 'package:collection/collection.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
@@ -17,22 +18,33 @@ import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 
-/// Repository untuk mengelola semua query data statistik dari database SQLite.
-class StatistikRepository {
-  final ActiveCustomerOperation _activeCustomerOperation =
-      ActiveCustomerOperation();
-  final FeedbackOperation _feedbackOperation = FeedbackOperation();
-  final PackageOperation _packageOperation = PackageOperation();
-  final TransactionOperation _transactionOperation = TransactionOperation();
 
-  /// Menghitung paket mana yang paling banyak terjual.
-  ///
-  /// Proses:
-  /// 1. Mengambil semua data paket aktif dan semua data transaksi.
-  /// 2. Menghitung frekuensi kemunculan setiap `packageId` dalam transaksi.
-  /// 3. Menggabungkan data paket dengan jumlah penjualannya.
-  /// 4. Mengurutkan paket dari yang paling laris.
-  /// 5. Mengembalikan daftar [BestSellingPackage] yang sudah diurutkan.
+final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
+  Log.info('Membuat instance StatistikRepository melalui provider');
+  return StatistikRepository(
+    activeCustomerOperation: ref.watch(activeCustomerOperationProvider),
+    feedbackOperation: ref.watch(feedbackOperationProvider),
+    packageOperation: ref.watch(packageOperationProvider),
+    transactionOperation: ref.watch(transactionOperationProvider),
+  );
+});
+
+/// Repos
+class StatistikRepository {
+  final ActiveCustomerOperation _activeCustomerOperation;
+  final FeedbackOperation _feedbackOperation;
+  final PackageOperation _packageOperation;
+  final TransactionOperation _transactionOperation;
+
+  StatistikRepository({
+    required ActiveCustomerOperation activeCustomerOperation,
+    required FeedbackOperation feedbackOperation,
+    required PackageOperation packageOperation,
+    required TransactionOperation transactionOperation,
+  })  : _activeCustomerOperation = activeCustomerOperation,
+        _feedbackOperation = feedbackOperation,
+        _packageOperation = packageOperation,
+        _transactionOperation = transactionOperation;
   Future<List<BestSellingPackage>> getBestSellingPackages(
       {final int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
@@ -60,7 +72,8 @@ class StatistikRepository {
       }).toList();
 
       // Urutkan dari yang paling banyak terjual
-      bestSellingPackages.sort((final a, final b) => b.totalSold.compareTo(a.totalSold));
+      bestSellingPackages
+          .sort((final a, final b) => b.totalSold.compareTo(a.totalSold));
 
       // Ambil sejumlah limit, jika lebih
       final result = bestSellingPackages.take(limit).toList();

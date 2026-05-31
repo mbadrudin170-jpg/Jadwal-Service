@@ -1,21 +1,18 @@
 // path: lib/shared/operasi/data_cleaning_operation.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/shared/services/data_cleaning_service.dart
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/data/sqlite.dart (DatabaseHelper)
-//   - lib/shared/debug/log.dart (Log)
-//   - package:cloud_firestore/cloud_firestore.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
+final dataCleaningOperationProvider = Provider<DataCleaningOperation>((ref) {
+  Log.info('Membuat instance DataCleaningOperation melalui provider');
+  return DataCleaningOperation();
+});
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class DataCleaningOperation {
   final DatabaseHelper _dbHelper;
@@ -28,19 +25,13 @@ class DataCleaningOperation {
   })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
         _firestore = firestore ?? FirebaseFirestore.instance;
 
-  /// Fungsi utama untuk menghapus semua data arsip
-  /// yang sudah lebih tua dari [retentionDays] di semua tabel/koleksi yang relevan,
-  /// baik di SQLite maupun Firestore.
   Future<int> deleteAllExpiredArchivedData({
     required final int retentionDays,
   }) async {
     Log.info(
       'Memulai proses pembersihan data arsip yang lebih tua dari $retentionDays hari (SQLite & Firestore).',
     );
-
     int totalDeletedCount = 0;
-
-    // Kalkulasi waktu sekarang dilakukan di Dart dengan UTC untuk memastikan konsistensi.
     final timeLimit =
         DateTime.now().toUtc().subtract(Duration(days: retentionDays));
     final timeLimitEpoch = timeLimit.millisecondsSinceEpoch;

@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
@@ -17,23 +18,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/customer.dart (CustomerPage)
-//   - lib/admin/halaman/detail/subscription_history_detail.dart (SubscriptionHistoryDetailPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/customer_form.dart (CustomerForm)
-//   - lib/shared/widget/page/points_page.dart (PointsPage)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/widget/customer_detail_ui.dart (CustomerDetailUI)
-//   - lib/shared/debug/log.dart (Log)
-
-/// Halaman untuk menampilkan detail pelanggan.
-class CustomerDetailPage extends StatefulWidget {
+class CustomerDetailPage extends ConsumerStatefulWidget {
   /// ID pelanggan yang akan ditampilkan.
   final String customerId;
 
@@ -41,12 +26,12 @@ class CustomerDetailPage extends StatefulWidget {
   const CustomerDetailPage({super.key, required this.customerId});
 
   @override
-  State<CustomerDetailPage> createState() => _CustomerDetailPageState();
+  ConsumerState<CustomerDetailPage> createState() => _CustomerDetailPageState();
 }
 
-class _CustomerDetailPageState extends State<CustomerDetailPage> {
-  final CustomerOperation _customerOperation = CustomerOperation();
-  final TransactionOperation _transactionOperation = TransactionOperation();
+class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
+  late final CustomerOperation _customerOperation;
+  late final TransactionOperation _transactionOperation;
 
   CustomerModel? _customer;
   int _totalPoints = 0;
@@ -58,7 +43,9 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
     Log.info(
       'Memulai initState pada CustomerDetailPage untuk ID: ${widget.customerId}.',
     );
-    unawaited(_loadData());
+    _customerOperation = ref.read(customerOperationProvider);
+    _transactionOperation = ref.read(transactionOperationProvider);
+    _loadData();
   }
 
   Future<void> _loadData() async {

@@ -3,6 +3,7 @@
 // diperbaiki: Menggabungkan operasi soft delete dan kalkulasi saldo dalam satu transaksi atomik.
 // diperbaiki: Memperbaiki typo Columnames menjadi ColumnNames.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -14,26 +15,30 @@ import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
+final transactionOperationProvider = Provider<TransactionOperation>((ref) {
+  Log.info('Membuat instance FeedbackOperation...');
+  final dbHelper = ref.read(databaseHelperProvider);
+  final baseOperation = ref.read(baseOperationProvider);
+
+  return TransactionOperation(
+    dbHelper: dbHelper,
+    baseOperation: baseOperation,
+  );
+});
+
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransactionOperation {
-  /// Instance dari `DatabaseHelper` untuk mengakses database SQLite.
   final DatabaseHelper dbHelper;
-
-  /// Instance dari `BaseOperation` untuk operasi CRUD umum.
   final BaseOperation _baseOperation;
-
   final String _tableName = TableNameValue.get(TableName.transactions);
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  /// Konstruktor untuk `TransactionOperation`.
   TransactionOperation({
-    final DatabaseHelper? dbHelper,
-    final BaseOperation? baseOperation,
-  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _baseOperation = baseOperation ?? BaseOperation() {
-    Log.info('TransactionOperation diinisialisasi');
-  }
+    required final DatabaseHelper dbHelper,
+    required final BaseOperation baseOperation,
+  })  : dbHelper = dbHelper,
+        _baseOperation = baseOperation;
 
   Future<Database> get _db async => await dbHelper.database;
 

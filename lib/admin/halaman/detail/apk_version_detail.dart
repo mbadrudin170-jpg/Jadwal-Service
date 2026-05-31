@@ -11,6 +11,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
@@ -20,7 +21,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah versi APK.
-class ApkVersionDetailPage extends StatefulWidget {
+class ApkVersionDetailPage extends ConsumerStatefulWidget {
   /// Model versi APK yang akan ditampilkan.
   final ApkVersionModel apkVersion;
 
@@ -36,10 +37,11 @@ class ApkVersionDetailPage extends StatefulWidget {
   });
 
   @override
-  State<ApkVersionDetailPage> createState() => _ApkVersionDetailPageState();
+  ConsumerState<ApkVersionDetailPage> createState() =>
+      _ApkVersionDetailPageState();
 }
 
-class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
+class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
   late ApkVersionModel _currentApkVersion;
   late final ApkVersionOperation _apkVersionOperation;
 
@@ -47,7 +49,8 @@ class _ApkVersionDetailPageState extends State<ApkVersionDetailPage> {
   void initState() {
     super.initState();
     _currentApkVersion = widget.apkVersion;
-    _apkVersionOperation = widget.operation ?? ApkVersionOperation();
+    _apkVersionOperation =
+        widget.operation ?? ref.read(apkVersionOperationProvider);
   }
 
   Future<void> _navigateToEditForm() async {

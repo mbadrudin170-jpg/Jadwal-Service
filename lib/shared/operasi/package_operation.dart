@@ -1,5 +1,6 @@
 // path: lib/shared/operasi/package_operation.dart
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -10,6 +11,17 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
 
+final packageOperationProvider = Provider<PackageOperation>((ref) {
+  Log.info('Membuat instance FeedbackOperation...');
+  final dbHelper = ref.read(databaseHelperProvider);
+  final baseOperation = ref.read(baseOperationProvider);
+
+  return PackageOperation(
+    dbHelper: dbHelper,
+    baseOperation: baseOperation,
+  );
+});
+
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PackageOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
@@ -18,16 +30,14 @@ class PackageOperation {
 
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
   final BaseOperation _baseOperation;
-
   final String _tableName = TableNameValue.get(TableName.package);
   final _nowUtc = DateTime.now().toUtc();
 
-  /// Konstruktor untuk [PackageOperation].
   PackageOperation({
-    final DatabaseHelper? dbHelper,
-    final BaseOperation? baseOperation,
-  })  : dbHelper = dbHelper ?? DatabaseHelper.instance,
-        _baseOperation = baseOperation ?? BaseOperation() {
+    required final DatabaseHelper dbHelper,
+    required final BaseOperation baseOperation,
+  })  : dbHelper = dbHelper,
+        _baseOperation = baseOperation {
     Log.info('PackageOperation instance dibuat.');
   }
 
@@ -209,8 +219,7 @@ class PackageOperation {
   }
 
   /// Menghapus [PackageModel] dari database secara permanen.
-  Future<void> delete(final String id,
-      {final bool fromServer = false}) async {
+  Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
       await _baseOperation.delete(

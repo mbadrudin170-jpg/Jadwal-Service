@@ -1,12 +1,21 @@
 // path: lib/shared/operasi/upload_status_operasi.dart
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/upload_status_model.dart';
+
+final uploadStatusOperationProvider = Provider<UploadStatusOperation>((ref) {
+  Log.info('Membuat instance UploadStatusOperation...');
+  // Dapatkan instance DatabaseHelper dari provider-nya
+  final dbHelper = ref.read(databaseHelperProvider);
+  // Buat instance UploadStatusOperation dengan dependensi yang di-inject
+  return UploadStatusOperation(dbHelper: dbHelper);
+});
 
 /// Kelas ini mengelola satu flag tunggal di database: apakah ada
 /// data yang perlu diunggah ke server atau tidak.

@@ -1,6 +1,7 @@
 // path: lib/admin/halaman/form/category_form.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -14,7 +15,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
-class CategoryForm extends StatefulWidget {
+class CategoryForm extends ConsumerStatefulWidget {
   /// Model kategori yang akan diedit. Jika null, maka form akan membuat kategori baru.
   final CategoryModel? kategori;
 
@@ -33,13 +34,11 @@ class CategoryForm extends StatefulWidget {
   });
 
   @override
-  State<CategoryForm> createState() => _CategoryFormState();
+  ConsumerState<CategoryForm> createState() => _CategoryFormState();
 }
 
-class _CategoryFormState extends State<CategoryForm> {
+class _CategoryFormState extends ConsumerState<CategoryForm> {
   final _formKey = GlobalKey<FormState>();
-  final CategoryOperation _kategoriOperasi = CategoryOperation();
-
   late CategoryType _tipe;
   late TextEditingController _namaController;
   final _namaFocusNode = FocusNode();
@@ -222,8 +221,7 @@ class _CategoryFormState extends State<CategoryForm> {
   }
 
   Future<void> _saveForm() async {
-    Log.info('========================================');
-    Log.info('AKSI: Tombol Simpan Ditekan');
+    final _kategoriOperasi = ref.read(categoryOperationProvider);
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
@@ -232,7 +230,6 @@ class _CategoryFormState extends State<CategoryForm> {
     if (!_isSubKategoriMode || !_isEditMode) {
       Log.info('Tipe kategori: $_tipe');
     }
-    Log.info('========================================');
 
     Log.info('Memvalidasi form...');
     if (_formKey.currentState!.validate()) {
@@ -240,10 +237,6 @@ class _CategoryFormState extends State<CategoryForm> {
 
       try {
         if (_isEditMode && widget.subKategori != null) {
-          Log.info('========================================');
-          Log.info('PROSES UPDATE SUB-KATEGORI (MODE EDIT SUB-KATEGORI)');
-          Log.info('========================================');
-
           final String parentCategoryId = widget.subKategori!.categoryId;
 
           Log.info('Data sub-kategori sebelum update:');
@@ -417,7 +410,8 @@ class _CategoryFormState extends State<CategoryForm> {
           return;
         }
 
-        final hasConnection = await InternetConnectionService().checkConnection();
+        final hasConnection =
+            await InternetConnectionService().checkConnection();
         if (hasConnection) {
           await SyncCheckService().runSyncCheck();
           if (mounted) {
@@ -590,7 +584,8 @@ class _CategoryFormState extends State<CategoryForm> {
                     itemCount: _subKategoriControllers.length,
                     itemBuilder: (final context, final index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: TSizes.p8),
                         child: Row(
                           children: [
                             Expanded(

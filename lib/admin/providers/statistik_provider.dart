@@ -5,11 +5,9 @@ import 'dart:async';
 // 1. Ubah import ke riverpod_annotation agar seragam dengan file lainnya
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
-import 'package:wifi/admin/providers/app_providers.dart';
 import 'package:wifi/admin/repository/statistik_repository.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-// 2. Wajib tambahkan part file untuk build_runner
 part 'statistik_provider.g.dart';
 
 class StatistikState {

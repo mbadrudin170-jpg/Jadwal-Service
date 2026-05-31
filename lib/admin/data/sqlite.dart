@@ -10,6 +10,7 @@
 
 import 'dart:io';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -17,6 +18,15 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+
+final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
+  return DatabaseHelper.instance;
+});
+final databaseProvider = FutureProvider((ref) async {
+  final dbHelper = ref.read(databaseHelperProvider);
+  final db = await dbHelper.database;
+  return db;
+});
 
 /// Kelas pembantu untuk mengelola database SQLite.
 class DatabaseHelper {
@@ -155,7 +165,8 @@ class DatabaseHelper {
     await db.execute(
       'ALTER TABLE ${TableNameValue.get(TableName.customer)} ADD COLUMN ${ColumnNames.lastActiveAt} INTEGER',
     );
-    Log.info('[MIGRASI v51] Penambahan kolom ${ColumnNames.lastActiveAt} selesai.');
+    Log.info(
+        '[MIGRASI v51] Penambahan kolom ${ColumnNames.lastActiveAt} selesai.');
   }
 
   Future<void> _migrateToV45(final Database db) async {
