@@ -1,5 +1,5 @@
 // path: lib/shared/theme/app_icons.dart
-// diubah: Menambahkan ikon 'event' untuk halaman pengumuman.
+// diubah: Menambahkan ikon 'toggle_on' dan 'toggle_off' untuk status switch.
 import 'package:flutter/material.dart';
 
 /// Kelas utilitas untuk mengelola ikon aplikasi secara terpusat.
@@ -264,4 +264,10 @@ class TIcons {
 
   /// Ikon untuk acara atau pengumuman.
   static const IconData event = Icons.event;
+
+  /// Ikon untuk status switch aktif.
+  static const IconData toggle_on = Icons.toggle_on;
+
+  /// Ikon untuk status switch tidak aktif.
+  static const IconData toggle_off = Icons.toggle_off;
 }

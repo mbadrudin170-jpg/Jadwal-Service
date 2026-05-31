@@ -1,6 +1,7 @@
 // path: lib/shared/operasi/firebase_operasi/event_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -76,3 +77,8 @@ class EventOpFirebase extends BaseOpFirebase {
     }
   }
 }
+
+/// Provider Riverpod untuk `EventOpFirebase`.
+final eventOpFirebaseProvider = Provider<EventOpFirebase>((ref) {
+  return EventOpFirebase();
+});
