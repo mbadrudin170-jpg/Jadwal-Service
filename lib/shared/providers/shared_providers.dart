@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 part 'shared_providers.g.dart';
@@ -15,6 +16,11 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 Future<LocalStorageService> localStorageService(Ref ref) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
   return LocalStorageService(prefs: prefs);
+}
+
+@Riverpod(keepAlive: true)
+ActiveCustomerOperation activeCustomerOperation(Ref ref) {
+  return ActiveCustomerOperation();
 }
 
 @Riverpod(keepAlive: true)

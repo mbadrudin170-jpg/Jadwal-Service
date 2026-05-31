@@ -78,7 +78,6 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
 
       if (online && forceRefresh) {
         unawaited(SyncCheckService().runSyncCheck());
-
       } else if (!online && forceRefresh) {
         Log.warning('Jaringan tidak tersedia saat forceRefresh');
         if (mounted) {
@@ -343,7 +342,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
                       ? const Center(child: Text('Pelanggan tidak ditemukan.'))
                       : ListView.builder(
                           itemCount: _filteredResults.length,
-                          itemBuilder: (final _, final i) {
+                          itemBuilder: (_, i) {
                             final detail = _filteredResults[i];
                             final c = detail.activeCustomer;
 
@@ -359,7 +358,7 @@ class ActiveCustomerPageState extends State<ActiveCustomerPage>
                                           builder: (final _) =>
                                               ActiveCustomerDetailPage(
                                                   activeCustomer: c)));
-                                  await _loadData(); // Cukup load data lokal setelah kembali
+                                  // await _loadData(); // Cukup load data lokal setelah kembali
                                 },
                                 child: ListTile(
                                   title: Text(

@@ -2,13 +2,15 @@
 
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// 1. Ubah import ke riverpod_annotation agar seragam dengan file lainnya
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/repository/statistik_repository.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-// 1. Definisikan State untuk Statistik
-// State ini akan menampung semua data yang dibutuhkan oleh UI StatistikPage.
+// 2. Wajib tambahkan part file untuk build_runner
+part 'statistik_provider.g.dart';
+
 class StatistikState {
   final double pendapatanBulanIni;
   final int totalPelanggan;
@@ -24,7 +26,6 @@ class StatistikState {
     this.bestSellingPackages = const [],
   });
 
-  // copyWith tidak wajib tapi sangat membantu untuk mutasi state
   StatistikState copyWith({
     double? pendapatanBulanIni,
     int? totalPelanggan,
@@ -35,35 +36,27 @@ class StatistikState {
     return StatistikState(
       pendapatanBulanIni: pendapatanBulanIni ?? this.pendapatanBulanIni,
       totalPelanggan: totalPelanggan ?? this.totalPelanggan,
-      jumlahLanggananAktif:
-          jumlahLanggananAktif ?? this.jumlahLanggananAktif,
+      jumlahLanggananAktif: jumlahLanggananAktif ?? this.jumlahLanggananAktif,
       jumlahFeedbackBaru: jumlahFeedbackBaru ?? this.jumlahFeedbackBaru,
       bestSellingPackages: bestSellingPackages ?? this.bestSellingPackages,
     );
   }
 }
 
-// 2. Buat AsyncNotifierProvider
-final statistikProvider =
-    AsyncNotifierProvider<StatistikNotifier, StatistikState>(
-  StatistikNotifier.new,
-);
-
-// 3. Buat Class Notifier
-class StatistikNotifier extends AsyncNotifier<StatistikState> {
-  // Method ini akan dipanggil otomatis saat provider pertama kali digunakan.
+// 3. Pasang anotasi @riverpod. Variabel 'statistikProvider' otomatis tercipta.
+@riverpod
+class Statistik extends _$Statistik {
+  // 4. Di Riverpod modern, AsyncNotifier diubah menjadi method build() yang mengembalikan Future
   @override
-  Future<StatistikState> build() {
+  Future<StatistikState> build() async {
     Log.info('[StatistikNotifier] Build dipanggil, memuat data awal.');
     return _loadData();
   }
 
-  // Helper untuk mengambil semua data statistik dalam satu operasi.
   Future<StatistikState> _loadData() async {
     Log.info('[StatistikNotifier] Memulai _loadData.');
     final repository = StatistikRepository();
 
-    // Menggunakan Future.wait untuk menjalankan semua query secara paralel
     final results = await Future.wait([
       repository.getPendapatanBulanIni(),
       repository.getTotalPelanggan(),
@@ -73,7 +66,6 @@ class StatistikNotifier extends AsyncNotifier<StatistikState> {
     ]);
     Log.info('[StatistikNotifier] Semua future dari repository selesai.');
 
-    // Memetakan hasil ke dalam state
     return StatistikState(
       pendapatanBulanIni: results[0] as double,
       totalPelanggan: results[1] as int,
@@ -83,12 +75,9 @@ class StatistikNotifier extends AsyncNotifier<StatistikState> {
     );
   }
 
-  // Method untuk me-refresh data dari UI
   Future<void> refresh() async {
     Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
-    // Set state ke loading untuk menampilkan indicator
     state = const AsyncLoading();
-    // Muat ulang data dan perbarui state, tangani jika ada error
     state = await AsyncValue.guard(_loadData);
     Log.info('[StatistikNotifier] Refresh selesai.');
   }

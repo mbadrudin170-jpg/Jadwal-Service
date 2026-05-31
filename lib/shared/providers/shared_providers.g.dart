@@ -86,6 +86,50 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
 String _$localStorageServiceHash() =>
     r'682f08594d407537f17f21974997a6a4de059ac8';
 
+@ProviderFor(activeCustomerOperation)
+final activeCustomerOperationProvider = ActiveCustomerOperationProvider._();
+
+final class ActiveCustomerOperationProvider extends $FunctionalProvider<
+    ActiveCustomerOperation,
+    ActiveCustomerOperation,
+    ActiveCustomerOperation> with $Provider<ActiveCustomerOperation> {
+  ActiveCustomerOperationProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'activeCustomerOperationProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeCustomerOperationHash();
+
+  @$internal
+  @override
+  $ProviderElement<ActiveCustomerOperation> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ActiveCustomerOperation create(Ref ref) {
+    return activeCustomerOperation(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ActiveCustomerOperation value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ActiveCustomerOperation>(value),
+    );
+  }
+}
+
+String _$activeCustomerOperationHash() =>
+    r'9a84ecb49cc4c0594d081c41f89b7ed8ce7c91ed';
+
 @ProviderFor(ThemeNotifier)
 final themeProvider = ThemeNotifierProvider._();
 
