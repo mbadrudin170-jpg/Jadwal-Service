@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart'; // Impor providernya
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/debug/log.dart'; // Impor Log
 
 /// Halaman yang menampilkan daftar pengumuman (event) untuk pengguna.
