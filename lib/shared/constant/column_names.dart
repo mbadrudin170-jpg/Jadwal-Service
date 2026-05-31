@@ -156,4 +156,13 @@ abstract final class ColumnNames {
 
   /// Nama kolom untuk nilai generik (digunakan di tabel status aplikasi).
   static const String value = 'value';
+
+  /// Nama kolom untuk URL gambar (misalnya, pada pengumuman).
+  static const String imageUrl = 'image_url';
+
+  /// Nama kolom untuk status aktif (misalnya, pada pengumuman).
+  static const String isActive = 'is_active';
+
+  /// Nama kolom untuk waktu pembuatan.
+  static const String createdAt = 'created_at';
 }

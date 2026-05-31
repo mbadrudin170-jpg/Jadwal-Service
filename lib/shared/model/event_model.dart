@@ -1,5 +1,6 @@
 // path: lib/shared/model/event_model.dart
 
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/model/has_id.dart';
 
 /// Model data untuk Pengumuman (Event).
@@ -31,14 +32,14 @@ class EventModel implements HasId {
   /// Membuat instance [EventModel] dari Map (JSON).
   factory EventModel.fromMap(final Map<String, dynamic> map) {
     return EventModel(
-      id: map['id'] as String? ?? '',
-      imageUrl: map['imageUrl'] as String? ?? '',
-      isActive: map['isActive'] as bool? ?? false,
-      createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+      id: map[ColumnNames.id] as String? ?? '',
+      imageUrl: map[ColumnNames.imageUrl] as String? ?? '',
+      isActive: map[ColumnNames.isActive] as bool? ?? false,
+      createdAt: map[ColumnNames.createdAt] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map[ColumnNames.createdAt] as int)
           : DateTime.now(),
-      updatedAt: map['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+      updatedAt: map[ColumnNames.updatedAt] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map[ColumnNames.updatedAt] as int)
           : null,
     );
   }
@@ -46,11 +47,11 @@ class EventModel implements HasId {
   /// Mengonversi instance [EventModel] ke Map (JSON).
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'imageUrl': imageUrl,
-      'isActive': isActive,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
+      ColumnNames.id: id,
+      ColumnNames.imageUrl: imageUrl,
+      ColumnNames.isActive: isActive,
+      ColumnNames.createdAt: createdAt.millisecondsSinceEpoch,
+      ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
     };
   }
 
