@@ -1,6 +1,5 @@
 // path: lib/admin/halaman/lainnya/manage_announcement_page.dart
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -181,9 +180,6 @@ class _ManageAnnouncementPageState
 
   @override
   Widget build(final BuildContext context) {
-    // Dapatkan operator dari provider Riverpod
-    final eventOperator = ref.watch(eventOpFirebaseProvider);
-
     return Scaffold(
       // Gunakan AppBarWidget kustom jika ada
       appBar: AppBar(

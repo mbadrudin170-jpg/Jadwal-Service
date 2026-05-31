@@ -59,7 +59,8 @@ class EventModel implements HasId {
       id: map[ColumnNames.id] as String? ?? '',
       imageUrl: map[ColumnNames.imageUrl] as String? ?? '',
       isActive: ParserUtil.parseBool(map[ColumnNames.isActive]),
-      createdAt: ParserUtil.parseDateTime(map[ColumnNames.createdAt]) ?? DateTime.now(),
+      createdAt: ParserUtil.parseDateTime(map[ColumnNames.createdAt]) ??
+          DateTime.now(),
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
@@ -71,18 +72,21 @@ class EventModel implements HasId {
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive ? 1 : 0,
       ColumnNames.createdAt: createdAt.millisecondsSinceEpoch,
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
   /// Membuat [EventModel] dari Firebase document.
-  factory EventModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory EventModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     Log.info('Creating EventModel from Firebase: $id');
     return EventModel(
       id: id,
       imageUrl: data[ColumnNames.imageUrl] as String? ?? '',
       isActive: ParserUtil.parseBool(data[ColumnNames.isActive]),
-      createdAt: ParserUtil.parseDateTime(data[ColumnNames.createdAt]) ?? DateTime.now(),
+      createdAt: ParserUtil.parseDateTime(data[ColumnNames.createdAt]) ??
+          DateTime.now(),
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
     );
   }
@@ -94,7 +98,8 @@ class EventModel implements HasId {
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive,
       ColumnNames.createdAt: Timestamp.fromDate(createdAt.toUtc()),
-      ColumnNames.updatedAt: Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      ColumnNames.updatedAt:
+          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
     };
   }
 }
