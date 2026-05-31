@@ -13,6 +13,11 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
+final settingsProvider = FutureProvider<SettingsModel>((ref) async {
+  final settingsOp = ref.read(settingsOperationProvider);
+  return await settingsOp.getSettings();
+});
+
 /// Halaman untuk menampilkan dan mengelola konfigurasi pengaturan aplikasi.
 class SettingsAdminPage extends ConsumerWidget {
   const SettingsAdminPage({super.key});
@@ -76,7 +81,7 @@ class SettingsAdminPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI halaman Pengaturan Aplikasi');
-    final settingsAsyncValue = ref.watch(settingsOperationProvider);
+    final settingsAsyncValue = ref.watch(settingsProvider);
     final currentThemeMode = ref.watch(themeProvider);
     return Scaffold(
       appBar: AppBar(

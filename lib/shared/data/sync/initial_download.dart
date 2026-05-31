@@ -2,6 +2,7 @@
 // diperbaiki: Mengganti semua nama tabel hardcoded dengan konstanta dari TableNameValue.
 // diperbaiki: Menggunakan TableName yang sesuai untuk setiap fungsi.
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -149,3 +150,12 @@ class InitialDownloadService {
         downloadFunction: _downloadService.downloadOrderData,
       );
 }
+// ============================================================
+// Provider Riverpod untuk InitialDownloadService
+// ============================================================
+final initialDownloadServiceProvider = Provider<InitialDownloadService>((ref) {
+  return InitialDownloadService(
+    dbHelper: ref.read(databaseHelperProvider),
+    downloadService: ref.read(downloadDataServiceProvider),
+  );
+});

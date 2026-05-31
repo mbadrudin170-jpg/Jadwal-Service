@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
@@ -80,8 +81,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       await initializeDateFormatting('id_ID');
       await DatabaseHelper.instance.database;
-      await InitialDownloadService().runInitialDownload();
-
+final initialDownloadService = ref.read(initialDownloadServiceProvider);
+await initialDownloadService.runInitialDownload();
       final isOnline = await _connectionService.checkConnection();
       if (isOnline) {
         final settingsOperation = await ref.read(settingsOperationProvider);
