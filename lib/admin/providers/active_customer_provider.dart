@@ -80,7 +80,6 @@ class ActiveCustomer extends _$ActiveCustomer {
       final context = NavigasiServis.navigatorKey.currentContext;
 
       if (context != null) {
-        ToastUtil.success(context, 'Data pelanggan aktif berhasil dimuat.');
       } else {
         Log.warning('Context tidak tersedia saat menampilkan success toast.');
       }

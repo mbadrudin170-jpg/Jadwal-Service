@@ -1,44 +1,47 @@
 // path: lib/shared/services/boot_service.dart
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/utils/alarm_utils.dart'; // import callback
 
 class BootService {
   final _customerOp = CustomerOpFirebase();
-  final _notificationService = NotifikasiServis();
+  final _transactionOp = TransactionOpFirebase();
 
-  /// Menjadwalkan ulang semua notifikasi dan alarm setelah perangkat di-boot ulang.
   Future<void> rescheduleAlarmsOnBoot() async {
     Log.info('[BOOT] Memulai proses penjadwalan ulang alarm setelah boot.');
     try {
-      // Inisialisasi service notifikasi terlebih dahulu
-      // Nama ikon harus sesuai dengan yang ada di direktori drawable Android.
-      await _notificationService.inisialisasi(iconName: 'app_icon');
-
-      // Dapatkan semua pelanggan dari Firebase
       final allCustomers = await _customerOp.getAllCustomers();
-
       if (allCustomers.isEmpty) {
-        Log.warning('[BOOT] Tidak ada pelanggan ditemukan, tidak ada alarm untuk dijadwalkan ulang.');
+        Log.warning('[BOOT] Tidak ada pelanggan ditemukan.');
         return;
       }
-
-      Log.info('[BOOT] Ditemukan ${allCustomers.length} pelanggan. Memeriksa langganan aktif...');
-
-      // Iterasi melalui setiap pelanggan dan atur ulang notifikasi/alarm mereka
+      int scheduledCount = 0;
       for (final customer in allCustomers) {
-        // ID pada CustomerModel dijamin tidak null dari konstruktornya.
-        Log.info('[BOOT] Menjadwalkan ulang untuk pelanggan: ${customer.name} (ID: ${customer.id})');
-        await PenjadwalNotifikasi.aturNotifikasiLangganan(
-          _notificationService,
-          customer.id,
-        );
+        final transaction =
+            await _transactionOp.getLatestPaidTransactionByUserId(customer.id);
+        if (transaction != null &&
+            transaction.startDate != null &&
+            transaction.endDate != null &&
+            transaction.endDate!.isAfter(DateTime.now())) {
+          final alarmId = customer.id.hashCode;
+          final scheduledTime = transaction.endDate!;
+          await AndroidAlarmManager.oneShotAt(
+            scheduledTime,
+            alarmId,
+            alarmCallback, // ← perbaiki nama callback
+            exact: true,
+            wakeup: true,
+          );
+          Log.info(
+              '[BOOT] Alarm dijadwalkan untuk customer ${customer.name} pada $scheduledTime');
+          scheduledCount++;
+        }
       }
-
-      Log.info('[BOOT] Proses penjadwalan ulang alarm setelah boot selesai.');
+      Log.info('[BOOT] Selesai menjadwalkan $scheduledCount alarm.');
     } catch (e, st) {
-      Log.error('[BOOT] Gagal total saat menjadwalkan ulang alarm setelah boot.', e: e, st: st);
+      Log.error('[BOOT] Gagal saat menjadwalkan ulang alarm.', e: e, st: st);
     }
   }
 }

@@ -38,7 +38,6 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if (result == true && context.mounted) {
       Log.info('Pengaturan diperbarui, memuat ulang data...');
-      // Invalidate provider untuk memicu pembaruan data
       ref.invalidate(settingsOperationProvider);
     }
   }

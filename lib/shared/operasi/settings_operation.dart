@@ -20,7 +20,6 @@ final settingsOperationProvider = Provider<SettingsOperation>((ref) {
   );
 });
 
-/// Kelas untuk operasi terkait data pengaturan di database lokal.
 class SettingsOperation {
   final DatabaseHelper _dbHelper;
   final BaseOperation _baseOperation;

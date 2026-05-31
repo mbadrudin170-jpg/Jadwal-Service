@@ -18,7 +18,6 @@ import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/transaction_operation.dart';
 
-
 final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikRepository(

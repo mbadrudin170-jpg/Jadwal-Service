@@ -73,7 +73,7 @@ void main() async {
     _rescheduleOnBoot,
     startAt: DateTime.now(),
     wakeup: true,
-    rescheduleOnReboot: true, // Ini adalah kunci utamanya!
+    rescheduleOnReboot: true,
   );
   Log.info(
       "Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId");
