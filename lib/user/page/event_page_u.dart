@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart'; // Impor providernya
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -155,6 +156,16 @@ class EventPageU extends ConsumerWidget {
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const ManageAnnouncementPage()),
+          );
+        },
+        child: Icon(TIcons.edit),
       ),
     );
   }

@@ -10,6 +10,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
 // Gunakan ConsumerWidget agar bisa mengakses provider
 class ManageAnnouncementPage extends ConsumerStatefulWidget {
@@ -54,10 +55,7 @@ class _ManageAnnouncementPageState
   Future<void> _loadAnnouncements() async {
     final operator = ref.read(eventOpFirebaseProvider);
     try {
-      // Ambil semua pengumuman
       final announcements = await operator.getAll();
-
-      // Cari pengumuman yang aktif
       final activeAnnouncement = announcements.firstWhere(
         (ann) => ann.isActive,
       );
@@ -66,6 +64,8 @@ class _ManageAnnouncementPageState
         _selectedAnnouncement = activeAnnouncement;
         _imageUrlController.text = activeAnnouncement.imageUrl;
         _isSwitched = activeAnnouncement.isActive;
+        _selectedStartDate = activeAnnouncement.startDate;
+        _selectedEndDate = activeAnnouncement.endDate;
       });
     } catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
@@ -73,35 +73,78 @@ class _ManageAnnouncementPageState
     }
   }
 
-// Tambahkan fungsi ini di dalam State class Anda:
-  Future<void> _selectDateTime(bool isStartTime) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000), // Atur rentang tanggal sesuai kebutuhan
-      lastDate: DateTime(2101), // Atur rentang tanggal sesuai kebutuhan
-    );
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-      if (pickedTime != null) {
-        setState(() {
-          final DateTime combinedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-          if (isStartTime) {
-            _selectedStartDate = combinedDateTime;
-          } else {
-            _selectedEndDate = combinedDateTime;
-          }
-        });
+  // Helper untuk memilih tanggal
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    DateTime initialDate = DateTime.now();
+    if (isStartDate) {
+      if (_selectedStartDate != null) {
+        initialDate = _selectedStartDate!;
       }
+    } else {
+      if (_selectedEndDate != null) {
+        initialDate = _selectedEndDate!;
+      }
+    }
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        final currentDateTime =
+            isStartDate ? _selectedStartDate : _selectedEndDate;
+        final newDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          currentDateTime?.hour ?? DateTime.now().hour,
+          currentDateTime?.minute ?? DateTime.now().minute,
+        );
+        if (isStartDate) {
+          _selectedStartDate = newDateTime;
+        } else {
+          _selectedEndDate = newDateTime;
+        }
+      });
+    }
+  }
+
+  // Helper untuk memilih waktu
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    TimeOfDay initialTime = TimeOfDay.now();
+    DateTime? currentDateTime =
+        isStartTime ? _selectedStartDate : _selectedEndDate;
+    if (currentDateTime != null) {
+      initialTime =
+          TimeOfDay(hour: currentDateTime.hour, minute: currentDateTime.minute);
+    } else {
+      initialTime = TimeOfDay.now();
+    }
+    final pickedTime =
+        await showTimePicker(context: context, initialTime: initialTime);
+
+    if (pickedTime != null) {
+      setState(() {
+        DateTime? dateToUpdate =
+            isStartTime ? _selectedStartDate : _selectedEndDate;
+        final DateTime datePart = dateToUpdate ?? DateTime.now();
+
+        final newDateTime = DateTime(
+          datePart.year,
+          datePart.month,
+          datePart.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        if (isStartTime) {
+          _selectedStartDate = newDateTime;
+        } else {
+          _selectedEndDate = newDateTime;
+        }
+      });
     }
   }
 
@@ -168,64 +211,12 @@ class _ManageAnnouncementPageState
     }
   }
 
-  /// Menghapus pengumuman yang sedang dipilih/diedit.
-  Future<void> _deleteAnnouncement() async {
-    if (_selectedAnnouncement == null) {
-      ToastUtil.info(context, 'Pilih pengumuman yang akan dihapus.');
-      return;
-    }
-
-    final operator = ref.read(eventOpFirebaseProvider);
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (final context) => AlertDialog(
-        title: const Text('Hapus Pengumuman'),
-        content: const Text(
-            'Apakah Anda yakin ingin menghapus pengumuman ini? Tindakan ini tidak dapat dibatalkan.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm ?? false) {
-      try {
-        await operator.deleteEvent(_selectedAnnouncement!.id);
-        ToastUtil.success(context, 'Pengumuman berhasil dihapus!');
-        Navigator.of(context).pop(); // Kembali setelah berhasil dihapus
-      } catch (e, st) {
-        Log.error('Gagal menghapus pengumuman', e: e, st: st);
-        ToastUtil.error(context, 'Gagal menghapus pengumuman.');
-      }
-    }
-  }
-
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
       // Gunakan AppBarWidget kustom jika ada
       appBar: AppBar(
         title: Text('Kelola Pengumuman'),
-        actions: [
-          IconButton(
-            icon: const Icon(TIcons.save),
-            tooltip: 'Simpan Pengumuman',
-            onPressed: _saveAnnouncement,
-          ),
-          if (_selectedAnnouncement != null)
-            IconButton(
-              icon: const Icon(TIcons.delete),
-              tooltip: 'Hapus Pengumuman',
-              onPressed: _deleteAnnouncement,
-            ),
-        ],
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -267,22 +258,32 @@ class _ManageAnnouncementPageState
               Text(_selectedStartDate == null
                   ? 'Tanggal & Jam Belum Dipilih'
                   : 'Mulai ${FormatDateTime.formatDateAndTimeCompact(_selectedStartDate!)}'),
+
               gapH8,
-              ElevatedButton(
-                onPressed: () => _selectDateTime(true),
-                child: const Text('Pilih Tanggal & Jam Mulai'),
+              DateTimePickerWidget(
+                  selectedDate: _selectedStartDate,
+                  selectedTime: _selectedEndDate == null
+                      ? null
+                      : TimeOfDay(
+                          hour: _selectedEndDate!.hour,
+                          minute: _selectedEndDate!.minute),
+                  onSelectDate: () => _selectDate(context, true),
+                  onSelectTime: () => _selectTime(context, true)),
+              DateTimePickerWidget(
+                labelText: 'Selesai:', // Label spesifik untuk tanggal selesai
+                selectedDate: _selectedEndDate,
+                selectedTime: _selectedEndDate == null
+                    ? null
+                    : TimeOfDay(
+                        hour: _selectedEndDate!.hour,
+                        minute: _selectedEndDate!.minute),
+                onSelectDate: () =>
+                    _selectDate(context, false), // Panggil helper baru
+                onSelectTime: () =>
+                    _selectTime(context, false), // Panggil helper baru
               ),
               gapH16,
-              const SizedBox(height: 16), // Spasi antar elemen
-              Text(_selectedEndDate == null
-                  ? 'Tanggal & Jam Selesai Belum Dipilih'
-                  : 'Selesai: ${_selectedEndDate!.toLocal().toString().split(' ')[0]} ${_selectedEndDate!.toLocal().toString().split(' ')[1].split('.')[0]}'), // Format: YYYY-MM-DD HH:MM
-              const SizedBox(height: 8), // Spasi antar elemen
-              ElevatedButton(
-                onPressed: () => _selectDateTime(false),
-                child: const Text('Pilih Tanggal & Jam Selesai'),
-              ),
-              gapH16,
+
               SwitchListTile(
                 title: const Text('Aktifkan Pengumuman'),
                 subtitle: const Text(
@@ -297,49 +298,51 @@ class _ManageAnnouncementPageState
                 },
                 contentPadding: EdgeInsets.zero, // Sesuaikan padding jika perlu
               ),
-              gapH16,
-              if (_selectedAnnouncement == null)
-                ElevatedButton.icon(
-                  icon: const Icon(TIcons.add),
-                  label: const Text('Buat Pengumuman Baru'),
-                  onPressed: () {
-                    setState(() {
-                      _selectedAnnouncement = null; // Reset ke mode tambah baru
-                      _imageUrlController.clear();
-                      _isSwitched = false; // Reset switch
-                      _formKey.currentState?.reset(); // Reset validasi form
-                      _scrollController.animateTo(0.0,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut);
-                    });
-                  },
-                ),
+              // gapH16,
+              // if (_selectedAnnouncement == null)
+              //   ElevatedButton.icon(
+              //     icon: const Icon(TIcons.add),
+              //     label: const Text('Buat Pengumuman Baru'),
+              //     onPressed: () {
+              //       setState(() {
+              //         _selectedAnnouncement = null; // Reset ke mode tambah baru
+              //         _imageUrlController.clear();
+              //         _isSwitched = false; // Reset switch
+              //         _formKey.currentState?.reset(); // Reset validasi form
+              //         _scrollController.animateTo(0.0,
+              //             duration: const Duration(milliseconds: 300),
+              //             curve: Curves.easeOut);
+              //       });
+              //     },
+              //   ),
 
               // Tombol Simpan (selalu tampil atau hanya saat ada perubahan)
               gapH16,
-              ElevatedButton.icon(
-                icon: const Icon(TIcons.save),
-                label: Text(_selectedAnnouncement == null
-                    ? 'Simpan Pengumuman'
-                    : 'Perbarui Pengumuman'),
-                onPressed: _saveAnnouncement,
-              ),
 
-              if (_selectedAnnouncement != null)
-                Padding(
-                  padding: EdgeInsets.only(top: TSizes.p8),
-                  child: OutlinedButton.icon(
-                    icon: const Icon(TIcons.delete),
-                    label: const Text('Hapus Pengumuman Ini'),
-                    onPressed: _deleteAnnouncement,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red, // Warna teks tombol
-                      side: const BorderSide(color: Colors.red), // Warna border
-                    ),
-                  ),
-                ),
+              // if (_selectedAnnouncement != null)
+              //   Padding(
+              //     padding: EdgeInsets.only(top: TSizes.p8),
+              //     child: OutlinedButton.icon(
+              //       icon: const Icon(TIcons.delete),
+              //       label: const Text('Hapus Pengumuman Ini'),
+              //       onPressed: _deleteAnnouncement,
+              //       style: OutlinedButton.styleFrom(
+              //         foregroundColor: Colors.red, // Warna teks tombol
+              //         side: const BorderSide(color: Colors.red), // Warna border
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: ElevatedButton.icon(
+          icon: const Icon(TIcons.save),
+          label: Text(_selectedAnnouncement == null
+              ? 'Simpan Pengumuman'
+              : 'Perbarui Pengumuman'),
+          onPressed: _saveAnnouncement,
         ),
       ),
     );
