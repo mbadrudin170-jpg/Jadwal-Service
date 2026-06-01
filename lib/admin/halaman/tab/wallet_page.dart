@@ -7,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
+import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
@@ -30,7 +30,7 @@ class WalletPage extends ConsumerWidget {
             icon: const Icon(TIcons.refresh),
             onPressed: () {
               Log.info('[Aksi Pengguna] Tombol refresh ditekan.');
-              ref.read(walletProvider.notifier).refresh();
+              unawaited(ref.read(walletProvider.notifier).refresh());
               ToastUtil.info(context, 'Menyegarkan data dompet...');
             },
             tooltip: 'Segarkan Data',
@@ -106,7 +106,7 @@ class WalletPage extends ConsumerWidget {
       context,
       MaterialPageRoute<bool>(builder: (context) => const WalletForm()),
     );
-    if (result == true) {
+    if (result ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
       // Tidak perlu setState, cukup panggil notifier
       ref.read(walletProvider.notifier).refresh();
