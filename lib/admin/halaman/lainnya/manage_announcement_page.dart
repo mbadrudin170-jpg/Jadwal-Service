@@ -8,6 +8,7 @@ import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 // Gunakan ConsumerWidget agar bisa mengakses provider
@@ -28,6 +29,8 @@ class _ManageAnnouncementPageState
   late bool _isSwitched;
   EventModel?
       _selectedAnnouncement; // null jika menambah baru, atau announcement yang diedit
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
 
   @override
   void initState() {
@@ -37,12 +40,6 @@ class _ManageAnnouncementPageState
     _imageUrlController
         .addListener(() => setState(() {})); // Update UI saat text berubah
     _loadAnnouncements;
-    // Ambil data pengumuman saat widget pertama kali dibuat
-    // Gunakan FutureBuilder atau StateNotifierProvider jika ingin lebih canggih
-    // Untuk kesederhanaan, kita akan panggil di initState dan simpan di state
-    // async {
-    //   await _loadAnnouncements();
-    // }(); // IIFE
   }
 
   @override
@@ -76,6 +73,38 @@ class _ManageAnnouncementPageState
     }
   }
 
+// Tambahkan fungsi ini di dalam State class Anda:
+  Future<void> _selectDateTime(bool isStartTime) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000), // Atur rentang tanggal sesuai kebutuhan
+      lastDate: DateTime(2101), // Atur rentang tanggal sesuai kebutuhan
+    );
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (pickedTime != null) {
+        setState(() {
+          final DateTime combinedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+          if (isStartTime) {
+            _selectedStartDate = combinedDateTime;
+          } else {
+            _selectedEndDate = combinedDateTime;
+          }
+        });
+      }
+    }
+  }
+
   /// Menyimpan pengumuman (baru atau update).
   Future<void> _saveAnnouncement() async {
     if (!_formKey.currentState!.validate()) {
@@ -90,15 +119,15 @@ class _ManageAnnouncementPageState
     final operator = ref.read(eventOpFirebaseProvider);
     final String imageUrl = _imageUrlController.text.trim();
     final bool isActive = _isSwitched;
-    final DateTime now = DateTime.now().toUtc(); // Gunakan UTC
-
-    // Buat atau update EventModel
+    final DateTime now = DateTime.now().toUtc();
     final EventModel announcementToSave = (_selectedAnnouncement ??
             EventModel(
               id: const Uuid().v4(),
               createdAt: now,
               imageUrl: imageUrl,
               isActive: isActive,
+              startDate: _selectedStartDate!,
+              endDate: _selectedEndDate!,
             ))
         .copyWith(
       imageUrl: imageUrl,
@@ -235,6 +264,29 @@ class _ManageAnnouncementPageState
                 // Tidak perlu setState di onChanged karena decoration tidak bergantung pada input
                 // onChanged: (final _) => setState(() {}),
               ),
+              Text(_selectedStartDate == null
+                  ? 'Tanggal & Jam Belum Dipilih'
+                  : 'Mulai ${FormatDateTime.formatDateAndTimeCompact(_selectedStartDate!)}'),
+              gapH8,
+              ElevatedButton(
+                onPressed: () => _selectDateTime(true),
+                child: const Text('Pilih Tanggal & Jam Mulai'),
+              ),
+              gapH16,
+              const SizedBox(height: 16), // Spasi antar elemen
+
+// Widget untuk menampilkan tanggal selesai yang dipilih
+              Text(_selectedEndDate == null
+                  ? 'Tanggal & Jam Selesai Belum Dipilih'
+                  : 'Selesai: ${_selectedEndDate!.toLocal().toString().split(' ')[0]} ${_selectedEndDate!.toLocal().toString().split(' ')[1].split('.')[0]}'), // Format: YYYY-MM-DD HH:MM
+              const SizedBox(height: 8), // Spasi antar elemen
+
+// Tombol untuk memilih Tanggal & Jam Selesai
+              ElevatedButton(
+                onPressed: () => _selectDateTime(false),
+                child: const Text('Pilih Tanggal & Jam Selesai'),
+              ),
+
               gapH16,
               SwitchListTile(
                 title: const Text('Aktifkan Pengumuman'),

@@ -11,17 +11,11 @@ import 'package:wifi/shared/utils/parser_util.dart';
 class EventModel implements HasId {
   @override
   final String id;
-
-  /// URL gambar pengumuman.
   final String imageUrl;
-
-  /// Status apakah pengumuman sedang aktif.
   final bool isActive;
-
-  /// Tanggal dibuat.
   final DateTime createdAt;
-
-  /// Tanggal diperbarui (opsional).
+  final DateTime startDate;
+  final DateTime endDate;
   final DateTime? updatedAt;
 
   /// Konstruktor untuk EventModel.
@@ -30,17 +24,20 @@ class EventModel implements HasId {
     required this.imageUrl,
     this.isActive = false,
     required this.createdAt,
+    required this.startDate,
+    required this.endDate,
     this.updatedAt,
   }) : id = id ?? const Uuid().v4() {
     Log.info('EventModel created: $id');
   }
 
-  /// Membuat salinan [EventModel] dengan beberapa properti yang diubah.
   EventModel copyWith({
     final String? id,
     final String? imageUrl,
     final bool? isActive,
     final DateTime? createdAt,
+    final DateTime? startDate,
+    final DateTime? endDate,
     final DateTime? updatedAt,
   }) {
     return EventModel(
@@ -48,6 +45,8 @@ class EventModel implements HasId {
       imageUrl: imageUrl ?? this.imageUrl,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -61,6 +60,10 @@ class EventModel implements HasId {
       isActive: ParserUtil.parseBool(map[ColumnNames.isActive]),
       createdAt: ParserUtil.parseDateTime(map[ColumnNames.createdAt]) ??
           DateTime.now(),
+      startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]) ??
+          DateTime.now(),
+      endDate:
+          ParserUtil.parseDateTime(map[ColumnNames.endDate]) ?? DateTime.now(),
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
     );
   }
@@ -72,6 +75,8 @@ class EventModel implements HasId {
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive ? 1 : 0,
       ColumnNames.createdAt: createdAt.millisecondsSinceEpoch,
+      ColumnNames.startDate: startDate.millisecondsSinceEpoch,
+      ColumnNames.endDate: endDate.millisecondsSinceEpoch,
       ColumnNames.updatedAt:
           (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
@@ -87,6 +92,10 @@ class EventModel implements HasId {
       isActive: ParserUtil.parseBool(data[ColumnNames.isActive]),
       createdAt: ParserUtil.parseDateTime(data[ColumnNames.createdAt]) ??
           DateTime.now(),
+      startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]) ??
+          DateTime.now(),
+      endDate:
+          ParserUtil.parseDateTime(data[ColumnNames.endDate]) ?? DateTime.now(),
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
     );
   }
@@ -97,6 +106,8 @@ class EventModel implements HasId {
       ColumnNames.id: id,
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive,
+      ColumnNames.startDate: Timestamp.fromDate(startDate.toUtc()),
+      ColumnNames.endDate: Timestamp.fromDate(startDate.toUtc()),
       ColumnNames.createdAt: Timestamp.fromDate(createdAt.toUtc()),
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
