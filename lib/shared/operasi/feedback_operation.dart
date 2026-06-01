@@ -28,10 +28,9 @@ class FeedbackOperation {
   final String _tableName = TableNameValue.get(TableName.feedback);
 
   FeedbackOperation({
-    required final DatabaseHelper dbHelper,
-    required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        baseOperation = baseOperation;
+    required this.dbHelper,
+    required this.baseOperation,
+  });
 
   /// Menyimpan [FeedbackModel] baru ke dalam database.
   Future<void> add(

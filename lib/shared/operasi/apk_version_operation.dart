@@ -41,9 +41,8 @@ class ApkVersionOperation {
   /// Konstruktor untuk [ApkVersionOperation].
   ApkVersionOperation({
     required final BaseOperation baseOperation,
-    required final DatabaseHelper dbHelper,
-  })  : _baseOperation = baseOperation,
-        dbHelper = dbHelper {
+    required this.dbHelper,
+  }) : _baseOperation = baseOperation {
     Log.info(
       'ApkVersionOperation diinisialisasi - Tabel: $_tableName, BaseOperation: ${"dari parameter"}',
     );

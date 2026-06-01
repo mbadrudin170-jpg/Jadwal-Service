@@ -221,7 +221,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   }
 
   Future<void> _saveForm() async {
-    final _kategoriOperasi = ref.read(categoryOperationProvider);
+    final kategoriOperasi = ref.read(categoryOperationProvider);
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',
@@ -248,7 +248,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Mengambil data kategori induk dengan ID: $parentCategoryId',
           );
-          final kategoriInduk = await _kategoriOperasi
+          final kategoriInduk = await kategoriOperasi
               .getCategoryById(parentCategoryId) as CategoryModel?;
 
           if (kategoriInduk == null) {
@@ -288,7 +288,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             Log.info(
               'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
             );
-            await _kategoriOperasi.updateCategory(kategoriInduk);
+            await kategoriOperasi.updateCategory(kategoriInduk);
 
             Log.info('Update sub-kategori BERHASIL.');
             Log.info(
@@ -335,7 +335,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
           );
-          await _kategoriOperasi.updateCategory(kategoriDiperbarui);
+          await kategoriOperasi.updateCategory(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
         } else {
@@ -400,7 +400,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
           );
-          await _kategoriOperasi.createCategory(kategoriBaru);
+          await kategoriOperasi.createCategory(kategoriBaru);
         }
 
         if (!mounted) {

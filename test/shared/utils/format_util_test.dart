@@ -9,7 +9,9 @@ void main() {
   // Ini penting untuk memastikan semua format tanggal dan waktu
   // yang bergantung pada lokal 'id_ID' berfungsi dengan benar.
   setUpAll(() async {
-    await initializeDateFormatting('id_ID', null);
+    await initializeDateFormatting(
+      'id_ID',
+    );
   });
 
   // Data tanggal dan waktu yang akan digunakan sebagai dasar untuk semua tes.
@@ -17,7 +19,8 @@ void main() {
   final testDateTime = DateTime(2024, 8, 17, 10, 30, 55);
 
   group('FormatDateTime', () {
-    test('formatDateAndTime harus memformat tanggal dan waktu dengan benar', () {
+    test('formatDateAndTime harus memformat tanggal dan waktu dengan benar',
+        () {
       final formatted = FormatDateTime.formatDateAndTime(testDateTime);
       // Ekspektasi: "17 Agu 2024, 10:30"
       expect(formatted, '17 Agu 2024, 10:30');
@@ -86,8 +89,7 @@ void main() {
   });
 
   group('CurrencyFormat', () {
-    test('formatCurrency harus memformat angka double ke mata uang Rupiah',
-        () {
+    test('formatCurrency harus memformat angka double ke mata uang Rupiah', () {
       const amount = 125000.0;
       final formatted = CurrencyFormat.formatCurrency(amount);
       // Ekspektasi: "Rp 125.000". Spasi bisa jadi non-breaking space,

@@ -42,7 +42,7 @@ class BootService {
             wakeup: true,
           );
           Log.info(
-              '[BOOT] Alarm dijadwalkan untuk customer ${customer} pada $scheduledTime');
+              '[BOOT] Alarm dijadwalkan untuk customer $customer pada $scheduledTime');
           scheduledCount++;
         }
       }

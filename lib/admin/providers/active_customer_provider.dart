@@ -4,11 +4,11 @@ import 'dart:async';
 
 // Menggunakan anotasi Riverpod terbaru
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/data/services/navigasi_servis.dart';
 
 // Wajib ditambahkan agar generator build_runner bisa bekerja
 part 'active_customer_provider.g.dart';
@@ -42,8 +42,9 @@ class ActiveCustomerState {
 // Memicu pembuatan kode otomatis untuk 'activeCustomerProvider'
 @riverpod
 class ActiveCustomer extends _$ActiveCustomer {
+  @override
   ActiveCustomerState build() {
-    Future.microtask(() => fetchActiveCustomers());
+    Future.microtask(fetchActiveCustomers);
     return ActiveCustomerState(activeCustomers: [], sortBy: SortOption.endDate);
   }
 

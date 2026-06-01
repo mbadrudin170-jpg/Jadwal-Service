@@ -69,7 +69,7 @@ void main() {
   group('Pengecekan Data Baru di Firebase', () {
     const String testCollection = 'status';
     const String testDocument = 'status_document';
-    final lastDownloadTime = DateTime(2023, 1, 1, 12, 0, 0);
+    final lastDownloadTime = DateTime(2023, 1, 1, 12);
 
     // Tes yang menggunakan implementasi nyata (FakeFirebaseFirestore)
     test('harus mengembalikan true jika ada data baru di Firebase', () async {
@@ -143,7 +143,7 @@ void main() {
       final result = await serviceWithMock.hasNewFirebaseData(
           collectionName: testCollection, documentId: testDocument);
 
-      expect(result, isFalse, reason: "Harusnya false karena ada exception");
+      expect(result, isFalse, reason: 'Harusnya false karena ada exception');
 
       // Verifikasi bahwa semua metode yang diharapkan dipanggil
       verify(mockSyncManager.getLastDownload()).called(1);

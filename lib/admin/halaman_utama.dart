@@ -141,7 +141,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   final _widgetOptions = <Widget>[
     const ActiveCustomerPage(),
     const WalletPage(),
-    const TransactionPage(),
+    const TransactionPageA(),
     const StatistikPageA(),
     const LainnyaPage(),
   ];

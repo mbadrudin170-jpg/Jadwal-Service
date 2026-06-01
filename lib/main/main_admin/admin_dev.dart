@@ -13,10 +13,10 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 
 /// Callback untuk alarm kedaluwarsa langganan.
 @pragma('vm:entry-point')
-void _callbackAlarm() async {
+Future<void> _callbackAlarm() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
+  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
 
   final container = ProviderContainer();
   try {
@@ -25,19 +25,19 @@ void _callbackAlarm() async {
   } finally {
     container.dispose();
   }
-  Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
+  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }
 
 /// Callback yang dipicu setelah perangkat boot ulang.
 @pragma('vm:entry-point')
-void _rescheduleOnBoot() async {
+Future<void> _rescheduleOnBoot() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Inisialisasi Firebase dengan opsi prod
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Log.info("BOOT DETECTED: Menjalankan BootService untuk penjadwalan ulang...");
+  Log.info('BOOT DETECTED: Menjalankan BootService untuk penjadwalan ulang...');
 
   // Penting: Gunakan ProviderContainer di isolate background untuk akses Operation
   final container = ProviderContainer();
@@ -100,5 +100,5 @@ void main() async {
     rescheduleOnReboot: true, // Ini adalah kunci utamanya!
   );
   Log.info(
-      "Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId");
+      'Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId');
 }

@@ -40,7 +40,7 @@ class _ManageAnnouncementPageState
     _isSwitched = false; // Defaultnya tidak aktif
     _imageUrlController
         .addListener(() => setState(() {})); // Update UI saat text berubah
-    _loadAnnouncements;
+    _loadAnnouncements();
   }
 
   @override
@@ -67,7 +67,7 @@ class _ManageAnnouncementPageState
         _selectedStartDate = activeAnnouncement.startDate;
         _selectedEndDate = activeAnnouncement.endDate;
       });
-    } catch (e, st) {
+    }on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
     }
@@ -115,7 +115,7 @@ class _ManageAnnouncementPageState
   // Helper untuk memilih waktu
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     TimeOfDay initialTime = TimeOfDay.now();
-    DateTime? currentDateTime =
+    final DateTime? currentDateTime =
         isStartTime ? _selectedStartDate : _selectedEndDate;
     if (currentDateTime != null) {
       initialTime =
@@ -128,7 +128,7 @@ class _ManageAnnouncementPageState
 
     if (pickedTime != null) {
       setState(() {
-        DateTime? dateToUpdate =
+        final DateTime? dateToUpdate =
             isStartTime ? _selectedStartDate : _selectedEndDate;
         final DateTime datePart = dateToUpdate ?? DateTime.now();
 
@@ -216,11 +216,11 @@ class _ManageAnnouncementPageState
     return Scaffold(
       // Gunakan AppBarWidget kustom jika ada
       appBar: AppBar(
-        title: Text('Kelola Pengumuman'),
+        title: const Text('Kelola Pengumuman'),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.all(TSizes.p16),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -290,7 +290,7 @@ class _ManageAnnouncementPageState
                   'Jika diaktifkan, pengumuman ini akan tampil di aplikasi.',
                 ),
                 value: _isSwitched,
-                secondary: const Icon(TIcons.toggle_on),
+                secondary: const Icon(TIcons.toggleOn),
                 onChanged: (final bool value) {
                   setState(() {
                     _isSwitched = value;

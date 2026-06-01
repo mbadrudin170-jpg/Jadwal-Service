@@ -7,10 +7,10 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 
 /// Callback untuk alarm yang dieksekusi di background isolate.
 @pragma('vm:entry-point')
-void alarmCallback() async {
+Future<void> alarmCallback() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
+  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
   final container = ProviderContainer();
   try {
     final service = container.read(expiredSubscriptionCheckServiceProvider);
@@ -18,5 +18,5 @@ void alarmCallback() async {
   } finally {
     container.dispose();
   }
-  Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
+  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }

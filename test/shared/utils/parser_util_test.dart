@@ -7,7 +7,7 @@ import 'package:wifi/shared/utils/parser_util.dart';
 void main() {
   group('ParserUtil.parseDateTime', () {
     // Referensi waktu yang konsisten untuk pengujian
-    final referenceTime = DateTime(2024, 8, 17, 10, 30, 0);
+    final referenceTime = DateTime(2024, 8, 17, 10, 30);
 
     test('harus mengembalikan null jika input null', () {
       expect(ParserUtil.parseDateTime(null), isNull);

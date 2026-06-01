@@ -24,7 +24,7 @@ class ApkVersionForm extends ConsumerStatefulWidget {
   /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final ApkVersionModel? apkVersion;
 
-  ApkVersionForm(
+  const ApkVersionForm(
       {super.key, this.apkVersion, final ApkVersionOperation? operasi});
   @override
   ConsumerState<ApkVersionForm> createState() => _ApkVersionFormState();

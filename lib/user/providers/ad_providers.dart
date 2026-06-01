@@ -1,4 +1,5 @@
 // path: lib/user/providers/ad_provider.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
@@ -13,7 +14,7 @@ InterstitialAdService interstitialAdService(ref) {
 
   // Menambahkan onDispose untuk memastikan service (dan iklan di dalamnya)
   // dibersihkan dengan benar saat aplikasi ditutup.
-  ref.onDispose(() => service.dispose());
+  ref.onDispose(service.dispose);
 
   return service;
 }

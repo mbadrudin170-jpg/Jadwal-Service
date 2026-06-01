@@ -88,7 +88,7 @@ class PenjadwalNotifikasi {
         await notifikasiServis.batalNotifikasi(endNotificationId);
         await notifikasiServis.batalNotifikasi(midNotificationId);
         await AndroidAlarmManager.cancel(alarmId);
-        Log.info("Alarm dengan ID $alarmId juga dibatalkan.");
+        Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
       }
     } on Exception catch (e, st) {
       Log.error('Gagal mengatur notifikasi dari Firebase', e: e, st: st);
@@ -96,7 +96,7 @@ class PenjadwalNotifikasi {
       await notifikasiServis.batalNotifikasi(endNotificationId);
       await notifikasiServis.batalNotifikasi(midNotificationId);
       await AndroidAlarmManager.cancel(alarmId);
-      Log.info("Alarm dengan ID $alarmId juga dibatalkan karena error.");
+      Log.info('Alarm dengan ID $alarmId juga dibatalkan karena error.');
     }
   }
 }
@@ -104,13 +104,13 @@ class PenjadwalNotifikasi {
 /// Fungsi callback yang akan dieksekusi oleh AlarmManager.
 /// Harus berupa top-level function atau static method.
 @pragma('vm:entry-point')
-void _callbackAlarm() async {
+Future<void> _callbackAlarm() async {
   // Isolate baru tidak berbagi memori atau inisialisasi.
   // Kita harus menginisialisasi semua service yang dibutuhkan di sini.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  Log.info("ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...");
+  Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
   // Pastikan ExpiredSubscriptionCheckService diimpor dengan benar di atas.
 
   final container = ProviderContainer();
@@ -120,5 +120,5 @@ void _callbackAlarm() async {
   } finally {
     container.dispose();
   }
-  Log.info("ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.");
+  Log.info('ALARM SELESAI: Proses pengecekan langganan kedaluwarsa selesai.');
 }

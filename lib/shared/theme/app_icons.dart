@@ -266,8 +266,8 @@ class TIcons {
   static const IconData event = Icons.event;
 
   /// Ikon untuk status switch aktif.
-  static const IconData toggle_on = Icons.toggle_on;
+  static const IconData toggleOn = Icons.toggle_on;
 
   /// Ikon untuk status switch tidak aktif.
-  static const IconData toggle_off = Icons.toggle_off;
+  static const IconData toggleOff = Icons.toggle_off;
 }

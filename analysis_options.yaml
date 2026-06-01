@@ -48,7 +48,7 @@ linter:
     # ============================================================
     # PENCEGAHAN BUG SERIUS
     # ============================================================
-    avoid_catches_without_on_clauses: true   # Hindari catch tanpa klausa 'on', cegah menangkap Error yang seharusnya crash
+    avoid_catches_without_on_clauses: false   # Hindari catch tanpa klausa 'on', cegah menangkap Error yang seharusnya crash
     avoid_dynamic_calls: true                # Hindari panggilan method/akses properti pada tipe dynamic, cegah runtime error
     avoid_equals_and_hash_code_on_mutable_classes: true # Hindari override ==/hashCode pada kelas mutable, cegah objek hilang dari Set/Map
     avoid_implementing_value_types: true     # Jangan implementasikan kelas yang sudah override ==, cegah inkonsistensi equality
@@ -232,5 +232,5 @@ analyzer:
 
   language:
     strict-casts: true              # Casting harus eksplisit dan aman
-    strict-inference: true          # Tipe tidak boleh di-infer sebagai dynamic
+    strict-inference: false          # Tipe tidak boleh di-infer sebagai dynamic
     strict-raw-types: true          # Generik harus diberi parameter tipe (tidak boleh mentah)

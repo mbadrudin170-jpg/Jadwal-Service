@@ -41,21 +41,30 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
     when(mockDatabase.transaction(any)).thenAnswer((invocation) {
-      final action = invocation.positionalArguments.first as Function;
-      return action(mockTxn);
+      final action = invocation.positionalArguments.first as Future<dynamic>
+          Function(Transaction);
+      return Future.value(action(mockTxn));
     });
 
-    when(mockTxn.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm')))
+    when(mockTxn.insert(any, any,
+            conflictAlgorithm: anyNamed('conflictAlgorithm')))
         .thenAnswer((_) async => 1);
-    when(mockTxn.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+    when(mockTxn.update(any, any,
+            where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
         .thenAnswer((_) async => 1);
-    when(mockTxn.delete(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+    when(mockTxn.delete(any,
+            where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
         .thenAnswer((_) async => 1);
     when(mockTxn.batch()).thenReturn(mockBatch);
 
-    when(mockBatch.commit(noResult: anyNamed('noResult'), continueOnError: anyNamed('continueOnError'), exclusive: anyNamed('exclusive'))).thenAnswer((_) async => []);
+    when(mockBatch.commit(
+            noResult: anyNamed('noResult'),
+            continueOnError: anyNamed('continueOnError'),
+            exclusive: anyNamed('exclusive')))
+        .thenAnswer((_) async => []);
 
-    when(mockUploadStatusOperation.setNeedUpload(any, transaction: anyNamed('transaction')))
+    when(mockUploadStatusOperation.setNeedUpload(any,
+            transaction: anyNamed('transaction')))
         .thenAnswer((_) async {});
   });
 
@@ -66,8 +75,12 @@ void main() {
 
       await baseOperation.insert(table, data);
 
-      verify(mockTxn.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace)).called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+      verify(mockTxn.insert(table, data,
+              conflictAlgorithm: ConflictAlgorithm.replace))
+          .called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true,
+              transaction: mockTxn))
+          .called(1);
     });
 
     test('update() should call txn.update correctly', () async {
@@ -77,8 +90,11 @@ void main() {
 
       await baseOperation.update(table, data, id);
 
-      verify(mockTxn.update(table, data, where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+      verify(mockTxn.update(table, data,
+          where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true,
+              transaction: mockTxn))
+          .called(1);
     });
 
     test('softDelete() should call txn.update with correct data', () async {
@@ -98,7 +114,9 @@ void main() {
       // FIX: Used the constant `ColumnNames.isDeleted` instead of a literal string.
       expect(capturedMap[ColumnNames.isDeleted], 1);
       expect(capturedMap.containsKey(ColumnNames.archivedAt), isTrue);
-      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true,
+              transaction: mockTxn))
+          .called(1);
     });
 
     test('delete() should call txn.delete correctly', () async {
@@ -107,9 +125,12 @@ void main() {
 
       await baseOperation.delete(table, id);
 
-      verify(mockTxn.delete(table, where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
-      
-      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+      verify(mockTxn.delete(table,
+          where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
+
+      verify(mockUploadStatusOperation.setNeedUpload(true,
+              transaction: mockTxn))
+          .called(1);
     });
 
     test('insertOrUpdateBatch() should call batch.commit', () async {
@@ -122,9 +143,13 @@ void main() {
       await baseOperation.insertOrUpdateBatch(table, dataList);
 
       verify(mockTxn.batch()).called(1);
-      verify(mockBatch.insert(any, any, conflictAlgorithm: ConflictAlgorithm.replace)).called(2);
+      verify(mockBatch.insert(any, any,
+              conflictAlgorithm: ConflictAlgorithm.replace))
+          .called(2);
       verify(mockBatch.commit(noResult: true)).called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true, transaction: mockTxn)).called(1);
+      verify(mockUploadStatusOperation.setNeedUpload(true,
+              transaction: mockTxn))
+          .called(1);
     });
   });
 }

@@ -100,7 +100,7 @@ class _MainPageState extends ConsumerState<MainPage> {
               children: _pages,
             ),
           ),
-          BannerAdsWidget(),
+          const BannerAdsWidget(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

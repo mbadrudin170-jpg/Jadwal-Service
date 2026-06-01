@@ -53,7 +53,7 @@ class Transaction extends _$Transaction {
   }
 
   @override
-  Future<TransactionState> build() async {
+  Future<TransactionState> build() {
     return _loadData();
   }
 

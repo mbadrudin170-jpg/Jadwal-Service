@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/shared/debug/log.dart'; // Impor Log
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart'; // Impor providernya
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/debug/log.dart'; // Impor Log
 
 /// Halaman yang menampilkan daftar pengumuman (event) untuk pengguna.
 ///
@@ -49,9 +49,9 @@ class EventPageU extends ConsumerWidget {
             Log.error('Error saat memuat pengumuman: ${snapshot.error}',
                 e: snapshot.error,
                 st: snapshot.stackTrace); // Pastikan stackTrace juga dicatat
-            return Center(
+            return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Text(
                   'Gagal memuat pengumuman.', // Pesan yang lebih ramah pengguna
                   textAlign: TextAlign.center,
@@ -69,12 +69,12 @@ class EventPageU extends ConsumerWidget {
           else {
             final announcements = snapshot.data!;
             return ListView.builder(
-              padding: EdgeInsets.all(TSizes.p16),
+              padding: const EdgeInsets.all(TSizes.p16),
               itemCount: announcements.length,
               itemBuilder: (final context, final index) {
                 final announcement = announcements[index];
                 return Card(
-                  margin: EdgeInsets.only(bottom: TSizes.p16),
+                  margin: const EdgeInsets.only(bottom: TSizes.p16),
                   child: ListTile(
                     // Menampilkan gambar jika URL valid
                     leading: announcement.imageUrl.isNotEmpty
@@ -131,19 +131,19 @@ class EventPageU extends ConsumerWidget {
                         if (announcement.isActive)
                           Chip(
                             label: const Text('Aktif'),
-                            avatar: const Icon(TIcons.toggle_on, size: 18),
+                            avatar: const Icon(TIcons.toggleOn, size: 18),
                             backgroundColor: Colors.green.withAlpha(16),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 0),
+                                horizontal: 4),
                           )
                         else
                           Chip(
                             label: const Text('Tidak Aktif'),
-                            avatar: const Icon(TIcons.toggle_off, size: 18),
+                            avatar: const Icon(TIcons.toggleOff, size: 18),
                             // Kembali menggunakan withOpacity karena op() tidak valid
                             backgroundColor: Colors.grey.withAlpha(16),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 0),
+                                horizontal: 4),
                           ),
                       ],
                     ),
@@ -165,7 +165,7 @@ class EventPageU extends ConsumerWidget {
                 builder: (context) => const ManageAnnouncementPage()),
           );
         },
-        child: Icon(TIcons.edit),
+        child: const Icon(TIcons.edit),
       ),
     );
   }

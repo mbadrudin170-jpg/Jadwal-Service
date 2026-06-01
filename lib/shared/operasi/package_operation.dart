@@ -29,15 +29,14 @@ class PackageOperation {
   final DatabaseHelper dbHelper;
 
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  final BaseOperation _baseOperation;
+  final BaseOperation baseOperation;
   final String _tableName = TableNameValue.get(TableName.package);
   final _nowUtc = DateTime.now().toUtc();
 
   PackageOperation({
-    required final DatabaseHelper dbHelper,
-    required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        _baseOperation = baseOperation {
+    required this.dbHelper,
+    required this.baseOperation,
+  }) {
     Log.info('PackageOperation instance dibuat.');
   }
 
@@ -47,7 +46,7 @@ class PackageOperation {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
-      await _baseOperation.insert(
+      await baseOperation.insert(
         _tableName,
         data,
         fromServer: fromServer,
@@ -172,7 +171,7 @@ class PackageOperation {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
-      await _baseOperation.update(
+      await baseOperation.update(
         _tableName,
         data,
         package.id,
@@ -190,7 +189,7 @@ class PackageOperation {
       {final bool fromServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
-      await _baseOperation.softDelete(
+      await baseOperation.softDelete(
         _tableName,
         id,
         fromServer: fromServer,
@@ -206,7 +205,7 @@ class PackageOperation {
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
-      final count = await _baseOperation.softDeleteAll(
+      final count = await baseOperation.softDeleteAll(
         _tableName,
         fromServer: fromServer,
       );
@@ -222,7 +221,7 @@ class PackageOperation {
   Future<void> delete(final String id, {final bool fromServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
-      await _baseOperation.delete(
+      await baseOperation.delete(
         _tableName,
         id,
         fromServer: fromServer,
@@ -238,7 +237,7 @@ class PackageOperation {
   Future<void> deleteAll({final bool fromServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           final int count = await txn.delete(
             _tableName,
@@ -290,7 +289,7 @@ class PackageOperation {
             (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
-      await _baseOperation.insertOrUpdateBatch(
+      await baseOperation.insertOrUpdateBatch(
         _tableName,
         dataList,
         fromServer: fromServer,

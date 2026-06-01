@@ -6,7 +6,7 @@ import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Provider tema menggunakan AsyncNotifier (modern Riverpod)
 final themeProvider =
-    AsyncNotifierProvider<ThemeNotifier, ThemeMode>(() => ThemeNotifier());
+    AsyncNotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
 
 class ThemeNotifier extends AsyncNotifier<ThemeMode> {
   late LocalStorageService _storage;

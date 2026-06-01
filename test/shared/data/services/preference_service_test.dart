@@ -36,7 +36,7 @@ void main() {
         'harus bisa menyimpan dan mengambil waktu terakhir unggah dengan benar',
         () async {
       // ATUR
-      final testTime = DateTime(2023, 11, 15, 14, 0);
+      final testTime = DateTime(2023, 11, 15, 14);
 
       // JALANKAN
       await PreferenceService.setLastUpload(testTime);
@@ -49,7 +49,7 @@ void main() {
 
     test('harus bisa mereset kedua waktu sinkronisasi', () async {
       // ATUR
-      final downloadTime = DateTime(2023, 1, 1);
+      final downloadTime = DateTime(2023);
       final uploadTime = DateTime(2023, 2, 2);
       await PreferenceService.setLastDownload(downloadTime);
       await PreferenceService.setLastUpload(uploadTime);

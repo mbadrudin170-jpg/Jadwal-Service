@@ -160,7 +160,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   Future<void> _addActiveCustomer() async {
     Log.info('Navigasi ke form tambah pelanggan aktif');
     await Navigator.push<bool>(
-        context, MaterialPageRoute(builder: (final _) => FormPelangganAktif()));
+        context, MaterialPageRoute(builder: (final _) => const FormPelangganAktif()));
   }
 
   Future<void> _advancedOptions() async {

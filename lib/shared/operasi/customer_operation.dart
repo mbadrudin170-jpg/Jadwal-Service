@@ -44,10 +44,9 @@ class CustomerOperation {
   /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
   /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   CustomerOperation({
-    required final DatabaseHelper dbHelper,
+    required this.dbHelper,
     required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        _baseOperation = baseOperation {
+  })  : _baseOperation = baseOperation {
     Log.info('CustomerOperation diinisialisasi');
   }
 

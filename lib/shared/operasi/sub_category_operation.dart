@@ -31,10 +31,9 @@ class SubCategoryOperation {
   final String _tableName = TableNameValue.get(TableName.subCategory);
 
   SubCategoryOperation({
-    required final DatabaseHelper dbHelper,
-    required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        baseOperation = baseOperation;
+    required this.dbHelper,
+    required this.baseOperation,
+  });
 
   /// Menyimpan [SubCategoryModel] baru ke dalam database.
   Future<void> createSubCategory(

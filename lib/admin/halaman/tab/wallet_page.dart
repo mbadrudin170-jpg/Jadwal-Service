@@ -156,7 +156,7 @@ class WalletPage extends ConsumerWidget {
                 ref.read(walletProvider.notifier).deleteAllWallets().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
                 }).catchError((e, st) {
-                  Log.error('Gagal menghapus semua dompet.', e: e, st: st);
+                  Log.error('Gagal menghapus semua dompet.', e: e, st: st as StackTrace?);
                   ToastUtil.error(context, 'Gagal menghapus dompet: $e');
                 });
               },
@@ -190,7 +190,7 @@ class WalletPage extends ConsumerWidget {
                     .softDelete(wallet.id)
                     .then((_) {
                   ToastUtil.success(context, 'Dompet berhasil diarsipkan.');
-                }).catchError((e, st) {
+                }).catchError((Object e, StackTrace st) {
                   Log.error('Gagal mengarsipkan dompet.', e: e, st: st);
                   ToastUtil.error(context, 'Gagal mengarsipkan: $e');
                 });

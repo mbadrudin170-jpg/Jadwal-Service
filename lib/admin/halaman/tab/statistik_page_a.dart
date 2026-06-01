@@ -126,7 +126,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const TransactionPage())),
+                                builder: (_) => const TransactionPageA())),
                         title: 'Pendapatan Bulan Ini',
                         value: CurrencyFormat.formatCurrency(
                             data.pendapatanBulanIni),

@@ -39,10 +39,9 @@ class CategoryOperation {
 
   /// Konstruktor untuk CategoryOperation.
   CategoryOperation({
-    required final DatabaseHelper dbHelper,
+    required this.dbHelper,
     required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        _baseOperation = baseOperation {
+  })  : _baseOperation = baseOperation {
     Log.info('CategoryOperation instance dibuat.');
   }
 

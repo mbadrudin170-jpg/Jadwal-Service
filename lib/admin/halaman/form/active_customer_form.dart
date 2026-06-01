@@ -6,26 +6,26 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
+import 'package:wifi/admin/providers/transaction_provider.dart';
+import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/admin/providers/transaction_provider.dart';
-import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
   final ActiveCustomerModel? pelangganAktif;
 
-  FormPelangganAktif({super.key, this.pelangganAktif});
+  const FormPelangganAktif({super.key, this.pelangganAktif});
 
   @override
   ConsumerState<FormPelangganAktif> createState() => _FormPelangganAktifState();

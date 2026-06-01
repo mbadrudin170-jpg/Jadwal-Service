@@ -170,7 +170,7 @@ class _UserCustomerDetailPageState
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),
-            bottomNavigationBar: BannerAdsWidget(),
+            bottomNavigationBar: const BannerAdsWidget(),
           );
         },
       ),

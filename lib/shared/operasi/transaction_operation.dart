@@ -29,16 +29,15 @@ final transactionOperationProvider = Provider<TransactionOperation>((ref) {
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransactionOperation {
   final DatabaseHelper dbHelper;
-  final BaseOperation _baseOperation;
+  final BaseOperation baseOperation;
   final String _tableName = TableNameValue.get(TableName.transactions);
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
   TransactionOperation({
-    required final DatabaseHelper dbHelper,
-    required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        _baseOperation = baseOperation;
+    required this.dbHelper,
+    required  this.baseOperation,
+  });
 
   Future<Database> get _db async => await dbHelper.database;
 
@@ -108,7 +107,7 @@ class TransactionOperation {
     final bool fromServer = false,
   }) async {
     try {
-      final id = await _baseOperation.runComplexOperation<int>(
+      final id = await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.info('Memulai transaksi database untuk addTransaction');
           final data = transaction.copyWith(updatedAt: _nowUtc);
@@ -299,7 +298,7 @@ class TransactionOperation {
     final bool fromServer = false,
   }) async {
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai update transaksi database ID: $id');
           final maps = await txn.query(_tableName,
@@ -346,7 +345,7 @@ class TransactionOperation {
     final bool fromServer = false,
   }) async {
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai soft delete atomik untuk ID: $id');
           final maps = await txn.query(_tableName,
@@ -391,7 +390,7 @@ class TransactionOperation {
   /// Menandai semua transaksi sebagai dihapus dan mereset saldo semua dompet menjadi 0.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
-      final count = await _baseOperation.runComplexOperation<int>(
+      final count = await baseOperation.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.warning('Memulai soft delete semua transaksi secara atomik');
           final rowsAffected = await txn.update(
@@ -532,7 +531,7 @@ class TransactionOperation {
     final Set<String> affectedWallets = {};
 
     try {
-      await _baseOperation.runComplexOperation<void>(
+      await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info(
               'Memulai proses Batch insert/update untuk ${items.length} item');

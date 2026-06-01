@@ -30,10 +30,9 @@ class WalletOperation {
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   WalletOperation({
-    required final DatabaseHelper dbHelper,
+    required this.dbHelper,
     required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        _baseOperation = baseOperation;
+  }) : _baseOperation = baseOperation;
 
   Future<void> createWallet(
     final WalletModel wallet, {

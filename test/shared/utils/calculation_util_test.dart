@@ -9,7 +9,7 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 void main() {
   // Tanggal referensi yang akan digunakan di seluruh pengujian
   // untuk memastikan hasil yang konsisten.
-  final startDate = DateTime(2024, 8, 1, 10, 0, 0); // 1 Agustus 2024, 10:00
+  final startDate = DateTime(2024, 8, 1, 10); // 1 Agustus 2024, 10:00
 
   group('CalculationUtil.hitungTanggalBerakhir', () {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi jam', () {
@@ -19,7 +19,7 @@ void main() {
         duration: 3,
         type: DurationType.hours,
       );
-      final expectedEndDate = DateTime(2024, 8, 1, 13, 0, 0); // 3 jam kemudian
+      final expectedEndDate = DateTime(2024, 8, 1, 13); // 3 jam kemudian
       final result = CalculationUtil.hitungTanggalBerakhir(startDate, paket);
       expect(result, expectedEndDate);
     });
@@ -32,7 +32,7 @@ void main() {
         duration: 7,
         type: DurationType.days,
       );
-      final expectedEndDate = DateTime(2024, 8, 8, 10, 0, 0); // 7 hari kemudian
+      final expectedEndDate = DateTime(2024, 8, 8, 10); // 7 hari kemudian
       final result = CalculationUtil.hitungTanggalBerakhir(startDate, paket);
       expect(result, expectedEndDate);
     });
@@ -46,7 +46,7 @@ void main() {
         type: DurationType.months,
       );
       // 1 Agustus + 2 bulan = 1 Oktober
-      final expectedEndDate = DateTime(2024, 10, 1, 10, 0, 0);
+      final expectedEndDate = DateTime(2024, 10, 1, 10);
       final result = CalculationUtil.hitungTanggalBerakhir(startDate, paket);
       expect(result, expectedEndDate);
     });
@@ -60,7 +60,7 @@ void main() {
         type: DurationType.minutes,
       );
       // 10:00 + 90 menit = 11:30
-      final expectedEndDate = DateTime(2024, 8, 1, 11, 30, 0);
+      final expectedEndDate = DateTime(2024, 8, 1, 11, 30);
       final result = CalculationUtil.hitungTanggalBerakhir(startDate, paket);
       expect(result, expectedEndDate);
     });
@@ -71,7 +71,7 @@ void main() {
         'harus mengembalikan string kosong jika poin belum hangus (<= 30 hari)',
         () {
       // Selisih 30 hari dari startDate
-      final now = DateTime(2024, 8, 31, 10, 0, 0);
+      final now = DateTime(2024, 8, 31, 10);
       final result =
           CalculationUtil.getExpiredPoints(startDate: startDate, now: now);
       expect(result, '');
@@ -79,7 +79,7 @@ void main() {
 
     test('harus mengembalikan "Hangus" jika poin sudah hangus (> 30 hari)', () {
       // Selisih 31 hari dari startDate
-      final now = DateTime(2024, 9, 1, 10, 0, 0);
+      final now = DateTime(2024, 9, 1, 10);
       final result =
           CalculationUtil.getExpiredPoints(startDate: startDate, now: now);
       expect(result, 'Hangus');
@@ -89,28 +89,28 @@ void main() {
   group('CalculationUtil.remainingDays', () {
     test('harus mengembalikan jumlah sisa hari yang benar (kasus positif)', () {
       final endDate = DateTime(2024, 8, 11); // 10 hari dari startDate
-      final now = DateTime(2024, 8, 1);
+      final now = DateTime(2024, 8);
       final result = CalculationUtil.remainingDays(endDate, now: now);
       expect(result, 10);
     });
 
     test('harus mengembalikan 0 jika tanggal berakhir adalah hari ini', () {
-      final endDate = DateTime(2024, 8, 1);
-      final now = DateTime(2024, 8, 1);
+      final endDate = DateTime(2024, 8);
+      final now = DateTime(2024, 8);
       final result = CalculationUtil.remainingDays(endDate, now: now);
       expect(result, 0);
     });
 
     test('harus mengembalikan jumlah hari negatif jika sudah lewat', () {
       final endDate = DateTime(2024, 7, 27); // 5 hari sebelum `now`
-      final now = DateTime(2024, 8, 1);
+      final now = DateTime(2024, 8);
       final result = CalculationUtil.remainingDays(endDate, now: now);
       expect(result, -5);
     });
   });
 
   group('CalculationUtil.getRemainingActivePeriodText', () {
-    final now = DateTime(2024, 8, 1, 10, 0, 0);
+    final now = DateTime(2024, 8, 1, 10);
 
     test('harus menampilkan "Sisa X hari" jika sisa lebih dari 1 hari', () {
       final endDate = now.add(const Duration(days: 5, hours: 2));
@@ -151,7 +151,7 @@ void main() {
   });
 
   group('CalculationUtil.getRemainingActivePeriodColor', () {
-    final now = DateTime(2024, 8, 1);
+    final now = DateTime(2024, 8);
 
     test('harus mengembalikan Colors.green jika sisa lebih dari 7 hari', () {
       final endDate = now.add(const Duration(days: 8));

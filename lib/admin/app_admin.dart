@@ -2,18 +2,19 @@
 // REFAKTOR: Menyesuaikan dengan AsyncNotifier untuk tema.
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -104,7 +105,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
               'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi...');
         }
 
-        final settingsOperation = await ref.read(settingsOperationProvider);
+        final settingsOperation = ref.read(settingsOperationProvider);
         final settingsModel = await settingsOperation.getSettings();
         final retentionDays = settingsModel.autoDeleteArchiveDays;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);

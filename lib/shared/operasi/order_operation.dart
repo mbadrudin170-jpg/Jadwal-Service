@@ -32,10 +32,9 @@ class OrderOperation {
 
   /// Konstruktor untuk [OrderOperation].
   OrderOperation({
-  required  final DatabaseHelper dbHelper,
-   required final BaseOperation baseOperation,
-  })  : dbHelper = dbHelper,
-        baseOperation = baseOperation ;
+    required this.dbHelper,
+    required this.baseOperation,
+  });
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
   String get _tableName => TableNameValue.get(TableName.customerOrder);

@@ -35,16 +35,16 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   }
 
   Future<void> _loadOrders() async {
-    final _orderOperation = ref.read(orderOperationProvider);
+    final orderOperation = ref.read(orderOperationProvider);
     Log.info('Memuat pesanan dengan filter: $_filterStatus');
     setState(() => _isLoading = true);
 
     try {
       final List<OrderModel> orders;
       if (_filterStatus == 'semua') {
-        orders = await _orderOperation.getAllActiveOrders();
+        orders = await orderOperation.getAllActiveOrders();
       } else {
-        orders = await _orderOperation.getOrdersByStatus(_filterStatus);
+        orders = await orderOperation.getOrdersByStatus(_filterStatus);
       }
       setState(() {
         _orderList = orders;
@@ -62,10 +62,10 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   Future<void> _updateStatus(
       final OrderModel order, final String newStatus) async {
     Log.info('Mengubah status pesanan ID: ${order.id} ke "$newStatus"');
-    final _orderOperation = ref.read(orderOperationProvider);
+    final orderOperation = ref.read(orderOperationProvider);
 
     try {
-      await _orderOperation.updateOrderStatus(order.id, newStatus);
+      await orderOperation.updateOrderStatus(order.id, newStatus);
       await _loadOrders();
       if (mounted) {
         ToastUtil.success(context, 'Status pesanan berhasil diubah');
@@ -101,8 +101,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
     if (confirmed ?? false) {
       try {
-        final _orderOperation = ref.read(orderOperationProvider);
-        await _orderOperation.softDelete(order.id);
+        final orderOperation = ref.read(orderOperationProvider);
+        await orderOperation.softDelete(order.id);
         await _loadOrders();
         if (mounted) {
           ToastUtil.success(context, 'Pesanan berhasil diarsipkan');
@@ -139,8 +139,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
     if (confirmed ?? false) {
       try {
-        final _orderOperation = ref.read(orderOperationProvider);
-        final count = await _orderOperation.softDeleteAll();
+        final orderOperation = ref.read(orderOperationProvider);
+        final count = await orderOperation.softDeleteAll();
         await _loadOrders();
         if (mounted) {
           ToastUtil.success(context, 'Berhasil mengarsipkan $count pesanan.');

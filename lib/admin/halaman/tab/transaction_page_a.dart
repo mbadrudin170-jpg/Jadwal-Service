@@ -134,14 +134,20 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
         context: context,
         builder: (context) => SimpleDialog(
               title: const Text('Urutkan Berdasarkan'),
-              children: SortBy.values.map((sortBy) {
-                return RadioListTile<SortBy>(
-                  title: Text(sortBy.name),
-                  value: sortBy,
+              children: [
+                RadioGroup<SortBy>(
                   groupValue: currentSortBy,
                   onChanged: (value) => Navigator.pop(context, value),
-                );
-              }).toList(),
+                  child: Column(
+                    children: SortBy.values
+                        .map((sortBy) => RadioListTile<SortBy>(
+                              title: Text(sortBy.name),
+                              value: sortBy,
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ],
             ));
 
     if (newSort != null) {

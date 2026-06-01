@@ -36,7 +36,7 @@ class SettingsAdminPage extends ConsumerWidget {
       ),
     );
 
-    if (result == true && context.mounted) {
+    if ((result ?? false) && context.mounted) {
       Log.info('Pengaturan diperbarui, memuat ulang data...');
       ref.invalidate(settingsOperationProvider);
     }
@@ -65,7 +65,7 @@ class SettingsAdminPage extends ConsumerWidget {
       ),
     );
 
-    if (confirm == true && context.mounted) {
+    if ((confirm ?? false) && context.mounted) {
       try {
         // Mengakses SyncManager melalui provider
         await ref.read(syncManagerProvider).resetSyncTime();

@@ -50,7 +50,7 @@ class Statistik extends _$Statistik {
   }
 
   @override
-  Future<StatistikState> build() async {
+  Future<StatistikState> build() {
     Log.info('[StatistikNotifier] Build dipanggil, memuat data awal.');
     return _loadData();
   }
