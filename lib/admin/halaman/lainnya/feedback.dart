@@ -12,6 +12,7 @@ import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/feedback_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 
 /// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
@@ -177,7 +178,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   List<Widget> _buildSearchActions() {
     return [
       IconButton(
-        icon: const Icon(Icons.close),
+        icon: const Icon(TIcons.close),
         onPressed: () {
           Log.info('Menutup mode pencarian.');
           if (mounted) {
@@ -195,7 +196,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   List<Widget> _buildDefaultActions() {
     return [
       IconButton(
-        icon: const Icon(Icons.search),
+        icon: const Icon(TIcons.search),
         onPressed: () {
           Log.info('Membuka mode pencarian.');
           if (mounted) {

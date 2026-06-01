@@ -10,6 +10,8 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -83,12 +85,12 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
           : const Text('Daftar Pelanggan'),
       actions: [
         IconButton(
-          icon: const Icon(Icons.sort),
+          icon: const Icon(TIcons.sort),
           tooltip: 'Urutkan',
           onPressed: _showSortDialog,
         ),
         IconButton(
-          icon: Icon(_isSearching ? Icons.close : Icons.search),
+          icon: Icon(_isSearching ? TIcons.close : TIcons.search),
           onPressed: () {
             Log.info(
               'Tombol search/close ditekan. Mengubah state _isSearching.',
@@ -263,7 +265,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
+                leading: const Icon(TIcons.edit),
                 title: const Text('Edit Pelanggan'),
                 onTap: () async {
                   Log.info(
@@ -281,7 +283,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.archive_outlined),
+                leading: const Icon(TIcons.archive),
                 title: const Text('Arsipkan Pelanggan'),
                 onTap: () async {
                   Log.info(
@@ -374,7 +376,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _addCustomer,
         tooltip: 'Tambah Pelanggan',
-        child: const Icon(Icons.add),
+        child: const Icon(TIcons.add),
       ),
     );
   }
@@ -417,13 +419,12 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.star, color: Colors.amber),
+                const Icon(TIcons.star, color: Colors.amber),
                 const SizedBox(width: 4),
                 Text(
                   points.toString(),
-                  style: const TextStyle(
+                  style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
                   ),
                 ),
               ],

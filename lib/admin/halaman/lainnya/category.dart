@@ -17,6 +17,8 @@ import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sub_category_operation.dart';
+import 'package:wifi/shared/theme/app_theme.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
@@ -205,7 +207,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
             IconButton(
               tooltip: 'Arsipkan Semua',
               onPressed: _softDeleteAll,
-              icon: const Icon(Icons.inventory_2_outlined),
+              icon: const Icon(TIcons.packages),
             ),
           IconButton(
             tooltip: _isArchiveMode ? 'Selesai' : 'Arsipkan',
@@ -213,7 +215,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
               _isArchiveMode = !_isArchiveMode;
               if (_isArchiveMode) _isEdit = false;
             }),
-            icon: Icon(_isArchiveMode ? Icons.check : Icons.archive_outlined),
+            icon: Icon(_isArchiveMode ? TIcons.check : TIcons.archive),
           ),
           IconButton(
             tooltip: _isEdit ? 'Selesai' : 'Edit',
@@ -221,7 +223,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
               _isEdit = !_isEdit;
               if (_isEdit) _isArchiveMode = false;
             }),
-            icon: Icon(_isEdit ? Icons.check : Icons.edit_outlined),
+            icon: Icon(_isEdit ? TIcons.check : TIcons.edit),
           ),
         ],
       ),
@@ -245,7 +247,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                     setState(() => _selectedType = CategoryType.expense),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _selectedType == CategoryType.expense
-                      ? Colors.red
+                      ? context.colorScheme.error
                       : Colors.grey,
                 ),
                 child: const Text('Pengeluaran'),
@@ -282,13 +284,13 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                         title: Text(kategori.name),
                         trailing: _isEdit
                             ? IconButton(
-                                icon: const Icon(Icons.edit),
+                                icon: const Icon(TIcons.edit),
                                 onPressed: () =>
                                     _navigateToEditCategory(kategori),
                               )
                             : _isArchiveMode
                                 ? IconButton(
-                                    icon: const Icon(Icons.archive),
+                                    icon: const Icon(TIcons.archive),
                                     onPressed: () =>
                                         _softDeleteCategory(kategori),
                                   )
@@ -300,13 +302,13 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
                             title: Text(sub.name),
                             trailing: _isEdit
                                 ? IconButton(
-                                    icon: const Icon(Icons.edit),
+                                    icon: const Icon(TIcons.edit),
                                     onPressed: () => _navigateToEditSubCategory(
                                         sub, kategori.id),
                                   )
                                 : _isArchiveMode
                                     ? IconButton(
-                                        icon: const Icon(Icons.archive),
+                                        icon: const Icon(TIcons.archive),
                                         onPressed: () =>
                                             _softDeleteSubCategory(sub),
                                       )
@@ -324,7 +326,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addCategory,
-        child: const Icon(Icons.add),
+        child: const Icon(TIcons.add),
       ),
     );
   }

@@ -24,6 +24,9 @@ class TIcons {
   /// Ikon untuk aksi hapus.
   static const IconData delete = Icons.delete;
 
+  /// Ikon untuk aksi arsipkan.
+  static const IconData archive = Icons.archive_outlined;
+
   /// Ikon untuk aksi simpan.
   static const IconData save = Icons.save;
 
@@ -133,6 +136,9 @@ class TIcons {
 
   /// Ikon untuk poin.
   static const IconData points = Icons.stars;
+
+  /// Ikon bintang.
+  static const IconData star = Icons.star;
 
   /// Ikon untuk menambah poin (riwayat).
   static const IconData pointsAdd = Icons.add_circle_outline;
@@ -258,7 +264,7 @@ class TIcons {
 
   /// Ikon untuk video YouTube.
   static const IconData youtube = Icons.ondemand_video_rounded;
-  
+
   /// Ikon untuk fitur eksperimental atau halaman tes.
   static const IconData science = Icons.science;
 

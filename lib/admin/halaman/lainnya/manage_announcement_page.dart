@@ -12,7 +12,6 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
-// Gunakan ConsumerWidget agar bisa mengakses provider
 class ManageAnnouncementPage extends ConsumerStatefulWidget {
   const ManageAnnouncementPage({super.key});
 
@@ -25,19 +24,16 @@ class _ManageAnnouncementPageState
     extends ConsumerState<ManageAnnouncementPage> {
   final _formKey = GlobalKey<FormState>();
   final _imageUrlController = TextEditingController();
-  final _scrollController =
-      ScrollController(); // Untuk scroll ke error jika ada
+  final _scrollController = ScrollController();
   late bool _isSwitched;
-  EventModel?
-      _selectedAnnouncement; // null jika menambah baru, atau announcement yang diedit
+  EventModel? _selectedAnnouncement;
   DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
 
   @override
   void initState() {
     super.initState();
-    // Inisialisasi state awal
-    _isSwitched = false; // Defaultnya tidak aktif
+    _isSwitched = false;
     _imageUrlController
         .addListener(() => setState(() {})); // Update UI saat text berubah
     _loadAnnouncements();
@@ -51,29 +47,31 @@ class _ManageAnnouncementPageState
     super.dispose();
   }
 
-  /// Memuat daftar pengumuman dan mengisi form jika ada yang aktif/dipilih.
   Future<void> _loadAnnouncements() async {
     final operator = ref.read(eventOpFirebaseProvider);
     try {
       final announcements = await operator.getAll();
-      final activeAnnouncement = announcements.firstWhere(
-        (ann) => ann.isActive,
+      final activeAnnouncement = announcements.cast<EventModel?>().firstWhere(
+        (ann) => ann?.isActive ?? false,
+        orElse: () {
+          Log.error('Tidak ada pengumuman aktif ditemukan');
+          return null;
+        },
       );
 
       setState(() {
         _selectedAnnouncement = activeAnnouncement;
-        _imageUrlController.text = activeAnnouncement.imageUrl;
+        _imageUrlController.text = activeAnnouncement!.imageUrl;
         _isSwitched = activeAnnouncement.isActive;
         _selectedStartDate = activeAnnouncement.startDate;
         _selectedEndDate = activeAnnouncement.endDate;
       });
-    }on Exception catch (e, st) {
+    } on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
     }
   }
 
-  // Helper untuk memilih tanggal
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     DateTime initialDate = DateTime.now();
     if (isStartDate) {
@@ -85,19 +83,25 @@ class _ManageAnnouncementPageState
         initialDate = _selectedEndDate!;
       }
     }
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
+    DateTime? pickedDate;
+    try {
+      pickedDate = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2101),
+      );
+    } catch (e, st) {
+      Log.error('Error saat memilih tanggal', e: e, st: st);
+      ToastUtil.error(context, 'Gagal membuka pemilih tanggal');
+    }
 
     if (pickedDate != null) {
       setState(() {
         final currentDateTime =
             isStartDate ? _selectedStartDate : _selectedEndDate;
         final newDateTime = DateTime(
-          pickedDate.year,
+          pickedDate!.year,
           pickedDate.month,
           pickedDate.day,
           currentDateTime?.hour ?? DateTime.now().hour,
@@ -112,7 +116,6 @@ class _ManageAnnouncementPageState
     }
   }
 
-  // Helper untuk memilih waktu
   Future<void> _selectTime(BuildContext context, bool isStartTime) async {
     TimeOfDay initialTime = TimeOfDay.now();
     final DateTime? currentDateTime =
@@ -123,8 +126,14 @@ class _ManageAnnouncementPageState
     } else {
       initialTime = TimeOfDay.now();
     }
-    final pickedTime =
-        await showTimePicker(context: context, initialTime: initialTime);
+    TimeOfDay? pickedTime;
+    try {
+      pickedTime =
+          await showTimePicker(context: context, initialTime: initialTime);
+    } catch (e, st) {
+      Log.error('Error saat memilih waktu', e: e, st: st);
+      ToastUtil.error(context, 'Gagal membuka pemilih waktu');
+    }
 
     if (pickedTime != null) {
       setState(() {
@@ -136,7 +145,7 @@ class _ManageAnnouncementPageState
           datePart.year,
           datePart.month,
           datePart.day,
-          pickedTime.hour,
+          pickedTime!.hour,
           pickedTime.minute,
         );
         if (isStartTime) {
@@ -148,7 +157,6 @@ class _ManageAnnouncementPageState
     }
   }
 
-  /// Menyimpan pengumuman (baru atau update).
   Future<void> _saveAnnouncement() async {
     if (!_formKey.currentState!.validate()) {
       _scrollController.animateTo(
@@ -159,10 +167,21 @@ class _ManageAnnouncementPageState
       return;
     }
 
+    if (_selectedStartDate == null || _selectedEndDate == null) {
+      ToastUtil.error(context, 'Harap pilih tanggal mulai dan selesai');
+      return;
+    }
+
+    if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
+      ToastUtil.error(
+          context, 'Tanggal selesai tidak boleh sebelum tanggal mulai');
+      return;
+    }
+
     final operator = ref.read(eventOpFirebaseProvider);
     final String imageUrl = _imageUrlController.text.trim();
     final bool isActive = _isSwitched;
-    final DateTime now = DateTime.now().toUtc();
+    final DateTime now = DateTime.now();
     final EventModel announcementToSave = (_selectedAnnouncement ??
             EventModel(
               id: const Uuid().v4(),
@@ -176,34 +195,29 @@ class _ManageAnnouncementPageState
       imageUrl: imageUrl,
       isActive: isActive,
       updatedAt: now,
-      // createdAt tidak diubah jika update
       createdAt: _selectedAnnouncement?.createdAt ?? now,
     );
 
-    // Pastikan hanya satu pengumuman yang aktif
     if (isActive) {
       try {
-        // Cek apakah ada pengumuman lain yang aktif
         final currentActive = await operator.getActive();
         if (currentActive != null &&
             currentActive.id != announcementToSave.id) {
-          // Nonaktifkan pengumuman yang aktif sebelumnya
           final oldActive =
               currentActive.copyWith(isActive: false, updatedAt: now);
           await operator.upsert(oldActive);
         }
       } catch (e, st) {
-        Log.error('Gagal menonaktifkan pengumuman aktif sebelumnya',
-            e: e, st: st);
-        ToastUtil.error(context, 'Gagal menonaktifkan pengumuman lain.');
-        return; // Hentikan proses jika gagal menonaktifkan yang lama
+        Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
+        ToastUtil.error(
+            context, 'Gagal menonaktifkan pengumuman lain yang aktif.');
+        return;
       }
     }
 
     try {
       await operator.upsert(announcementToSave);
       ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
-      // Kembali ke halaman sebelumnya atau refresh daftar
       Navigator.of(context).pop();
     } catch (e, st) {
       Log.error('Gagal menyimpan pengumuman', e: e, st: st);
@@ -214,7 +228,6 @@ class _ManageAnnouncementPageState
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      // Gunakan AppBarWidget kustom jika ada
       appBar: AppBar(
         title: const Text('Kelola Pengumuman'),
       ),
@@ -244,21 +257,16 @@ class _ManageAnnouncementPageState
                   if (value == null || value.trim().isEmpty) {
                     return 'URL gambar wajib diisi';
                   }
-                  // Tambahkan validasi format URL jika perlu
-                  // Contoh sederhana:
                   if (!value.startsWith('http://') &&
                       !value.startsWith('https://')) {
                     return 'URL harus dimulai dengan http:// atau https://';
                   }
                   return null;
                 },
-                // Tidak perlu setState di onChanged karena decoration tidak bergantung pada input
-                // onChanged: (final _) => setState(() {}),
               ),
               Text(_selectedStartDate == null
                   ? 'Tanggal & Jam Belum Dipilih'
                   : 'Mulai ${FormatDateTime.formatDateAndTimeCompact(_selectedStartDate!)}'),
-
               gapH8,
               DateTimePickerWidget(
                   selectedDate: _selectedStartDate,
@@ -277,13 +285,10 @@ class _ManageAnnouncementPageState
                     : TimeOfDay(
                         hour: _selectedEndDate!.hour,
                         minute: _selectedEndDate!.minute),
-                onSelectDate: () =>
-                    _selectDate(context, false), // Panggil helper baru
-                onSelectTime: () =>
-                    _selectTime(context, false), // Panggil helper baru
+                onSelectDate: () => _selectDate(context, false),
+                onSelectTime: () => _selectTime(context, false),
               ),
               gapH16,
-
               SwitchListTile(
                 title: const Text('Aktifkan Pengumuman'),
                 subtitle: const Text(
@@ -296,42 +301,9 @@ class _ManageAnnouncementPageState
                     _isSwitched = value;
                   });
                 },
-                contentPadding: EdgeInsets.zero, // Sesuaikan padding jika perlu
+                contentPadding: EdgeInsets.zero,
               ),
-              // gapH16,
-              // if (_selectedAnnouncement == null)
-              //   ElevatedButton.icon(
-              //     icon: const Icon(TIcons.add),
-              //     label: const Text('Buat Pengumuman Baru'),
-              //     onPressed: () {
-              //       setState(() {
-              //         _selectedAnnouncement = null; // Reset ke mode tambah baru
-              //         _imageUrlController.clear();
-              //         _isSwitched = false; // Reset switch
-              //         _formKey.currentState?.reset(); // Reset validasi form
-              //         _scrollController.animateTo(0.0,
-              //             duration: const Duration(milliseconds: 300),
-              //             curve: Curves.easeOut);
-              //       });
-              //     },
-              //   ),
-
-              // Tombol Simpan (selalu tampil atau hanya saat ada perubahan)
               gapH16,
-
-              // if (_selectedAnnouncement != null)
-              //   Padding(
-              //     padding: EdgeInsets.only(top: TSizes.p8),
-              //     child: OutlinedButton.icon(
-              //       icon: const Icon(TIcons.delete),
-              //       label: const Text('Hapus Pengumuman Ini'),
-              //       onPressed: _deleteAnnouncement,
-              //       style: OutlinedButton.styleFrom(
-              //         foregroundColor: Colors.red, // Warna teks tombol
-              //         side: const BorderSide(color: Colors.red), // Warna border
-              //       ),
-              //     ),
-              //   ),
             ],
           ),
         ),

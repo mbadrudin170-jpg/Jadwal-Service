@@ -15,6 +15,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 
 enum AdvancedOption {
   softDeleteAll,
@@ -44,13 +45,14 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
-    
+
     // Jalankan pembersihan otomatis saat halaman pertama kali dimuat
     Future.microtask(() async {
       try {
         await _activeCustomerOperation.archiveExpiredCustomers();
       } catch (e) {
-        Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka', e: e);
+        Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
+            e: e);
       }
       await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
     });
@@ -160,7 +162,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   Future<void> _addActiveCustomer() async {
     Log.info('Navigasi ke form tambah pelanggan aktif');
     await Navigator.push<bool>(
-        context, MaterialPageRoute(builder: (final _) => const FormPelangganAktif()));
+        context, MaterialPageRoute(builder: (_) => const FormPelangganAktif()));
   }
 
   Future<void> _advancedOptions() async {
@@ -311,8 +313,10 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                       final c = detail.activeCustomer;
 
                       return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 7),
+                        margin: const EdgeInsets.only(
+                            left: TSizes.p16,
+                            right: TSizes.p16,
+                            bottom: TSizes.p12),
                         child: InkWell(
                           onLongPress: () => _softDeleteCustomer(detail),
                           onTap: () async {
@@ -332,6 +336,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                               ),
                             ),
                             subtitle: Column(
+                              mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(detail.packageName),
@@ -351,7 +356,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                                     'Berakhir: ${FormatDate.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
                               ],
                             ),
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: const Icon(TIcons.chevronRight),
                           ),
                         ),
                       );

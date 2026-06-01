@@ -144,3 +144,12 @@ class AppTheme {
     ),
   );
 }
+
+/// Extension untuk memudahkan akses [TextTheme] dan [ColorScheme] melalui context.
+extension ThemeContext on BuildContext {
+  /// Memudahkan akses ke textTheme: context.textTheme
+  TextTheme get textTheme => Theme.of(this).textTheme;
+
+  /// Memudahkan akses ke colorScheme: context.colorScheme
+  ColorScheme get colorScheme => Theme.of(this).colorScheme;
+}
