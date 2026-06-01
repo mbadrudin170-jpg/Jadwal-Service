@@ -274,19 +274,14 @@ class _ManageAnnouncementPageState
               ),
               gapH16,
               const SizedBox(height: 16), // Spasi antar elemen
-
-// Widget untuk menampilkan tanggal selesai yang dipilih
               Text(_selectedEndDate == null
                   ? 'Tanggal & Jam Selesai Belum Dipilih'
                   : 'Selesai: ${_selectedEndDate!.toLocal().toString().split(' ')[0]} ${_selectedEndDate!.toLocal().toString().split(' ')[1].split('.')[0]}'), // Format: YYYY-MM-DD HH:MM
               const SizedBox(height: 8), // Spasi antar elemen
-
-// Tombol untuk memilih Tanggal & Jam Selesai
               ElevatedButton(
                 onPressed: () => _selectDateTime(false),
                 child: const Text('Pilih Tanggal & Jam Selesai'),
               ),
-
               gapH16,
               SwitchListTile(
                 title: const Text('Aktifkan Pengumuman'),
@@ -303,8 +298,6 @@ class _ManageAnnouncementPageState
                 contentPadding: EdgeInsets.zero, // Sesuaikan padding jika perlu
               ),
               gapH16,
-
-              // Tombol Tambah Baru (jika tidak ada yang dipilih)
               if (_selectedAnnouncement == null)
                 ElevatedButton.icon(
                   icon: const Icon(TIcons.add),
@@ -315,7 +308,6 @@ class _ManageAnnouncementPageState
                       _imageUrlController.clear();
                       _isSwitched = false; // Reset switch
                       _formKey.currentState?.reset(); // Reset validasi form
-                      // Scroll ke atas untuk fokus pada form baru
                       _scrollController.animateTo(0.0,
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeOut);
@@ -333,7 +325,6 @@ class _ManageAnnouncementPageState
                 onPressed: _saveAnnouncement,
               ),
 
-              // Tombol Hapus (hanya tampil jika ada pengumuman yang dipilih)
               if (_selectedAnnouncement != null)
                 Padding(
                   padding: EdgeInsets.only(top: TSizes.p8),
@@ -354,27 +345,3 @@ class _ManageAnnouncementPageState
     );
   }
 }
-
-// Contoh Implementasi di tempat lain (misal di main.dart atau routes)
-// Widget ini perlu dibungkus dengan ProviderScope jika belum ada di root aplikasi.
-/*
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ProviderScope(
-      child: MaterialApp(
-        title: 'Admin Panel Pengumuman',
-        theme: AppTheme.lightTheme, // Gunakan tema Anda
-        darkTheme: AppTheme.darkTheme, // Gunakan tema Anda
-        home: const ManageAnnouncementPage(),
-      ),
-    );
-  }
-}
-*/
