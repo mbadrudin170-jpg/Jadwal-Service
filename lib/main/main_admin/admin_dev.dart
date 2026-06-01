@@ -34,7 +34,7 @@ Future<void> _callbackAlarm() async {
 @pragma('vm:entry-point')
 Future<void> _rescheduleOnBoot() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Inisialisasi Firebase dengan opsi prod
+  // Inisialisasi Firebase dengan opsi sesuai platform (dev/prod)
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

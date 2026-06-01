@@ -1,12 +1,4 @@
 // path: lib/admin/halaman/detail/apk_version_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/apk_version_page.dart
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/apk_version_form.dart (ApkVersionForm)
-//   - lib/shared/model/apk_version_model.dart (ApkVersionModel)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:async';
 
@@ -18,18 +10,13 @@ import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk menampilkan detail dari sebuah versi APK.
 class ApkVersionDetailPage extends ConsumerStatefulWidget {
-  /// Model versi APK yang akan ditampilkan.
   final ApkVersionModel apkVersion;
-
-  /// Operasi database untuk mengelola data versi APK. Jika null,
-  /// instance baru akan dibuat.
   final ApkVersionOperation? operation;
 
-  /// Konstruktor untuk ApkVersionDetailPage.
   const ApkVersionDetailPage({
     super.key,
     required this.apkVersion,
@@ -78,11 +65,10 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
     Log.info('Memuat ulang data untuk ID: ${_currentApkVersion.id}');
     try {
       final allData = await _apkVersionOperation.getAllActiveApkVersions();
-      // Temukan data yang baru berdasarkan ID
       final freshData = allData.firstWhere(
         (final data) => data.id == _currentApkVersion.id,
         orElse: () =>
-            _currentApkVersion, // Kembali ke data lama jika tidak ditemukan
+            _currentApkVersion,
       );
 
       if (mounted) {
@@ -117,25 +103,29 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         children: [
           _buildInfoRow('Versi Terbaru', _currentApkVersion.latestVersion),
           _buildInfoRow('Wajib Update',
               _currentApkVersion.isUpdateRequired ? 'Ya' : 'Tidak'),
           _buildInfoRow('Catatan Rilis', _currentApkVersion.releaseNotes),
           gapH16,
-          const Text(
+          Text(
             'Nomor Build Terbaru',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: context.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           ..._currentApkVersion.latestBuildNumber.entries.map(
             (final entry) =>
                 _buildInfoRow(entry.key.name, entry.value.toString()),
           ),
           gapH16,
-          const Text(
+          Text(
             'Tautan Unduhan',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: context.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           ..._currentApkVersion.downloadLinks.entries.map(
             (final entry) => _buildInfoRow(entry.key.name, entry.value),
@@ -157,11 +147,21 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: context.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          const Text(': '),
-          Flexible(child: Text(value)),
+          Text(
+            ': ',
+            style: context.textTheme.bodyMedium,
+          ),
+          Flexible(
+            child: Text(
+              value,
+              style: context.textTheme.bodyMedium,
+            ),
+          ),
         ],
       ),
     );

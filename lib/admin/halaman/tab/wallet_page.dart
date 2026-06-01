@@ -9,12 +9,11 @@ import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
 import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
-// Mengubah dari StatefulWidget menjadi ConsumerWidget agar bisa mengakses provider
 class WalletPage extends ConsumerWidget {
   const WalletPage({super.key});
 
@@ -35,7 +34,6 @@ class WalletPage extends ConsumerWidget {
             },
             tooltip: 'Segarkan Data',
           ),
-          // Aksi lain tetap sama
           IconButton(
             icon: const Icon(TIcons.delete),
             onPressed: () => _showDeleteAllDialog(context, ref),
@@ -48,33 +46,37 @@ class WalletPage extends ConsumerWidget {
           Log.info('WalletProvider sedang loading.');
           return const Center(child: CircularProgressIndicator());
         },
-        // Menampilkan pesan error jika terjadi kesalahan
         error: (err, stack) {
           Log.error('Error saat memuat WalletProvider.', e: err, st: stack);
           return Center(
-            child: Text('Terjadi kesalahan: $err'),
+            child: Text(
+              'Terjadi kesalahan: $err',
+              style: context.textTheme.bodyMedium,
+            ),
           );
         },
-        // Menampilkan data jika berhasil dimuat
         data: (walletState) {
           Log.info(
             'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
           );
           final wallets = walletState.wallets;
           if (wallets.isEmpty) {
-            return const Center(child: Text('Tidak ada dompet ditemukan.'));
+            return Center(
+              child: Text('Tidak ada dompet ditemukan.',
+                  style: context.textTheme.bodyMedium),
+            );
           }
 
           return Column(
             children: [
-              FinancialSummary(
-                totalPositiveBalance: walletState.totalPositiveBalance,
-                totalNegativeBalance: walletState.totalNegativeBalance,
-                totalBalance: walletState.totalBalance,
+              FinancialSummaryWidget(
+                income: walletState.totalPositiveBalance,
+                expense: walletState.totalNegativeBalance,
+                total: walletState.totalBalance,
               ),
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: TSizes.p8),
                   itemCount: wallets.length,
                   itemBuilder: (context, index) {
                     final wallet = wallets[index];
@@ -108,7 +110,6 @@ class WalletPage extends ConsumerWidget {
     );
     if (result ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
-      // Tidak perlu setState, cukup panggil notifier
       ref.read(walletProvider.notifier).refresh();
     }
   }
@@ -122,7 +123,6 @@ class WalletPage extends ConsumerWidget {
         builder: (context) => WalletDetail(wallet: wallet),
       ),
     );
-    // Setelah kembali dari detail, refresh data untuk jaga-jaga ada perubahan
     Log.info('Kembali dari detail dompet, memicu refresh.');
     ref.read(walletProvider.notifier).refresh();
   }
@@ -156,7 +156,8 @@ class WalletPage extends ConsumerWidget {
                 ref.read(walletProvider.notifier).deleteAllWallets().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
                 }).catchError((e, st) {
-                  Log.error('Gagal menghapus semua dompet.', e: e, st: st as StackTrace?);
+                  Log.error('Gagal menghapus semua dompet.',
+                      e: e, st: st as StackTrace?);
                   ToastUtil.error(context, 'Gagal menghapus dompet: $e');
                 });
               },
@@ -203,59 +204,6 @@ class WalletPage extends ConsumerWidget {
   }
 }
 
-// Widget FinancialSummary disederhanakan menjadi StatelessWidget karena datanya
-// kini dipasok dari parent.
-class FinancialSummary extends StatelessWidget {
-  final double totalPositiveBalance;
-  final double totalNegativeBalance;
-  final double totalBalance;
-
-  const FinancialSummary({
-    super.key,
-    required this.totalPositiveBalance,
-    required this.totalNegativeBalance,
-    required this.totalBalance,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Log.info('Membangun UI untuk widget Ringkasan Keuangan.');
-    return Card(
-      margin: const EdgeInsets.all(12.0),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            buildFinancialSummaryInfo(
-              context: context,
-              label: 'Pemasukan',
-              amount: totalPositiveBalance,
-              color: Colors.green,
-            ),
-            buildFinancialSummaryInfo(
-              context: context,
-              label: 'Pengeluaran',
-              amount: totalNegativeBalance,
-              color: Colors.red,
-            ),
-            buildFinancialSummaryInfo(
-              context: context,
-              label: 'Total',
-              amount: totalBalance,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class WalletCard extends StatelessWidget {
   final WalletModel wallet;
   final VoidCallback onTap;
@@ -271,29 +219,30 @@ class WalletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Log.info('WalletCard build: name=${wallet.name} balance=${wallet.balance}');
-    final theme = Theme.of(context);
     final subtitleColor = wallet.balance < 0
-        ? theme.colorScheme.error
-        : theme.textTheme.bodySmall?.color;
+        ? context.colorScheme.error
+        : context.textTheme.bodySmall?.color;
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(
+          horizontal: TSizes.p16, vertical: TSizes.p8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(TSizes.p16),
         leading: const Icon(
-          Icons.account_balance_wallet,
+          TIcons.wallet,
           size: 40,
-          color: Colors.blueAccent,
+          color: TColors.primaryColor,
         ),
         title: Text(
           wallet.name,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(
           'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.balance)}',
-          style: TextStyle(
-            fontSize: 16,
+          style: context.textTheme.bodyMedium?.copyWith(
             color: subtitleColor,
           ),
         ),
