@@ -28,10 +28,6 @@ class ImageStorageService {
       await _supabase.storage.from(bucket).upload(
             path,
             file,
-            fileOptions: const FileOptions(
-              cacheControl: '3600',
-              upsert: false,
-            ),
           );
 
       // Mendapatkan URL publik gambar
