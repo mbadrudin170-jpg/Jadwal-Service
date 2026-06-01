@@ -98,8 +98,7 @@ class AppTheme {
     ),
     listTileTheme: ListTileThemeData(
       // Tidak perlu override warna di sini lagi, akan diwariskan dari _lightTextTheme
-      subtitleTextStyle:
-          _lightTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+      subtitleTextStyle: _lightTextTheme.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -132,8 +131,7 @@ class AppTheme {
       color: TColors.darkSurface,
     ),
     listTileTheme: ListTileThemeData(
-      subtitleTextStyle:
-          _darkTextTheme.bodyMedium?.copyWith(color: Colors.grey.shade400),
+      subtitleTextStyle: _darkTextTheme.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(

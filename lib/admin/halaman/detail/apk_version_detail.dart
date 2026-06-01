@@ -67,8 +67,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
       final allData = await _apkVersionOperation.getAllActiveApkVersions();
       final freshData = allData.firstWhere(
         (final data) => data.id == _currentApkVersion.id,
-        orElse: () =>
-            _currentApkVersion,
+        orElse: () => _currentApkVersion,
       );
 
       if (mounted) {
@@ -139,7 +138,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
 
   Widget _buildInfoRow(final String label, final String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

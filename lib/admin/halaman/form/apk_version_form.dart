@@ -13,6 +13,7 @@ import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
+import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Form untuk mengelola versi APK pengguna.
@@ -174,11 +175,11 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       final konfirmasi = await showDialog<bool>(
         context: context,
         builder: (final context) => AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              Icon(TIcons.infoOutlined, color: Colors.blue),
+              Icon(TIcons.infoOutlined, color: context.colorScheme.primary),
               gapW12,
-              Text('Konfirmasi Simpan'),
+              const Text('Konfirmasi Simpan'),
             ],
           ),
           content: const Text(
@@ -288,7 +289,12 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
           Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 80.0),
+              padding: const EdgeInsets.fromLTRB(
+                TSizes.p16,
+                TSizes.p16,
+                TSizes.p16,
+                TSizes.p80,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -389,13 +395,17 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
           if (_isLoading)
             ColoredBox(
               color: Colors.black.withAlpha(128),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
                     gapH12,
-                    Text('Menyimpan...', style: TextStyle(color: Colors.white)),
+                    Text(
+                      'Menyimpan...',
+                      style: context.textTheme.bodyMedium
+                          ?.copyWith(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -403,11 +413,11 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: ElevatedButton(
           onPressed: _isLoading ? null : _saveForm,
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: TSizes.p16),
           ),
           child: const Text('SIMPAN DATA RILIS'),
         ),
@@ -417,13 +427,12 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
 
   Widget _buildSectionTitle(final String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: TSizes.p8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: context.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: Colors.blue,
+          color: context.colorScheme.primary,
         ),
       ),
     );
@@ -436,7 +445,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     final FocusNode? nextFocusNode,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: TSizes.p12),
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,
@@ -463,7 +472,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     final FocusNode? nextFocusNode,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: TSizes.p12),
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,

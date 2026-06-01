@@ -5,11 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/wallet_operation.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
@@ -202,9 +201,9 @@ class _WalletFormState extends ConsumerState<WalletForm> {
                   await _saveform();
                 },
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, TSizes.p48),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(TSizes.p12),
                   ),
                 ),
                 child: const Text('Simpan'),
