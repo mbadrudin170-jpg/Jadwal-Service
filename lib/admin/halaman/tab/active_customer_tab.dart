@@ -12,10 +12,10 @@ import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 // import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 
 enum AdvancedOption {
   softDeleteAll,
