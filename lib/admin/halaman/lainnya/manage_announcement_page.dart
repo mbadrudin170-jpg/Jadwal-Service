@@ -51,21 +51,24 @@ class _ManageAnnouncementPageState
     final operator = ref.read(eventOpFirebaseProvider);
     try {
       final announcements = await operator.getAll();
-      final activeAnnouncement = announcements.cast<EventModel?>().firstWhere(
+      final EventModel? activeAnnouncement =
+          announcements.cast<EventModel?>().firstWhere(
         (ann) => ann?.isActive ?? false,
         orElse: () {
-          Log.error('Tidak ada pengumuman aktif ditemukan');
+          Log.info('Tidak ada pengumuman aktif ditemukan untuk dimuat.');
           return null;
         },
       );
 
-      setState(() {
-        _selectedAnnouncement = activeAnnouncement;
-        _imageUrlController.text = activeAnnouncement!.imageUrl;
-        _isSwitched = activeAnnouncement.isActive;
-        _selectedStartDate = activeAnnouncement.startDate;
-        _selectedEndDate = activeAnnouncement.endDate;
-      });
+      if (activeAnnouncement != null) {
+        setState(() {
+          _selectedAnnouncement = activeAnnouncement;
+          _imageUrlController.text = activeAnnouncement.imageUrl;
+          _isSwitched = activeAnnouncement.isActive;
+          _selectedStartDate = activeAnnouncement.startDate;
+          _selectedEndDate = activeAnnouncement.endDate;
+        });
+      }
     } on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
@@ -270,11 +273,11 @@ class _ManageAnnouncementPageState
               gapH8,
               DateTimePickerWidget(
                   selectedDate: _selectedStartDate,
-                  selectedTime: _selectedEndDate == null
+                  selectedTime: _selectedStartDate == null
                       ? null
                       : TimeOfDay(
-                          hour: _selectedEndDate!.hour,
-                          minute: _selectedEndDate!.minute),
+                          hour: _selectedStartDate!.hour,
+                          minute: _selectedStartDate!.minute),
                   onSelectDate: () => _selectDate(context, true),
                   onSelectTime: () => _selectTime(context, true)),
               DateTimePickerWidget(

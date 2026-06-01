@@ -15,7 +15,9 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 @pragma('vm:entry-point')
 Future<void> _callbackAlarm() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
 
   final container = ProviderContainer();

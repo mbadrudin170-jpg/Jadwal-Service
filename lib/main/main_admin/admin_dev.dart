@@ -1,4 +1,4 @@
-// path: lib/main/main_admin/admin_prod.dart
+// path: lib/main/main_admin/admin_dev.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,9 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 @pragma('vm:entry-point')
 Future<void> _callbackAlarm() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
 
   final container = ProviderContainer();
@@ -49,7 +51,7 @@ Future<void> _rescheduleOnBoot() async {
   }
 }
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
+/// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
