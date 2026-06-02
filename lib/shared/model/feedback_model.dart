@@ -88,7 +88,7 @@ class FeedbackModel implements HasId {
       ColumnNames.id: id,
       ColumnNames.content: content,
       ColumnNames.userId: userId,
-      ColumnNames.date: date?.millisecondsSinceEpoch,
+      ColumnNames.date: (date ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.updatedAt:
           (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,

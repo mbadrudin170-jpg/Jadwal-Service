@@ -8,7 +8,7 @@ import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 enum ChartRange {
@@ -97,7 +97,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                     style: theme.textTheme.titleLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 12),
+                  gapH12,
                   Wrap(
                     spacing: 12.0,
                     runSpacing: 12.0,
@@ -144,23 +144,23 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  gapH24,
                   Text(
                     'Analisis Pertumbuhan',
                     style: theme.textTheme.titleLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 12),
+                  gapH12,
                   _buildChartToggleButtons(theme),
-                  const SizedBox(height: 16),
+                  gapH16,
                   _buildLineChartCard(),
-                  const SizedBox(height: 24),
+                  gapH24,
                   Text(
                     'Paket Terlaris',
                     style: theme.textTheme.titleLarge
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 12),
+                  gapH12,
                   _buildBestSellingPackages(theme, data.bestSellingPackages),
                 ],
               ),
@@ -192,6 +192,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
     required Color color,
   }) {
     return LayoutBuilder(builder: (context, constraints) {
+      final theme = Theme.of(context);
       final cardWidth = (constraints.maxWidth > 400)
           ? (constraints.maxWidth / 2 - 12)
           : double.infinity;
@@ -210,19 +211,17 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                   radius: 20,
                   child: Icon(icon, color: color, size: 24),
                 ),
-                const SizedBox(width: 12),
+                gapH12,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(title,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: theme.textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis),
                       Text(value,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
+                          style: theme.textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.bold)),
                     ],
                   ),

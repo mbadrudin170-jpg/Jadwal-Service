@@ -23,6 +23,29 @@ enum AdvancedOption {
   cancel,
 }
 
+String _getSortLabel(SortOption option) {
+  switch (option) {
+    case SortOption.berakhirHariIni:
+      return 'Berakhir Hari Ini';
+    case SortOption.tanggalBerakhir:
+      return 'Tanggal Berakhir';
+    case SortOption.tanggalMulai:
+      return 'Tanggal Mulai';
+    case SortOption.lunas:
+      return 'Lunas';
+    case SortOption.belumLunas:
+      return 'Belum Lunas';
+    case SortOption.namaAZ:
+      return 'Nama A-Z';
+    case SortOption.namaZA:
+      return 'Nama Z-A';
+    case SortOption.terbaru:
+      return 'Terbaru';
+    case SortOption.terlama:
+      return 'Terlama';
+  }
+}
+
 class ActiveCustomerPage extends ConsumerStatefulWidget {
   const ActiveCustomerPage({super.key});
 
@@ -132,28 +155,65 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   }
 
   Future<void> _showSortDialog() async {
-    final ActiveCustomerState state = ref.watch(activeCustomerProvider);
+    final ActiveCustomerState state = ref.read(activeCustomerProvider);
+
     await showDialog<SortOption>(
       context: context,
-      builder: (final ctx) => SimpleDialog(
+      builder: (final ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
-        children: [
-          for (final o in SortOption.values)
-            SimpleDialogOption(
-              onPressed: () {
-                ref.read(activeCustomerProvider.notifier).setSortBy(o);
-                Navigator.pop(ctx);
-              },
-              child: Text(
-                o.name,
-                style: TextStyle(
-                    fontWeight: state.sortBy == o
-                        ? FontWeight.bold
-                        : FontWeight.normal),
+        // Berikan padding horizontal 0 agar ListTile bisa menyentuh pinggir kanan-kiri dengan rapi
+        contentPadding:
+            const EdgeInsets.only(top: TSizes.p12, bottom: TSizes.p12),
+        content: Column(
+          // KUNCI UTAMA: Memaksa Column menciut pas sesuai tinggi konten di dalamnya
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: SortOption.values.map((o) {
+                    final diPilih = state.sortBy == o;
+                    return ListTile(
+                      // Mengurangi padding bawaan ListTile agar jarak antar baris tidak terlalu jauh
+                      dense: true,
+                      visualDensity: const VisualDensity(vertical: -2),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: TSizes.p24,
+                      ),
+                      title: Text(
+                        _getSortLabel(o),
+                        style: TextStyle(
+                          fontSize: TSizes.p16,
+                          fontWeight:
+                              diPilih ? FontWeight.bold : FontWeight.normal,
+                          color:
+                              diPilih ? Theme.of(context).primaryColor : null,
+                        ),
+                      ),
+                      trailing: diPilih
+                          ? Icon(
+                              TIcons.check,
+                              color: Theme.of(context).primaryColor,
+                              size: 18,
+                            )
+                          : null,
+                      onTap: () {
+                        ref.read(activeCustomerProvider.notifier).setSortBy(o);
+                        Navigator.pop(ctx);
+                      },
+                    );
+                  }).toList(),
+                ),
               ),
             ),
-          SimpleDialogOption(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
         ],
       ),
     );
@@ -311,7 +371,6 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                     itemBuilder: (_, i) {
                       final detail = displayedCustomers[i];
                       final c = detail.activeCustomer;
-
                       return Card(
                         margin: const EdgeInsets.only(
                             left: TSizes.p16,

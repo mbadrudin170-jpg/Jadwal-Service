@@ -14,9 +14,15 @@ import 'package:wifi/shared/utils/toast_util.dart';
 part 'active_customer_provider.g.dart';
 
 enum SortOption {
-  newest,
-  endDate,
-  startDate,
+  berakhirHariIni,
+  terbaru,
+  terlama,
+  tanggalMulai,
+  tanggalBerakhir,
+  lunas,
+  belumLunas,
+  namaAZ,
+  namaZA,
 }
 
 class ActiveCustomerState {
@@ -25,7 +31,7 @@ class ActiveCustomerState {
 
   ActiveCustomerState({
     this.activeCustomers = const [],
-    this.sortBy = SortOption.newest,
+    this.sortBy = SortOption.berakhirHariIni,
   });
 
   ActiveCustomerState copyWith({
@@ -49,24 +55,67 @@ class ActiveCustomer extends _$ActiveCustomer {
     Future.microtask(fetchActiveCustomers);
     return ActiveCustomerState(
         activeCustomers: [],
-        sortBy: currentState?.sortBy ?? SortOption.endDate);
+        sortBy: currentState?.sortBy ?? SortOption.berakhirHariIni);
   }
-
-  // late final ActiveCustomerOperation operation =
-  //     ref.read(activeCustomerOperationProvider);
 
   List<ActiveCustomerDetailModel> _sortData(
       List<ActiveCustomerDetailModel> data, SortOption sortBy) {
     final sorted = List<ActiveCustomerDetailModel>.from(data);
+
+    // Ambil waktu sekarang dan normalisasi ke jam 00:00 agar perhitungan tanggal murni akurat
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     sorted.sort((a, b) {
       switch (sortBy) {
-        case SortOption.endDate:
+        case SortOption.berakhirHariIni:
+          // 1. Normalisasi tanggal berakhir pelanggan A dan B (buang jam/menit/detik)
+          final dateA = DateTime(
+            a.activeCustomer.endDate.year,
+            a.activeCustomer.endDate.month,
+            a.activeCustomer.endDate.day,
+          );
+          final dateB = DateTime(
+            b.activeCustomer.endDate.year,
+            b.activeCustomer.endDate.month,
+            b.activeCustomer.endDate.day,
+          );
+
+          // 2. Hitung sisa hari (bisa bernilai minus jika sudah lewat/kadaluarsa)
+          final sisaHariA = dateA.difference(today).inDays;
+          final sisaHariB = dateB.difference(today).inDays;
+
+          // 3. Logika Urutan:
+          // Kita ingin sisa hari yang paling kecil/mendekati nol (atau minus kecil) berada di atas.
+          // Menggunakan nilai absolut (.abs()) memastikan selisih 0 hari (hari ini) berada di urutan teratas,
+          // diikuti selisih 1 hari (besok/kemarin), dst.
+          return sisaHariA.abs().compareTo(sisaHariB.abs());
+
+        case SortOption.tanggalBerakhir:
           return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
-        case SortOption.startDate:
+        case SortOption.tanggalMulai:
           return a.activeCustomer.startDate
               .compareTo(b.activeCustomer.startDate);
-        default:
-          return 0;
+        case SortOption.lunas: // Paid (index 0) vs Unpaid (index 1)
+          return a.activeCustomer.status.index
+              .compareTo(b.activeCustomer.status.index);
+        case SortOption.belumLunas:
+          return b.activeCustomer.status.index
+              .compareTo(a.activeCustomer.status.index);
+        case SortOption.namaAZ:
+          return a.customerName
+              .toLowerCase()
+              .compareTo(b.customerName.toLowerCase());
+        case SortOption.namaZA:
+          return b.customerName
+              .toLowerCase()
+              .compareTo(a.customerName.toLowerCase());
+        case SortOption.terbaru:
+          return b.activeCustomer.startDate
+              .compareTo(a.activeCustomer.startDate);
+        case SortOption.terlama:
+          return a.activeCustomer.startDate
+              .compareTo(b.activeCustomer.startDate);
       }
     });
     return sorted;

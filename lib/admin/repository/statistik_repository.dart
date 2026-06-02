@@ -93,10 +93,6 @@ class StatistikRepository {
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
       final db = await DatabaseHelper.instance.database;
-      final now = DateTime.now();
-      final startOfMonth = DateTime(now.year, now.month);
-      final startOfMonthMillis = startOfMonth.millisecondsSinceEpoch;
-
       final String tableName =
           '"${TableNameValue.get(TableName.transactions)}"';
       final String paidStatus = PaymentStatus.paid.name;
@@ -112,9 +108,9 @@ class StatistikRepository {
           END
         ) as total
         FROM $tableName
-        WHERE ${ColumnNames.date} >= ? AND ${ColumnNames.isDeleted} = 0
+        WHERE ${ColumnNames.isDeleted} = 0
         ''',
-        [paidStatus, unpaidStatus, startOfMonthMillis],
+        [paidStatus, unpaidStatus],
       );
 
       Log.info('Query pendapatan bersih selesai. Hasil mentah: $result');

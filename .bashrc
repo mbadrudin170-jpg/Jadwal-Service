@@ -6,8 +6,8 @@ bersihkan_idx() {
     echo "=== Memulai pembersihan mendalam ==="
     
     echo "1. Membersihkan proyek Flutter lokal..."
-    flutter clean
-    
+    cd android && ./gradlew --stop && cd .. && flutter clean   
+     
     echo "2. Menghapus cache global Gradle (Aman)..."
     rm -rf ~/.gradle/caches
     
