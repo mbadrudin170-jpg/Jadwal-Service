@@ -1,10 +1,4 @@
 // path: lib/admin/halaman/lainnya/package_activation_history.dart
-// diubah: Memperbaiki nama class DetailLanggananTransaksiPage menjadi SubscriptionHistoryDetailPage.
-// diubah: Memperbaiki parameter yang dikirimkan ke SubscriptionHistoryDetailPage.
-// diubah: Menambahkan dokumentasi untuk mengatasi error public_member_api_docs.
-// diubah: Menambahkan opsi urutkan berdasarkan tanggal berakhir dan menjadikannya default.
-// diubah: Menambahkan opsi urutkan berdasarkan nama pelanggan (A-Z dan Z-A).
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';

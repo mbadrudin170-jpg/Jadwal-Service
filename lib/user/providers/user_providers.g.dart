@@ -94,4 +94,4 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
   }
 }
 
-String _$notifikasiServisHash() => r'07b1a109342575b01eafced4d80f90b1bd0d1c00';
+String _$notifikasiServisHash() => r'5fc8ee2c4dd3b82dde43a04dddb6ab925f8cb142';
