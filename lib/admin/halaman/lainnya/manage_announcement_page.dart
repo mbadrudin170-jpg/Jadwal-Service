@@ -36,7 +36,7 @@ class _ManageAnnouncementPageState
     _isSwitched = false;
     _imageUrlController
         .addListener(() => setState(() {})); // Update UI saat text berubah
-    _loadAnnouncements();
+    _loadData();
   }
 
   @override
@@ -47,7 +47,7 @@ class _ManageAnnouncementPageState
     super.dispose();
   }
 
-  Future<void> _loadAnnouncements() async {
+  Future<void> _loadData() async {
     final operator = ref.read(eventOpFirebaseProvider);
     try {
       final announcements = await operator.getAll();
@@ -160,7 +160,7 @@ class _ManageAnnouncementPageState
     }
   }
 
-  Future<void> _saveAnnouncement() async {
+  Future<void> _saveData() async {
     if (!_formKey.currentState!.validate()) {
       _scrollController.animateTo(
         0.0, // Scroll ke atas halaman
@@ -317,7 +317,7 @@ class _ManageAnnouncementPageState
           label: Text(_selectedAnnouncement == null
               ? 'Simpan Pengumuman'
               : 'Perbarui Pengumuman'),
-          onPressed: _saveAnnouncement,
+          onPressed: _saveData,
         ),
       ),
     );

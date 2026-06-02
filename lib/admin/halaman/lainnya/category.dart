@@ -21,9 +21,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
 class CategoryPage extends ConsumerStatefulWidget {
-  /// Halaman untuk mengelola kategori pemasukan dan pengeluaran.
   const CategoryPage({super.key});
 
   @override
