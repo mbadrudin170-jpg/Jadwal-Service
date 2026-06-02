@@ -199,6 +199,10 @@ class FeedbackOperation {
     }
   }
 
+  // ===========================================================================
+  // DELETE (SOFT & HARD)
+  // ===========================================================================
+
   /// Menghapus [FeedbackModel] dari database secara permanen.
   Future<void> delete(
     final String id, {

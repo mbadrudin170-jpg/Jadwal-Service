@@ -1,138 +1,143 @@
-// // path: test/shared/operasi/settings_operation_test.dart
-// import 'package:flutter_test/flutter_test.dart';
-// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-// import 'package:wifi/admin/data/sqlite.dart';
-// import 'package:wifi/shared/constant/column_names.dart';
-// import 'package:wifi/shared/constant/table_name_value.dart';
-// import 'package:wifi/shared/enum/table_name_enum.dart';
-// import 'package:wifi/shared/model/settings_model.dart';
-// import 'package:wifi/shared/operasi/base_operation.dart';
-// import 'package:wifi/shared/operasi/settings_operation.dart';
+// path: test/shared/operasi/settings_operation_test.dart
 
-// void main() {
-//   // Initialize FFI for sqflite for in-memory testing
-//   setUpAll(() {
-//     // Initialize FFI
-//     sqfliteFfiInit();
-//     // Change the default factory for unit testing
-//     databaseFactory = databaseFactoryFfi;
-//   });
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqlite_api.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/settings_operation.dart';
 
-//   late DatabaseHelper dbHelper;
-//   late SettingsOperation settingsOperation;
-//   late BaseOperation baseOperation;
-//   final settingsTableName = TableNameValue.get(TableName.settings);
+import 'settings_operation_test.mocks.dart';
 
-//   setUp(() async {
-//     dbHelper = DatabaseHelper.instance;
-//     dbHelper.debugSetDatabaseNull();
-//     await dbHelper.database;
+// ID Global untuk baris pengaturan di SQLite. Selalu 1.
+const int globalSettingsId = 1;
 
-//     baseOperation = BaseOperation(dbHelper: dbHelper);
-//     settingsOperation = SettingsOperation(
-//       dbHelper: dbHelper,
-//       baseOperation: baseOperation,
-//     );
-//   });
+@GenerateMocks([DatabaseHelper, BaseOperation, Database])
+void main() {
+  late MockDatabaseHelper mockDbHelper;
+  late MockBaseOperation mockBaseOperation;
+  late MockDatabase mockDatabase;
+  late SettingsOperation settingsOperation;
+  final tableName = TableNameValue.get(TableName.settings);
 
-//   tearDown(() async {
-//     final db = await dbHelper.database;
-//     await db.close();
-//     dbHelper.debugSetDatabaseNull();
-//   });
+  setUp(() {
+    mockDbHelper = MockDatabaseHelper();
+    mockBaseOperation = MockBaseOperation();
+    mockDatabase = MockDatabase();
+    settingsOperation = SettingsOperation(
+      dbHelper: mockDbHelper,
+      baseOperation: mockBaseOperation,
+    );
 
-//   group('SettingsOperation Tests', () {
-//     test('getSettings should create and return default settings if none exist',
-//         () async {
-//       // Arrange (DB is empty by default)
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
+  });
 
-//       // Act
-//       final settings = await settingsOperation.getSettings();
+  group('getSettings', () {
+    test('harus mengembalikan pengaturan yang ada jika ditemukan di database', () async {
+      // Atur
+      final settingsMap = {
+        'id': globalSettingsId,
+        'autoSyncInterval': 48,
+        'autoDeleteArchiveDays': 60,
+        'maintenanceMode': 1,
+        'maintenanceInfo': 'Under construction',
+        'updatedAt': DateTime.now().millisecondsSinceEpoch,
+      };
+      // --- PERBAIKAN: Menggunakan ID integer untuk whereArgs --- 
+      when(mockDatabase.query(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [globalSettingsId],
+      )).thenAnswer((_) async => [settingsMap]);
 
-//       // Assert
-//       expect(settings.id, equals(globalSettingsId));
-//       expect(settings.autoSyncInterval, 24); // Default value
+      // Lakukan
+      final result = await settingsOperation.getSettings();
 
-//       // Verify that default settings were indeed saved to the database
-//       final db = await dbHelper.database;
-//       final result = await db.query(settingsTableName,
-//           where: 'id = ?', whereArgs: [globalSettingsId]);
-//       expect(result.length, 1);
-//       expect(result.first['id'], globalSettingsId);
-//       expect(result.first[ColumnNames.autoSyncInterval], 24);
-//     });
+      // Periksa
+      expect(result.autoSyncInterval, 48);
+      expect(result.maintenanceMode, true);
+      verify(mockDatabase.query(tableName, where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
+      verifyNever(mockBaseOperation.insert(any, any));
+    });
 
-//     test('getSettings should return existing settings from the database',
-//         () async {
-//       // Arrange: Manually insert settings into the DB
-//       final db = await dbHelper.database;
-//       final testSettings = SettingsModel(
-//         id: globalSettingsId,
-//         autoSyncInterval: 48, // Non-default value
-//         updatedAt: DateTime.now().toUtc(),
-//       );
-//       await db.insert(settingsTableName, testSettings.toSqlite(),
-//           conflictAlgorithm: ConflictAlgorithm.replace);
+    test('harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ditemukan', () async {
+      // Atur
+      // --- PERBAIKAN: Menggunakan ID integer untuk whereArgs --- 
+      when(mockDatabase.query(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [globalSettingsId],
+      )).thenAnswer((_) async => []);
 
-//       // Act
-//       final settings = await settingsOperation.getSettings();
+      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
+          .thenAnswer((_) async => globalSettingsId);
 
-//       // Assert
-//       expect(settings.id, globalSettingsId);
-//       expect(settings.autoSyncInterval, 48);
-//     });
+      // Lakukan
+      final result = await settingsOperation.getSettings();
+      final defaultSettings = SettingsModel();
 
-//     test('saveOrUpdateSettings should correctly insert new settings', () async {
-//       // Arrange
-//       final newSettings = SettingsModel(
-//         autoSyncInterval: 72,
-//         updatedAt: DateTime.now().toUtc(),
-//       );
+      // Periksa
+      expect(result.autoSyncInterval, defaultSettings.autoSyncInterval);
+      
+      verify(mockDatabase.query(tableName, where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
+      
+      final captured = verify(mockBaseOperation.insert(
+        tableName,
+        captureAny,
+      )).captured;
 
-//       // Act
-//       await settingsOperation.saveOrUpdateSettings(newSettings);
+      final savedData = captured.first as Map<String, dynamic>;
+      // --- PERBAIKAN: Memastikan ID yang disimpan adalah integer --- 
+      expect(savedData['id'], globalSettingsId);
+    });
+  });
 
-//       // Assert
-//       final db = await dbHelper.database;
-//       final result = await db.query(settingsTableName,
-//           where: 'id = ?', whereArgs: [globalSettingsId]);
-//       expect(result.length, 1);
-//       expect(result.first[ColumnNames.autoSyncInterval], 72);
-//     });
+  group('saveOrUpdateSettings', () {
+    test('harus memanggil _baseOperation.insert dengan data yang benar', () async {
+      // Atur
+      final settings = SettingsModel(
+        autoSyncInterval: 12,
+        updatedAt: DateTime(2023, 10, 26),
+      );
+      
+      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
+          .thenAnswer((_) async => 1);
 
-//     test('update should update partial fields of the settings', () async {
-//       // Arrange: Insert initial settings
-//       final initialSettings = SettingsModel(
-//         autoSyncInterval: 12,
-//       );
-//       await settingsOperation.saveOrUpdateSettings(initialSettings);
+      // Lakukan
+      await settingsOperation.saveOrUpdateSettings(settings);
 
-//       // Act: Update only the autoSyncInterval field
-//       const newInterval = 6;
-//       await settingsOperation
-//           .update({ColumnNames.autoSyncInterval: newInterval});
+      // Periksa
+      final captured = verify(mockBaseOperation.insert(
+        tableName,
+        captureAny,
+      )).captured;
 
-//       // Assert
-//       final settings = await settingsOperation.getSettings();
-//       expect(settings.autoSyncInterval, newInterval);
-//       // Ensure other fields are not wiped or altered unexpectedly
-//       expect(settings.id, globalSettingsId);
-//     });
+      final savedData = captured.first as Map<String, dynamic>;
 
-//     test(
-//         'saveOrUpdateSettingsWithBatch should correctly insert or update settings',
-//         () async {
-//       // Arrange
-//       final batchSettings = SettingsModel(
-//         autoSyncInterval: 1,
-//         updatedAt: DateTime.now().toUtc(),
-//       );
-//       // Act
-//       await settingsOperation.saveOrUpdateSettingsWithBatch(batchSettings);
-//       // Assert
-//       final settings = await settingsOperation.getSettings();
-//       expect(settings.id, globalSettingsId);
-//       expect(settings.autoSyncInterval, 1);
-//     });
-//   });
-// }
+      // --- PERBAIKAN: Memastikan ID yang disimpan adalah integer --- 
+      expect(savedData['id'], globalSettingsId);
+      expect(savedData['autoSyncInterval'], 12);
+    });
+
+    test('harus meneruskan flag fromServer dengan benar', () async {
+      // Atur
+      final settings = SettingsModel();
+      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
+          .thenAnswer((_) async => 1);
+
+      // Lakukan
+      await settingsOperation.saveOrUpdateSettings(settings, fromServer: true);
+
+      // Periksa
+      verify(mockBaseOperation.insert(
+        tableName,
+        any,
+        fromServer: true,
+      )).called(1);
+    });
+  });
+}
