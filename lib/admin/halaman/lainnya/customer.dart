@@ -18,7 +18,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
-enum SortOption {
+enum UrutanPelanggan {
   /// Urutkan berdasarkan nama dari A hingga Z.
   nameAZ,
 
@@ -60,7 +60,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
   final Map<String, int> _customerPoints = {};
   bool _isLoading = true;
 
-  SortOption _activeSort = SortOption.nameAZ;
+  UrutanPelanggan _activeSort = UrutanPelanggan.nameAZ;
 
   @override
   void initState() {
@@ -128,10 +128,10 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
 
   Future<void> _showSortDialog() async {
     Log.info('Menampilkan dialog opsi pengurutan.');
-    final SortOption? result = await showDialog<SortOption>(
+    final UrutanPelanggan? result = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (final BuildContext context) {
-        Widget buildOption(final String text, final SortOption value) {
+        Widget buildOption(final String text, final UrutanPelanggan value) {
           final bool isSelected = _activeSort == value;
           return SimpleDialogOption(
             onPressed: () {
@@ -160,12 +160,14 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
-            buildOption('Nama (A-Z)', SortOption.nameAZ),
-            buildOption('Nama (Z-A)', SortOption.nameZA),
-            buildOption('Aktivitas Terakhir (Terbaru)', SortOption.lastActiveNewest),
-            buildOption('Aktivitas Terakhir (Terlama)', SortOption.lastActiveOldest),
-            buildOption('Poin (Tertinggi)', SortOption.pointsHighest),
-            buildOption('Poin (Terendah)', SortOption.pointsLowest),
+            buildOption('Nama (A-Z)', UrutanPelanggan.nameAZ),
+            buildOption('Nama (Z-A)', UrutanPelanggan.nameZA),
+            buildOption('Aktivitas Terakhir (Terbaru)',
+                UrutanPelanggan.lastActiveNewest),
+            buildOption('Aktivitas Terakhir (Terlama)',
+                UrutanPelanggan.lastActiveOldest),
+            buildOption('Poin (Tertinggi)', UrutanPelanggan.pointsHighest),
+            buildOption('Poin (Terendah)', UrutanPelanggan.pointsLowest),
           ],
         );
       },
@@ -176,45 +178,45 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     }
   }
 
-  void _applySort(final SortOption option) {
+  void _applySort(final UrutanPelanggan option) {
     Log.info('Menerapkan pengurutan: $option');
     setState(() {
       _activeSort = option;
       switch (option) {
-        case SortOption.nameAZ:
+        case UrutanPelanggan.nameAZ:
           _filteredCustomers.sort(
             (final a, final b) =>
                 a.name.toLowerCase().compareTo(b.name.toLowerCase()),
           );
           break;
-        case SortOption.nameZA:
+        case UrutanPelanggan.nameZA:
           _filteredCustomers.sort(
             (final a, final b) =>
                 b.name.toLowerCase().compareTo(a.name.toLowerCase()),
           );
           break;
-        case SortOption.lastActiveNewest:
+        case UrutanPelanggan.lastActiveNewest:
           _filteredCustomers.sort((final a, final b) {
             if (a.lastActiveAt == null) return 1;
             if (b.lastActiveAt == null) return -1;
             return b.lastActiveAt!.compareTo(a.lastActiveAt!);
           });
           break;
-        case SortOption.lastActiveOldest:
+        case UrutanPelanggan.lastActiveOldest:
           _filteredCustomers.sort((final a, final b) {
             if (a.lastActiveAt == null) return -1;
             if (b.lastActiveAt == null) return 1;
             return a.lastActiveAt!.compareTo(b.lastActiveAt!);
           });
           break;
-        case SortOption.pointsHighest:
+        case UrutanPelanggan.pointsHighest:
           _filteredCustomers.sort((final a, final b) {
             final pointsA = _customerPoints[a.id] ?? 0;
             final pointsB = _customerPoints[b.id] ?? 0;
             return pointsB.compareTo(pointsA);
           });
           break;
-        case SortOption.pointsLowest:
+        case UrutanPelanggan.pointsLowest:
           _filteredCustomers.sort((final a, final b) {
             final pointsA = _customerPoints[a.id] ?? 0;
             final pointsB = _customerPoints[b.id] ?? 0;
