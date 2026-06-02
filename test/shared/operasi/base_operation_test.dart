@@ -1,3 +1,4 @@
+
 // path: test/shared/operasi/base_operation_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
@@ -40,10 +41,13 @@ void main() {
 
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
+    // --- PERBAIKAN ---
+    // Mengembalikan hasil `action` secara langsung, karena `action` itu sendiri
+    // sudah merupakan sebuah Future.
     when(mockDatabase.transaction(any)).thenAnswer((invocation) {
-      final action = invocation.positionalArguments.first as Future<dynamic>
-          Function(Transaction);
-      return Future.value(action(mockTxn));
+      final action = invocation.positionalArguments.first
+          as Future<dynamic> Function(Transaction);
+      return action(mockTxn);
     });
 
     when(mockTxn.insert(any, any,
@@ -57,11 +61,12 @@ void main() {
         .thenAnswer((_) async => 1);
     when(mockTxn.batch()).thenReturn(mockBatch);
 
+    // Stub untuk batch.commit() sekarang mengembalikan List<Object?>
     when(mockBatch.commit(
             noResult: anyNamed('noResult'),
             continueOnError: anyNamed('continueOnError'),
             exclusive: anyNamed('exclusive')))
-        .thenAnswer((_) async => []);
+        .thenAnswer((_) async => <Object?>[]);
 
     when(mockUploadStatusOperation.setNeedUpload(any,
             transaction: anyNamed('transaction')))
@@ -111,7 +116,6 @@ void main() {
       )).captured;
 
       final capturedMap = captured.first as Map<String, Object?>;
-      // FIX: Used the constant `ColumnNames.isDeleted` instead of a literal string.
       expect(capturedMap[ColumnNames.isDeleted], 1);
       expect(capturedMap.containsKey(ColumnNames.archivedAt), isTrue);
       verify(mockUploadStatusOperation.setNeedUpload(true,
