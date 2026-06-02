@@ -34,7 +34,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
   final _durationController = TextEditingController();
   final _rewardPointsController = TextEditingController();
   final _redemptionPointsController = TextEditingController();
-
   final _nameFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
   final _durationFocusNode = FocusNode();
@@ -50,7 +49,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
   void initState() {
     super.initState();
     _packageOperation = ref.read(packageOperationProvider);
-
     if (_isEditMode) {
       _nameController.text = widget.package!.name;
       _priceController.text = widget.package!.price.toString();
@@ -82,11 +80,9 @@ class _PackageFormState extends ConsumerState<PackageForm> {
         } else {
           await _packageOperation.add(newPackage);
         }
-
         if (!mounted) {
           return;
         }
-
         ToastUtil.success(
           context,
           'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
@@ -95,7 +91,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
       } on DatabaseException catch (e, s) {
         String errorMessage =
             'Gagal menyimpan paket. Terjadi kesalahan database.';
-
         if (e.isUniqueConstraintError()) {
           errorMessage = 'Nama paket sudah ada. Harap gunakan nama lain.';
         } else {
@@ -239,7 +234,7 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                     }
                     return null;
                   },
-                  onFieldSubmitted: (final _) async {
+                  onFieldSubmitted: (_) async {
                     await _saveForm();
                   },
                 ),

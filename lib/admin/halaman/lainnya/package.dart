@@ -1,6 +1,5 @@
 // path: lib/admin/halaman/lainnya/package.dart
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
@@ -10,7 +9,8 @@ import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 enum UrutanPaket {
   namaAZ,
@@ -23,378 +23,69 @@ enum UrutanPaket {
   durasiTerpendek,
 }
 
-class PackagePage extends ConsumerStatefulWidget {
+class PackagePage extends ConsumerWidget {
   const PackagePage({super.key});
 
   @override
-  ConsumerState<PackagePage> createState() => _PackagePageState();
-}
-
-class _PackagePageState extends ConsumerState<PackagePage> {
-  late final PackageOperation _paketOperasi;
-  late Future<List<PackageModel>> _paketFuture;
-  UrutanPaket _urutanSaatIni = UrutanPaket.durasiTerpendek;
-
-  @override
-  void initState() {
-    super.initState();
-    _paketOperasi = ref.read(packageOperationProvider);
-    Log.info('Menginisialisasi halaman Paket');
-    _refreshPaketList();
-  }
-
-  void _refreshPaketList() {
-    Log.info('Memperbarui daftar paket dari database');
-    setState(() {
-      _paketFuture = _paketOperasi.getByAktif();
-    });
-  }
-
-  int _getDurationInMinutes(final PackageModel paket) {
-    switch (paket.type) {
-      case DurationType.minutes:
-        return paket.duration;
-      case DurationType.hours:
-        return paket.duration * 60;
-      case DurationType.days:
-        return paket.duration * 24 * 60;
-      case DurationType.months:
-        return paket.duration * 30 * 24 * 60;
-    }
-  }
-
-  Future<void> _tampilkanDialogUrutkan() async {
-    Log.info('Menampilkan dialog urutkan');
-    final UrutanPaket? hasil = await showDialog<UrutanPaket>(
-      context: context,
-      builder: (final context) {
-        Widget buildOption(final String text, final UrutanPaket value) {
-          final isSelected = _urutanSaatIni == value;
-
-          return SimpleDialogOption(
-            onPressed: () {
-              Navigator.pop(context, value);
-              Log.info('Mengurutkan berdasarkan: $text');
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  vertical: TSizes.p8, horizontal: TSizes.p4),
-              decoration: BoxDecoration(
-                color: isSelected ? TColors.pointBackground : null,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(text, textAlign: TextAlign.center),
-            ),
-          );
-        }
-
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: [
-            buildOption('Durasi (Terpendek)', UrutanPaket.durasiTerpendek),
-            buildOption('Durasi (Terlama)', UrutanPaket.durasiTerlama),
-            buildOption('Nama (A-Z)', UrutanPaket.namaAZ),
-            buildOption('Nama (Z-A)', UrutanPaket.namaZA),
-            buildOption('Harga (Tertinggi)', UrutanPaket.hargaTertinggi),
-            buildOption('Harga (Terendah)', UrutanPaket.hargaTerendah),
-            buildOption('Poin (Tertinggi)', UrutanPaket.poinTertinggi),
-            buildOption('Poin (Terendah)', UrutanPaket.poinTerendah),
-          ],
-        );
-      },
-    );
-
-    if (hasil != null) {
-      setState(() => _urutanSaatIni = hasil);
-    }
-  }
-
-  Future<void> _showEditDeleteDialog(final PackageModel paket) async {
-    Log.info('Menampilkan dialog opsi untuk paket: ${paket.name}');
-    await showDialog<void>(
-      context: context,
-      builder: (final context) {
-        return AlertDialog(
-          title: Text(paket.name),
-          content: const Text('Pilih aksi yang ingin Anda lakukan.'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Log.info(
-                  'Memilih navigasi ke Form Edit untuk paket: ${paket.name}',
-                );
-                Navigator.pop(context);
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (final context) => PackageForm(package: paket),
-                  ),
-                );
-                Log.info('Kembali dari Form Edit, menyegarkan daftar paket');
-                _refreshPaketList();
-              },
-              child: const Text('Edit'),
-            ),
-            TextButton(
-              onPressed: () {
-                Log.info('Memilih opsi Hapus untuk paket: ${paket.name}');
-                Navigator.pop(context);
-                unawaited(_showDeleteConfirmationDialog(paket));
-              },
-              child: const Text('Hapus'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showDeleteConfirmationDialog(final PackageModel paket) async {
-    Log.info(
-      'Menampilkan konfirmasi hapus untuk paket ID: ${paket.id}, nama: ${paket.name}',
-    );
-    await showDialog<void>(
-      context: context,
-      builder: (final BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
-          content: Text(
-            'Apakah Anda yakin ingin menghapus paket ${paket.name}?',
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Batal'),
-              onPressed: () {
-                Log.info(
-                  'Penghapusan paket ${paket.name} dibatalkan oleh user',
-                );
-                Navigator.of(dialogContext).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Hapus'),
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.of(dialogContext).pop();
-
-                try {
-                  Log.info(
-                    'Menjalankan operasi hapus paket ID: ${paket.id}, nama: ${paket.name}',
-                  );
-                  await _paketOperasi.softDelete(paket.id);
-                  Log.info(
-                    'Paket ID: ${paket.id} berhasil dihapus dari database',
-                  );
-                  _refreshPaketList();
-
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Paket berhasil dihapus.'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } on Exception catch (e, s) {
-                  Log.error(
-                    'Gagal menghapus paket ID: ${paket.id}, nama: ${paket.name}',
-                    e: e,
-                    st: s,
-                  );
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus paket: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _hapusSemuaPaket() async {
-    Log.info('User menekan tombol hapus semua paket');
-    await showDialog<void>(
-      context: context,
-      builder: (final BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Hapus Semua'),
-          content: const Text(
-            'Apakah Anda yakin ingin menghapus SEMUA paket? Tindakan ini tidak dapat dibatalkan.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Batal'),
-              onPressed: () {
-                Log.info('Penghapusan massal semua paket dibatalkan oleh user');
-                Navigator.of(dialogContext).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Hapus Semua'),
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.of(dialogContext).pop();
-
-                try {
-                  Log.info(
-                    'Menjalankan operasi hapus semua paket dari database',
-                  );
-                  await _paketOperasi.softDeleteAll();
-                  Log.info('Semua paket berhasil dihapus dari database');
-                  _refreshPaketList();
-
-                  messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Semua paket berhasil dihapus.'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } on Exception catch (e, s) {
-                  Log.error(
-                    'Gagal menghapus semua paket dari database',
-                    e: e,
-                    st: s,
-                  );
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menghapus semua paket: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI halaman Daftar Paket');
+
+    final asyncPackages = ref.watch(packageListProvider);
+    final urutanSaatIni = ref.watch(urutanPaketStateProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Paket'),
         actions: [
           IconButton(
-            onPressed: _tampilkanDialogUrutkan,
-            icon: const Icon(Icons.sort),
+            onPressed: () => _tampilkanDialogUrutkan(context, ref),
+            icon: const Icon(TIcons.sort),
             tooltip: 'Urutkan',
           ),
           IconButton(
-            onPressed: _hapusSemuaPaket,
-            icon: const Icon(Icons.delete_sweep),
+            onPressed: () => _hapusSemuaPaket(context, ref),
+            icon: const Icon(TIcons.delete),
             tooltip: 'Hapus Semua',
           ),
         ],
       ),
-      body: FutureBuilder<List<PackageModel>>(
-        future: _paketFuture,
-        builder: (final context, final snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            Log.error(
-              'Terjadi error saat memuat data paket',
-              e: snapshot.error,
-              st: snapshot.stackTrace,
-            );
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      body: asyncPackages.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) {
+          Log.error('Terjadi error saat memuat data paket', e: err, st: stack);
+          return Center(child: Text('Error: $err'));
+        },
+        data: (paketList) {
+          if (paketList.isEmpty) {
             Log.info('Data paket kosong, tidak ada paket yang tersedia');
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
 
-          final paketList = List<PackageModel>.from(snapshot.data!);
-
-          switch (_urutanSaatIni) {
-            case UrutanPaket.namaAZ:
-              paketList.sort(
-                (final a, final b) =>
-                    a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-              );
-              break;
-            case UrutanPaket.namaZA:
-              paketList.sort(
-                (final a, final b) =>
-                    b.name.toLowerCase().compareTo(a.name.toLowerCase()),
-              );
-              break;
-            case UrutanPaket.hargaTertinggi:
-              paketList.sort((final a, final b) => b.price.compareTo(a.price));
-              break;
-            case UrutanPaket.hargaTerendah:
-              paketList.sort((final a, final b) => a.price.compareTo(b.price));
-              break;
-            case UrutanPaket.poinTertinggi:
-              paketList.sort(
-                (final a, final b) => b.rewardPoints.compareTo(a.rewardPoints),
-              );
-              break;
-            case UrutanPaket.poinTerendah:
-              paketList.sort(
-                (final a, final b) => a.rewardPoints.compareTo(b.rewardPoints),
-              );
-              break;
-            case UrutanPaket.durasiTerpendek:
-              paketList.sort(
-                (final a, final b) => _getDurationInMinutes(a)
-                    .compareTo(_getDurationInMinutes(b)),
-              );
-              break;
-            case UrutanPaket.durasiTerlama:
-              paketList.sort(
-                (final a, final b) => _getDurationInMinutes(b)
-                    .compareTo(_getDurationInMinutes(a)),
-              );
-              break;
-          }
+          // Kinerja optimal: Salin & urutkan list di sini aman karena ditangani asinkron reaktif
+          final sortedList = List<PackageModel>.from(paketList);
+          _urutkanList(sortedList, urutanSaatIni);
 
           Log.info(
-            'Menampilkan ${paketList.length} paket dalam daftar, diurutkan berdasarkan $_urutanSaatIni',
-          );
+              'Menampilkan ${sortedList.length} paket, urutan: $urutanSaatIni');
 
           return ListView.builder(
-            itemCount: paketList.length,
-            itemBuilder: (final context, final index) {
-              final paket = paketList[index];
+            itemCount: sortedList.length,
+            itemBuilder: (context, index) {
+              final paket = sortedList[index];
               return InkWell(
                 onTap: () async {
-                  Log.info(
-                    'Navigasi ke halaman Detail Paket: ${paket.name} (ID: ${paket.id})',
-                  );
+                  Log.info('Navigasi ke Detail Paket: ${paket.name}');
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (final context) =>
-                          PackageDetailPage(package: paket),
+                      builder: (context) => PackageDetailPage(package: paket),
                     ),
                   );
-
-                  Log.info(
-                    'Kembali dari halaman Detail Paket, menyegarkan daftar',
-                  );
-                  _refreshPaketList();
                 },
-                onLongPress: () async {
-                  Log.info(
-                    'Long press pada paket: ${paket.name} (ID: ${paket.id}), menampilkan menu edit/hapus',
-                  );
-                  await _showEditDeleteDialog(paket);
-                },
+                onLongPress: () => _showEditDeleteDialog(context, ref, paket),
                 child: Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: ListTile(
                     title: Text(
                       paket.name,
@@ -417,14 +108,233 @@ class _PackagePageState extends ConsumerState<PackagePage> {
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
-                builder: (final context) => const PackageForm()),
+              builder: (context) => const PackageForm(),
+            ),
           );
-          Log.info('Kembali dari Form Tambah Paket, menyegarkan daftar');
-          _refreshPaketList();
         },
         tooltip: 'Tambah Paket',
-        child: const Icon(Icons.add),
+        child: const Icon(TIcons.add),
       ),
     );
   }
+}
+
+// --- FUNGSI UTAS / HELPER DI LUAR WIDGET CLASS ---
+
+void _urutkanList(List<PackageModel> paketList, UrutanPaket urutan) {
+  switch (urutan) {
+    case UrutanPaket.namaAZ:
+      paketList
+          .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      break;
+    case UrutanPaket.namaZA:
+      paketList
+          .sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+      break;
+    case UrutanPaket.hargaTertinggi:
+      paketList.sort((a, b) => b.price.compareTo(a.price));
+      break;
+    case UrutanPaket.hargaTerendah:
+      paketList.sort((a, b) => a.price.compareTo(b.price));
+      break;
+    case UrutanPaket.poinTertinggi:
+      paketList.sort((a, b) => b.rewardPoints.compareTo(a.rewardPoints));
+      break;
+    case UrutanPaket.poinTerendah:
+      paketList.sort((a, b) => a.rewardPoints.compareTo(b.rewardPoints));
+      break;
+    case UrutanPaket.durasiTerpendek:
+      paketList.sort((a, b) =>
+          _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
+      break;
+    case UrutanPaket.durasiTerlama:
+      paketList.sort((a, b) =>
+          _getDurationInMinutes(b).compareTo(_getDurationInMinutes(a)));
+      break;
+  }
+}
+
+int _getDurationInMinutes(PackageModel paket) {
+  switch (paket.type) {
+    case DurationType.minutes:
+      return paket.duration;
+    case DurationType.hours:
+      return paket.duration * 60;
+    case DurationType.days:
+      return paket.duration * 24 * 60;
+    case DurationType.months:
+      return paket.duration *
+          30 *
+          24 *
+          60; // Menggunakan perkalian 30 hari standar aplikasi
+  }
+}
+
+Future<void> _tampilkanDialogUrutkan(
+    BuildContext context, WidgetRef ref) async {
+  Log.info('Menampilkan dialog urutkan');
+  final urutanSaatIni = ref.read(urutanPaketStateProvider);
+
+  final hasil = await showDialog<UrutanPaket>(
+    context: context,
+    builder: (context) {
+      Widget buildOption(String text, UrutanPaket value) {
+        final isSelected = urutanSaatIni == value;
+        return SimpleDialogOption(
+          onPressed: () => Navigator.pop(context, value),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                vertical: TSizes.p8, horizontal: TSizes.p4),
+            decoration: BoxDecoration(
+              color: isSelected ? TColors.pointBackground : null,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(text, textAlign: TextAlign.center),
+          ),
+        );
+      }
+
+      return SimpleDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        children: [
+          buildOption('Durasi (Terpendek)', UrutanPaket.durasiTerpendek),
+          buildOption('Durasi (Terlama)', UrutanPaket.durasiTerlama),
+          buildOption('Nama (A-Z)', UrutanPaket.namaAZ),
+          buildOption('Nama (Z-A)', UrutanPaket.namaZA),
+          buildOption('Harga (Tertinggi)', UrutanPaket.hargaTertinggi),
+          buildOption('Harga (Terendah)', UrutanPaket.hargaTerendah),
+          buildOption('Poin (Tertinggi)', UrutanPaket.poinTertinggi),
+          buildOption('Poin (Terendah)', UrutanPaket.poinTerendah),
+        ],
+      );
+    },
+  );
+
+  if (hasil != null) {
+    ref.read(urutanPaketStateProvider.notifier).ubahUrutan(hasil);
+  }
+}
+
+Future<void> _showEditDeleteDialog(
+    BuildContext context, WidgetRef ref, PackageModel paket) async {
+  Log.info('Menampilkan dialog opsi untuk paket: ${paket.name}');
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: Text(paket.name),
+        content: const Text('Pilih aksi yang ingin Anda lakukan.'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              await Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => PackageForm(package: paket),
+                ),
+              );
+            },
+            child: const Text('Edit'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _showDeleteConfirmationDialog(context, ref, paket);
+            },
+            child: const Text('Hapus'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _showDeleteConfirmationDialog(
+    BuildContext context, WidgetRef ref, PackageModel paket) async {
+  Log.info('Menampilkan konfirmasi hapus untuk: ${paket.name}');
+  final paketOperasi = ref.read(packageOperationProvider);
+
+  await showDialog<void>(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: Text('Anda yakin ingin menghapus paket ${paket.name}?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus'),
+            onPressed: () async {
+              // Tutup dialog terlebih dahulu menggunakan dialogContext
+              Navigator.of(dialogContext).pop();
+
+              try {
+                Log.info('Menjalankan soft delete untuk: ${paket.name}');
+                await paketOperasi.softDelete(paket.id);
+
+                ref.invalidate(packageListProvider);
+
+                if (context.mounted) {
+                  ToastUtil.success(context, 'Paket berhasil dihapus.');
+                }
+              } on Exception catch (e, s) {
+                Log.error('Gagal hapus paket', e: e, st: s);
+                if (context.mounted) {
+                  ToastUtil.error(context, 'Gagal menghapus paket: $e');
+                }
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
+  Log.info('User menekan tombol hapus semua paket');
+  final paketOperasi = ref.read(packageOperationProvider);
+
+  await showDialog<void>(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const Text('Konfirmasi Hapus Semua'),
+        content: const Text('Yakin ingin menghapus SEMUA paket?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Hapus Semua'),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              try {
+                Log.info('Menjalankan soft delete semua paket');
+                await paketOperasi.softDeleteAll();
+
+                ref.invalidate(packageListProvider);
+
+                if (context.mounted) {
+                  ToastUtil.success(context, 'Semua paket dihapus.');
+                }
+              } on Exception catch (e, s) {
+                Log.error('Gagal hapus semua paket', e: e, st: s);
+                if (context.mounted) {
+                  ToastUtil.error(context, 'Gagal menghapus semua paket: $e');
+                }
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
