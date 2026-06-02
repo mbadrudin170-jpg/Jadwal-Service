@@ -22,56 +22,18 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman dalam navigasi admin (tab Lainnya)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/subscription_history_detail.dart (SubscriptionHistoryDetailPage)
-//   - lib/shared/widget/customer_name.dart (CustomerNameWidget)
-//   - lib/shared/widget/package_name.dart (PackageNameWidget)
-//   - lib/shared/enum/payment_status_enum.dart (PaymentStatus)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-
-/// Enum untuk opsi pengurutan riwayat aktivasi paket.
 enum SortOption {
-  /// Urutkan berdasarkan tanggal berakhir (terdekat di atas).
   endDate,
-
-  /// Urutkan berdasarkan nama pelanggan (A-Z).
   nameAZ,
-
-  /// Urutkan berdasarkan nama pelanggan (Z-A).
   nameZA,
-
-  /// Urutkan berdasarkan paket yang akan berakhir hari ini.
   endingToday,
-
-  /// Urutkan berdasarkan transaksi terbaru.
   newest,
-
-  /// Urutkan berdasarkan transaksi terlama.
   oldest,
-
-  /// Tampilkan transaksi lunas di bagian atas.
   paid,
-
-  /// Tampilkan transaksi yang belum lunas di bagian atas.
   unpaid,
 }
 
-/// Halaman untuk menampilkan riwayat aktivasi paket langganan.
-///
-/// Admin dapat melihat, mengurutkan, dan membuka detail setiap transaksi
-/// aktivasi paket yang pernah dilakukan.
 class PackageActivationHistoryPage extends ConsumerStatefulWidget {
-  /// Membuat instance dari [PackageActivationHistoryPage].
   const PackageActivationHistoryPage({super.key});
 
   @override
@@ -92,9 +54,9 @@ class _PackageActivationHistoryPageState
   @override
   void initState() {
     super.initState();
-     _transactionOperation = ref.read(transactionOperationProvider);
-     _packageOperation = ref.read(packageOperationProvider);
-     _customerOperation = ref.read(customerOperationProvider);
+    _transactionOperation = ref.read(transactionOperationProvider);
+    _packageOperation = ref.read(packageOperationProvider);
+    _customerOperation = ref.read(customerOperationProvider);
     Log.info('Menginisialisasi halaman Riwayat Aktivasi Paket');
     unawaited(_loadHistory());
   }
@@ -365,15 +327,6 @@ class _PackageActivationHistoryPageState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Log.info(
-              'Kembali ke halaman sebelumnya dari Riwayat Aktivasi Paket',
-            );
-            Navigator.of(context).pop();
-          },
-        ),
         actions: [
           IconButton(
             icon: const Icon(TIcons.filter),
