@@ -33,7 +33,8 @@ void main() {
       id: 't1',
       customerId: 'c1',
       packageId: 'p1',
-      date: DateTime(2023),
+      date: DateTime(2023, 1, 10),
+      endDate: DateTime(2023, 2, 10), // Berakhir lebih lambat
       description: 'Aktivasi Paket A',
       amount: 100000,
       type: TransactionType.income,
@@ -47,10 +48,10 @@ void main() {
       customerId: 'c2',
       packageId: 'p2',
       date: DateTime(2023, 1, 5),
-      endDate: DateTime(2023, 1, 25), // diubah agar urutan awal berbeda
+      endDate: DateTime(2023, 1, 25), // Berakhir lebih dulu
       description: 'Aktivasi Paket B',
-      amount: 50000,
       type: TransactionType.income,
+      amount: 50000,
       walletId: 'w1',
       categoryId: 'cat1',
     );
@@ -115,8 +116,13 @@ void main() {
           .thenAnswer((_) async => [t1, t2]);
       when(mockCustomerOperation.getCustomersByIds(any))
           .thenAnswer((_) async => [c1, c2]);
-      when(mockPackageOperation.getById('p1')).thenAnswer((_) async => p1);
-      when(mockPackageOperation.getById('p2')).thenAnswer((_) async => p2);
+      when(mockPackageOperation.getById(any))
+          .thenAnswer((final invocation) async {
+        final id = invocation.positionalArguments.first as String;
+        if (id == 'p1') return p1;
+        if (id == 'p2') return p2;
+        return null;
+      });
 
       // Act
       await tester.pumpWidget(createTestWidget());
@@ -124,7 +130,6 @@ void main() {
       // Assert: Tampilkan indikator loading saat awal
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Selesaikan semua frame sampai widget stabil
       await tester.pumpAndSettle();
 
       // Assert: Daftar transaksi ditampilkan dengan benar
@@ -142,18 +147,24 @@ void main() {
         (tester) async {
       // Arrange
       when(mockTransactionOperation.getTransactionsByPackageActivation())
-          .thenAnswer((_) async => [t1, t2]);
+          .thenAnswer((_) async => [t1, t2]); // t1 (Alice), t2 (Bob)
       when(mockCustomerOperation.getCustomersByIds(any))
           .thenAnswer((_) async => [c1, c2]);
-      when(mockPackageOperation.getById('p1')).thenAnswer((_) async => p1);
-      when(mockPackageOperation.getById('p2')).thenAnswer((_) async => p2);
+      when(mockPackageOperation.getById(any))
+          .thenAnswer((final invocation) async {
+        final id = invocation.positionalArguments.first as String;
+        if (id == 'p1') return p1;
+        if (id == 'p2') return p2;
+        return null;
+      });
 
       // Act
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Assert: Urutan awal berdasarkan tanggal berakhir (Bob, lalu Alice)
+      // Assert: Urutan awal berdasarkan tanggal berakhir (t2/Bob, lalu t1/Alice)
       var listItems = tester.widgetList<Card>(find.byType(Card));
+      expect(listItems, isNotEmpty); // Pastikan list tidak kosong sebelum diakses
       expect(
           find.descendant(
               of: find.byWidget(listItems.first), matching: find.text('Bob')),
@@ -218,35 +229,19 @@ void main() {
 
       // Assert
       expect(
-          find.textContaining('Error: Exception: Gagal memuat data transaksi:'),
+          find.textContaining('Error: Exception: Gagal memuat data transaksi'),
           findsOneWidget);
       expect(find.byType(ListView), findsNothing);
     });
   });
 
   group('Logika Pengurutan PackageActivationHistory', () {
-    // Data Pelanggan
     final customerAlice = CustomerModel(
-      id: 'c1',
-      name: 'Alice',
-      phone: '08123456789',
-      address: 'Alamat Alice',
-      password: 'password123',
-    );
+        id: 'c1', name: 'Alice', phone: '', address: '', password: '');
     final customerBob = CustomerModel(
-      id: 'c2',
-      name: 'Bob',
-      phone: '08123456780',
-      address: 'Alamat Bob',
-      password: 'password123',
-    );
+        id: 'c2', name: 'Bob', phone: '', address: '', password: '');
     final customerZack = CustomerModel(
-      id: 'c3',
-      name: 'Zack',
-      phone: '08123456781',
-      address: 'Alamat Zack',
-      password: 'password123',
-    );
+        id: 'c3', name: 'Zack', phone: '', address: '', password: '');
 
     final customerMap = {
       'c1': customerAlice,
@@ -254,152 +249,154 @@ void main() {
       'c3': customerZack,
     };
 
-    // Data Transaksi
     final transactionOldest = TransactionModel(
-      id: 't1',
-      customerId: 'c1', // Alice
-      packageId: 'p1',
-      date: DateTime(2023),
-      updatedAt: DateTime(2023),
-      endDate: DateTime(2023, 2), // Paling lama
-      paymentStatus: PaymentStatus.paid,
-      description: 'Oldest',
-      amount: 100000,
-      type: TransactionType.income,
-      walletId: 'w1',
-      categoryId: 'cat1',
-    );
-
+        id: 't1',
+        customerId: 'c1',
+        packageId: '',
+        date: DateTime(2023),
+        updatedAt: DateTime(2023),
+        endDate: DateTime(2023, 2),
+        paymentStatus: PaymentStatus.paid,
+        description: '',
+        amount: 0,
+        type: TransactionType.income,
+        walletId: '',
+        categoryId: '');
     final transactionMid = TransactionModel(
-      id: 't2',
-      customerId: 'c3', // Zack
-      packageId: 'p2',
-      date: DateTime(2023, 1, 5),
-      updatedAt: DateTime(2023, 1, 5),
-      endDate: DateTime(2023, 2, 15), // Tengah
-      description: 'Mid',
-      amount: 50000,
-      type: TransactionType.income,
-      walletId: 'w1',
-      categoryId: 'cat1',
-    );
-
+        id: 't2',
+        customerId: 'c3',
+        packageId: '',
+        date: DateTime(2023, 1, 5),
+        updatedAt: DateTime(2023, 1, 5),
+        endDate: DateTime(2023, 2, 15),
+        description: '',
+        type: TransactionType.income,
+        paymentStatus: PaymentStatus.paid,
+        amount: 0,
+        walletId: '',
+        categoryId: '');
     final transactionNewest = TransactionModel(
-      id: 't3',
-      customerId: 'c2', // Bob
-      packageId: 'p1',
-      date: DateTime(2023, 1, 10),
-      updatedAt: DateTime(2023, 1, 10),
-      endDate: DateTime(2023, 2, 28), // Paling baru
-      paymentStatus: PaymentStatus.paid,
-      description: 'Newest',
-      amount: 150000,
-      type: TransactionType.income,
-      walletId: 'w1',
-      categoryId: 'cat1',
-    );
+        id: 't3',
+        customerId: 'c2',
+        packageId: '',
+        date: DateTime(2023, 1, 10),
+        updatedAt: DateTime(2023, 1, 10),
+        endDate: DateTime(2023, 2, 28),
+        paymentStatus: PaymentStatus.paid,
+        description: '',
+        amount: 0,
+        type: TransactionType.income,
+        walletId: '',
+        categoryId: '');
 
     late List<TransactionModel> transactions;
 
-    // Inisialisasi daftar transaksi yang acak sebelum setiap tes
     setUp(() {
       transactions = [transactionMid, transactionNewest, transactionOldest];
     });
 
     test('harus mengurutkan berdasarkan Nama A-Z', () {
-      // Act
       _sortList(transactions, SortOption.nameAZ, customerMap);
-
-      // Assert
-      // Urutan yang diharapkan: Alice (c1), Bob (c2), Zack (c3)
       expect(
           transactions.map((t) => t.customerId).toList(), ['c1', 'c2', 'c3']);
     });
 
     test('harus mengurutkan berdasarkan Nama Z-A', () {
-      // Act
       _sortList(transactions, SortOption.nameZA, customerMap);
-
-      // Assert
-      // Urutan yang diharapkan: Zack (c3), Bob (c2), Alice (c1)
       expect(
           transactions.map((t) => t.customerId).toList(), ['c3', 'c2', 'c1']);
     });
 
-    test('harus mengurutkan berdasarkan Terbaru (urutan default)', () {
-      // Act
+    test('harus mengurutkan berdasarkan Terbaru (updatedAt)', () {
       _sortList(transactions, SortOption.newest, customerMap);
-
-      // Assert
-      // Urutan yang diharapkan: Paling baru, tengah, paling lama
       expect(transactions.map((t) => t.id).toList(), ['t3', 't2', 't1']);
     });
 
-    test('harus menggunakan Terbaru sebagai urutan default', () {
-      // Act
-      _sortList(transactions, SortOption.newest, customerMap);
-
-      // Assert
-      // Urutan yang diharapkan: Paling baru, tengah, paling lama
-      expect(transactions.map((t) => t.id).toList(), ['t3', 't2', 't1']);
-    });
-
-    test('harus mengurutkan berdasarkan Terlama', () {
-      // Act
+    test('harus mengurutkan berdasarkan Terlama (updatedAt)', () {
       _sortList(transactions, SortOption.oldest, customerMap);
+      expect(transactions.map((t) => t.id).toList(), ['t1', 't2', 't3']);
+    });
 
-      // Assert
-      // Urutan yang diharapkan: Paling lama, tengah, paling baru
+    test('harus mengurutkan berdasarkan Tanggal Berakhir', () {
+      _sortList(transactions, SortOption.endDate, customerMap);
       expect(transactions.map((t) => t.id).toList(), ['t1', 't2', 't3']);
     });
   });
 }
 
-// Fungsi ini adalah replika dari logika _sortList di dalam widget
-// untuk pengujian unit yang terisolasi.
+// PERBAIKAN: Fungsi ini dikembalikan. Ini adalah replika dari logika sort di dalam state
+// untuk pengujian unit yang terisolasi. Ini diperlukan karena state widget bersifat private.
 void _sortList(
   List<TransactionModel> list,
   SortOption option,
   Map<String, CustomerModel> customerMap,
 ) {
+  int Function(TransactionModel, TransactionModel) comparator;
   switch (option) {
+    case SortOption.endDate:
+      comparator = (final a, final b) {
+        final dateA = a.endDate;
+        final dateB = b.endDate;
+        if (dateA == null && dateB == null) return 0;
+        if (dateA == null) return 1;
+        if (dateB == null) return -1;
+        return dateA.compareTo(dateB);
+      };
+      break;
     case SortOption.nameAZ:
-      list.sort((a, b) => (customerMap[a.customerId]?.name ?? '')
-          .compareTo(customerMap[b.customerId]?.name ?? ''));
+      comparator = (final a, final b) {
+        final nameA = customerMap[a.customerId]?.name.toLowerCase() ?? '';
+        final nameB = customerMap[b.customerId]?.name.toLowerCase() ?? '';
+        return nameA.compareTo(nameB);
+      };
       break;
     case SortOption.nameZA:
-      list.sort((a, b) => (customerMap[b.customerId]?.name ?? '')
-          .compareTo(customerMap[a.customerId]?.name ?? ''));
+      comparator = (final a, final b) {
+        final nameA = customerMap[a.customerId]?.name.toLowerCase() ?? '';
+        final nameB = customerMap[b.customerId]?.name.toLowerCase() ?? '';
+        return nameB.compareTo(nameA);
+      };
       break;
     case SortOption.newest:
-      list.sort((a, b) => b.endDate!.compareTo(a.endDate!));
+      comparator = (final a, final b) =>
+          (b.updatedAt ?? b.date).compareTo(a.updatedAt ?? a.date);
       break;
     case SortOption.oldest:
-      list.sort((a, b) => a.endDate!.compareTo(b.endDate!));
-      break;
-    case SortOption.endDate:
-      list.sort((a, b) => b.endDate!.compareTo(a.endDate!));
-      break;
-    case SortOption.endingToday:
-      final now = DateTime.now();
-      list.sort((a, b) {
-        final aIsToday = a.endDate?.day == now.day &&
-            a.endDate?.month == now.month &&
-            a.endDate?.year == now.year;
-        final bIsToday = b.endDate?.day == now.day &&
-            b.endDate?.month == now.month &&
-            b.endDate?.year == now.year;
-        if (aIsToday == bIsToday) return 0;
-        return aIsToday ? -1 : 1;
-      });
+      comparator = (final a, final b) =>
+          (a.updatedAt ?? a.date).compareTo(b.updatedAt ?? b.date);
       break;
     case SortOption.paid:
-      list.sort((a, b) => (a.paymentStatus == PaymentStatus.paid ? 0 : 1)
-          .compareTo(b.paymentStatus == PaymentStatus.paid ? 0 : 1));
+      comparator = (final a, final b) {
+        final isPaidA = a.paymentStatus == PaymentStatus.paid;
+        final isPaidB = b.paymentStatus == PaymentStatus.paid;
+        if (isPaidA == isPaidB) return 0;
+        return isPaidA ? -1 : 1;
+      };
       break;
     case SortOption.unpaid:
-      list.sort((a, b) => (a.paymentStatus == PaymentStatus.unpaid ? 0 : 1)
-          .compareTo(b.paymentStatus == PaymentStatus.unpaid ? 0 : 1));
+      comparator = (final a, final b) {
+        final isPaidA = a.paymentStatus == PaymentStatus.paid;
+        final isPaidB = b.paymentStatus == PaymentStatus.paid;
+        if (isPaidA == isPaidB) return 0;
+        return isPaidA ? 1 : -1;
+      };
+      break;
+    case SortOption.endingToday:
+      comparator = (final a, final b) {
+        final now = DateTime.now();
+        bool isToday(final DateTime? date) {
+          if (date == null) return false;
+          return date.year == now.year &&
+              date.month == now.month &&
+              date.day == now.day;
+        }
+
+        final aIsToday = isToday(a.endDate);
+        final bIsToday = isToday(b.endDate);
+        if (aIsToday == bIsToday) return 0;
+        return aIsToday ? -1 : 1;
+      };
       break;
   }
+  list.sort(comparator);
 }

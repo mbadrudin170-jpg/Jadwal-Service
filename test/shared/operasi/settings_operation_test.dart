@@ -5,16 +5,14 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/settings_model.dart';
+import 'package:wifi/shared/model/settings_model.dart' as model;
 import 'package:wifi/shared/operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/settings_operation.dart';
 
 import 'settings_operation_test.mocks.dart';
-
-// ID Global untuk baris pengaturan di SQLite. Selalu 1.
-const int globalSettingsId = 1;
 
 @GenerateMocks([DatabaseHelper, BaseOperation, Database])
 void main() {
@@ -23,6 +21,9 @@ void main() {
   late MockDatabase mockDatabase;
   late SettingsOperation settingsOperation;
   final tableName = TableNameValue.get(TableName.settings);
+
+  // --- PERBAIKAN: Menggunakan ID String yang benar dari model ---
+  const String globalSettingsId = model.globalSettingsId;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
@@ -37,17 +38,20 @@ void main() {
   });
 
   group('getSettings', () {
-    test('harus mengembalikan pengaturan yang ada jika ditemukan di database', () async {
+    test(
+        '1. harus mengembalikan pengaturan yang ada jika ditemukan di database',
+        () async {
       // Atur
+      // --- PERBAIKAN: Menggunakan konstanta ColumnNames ---
       final settingsMap = {
-        'id': globalSettingsId,
-        'autoSyncInterval': 48,
-        'autoDeleteArchiveDays': 60,
-        'maintenanceMode': 1,
-        'maintenanceInfo': 'Under construction',
-        'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        ColumnNames.id: globalSettingsId,
+        ColumnNames.autoSyncInterval: 48,
+        ColumnNames.autoDeleteArchiveDays: 60,
+        ColumnNames.maintenanceMode: 1,
+        ColumnNames.maintenanceInfo: 'Under construction',
+        ColumnNames.updatedAt: DateTime.now().millisecondsSinceEpoch,
       };
-      // --- PERBAIKAN: Menggunakan ID integer untuk whereArgs --- 
+
       when(mockDatabase.query(
         tableName,
         where: 'id = ?',
@@ -60,52 +64,61 @@ void main() {
       // Periksa
       expect(result.autoSyncInterval, 48);
       expect(result.maintenanceMode, true);
-      verify(mockDatabase.query(tableName, where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
+      verify(mockDatabase.query(tableName,
+          where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
       verifyNever(mockBaseOperation.insert(any, any));
     });
 
-    test('harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ditemukan', () async {
+    test(
+        '2. harus membuat, menyimpan, dan mengembalikan pengaturan default jika tidak ditemukan',
+        () async {
       // Atur
-      // --- PERBAIKAN: Menggunakan ID integer untuk whereArgs --- 
       when(mockDatabase.query(
         tableName,
         where: 'id = ?',
         whereArgs: [globalSettingsId],
       )).thenAnswer((_) async => []);
 
-      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
+      // Saat insert, mock harus mengembalikan ID string yang kita harapkan
+      when(mockBaseOperation.insert(any, any,
+              fromServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
       final result = await settingsOperation.getSettings();
-      final defaultSettings = SettingsModel();
+      final defaultSettings = model.SettingsModel();
 
       // Periksa
       expect(result.autoSyncInterval, defaultSettings.autoSyncInterval);
-      
-      verify(mockDatabase.query(tableName, where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
-      
+
+      verify(mockDatabase.query(tableName,
+          where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
+
       final captured = verify(mockBaseOperation.insert(
         tableName,
         captureAny,
       )).captured;
 
       final savedData = captured.first as Map<String, dynamic>;
-      // --- PERBAIKAN: Memastikan ID yang disimpan adalah integer --- 
-      expect(savedData['id'], globalSettingsId);
+
+      // --- PERBAIKAN: Memeriksa dengan konstanta ColumnNames dan ID yang benar ---
+      expect(savedData[ColumnNames.id], globalSettingsId);
     });
   });
 
   group('saveOrUpdateSettings', () {
-    test('harus memanggil _baseOperation.insert dengan data yang benar', () async {
+    test('3. harus memanggil _baseOperation.insert dengan data yang benar',
+        () async {
       // Atur
-      final settings = SettingsModel(
+      final settings = model.SettingsModel(
         autoSyncInterval: 12,
         updatedAt: DateTime(2023, 10, 26),
       );
-      
-      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
-          .thenAnswer((_) async => 1);
+
+      // Mengembalikan ID yang benar (string)
+      when(mockBaseOperation.insert(any, any,
+              fromServer: anyNamed('fromServer')))
+          .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
       await settingsOperation.saveOrUpdateSettings(settings);
@@ -118,16 +131,17 @@ void main() {
 
       final savedData = captured.first as Map<String, dynamic>;
 
-      // --- PERBAIKAN: Memastikan ID yang disimpan adalah integer --- 
-      expect(savedData['id'], globalSettingsId);
-      expect(savedData['autoSyncInterval'], 12);
+      // --- PERBAIKAN: Memeriksa dengan konstanta ColumnNames dan ID yang benar ---
+      expect(savedData[ColumnNames.id], globalSettingsId);
+      expect(savedData[ColumnNames.autoSyncInterval], 12);
     });
 
-    test('harus meneruskan flag fromServer dengan benar', () async {
+    test('4. harus meneruskan flag fromServer dengan benar', () async {
       // Atur
-      final settings = SettingsModel();
-      when(mockBaseOperation.insert(any, any, fromServer: anyNamed('fromServer')))
-          .thenAnswer((_) async => 1);
+      final settings = model.SettingsModel();
+      when(mockBaseOperation.insert(any, any,
+              fromServer: anyNamed('fromServer')))
+          .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
       await settingsOperation.saveOrUpdateSettings(settings, fromServer: true);
