@@ -11,6 +11,7 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -114,7 +115,7 @@ class _SubscriptionHistoryFormState
         updatedTransaction,
       );
       Log.info('Transaksi berhasil diperbarui di database.');
-
+      ref.invalidate(transactionOperationProvider);
       await _handleExpiryNotification(
         notifikasiServis: notifikasiServis,
         statusSebelumnya: widget.transaction.paymentStatus,
@@ -184,16 +185,9 @@ class _SubscriptionHistoryFormState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Riwayat Langganan'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveChanges,
-            tooltip: 'Simpan Perubahan',
-          ),
-        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -235,7 +229,6 @@ class _SubscriptionHistoryFormState
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(
-                icon: const Icon(Icons.save),
                 label: const Text('Simpan Perubahan'),
                 onPressed: _saveChanges,
                 style: ElevatedButton.styleFrom(

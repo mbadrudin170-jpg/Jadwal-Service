@@ -8,9 +8,9 @@ import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+// Import file provider baru kamu di sini
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -19,75 +19,104 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
 enum UrutanPelanggan {
-  /// Urutkan berdasarkan nama dari A hingga Z.
   nameAZ,
-
-  /// Urutkan berdasarkan nama dari Z hingga A.
   nameZA,
-
-  /// Urutkan berdasarkan aktivitas terakhir (terbaru dulu).
   lastActiveNewest,
-
-  /// Urutkan berdasarkan aktivitas terakhir (terlama dulu).
   lastActiveOldest,
-
-  /// Urutkan berdasarkan poin (tertinggi dulu).
   pointsHighest,
-
-  /// Urutkan berdasarkan poin (terendah dulu).
   pointsLowest,
 }
 
+// --- Combined & Filtered Data Provider ---
+
+/// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
+final filteredCustomersProvider =
+    Provider.autoDispose<AsyncValue<List<(CustomerModel, int)>>>((ref) {
+  // Watch state data mentah tuple dari pelanggan_provider.dart
+  final customerListAsync = ref.watch(customerListProvider);
+  // Watch state pencarian dan sorting modern
+  final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
+  final sortOption = ref.watch(urutanPelangganStateProvider);
+
+  return customerListAsync.when(
+    data: (customersWithPoints) {
+      // 1. Jalankan Fitur Filter Pencarian
+      final filtered = customersWithPoints
+          .where((tuple) => tuple.$1.name.toLowerCase().contains(searchQuery))
+          .toList();
+
+      // 2. Jalankan Fitur Pengurutan (Sorting)
+      switch (sortOption) {
+        case UrutanPelanggan.nameAZ:
+          filtered.sort((a, b) =>
+              a.$1.name.toLowerCase().compareTo(b.$1.name.toLowerCase()));
+          break;
+        case UrutanPelanggan.nameZA:
+          filtered.sort((a, b) =>
+              b.$1.name.toLowerCase().compareTo(a.$1.name.toLowerCase()));
+          break;
+        case UrutanPelanggan.lastActiveNewest:
+          filtered.sort((a, b) {
+            if (a.$1.lastActiveAt == null) return 1;
+            if (b.$1.lastActiveAt == null) return -1;
+            return b.$1.lastActiveAt!.compareTo(a.$1.lastActiveAt!);
+          });
+          break;
+        case UrutanPelanggan.lastActiveOldest:
+          filtered.sort((a, b) {
+            if (a.$1.lastActiveAt == null) return -1;
+            if (b.$1.lastActiveAt == null) return 1;
+            return a.$1.lastActiveAt!.compareTo(b.$1.lastActiveAt!);
+          });
+          break;
+        case UrutanPelanggan.pointsHighest:
+          filtered.sort((a, b) => b.$2.compareTo(a.$2));
+          break;
+        case UrutanPelanggan.pointsLowest:
+          filtered.sort((a, b) => a.$2.compareTo(b.$2));
+          break;
+      }
+      return AsyncData(filtered);
+    },
+    loading: () => const AsyncLoading(),
+    error: AsyncError.new,
+  );
+});
+
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
-///
-/// Admin dapat mencari, mengurutkan, menambah, mengedit, dan mengarsipkan customer.
-class CustomerPage extends ConsumerStatefulWidget {
-  /// Membuat instance dari [CustomerPage].
+class CustomerPage extends ConsumerWidget {
   const CustomerPage({super.key});
 
   @override
-  ConsumerState<CustomerPage> createState() => _CustomerPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentSearchQuery = ref.watch(searchQueryPelangganProvider);
+    final searchController = TextEditingController(text: currentSearchQuery);
 
-class _CustomerPageState extends ConsumerState<CustomerPage> {
-  late final CustomerOperation _customerOperation;
-  late final SQLitePointsDataSource _pointsDataSource;
+    searchController.selection = TextSelection.fromPosition(
+        TextPosition(offset: searchController.text.length));
 
-  bool _isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
-  List<CustomerModel> _allCustomers = [];
-  List<CustomerModel> _filteredCustomers = [];
-  final Map<String, int> _customerPoints = {};
-  bool _isLoading = true;
-
-  UrutanPelanggan _activeSort = UrutanPelanggan.nameAZ;
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info(
-      'Menginisialisasi state untuk CustomerPage. Memanggil _refreshCustomerList untuk pertama kali.',
+    return Scaffold(
+      appBar: _buildAppBar(context, ref, searchController),
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(customerListProvider.future),
+        child: _buildContent(context, ref),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addCustomer(context, ref),
+        tooltip: 'Tambah Pelanggan',
+        child: const Icon(TIcons.add),
+      ),
     );
-    _pointsDataSource = ref.read(sqlitePointsDataSourceProvider);
-    _customerOperation = ref.read(customerOperationProvider);
-    unawaited(_refreshCustomerList());
-    _searchController.addListener(_filterCustomers);
   }
 
-  @override
-  void dispose() {
-    Log.info(
-      'Membersihkan resource di CustomerPage. _searchController di-dispose.',
-    );
-    _searchController.dispose();
-    super.dispose();
-  }
+  AppBar _buildAppBar(
+      BuildContext context, WidgetRef ref, TextEditingController controller) {
+    final isSearching = ref.watch(isSearchingPelangganProvider);
 
-  AppBar _buildAppBar() {
     return AppBar(
-      title: _isSearching
+      title: isSearching
           ? TextField(
-              controller: _searchController,
+              controller: controller,
               autofocus: true,
               decoration: const InputDecoration(
                 hintText: 'Cari nama customer...',
@@ -95,418 +124,243 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                 hintStyle: TextStyle(color: Colors.white70),
               ),
               style: const TextStyle(color: Colors.white),
+              onChanged: (query) => ref
+                  .read(searchQueryPelangganProvider.notifier)
+                  .updateQuery(query),
             )
           : const Text('Daftar Pelanggan'),
       actions: [
         IconButton(
           icon: const Icon(TIcons.sort),
           tooltip: 'Urutkan',
-          onPressed: _showSortDialog,
+          onPressed: () => _showSortDialog(context, ref),
         ),
         IconButton(
-          icon: Icon(_isSearching ? TIcons.close : TIcons.search),
+          icon: Icon(isSearching ? TIcons.close : TIcons.search),
           onPressed: () {
-            Log.info(
-              'Tombol search/close ditekan. Mengubah state _isSearching.',
-            );
-            setState(() {
-              _isSearching = !_isSearching;
-              if (!_isSearching) {
-                Log.info(
-                  'Mode pencarian dinonaktifkan. Membersihkan search controller.',
-                );
-                _searchController.clear();
-              } else {
-                Log.info('Mode pencarian diaktifkan.');
-              }
-            });
+            ref.read(isSearchingPelangganProvider.notifier).toggle();
+            if (!ref.read(isSearchingPelangganProvider)) {
+              ref.read(searchQueryPelangganProvider.notifier).clear();
+            }
           },
         ),
       ],
     );
   }
 
-  Future<void> _showSortDialog() async {
-    Log.info('Menampilkan dialog opsi pengurutan.');
-    final UrutanPelanggan? result = await showDialog<UrutanPelanggan>(
-      context: context,
-      builder: (final BuildContext context) {
-        Widget buildOption(final String text, final UrutanPelanggan value) {
-          final bool isSelected = _activeSort == value;
-          return SimpleDialogOption(
-            onPressed: () {
-              Log.info(
-                'User memilih opsi urutkan: ${value.name} (${isSelected ? "sudah aktif" : "berubah"} dari ${_activeSort.name})',
-              );
-              Navigator.pop(context, value);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              decoration: BoxDecoration(
-                color: isSelected ? TColors.pointBackground : null,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  Widget _buildContent(BuildContext context, WidgetRef ref) {
+    final customersAsync = ref.watch(filteredCustomersProvider);
+    final isSearching = ref.watch(isSearchingPelangganProvider);
+
+    return customersAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) {
+        Log.error('Gagal memuat daftar customer', e: e, st: s);
+        return Center(
+          child: Text('Gagal memuat data: $e'),
+        );
+      },
+      data: (customers) {
+        if (customers.isEmpty) {
+          return Center(
+            child: Text(
+              isSearching
+                  ? 'Pelanggan tidak ditemukan.'
+                  : 'Belum ada customer. Tekan tombol + untuk menambah.',
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+        return ListView.builder(
+          itemCount: customers.length,
+          itemBuilder: (context, index) {
+            final (customer, points) = customers[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: ListTile(
+                title: Text(customer.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                  customer.lastActiveAt == null
+                      ? '-'
+                      : FormatDateTime.formatDateAndTimeCompact(
+                          customer.lastActiveAt!),
                 ),
-              ),
-            ),
-          );
-        }
-
-        return SimpleDialog(
-          title: const Text('Urutkan Berdasarkan'),
-          children: <Widget>[
-            buildOption('Nama (A-Z)', UrutanPelanggan.nameAZ),
-            buildOption('Nama (Z-A)', UrutanPelanggan.nameZA),
-            buildOption('Aktivitas Terakhir (Terbaru)',
-                UrutanPelanggan.lastActiveNewest),
-            buildOption('Aktivitas Terakhir (Terlama)',
-                UrutanPelanggan.lastActiveOldest),
-            buildOption('Poin (Tertinggi)', UrutanPelanggan.pointsHighest),
-            buildOption('Poin (Terendah)', UrutanPelanggan.pointsLowest),
-          ],
-        );
-      },
-    );
-
-    if (result != null && result != _activeSort) {
-      _applySort(result);
-    }
-  }
-
-  void _applySort(final UrutanPelanggan option) {
-    Log.info('Menerapkan pengurutan: $option');
-    setState(() {
-      _activeSort = option;
-      switch (option) {
-        case UrutanPelanggan.nameAZ:
-          _filteredCustomers.sort(
-            (final a, final b) =>
-                a.name.toLowerCase().compareTo(b.name.toLowerCase()),
-          );
-          break;
-        case UrutanPelanggan.nameZA:
-          _filteredCustomers.sort(
-            (final a, final b) =>
-                b.name.toLowerCase().compareTo(a.name.toLowerCase()),
-          );
-          break;
-        case UrutanPelanggan.lastActiveNewest:
-          _filteredCustomers.sort((final a, final b) {
-            if (a.lastActiveAt == null) return 1;
-            if (b.lastActiveAt == null) return -1;
-            return b.lastActiveAt!.compareTo(a.lastActiveAt!);
-          });
-          break;
-        case UrutanPelanggan.lastActiveOldest:
-          _filteredCustomers.sort((final a, final b) {
-            if (a.lastActiveAt == null) return -1;
-            if (b.lastActiveAt == null) return 1;
-            return a.lastActiveAt!.compareTo(b.lastActiveAt!);
-          });
-          break;
-        case UrutanPelanggan.pointsHighest:
-          _filteredCustomers.sort((final a, final b) {
-            final pointsA = _customerPoints[a.id] ?? 0;
-            final pointsB = _customerPoints[b.id] ?? 0;
-            return pointsB.compareTo(pointsA);
-          });
-          break;
-        case UrutanPelanggan.pointsLowest:
-          _filteredCustomers.sort((final a, final b) {
-            final pointsA = _customerPoints[a.id] ?? 0;
-            final pointsB = _customerPoints[b.id] ?? 0;
-            return pointsA.compareTo(pointsB);
-          });
-          break;
-      }
-    });
-  }
-
-  Future<void> _refreshCustomerList() async {
-    Log.info(
-      'Memulai proses refresh daftar customer. Mengatur _isLoading ke true.',
-    );
-    if (mounted) setState(() => _isLoading = true);
-
-    try {
-      final list = await _customerOperation.getAll();
-      Log.info('Berhasil mengambil ${list.length} data customer.');
-
-      for (final customer in list) {
-        final points = await _pointsDataSource.getTotalPoints(customer.id);
-        if (mounted) {
-          setState(() {
-            _customerPoints[customer.id] = points;
-          });
-        }
-      }
-
-      if (mounted) {
-        setState(() {
-          _allCustomers = list;
-          _filteredCustomers = list;
-          _applySort(_activeSort);
-          _isLoading = false;
-          Log.info(
-            'State diperbarui dengan daftar pelanggan yang baru. _isLoading diatur ke false.',
-          );
-        });
-      }
-    } on Exception catch (e, s) {
-      Log.error(
-        'Gagal total saat memuat daftar customer.',
-        e: e,
-        st: s,
-      );
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ToastUtil.error(
-            context, 'Gagal memuat data customer. Silakan coba lagi.');
-      }
-    }
-  }
-
-  void _filterCustomers() {
-    final query = _searchController.text.toLowerCase();
-    Log.info(
-      'Listener _searchController aktif. Memfilter daftar dengan query: "$query".',
-    );
-
-    setState(() {
-      _filteredCustomers = _allCustomers
-          .where((final c) => c.name.toLowerCase().contains(query))
-          .toList();
-      _applySort(_activeSort);
-      Log.info(
-        'Filter selesai. Ditemukan ${_filteredCustomers.length} pelanggan yang cocok.',
-      );
-    });
-  }
-
-  Future<void> _addCustomer() async {
-    Log.info(
-      'Tombol FAB (+) ditekan. Menavigasi ke CustomerForm untuk menambah data baru.',
-    );
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (final context) => const CustomerForm()),
-    );
-    if (result ?? false) {
-      Log.info(
-        'Kembali dari CustomerForm dengan hasil sukses (true). Memanggil _refreshCustomerList untuk memuat ulang data.',
-      );
-      await _refreshCustomerList();
-    } else {
-      Log.info(
-        'Kembali dari CustomerForm tanpa hasil (false atau null). Tidak ada aksi yang diambil.',
-      );
-    }
-  }
-
-  Future<void> _showOptionsDialog(final CustomerModel customer) async {
-    Log.info(
-      'Menampilkan dialog opsi (Edit/Arsipkan) untuk pelanggan: ${customer.name} (ID: ${customer.id}).',
-    );
-    await showDialog<void>(
-      context: context,
-      builder: (final BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(customer.name),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(TIcons.edit),
-                title: const Text('Edit Pelanggan'),
-                onTap: () async {
-                  Log.info(
-                    'Opsi "Edit Pelanggan" dipilih. Menutup dialog dan menavigasi ke CustomerForm dengan data yang ada.',
-                  );
-                  Navigator.of(dialogContext).pop();
-                  await Navigator.push<void>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (final context) =>
-                          CustomerForm(customer: customer),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(TIcons.star, color: Colors.amber),
+                    const SizedBox(width: 4),
+                    Text(
+                      points.toString(),
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  );
-                  await _refreshCustomerList();
-                },
+                  ],
+                ),
+                onTap: () => _viewCustomerDetail(context, ref, customer.id),
+                onLongPress: () => _showOptionsDialog(context, ref, customer),
               ),
-              ListTile(
-                leading: const Icon(TIcons.archive),
-                title: const Text('Arsipkan Pelanggan'),
-                onTap: () async {
-                  Log.info(
-                    'Opsi "Arsipkan Pelanggan" dipilih. Menutup dialog dan memanggil _showArchiveDialog.',
-                  );
-                  Navigator.of(dialogContext).pop();
-                  await _showSoftDelete(customer);
-                },
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Future<void> _showSoftDelete(final CustomerModel customer) async {
-    Log.info(
-      'Menampilkan dialog konfirmasi pengarsipan untuk pelanggan "${customer.name}".',
-    );
-    await showDialog<void>(
-      context: context,
-      builder: (final BuildContext context) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Arsip'),
-          content: Text(
-            'Apakah Anda yakin ingin mengarsipkan pelanggan "${customer.name}"?',
+  Future<void> _showSortDialog(BuildContext context, WidgetRef ref) async {
+    final activeSort = ref.read(urutanPelangganStateProvider);
+
+    Widget buildOption(String text, UrutanPelanggan value) {
+      final isSelected = activeSort == value;
+      return SimpleDialogOption(
+        onPressed: () => Navigator.pop(context, value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected ? TColors.pointBackground : null,
+            borderRadius: BorderRadius.circular(8),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Batal'),
-              onPressed: () {
-                Log.info('Pengguna membatalkan proses pengarsipan.');
-                Navigator.of(context).pop();
-              },
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
-            TextButton(
-              child: const Text(
-                'Arsipkan',
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () async {
-                Log.info(
-                  'Pengguna mengonfirmasi pengarsipan. Memanggil _archiveCustomer dengan ID: ${customer.id}.',
-                );
-                Navigator.of(context).pop();
-                await _softDelete(customer.id);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _softDelete(final String id) async {
-    Log.info('Memulai proses pengarsipan untuk ID pelanggan: $id.');
-    try {
-      await _customerOperation.softDelete(id);
-      Log.info(
-        'Berhasil mengarsipkan pelanggan dengan ID: $id. Memuat ulang daftar dan menampilkan SnackBar.',
-      );
-      await _refreshCustomerList();
-      if (mounted) {
-        ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
-      }
-    } on Exception catch (e, s) {
-      Log.error(
-        'Gagal mengarsipkan pelanggan dengan ID: $id.',
-        e: e,
-        st: s,
-      );
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal mengarsipkan customer.');
-      }
-    }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun UI CustomerPage. Status loading: $_isLoading.');
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: RefreshIndicator(
-        onRefresh: _refreshCustomerList,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _buildContent(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addCustomer,
-        tooltip: 'Tambah Pelanggan',
-        child: const Icon(TIcons.add),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (_filteredCustomers.isEmpty) {
-      Log.info('Membangun UI content: Daftar pelanggan kosong.');
-      return Center(
-        child: Text(
-          _isSearching
-              ? 'Pelanggan tidak ditemukan untuk pencarian ini.'
-              : 'Belum ada customer. Tekan tombol + untuk menambah.',
-          textAlign: TextAlign.center,
+          ),
         ),
       );
     }
 
-    Log.info(
-      'Membangun UI content: Menampilkan ListView dengan ${_filteredCustomers.length} customer.',
+    final result = await showDialog<UrutanPelanggan>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Urutkan Berdasarkan'),
+        children: <Widget>[
+          buildOption('Nama (A-Z)', UrutanPelanggan.nameAZ),
+          buildOption('Nama (Z-A)', UrutanPelanggan.nameZA),
+          buildOption(
+              'Aktivitas Terakhir (Terbaru)', UrutanPelanggan.lastActiveNewest),
+          buildOption(
+              'Aktivitas Terakhir (Terlama)', UrutanPelanggan.lastActiveOldest),
+          buildOption('Poin (Tertinggi)', UrutanPelanggan.pointsHighest),
+          buildOption('Poin (Terendah)', UrutanPelanggan.pointsLowest),
+        ],
+      ),
     );
-    return ListView.builder(
-      itemCount: _filteredCustomers.length,
-      itemBuilder: (final context, final index) {
-        final customer = _filteredCustomers[index];
-        final points = _customerPoints[customer.id] ?? 0;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: ListTile(
-            title: Text(
-              customer.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              customer.lastActiveAt == null
-                  ? '-'
-                  : FormatDateTime.formatDateAndTimeCompact(
-                      customer.lastActiveAt!,
-                    ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(TIcons.star, color: Colors.amber),
-                const SizedBox(width: 4),
-                Text(
-                  points.toString(),
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+
+    if (result != null) {
+      ref.read(urutanPelangganStateProvider.notifier).ubahUrutan(result);
+    }
+  }
+
+  Future<void> _addCustomer(BuildContext context, WidgetRef ref) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (context) => const CustomerForm()),
+    );
+    if (result ?? false) {
+      ref.invalidate(customerListProvider);
+      if (context.mounted) {
+        ToastUtil.success(context, 'Pelanggan berhasil ditambahkan.');
+      }
+    }
+  }
+
+  Future<void> _viewCustomerDetail(
+      BuildContext context, WidgetRef ref, String customerId) async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CustomerDetailPage(customerId: customerId),
+      ),
+    );
+    ref.invalidate(customerListProvider);
+  }
+
+  Future<void> _showOptionsDialog(
+      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(customer.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(TIcons.edit),
+              title: const Text('Edit Pelanggan'),
+              onTap: () async {
+                Navigator.of(dialogContext).pop();
+                final result = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CustomerForm(customer: customer),
                   ),
-                ),
-              ],
+                );
+                if (result ?? false) {
+                  ref.invalidate(customerListProvider);
+                  if (context.mounted) {
+                    ToastUtil.success(
+                        context, 'Pelanggan berhasil diperbarui.');
+                  }
+                }
+              },
             ),
-            onTap: () async {
-              Log.info(
-                'ListTile untuk pelanggan "${customer.name}" ditekan. Menavigasi ke DetailPelangganPage.',
-              );
-              await Navigator.push<void>(
-                context,
-                MaterialPageRoute(
-                  builder: (final context) =>
-                      CustomerDetailPage(customerId: customer.id),
-                ),
-              );
-              await _refreshCustomerList();
-            },
-            onLongPress: () async {
-              Log.info(
-                'ListTile untuk pelanggan "${customer.name}" ditekan lama (long press). Memanggil _showOptionsDialog.',
-              );
-              await _showOptionsDialog(customer);
+            ListTile(
+              leading: const Icon(TIcons.archive),
+              title: const Text('Arsipkan Pelanggan'),
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                _showSoftDeleteConfirmation(context, ref, customer);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showSoftDeleteConfirmation(
+      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Arsip'),
+        content: Text(
+          'Apakah Anda yakin ingin mengarsipkan pelanggan "${customer.name}"?',
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: const Text('Arsipkan', style: TextStyle(color: Colors.red)),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _softDeleteCustomer(context, ref, customer.id);
             },
           ),
-        );
-      },
+        ],
+      ),
     );
+  }
+
+  Future<void> _softDeleteCustomer(
+      BuildContext context, WidgetRef ref, String id) async {
+    try {
+      await ref.read(customerOperationProvider).softDelete(id);
+      ref.invalidate(customerListProvider);
+      if (context.mounted) {
+        ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
+      }
+    } on Exception catch (e, s) {
+      Log.error('Gagal mengarsipkan pelanggan', e: e, st: s);
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal mengarsipkan customer.');
+      }
+    }
   }
 }

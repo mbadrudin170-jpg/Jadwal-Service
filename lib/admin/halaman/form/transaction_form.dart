@@ -274,7 +274,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
           Log.info('Menjalankan operasi CREATE untuk transaksi baru.');
           await _transaksiOperasi.addTransaction(transaksi);
         }
-
+        ref.invalidate(transactionOperationProvider);
         if (!mounted) return;
         Log.info(
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
@@ -284,7 +284,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
             await InternetConnectionService().checkConnection();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
-           syncCheckService.runSyncCheck();
+          syncCheckService.runSyncCheck();
           if (mounted) {
             ToastUtil.success(
                 context, 'Transaksi berhasil disimpan dan disinkronkan.');

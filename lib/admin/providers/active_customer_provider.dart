@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -45,12 +44,16 @@ class ActiveCustomerState {
 class ActiveCustomer extends _$ActiveCustomer {
   @override
   ActiveCustomerState build() {
+    final currentState = stateOrNull;
+    ref.watch(activeCustomerOperationProvider);
     Future.microtask(fetchActiveCustomers);
-    return ActiveCustomerState(activeCustomers: [], sortBy: SortOption.endDate);
+    return ActiveCustomerState(
+        activeCustomers: [],
+        sortBy: currentState?.sortBy ?? SortOption.endDate);
   }
 
-  late final ActiveCustomerOperation operation =
-      ref.read(activeCustomerOperationProvider);
+  // late final ActiveCustomerOperation operation =
+  //     ref.read(activeCustomerOperationProvider);
 
   List<ActiveCustomerDetailModel> _sortData(
       List<ActiveCustomerDetailModel> data, SortOption sortBy) {
@@ -72,6 +75,7 @@ class ActiveCustomer extends _$ActiveCustomer {
   Future<void> fetchActiveCustomers() async {
     Log.info('Memulai pengambilan data pelanggan aktif.');
     try {
+      final operation = ref.read(activeCustomerOperationProvider);
       final List<ActiveCustomerDetailModel> data =
           await operation.getAllActiveCustomersWithDetails();
 

@@ -19,15 +19,21 @@ class TransactionDetailPage extends ConsumerStatefulWidget {
   const TransactionDetailPage({super.key, required this.transaction});
 
   @override
-  ConsumerState<TransactionDetailPage> createState() => _TransactionDetailPageState();
+  ConsumerState<TransactionDetailPage> createState() =>
+      _TransactionDetailPageState();
 }
 
 class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
-  late final WalletOperation _walletOperation;
-  late final CategoryOperation _categoryOperation;
-  late final CustomerOperation _customerOperation;
-  late final PackageOperation _packageOperation;
-  late final SubCategoryOperation _subCategoryOperation;
+  late final WalletOperation _walletOperation =
+      ref.watch(walletOperationProvider);
+  late final CategoryOperation _categoryOperation =
+      ref.watch(categoryOperationProvider);
+  late final CustomerOperation _customerOperation =
+      ref.watch(customerOperationProvider);
+  late final PackageOperation _packageOperation =
+      ref.watch(packageOperationProvider);
+  late final SubCategoryOperation _subCategoryOperation =
+      ref.watch(subCategoryOperationProvider);
 
   late TransactionModel _currentTransaction;
   bool _diUpdate = false;
@@ -35,11 +41,6 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
   @override
   void initState() {
     super.initState();
-    _walletOperation = ref.read(walletOperationProvider);
-    _categoryOperation = ref.read(categoryOperationProvider);
-    _customerOperation = ref.read(customerOperationProvider);
-    _packageOperation = ref.read(packageOperationProvider);
-
     _currentTransaction = widget.transaction;
     Log.info('Membuka halaman Detail Transaksi ID: ${_currentTransaction.id}');
   }

@@ -41,7 +41,7 @@ final class ActiveCustomerProvider
   }
 }
 
-String _$activeCustomerHash() => r'74b516e83526378e9e673c8185163f8ade1ec714';
+String _$activeCustomerHash() => r'8d584badd070675732bd1a12b793abb1d0c5651a';
 
 abstract class _$ActiveCustomer extends $Notifier<ActiveCustomerState> {
   ActiveCustomerState build();

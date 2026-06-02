@@ -1,23 +1,36 @@
 // path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+// Penting: Import enum UrutanPelanggan dari file UI agar provider mengenalnya
 import 'package:wifi/admin/halaman/lainnya/customer.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 
 part 'pelanggan_provider.g.dart';
 
-/// Provider asinkron untuk mengambil data daftar pelanggan yang aktif dari SQLite.
-/// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
+/// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 @riverpod
-Future<List<CustomerModel>> customerList(Ref ref) async {
+Future<List<(CustomerModel, int)>> customerList(Ref ref) async {
   Log.info(
-      'Mendapatkan daftar pelanggan aktif dari SQLite via pelangganProvider...');
+      'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...');
 
-  // Mengambil instance CustomerOperation dari operasi_sqlite_provider.dart
-  final pelangganOperasi = ref.watch(customerOperationProvider);
-  return await pelangganOperasi.getAll();
+  final customerOp = ref.watch(customerOperationProvider);
+  final pointsOp = ref.watch(sqlitePointsDataSourceProvider);
+
+  final customers = await customerOp.getAll();
+
+  final pointsFutures =
+      customers.map((c) => pointsOp.getTotalPoints(c.id)).toList();
+  final points = await Future.wait(pointsFutures);
+
+  final List<(CustomerModel, int)> result = [];
+  for (int i = 0; i < customers.length; i++) {
+    result.add((customers[i], points[i]));
+  }
+
+  return result;
 }
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
@@ -25,12 +38,46 @@ Future<List<CustomerModel>> customerList(Ref ref) async {
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
   UrutanPelanggan build() {
-    // Nilai default awal saat halaman pertama kali dibuka
     return UrutanPelanggan.nameAZ;
   }
 
-  /// Fungsi untuk mengubah status urutan dari UI
   void ubahUrutan(UrutanPelanggan urutanBaru) {
     state = urutanBaru;
   }
+}
+
+/// =========================================================================
+/// TULIS DI SINI (Bagian paling bawah file pelanggan_provider.dart)
+/// =========================================================================
+
+/// Provider generator modern untuk status mode pencarian aktif/tidak
+@riverpod
+class IsSearchingPelanggan extends _$IsSearchingPelanggan {
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+  void setFalse() => state = false;
+}
+
+/// Provider generator modern untuk menyimpan text query pencarian pelanggan
+@riverpod
+class SearchQueryPelanggan extends _$SearchQueryPelanggan {
+  @override
+  String build() => '';
+
+  void updateQuery(String query) => state = query;
+  void clear() => state = '';
+}
+
+/// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
+@riverpod
+Future<(CustomerModel?, int)> customerDetail(Ref ref, String id) async {
+  final customerOp = ref.watch(customerOperationProvider);
+  final transactionOp = ref.watch(transactionOperationProvider);
+
+  final customer = await customerOp.getById(id);
+  final points = await transactionOp.getTotalPoints(id);
+
+  return (customer, points);
 }

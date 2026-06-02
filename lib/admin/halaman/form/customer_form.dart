@@ -108,9 +108,8 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
           );
           await customerOperation.updateCustomer(newCustomer);
         }
-
+        ref.invalidate(customerOperationProvider);
         if (!mounted) return;
-
         final hasConnection =
             await InternetConnectionService().checkConnection();
         if (hasConnection) {

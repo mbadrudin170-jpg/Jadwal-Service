@@ -89,7 +89,6 @@ class _PackageFormState extends ConsumerState<PackageForm> {
           context,
           'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
         );
-
         Navigator.pop(context, true);
       } on DatabaseException catch (e, s) {
         String errorMessage =

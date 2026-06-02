@@ -1,431 +1,198 @@
 // path: lib/admin/halaman/detail/subscription_history_detail.dart
-// diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
-
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/admin/providers/subscription_detail_provider.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
 
-// === INFORMASI DEPENDENCY ===
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/package_activation_history.dart (PackageActivationHistoryPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/detail/customer_detail.dart (CustomerDetailPage)
-//   - lib/admin/halaman/detail/package_detail.dart (PackageDetailPage)
-//   - lib/admin/halaman/form/subscription_history_form.dart (SubscriptionHistoryForm)
-//   - lib/shared/model/transaction_model.dart (TransactionModel)
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/operasi/transaction_operation.dart (TransactionOperation)
-//   - lib/shared/operasi/customer_operation.dart (CustomerOperation)
-//   - lib/shared/operasi/package_operation.dart (PackageOperation)
-//   - lib/shared/utils/format_util.dart (FormatUtil, CurrencyFormat)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
-
-/// Halaman untuk menampilkan detail transaksi langganan.
-class SubscriptionHistoryDetailPage extends ConsumerStatefulWidget {
-  /// ID transaksi yang akan ditampilkan.
+class SubscriptionHistoryDetailPage extends ConsumerWidget {
   final String transactionId;
-
-  /// Konstruktor untuk SubscriptionHistoryDetailPage.
   const SubscriptionHistoryDetailPage({super.key, required this.transactionId});
 
   @override
-  ConsumerState<SubscriptionHistoryDetailPage> createState() =>
-      _SubscriptionHistoryDetailPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch data gabungan langsung dari provider
+    final detailAsync = ref.watch(getSubscriptionDetailProvider(transactionId));
 
-class _SubscriptionHistoryDetailPageState
-    extends ConsumerState<SubscriptionHistoryDetailPage> {
-  late final TransactionOperation _transactionOperation;
-  late final PackageOperation _packageOperation;
-  late final CustomerOperation _customerOperation;
+    return detailAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (err, stack) => Scaffold(body: Center(child: Text('Error: $err'))),
+      data: (data) {
+        if (data == null) {
+          return const Scaffold(
+              body: Center(child: Text('Transaksi tidak ditemukan')));
+        }
 
-  late Future<TransactionModel?> _transactionFuture;
+        final transaction = data.transaction;
+        final customer = data.customer;
+        final package = data.package;
+        final paymentStatusColor =
+            transaction.paymentStatus == PaymentStatus.paid
+                ? Colors.green
+                : Colors.red;
 
-  @override
-  void initState() {
-    super.initState();
-    _transactionOperation = ref.read(transactionOperationProvider);
-    _packageOperation = ref.read(packageOperationProvider);
-    _customerOperation = ref.read(customerOperationProvider);
-    _loadTransactionDetails();
-  }
-
-  /// Mengambil detail transaksi dari database.
-  void _loadTransactionDetails() {
-    Log.info(
-      'Memuat detail transaksi untuk ID: ${widget.transactionId}.',
-    );
-    setState(() {
-      _transactionFuture =
-          _transactionOperation.getTransactionById(widget.transactionId);
-    });
-  }
-
-  /// Menavigasi ke halaman edit dan memuat ulang data jika ada perubahan.
-  Future<void> _navigateToEditForm(final TransactionModel transaction) async {
-    Log.info('Navigasi ke form edit untuk transaksi ID: ${transaction.id}');
-    if (!mounted) return;
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (final context) =>
-            SubscriptionHistoryForm(transaction: transaction),
-      ),
-    );
-
-    if (result ?? false) {
-      Log.info(
-          'Form edit mengembalikan berhasil, memuat ulang detail transaksi.');
-      if (mounted) {
-        ToastUtil.success(context, 'Detail transaksi berhasil diperbarui.');
-        Navigator.pop(context, true);
-      }
-      _loadTransactionDetails();
-    }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun UI halaman detail langganan transaksi.');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Langganan'),
-        actions: [
-          FutureBuilder<TransactionModel?>(
-            future: _transactionFuture,
-            builder: (final context, final snapshot) {
-              if (snapshot.hasData && snapshot.data != null) {
-                return IconButton(
-                  icon: const Icon(Icons.edit),
-                  tooltip: 'Edit Langganan',
-                  onPressed: () => _navigateToEditForm(snapshot.data!),
-                );
-              }
-              return const SizedBox.shrink();
-            },
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Detail Langganan'),
+            actions: [
+              IconButton(
+                icon: const Icon(TIcons.edit),
+                onPressed: () async {
+                  await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SubscriptionHistoryForm(transaction: transaction),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: FutureBuilder<TransactionModel?>(
-        future: _transactionFuture,
-        builder: (final context, final snapshot) {
-          Log.info(
-            'FutureBuilder transaksi dijalankan dengan state: ${snapshot.connectionState}.',
-          );
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            Log.info('Data transaksi masih dalam proses loading.');
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            Log.error(
-              'Terjadi kesalahan saat mengambil data transaksi.',
-              e: snapshot.error,
-            );
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          final transaction = snapshot.data;
-
-          if (transaction == null) {
-            Log.warning('Data transaksi tidak ditemukan di database.');
-            return const Center(child: Text('Transaksi tidak ditemukan'));
-          }
-
-          Log.info(
-            'Berhasil memuat data transaksi dengan ID: ${transaction.id}.',
-          );
-
-          return RefreshIndicator(
-            onRefresh: () async => _loadTransactionDetails(),
-            child: Padding(
+          body: RefreshIndicator(
+            onRefresh: () async =>
+                ref.invalidate(getSubscriptionDetailProvider(transactionId)),
+            child: ListView(
               padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: <Widget>[
-                  if (transaction.customerId != null)
-                    _buildFutureInfoCard<CustomerModel>(
-                      'Informasi Pelanggan',
-                      _customerOperation.getById(transaction.customerId!),
-                      'Pelanggan',
-                      (final customer) => [
-                        _buildDetailRow(
-                          'Nama Pelanggan',
-                          customer?.name ?? 'Tidak Diketahui',
-                        ),
-                      ],
-                      onTap: (final customer) {
-                        if (customer != null) {
-                          if (!mounted) return;
-                          unawaited(Navigator.push<void>(
+              children: [
+                // CARD 1: INFORMASI PELANGGAN
+                _buildCard(
+                  title: 'Informasi Pelanggan',
+                  onTap: customer == null
+                      ? null
+                      : () => Navigator.push(
                             context,
-                            MaterialPageRoute<void>(
-                              builder: (final context) => CustomerDetailPage(
-                                customerId: customer.id,
-                              ),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CustomerDetailPage(customerId: customer.id),
                             ),
-                          ));
-                        }
-                      },
-                    ),
-                  gapH16,
-                  if (transaction.packageId != null)
-                    _buildFutureInfoCard<PackageModel>(
-                      'Informasi Paket',
-                      _packageOperation.getById(transaction.packageId!),
-                      'Paket',
-                      (final package) => [
-                        _buildDetailRow(
-                          'Nama Paket',
-                          package?.name ?? 'Tidak Diketahui',
-                        ),
-                        _buildDetailRow(
-                          'Harga',
-                          CurrencyFormat.formatCurrency(
-                              (package?.price ?? 0).toDouble()),
-                        ),
-                        _buildDetailRow(
-                          'Durasi',
-                          '${package?.duration ?? 0} ${package?.type.name ?? ""}',
-                        ),
-                      ],
-                      onTap: (final package) {
-                        if (package != null) {
-                          if (!mounted) return;
-                          unawaited(Navigator.push<void>(
+                          ),
+                  children: [
+                    _buildRow(
+                        'Nama Pelanggan', customer?.name ?? 'Tidak Diketahui'),
+                  ],
+                ),
+                gapH16,
+
+                // CARD 2: INFORMASI PAKET
+                _buildCard(
+                  title: 'Informasi Paket',
+                  onTap: package == null
+                      ? null
+                      : () => Navigator.push(
                             context,
-                            MaterialPageRoute<void>(
-                              builder: (final context) => PackageDetailPage(
-                                package: package,
-                              ),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  PackageDetailPage(package: package),
                             ),
-                          ));
-                        }
-                      },
-                    ),
-                  gapH16,
-                  _buildInfoPoints(transaction),
-                  gapH16,
-                  if (transaction.startDate != null &&
-                      transaction.endDate != null)
-                    _buildInfoCard('Waktu Langganan', [
-                      _buildDetailRow(
-                        'Tanggal Mulai',
-                        FormatDateTime.formatDateAndTimeCompact(
-                            transaction.startDate!),
-                      ),
-                      _buildDetailRow(
-                        'Tanggal Berakhir',
-                        FormatDateTime.formatDateAndTimeCompact(
-                            transaction.endDate!),
-                      ),
-                    ]),
+                          ),
+                  children: [
+                    _buildRow('Nama Paket', package?.name ?? 'Tidak Diketahui'),
+                    _buildRow(
+                        'Harga',
+                        CurrencyFormat.formatCurrency(
+                            (package?.price ?? 0).toDouble())),
+                    _buildRow('Durasi',
+                        '${package?.duration ?? 0} ${package?.type.displayName ?? ""}'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // CARD 3: POIN TRANSAKSI
+                if (transaction.earnedPoints > 0 ||
+                    transaction.usedPoints > 0) ...[
+                  _buildCard(
+                    title: 'Informasi Poin',
+                    children: [
+                      _buildRow('Poin Dihasilkan',
+                          '+${transaction.earnedPoints} Poin',
+                          color: Colors.green),
+                      _buildRow(
+                          'Poin Digunakan', '-${transaction.usedPoints} Poin',
+                          color: Colors.red),
+                    ],
+                  ),
                   const SizedBox(height: 16),
-                  _buildInfoCard('Status', [
-                    _buildDetailRow(
-                      'Status Pembayaran',
-                      transaction.paymentStatus.displayName.toUpperCase(),
-                    ),
-                  ]),
                 ],
-              ),
+
+                // CARD 4: WAKTU & STATUS
+                _buildCard(
+                  title: 'Waktu & Status',
+                  children: [
+                    if (transaction.startDate != null)
+                      _buildRow(
+                          'Tanggal Mulai',
+                          FormatDateTime.formatDateAndTimeCompact(
+                              transaction.startDate!)),
+                    if (transaction.endDate != null)
+                      _buildRow(
+                          'Tanggal Berakhir',
+                          FormatDateTime.formatDateAndTimeCompact(
+                              transaction.endDate!)),
+                    _buildRow('Status Pembayaran',
+                        transaction.paymentStatus.displayName.toUpperCase(),
+                        color: paymentStatusColor, isBold: true),
+                  ],
+                ),
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildInfoPoints(final TransactionModel transaction) {
-    Log.info('Membangun widget informasi poin transaksi.');
-
-    if (transaction.earnedPoints == 0 && transaction.usedPoints == 0) {
-      Log.info('Tidak ada perubahan poin pada transaksi ini.');
-      return const SizedBox.shrink();
-    }
-
-    final isAddition = transaction.earnedPoints > transaction.usedPoints;
-    final pointDifference = transaction.earnedPoints - transaction.usedPoints;
-
-    Log.info(
-      'Poin dihasilkan: ${transaction.earnedPoints}, '
-      'Poin digunakan: ${transaction.usedPoints}, '
-      'Selisih: $pointDifference poin (${isAddition ? "PENAMBAHAN" : "PENGURANGAN"}).',
-    );
-
-    return _buildInfoCard('Informasi Poin', [
-      _buildDetailRowWithColor(
-        'Poin Dihasilkan',
-        '+${transaction.earnedPoints} Poin',
-        transaction.earnedPoints > 0 ? Colors.green : null,
-        transaction.earnedPoints > 0 ? FontWeight.bold : FontWeight.normal,
-      ),
-      _buildDetailRowWithColor(
-        'Poin Digunakan',
-        '-${transaction.usedPoints} Poin',
-        transaction.usedPoints > 0 ? Colors.red : null,
-        transaction.usedPoints > 0 ? FontWeight.bold : FontWeight.normal,
-      ),
-      const Divider(height: 16),
-      _buildDetailRowWithColor(
-        isAddition ? 'Total Poin Bertambah' : 'Total Poin Berkurang',
-        '${pointDifference >= 0 ? "+" : ""}$pointDifference Poin',
-        isAddition ? Colors.green : Colors.red,
-        FontWeight.bold,
-        fontSize: 16,
-      ),
-    ]);
-  }
-
-  Widget _buildInfoCard(final String title, final List<Widget> children,
-      {final VoidCallback? onTap}) {
-    Log.info('Membangun info card dengan judul: $title.');
-
-    final cardContent = Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Divider(height: 20, thickness: 1),
-            ...children,
-          ],
-        ),
-      ),
-    );
-
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: cardContent,
-      );
-    } else {
-      return cardContent;
-    }
-  }
-
-  Widget _buildFutureInfoCard<T>(
-    final String title,
-    final Future<T?> future,
-    final String tag,
-    final List<Widget> Function(T? data) builder, {
-    final void Function(T? data)? onTap,
-  }) {
-    Log.info('Membangun Future info card untuk data $tag.');
-
-    return FutureBuilder<T?>(
-      future: future,
-      builder: (final context, final snapshot) {
-        Log.info(
-          'FutureBuilder $tag dijalankan dengan state: ${snapshot.connectionState}.',
+          ),
         );
-
-        VoidCallback? resolvedOnTap;
-        if (onTap != null &&
-            snapshot.connectionState == ConnectionState.done &&
-            !snapshot.hasError &&
-            snapshot.hasData) {
-          resolvedOnTap = () => onTap(snapshot.data);
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          Log.info('Data $tag masih dalam proses loading.');
-          return _buildInfoCard(title, [
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(8.0),
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ]);
-        }
-
-        if (snapshot.hasError) {
-          Log.error('Gagal memuat data $tag.', e: snapshot.error);
-          return _buildInfoCard(title, [const Text('Gagal memuat data')]);
-        }
-
-        if (snapshot.hasData) {
-          Log.info('Data $tag berhasil dimuat secara asynchronous.');
-        } else {
-          Log.warning('Data $tag tidak ditemukan.');
-        }
-
-        return _buildInfoCard(title, builder(snapshot.data),
-            onTap: resolvedOnTap);
       },
     );
   }
 
-  Widget _buildDetailRow(final String label, final String value) {
-    Log.info('Membangun detail row dengan label: $label dan value: $value.');
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(label, style: TextStyle(color: Colors.grey[600])),
-          Flexible(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-              textAlign: TextAlign.end,
-            ),
+  // Helper widget sederhana untuk memangkas boilerplate code
+  Widget _buildCard(
+      {required String title,
+      required List<Widget> children,
+      VoidCallback? onTap}) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+              const Divider(height: 20, thickness: 1),
+              ...children,
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDetailRowWithColor(
-    final String label,
-    final String value,
-    final Color? valueColor,
-    final FontWeight fontWeight, {
-    final double fontSize = 14,
-  }) {
-    Log.info(
-      'Membangun detail row berwarna dengan label: $label dan value: $value.',
-    );
-
+  Widget _buildRow(String label, String value,
+      {Color? color, bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
+        children: [
           Text(label, style: TextStyle(color: Colors.grey[600])),
           Flexible(
             child: Text(
               value,
-              style: TextStyle(
-                fontWeight: fontWeight,
-                color: valueColor,
-                fontSize: fontSize,
-              ),
               textAlign: TextAlign.end,
+              style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+                color: color,
+              ),
             ),
           ),
         ],
