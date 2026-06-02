@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/firebase_operasi/event_op_firebase.dart
+// path: lib/shared/operasi/firebase_operasi/event_op_supabase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,9 +9,9 @@ import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Operasi Firebase khusus untuk data Pengumuman (Event).
-class EventOpFirebase extends BaseOpFirebase {
+class EventOpSupabase extends BaseOpFirebase {
   /// Konstruktor untuk EventOpFirebase.
-  EventOpFirebase({super.firestore, super.statusOp});
+  EventOpSupabase({super.firestore, super.statusOp});
 
   final String _collection = TableNameValue.get(TableName.event);
 
@@ -79,6 +79,6 @@ class EventOpFirebase extends BaseOpFirebase {
 }
 
 /// Provider Riverpod untuk `EventOpFirebase`.
-final eventOpFirebaseProvider = Provider<EventOpFirebase>((ref) {
-  return EventOpFirebase();
+final eventOpSupabaseProvider = Provider<EventOpSupabase>((ref) {
+  return EventOpSupabase();
 });

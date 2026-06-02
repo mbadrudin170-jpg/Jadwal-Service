@@ -1,6 +1,7 @@
 // path: test/admin/halaman/lainnya/package_activation_history_test.dart
 
 /// nanti di benarkan lain
+library package_activation_history_test;
 // ignore_for_file: unused_import, unused_local_variable
 
 import 'package:flutter/material.dart';

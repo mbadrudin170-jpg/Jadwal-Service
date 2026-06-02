@@ -1,14 +1,17 @@
 // path: lib/admin/halaman/lainnya/manage_announcement_page.dart
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
+import 'package:wifi/shared/services/image_storage_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
@@ -30,25 +33,26 @@ class _ManageAnnouncementPageState
   DateTime? _selectedStartDate;
   DateTime? _selectedEndDate;
 
+  File? _selectedImage;
+  bool _isUploading = false;
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
     _isSwitched = false;
-    _imageUrlController
-        .addListener(() => setState(() {})); // Update UI saat text berubah
     _loadData();
   }
 
   @override
   void dispose() {
-    _imageUrlController.removeListener(() => setState(() {}));
     _imageUrlController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _loadData() async {
-    final operator = ref.read(eventOpFirebaseProvider);
+    final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.getAll();
       final EventModel? activeAnnouncement =
@@ -72,6 +76,20 @@ class _ManageAnnouncementPageState
     } on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e, st) {
+      Log.error('Gagal memilih gambar', e: e, st: st);
+      ToastUtil.error(context, 'Gagal memilih gambar dari galeri.');
     }
   }
 
@@ -131,8 +149,16 @@ class _ManageAnnouncementPageState
     }
     TimeOfDay? pickedTime;
     try {
-      pickedTime =
-          await showTimePicker(context: context, initialTime: initialTime);
+      pickedTime = await showTimePicker(
+        context: context,
+        initialTime: initialTime,
+        builder: (BuildContext context, Widget? child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          );
+        },
+      );
     } catch (e, st) {
       Log.error('Error saat memilih waktu', e: e, st: st);
       ToastUtil.error(context, 'Gagal membuka pemilih waktu');
@@ -163,7 +189,7 @@ class _ManageAnnouncementPageState
   Future<void> _saveData() async {
     if (!_formKey.currentState!.validate()) {
       _scrollController.animateTo(
-        0.0, // Scroll ke atas halaman
+        0.0,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
@@ -175,14 +201,47 @@ class _ManageAnnouncementPageState
       return;
     }
 
+    if (_selectedImage == null && _imageUrlController.text.trim().isEmpty) {
+      ToastUtil.error(
+          context, 'Harap pilih atau sediakan gambar untuk pengumuman.');
+      return;
+    }
+
     if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
       ToastUtil.error(
           context, 'Tanggal selesai tidak boleh sebelum tanggal mulai');
       return;
     }
 
-    final operator = ref.read(eventOpFirebaseProvider);
-    final String imageUrl = _imageUrlController.text.trim();
+    setState(() {
+      _isUploading = true;
+    });
+
+    String? imageUrl = _imageUrlController.text.trim();
+
+    if (_selectedImage != null) {
+      final storageService = ref.read(imageStorageServiceProvider);
+      try {
+        final String? uploadUrl =
+            await storageService.uploadImage(_selectedImage!, 'announcements');
+        if (uploadUrl != null) {
+          imageUrl = uploadUrl;
+        }
+        if (imageUrl.isEmpty) {
+          throw Exception('URL gambar tidak diterima dari service.');
+        }
+      } catch (e, st) {
+        Log.error('Gagal mengunggah gambar', e: e, st: st);
+        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
+        setState(() {
+          _isUploading = false;
+        });
+        return;
+      }
+    }
+
+    final operator = ref.read(eventOpSupabaseProvider);
+
     final bool isActive = _isSwitched;
     final DateTime now = DateTime.now();
     final EventModel announcementToSave = (_selectedAnnouncement ??
@@ -214,6 +273,9 @@ class _ManageAnnouncementPageState
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
         ToastUtil.error(
             context, 'Gagal menonaktifkan pengumuman lain yang aktif.');
+        setState(() {
+          _isUploading = false;
+        });
         return;
       }
     }
@@ -221,10 +283,18 @@ class _ManageAnnouncementPageState
     try {
       await operator.upsert(announcementToSave);
       ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e, st) {
       Log.error('Gagal menyimpan pengumuman', e: e, st: st);
       ToastUtil.error(context, 'Gagal menyimpan pengumuman.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -248,30 +318,83 @@ class _ManageAnnouncementPageState
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               gapH16,
-              TextFormField(
-                controller: _imageUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'URL Gambar (Direct Link)',
-                  hintText: 'https://contoh.com/gambar.jpg',
-                  prefixIcon: Icon(TIcons.link),
-                  border: OutlineInputBorder(),
+// Image Preview and Picker
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade50,
                 ),
-                validator: (final value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'URL gambar wajib diisi';
-                  }
-                  if (!value.startsWith('http://') &&
-                      !value.startsWith('https://')) {
-                    return 'URL harus dimulai dengan http:// atau https://';
-                  }
-                  return null;
-                },
+                clipBehavior:
+                    Clip.antiAlias, // Mencegah gambar keluar dari border radius
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // 1. TAMPILAN JIKA ADA GAMBAR (LOKAL / URL)
+                    if (_selectedImage != null)
+                      Image.file(
+                        _selectedImage!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      )
+                    else if (_imageUrlController.text.isNotEmpty)
+                      Image.network(
+                        _imageUrlController.text,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                          child: Text('Gagal memuat gambar dari URL'),
+                        ),
+                      )
+                    else
+                      // Tampilan placeholder jika sama sekali belum ada gambar
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.image,
+                              size: 50, color: Colors.grey.shade400),
+                          gapH8,
+                          Text('Belum ada gambar terpilih',
+                              style: TextStyle(color: Colors.grey.shade600)),
+                        ],
+                      ),
+
+                    // 2. TOMBOL AKSI (Ditempatkan secara dinamis menggunakan Positioned)
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: ElevatedButton.icon(
+                        onPressed: _isUploading ? null : _pickImage,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black.withOpacity(0.7),
+                          foregroundColor: Colors.white,
+                          elevation: 2,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
+                        icon: Icon(
+                            _selectedImage != null ||
+                                    _imageUrlController.text.isNotEmpty
+                                ? TIcons.edit
+                                : TIcons.upload,
+                            size: 18),
+                        label: Text(_selectedImage != null ||
+                                _imageUrlController.text.isNotEmpty
+                            ? 'Ubah Gambar'
+                            : 'Pilih Gambar'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Text(_selectedStartDate == null
-                  ? 'Tanggal & Jam Belum Dipilih'
-                  : 'Mulai ${FormatDateTime.formatDateAndTimeCompact(_selectedStartDate!)}'),
-              gapH8,
+              gapH16,
+
               DateTimePickerWidget(
+                  labelText: 'Mulai:',
                   selectedDate: _selectedStartDate,
                   selectedTime: _selectedStartDate == null
                       ? null
@@ -281,7 +404,7 @@ class _ManageAnnouncementPageState
                   onSelectDate: () => _selectDate(context, true),
                   onSelectTime: () => _selectTime(context, true)),
               DateTimePickerWidget(
-                labelText: 'Selesai:', // Label spesifik untuk tanggal selesai
+                labelText: 'Selesai:',
                 selectedDate: _selectedEndDate,
                 selectedTime: _selectedEndDate == null
                     ? null
@@ -312,12 +435,17 @@ class _ManageAnnouncementPageState
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: ElevatedButton.icon(
-          icon: const Icon(TIcons.save),
-          label: Text(_selectedAnnouncement == null
-              ? 'Simpan Pengumuman'
-              : 'Perbarui Pengumuman'),
-          onPressed: _saveData,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _isUploading
+              ? const Center(child: CircularProgressIndicator())
+              : ElevatedButton.icon(
+                  icon: const Icon(TIcons.save),
+                  label: Text(_selectedAnnouncement == null
+                      ? 'Simpan Pengumuman'
+                      : 'Perbarui Pengumuman'),
+                  onPressed: _isUploading ? null : _saveData,
+                ),
         ),
       ),
     );

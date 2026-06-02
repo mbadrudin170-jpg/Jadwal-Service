@@ -29,7 +29,7 @@ class DateTimePickerWidget extends StatelessWidget {
     required this.selectedTime,
     required this.onSelectDate,
     required this.onSelectTime,
-    this.labelText = 'Pilih Tanggal & Waktu Aktif:',
+    this.labelText = 'Pilih Tanggal & Waktu',
   });
 
   @override

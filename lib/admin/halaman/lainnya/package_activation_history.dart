@@ -27,10 +27,8 @@ class PackageActivationHistoryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Mengamati state riwayat via AsyncValue
     final historyAsync = ref.watch(packageActivationHistoryProvider);
-    final packageOperation = ref.read(packageOperationProvider);
-
+    final packageOperation = ref.watch(packageOperationProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -54,7 +52,6 @@ class PackageActivationHistoryPage extends ConsumerWidget {
             return const Center(
                 child: Text('Tidak ada riwayat langganan ditemukan.'));
           }
-
           return ListView.builder(
             itemCount: state.transactions.length,
             itemBuilder: (context, index) {
@@ -76,8 +73,6 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                         ),
                       ),
                     );
-                    // Jika ada perubahan data di halaman detail, Anda cukup meng-invalidate provider database:
-                    // ref.invalidate(transactionOperationProvider);
                   },
                   title: CustomerNameWidget(
                     customerId: transaction.customerId ?? ' ',

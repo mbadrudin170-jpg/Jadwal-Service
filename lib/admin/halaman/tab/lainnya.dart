@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/admin/halaman/lainnya/category.dart';
 import 'package:wifi/admin/halaman/lainnya/customer.dart';
+import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/feedback.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
@@ -17,7 +18,6 @@ import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/event_page_u.dart';
 
 /// Halaman untuk menampilkan menu-menu lain yang tersedia untuk admin.
 class LainnyaPage extends StatefulWidget {
@@ -150,7 +150,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: TIcons.event,
             title: 'Halaman Pengumuman',
             rightIcons: TIcons.chevronRight,
-            onTap: () => _navigateTo(const EventPageU(), 'Halaman Pengumuman'),
+            onTap: () => _navigateTo(const EventPageA(), 'Halaman Pengumuman'),
           ),
           _buildMenuItem(
             context: context,

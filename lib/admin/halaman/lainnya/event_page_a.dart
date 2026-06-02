@@ -2,52 +2,51 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
-class EventPageU extends ConsumerWidget {
-  const EventPageU({super.key});
+/// Provider untuk mengambil daftar pengumuman secara asinkron.
+final announcementsFutureProvider = FutureProvider.autoDispose((ref) async {
+  final operator = ref.watch(eventOpSupabaseProvider);
+  return await operator.getAll();
+});
+
+class EventPageA extends ConsumerWidget {
+  const EventPageA({super.key});
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
+    // Tonton state dari FutureProvider
+    final announcementsAsync = ref.watch(announcementsFutureProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pengumuman'),
-        actions: [
-          IconButton(
-            icon: const Icon(TIcons.refresh),
-            tooltip: 'Muat Ulang Pengumuman',
-            onPressed: () {
-              ref.invalidate(eventOpFirebaseProvider);
-            },
-          ),
-        ],
       ),
-      body: FutureBuilder<List<EventModel>>(
-        future: ref.read(eventOpFirebaseProvider).getAll(),
-        builder: (final context, final snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            Log.error('Error saat memuat pengumuman: ${snapshot.error}',
-                e: snapshot.error, st: snapshot.stackTrace);
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(announcementsFutureProvider.future),
+        child: announcementsAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) {
+            Log.error('Error saat memuat pengumuman: $error',
+                e: error, st: stackTrace);
             return const Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(TSizes.p16),
                 child: Text(
                   'Gagal memuat pengumuman.',
                   textAlign: TextAlign.center,
                 ),
               ),
             );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Belum ada pengumuman.'),
-            );
-          } else {
-            final announcements = snapshot.data!;
+          },
+          data: (announcements) {
+            if (announcements.isEmpty) {
+              return const Center(child: Text('Belum ada pengumuman.'));
+            }
+
             return ListView.builder(
               padding: const EdgeInsets.all(TSizes.p16),
               itemCount: announcements.length,
@@ -95,7 +94,7 @@ class EventPageU extends ConsumerWidget {
                           )
                         : null,
                     title: Text(
-                      'ID: ${announcement.id.length > 50 ? '${announcement.id.substring(0, 50)}...' : announcement.id}',
+                      'ID: ${announcement.id.length > 30 ? '${announcement.id.substring(0, 30)}...' : announcement.id}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
@@ -104,36 +103,45 @@ class EventPageU extends ConsumerWidget {
                         gapH8,
                         Text(
                             'Dibuat: ${announcement.createdAt.toLocal().toString().split(' ')[0]}'),
-                        if (announcement.isActive)
-                          Chip(
-                            label: const Text('Aktif'),
-                            avatar: const Icon(TIcons.toggleOn, size: 18),
-                            backgroundColor: Colors.green.withAlpha(16),
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                          )
-                        else
-                          Chip(
-                            label: const Text('Tidak Aktif'),
-                            avatar: const Icon(TIcons.toggleOff, size: 18),
-                            backgroundColor: Colors.grey.withAlpha(16),
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                        gapH4,
+                        Chip(
+                          label: Text(
+                              announcement.isActive ? 'Aktif' : 'Tidak Aktif'),
+                          avatar: Icon(
+                            announcement.isActive
+                                ? TIcons.toggleOn
+                                : TIcons.toggleOff,
+                            size: 18,
+                            color: announcement.isActive
+                                ? Colors.green
+                                : Colors.grey,
                           ),
+                          backgroundColor: announcement.isActive
+                              ? Colors.green.withValues(alpha: 0.08)
+                              : Colors.grey.withValues(alpha: 0.08),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
                       ],
                     ),
                     onTap: () {
-                      try {
-                        Log.info('Pengumuman ${announcement.id} diklik');
-                        // Navigasi atau aksi lainnya
-                      } catch (e, st) {
-                        Log.error('Error saat menangani klik pengumuman', e: e, st: st);
-                      }
+                      Log.info('Pengumuman ${announcement.id} diklik');
                     },
                   ),
                 );
               },
             );
-          }
+          },
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const ManageAnnouncementPage()),
+          );
         },
+        child: const Icon(TIcons.add),
       ),
     );
   }
