@@ -72,8 +72,6 @@ class _PackageActivationHistoryPageState
         );
 
         await _loadCustomerData(list);
-
-        // Log ringkasan setiap transaksi
         int paidCount = 0;
         int unpaidCount = 0;
         int endingTodayCount = 0;
@@ -92,17 +90,15 @@ class _PackageActivationHistoryPageState
               transaction.endDate!.day == now.day) {
             endingTodayCount++;
           }
-
           Log.info(
             'Transaksi ID: ${transaction.id} - Pelanggan ID: ${transaction.customerId ?? "N/A"}, Paket ID: ${transaction.packageId ?? "N/A"}, Status: ${transaction.paymentStatus.name}, Mulai: ${transaction.startDate != null ? FormatDate.formatDateBasic(transaction.startDate!) : "N/A"}, Berakhir: ${transaction.endDate != null ? FormatDate.formatDateBasic(transaction.endDate!) : "N/A"}',
           );
         }
-
         Log.info(
           'Ringkasan transaksi - Total: ${list.length}, Lunas: $paidCount, Belum Lunas: $unpaidCount, Berakhir Hari Ini: $endingTodayCount',
         );
 
-        _sortList(list, _activeSort);
+        sortList(list, _activeSort);
         return list;
       }).catchError((final Object error, final StackTrace st) {
         Log.error(
@@ -129,7 +125,7 @@ class _PackageActivationHistoryPageState
     }
   }
 
-  void _sortList(final List<TransactionModel> list, final SortOption option) {
+  void sortList(final List<TransactionModel> list, final SortOption option) {
     Log.info(
       'Mengurutkan ${list.length} data transaksi berdasarkan: ${option.name}',
     );
@@ -140,7 +136,6 @@ class _PackageActivationHistoryPageState
         comparator = (final a, final b) {
           final dateA = a.endDate;
           final dateB = b.endDate;
-          // Anggap null sebagai tanggal yang sangat jauh di masa depan
           if (dateA == null && dateB == null) return 0;
           if (dateA == null) return 1;
           if (dateB == null) return -1;
@@ -306,7 +301,7 @@ class _PackageActivationHistoryPageState
       final list = await _transactionListFuture;
       setState(() {
         _activeSort = selected;
-        _sortList(list, selected);
+        sortList(list, selected);
         _transactionListFuture = Future.value(list);
       });
       Log.info('Urutan berhasil diubah ke ${selected.name}');
