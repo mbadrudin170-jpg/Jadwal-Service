@@ -32,7 +32,7 @@ void main() {
     );
   });
 
-  group('CustomerOperation', () {
+  group('Pengujian CustomerOperation', () {
     final tCustomer = CustomerModel(
       id: '1',
       name: 'Test Customer',
@@ -42,7 +42,7 @@ void main() {
     );
     final tCustomerMap = tCustomer.toSqlite();
 
-    test('add should insert a new customer', () async {
+    test('1. add harus menyisipkan customer baru', () async {
       when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
 
       await customerOperation.add(tCustomer);
@@ -50,7 +50,7 @@ void main() {
       verify(mockBaseOperation.insert(any, any)).called(1);
     });
 
-    test('getAll should return a list of customers', () async {
+    test('2. getAll harus mengembalikan daftar customer', () async {
       when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
@@ -60,7 +60,7 @@ void main() {
       expect(result.first.id, tCustomer.id);
     });
 
-    test('getById should return a customer', () async {
+    test('3. getById harus mengembalikan seorang customer', () async {
       when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
@@ -70,7 +70,7 @@ void main() {
       expect(result?.id, tCustomer.id);
     });
 
-    test('updateCustomer should update an existing customer', () async {
+    test('4. updateCustomer harus memperbarui customer yang ada', () async {
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
       await customerOperation.updateCustomer(tCustomer);
@@ -78,7 +78,7 @@ void main() {
       verify(mockBaseOperation.update(any, any, any)).called(1);
     });
 
-    test('softDelete should soft delete a customer', () async {
+    test('5. softDelete harus melakukan soft delete pada customer', () async {
       when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
       await customerOperation.softDelete('1');

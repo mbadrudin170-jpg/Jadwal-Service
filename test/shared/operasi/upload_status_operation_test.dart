@@ -1,77 +1,129 @@
 // path: test/shared/operasi/upload_status_operation_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/upload_status_model.dart';
 import 'package:wifi/shared/operasi/upload_status_operation.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
 
-import 'base_operation_test.mocks.dart';
+import 'upload_status_operation_test.mocks.dart';
 
+@GenerateMocks([DatabaseHelper, Database])
 void main() {
+  late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
-  late BaseOperation<UploadStatusModel> baseOperation;
   late UploadStatusOperation uploadStatusOperation;
 
   setUp(() {
+    mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
-    baseOperation = BaseOperation<UploadStatusModel>(mockDatabase, 'upload_status');
-    uploadStatusOperation = UploadStatusOperation(baseOperation);
+    uploadStatusOperation = UploadStatusOperation(dbHelper: mockDbHelper);
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });
 
   group('UploadStatusOperation Tests', () {
     final tUploadStatus = UploadStatusModel(
-      id: '1',
-      tableName: 'customers',
-      lastUpload: DateTime.now(),
+      id: UploadStatusModel.idNeedUpload,
+      needUpload: true,
+      updatedAt: DateTime.now(),
     );
+    final tUploadStatusMap = tUploadStatus.toSqlite();
+    final tableName = TableNameValue.get(TableName.uploadStatus);
 
-    test('getUploadStatus should return a list of upload status', () async {
-      when(baseOperation.getAll()).thenAnswer((_) async => [tUploadStatus.toMap()]);
+    test('setNeedUpload should insert or replace the upload status', () async {
+      when(mockDatabase.insert(
+        any,
+        any,
+        conflictAlgorithm: anyNamed('conflictAlgorithm'),
+      )).thenAnswer((_) async => 1);
 
-      final result = await uploadStatusOperation.getUploadStatus();
+      await uploadStatusOperation.setNeedUpload(true);
 
-      expect(result, isA<List<UploadStatusModel>>());
-      expect(result.length, 1);
-      expect(result.first.id, tUploadStatus.id);
-      verify(baseOperation.getAll()).called(1);
+      verify(mockDatabase.insert(
+        tableName,
+        any, // We can be more specific here if needed
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      )).called(1);
     });
 
-    test('getUploadStatusById should return a single upload status', () async {
-      when(baseOperation.getById('1')).thenAnswer((_) async => tUploadStatus.toMap());
+    test('getNeedUpload should return true when data exists', () async {
+      when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [tUploadStatusMap]);
 
-      final result = await uploadStatusOperation.getUploadStatusById('1');
+      final result = await uploadStatusOperation.getNeedUpload();
+
+      expect(result, isTrue);
+      verify(mockDatabase.query(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [UploadStatusModel.idNeedUpload],
+      )).called(1);
+    });
+
+    test('getNeedUpload should return false when no data exists', () async {
+      when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => []); // Return empty list
+
+      final result = await uploadStatusOperation.getNeedUpload();
+
+      expect(result, isFalse);
+    });
+
+    test('resetNeedUpload should call setNeedUpload with false', () async {
+      // We can't easily verify a call to another method in the same class.
+      // Instead, we test the underlying database call that resetNeedUpload makes.
+      when(mockDatabase.insert(
+        any,
+        any,
+        conflictAlgorithm: anyNamed('conflictAlgorithm'),
+      )).thenAnswer((_) async => 1);
+
+      await uploadStatusOperation.resetNeedUpload();
+
+      final verification = verify(mockDatabase.insert(
+        tableName,
+        captureAny,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      ));
+      verification.called(1);
+
+      final captured = verification.captured.single as Map<String, dynamic>;
+      expect(captured['need_upload'], 0); // Check that needUpload is false (0)
+    });
+
+    test('getUploadStatusModel should return a model when data exists', () async {
+      when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [tUploadStatusMap]);
+
+      final result = await uploadStatusOperation.getUploadStatusModel();
 
       expect(result, isA<UploadStatusModel>());
       expect(result?.id, tUploadStatus.id);
-      verify(baseOperation.getById('1')).called(1);
+      expect(result?.needUpload, isTrue);
     });
 
-    test('insertUploadStatus should insert a new upload status', () async {
-      when(baseOperation.insert(any)).thenAnswer((_) async => 1);
+    test('getUploadStatusModel should return null when no data exists', () async {
+       when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => []);
 
-      final id = await uploadStatusOperation.insertUploadStatus(tUploadStatus);
+      final result = await uploadStatusOperation.getUploadStatusModel();
 
-      expect(id, 1);
-      verify(baseOperation.insert(any)).called(1);
-    });
-
-    test('updateUploadStatus should update an existing upload status', () async {
-      when(baseOperation.update(any, any)).thenAnswer((_) async => 1);
-
-      final result = await uploadStatusOperation.updateUploadStatus(tUploadStatus.id, tUploadStatus);
-
-      expect(result, 1);
-      verify(baseOperation.update(tUploadStatus.id, any)).called(1);
-    });
-
-    test('deleteUploadStatus should delete an upload status', () async {
-      when(baseOperation.delete(any)).thenAnswer((_) async => 1);
-
-      final result = await uploadStatusOperation.deleteUploadStatus('1');
-
-      expect(result, 1);
-      verify(baseOperation.delete('1')).called(1);
+      expect(result, isNull);
     });
   });
 }

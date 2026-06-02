@@ -1,22 +1,33 @@
 // path: test/shared/operasi/sub_category_operation_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sub_category_operation.dart';
 
-import 'base_operation_test.mocks.dart';
+import 'sub_category_operation_test.mocks.dart';
 
+@GenerateMocks([DatabaseHelper, BaseOperation, Database])
 void main() {
+  late MockDatabaseHelper mockDbHelper;
+  late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late BaseOperation<SubCategoryModel> baseOperation;
   late SubCategoryOperation subCategoryOperation;
 
   setUp(() {
+    mockDbHelper = MockDatabaseHelper();
+    mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
-    baseOperation = BaseOperation<SubCategoryModel>(mockDatabase, 'sub_categories');
-    subCategoryOperation = SubCategoryOperation(baseOperation);
+    subCategoryOperation = SubCategoryOperation(
+      dbHelper: mockDbHelper,
+      baseOperation: mockBaseOperation,
+    );
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });
 
   group('SubCategoryOperation Tests', () {
@@ -24,54 +35,97 @@ void main() {
       id: '1',
       categoryId: 'cat1',
       name: 'Salary',
+      updatedAt: DateTime.now(),
     );
+    final tSubCategoryMap = tSubCategory.toSqlite();
+    final tableName = TableNameValue.get(TableName.subCategory);
 
-    test('getSubCategories should return a list of sub-categories', () async {
-      when(baseOperation.getAll()).thenAnswer((_) async => [tSubCategory.toMap()]);
+    test(
+        'getSubCategoryByCategoryId should return a list of sub-categories from database',
+        () async {
+      when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [tSubCategoryMap]);
 
-      final result = await subCategoryOperation.getSubCategories();
+      final result =
+          await subCategoryOperation.getSubCategoryByCategoryId('cat1');
 
       expect(result, isA<List<SubCategoryModel>>());
       expect(result.length, 1);
       expect(result.first.id, tSubCategory.id);
-      verify(baseOperation.getAll()).called(1);
+      verify(mockDatabase.query(
+        tableName,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).called(1);
     });
 
-    test('getSubCategoryById should return a single sub-category', () async {
-      when(baseOperation.getById('1')).thenAnswer((_) async => tSubCategory.toMap());
+    test('getSubCategoryById should return a single sub-category from database',
+        () async {
+      when(mockDatabase.query(
+        any,
+        where: anyNamed('where'),
+        whereArgs: anyNamed('whereArgs'),
+      )).thenAnswer((_) async => [tSubCategoryMap]);
 
       final result = await subCategoryOperation.getSubCategoryById('1');
 
       expect(result, isA<SubCategoryModel>());
       expect(result?.id, tSubCategory.id);
-      verify(baseOperation.getById('1')).called(1);
+      verify(mockDatabase.query(
+        tableName,
+        where: 'id = ?',
+        whereArgs: ['1'],
+      )).called(1);
     });
 
-    test('insertSubCategory should insert a new sub-category', () async {
-      when(baseOperation.insert(any)).thenAnswer((_) async => 1);
+    test('createSubCategory should call insert on baseOperation', () {
+      when(mockBaseOperation.insert(any, any))
+          .thenAnswer((_) async => Future.value());
 
-      final id = await subCategoryOperation.insertSubCategory(tSubCategory);
+      subCategoryOperation.createSubCategory(tSubCategory);
 
-      expect(id, 1);
-      verify(baseOperation.insert(any)).called(1);
+      verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('updateSubCategory should update an existing sub-category', () async {
-      when(baseOperation.update(any, any)).thenAnswer((_) async => 1);
+    test('updateSubCategory should call update on baseOperation', () {
+      when(mockBaseOperation.update(any, any, any))
+          .thenAnswer((_) async => Future.value());
 
-      final result = await subCategoryOperation.updateSubCategory(tSubCategory.id, tSubCategory);
+      subCategoryOperation.updateSubCategory(tSubCategory);
 
-      expect(result, 1);
-      verify(baseOperation.update(tSubCategory.id, any)).called(1);
+      verify(mockBaseOperation.update(tableName, any, tSubCategory.id))
+          .called(1);
     });
 
-    test('deleteSubCategory should delete a sub-category', () async {
-      when(baseOperation.delete(any)).thenAnswer((_) async => 1);
+    test('delete should call delete on baseOperation', () {
+      when(mockBaseOperation.delete(any, any))
+          .thenAnswer((_) async => Future.value());
 
-      final result = await subCategoryOperation.deleteSubCategory('1');
+      subCategoryOperation.delete('1');
 
-      expect(result, 1);
-      verify(baseOperation.delete('1')).called(1);
+      verify(mockBaseOperation.delete(tableName, '1')).called(1);
+    });
+
+    test('softDelete should call softDelete on baseOperation', () {
+      when(mockBaseOperation.softDelete(any, any))
+          .thenAnswer((_) async => Future.value());
+
+      subCategoryOperation.softDelete('1');
+
+      verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
+    });
+
+    test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
+        () {
+      when(mockBaseOperation.insertOrUpdateBatch(any, any))
+          .thenAnswer((_) async => Future.value());
+
+      subCategoryOperation.insertOrUpdateBatch([tSubCategory]);
+
+      verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });
   });
 }
