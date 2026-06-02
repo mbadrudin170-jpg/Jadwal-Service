@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah paket.
@@ -59,7 +60,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         actions: [
           IconButton(
             onPressed: _editPackage,
-            icon: const Icon(Icons.edit),
+            icon: const Icon(TIcons.edit),
             tooltip: 'Edit Paket',
           ),
         ],
@@ -99,7 +100,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.stars, color: Colors.orange),
+                    const Icon(TIcons.points, color: Colors.orange),
                     gapH8,
                     Text(
                       'Sistem Poin',
