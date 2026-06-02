@@ -2,12 +2,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/category_operation.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 
 import 'category_operation_test.mocks.dart';
 
@@ -61,7 +61,8 @@ void main() {
     });
 
     test('getCategoryById should return a category', () async {
-      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+      when(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCategoryMap]);
 
       final result = await categoryOperation.getCategoryById('1');

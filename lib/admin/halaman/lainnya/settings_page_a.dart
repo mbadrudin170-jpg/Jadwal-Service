@@ -8,7 +8,7 @@ import 'package:wifi/admin/halaman/form/settings_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/settings_model.dart';
-import 'package:wifi/shared/operasi/settings_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';

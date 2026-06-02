@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
 
 final baseOperationProvider = Provider<BaseOperation>((ref) {
   Log.info('Membuat instance BaseOperation...');

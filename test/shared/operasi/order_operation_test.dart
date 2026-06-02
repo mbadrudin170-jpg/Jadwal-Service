@@ -8,8 +8,8 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/order_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 
 import 'order_operation_test.mocks.dart';
 

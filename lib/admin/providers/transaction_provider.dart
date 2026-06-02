@@ -1,11 +1,11 @@
 // path: lib/admin/providers/transaction_provider.dart
 
 import 'dart:async';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart'; // Impor enum SortBy
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 part 'transaction_provider.g.dart';
 
@@ -41,23 +41,21 @@ class TransactionState {
   }
 }
 
-// final transactionProvider =
-//     AsyncNotifierProvider<TransactionNotifier, TransactionState>(
-//   TransactionNotifier.new,
-// );
-
 @riverpod
 class Transaction extends _$Transaction {
-  TransactionOperation get _operation {
-    return ref.read(transactionOperationProvider);
-  }
+  // PERBAIKAN 1: Gunakan ref.watch agar reaktif dan aman sesuai standar resmi
+  TransactionOperation get _operation =>
+      ref.watch(transactionOperationProvider);
 
   @override
-  Future<TransactionState> build() {
-    return _loadData();
+  FutureOr<TransactionState> build() {
+    // Menentukan sorting default saat pertama kali build dijalankan
+    return _loadData(SortBy.newest);
   }
 
-  Future<TransactionState> _loadData() async {
+  // PERBAIKAN 2: Passing nilai sortBy ke dalam fungsi load data
+  // untuk menghindari pembacaan `state.value` yang tidak menentu saat async loading
+  Future<TransactionState> _loadData(SortBy targetSortBy) async {
     final results = await Future.wait([
       _operation.getAllTransactions(),
       _operation.getTotalIncome(),
@@ -66,27 +64,28 @@ class Transaction extends _$Transaction {
     ]);
 
     final transactions = results[0] as List<TransactionModel>;
-    final currentSortBy = state.value?.sortBy ?? SortBy.newest;
 
-    _performSort(transactions, currentSortBy);
+    // Jalankan sorting lokal sebelum state dilempar ke UI
+    _performSort(transactions, targetSortBy);
 
     return TransactionState(
       transactions: transactions,
       totalIncome: results[1] as double,
       totalExpense: results[2] as double,
       netTotal: results[3] as double,
-      sortBy: currentSortBy,
+      sortBy: targetSortBy,
     );
   }
 
   void sortTransactions(SortBy newSortBy) {
-    // PERBAIKAN: Gunakan `state.hasValue` dan `state.value`
     if (!state.hasValue) return;
     final currentState = state.value!;
 
+    // Jika tipe sorting-nya sama, tidak perlu memproses ulang data
+    if (currentState.sortBy == newSortBy) return;
+
     final List<TransactionModel> sortedTransactions =
         List.from(currentState.transactions);
-
     _performSort(sortedTransactions, newSortBy);
 
     state = AsyncValue.data(currentState.copyWith(
@@ -112,27 +111,35 @@ class Transaction extends _$Transaction {
     }
   }
 
+  // ==========================================================
+  // Fungsi Mutasi Data (Gunakan ref.read di dalam scope aksi ini aman)
+  // ==========================================================
+
   Future<void> addTransaction(TransactionModel transaction) async {
+    // Ambil sorting saat ini sebelum masuk state loading
+    final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.addTransaction(transaction);
-      return _loadData();
+      return _loadData(currentSort);
     });
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {
+    final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.updateTransaction(transaction.id, transaction);
-      return _loadData();
+      return _loadData(currentSort);
     });
   }
 
   Future<void> softDelete(String id) async {
+    final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDelete(id);
-      return _loadData();
+      return _loadData(currentSort);
     });
   }
 
@@ -140,12 +147,13 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDeleteAll();
-      return _loadData();
+      return _loadData(SortBy.newest); // Reset ke newest jika semua dihapus
     });
   }
 
   Future<void> refresh() async {
+    final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_loadData);
+    state = await AsyncValue.guard(() => _loadData(currentSort));
   }
 }

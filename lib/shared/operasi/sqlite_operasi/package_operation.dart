@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/package_operation.dart
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -9,18 +8,8 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
-final packageOperationProvider = Provider<PackageOperation>((ref) {
-  Log.info('Membuat instance FeedbackOperation...');
-  final dbHelper = ref.read(databaseHelperProvider);
-  final baseOperation = ref.read(baseOperationProvider);
-
-  return PackageOperation(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
-  );
-});
 
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PackageOperation {

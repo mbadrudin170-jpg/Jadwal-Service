@@ -63,7 +63,6 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
     final expiredService = ref.read(expiredSubscriptionCheckServiceProvider);
     await expiredService.processExpiredSubscriptions();
-
     await _sinkronisasiDataSaatOnline().timeout(const Duration(seconds: 5));
   }
 

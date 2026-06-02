@@ -14,7 +14,8 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sqflite/sqflite.dart' as _i7;
 import 'package:wifi/shared/model/upload_status_model.dart' as _i8;
-import 'package:wifi/shared/operasi/upload_status_operation.dart' as _i6;
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
+    as _i6;
 import 'package:wifi/shared/utils/sync_manager.dart' as _i9;
 
 // ignore_for_file: type=lint
@@ -658,7 +659,6 @@ class MockFirebaseFirestore extends _i1.Mock implements _i4.FirebaseFirestore {
 /// A class which mocks [CollectionReference].
 ///
 /// See the documentation for Mockito's code generation for more information.
-// ignore: must_be_immutable
 class MockCollectionReference<T extends Object?> extends _i1.Mock
     implements _i4.CollectionReference<T> {
   MockCollectionReference() {
@@ -1151,7 +1151,6 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
 /// A class which mocks [DocumentReference].
 ///
 /// See the documentation for Mockito's code generation for more information.
-// ignore: must_be_immutable
 class MockDocumentReference<T extends Object?> extends _i1.Mock
     implements _i4.DocumentReference<T> {
   MockDocumentReference() {

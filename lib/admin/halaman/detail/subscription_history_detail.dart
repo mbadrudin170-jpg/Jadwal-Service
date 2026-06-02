@@ -11,6 +11,7 @@ import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -91,6 +92,7 @@ class _SubscriptionHistoryDetailPageState
           'Form edit mengembalikan berhasil, memuat ulang detail transaksi.');
       if (mounted) {
         ToastUtil.success(context, 'Detail transaksi berhasil diperbarui.');
+        Navigator.pop(context, true);
       }
       _loadTransactionDetails();
     }

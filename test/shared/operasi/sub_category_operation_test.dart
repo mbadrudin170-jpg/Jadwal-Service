@@ -7,8 +7,8 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sub_category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 
 import 'sub_category_operation_test.mocks.dart';
 
@@ -82,8 +82,7 @@ void main() {
     });
 
     test('createSubCategory should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
 
       subCategoryOperation.createSubCategory(tSubCategory);
 
@@ -91,8 +90,7 @@ void main() {
     });
 
     test('updateSubCategory should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
 
       subCategoryOperation.updateSubCategory(tSubCategory);
 
@@ -101,8 +99,7 @@ void main() {
     });
 
     test('delete should call delete on baseOperation', () {
-      when(mockBaseOperation.delete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.delete(any, any)).thenReturn(Future.value());
 
       subCategoryOperation.delete('1');
 
@@ -110,8 +107,7 @@ void main() {
     });
 
     test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
 
       subCategoryOperation.softDelete('1');
 
@@ -121,7 +117,7 @@ void main() {
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
         () {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenReturn(Future.value());
 
       subCategoryOperation.insertOrUpdateBatch([tSubCategory]);
 

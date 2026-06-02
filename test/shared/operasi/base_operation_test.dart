@@ -7,8 +7,8 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
 
 import 'base_operation_test.mocks.dart';
 

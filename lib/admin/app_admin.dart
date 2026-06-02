@@ -12,8 +12,8 @@ import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
@@ -95,7 +95,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         // Jalankan unduhan awal hanya jika perangkat online
         final initialDownloadService = ref.read(initialDownloadServiceProvider);
         try {
-          // Menambahkan batas waktu (timeout) 30 detik agar inisialisasi tidak macet
           await initialDownloadService.runInitialDownload().timeout(
                 const Duration(seconds: 30),
               );
@@ -111,7 +110,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation
             .deleteAllExpiredArchivedData(retentionDays: retentionDays)
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 5));
       } else {
         Log.warning('Melewati proses pembersihan data karena sedang offline.');
       }

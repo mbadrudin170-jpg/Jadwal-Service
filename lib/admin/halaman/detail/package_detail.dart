@@ -1,22 +1,14 @@
 // path: lib/admin/halaman/detail/package_detail.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - lib/admin/halaman/lainnya/package.dart
-//   - lib/admin/halaman/detail/subscription_history_detail.dart (DetailLanggananTransaksiPage)
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/admin/halaman/form/package_form.dart (PackageForm)
-//   - lib/shared/model/package_model.dart (PackageModel)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah paket.
-class PackageDetailPage extends StatefulWidget {
+class PackageDetailPage extends ConsumerStatefulWidget {
   /// Model paket yang akan ditampilkan.
   final PackageModel package;
 
@@ -27,10 +19,10 @@ class PackageDetailPage extends StatefulWidget {
   });
 
   @override
-  State<PackageDetailPage> createState() => _PackageDetailPageState();
+  ConsumerState<PackageDetailPage> createState() => _PackageDetailPageState();
 }
 
-class _PackageDetailPageState extends State<PackageDetailPage> {
+class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   late PackageModel _package;
 
   @override
@@ -91,7 +83,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                 Row(
                   children: [
                     const Icon(Icons.inventory_2, color: Colors.blueAccent),
-gapH8,                    Text(
+                    gapH8,
+                    Text(
                       'Informasi Layanan',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -99,10 +92,11 @@ gapH8,                    Text(
                     ),
                   ],
                 ),
-gapH20,                _buildDetailRow('Nama Paket', _package.name),
+                gapH20,
+                _buildDetailRow('Nama Paket', _package.name),
                 _buildDetailRow('Harga Sewa', 'Rp ${_package.price}'),
-                _buildDetailRow(
-                    'Masa Aktif', '${_package.duration} ${_package.type.displayName}'),
+                _buildDetailRow('Masa Aktif',
+                    '${_package.duration} ${_package.type.displayName}'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -110,7 +104,8 @@ gapH20,                _buildDetailRow('Nama Paket', _package.name),
                 Row(
                   children: [
                     const Icon(Icons.stars, color: Colors.orange),
-gapH8,                    Text(
+                    gapH8,
+                    Text(
                       'Sistem Poin',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -118,7 +113,8 @@ gapH8,                    Text(
                     ),
                   ],
                 ),
-gapH12,                _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
+                gapH12,
+                _buildDetailRow('Poin Hadiah', '${_package.rewardPoints} Poin',
                     subTitle: 'Didapat saat beli paket'),
                 _buildDetailRow(
                     'Poin Penukaran', '${_package.redemptionPoints} Poin',

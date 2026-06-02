@@ -8,8 +8,10 @@ import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -22,6 +24,18 @@ enum SortOption {
 
   /// Urutkan berdasarkan nama dari Z hingga A.
   nameZA,
+
+  /// Urutkan berdasarkan aktivitas terakhir (terbaru dulu).
+  lastActiveNewest,
+
+  /// Urutkan berdasarkan aktivitas terakhir (terlama dulu).
+  lastActiveOldest,
+
+  /// Urutkan berdasarkan poin (tertinggi dulu).
+  pointsHighest,
+
+  /// Urutkan berdasarkan poin (terendah dulu).
+  pointsLowest,
 }
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
@@ -126,10 +140,18 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
               );
               Navigator.pop(context, value);
             },
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                color: isSelected ? TColors.pointBackground : null,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
             ),
           );
@@ -140,6 +162,10 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
           children: <Widget>[
             buildOption('Nama (A-Z)', SortOption.nameAZ),
             buildOption('Nama (Z-A)', SortOption.nameZA),
+            buildOption('Aktivitas Terakhir (Terbaru)', SortOption.lastActiveNewest),
+            buildOption('Aktivitas Terakhir (Terlama)', SortOption.lastActiveOldest),
+            buildOption('Poin (Tertinggi)', SortOption.pointsHighest),
+            buildOption('Poin (Terendah)', SortOption.pointsLowest),
           ],
         );
       },
@@ -166,6 +192,34 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
             (final a, final b) =>
                 b.name.toLowerCase().compareTo(a.name.toLowerCase()),
           );
+          break;
+        case SortOption.lastActiveNewest:
+          _filteredCustomers.sort((final a, final b) {
+            if (a.lastActiveAt == null) return 1;
+            if (b.lastActiveAt == null) return -1;
+            return b.lastActiveAt!.compareTo(a.lastActiveAt!);
+          });
+          break;
+        case SortOption.lastActiveOldest:
+          _filteredCustomers.sort((final a, final b) {
+            if (a.lastActiveAt == null) return -1;
+            if (b.lastActiveAt == null) return 1;
+            return a.lastActiveAt!.compareTo(b.lastActiveAt!);
+          });
+          break;
+        case SortOption.pointsHighest:
+          _filteredCustomers.sort((final a, final b) {
+            final pointsA = _customerPoints[a.id] ?? 0;
+            final pointsB = _customerPoints[b.id] ?? 0;
+            return pointsB.compareTo(pointsA);
+          });
+          break;
+        case SortOption.pointsLowest:
+          _filteredCustomers.sort((final a, final b) {
+            final pointsA = _customerPoints[a.id] ?? 0;
+            final pointsB = _customerPoints[b.id] ?? 0;
+            return pointsA.compareTo(pointsB);
+          });
           break;
       }
     });

@@ -8,8 +8,8 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 
 import 'package_operation_test.mocks.dart';
 
@@ -38,7 +38,6 @@ void main() {
       price: 150000,
       duration: 30,
       type: DurationType.days,
-      isPublic: true,
       updatedAt: DateTime.now(),
     );
     final tPackageMap = tPackage.toSqlite();
@@ -74,8 +73,7 @@ void main() {
     });
 
     test('add should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
 
       packageOperation.add(tPackage);
 
@@ -83,8 +81,7 @@ void main() {
     });
 
     test('update should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
 
       packageOperation.update(tPackage);
 
@@ -92,8 +89,7 @@ void main() {
     });
 
     test('delete should call delete on baseOperation', () {
-      when(mockBaseOperation.delete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.delete(any, any)).thenReturn(Future.value());
 
       packageOperation.delete('1');
 
@@ -101,8 +97,7 @@ void main() {
     });
 
     test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
 
       packageOperation.softDelete('1');
 
@@ -112,7 +107,7 @@ void main() {
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
         () {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenReturn(Future.value());
 
       packageOperation.insertOrUpdateBatch([tPackage]);
 

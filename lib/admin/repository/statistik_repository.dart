@@ -13,10 +13,11 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/feedback_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');

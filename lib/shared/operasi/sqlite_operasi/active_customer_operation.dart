@@ -4,10 +4,8 @@
 // diubah: Mengganti nama class dari PelangganAktifOperasi menjadi ActiveCustomerOperation.
 // diubah: Menggunakan BaseOperation dan ActiveCustomerModel.
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -15,29 +13,12 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 /// Konstanta untuk generate UUID.
 const uuid = Uuid();
-
-final activeCustomerOperationProvider =
-    Provider<ActiveCustomerOperation>((ref) {
-  Log.info('Membuat instance ActiveCustomerOperation...');
-  final dbHelper = ref.read(databaseHelperProvider);
-  final baseOperation = ref.read(baseOperationProvider);
-  final customerOperation =
-      ref.read(customerOperationProvider); // pastikan provider ini ada
-  final notifikasiServis =
-      ref.read(notifikasiServisProvider); // sudah ada di app_providers.dart
-  return ActiveCustomerOperation(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
-    customerOperation: customerOperation,
-    notifikasiServis: notifikasiServis,
-  );
-});
 
 /// Kelas untuk operasi terkait data pelanggan aktif di database lokal.
 class ActiveCustomerOperation {

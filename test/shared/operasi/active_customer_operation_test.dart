@@ -7,9 +7,9 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 import 'active_customer_operation_test.mocks.dart';

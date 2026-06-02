@@ -7,8 +7,8 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/wallet_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
 
 import 'wallet_operation_test.mocks.dart';
 
@@ -55,8 +55,7 @@ void main() {
     });
 
     test('createWallet should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
 
       walletOperation.createWallet(tWallet);
 
@@ -64,8 +63,7 @@ void main() {
     });
 
     test('updateWallet should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
 
       walletOperation.updateWallet(tWallet);
 
@@ -73,8 +71,7 @@ void main() {
     });
 
     test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
 
       walletOperation.softDelete('1');
 
@@ -99,7 +96,7 @@ void main() {
     test(
         'insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation', () {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenReturn(Future.value());
 
       walletOperation.insertOrUpdateBatch([tWallet]);
 

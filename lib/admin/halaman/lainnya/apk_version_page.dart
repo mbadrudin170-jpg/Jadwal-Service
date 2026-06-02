@@ -12,7 +12,8 @@ import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/operasi/apk_version_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan kriteria pengurutan daftar versi APK.

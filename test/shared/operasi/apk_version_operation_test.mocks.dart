@@ -10,8 +10,9 @@ import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
 import 'package:wifi/shared/model/upload_status_model.dart' as _i8;
-import 'package:wifi/shared/operasi/base_operation.dart' as _i6;
-import 'package:wifi/shared/operasi/upload_status_operation.dart' as _i7;
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i6;
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
+    as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

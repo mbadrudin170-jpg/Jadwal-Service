@@ -5,9 +5,9 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/operasi/apk_version_operation.dart';
-import 'package:wifi/shared/operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
 
 import 'apk_version_operation_test.mocks.dart';
 

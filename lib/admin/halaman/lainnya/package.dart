@@ -7,42 +7,23 @@ import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 
-/// Enum untuk menentukan kriteria pengurutan daftar paket.
 enum UrutanPaket {
-  /// Urutkan berdasarkan nama paket dari A hingga Z.
   namaAZ,
-
-  /// Urutkan berdasarkan nama paket dari Z hingga A.
   namaZA,
-
-  /// Urutkan berdasarkan harga paket dari yang tertinggi ke terendah.
   hargaTertinggi,
-
-  /// Urutkan berdasarkan harga paket dari yang terendah ke tertinggi.
   hargaTerendah,
-
-  /// Urutkan berdasarkan perolehan poin dari yang tertinggi ke terendah.
   poinTertinggi,
-
-  /// Urutkan berdasarkan perolehan poin dari yang terendah ke tertinggi.
   poinTerendah,
-
-  /// Urutkan berdasarkan durasi paket dari yang terlama ke terpendek.
   durasiTerlama,
-
-  /// Urutkan berdasarkan durasi paket dari yang terpendek ke terlama.
   durasiTerpendek,
 }
 
-/// Halaman untuk mengelola daftar paket internet.
-///
-/// Dari halaman ini, admin dapat melihat, menambah, mengubah,
-/// menghapus, dan mengurutkan daftar paket yang ditawarkan.
 class PackagePage extends ConsumerStatefulWidget {
-  /// Membuat instance dari [PackagePage].
   const PackagePage({super.key});
 
   @override
@@ -50,15 +31,14 @@ class PackagePage extends ConsumerStatefulWidget {
 }
 
 class _PackagePageState extends ConsumerState<PackagePage> {
- late final PackageOperation _paketOperasi;
+  late final PackageOperation _paketOperasi;
   late Future<List<PackageModel>> _paketFuture;
-  // diubah: Variabel untuk menyimpan status pengurutan saat ini, defaultnya durasi terpendek.
   UrutanPaket _urutanSaatIni = UrutanPaket.durasiTerpendek;
 
   @override
   void initState() {
     super.initState();
-     _paketOperasi = ref.read(packageOperationProvider);
+    _paketOperasi = ref.read(packageOperationProvider);
     Log.info('Menginisialisasi halaman Paket');
     _refreshPaketList();
   }
@@ -70,7 +50,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
     });
   }
 
-  // ditambah: Fungsi untuk mengubah semua durasi menjadi menit untuk perbandingan.
   int _getDurationInMinutes(final PackageModel paket) {
     switch (paket.type) {
       case DurationType.minutes:
@@ -80,75 +59,46 @@ class _PackagePageState extends ConsumerState<PackagePage> {
       case DurationType.days:
         return paket.duration * 24 * 60;
       case DurationType.months:
-        return paket.duration * 30 * 24 * 60; // Asumsi 30 hari/bulan
+        return paket.duration * 30 * 24 * 60;
     }
   }
 
-  // ditambah: Fungsi untuk menampilkan dialog pilihan pengurutan.
   Future<void> _tampilkanDialogUrutkan() async {
     Log.info('Menampilkan dialog urutkan');
     final UrutanPaket? hasil = await showDialog<UrutanPaket>(
       context: context,
       builder: (final context) {
+        Widget buildOption(final String text, final UrutanPaket value) {
+          final isSelected = _urutanSaatIni == value;
+
+          return SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context, value);
+              Log.info('Mengurutkan berdasarkan: $text');
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  vertical: TSizes.p8, horizontal: TSizes.p4),
+              decoration: BoxDecoration(
+                color: isSelected ? TColors.pointBackground : null,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(text, textAlign: TextAlign.center),
+            ),
+          );
+        }
+
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: [
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.durasiTerpendek);
-                Log.info('Mengurutkan berdasarkan: Durasi (Terpendek)');
-              },
-              child: const Text('Durasi (Terpendek)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.durasiTerlama);
-                Log.info('Mengurutkan berdasarkan: Durasi (Terlama)');
-              },
-              child: const Text('Durasi (Terlama)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.namaAZ);
-                Log.info('Mengurutkan berdasarkan: Nama (A-Z)');
-              },
-              child: const Text('Nama (A-Z)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.namaZA);
-                Log.info('Mengurutkan berdasarkan: Nama (Z-A)');
-              },
-              child: const Text('Nama (Z-A)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.hargaTertinggi);
-                Log.info('Mengurutkan berdasarkan: Harga (Tertinggi)');
-              },
-              child: const Text('Harga (Tertinggi)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.hargaTerendah);
-                Log.info('Mengurutkan berdasarkan: Harga (Terendah)');
-              },
-              child: const Text('Harga (Terendah)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.poinTertinggi);
-                Log.info('Mengurutkan berdasarkan: Poin (Tertinggi)');
-              },
-              child: const Text('Poin (Tertinggi)'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, UrutanPaket.poinTerendah);
-                Log.info('Mengurutkan berdasarkan: Poin (Terendah)');
-              },
-              child: const Text('Poin (Terendah)'),
-            ),
+            buildOption('Durasi (Terpendek)', UrutanPaket.durasiTerpendek),
+            buildOption('Durasi (Terlama)', UrutanPaket.durasiTerlama),
+            buildOption('Nama (A-Z)', UrutanPaket.namaAZ),
+            buildOption('Nama (Z-A)', UrutanPaket.namaZA),
+            buildOption('Harga (Tertinggi)', UrutanPaket.hargaTertinggi),
+            buildOption('Harga (Terendah)', UrutanPaket.hargaTerendah),
+            buildOption('Poin (Tertinggi)', UrutanPaket.poinTertinggi),
+            buildOption('Poin (Terendah)', UrutanPaket.poinTerendah),
           ],
         );
       },
@@ -332,7 +282,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
       appBar: AppBar(
         title: const Text('Daftar Paket'),
         actions: [
-          // diubah: IconButton untuk menampilkan dialog pengurutan.
           IconButton(
             onPressed: _tampilkanDialogUrutkan,
             icon: const Icon(Icons.sort),
@@ -366,7 +315,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
 
           final paketList = List<PackageModel>.from(snapshot.data!);
 
-          // ditambah: Logika untuk mengurutkan daftar paket berdasarkan _urutanSaatIni
           switch (_urutanSaatIni) {
             case UrutanPaket.namaAZ:
               paketList.sort(
@@ -386,7 +334,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
             case UrutanPaket.hargaTerendah:
               paketList.sort((final a, final b) => a.price.compareTo(b.price));
               break;
-            // diubah: Menggunakan rewardPoints untuk pengurutan
             case UrutanPaket.poinTertinggi:
               paketList.sort(
                 (final a, final b) => b.rewardPoints.compareTo(a.rewardPoints),
@@ -397,7 +344,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
                 (final a, final b) => a.rewardPoints.compareTo(b.rewardPoints),
               );
               break;
-            // ditambah: Logika pengurutan berdasarkan durasi.
             case UrutanPaket.durasiTerpendek:
               paketList.sort(
                 (final a, final b) => _getDurationInMinutes(a)
@@ -457,7 +403,6 @@ class _PackagePageState extends ConsumerState<PackagePage> {
                     subtitle: Text(
                       'Rp ${paket.price} / ${paket.duration} ${paket.type.displayName}',
                     ),
-                    // diubah: Menampilkan rewardPoints di trailing
                     trailing: Text('Poin: ${paket.rewardPoints}'),
                   ),
                 ),

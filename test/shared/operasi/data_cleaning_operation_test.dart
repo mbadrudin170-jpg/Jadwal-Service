@@ -9,7 +9,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 
 import 'data_cleaning_operation_test.mocks.dart';
 

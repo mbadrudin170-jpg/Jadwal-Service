@@ -23,8 +23,10 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
   /// Menambah atau memperbarui data pelanggan aktif.
   /// Fungsi ini menggunakan ID pelanggan sebagai ID dokumen untuk memastikan
   /// setiap pelanggan hanya memiliki satu entri di koleksi active_customers.
-  Future<void> setActiveCustomer(final ActiveCustomerModel activeCustomer) async {
-    Log.info('Menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
+  Future<void> setActiveCustomer(
+      final ActiveCustomerModel activeCustomer) async {
+    Log.info(
+        'Menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
     try {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
       await insert(
@@ -53,7 +55,8 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
       final doc = await _collection.doc(customerId).get();
 
       if (!doc.exists) {
-        Log.warning('Tidak ada data pelanggan aktif ditemukan untuk ID: $customerId');
+        Log.warning(
+            'Tidak ada data pelanggan aktif ditemukan untuk ID: $customerId');
         return null;
       }
 

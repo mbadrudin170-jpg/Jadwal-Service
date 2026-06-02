@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/data/services/new_data_check_service.dart';
-import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'new_data_check_service_test.mocks.dart';

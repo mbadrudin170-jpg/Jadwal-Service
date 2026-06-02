@@ -1,6 +1,7 @@
 // path: test/admin/halaman/lainnya/package_activation_history_test.dart
 
-// ignore_for_file: unused_local_variable
+/// nanti di benarkan lain
+// ignore_for_file: unused_import, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,13 +12,13 @@ import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/customer_model.dart'; 
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/transaction_operation.dart';
-// ignore: unused_import
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package_activation_history_test.mocks.dart';
 
