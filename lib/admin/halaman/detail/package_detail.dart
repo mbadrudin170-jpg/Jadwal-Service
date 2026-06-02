@@ -56,10 +56,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_package.name),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         actions: [
           IconButton(
             onPressed: _editPackage,
