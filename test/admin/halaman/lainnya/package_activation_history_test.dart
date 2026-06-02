@@ -33,11 +33,12 @@ void main() {
       id: 't1',
       customerId: 'c1',
       packageId: 'p1',
-      date: DateTime(2023, 1, 1),
+      date: DateTime(2023),
       description: 'Aktivasi Paket A',
       amount: 100000,
       type: TransactionType.income,
       walletId: 'w1',
+      paymentStatus: PaymentStatus.paid,
       categoryId: 'cat1',
     );
 
@@ -47,7 +48,6 @@ void main() {
       packageId: 'p2',
       date: DateTime(2023, 1, 5),
       endDate: DateTime(2023, 1, 25), // diubah agar urutan awal berbeda
-      paymentStatus: PaymentStatus.unpaid,
       description: 'Aktivasi Paket B',
       amount: 50000,
       type: TransactionType.income,
@@ -210,7 +210,7 @@ void main() {
       // Arrange
       const errorMessage = 'Gagal memuat';
       when(mockTransactionOperation.getTransactionsByPackageActivation())
-          .thenThrow(Exception(errorMessage));
+          .thenAnswer((_) async => throw Exception(errorMessage));
 
       // Act
       await tester.pumpWidget(createTestWidget());
@@ -259,9 +259,9 @@ void main() {
       id: 't1',
       customerId: 'c1', // Alice
       packageId: 'p1',
-      date: DateTime(2023, 1, 1),
-      updatedAt: DateTime(2023, 1, 1),
-      endDate: DateTime(2023, 2, 1), // Paling lama
+      date: DateTime(2023),
+      updatedAt: DateTime(2023),
+      endDate: DateTime(2023, 2), // Paling lama
       paymentStatus: PaymentStatus.paid,
       description: 'Oldest',
       amount: 100000,
@@ -277,7 +277,6 @@ void main() {
       date: DateTime(2023, 1, 5),
       updatedAt: DateTime(2023, 1, 5),
       endDate: DateTime(2023, 2, 15), // Tengah
-      paymentStatus: PaymentStatus.unpaid,
       description: 'Mid',
       amount: 50000,
       type: TransactionType.income,
@@ -338,7 +337,7 @@ void main() {
 
     test('harus menggunakan Terbaru sebagai urutan default', () {
       // Act
-      _sortList(transactions, SortOption.defaultOrder, customerMap);
+      _sortList(transactions, SortOption.newest, customerMap);
 
       // Assert
       // Urutan yang diharapkan: Paling baru, tengah, paling lama
@@ -354,15 +353,6 @@ void main() {
       expect(transactions.map((t) => t.id).toList(), ['t1', 't2', 't3']);
     });
   });
-}
-
-// Enum ini diperlukan untuk pengujian logika pengurutan secara terpisah
-enum SortOption {
-  defaultOrder,
-  nameAZ,
-  nameZA,
-  newest,
-  oldest,
 }
 
 // Fungsi ini adalah replika dari logika _sortList di dalam widget
@@ -387,9 +377,29 @@ void _sortList(
     case SortOption.oldest:
       list.sort((a, b) => a.endDate!.compareTo(b.endDate!));
       break;
-    case SortOption.defaultOrder:
-      // Urutan default adalah berdasarkan tanggal berakhir terbaru
+    case SortOption.endDate:
       list.sort((a, b) => b.endDate!.compareTo(a.endDate!));
+      break;
+    case SortOption.endingToday:
+      final now = DateTime.now();
+      list.sort((a, b) {
+        final aIsToday = a.endDate?.day == now.day &&
+            a.endDate?.month == now.month &&
+            a.endDate?.year == now.year;
+        final bIsToday = b.endDate?.day == now.day &&
+            b.endDate?.month == now.month &&
+            b.endDate?.year == now.year;
+        if (aIsToday == bIsToday) return 0;
+        return aIsToday ? -1 : 1;
+      });
+      break;
+    case SortOption.paid:
+      list.sort((a, b) => (a.paymentStatus == PaymentStatus.paid ? 0 : 1)
+          .compareTo(b.paymentStatus == PaymentStatus.paid ? 0 : 1));
+      break;
+    case SortOption.unpaid:
+      list.sort((a, b) => (a.paymentStatus == PaymentStatus.unpaid ? 0 : 1)
+          .compareTo(b.paymentStatus == PaymentStatus.unpaid ? 0 : 1));
       break;
   }
 }
