@@ -49,58 +49,22 @@ class _PackageFormState extends ConsumerState<PackageForm> {
   @override
   void initState() {
     super.initState();
-    Log.info('LIFECYCLE: initState() - Halaman PackageForm');
-
-    Log.info(
-      'Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}, '
-      '${_isEditMode ? "ID: ${widget.package!.id}, Nama: ${widget.package!.name}, Harga: ${widget.package!.price}, Durasi: ${widget.package!.duration} ${widget.package!.type.name}" : ""}',
-    );
-    Log.info(
-      'Menginisialisasi PackageOperation. '
-      'Menggunakan instance dari widget jika tersedia, jika tidak membuat instance baru.',
-    );
     _packageOperation = ref.read(packageOperationProvider);
-    Log.info('PackageOperation berhasil diinisialisasi. '
-        'Instance: ${_packageOperation.hashCode}, ');
 
     if (_isEditMode) {
-      Log.info(
-          'Mengisi TextEditingController dengan data dari paket yang diedit.');
       _nameController.text = widget.package!.name;
-      Log.info('  - _nameController.text = "${widget.package!.name}"');
-
       _priceController.text = widget.package!.price.toString();
-      Log.info('  - _priceController.text = "${widget.package!.price}"');
-
       _durationController.text = widget.package!.duration.toString();
-      Log.info('  - _durationController.text = "${widget.package!.duration}"');
-
       _rewardPointsController.text = widget.package!.rewardPoints.toString();
-      Log.info(
-          '  - _rewardPointsController.text = "${widget.package!.rewardPoints}"');
-
       _redemptionPointsController.text =
           widget.package!.redemptionPoints.toString();
-      Log.info(
-          '  - _redemptionPointsController.text = "${widget.package!.redemptionPoints}"');
-
       _selectedType = widget.package!.type;
-      Log.info('  - _selectedType = ${widget.package!.type.name}');
-
       _isPublic = widget.package!.isPublic;
-      Log.info('  - _isPublic = ${widget.package!.isPublic}');
-    } else {}
-
-    Log.info(
-        'Inisialisasi PackageForm selesai. Semua controller siap menerima input.');
+    }
   }
 
   Future<void> _saveForm() async {
-    Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
-
-    Log.info('Memvalidasi form...');
     if (_formKey.currentState!.validate()) {
-      Log.info('Membuat objek PackageModel baru dari data form.');
       final newPackage = PackageModel(
           id: _isEditMode ? widget.package!.id : null,
           name: _nameController.text,
@@ -114,54 +78,26 @@ class _PackageFormState extends ConsumerState<PackageForm> {
 
       try {
         if (_isEditMode) {
-          Log.info(
-              'Memanggil _packageOperation.updatePackage() untuk menyimpan perubahan ke database.');
           await _packageOperation.update(newPackage);
-          Log.info(
-              'Update paket BERHASIL. Data paket telah diperbarui di database.');
         } else {
-          Log.info('PROSES TAMBAH PAKET BARU (MODE TAMBAH)');
-
-          Log.info(
-              'Memanggil _packageOperation.createPackage() untuk menyimpan paket baru ke database.');
           await _packageOperation.add(newPackage);
-          Log.info('Paket baru BERHASIL disimpan ke database.');
         }
 
         if (!mounted) {
-          Log.warning(
-              'Widget sudah tidak mounted setelah operasi database berhasil. Tidak dapat menampilkan Toast atau melakukan Navigator.pop.');
           return;
         }
-
-        Log.info('PENYIMPANAN DATA PAKET BERHASIL');
 
         ToastUtil.success(
           context,
           'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
         );
-        Log.info('Toast sukses telah ditampilkan.');
-
-        Log.info(
-            'Melakukan Navigator.pop(context, true) untuk kembali ke halaman sebelumnya.');
-        Log.info(
-            'Nilai result true dikirim untuk memberitahu halaman sebelumnya bahwa ada perubahan data.');
         Navigator.pop(context, true);
-        Log.info('Navigator.pop berhasil dijalankan.');
       } on DatabaseException catch (e, s) {
-        Log.info('========================================');
-        Log.info('ERROR DATABASE TERDETEKSI');
-        Log.info('========================================');
-
         String errorMessage =
             'Gagal menyimpan paket. Terjadi kesalahan database.';
-        Log.warning('Terjadi DatabaseException saat menyimpan paket.');
-        Log.warning('Detail exception: ${e.toString()}');
 
         if (e.isUniqueConstraintError()) {
           errorMessage = 'Nama paket sudah ada. Harap gunakan nama lain.';
-          Log.warning(
-              'Penyebab: UNIQUE CONSTRAINT VIOLATION. Nama paket "${_nameController.text}" sudah ada di database. Pengguna harus menggunakan nama yang berbeda.');
         } else {
           Log.error(
               'DatabaseException tidak dikenal saat menyimpan paket. Kemungkinan penyebab: constraint violation lain, database corrupt, atau kesalahan struktur tabel.',
@@ -170,15 +106,9 @@ class _PackageFormState extends ConsumerState<PackageForm> {
         }
 
         if (!mounted) {
-          Log.warning(
-              'Widget sudah tidak mounted setelah DatabaseException. Tidak dapat menampilkan Toast error.');
           return;
         }
-
-        Log.info(
-            'Menampilkan Toast error ke pengguna dengan pesan: "$errorMessage"');
         ToastUtil.error(context, errorMessage);
-        Log.info('Toast error telah ditampilkan.');
       } on Exception catch (e, s) {
         Log.error(
             'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_isEditMode ? "update" : "create"} paket.',
@@ -186,46 +116,21 @@ class _PackageFormState extends ConsumerState<PackageForm> {
             st: s);
 
         if (!mounted) {
-          Log.warning(
-              'Widget sudah tidak mounted setelah Unknown Error. Tidak dapat menampilkan Toast error.');
           return;
         }
-
-        Log.info('Menampilkan Toast error umum ke pengguna.');
         ToastUtil.error(context, 'Terjadi kesalahan: $e');
-        Log.info('Toast error telah ditampilkan.');
       }
-    } else {
-      Log.warning('Kemungkinan penyebab:');
-      Log.warning('  - Nama paket kosong');
-      Log.warning('  - Harga kosong atau bukan angka');
-      Log.warning('  - Durasi kosong atau bukan angka');
-      Log.warning('  - Poin hadiah bukan angka');
-      Log.warning('  - Poin penukaran bukan angka');
-      Log.info('Form tidak akan disimpan sampai semua input valid.');
     }
   }
 
   @override
   Widget build(final BuildContext context) {
-    Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
-    Log.info('Data form saat ini:');
-    Log.info('  - Nama: "${_nameController.text}"');
-    Log.info('  - Harga: "${_priceController.text}"');
-    Log.info('  - Durasi: "${_durationController.text}"');
-    Log.info('  - Tipe Durasi: ${_selectedType.name}');
-    Log.info('  - Poin Hadiah: "${_rewardPointsController.text}"');
-    Log.info('  - Poin Penukaran: "${_redemptionPointsController.text}"');
-    Log.info('  - isPublic: $_isPublic');
-
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditMode ? 'Edit Paket' : 'Tambah Paket'),
         leading: IconButton(
           icon: const Icon(TIcons.back),
           onPressed: () {
-            Log.info(
-                'NAVIGASI: Tombol Kembali ditekan. Kembali ke halaman sebelumnya dengan result false (tidak ada perubahan).');
             Navigator.pop(context, false);
           },
         ),
@@ -242,18 +147,10 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   focusNode: _nameFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Nama Paket'),
-                  onChanged: (final value) {
-                    Log.info(
-                        'INPUT: Nama paket berubah menjadi: "$value" (panjang: ${value.length} karakter)');
-                  },
                   validator: (final value) {
-                    Log.info(
-                        'VALIDASI: Memvalidasi input nama paket. Nilai: "${value ?? "NULL"}"');
                     if (value == null || value.isEmpty) {
-                      Log.warning('VALIDASI GAGAL: Nama paket kosong.');
                       return 'Nama paket tidak boleh kosong';
                     }
-                    Log.info('VALIDASI BERHASIL: Nama paket valid.');
                     return null;
                   },
                   onFieldSubmitted: (final _) {
@@ -271,24 +168,13 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                     FilteringTextInputFormatter.digitsOnly,
                     ThousandsAndNegativeInputFormatter(),
                   ],
-                  onChanged: (final value) {
-                    Log.info(
-                        'INPUT: Harga berubah menjadi: "$value" (panjang: ${value.length} karakter)');
-                  },
                   validator: (final value) {
-                    Log.info(
-                        'VALIDASI: Memvalidasi input harga. Nilai: "${value ?? "NULL"}"');
                     if (value == null || value.isEmpty) {
-                      Log.warning('VALIDASI GAGAL: Harga kosong.');
                       return 'Harga tidak boleh kosong';
                     }
                     if (int.tryParse(value.replaceAll('.', '')) == null) {
-                      Log.warning(
-                          'VALIDASI GAGAL: Harga bukan angka yang valid. Nilai: "$value"');
                       return 'Harga harus berupa angka';
                     }
-                    Log.info(
-                        'VALIDASI BERHASIL: Harga valid = ${int.parse(value.replaceAll('.', ''))}');
                     return null;
                   },
                   onFieldSubmitted: (final _) {
@@ -302,24 +188,13 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Durasi'),
                   keyboardType: TextInputType.number,
-                  onChanged: (final value) {
-                    Log.info(
-                        'INPUT: Durasi berubah menjadi: "$value" (panjang: ${value.length} karakter)');
-                  },
                   validator: (final value) {
-                    Log.info(
-                        'VALIDASI: Memvalidasi input durasi. Nilai: "${value ?? "NULL"}"');
                     if (value == null || value.isEmpty) {
-                      Log.warning('VALIDASI GAGAL: Durasi kosong.');
                       return 'Durasi tidak boleh kosong';
                     }
                     if (int.tryParse(value) == null) {
-                      Log.warning(
-                          'VALIDASI GAGAL: Durasi bukan angka yang valid. Nilai: "$value"');
                       return 'Durasi harus berupa angka';
                     }
-                    Log.info(
-                        'VALIDASI BERHASIL: Durasi valid = ${int.parse(value)}');
                     return null;
                   },
                   onFieldSubmitted: (final _) {
@@ -333,25 +208,13 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Poin Hadiah'),
                   keyboardType: TextInputType.number,
-                  onChanged: (final value) {
-                    Log.info(
-                        'INPUT: Poin hadiah berubah menjadi: "$value" (panjang: ${value.length} karakter)');
-                  },
                   validator: (final value) {
-                    Log.info(
-                        'VALIDASI: Memvalidasi input poin hadiah. Nilai: "${value ?? "NULL"}"');
                     if (value == null || value.isEmpty) {
-                      Log.info(
-                          'VALIDASI: Poin hadiah kosong, dianggap valid (opsional). Default akan digunakan (0).');
                       return null;
                     }
                     if (int.tryParse(value) == null) {
-                      Log.warning(
-                          'VALIDASI GAGAL: Poin hadiah bukan angka yang valid. Nilai: "$value"');
                       return 'Poin hadiah harus angka';
                     }
-                    Log.info(
-                        'VALIDASI BERHASIL: Poin hadiah valid = ${int.parse(value)}');
                     return null;
                   },
                   onFieldSubmitted: (final _) {
@@ -367,25 +230,13 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   decoration:
                       const InputDecoration(labelText: 'Poin Penukaran'),
                   keyboardType: TextInputType.number,
-                  onChanged: (final value) {
-                    Log.info(
-                        'INPUT: Poin penukaran berubah menjadi: "$value" (panjang: ${value.length} karakter)');
-                  },
                   validator: (final value) {
-                    Log.info(
-                        'VALIDASI: Memvalidasi input poin penukaran. Nilai: "${value ?? "NULL"}"');
                     if (value == null || value.isEmpty) {
-                      Log.info(
-                          'VALIDASI: Poin penukaran kosong, dianggap valid (opsional). Default akan digunakan (0).');
                       return null;
                     }
                     if (int.tryParse(value) == null) {
-                      Log.warning(
-                          'VALIDASI GAGAL: Poin penukaran bukan angka yang valid. Nilai: "$value"');
                       return 'Poin penukaran harus angka';
                     }
-                    Log.info(
-                        'VALIDASI BERHASIL: Poin penukaran valid = ${int.parse(value)}');
                     return null;
                   },
                   onFieldSubmitted: (final _) async {
@@ -404,14 +255,9 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   }).toList(),
                   onChanged: (final DurationType? newValue) {
                     if (newValue != null) {
-                      Log.info('DROPDOWN: Tipe durasi diubah.');
-                      Log.info('  - Tipe Lama: ${_selectedType.displayName}');
-                      Log.info('  - Tipe Baru: ${newValue.name}');
                       setState(() {
                         _selectedType = newValue;
                       });
-                      Log.info(
-                          'State _selectedType berhasil diperbarui ke: ${_selectedType.name}');
                     }
                   },
                 ),
@@ -421,22 +267,14 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   subtitle: const Text('Jika OFF, paket tidak tampil ke user'),
                   value: _isPublic,
                   onChanged: (final value) {
-                    Log.info('SWITCH: Status public diubah.');
-                    Log.info('  - Status Lama: $_isPublic');
-                    Log.info('  - Status Baru: $value');
-                    Log.info(
-                        '  - Efek: Paket akan ${value ? "TAMPIL" : "TIDAK TAMPIL"} ke pengguna.');
                     setState(() {
                       _isPublic = value;
                     });
-                    Log.info(
-                        'State _isPublic berhasil diperbarui ke: $_isPublic');
                   },
                 ),
                 gapH20,
                 ElevatedButton(
                   onPressed: () async {
-                    Log.info('AKSI: Tombol Simpan ditekan oleh pengguna.');
                     await _saveForm();
                   },
                   style: ElevatedButton.styleFrom(
@@ -457,35 +295,16 @@ class _PackageFormState extends ConsumerState<PackageForm> {
 
   @override
   void dispose() {
-    Log.info('========================================');
-    Log.info('LIFECYCLE: dispose() - Halaman PackageForm');
-    Log.info('Membersihkan resource:');
-    Log.info('  - Mendispose TextEditingController (_nameController)');
-    Log.info('  - Mendispose TextEditingController (_priceController)');
-    Log.info('  - Mendispose TextEditingController (_durationController)');
-    Log.info('  - Mendispose TextEditingController (_rewardPointsController)');
-    Log.info(
-        '  - Mendispose TextEditingController (_redemptionPointsController)');
-    Log.info('  - Mendispose FocusNode (_nameFocusNode)');
-    Log.info('  - Mendispose FocusNode (_priceFocusNode)');
-    Log.info('  - Mendispose FocusNode (_durationFocusNode)');
-    Log.info('  - Mendispose FocusNode (_rewardPointsFocusNode)');
-    Log.info('  - Mendispose FocusNode (_redemptionPointsFocusNode)');
-    Log.info('========================================');
-
     _nameController.dispose();
     _priceController.dispose();
     _durationController.dispose();
     _rewardPointsController.dispose();
     _redemptionPointsController.dispose();
-
     _nameFocusNode.dispose();
     _priceFocusNode.dispose();
     _durationFocusNode.dispose();
     _rewardPointsFocusNode.dispose();
     _redemptionPointsFocusNode.dispose();
-
-    Log.info('Semua resource berhasil dibersihkan.');
     super.dispose();
   }
 }
