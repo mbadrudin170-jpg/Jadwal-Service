@@ -2,9 +2,11 @@
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -57,6 +59,17 @@ void main() async {
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  Log.info('Memuat variabel lingkungan (dotenv)...');
+  await dotenv.load();
+  Log.info('Dotenv berhasil dimuat.');
+
+  Log.info('Menginisialisasi Supabase...');
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
+  Log.info('Inisialisasi Supabase selesai.');
+
   Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -106,5 +119,5 @@ void main() async {
     rescheduleOnReboot: true, // Ini adalah kunci utamanya!
   );
   Log.info(
-      'Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId');
+      'Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: \$rebootAlarmId');
 }
