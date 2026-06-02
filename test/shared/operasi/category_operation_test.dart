@@ -1,76 +1,97 @@
 // path: test/shared/operasi/category_operation_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
+import 'package:sqflite/sqflite.dart';
 
-import 'base_operation_test.mocks.dart';
+import 'category_operation_test.mocks.dart';
 
+@GenerateMocks([
+  DatabaseHelper,
+  Database,
+  BaseOperation,
+])
 void main() {
+  late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
-  late BaseOperation<CategoryModel> baseOperation;
+  late MockBaseOperation mockBaseOperation;
   late CategoryOperation categoryOperation;
 
   setUp(() {
+    mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
-    baseOperation = BaseOperation<CategoryModel>(mockDatabase, 'categories');
-    categoryOperation = CategoryOperation(baseOperation);
+    mockBaseOperation = MockBaseOperation();
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
+    categoryOperation = CategoryOperation(
+      dbHelper: mockDbHelper,
+      baseOperation: mockBaseOperation,
+    );
   });
 
-  group('CategoryOperation Tests', () {
+  group('CategoryOperation', () {
     final tCategory = CategoryModel(
       id: '1',
-      name: 'Income',
+      name: 'Test Category',
+      type: CategoryType.expense,
     );
+    final tCategoryMap = tCategory.toSqlite();
+
+    test('createCategory should insert a new category and return it', () async {
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+
+      final result = await categoryOperation.createCategory(tCategory);
+
+      expect(result.id, tCategory.id);
+      verify(mockBaseOperation.insert(any, any)).called(1);
+    });
 
     test('getCategories should return a list of categories', () async {
-      when(baseOperation.getAll()).thenAnswer((_) async => [tCategory.toMap()]);
+      when(mockDatabase.query(any, where: anyNamed('where')))
+          .thenAnswer((_) async => [tCategoryMap]);
 
       final result = await categoryOperation.getCategories();
 
       expect(result, isA<List<CategoryModel>>());
-      expect(result.length, 1);
       expect(result.first.id, tCategory.id);
-      verify(baseOperation.getAll()).called(1);
     });
 
-    test('getCategoryById should return a single category', () async {
-      when(baseOperation.getById('1')).thenAnswer((_) async => tCategory.toMap());
+    test('getCategoryById should return a category', () async {
+      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+          .thenAnswer((_) async => [tCategoryMap]);
 
       final result = await categoryOperation.getCategoryById('1');
 
       expect(result, isA<CategoryModel>());
-      expect(result?.id, tCategory.id);
-      verify(baseOperation.getById('1')).called(1);
-    });
-
-    test('insertCategory should insert a new category', () async {
-      when(baseOperation.insert(any)).thenAnswer((_) async => 1);
-
-      final id = await categoryOperation.insertCategory(tCategory);
-
-      expect(id, 1);
-      verify(baseOperation.insert(any)).called(1);
+      expect(result.id, tCategory.id);
     });
 
     test('updateCategory should update an existing category', () async {
-      when(baseOperation.update(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      final result = await categoryOperation.updateCategory(tCategory.id, tCategory);
+      await categoryOperation.updateCategory(tCategory);
 
-      expect(result, 1);
-      verify(baseOperation.update(tCategory.id, any)).called(1);
+      verify(mockBaseOperation.update(any, any, any)).called(1);
     });
 
     test('deleteCategory should delete a category', () async {
-      when(baseOperation.delete(any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.delete(any, any)).thenAnswer((_) async {});
 
-      final result = await categoryOperation.deleteCategory('1');
+      await categoryOperation.deleteCategory('1');
 
-      expect(result, 1);
-      verify(baseOperation.delete('1')).called(1);
+      verify(mockBaseOperation.delete(any, '1')).called(1);
+    });
+
+    test('softDelete should soft delete a category', () async {
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+
+      await categoryOperation.softDelete('1');
+
+      verify(mockBaseOperation.softDelete(any, '1')).called(1);
     });
   });
 }

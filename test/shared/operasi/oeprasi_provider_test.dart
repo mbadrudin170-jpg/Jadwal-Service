@@ -1,7 +1,17 @@
 // path: test/shared/operasi/oeprasi_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/operasi/oeprasi_provider.dart';
+import 'package:wifi/shared/operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/apk_version_operation.dart';
+import 'package:wifi/shared/operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/data_cleaning_operation.dart';
+import 'package:wifi/shared/operasi/order_operation.dart';
+import 'package:wifi/shared/operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sub_category_operation.dart';
+import 'package:wifi/shared/operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/wallet_operation.dart';
 
 void main() {
   test('activeCustomerOperationProvider is created', () {

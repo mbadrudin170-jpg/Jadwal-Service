@@ -1,79 +1,94 @@
 // path: test/shared/operasi/apk_version_operation_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/upload_status_operation.dart';
 
-import 'base_operation_test.mocks.dart';
+import 'apk_version_operation_test.mocks.dart';
 
+@GenerateMocks([
+  DatabaseHelper,
+  Database,
+  BaseOperation,
+  UploadStatusOperation,
+])
 void main() {
+  late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
-  late BaseOperation<ApkVersionModel> baseOperation;
+  late MockBaseOperation mockBaseOperation;
   late ApkVersionOperation apkVersionOperation;
 
   setUp(() {
+    mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
-    baseOperation = BaseOperation<ApkVersionModel>(mockDatabase, 'apk_versions');
-    apkVersionOperation = ApkVersionOperation(baseOperation);
+    mockBaseOperation = MockBaseOperation();
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
+    apkVersionOperation = ApkVersionOperation(
+      dbHelper: mockDbHelper,
+      baseOperation: mockBaseOperation,
+    );
   });
 
-  group('ApkVersionOperation Tests', () {
+  group('ApkVersionOperation', () {
     final tApkVersion = ApkVersionModel(
       id: '1',
-      version: '1.0.0',
-      buildNumber: 1,
-      url: 'http://example.com/app.apk',
-      releaseNotes: 'Initial release',
+      latestVersion: '1.0.0',
+      releaseNotes: 'Test release notes',
     );
+    final tApkVersionMap = tApkVersion.toSqlite();
 
-    test('getApkVersions should return a list of apk versions', () async {
-      when(baseOperation.getAll()).thenAnswer((_) async => [tApkVersion.toMap()]);
+    test('getAllApkVersions should return a list of apk versions', () async {
+      when(mockDatabase.query(any, orderBy: anyNamed('orderBy')))
+          .thenAnswer((_) async => [tApkVersionMap]);
 
-      final result = await apkVersionOperation.getApkVersions();
+      final result = await apkVersionOperation.getAllApkVersions();
 
       expect(result, isA<List<ApkVersionModel>>());
       expect(result.length, 1);
       expect(result.first.id, tApkVersion.id);
-      verify(baseOperation.getAll()).called(1);
+      verify(mockDatabase.query(any, orderBy: anyNamed('orderBy'))).called(1);
     });
 
-    test('getApkVersionById should return a single apk version', () async {
-      when(baseOperation.getById('1')).thenAnswer((_) async => tApkVersion.toMap());
+    test('getLatestApkVersion should return the latest apk version', () async {
+      when(mockDatabase.query(any,
+              where: anyNamed('where'),
+              orderBy: anyNamed('orderBy'),
+              limit: anyNamed('limit')))
+          .thenAnswer((_) async => [tApkVersionMap]);
 
-      final result = await apkVersionOperation.getApkVersionById('1');
+      final result = await apkVersionOperation.getLatestApkVersion();
 
       expect(result, isA<ApkVersionModel>());
       expect(result?.id, tApkVersion.id);
-      verify(baseOperation.getById('1')).called(1);
     });
 
-    test('insertApkVersion should insert a new apk version', () async {
-      when(baseOperation.insert(any)).thenAnswer((_) async => 1);
+    test('addApkVersion should insert a new apk version', () async {
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
 
-      final id = await apkVersionOperation.insertApkVersion(tApkVersion);
+      await apkVersionOperation.addApkVersion(tApkVersion);
 
-      expect(id, 1);
-      verify(baseOperation.insert(any)).called(1);
+      verify(mockBaseOperation.insert(any, any)).called(1);
     });
 
     test('updateApkVersion should update an existing apk version', () async {
-      when(baseOperation.update(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      final result = await apkVersionOperation.updateApkVersion(tApkVersion.id, tApkVersion);
+      await apkVersionOperation.updateApkVersion(tApkVersion);
 
-      expect(result, 1);
-      verify(baseOperation.update(tApkVersion.id, any)).called(1);
+      verify(mockBaseOperation.update(any, any, any)).called(1);
     });
 
-    test('deleteApkVersion should delete an apk version', () async {
-      when(baseOperation.delete(any)).thenAnswer((_) async => 1);
+    test('softDelete should soft delete an apk version', () async {
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
-      final result = await apkVersionOperation.deleteApkVersion('1');
+      await apkVersionOperation.softDelete('1');
 
-      expect(result, 1);
-      verify(baseOperation.delete('1')).called(1);
+      verify(mockBaseOperation.softDelete(any, '1')).called(1);
     });
   });
 }

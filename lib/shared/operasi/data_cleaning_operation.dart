@@ -13,6 +13,7 @@ final dataCleaningOperationProvider = Provider<DataCleaningOperation>((ref) {
   Log.info('Membuat instance DataCleaningOperation melalui provider');
   return DataCleaningOperation();
 });
+
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class DataCleaningOperation {
   final DatabaseHelper _dbHelper;
@@ -79,33 +80,20 @@ class DataCleaningOperation {
     int totalDeleted = 0;
     try {
       final db = await _dbHelper.database;
-      final batch = db.batch();
-
       for (final table in tables) {
         final query =
             'DELETE FROM $table WHERE ${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} <= ?';
-        batch.rawDelete(query, [timeLimitEpoch]);
-      }
-
-      Log.info('Melakukan commit batch pembersihan data untuk SQLite...');
-      final results = await batch.commit(noResult: false);
-
-      for (int i = 0; i < results.length; i++) {
-        final result = results[i];
-        if (result is int && result > 0) {
-          totalDeleted += result;
+        final deletedRows = await db.rawDelete(query, [timeLimitEpoch]);
+        if (deletedRows > 0) {
           Log.info(
-            '[SQLite - ${tables[i]}] Berhasil menghapus $result baris data kadaluarsa.',
-          );
+              '[SQLite - $table] Berhasil menghapus $deletedRows baris data kadaluarsa.');
+          totalDeleted += deletedRows;
         }
       }
       Log.info(
-        'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database SQLite.',
-      );
+          'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database SQLite.');
     } on Exception catch (e, s) {
-      Log.error('Gagal menjalankan batch pembersihan data di SQLite.',
-          e: e, st: s);
-      // Tidak melempar error agar proses Firestore bisa tetap berjalan.
+      Log.error('Gagal menjalankan pembersihan data di SQLite.', e: e, st: s);
     }
     return totalDeleted;
   }

@@ -1,78 +1,89 @@
 // path: test/shared/operasi/customer_operation_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/base_operation.dart';
+import 'package:wifi/shared/operasi/customer_operation.dart';
 
-import 'base_operation_test.mocks.dart';
+import 'customer_operation_test.mocks.dart';
 
+@GenerateMocks([
+  DatabaseHelper,
+  Database,
+  BaseOperation,
+])
 void main() {
+  late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
-  late BaseOperation<CustomerModel> baseOperation;
+  late MockBaseOperation mockBaseOperation;
   late CustomerOperation customerOperation;
 
   setUp(() {
+    mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
-    baseOperation = BaseOperation<CustomerModel>(mockDatabase, 'customers');
-    customerOperation = CustomerOperation(baseOperation);
+    mockBaseOperation = MockBaseOperation();
+    when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
+    customerOperation = CustomerOperation(
+      dbHelper: mockDbHelper,
+      baseOperation: mockBaseOperation,
+    );
   });
 
-  group('CustomerOperation Tests', () {
+  group('CustomerOperation', () {
     final tCustomer = CustomerModel(
       id: '1',
-      name: 'John Doe',
-      phoneNumber: '08123456789',
-      address: '123 Main St',
+      name: 'Test Customer',
+      phone: '1234567890',
+      address: 'Test Address',
+      password: 'password',
     );
+    final tCustomerMap = tCustomer.toSqlite();
 
-    test('getCustomers should return a list of customers', () async {
-      when(baseOperation.getAll()).thenAnswer((_) async => [tCustomer.toMap()]);
+    test('add should insert a new customer', () async {
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
 
-      final result = await customerOperation.getCustomers();
+      await customerOperation.add(tCustomer);
 
-      expect(result, isA<List<CustomerModel>>());
-      expect(result.length, 1);
-      expect(result.first.id, tCustomer.id);
-      verify(baseOperation.getAll()).called(1);
+      verify(mockBaseOperation.insert(any, any)).called(1);
     });
 
-    test('getCustomerById should return a single customer', () async {
-      when(baseOperation.getById('1')).thenAnswer((_) async => tCustomer.toMap());
+    test('getAll should return a list of customers', () async {
+      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+          .thenAnswer((_) async => [tCustomerMap]);
 
-      final result = await customerOperation.getCustomerById('1');
+      final result = await customerOperation.getAll();
+
+      expect(result, isA<List<CustomerModel>>());
+      expect(result.first.id, tCustomer.id);
+    });
+
+    test('getById should return a customer', () async {
+      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+          .thenAnswer((_) async => [tCustomerMap]);
+
+      final result = await customerOperation.getById('1');
 
       expect(result, isA<CustomerModel>());
       expect(result?.id, tCustomer.id);
-      verify(baseOperation.getById('1')).called(1);
-    });
-
-    test('insertCustomer should insert a new customer', () async {
-      when(baseOperation.insert(any)).thenAnswer((_) async => 1);
-
-      final id = await customerOperation.insertCustomer(tCustomer);
-
-      expect(id, 1);
-      verify(baseOperation.insert(any)).called(1);
     });
 
     test('updateCustomer should update an existing customer', () async {
-      when(baseOperation.update(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      final result = await customerOperation.updateCustomer(tCustomer.id, tCustomer);
+      await customerOperation.updateCustomer(tCustomer);
 
-      expect(result, 1);
-      verify(baseOperation.update(tCustomer.id, any)).called(1);
+      verify(mockBaseOperation.update(any, any, any)).called(1);
     });
 
-    test('deleteCustomer should delete a customer', () async {
-      when(baseOperation.delete(any)).thenAnswer((_) async => 1);
+    test('softDelete should soft delete a customer', () async {
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
-      final result = await customerOperation.deleteCustomer('1');
+      await customerOperation.softDelete('1');
 
-      expect(result, 1);
-      verify(baseOperation.delete('1')).called(1);
+      verify(mockBaseOperation.softDelete(any, '1')).called(1);
     });
   });
 }
