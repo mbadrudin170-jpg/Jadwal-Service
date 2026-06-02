@@ -58,7 +58,7 @@ void main() {
 
     test('saveOrder should call insert on baseOperation', () async {
       when(mockBaseOperation.insert(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.saveOrder(tOrder);
 
@@ -72,7 +72,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tOrderMap]);
       when(mockBaseOperation.update(any, any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenAnswer((_) => Future.value());
 
       // Act
       await orderOperation.updateOrderStatus(tOrder.id, newStatus);
@@ -93,7 +93,7 @@ void main() {
 
     test('deleteOrder should call delete on baseOperation', () async {
       when(mockBaseOperation.delete(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.deleteOrder('1');
 
@@ -102,7 +102,7 @@ void main() {
 
     test('softDelete should call softDelete on baseOperation', () async {
       when(mockBaseOperation.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.softDelete('1');
 
@@ -112,7 +112,7 @@ void main() {
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
         () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenAnswer((_) async => Future.value());
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.insertOrUpdateBatch([tOrder]);
 

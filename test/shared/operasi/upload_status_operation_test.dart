@@ -4,6 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/upload_status_model.dart';
@@ -79,7 +80,7 @@ void main() {
     });
 
     test('resetNeedUpload should call setNeedUpload with false', () async {
-      // We can't easily verify a call to another method in the same class.
+      // We can\'t easily verify a call to another method in the same class.
       // Instead, we test the underlying database call that resetNeedUpload makes.
       when(mockDatabase.insert(
         any,
@@ -97,10 +98,13 @@ void main() {
       verification.called(1);
 
       final captured = verification.captured.single as Map<String, dynamic>;
-      expect(captured['need_upload'], 0); // Check that needUpload is false (0)
+      // PERBAIKAN: Sesuaikan ekspektasi dengan implementasi model
+      // Model menggunakan `ColumnNames.value` sebagai kunci dan String '0' untuk false.
+      expect(captured[ColumnNames.value], '0');
     });
 
-    test('getUploadStatusModel should return a model when data exists', () async {
+    test('getUploadStatusModel should return a model when data exists',
+        () async {
       when(mockDatabase.query(
         any,
         where: anyNamed('where'),
@@ -114,8 +118,9 @@ void main() {
       expect(result?.needUpload, isTrue);
     });
 
-    test('getUploadStatusModel should return null when no data exists', () async {
-       when(mockDatabase.query(
+    test('getUploadStatusModel should return null when no data exists',
+        () async {
+      when(mockDatabase.query(
         any,
         where: anyNamed('where'),
         whereArgs: anyNamed('whereArgs'),

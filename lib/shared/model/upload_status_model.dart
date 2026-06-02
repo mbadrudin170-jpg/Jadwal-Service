@@ -15,9 +15,6 @@ class UploadStatusModel {
 
   /// ID unik untuk baris ini, yang juga merupakan kuncinya (misalnya, 'need_upload').
   final String id;
-
-  /// Bendera yang menandakan status. `true` jika ada data untuk diunggah,
-  /// `false` jika tidak.
   final bool needUpload;
 
   /// Waktu terakhir kali status `needUpload` diubah, disimpan sebagai milidetik sejak epoch.
@@ -51,11 +48,8 @@ class UploadStatusModel {
     final updatedAtEpoch = map[ColumnNames.updatedAt] as int?;
 
     final model = UploadStatusModel(
-      // Menggunakan ColumnNames.id untuk konsistensi
       id: map[ColumnNames.id] as String,
-      // Database SQLite tidak punya tipe boolean, jadi kita simpan sebagai string ('0' atau '1') di kolom 'value'.
       needUpload: map[ColumnNames.value] == '1',
-      // Konversi dari milidetik epoch kembali ke DateTime.
       updatedAt: updatedAtEpoch != null
           ? DateTime.fromMillisecondsSinceEpoch(updatedAtEpoch)
           : null,
@@ -72,9 +66,7 @@ class UploadStatusModel {
 
     final map = <String, dynamic>{
       ColumnNames.id: id,
-      // Simpan sebagai string '0' atau '1' di kolom 'value'
       ColumnNames.value: needUpload ? '1' : '0',
-      // Konversi DateTime ke milidetik sejak epoch agar bisa disimpan di SQLite sebagai INTEGER.
       ColumnNames.updatedAt: updatedAt?.millisecondsSinceEpoch,
     };
 
