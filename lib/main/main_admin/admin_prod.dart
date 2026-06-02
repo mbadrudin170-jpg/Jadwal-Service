@@ -57,9 +57,11 @@ void main() async {
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Android Alarm Manager...');
   await AndroidAlarmManager.initialize();
@@ -77,6 +79,7 @@ void main() async {
     ),
   );
 
+  Log.info('Mendaftarkan alarm...');
   // Daftarkan alarm yang akan aktif saat boot.
 
   // 1. Alarm berkala untuk cek langganan (Misal: setiap 1 jam)
@@ -88,6 +91,7 @@ void main() async {
     exact: true,
     wakeup: true,
   );
+  Log.info('Alarm pengecekan langganan berkala telah didaftarkan.');
 
   // ID harus unik. Menggunakan nilai int besar yang acak.
   const int rebootAlarmId = 9999;

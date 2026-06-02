@@ -8,10 +8,12 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/user/app_user.dart';
@@ -22,9 +24,21 @@ void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  Log.info('Memuat variabel lingkungan dari file .env...');
+  await dotenv.load();
+  Log.info('Variabel lingkungan berhasil dimuat.');
+
+  Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Log.info('Inisialisasi Firebase selesai.');
+
+  Log.info('Menginisialisasi Supabase...');
+  final supabaseUrl = dotenv.env['SUPABASE_URL']!;
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY']!;
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  Log.info('Inisialisasi Supabase selesai.');
 
   Log.info('Menginisialisasi workmanager');
   await BackgroundService.init();

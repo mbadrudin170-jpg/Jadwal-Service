@@ -22,9 +22,12 @@ void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Log.info('Inisialisasi Firebase selesai.');
+
   Log.info('Menginisialisasi workmanager');
   await BackgroundService.init();
 

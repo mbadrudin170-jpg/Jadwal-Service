@@ -8,6 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -80,6 +81,7 @@ class _PackageFormState extends ConsumerState<PackageForm> {
         } else {
           await _packageOperation.add(newPackage);
         }
+        ref.invalidate(packageListProvider);
         if (!mounted) {
           return;
         }
@@ -87,6 +89,7 @@ class _PackageFormState extends ConsumerState<PackageForm> {
           context,
           'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
         );
+
         Navigator.pop(context, true);
       } on DatabaseException catch (e, s) {
         String errorMessage =
@@ -234,8 +237,8 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                     }
                     return null;
                   },
-                  onFieldSubmitted: (_) async {
-                    await _saveForm();
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
                   },
                 ),
                 gapH16,
@@ -268,21 +271,23 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                   },
                 ),
                 gapH20,
-                ElevatedButton(
-                  onPressed: () async {
-                    await _saveForm();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text('Simpan'),
-                ),
               ],
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: ElevatedButton(
+          onPressed: () async {
+            await _saveForm();
+          },
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: const Text('Simpan'),
         ),
       ),
     );
