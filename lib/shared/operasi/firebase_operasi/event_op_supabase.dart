@@ -14,21 +14,28 @@ class EventOpSupabase {
   final String _tableName = TableNameValue.get(TableName.events);
   final SupabaseClient _supabase;
 
+  // path: lib/shared/operasi/firebase_operasi/event_op_supabase.dart
+// path: lib/shared/operasi/firebase_operasi/event_op_supabase.dart
   Future<List<EventModel>> getAll() async {
     Log.info('EventOpSupabase: Mengambil semua data pengumuman');
     try {
-      final List<Map<String, dynamic>> response = await _supabase
+      Log.info('1️⃣ Membangun query...');
+      final query = _supabase
           .from(_tableName)
           .select()
           .order(ColumnNames.createdAt, ascending: false);
-      Log.info('$response $_tableName');
-      return response
-          .map((data) => EventModel.fromSupabase(
-              data[ColumnNames.id]?.toString() ?? '', data))
-          .toList();
+      Log.info('2️⃣ Eksekusi query ke Supabase...');
+      final List<Map<String, dynamic>> response =
+          await query.timeout(const Duration(seconds: 10));
+      Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
+
+      return response.map((data) {
+        Log.info('4️⃣ Mapping data: ${data[ColumnNames.id]}');
+        return EventModel.fromSupabase(
+            data[ColumnNames.id]?.toString() ?? '', data);
+      }).toList();
     } catch (e, s) {
-      Log.error('Gagal mengambil semua data pengumuman dari Supabase',
-          e: e, st: s);
+      Log.error('❌ Gagal ambil data pengumuman', e: e, st: s);
       rethrow;
     }
   }
