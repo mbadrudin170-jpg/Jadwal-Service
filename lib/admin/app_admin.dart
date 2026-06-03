@@ -61,7 +61,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final notifikasiServis = ref.read(notifikasiServisProvider);
     try {
       // Inisialisasi Workmanager untuk tugas latar belakang.
-      // Ini juga dipanggil di main_prod.dart untuk memastikan kehandalan.
       await BackgroundService.init();
 
       await notifikasiServis.inisialisasi(iconName: 'ic_notification');
@@ -90,8 +89,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       final activeCustomerOp = ref.read(activeCustomerOperationProvider);
       await activeCustomerOp.archiveExpiredCustomers();
 
-      final isOnline = await _connectionService.checkConnection();
+      // DIUBAH: Menggunakan metode pengecekan internet yang lebih andal.
+      final isOnline = await _connectionService.isInternetAvailable();
       if (isOnline) {
+        Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
         // Jalankan unduhan awal hanya jika perangkat online
         final initialDownloadService = ref.read(initialDownloadServiceProvider);
         try {
@@ -112,7 +113,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
             .deleteAllExpiredArchivedData(retentionDays: retentionDays)
             .timeout(const Duration(seconds: 5));
       } else {
-        Log.warning('Melewati proses pembersihan data karena sedang offline.');
+        Log.warning(
+            'Perangkat offline, melewati proses unduhan data awal dan pembersihan.');
       }
 
       return isOnline;
@@ -128,10 +130,12 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError || !(snapshot.data ?? false)) {
-            return const AppMaterial(isOffline: true);
+          // DIUBAH: Logika lebih sederhana untuk menangani status offline.
+          final bool isOffline = !(snapshot.data ?? false);
+          if (snapshot.hasError) {
+            Log.error('Error pada FutureBuilder inisialisasi', e: snapshot.error);
           }
-          return const AppMaterial(isOffline: false);
+          return AppMaterial(isOffline: isOffline);
         }
         return const MaterialApp(
           home: Scaffold(
