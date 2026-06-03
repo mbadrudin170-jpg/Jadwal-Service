@@ -110,11 +110,12 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Future<void> _processLogin() async {
-    final isConnected = await _internetService.checkConnection();
+    final isConnected = await _internetService.isInternetAvailable();
     if (!mounted) return;
 
     if (!isConnected) {
-      ToastUtil.error(context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+      ToastUtil.error(
+          context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
       return;
     }
 
