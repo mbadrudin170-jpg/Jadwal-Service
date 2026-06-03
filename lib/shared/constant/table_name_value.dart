@@ -21,7 +21,7 @@ abstract final class TableNameValue {
     TableName.fcmToken: 'fcm_token',
     TableName.notification: 'notification',
     TableName.statusGlobal: 'status_global',
-    TableName.event: 'event',
+    TableName.events: 'events',
   };
 
   /// Mendapatkan nama tabel dalam format snake_case.

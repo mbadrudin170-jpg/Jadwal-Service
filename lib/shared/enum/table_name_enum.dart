@@ -51,5 +51,5 @@ enum TableName {
   statusGlobal,
 
   /// Tabel pengumuman (event).
-  event,
+  events,
 }

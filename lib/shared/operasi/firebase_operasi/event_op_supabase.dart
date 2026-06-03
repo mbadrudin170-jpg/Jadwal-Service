@@ -13,7 +13,7 @@ class EventOpSupabase {
   EventOpSupabase();
 
   // Mengambil nama tabel dari konstanta enum Anda (misal: 'events' atau 'announcements')
-  final String _tableName = TableNameValue.get(TableName.event);
+  final String _tableName = TableNameValue.get(TableName.events);
 
   /// Helper untuk mendapatkan instance Supabase Client
   SupabaseClient get _supabase => Supabase.instance.client;

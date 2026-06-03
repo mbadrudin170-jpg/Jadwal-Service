@@ -76,8 +76,8 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
-  final supabaseUrl = dotenv.env['SUPABASE_URL']!;
-  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY']!;
+  final supabaseUrl = dotenv.env['NEXT_PUBLIC_SUPABASE_URL']!;
+  final supabaseAnonKey = dotenv.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']!;
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Log.info('Inisialisasi Supabase selesai.');
 
