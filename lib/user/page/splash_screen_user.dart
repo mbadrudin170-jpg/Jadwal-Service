@@ -69,7 +69,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       await _initializeOfflineServices();
 
       final internetService = InternetConnectionService();
-      final isConnected = await internetService.checkConnection();
+      final isConnected = await internetService.isInternetAvailable();
       Log.info(
           isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
@@ -206,7 +206,7 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       // Pindahkan pingActivity ke dalam blok online jika memungkinkan
-      final isConnected = await InternetConnectionService().checkConnection();
+      final isConnected = await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
         unawaited(UserActivityService().pingActivity(userId)); // Diubah
       }

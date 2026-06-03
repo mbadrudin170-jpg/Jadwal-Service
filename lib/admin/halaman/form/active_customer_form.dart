@@ -332,7 +332,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .addTransaction(transaksiData);
       }
       final internetService = InternetConnectionService();
-      final isOnline = await internetService.checkConnection();
+      final isOnline = await internetService.isInternetAvailable();
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');

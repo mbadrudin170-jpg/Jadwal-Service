@@ -253,8 +253,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
           await apkVersionOperasi.addApkVersion(dataToSave);
         }
 
-        final hasConnection =
-            await InternetConnectionService().checkConnection();
+        final hasConnection = await InternetConnectionService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           unawaited(syncCheckService.runSyncCheck());

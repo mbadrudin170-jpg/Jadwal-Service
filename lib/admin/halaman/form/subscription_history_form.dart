@@ -125,7 +125,7 @@ class _SubscriptionHistoryFormState
 
       if (!mounted) return;
 
-      final hasConnection = await InternetConnectionService().checkConnection();
+      final hasConnection = await InternetConnectionService().isInternetAvailable();
       if (hasConnection) {
         final syncCheckService = ref.read(syncCheckServiceProvider);
         syncCheckService.runSyncCheck();
