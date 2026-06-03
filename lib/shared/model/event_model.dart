@@ -1,6 +1,5 @@
 // path: lib/shared/model/event_model.dart
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -82,10 +81,10 @@ class EventModel implements HasId {
     };
   }
 
-  /// Membuat [EventModel] dari Firebase document.
+  /// Membuat [EventModel] dari Supabase document.
   factory EventModel.fromSupabase(
       final String id, final Map<String, dynamic> data) {
-    Log.info('Creating EventModel from Firebase: $id');
+    Log.info('Creating EventModel from Supabase: $id');
     return EventModel(
       id: id,
       imageUrl: data[ColumnNames.imageUrl] as String? ?? '',
@@ -100,17 +99,17 @@ class EventModel implements HasId {
     );
   }
 
-  /// Mengonversi [EventModel] ke map untuk penyimpanan Firebase.
+  /// Mengonversi [EventModel] ke map untuk penyimpanan Supabase.
   Map<String, dynamic> toSupabase() {
     return {
-      ColumnNames.id: id,
+      // ID tidak di-pass karena akan di-handle oleh Supabase (serial primary key)
+      // 'id': id,
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive,
-      ColumnNames.startDate: Timestamp.fromDate(startDate.toUtc()),
-      ColumnNames.endDate: Timestamp.fromDate(startDate.toUtc()),
-      ColumnNames.createdAt: Timestamp.fromDate(createdAt.toUtc()),
-      ColumnNames.updatedAt:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+      ColumnNames.startDate: startDate.toIso8601String(),
+      ColumnNames.endDate: endDate.toIso8601String(),
+      ColumnNames.createdAt: createdAt.toIso8601String(),
+      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).toIso8601String(),
     };
   }
 }

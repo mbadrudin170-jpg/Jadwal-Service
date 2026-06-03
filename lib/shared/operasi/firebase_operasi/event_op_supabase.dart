@@ -1,7 +1,7 @@
 // path: lib/shared/operasi/firebase_operasi/event_op_supabase.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // Menggunakan Supabase SDK
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,13 +10,14 @@ import 'package:wifi/shared/model/event_model.dart';
 
 /// Operasi database khusus untuk data Pengumuman (Event) menggunakan Supabase.
 class EventOpSupabase {
-  EventOpSupabase();
+  // Tambahkan constructor untuk dependency injection saat testing
+  EventOpSupabase({SupabaseClient? supabase})
+      : _supabase = supabase ?? Supabase.instance.client;
 
-  // Mengambil nama tabel dari konstanta enum Anda (misal: 'events' atau 'announcements')
   final String _tableName = TableNameValue.get(TableName.events);
 
-  /// Helper untuk mendapatkan instance Supabase Client
-  SupabaseClient get _supabase => Supabase.instance.client;
+  // Gunakan client yang sudah di-inject atau dari instance global
+  final SupabaseClient _supabase;
 
   /// Mengambil semua data pengumuman dari Supabase, diurutkan dari yang terbaru.
   Future<List<EventModel>> getAll() async {
@@ -25,11 +26,8 @@ class EventOpSupabase {
       final List<Map<String, dynamic>> response = await _supabase
           .from(_tableName)
           .select()
-          .order(ColumnNames.createdAt,
-              ascending: false); // Sesuaikan snake_case kolom database Anda
+          .order(ColumnNames.createdAt, ascending: false);
 
-      // Petakan data dari map json Supabase ke EventModel
-      // Jika method model Anda masih bernama fromFirebase, silakan sesuaikan/mapping key-nya
       return response
           .map((data) => EventModel.fromSupabase(
               data[ColumnNames.id]?.toString() ?? '', data))
@@ -48,8 +46,7 @@ class EventOpSupabase {
       final List<Map<String, dynamic>> response = await _supabase
           .from(_tableName)
           .select()
-          .eq(ColumnNames.isActive,
-              true) // Sesuaikan penamaan kolom boolean aktif di Supabase Anda
+          .eq(ColumnNames.isActive, true)
           .limit(1);
 
       if (response.isEmpty) {
@@ -69,10 +66,7 @@ class EventOpSupabase {
   Future<void> upsert(final EventModel event) async {
     Log.info('EventOpSupabase: Upsert pengumuman ${event.id}');
     try {
-      // Supabase menggunakan metode .upsert() langsung dengan menyuplai payload Map data.
-      // Pastikan data id dikirim agar Supabase tahu data tersebut harus diupdate jika id sudah ada.
       final Map<String, dynamic> dataPayload = event.toSupabase();
-
       await _supabase.from(_tableName).upsert(dataPayload);
     } catch (e, s) {
       Log.error('Gagal melakukan upsert pengumuman di Supabase', e: e, st: s);
