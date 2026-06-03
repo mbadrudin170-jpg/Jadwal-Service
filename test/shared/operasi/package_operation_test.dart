@@ -72,44 +72,44 @@ void main() {
       )).called(1);
     });
 
-    test('add should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
+    test('add should call insert on baseOperation', () async {
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
 
-      packageOperation.add(tPackage);
+      await packageOperation.add(tPackage);
 
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('update should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
+    test('update should call update on baseOperation', () async {
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async => 1);
 
-      packageOperation.update(tPackage);
+      await packageOperation.update(tPackage);
 
       verify(mockBaseOperation.update(tableName, any, tPackage.id)).called(1);
     });
 
-    test('delete should call delete on baseOperation', () {
-      when(mockBaseOperation.delete(any, any)).thenReturn(Future.value());
+    test('delete should call delete on baseOperation', () async {
+      when(mockBaseOperation.delete(any, any)).thenAnswer((_) async => 1);
 
-      packageOperation.delete('1');
+      await packageOperation.delete('1');
 
       verify(mockBaseOperation.delete(tableName, '1')).called(1);
     });
 
-    test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
+    test('softDelete should call softDelete on baseOperation', () async {
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
-      packageOperation.softDelete('1');
+      await packageOperation.softDelete('1');
 
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
-        () {
+        () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenReturn(Future.value());
+          .thenAnswer((_) async {});
 
-      packageOperation.insertOrUpdateBatch([tPackage]);
+      await packageOperation.insertOrUpdateBatch([tPackage]);
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });

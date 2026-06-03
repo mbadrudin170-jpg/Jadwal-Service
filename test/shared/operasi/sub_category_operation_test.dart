@@ -81,45 +81,45 @@ void main() {
       )).called(1);
     });
 
-    test('createSubCategory should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
+    test('createSubCategory should call insert on baseOperation', () async {
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
 
-      subCategoryOperation.createSubCategory(tSubCategory);
+      await subCategoryOperation.createSubCategory(tSubCategory);
 
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('updateSubCategory should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
+    test('updateSubCategory should call update on baseOperation', () async {
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async => 1);
 
-      subCategoryOperation.updateSubCategory(tSubCategory);
+      await subCategoryOperation.updateSubCategory(tSubCategory);
 
       verify(mockBaseOperation.update(tableName, any, tSubCategory.id))
           .called(1);
     });
 
-    test('delete should call delete on baseOperation', () {
-      when(mockBaseOperation.delete(any, any)).thenReturn(Future.value());
+    test('delete should call delete on baseOperation', () async {
+      when(mockBaseOperation.delete(any, any)).thenAnswer((_) async => 1);
 
-      subCategoryOperation.delete('1');
+      await subCategoryOperation.delete('1');
 
       verify(mockBaseOperation.delete(tableName, '1')).called(1);
     });
 
-    test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
+    test('softDelete should call softDelete on baseOperation', () async {
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
-      subCategoryOperation.softDelete('1');
+      await subCategoryOperation.softDelete('1');
 
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
-        () {
+        () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenReturn(Future.value());
+          .thenAnswer((_) async {});
 
-      subCategoryOperation.insertOrUpdateBatch([tSubCategory]);
+      await subCategoryOperation.insertOrUpdateBatch([tSubCategory]);
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });

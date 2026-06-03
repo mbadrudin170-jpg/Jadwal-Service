@@ -43,62 +43,82 @@ void main() {
     final tableName = TableNameValue.get(TableName.wallet);
 
     test('getWallets should return a list of wallets', () async {
+      // Atur stub untuk mengembalikan data palsu ketika query dijalankan
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tWalletMap]);
 
+      // Panggil metode yang akan diuji
       final result = await walletOperation.getWallets();
 
+      // Verifikasi hasil
       expect(result, isA<List<WalletModel>>());
       expect(result.length, 1);
       expect(result.first.id, tWallet.id);
-      verify(mockDatabase.query(tableName, where: anyNamed('where'))).called(1);
+      // PERBAIKAN: Sesuaikan klausa where agar cocok dengan implementasi asli
+      verify(mockDatabase.query(tableName,
+              where: 'is_deleted = 0 AND archived_at IS NULL'))
+          .called(1);
     });
 
-    test('createWallet should call insert on baseOperation', () {
-      when(mockBaseOperation.insert(any, any)).thenReturn(Future.value());
+    test('createWallet should call insert on baseOperation', () async {
+      // Gunakan thenAnswer untuk Future<void>
+      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
 
-      walletOperation.createWallet(tWallet);
+      await walletOperation.createWallet(tWallet);
 
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('updateWallet should call update on baseOperation', () {
-      when(mockBaseOperation.update(any, any, any)).thenReturn(Future.value());
+    test('updateWallet should call update on baseOperation', () async {
+      // Gunakan thenAnswer untuk Future<void>
+      when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      walletOperation.updateWallet(tWallet);
+      await walletOperation.updateWallet(tWallet);
 
       verify(mockBaseOperation.update(tableName, any, tWallet.id)).called(1);
     });
 
-    test('softDelete should call softDelete on baseOperation', () {
-      when(mockBaseOperation.softDelete(any, any)).thenReturn(Future.value());
+    test('softDelete should call softDelete on baseOperation', () async {
+      // Gunakan thenAnswer untuk Future<void>
+      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
-      walletOperation.softDelete('1');
+      await walletOperation.softDelete('1');
 
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
     test('deleteAllWallets should run a complex operation to delete all',
         () async {
+      // Pindahkan stub untuk mockTransaction ke luar dari thenAnswer
+      when(mockTransaction.delete(any)).thenAnswer((_) async => 1);
+
+      // Atur stub untuk runComplexOperation
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
+        // Ambil fungsi 'action' yang dilewatkan sebagai argumen
         final action = invocation.positionalArguments[0]
             as Future<void> Function(Transaction);
-        when(mockTransaction.delete(any)).thenAnswer((_) async => 1);
+        // Jalankan 'action' dengan mockTransaction
         await action(mockTransaction);
       });
 
+      // Panggil metode yang diuji
       await walletOperation.deleteAllWallets();
 
+      // Verifikasi bahwa runComplexOperation dipanggil
       verify(mockBaseOperation.runComplexOperation<void>(any)).called(1);
+      // Verifikasi juga bahwa delete pada transaction dipanggil di dalam action
+      verify(mockTransaction.delete(tableName)).called(1);
     });
 
     test(
-        'insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation', () {
+        'insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
+        () async {
+      // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenReturn(Future.value());
+          .thenAnswer((_) async {});
 
-      walletOperation.insertOrUpdateBatch([tWallet]);
+      await walletOperation.insertOrUpdateBatch([tWallet]);
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });

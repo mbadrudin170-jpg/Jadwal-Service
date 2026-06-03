@@ -73,7 +73,8 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           if (a.endDate == null && b.endDate == null) return 0;
           if (a.endDate == null) return 1;
           if (b.endDate == null) return -1;
-          return a.endDate!.compareTo(b.endDate!);
+          // DIUBAH: Mengurutkan secara descending (terbaru ke terlama)
+          return b.endDate!.compareTo(a.endDate!);
         });
         break;
       case SortOption.newest:
