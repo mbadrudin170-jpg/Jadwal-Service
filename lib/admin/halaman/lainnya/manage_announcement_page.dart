@@ -223,7 +223,8 @@ class _ManageAnnouncementPageState
         }
       } catch (e, st) {
         Log.error('Gagal mengunggah gambar', e: e, st: st);
-        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
+        ToastUtil.error(
+            context, 'Gagal mengunggah gambar. Silakan coba lagi. $e $st');
         setState(() {
           _isUploading = false;
         });
@@ -268,7 +269,7 @@ class _ManageAnnouncementPageState
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
         ToastUtil.error(
-            context, 'Gagal menonaktifkan pengumuman lain yang aktif.');
+            context, 'Gagal menonaktifkan pengumuman lain yang aktif $e $st.');
         setState(() {
           _isUploading = false;
         });
@@ -285,7 +286,7 @@ class _ManageAnnouncementPageState
       }
     } catch (e, st) {
       Log.error('Gagal menyimpan pengumuman', e: e, st: st);
-      ToastUtil.error(context, 'Gagal menyimpan pengumuman.');
+      ToastUtil.error(context, 'Gagal menyimpan pengumuman $e $st.');
     } finally {
       if (mounted) {
         setState(() {

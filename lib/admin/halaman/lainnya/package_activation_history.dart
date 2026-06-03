@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
 import 'package:wifi/admin/providers/package_activation_history_provider.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/package_name.dart';
@@ -94,7 +94,7 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      gapH4,
                       if (transaction.startDate != null &&
                           transaction.endDate != null)
                         Text(
@@ -102,7 +102,7 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                         ),
                     ],
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(TIcons.chevronRight),
                 ),
               );
             },

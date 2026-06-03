@@ -8,8 +8,6 @@ import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -29,9 +27,6 @@ class FeedbackPage extends ConsumerStatefulWidget {
 }
 
 class _FeedbackPageState extends ConsumerState<FeedbackPage> {
-  late final FeedbackOperation _feedbackOperation;
-  late final CustomerOperation _customerOperation;
-
   List<FeedbackModel> _allFeedback = [];
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
@@ -43,8 +38,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
-    _feedbackOperation = ref.read(feedbackOperationProvider);
-    _customerOperation = ref.read(customerOperationProvider);
     unawaited(_loadFeedback());
     _searchController.addListener(_applyFilter);
   }
@@ -79,8 +72,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
     try {
       final List<dynamic> results = await Future.wait([
-        _feedbackOperation.getAll(),
-        _customerOperation.getAll(),
+        ref.read(feedbackOperationProvider).getAllActiveFeedback(),
+        ref.read(customerOperationProvider).getAll(),
       ]);
 
       final List<FeedbackModel> kritikSaranList =
@@ -137,12 +130,11 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       // Sisipan: log info awal proses hapus
       Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
       try {
-        await _feedbackOperation.softDelete(item.id);
-
+        await ref.read(feedbackOperationProvider).softDelete(item.id);
+        final _ = ref.invalidate(feedbackOperationProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
-        await _loadFeedback();
       } on Exception catch (e, st) {
         Log.error(
           'Gagal menghapus kritik/saran ID: ${item.id}',
@@ -154,61 +146,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
         }
       }
     }
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: _isSearching ? _buildSearchField() : const Text('Kritik & Saran'),
-      actions: _isSearching ? _buildSearchActions() : _buildDefaultActions(),
-    );
-  }
-
-  Widget _buildSearchField() {
-    return TextField(
-      controller: _searchController,
-      autofocus: true,
-      decoration: const InputDecoration(
-        hintText: 'Cari...',
-        border: InputBorder.none,
-        hintStyle: TextStyle(color: Colors.white70),
-      ),
-      style: const TextStyle(color: Colors.white, fontSize: 16.0),
-    );
-  }
-
-  List<Widget> _buildSearchActions() {
-    return [
-      IconButton(
-        icon: const Icon(TIcons.close),
-        onPressed: () {
-          Log.info('Menutup mode pencarian.');
-          if (mounted) {
-            setState(() {
-              _isSearching = false;
-            });
-          }
-          _searchController.clear();
-        },
-        tooltip: 'Tutup Pencarian',
-      ),
-    ];
-  }
-
-  List<Widget> _buildDefaultActions() {
-    return [
-      IconButton(
-        icon: const Icon(TIcons.search),
-        onPressed: () {
-          Log.info('Membuka mode pencarian.');
-          if (mounted) {
-            setState(() {
-              _isSearching = true;
-            });
-          }
-        },
-        tooltip: 'Cari',
-      ),
-    ];
   }
 
   @override
@@ -285,5 +222,60 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                   )),
       ),
     );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: _isSearching ? _buildSearchField() : const Text('Kritik & Saran'),
+      actions: _isSearching ? _buildSearchActions() : _buildDefaultActions(),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      autofocus: true,
+      decoration: const InputDecoration(
+        hintText: 'Cari...',
+        border: InputBorder.none,
+        hintStyle: TextStyle(color: Colors.white70),
+      ),
+      style: const TextStyle(color: Colors.white, fontSize: 16.0),
+    );
+  }
+
+  List<Widget> _buildSearchActions() {
+    return [
+      IconButton(
+        icon: const Icon(TIcons.close),
+        onPressed: () {
+          Log.info('Menutup mode pencarian.');
+          if (mounted) {
+            setState(() {
+              _isSearching = false;
+            });
+          }
+          _searchController.clear();
+        },
+        tooltip: 'Tutup Pencarian',
+      ),
+    ];
+  }
+
+  List<Widget> _buildDefaultActions() {
+    return [
+      IconButton(
+        icon: const Icon(TIcons.search),
+        onPressed: () {
+          Log.info('Membuka mode pencarian.');
+          if (mounted) {
+            setState(() {
+              _isSearching = true;
+            });
+          }
+        },
+        tooltip: 'Cari',
+      ),
+    ];
   }
 }
