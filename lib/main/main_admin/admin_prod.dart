@@ -10,6 +10,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
+import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
@@ -21,6 +22,11 @@ Future<void> _callbackAlarm() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // await dotenv.load();
+  // await Supabase.initialize(
+  //   url: dotenv.env['SUPABASE_URL']!,
+  //   anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  // );
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
 
   final container = ProviderContainer();
@@ -37,7 +43,7 @@ Future<void> _callbackAlarm() async {
 @pragma('vm:entry-point')
 Future<void> _rescheduleOnBoot() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Inisialisasi Firebase dengan opsi prod
+  // Inisialisasi Firebase dengan opsi sesuai platform (dev/prod)
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -54,28 +60,28 @@ Future<void> _rescheduleOnBoot() async {
   }
 }
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi.
+/// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  Log.info('Memuat variabel lingkungan (dotenv)...');
+  // Muat variabel lingkungan dari file .env
+  Log.info('Memuat variabel lingkungan dari file .env...');
   await dotenv.load();
-  Log.info('Dotenv berhasil dimuat.');
-
-  Log.info('Menginisialisasi Supabase...');
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
-  );
-  Log.info('Inisialisasi Supabase selesai.');
+  Log.info('Variabel lingkungan berhasil dimuat.');
 
   Log.info('Menginisialisasi Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Log.info('Inisialisasi Firebase selesai.');
+
+  Log.info('Menginisialisasi Supabase...');
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
+  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  Log.info('Inisialisasi Supabase selesai.');
 
   Log.info('Menginisialisasi Android Alarm Manager...');
   await AndroidAlarmManager.initialize();
@@ -120,5 +126,5 @@ void main() async {
     rescheduleOnReboot: true, // Ini adalah kunci utamanya!
   );
   Log.info(
-      'Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: \$rebootAlarmId');
+      'Receiver untuk penjadwalan ulang saat boot telah diaktifkan dengan ID: $rebootAlarmId');
 }

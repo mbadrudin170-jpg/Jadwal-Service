@@ -9,6 +9,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
+import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
@@ -76,8 +77,8 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
-  final supabaseUrl = dotenv.env['NEXT_PUBLIC_SUPABASE_URL']!;
-  final supabaseAnonKey = dotenv.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY']!;
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
+  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Log.info('Inisialisasi Supabase selesai.');
 

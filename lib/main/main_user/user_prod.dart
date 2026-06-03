@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/user/app_user.dart';
@@ -29,8 +30,8 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
-  final supabaseUrl = dotenv.env['SUPABASE_URL']!;
-  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY']!;
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
+  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Log.info('Inisialisasi Supabase selesai.');
 
