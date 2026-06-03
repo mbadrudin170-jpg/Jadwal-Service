@@ -64,7 +64,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final navigator = Navigator.of(context);
 
       try {
-        final isConnected = await _internetConnectionService.checkConnection();
+        final isConnected =
+            await _internetConnectionService.isInternetAvailable();
         if (!isConnected) {
           if (mounted) {
             ToastUtil.info(
