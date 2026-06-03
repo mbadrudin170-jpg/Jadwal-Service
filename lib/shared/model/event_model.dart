@@ -83,7 +83,7 @@ class EventModel implements HasId {
   }
 
   /// Membuat [EventModel] dari Firebase document.
-  factory EventModel.fromFirebase(
+  factory EventModel.fromSupabase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating EventModel from Firebase: $id');
     return EventModel(
@@ -101,7 +101,7 @@ class EventModel implements HasId {
   }
 
   /// Mengonversi [EventModel] ke map untuk penyimpanan Firebase.
-  Map<String, dynamic> toFirebase() {
+  Map<String, dynamic> toSupabase() {
     return {
       ColumnNames.id: id,
       ColumnNames.imageUrl: imageUrl,

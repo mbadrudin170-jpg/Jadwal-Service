@@ -187,15 +187,7 @@ class _ManageAnnouncementPageState
   }
 
   Future<void> _saveData() async {
-    if (!_formKey.currentState!.validate()) {
-      _scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-      return;
-    }
-
+    // 1. Validasi manual tanggal dan gambar karena tidak memakai TextFormField bawaan
     if (_selectedStartDate == null || _selectedEndDate == null) {
       ToastUtil.error(context, 'Harap pilih tanggal mulai dan selesai');
       return;
@@ -217,8 +209,9 @@ class _ManageAnnouncementPageState
       _isUploading = true;
     });
 
-    String? imageUrl = _imageUrlController.text.trim();
+    String imageUrl = _imageUrlController.text.trim();
 
+    // 2. Proses upload gambar ke storage jika admin memilih file gambar baru
     if (_selectedImage != null) {
       final storageService = ref.read(imageStorageServiceProvider);
       try {
@@ -228,7 +221,7 @@ class _ManageAnnouncementPageState
           imageUrl = uploadUrl;
         }
         if (imageUrl.isEmpty) {
-          throw Exception('URL gambar tidak diterima dari service.');
+          throw Exception('URL gambar kosong dari storage service.');
         }
       } catch (e, st) {
         Log.error('Gagal mengunggah gambar', e: e, st: st);
@@ -241,25 +234,30 @@ class _ManageAnnouncementPageState
     }
 
     final operator = ref.read(eventOpSupabaseProvider);
-
     final bool isActive = _isSwitched;
     final DateTime now = DateTime.now();
-    final EventModel announcementToSave = (_selectedAnnouncement ??
-            EventModel(
-              id: const Uuid().v4(),
-              createdAt: now,
-              imageUrl: imageUrl,
-              isActive: isActive,
-              startDate: _selectedStartDate!,
-              endDate: _selectedEndDate!,
-            ))
-        .copyWith(
-      imageUrl: imageUrl,
-      isActive: isActive,
-      updatedAt: now,
-      createdAt: _selectedAnnouncement?.createdAt ?? now,
-    );
 
+    // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
+    // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
+    final EventModel announcementToSave = _selectedAnnouncement != null
+        ? _selectedAnnouncement!.copyWith(
+            imageUrl: imageUrl,
+            isActive: isActive,
+            startDate: _selectedStartDate,
+            endDate: _selectedEndDate,
+            updatedAt: now,
+          )
+        : EventModel(
+            id: const Uuid().v4(),
+            createdAt: now,
+            updatedAt: now,
+            imageUrl: imageUrl,
+            isActive: isActive,
+            startDate: _selectedStartDate!,
+            endDate: _selectedEndDate!,
+          );
+
+    // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
     if (isActive) {
       try {
         final currentActive = await operator.getActive();
@@ -280,6 +278,7 @@ class _ManageAnnouncementPageState
       }
     }
 
+    // 5. Eksekusi penyimpanan ke Supabase via Provider
     try {
       await operator.upsert(announcementToSave);
       ToastUtil.success(context, 'Pengumuman berhasil disimpan!');

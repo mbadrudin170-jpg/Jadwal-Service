@@ -1,5 +1,4 @@
 // path: lib/user/providers/user_providers.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
@@ -16,7 +15,7 @@ class AppReadiness extends _$AppReadiness {
 }
 
 @riverpod
-NotifikasiServis notifikasiServis(WidgetRef ref) {
+NotifikasiServis notifikasiServis(Ref ref) {
   // DIHAPUS: NotifikasiServisRef
   return NotifikasiServis();
 }

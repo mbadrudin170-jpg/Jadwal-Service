@@ -45,6 +45,25 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:71302938947:android:6e53ff8ad8bb82e72baff6",
+        "android_client_info": {
+          "package_name": "com.kodekita.jejakroda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:71302938947:android:a95ae1e817f6b1c92baff6",
         "android_client_info": {
           "package_name": "com.wifi.admin"
@@ -64,9 +83,47 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:71302938947:android:efeeb5c56fcafe772baff6",
+        "android_client_info": {
+          "package_name": "com.wifi.admin.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:71302938947:android:b5da15c21d1e13aa2baff6",
         "android_client_info": {
           "package_name": "com.wifi.user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlOBmxKwtcDQQgO1PTHqAaeL60YBFDPNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:71302938947:android:b67b194ac4dc7ee22baff6",
+        "android_client_info": {
+          "package_name": "com.wifi.user.dev"
         }
       },
       "oauth_client": [],
