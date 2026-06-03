@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapp"
+    namespace = "com.wifi.admin"
     compileSdk = Integer.parseInt(findProperty("android.compileSdkVersion").toString())
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
     flavorDimensions += listOf("app", "environment")
 
     defaultConfig {
-        applicationId = "com.example.myapp"
+        applicationId = "com.wifi.admin"
         minSdk = Integer.parseInt(findProperty("android.minSdkVersion").toString())
         targetSdk = Integer.parseInt(findProperty("android.targetSdkVersion").toString())
         versionCode = flutter.versionCode

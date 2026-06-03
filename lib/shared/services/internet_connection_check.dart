@@ -1,74 +1,118 @@
 // path: lib/shared/services/internet_connection_check.dart
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart' as http;
 import 'package:wifi/shared/debug/log.dart';
 
 /// Kelas layanan untuk memeriksa status koneksi internet.
 class InternetConnectionService {
-  // ditambah: Variabel final untuk menyimpan instance Connectivity.
   final Connectivity _connectivity;
+  final http.Client _httpClient;
 
-  /// Konstruktor untuk `InternetConnectionService`.
-  ///
-  /// Memungkinkan injeksi `Connectivity` untuk keperluan pengujian.
-  InternetConnectionService({final Connectivity? connectivity})
-      : _connectivity = connectivity ?? Connectivity() {
-    // DITAMBAHKAN: Logging saat inisialisasi
+  /// URL target yang andal untuk memeriksa konektivitas internet.
+  final String _lookupUrl;
+
+  /// Durasi timeout untuk permintaan lookup.
+  final Duration _timeoutDuration;
+
+  InternetConnectionService({
+    Connectivity? connectivity,
+    http.Client? httpClient,
+    String? lookupUrl,
+    Duration? timeoutDuration,
+  })  : _connectivity = connectivity ?? Connectivity(),
+        _httpClient = httpClient ?? http.Client(),
+        _lookupUrl = lookupUrl ?? 'google.com',
+        _timeoutDuration = timeoutDuration ?? const Duration(seconds: 5) {
     Log.info('InternetConnectionService diinisialisasi.');
   }
 
-  /// Memeriksa apakah perangkat terhubung ke internet (WiFi atau Mobile).
-  /// Mengembalikan `true` jika online, dan `false` jika offline.
-  Future<bool> checkConnection() async {
-    Log.info('[Koneksi] Memulai pemeriksaan status koneksi perangkat...');
-
+  /// Memeriksa apakah perangkat memiliki koneksi lokal (WiFi atau Mobile).
+  /// Ini adalah langkah pertama sebelum memeriksa akses internet sebenarnya.
+  Future<bool> checkLocalConnection() async {
+    Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
-      // ditambah: Log sebelum memanggil plugin.
-      Log.info('[Koneksi] Memanggil _connectivity.checkConnectivity().');
-      // diubah: Menggunakan instance _connectivity yang sudah diinjeksi/dibuat.
       final connectivityResult = await _connectivity.checkConnectivity();
+      Log.info('[Lokal] Hasil mentah konektivitas: $connectivityResult');
 
-      Log.info(
-        '[Koneksi] Hasil mentah konektivitas diterima: $connectivityResult',
-      );
-
-      // ditambah: Log sebelum melakukan pengecekan logika.
-      Log.info('[Koneksi] Menganalisa hasil untuk koneksi mobile atau wifi.');
       final isOnline = connectivityResult.contains(ConnectivityResult.mobile) ||
           connectivityResult.contains(ConnectivityResult.wifi);
 
       if (isOnline) {
-        Log.info(
-          '[Koneksi] ✅ Sukses: Perangkat terdeteksi online (terhubung ke WiFi atau Mobile Data).',
-        );
-      } else if (connectivityResult.contains(ConnectivityResult.none)) {
-        // ditambah: Log spesifik untuk kasus tidak ada koneksi sama sekali.
-        Log.warning(
-          '[Koneksi] ❌ Gagal: Tidak ada koneksi jaringan yang terdeteksi (ConnectivityResult.none).',
-        );
+        Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
       } else {
-        // ditambah: Log untuk kasus lain yang mungkin (misal: bluetooth, ethernet)
-        Log.warning(
-          '[Koneksi] ⚠️ Peringatan: Jenis koneksi yang terdeteksi bukan WiFi atau Mobile Data ($connectivityResult). Dianggap offline.',
-        );
+        Log.warning('[Lokal] ❌ Gagal: Tidak ada koneksi jaringan lokal.');
       }
-
-      Log.info(
-        '[Koneksi] Pemeriksaan selesai, mengembalikan nilai: $isOnline.',
-      );
       return isOnline;
     } on Exception catch (e, st) {
-      // diperbaiki: Memperbaiki pemanggilan Log.error sesuai dengan definisinya.
       Log.error(
-        '[Koneksi] ❌ Fatal: Terjadi kesalahan saat menggunakan plugin connectivity_plus.',
+        '[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.',
         e: e,
         st: st,
       );
-      // Mengembalikan false sebagai fallback aman jika terjadi error pada plugin
-      Log.info('[Koneksi] Mengembalikan nilai fallback '
-          'false'
-          ' karena terjadi exception.');
       return false;
+    }
+  }
+
+  /// Memeriksa apakah perangkat benar-benar bisa mengakses internet.
+  /// Melakukan lookup ke alamat eksternal setelah memastikan koneksi lokal ada.
+  Future<bool> isInternetAvailable() async {
+    Log.info('[Internet] Memulai pemeriksaan konektivitas internet penuh...');
+
+    // Langkah 1: Cek koneksi lokal terlebih dahulu.
+    final hasLocalConnection = await checkLocalConnection();
+    if (!hasLocalConnection) {
+      Log.warning(
+          '[Internet] ❌ Gagal: Pemeriksaan dihentikan karena tidak ada koneksi lokal.');
+      return false;
+    }
+
+    // Langkah 2: Jika ada koneksi lokal, coba akses internet.
+    Log.info(
+        '[Internet] Koneksi lokal terdeteksi. Mencoba menghubungi $_lookupUrl...');
+    try {
+      final response =
+          await _httpClient.get(Uri.https(_lookupUrl)).timeout(_timeoutDuration);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        Log.info(
+            '[Internet] ✅ Sukses: Berhasil menghubungi $_lookupUrl. Internet tersedia.');
+        return true;
+      }
+      // Kondisi ini jarang terjadi, tapi tetap ditangani
+      Log.warning(
+          '[Internet] ❌ Gagal: Gagal menghubungi $_lookupUrl. Status code: ${response.statusCode}');
+      return false;
+    } on TimeoutException {
+      Log.error(
+          '[Internet] ❌ Gagal: Waktu habis saat mencoba menghubungi $_lookupUrl. (Timeout: ${_timeoutDuration.inSeconds} detik)');
+      return false;
+    } on SocketException catch (e, st) {
+      Log.error(
+        '[Internet] ❌ Gagal: Terjadi SocketException. Ini sering disebabkan oleh firewall, masalah DNS, atau tidak ada internet sama sekali. Error: ${e.message}',
+        e: e,
+        st: st,
+      );
+      return false;
+    } on HandshakeException catch (e, st) {
+      Log.error(
+        '[Internet] ❌ Gagal: Terjadi HandshakeException. Ini sering disebabkan oleh firewall atau antivirus yang memblokir koneksi aman (TLS/SSL). Error: ${e.message}',
+        e: e,
+        st: st,
+      );
+      return false;
+    } catch (e, st) {
+      Log.error(
+        '[Internet] ❌ Gagal: Terjadi kesalahan tidak terduga saat memeriksa konektivitas internet.',
+        e: e,
+        st: st,
+      );
+      return false;
+    } finally {
+      _httpClient.close();
     }
   }
 }
