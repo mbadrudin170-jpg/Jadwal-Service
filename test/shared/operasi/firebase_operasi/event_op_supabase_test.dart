@@ -64,13 +64,9 @@ void main() {
         when(mockFilterBuilder.order(ColumnNames.createdAt, ascending: false))
             .thenAnswer((_) => mockTransformBuilder);
 
-        // PERBAIKAN: Tambahkan anyNamed('onError') untuk menangkap parameter opsional
-        when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
-            .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
-          return callback([event2Map, event1Map]);
-        });
+        // ✅ Stub untuk timeout, bukan then
+        when(mockTransformBuilder.timeout(any))
+            .thenAnswer((_) async => [event2Map, event1Map]);
 
         final result = await eventOpSupabase.getAll();
 
