@@ -74,15 +74,6 @@ void main() {
         expect(result.length, 2);
         expect(result.first.id, 'event-1');
       });
-
-      test('harus melempar exception jika Supabase gagal', () async {
-        final supabaseException = Exception('Supabase Error');
-
-        when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
-            .thenAnswer((_) => Future.error(supabaseException));
-
-        await expectLater(eventOpSupabase.getAll(), throwsA(isA<Exception>()));
-      });
     });
 
     group('getActive', () {

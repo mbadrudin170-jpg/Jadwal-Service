@@ -370,7 +370,7 @@ class _ManageAnnouncementPageState
                       child: ElevatedButton.icon(
                         onPressed: _isUploading ? null : _pickImage,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black.withOpacity(0.7),
+                          backgroundColor: Colors.black.withValues(alpha: 0.7),
                           foregroundColor: Colors.white,
                           elevation: 2,
                           padding: const EdgeInsets.symmetric(

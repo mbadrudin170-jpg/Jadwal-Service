@@ -2,68 +2,87 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
-import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'initial_download_test.mocks.dart';
 
-@GenerateMocks([DownloadDataService, SyncManager])
+@GenerateMocks([DownloadDataService, DatabaseHelper, Database])
 void main() {
-  late InitialDataLoader initialDataLoader;
+  late InitialDownloadService initialDownloadService;
   late MockDownloadDataService mockDownloadDataService;
-  late MockSyncManager mockSyncManager;
+  late MockDatabaseHelper mockDbHelper;
+  late MockDatabase mockDb;
 
   setUp(() {
     mockDownloadDataService = MockDownloadDataService();
-    mockSyncManager = MockSyncManager();
-    initialDataLoader = InitialDataLoader(
-      downloadDataService: mockDownloadDataService,
-      syncManager: mockSyncManager,
+    mockDbHelper = MockDatabaseHelper();
+    mockDb = MockDatabase();
+
+    // Mock DatabaseHelper agar mengembalikan mock database
+    when(mockDbHelper.database).thenAnswer((_) async => mockDb);
+
+    initialDownloadService = InitialDownloadService(
+      downloadService: mockDownloadDataService,
+      dbHelper: mockDbHelper,
     );
   });
 
-  group('InitialDataLoader', () {
-    test('isInitialDownloadRequired returns true when last download is epoch',
+  group('InitialDownloadService', () {
+    test('runInitialDownload melakukan unduh jika tabel-tabel kosong',
         () async {
-      when(mockSyncManager.getLastDownload())
-          .thenAnswer((_) async => DateTime(1970));
+      // Mock query count mengembalikan 0 (tabel kosong)
+      when(mockDb.rawQuery(any)).thenAnswer((_) async => [
+            {'count': 0}
+          ]);
 
-      final result = await initialDataLoader.isInitialDownloadRequired();
+      // Mock semua fungsi download agar berhasil
+      when(mockDownloadDataService.downloadPackageData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadCategoryData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadSubCategoryData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadWalletData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadCustomerData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadApkVersionData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadSettingsData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadActiveCustomerData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadTransactionData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadFeedbackData())
+          .thenAnswer((_) async {});
+      when(mockDownloadDataService.downloadOrderData())
+          .thenAnswer((_) async {});
 
-      expect(result, isTrue);
+      await initialDownloadService.runInitialDownload();
+
+      // Verifikasi bahwa orchestration memanggil fungsi download
+      verify(mockDownloadDataService.downloadPackageData()).called(1);
+      verify(mockDownloadDataService.downloadCategoryData()).called(1);
+      verify(mockDownloadDataService.downloadWalletData()).called(1);
     });
 
-    test(
-        'isInitialDownloadRequired returns false when last download is not epoch',
+    test('runInitialDownload melewati unduh jika tabel sudah memiliki data',
         () async {
-      when(mockSyncManager.getLastDownload())
-          .thenAnswer((_) async => DateTime.now());
+      // Mock query count mengembalikan nilai > 0 (tabel tidak kosong)
+      when(mockDb.rawQuery(any)).thenAnswer((_) async => [
+            {'count': 10}
+          ]);
 
-      final result = await initialDataLoader.isInitialDownloadRequired();
+      await initialDownloadService.runInitialDownload();
 
-      expect(result, isFalse);
-    });
-
-    test('downloadDataAndSetTimestamp executes download and updates timestamp',
-        () async {
-      when(mockDownloadDataService.downloadAllData()).thenAnswer((_) async {});
-      when(mockSyncManager.updateLastDownload()).thenAnswer((_) async {});
-
-      await initialDataLoader.downloadDataAndSetTimestamp();
-
-      verify(mockDownloadDataService.downloadAllData()).called(1);
-      verify(mockSyncManager.updateLastDownload()).called(1);
-    });
-
-    test('downloadDataAndSetTimestamp throws exception if download fails',
-        () async {
-      final testException = Exception('Download failed');
-      when(mockDownloadDataService.downloadAllData()).thenThrow(testException);
-
-      expect(() => initialDataLoader.downloadDataAndSetTimestamp(),
-          throwsA(isA<Exception>()));
-      verifyNever(mockSyncManager.updateLastDownload());
+      // Verifikasi bahwa fungsi download tidak pernah dipanggil
+      verifyNever(mockDownloadDataService.downloadPackageData());
+      verifyNever(mockDownloadDataService.downloadCategoryData());
+      verifyNever(mockDownloadDataService.downloadWalletData());
     });
   });
 }

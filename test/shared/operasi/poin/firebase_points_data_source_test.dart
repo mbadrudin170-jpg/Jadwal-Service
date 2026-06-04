@@ -2,6 +2,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
@@ -40,9 +42,18 @@ void main() {
       verifyNoMoreInteractions(mockTransactionOpFirebase);
     });
 
-    test('getPublicPackages should return public packages from package operation',
+    test(
+        'getPublicPackages should return public packages from package operation',
         () async {
-      final packages = [PackageModel(id: '1', name: 'Test Package')];
+      final packages = [
+        PackageModel(
+          id: '1',
+          name: 'Test Package',
+          price: 0,
+          duration: 0,
+          type: DurationType.hours,
+        )
+      ];
       when(mockPackageOpFirebase.getPublicPackages())
           .thenAnswer((_) async => packages);
 
@@ -57,9 +68,35 @@ void main() {
         'getPointsTransactions should return transactions with points from transaction operation',
         () async {
       final transactions = [
-        TransactionModel(id: '1', earnedPoints: 10),
-        TransactionModel(id: '2', usedPoints: 5),
-        TransactionModel(id: '3'),
+        TransactionModel(
+          id: '1',
+          earnedPoints: 10,
+          date: DateTime.now(),
+          description: '',
+          amount: 0,
+          type: TransactionType.income,
+          walletId: '',
+          categoryId: '',
+        ),
+        TransactionModel(
+          id: '2',
+          usedPoints: 5,
+          date: DateTime.now(),
+          description: '',
+          amount: 0,
+          type: TransactionType.income,
+          walletId: '',
+          categoryId: '',
+        ),
+        TransactionModel(
+          id: '3',
+          date: DateTime.now(),
+          description: '',
+          amount: 0,
+          type: TransactionType.income,
+          walletId: '',
+          categoryId: '',
+        ),
       ];
       when(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId))
           .thenAnswer((_) async => transactions);
@@ -76,7 +113,13 @@ void main() {
     test('getPackageById should return package from package operation',
         () async {
       const packageId = 'test_package_id';
-      final package = PackageModel(id: packageId, name: 'Test Package');
+      final package = PackageModel(
+        id: packageId,
+        name: 'Test Package',
+        price: 0,
+        duration: 0,
+        type: DurationType.hours,
+      );
       when(mockPackageOpFirebase.getPackageById(packageId))
           .thenAnswer((_) async => package);
 
