@@ -45,8 +45,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 
     // Jadwalkan untuk 10 detik dari sekarang agar lebih cepat diuji
     final jadwal = DateTime.now().add(const Duration(seconds: 10));
-    Log.info(
-        'Memperbarui jadwal notifikasi (ID: $_testNotificationId) untuk $jadwal');
 
     try {
       await _notifikasiServis.perbaruiJadwalNotifikasi(
@@ -57,10 +55,10 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
         payload: payload.isNotEmpty ? payload : null,
       );
       _tampilkanSnackbar(
-          'Notifikasi dijadwalkan ulang pukul ${jadwal.hour}:${jadwal.minute}:${jadwal.second}');
+          'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}');
     } on Exception catch (e) {
       Log.error('Gagal memperbarui jadwal notifikasi', e: e);
-      _tampilkanSnackbar('Error: $e');
+      _tampilkanSnackbar('Error: \$e');
     }
   }
 
@@ -74,9 +72,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
       return;
     }
 
-    Log.info('=== TEST: Mencoba menampilkan notifikasi langsung ===');
-    Log.info('Judul: $title, Isi: $body, Payload: $payload');
-
     try {
       await _notifikasiServis.tampilkanNotifikasiLangsung(
         title: title,
@@ -86,7 +81,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
       _tampilkanSnackbar('Notifikasi berhasil dikirim!');
     } on Exception catch (e, st) {
       Log.error('=== TEST: Gagal menampilkan notifikasi ===', e: e, st: st);
-      _tampilkanSnackbar('Gagal mengirim notifikasi: $e');
+      _tampilkanSnackbar('Gagal mengirim notifikasi: \$e');
     }
   }
 
@@ -163,7 +158,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
-                  Log.info('Membatalkan semua notifikasi...');
                   await _notifikasiServis.batalSemuaNotifikasi();
                   _tampilkanSnackbar('Semua notifikasi telah dibatalkan.');
                 },
@@ -186,9 +180,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '1. Kirim notifikasi dari halaman ini.\n'
-                        '2. Notifikasi akan langsung muncul di panel notifikasi sistem.\n'
-                        '3. Klik notifikasi tersebut, pastikan Snackbar "Dibuka dari notifikasi" muncul di halaman utama.\n'
+                        '1. Kirim notifikasi dari halaman ini.\\n'
+                        '2. Notifikasi akan langsung muncul di panel notifikasi sistem.\\n'
+                        '3. Klik notifikasi tersebut, pastikan Snackbar "Dibuka dari notifikasi" muncul di halaman utama.\\n'
                         '4. Tutup paksa aplikasi, lalu kirim notifikasi lagi, dan klik untuk menguji skenario terminated.',
                         style: TextStyle(color: Colors.white),
                       ),

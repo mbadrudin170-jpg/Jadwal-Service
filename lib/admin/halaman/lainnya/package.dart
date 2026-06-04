@@ -28,8 +28,6 @@ class PackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun UI halaman Daftar Paket');
-
     final asyncPackages = ref.watch(packageListProvider);
     final urutanSaatIni = ref.watch(urutanPaketStateProvider);
 
@@ -57,7 +55,6 @@ class PackagePage extends ConsumerWidget {
         },
         data: (paketList) {
           if (paketList.isEmpty) {
-            Log.info('Data paket kosong, tidak ada paket yang tersedia');
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
 
@@ -65,16 +62,12 @@ class PackagePage extends ConsumerWidget {
           final sortedList = List<PackageModel>.from(paketList);
           _urutkanList(sortedList, urutanSaatIni);
 
-          Log.info(
-              'Menampilkan ${sortedList.length} paket, urutan: $urutanSaatIni');
-
           return ListView.builder(
             itemCount: sortedList.length,
             itemBuilder: (context, index) {
               final paket = sortedList[index];
               return InkWell(
                 onTap: () async {
-                  Log.info('Navigasi ke Detail Paket: ${paket.name}');
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
@@ -104,7 +97,6 @@ class PackagePage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Log.info('Navigasi ke Form Tambah Paket');
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -172,7 +164,6 @@ int _getDurationInMinutes(PackageModel paket) {
 
 Future<void> _tampilkanDialogUrutkan(
     BuildContext context, WidgetRef ref) async {
-  Log.info('Menampilkan dialog urutkan');
   final urutanSaatIni = ref.read(urutanPaketStateProvider);
 
   final hasil = await showDialog<UrutanPaket>(
@@ -217,7 +208,6 @@ Future<void> _tampilkanDialogUrutkan(
 
 Future<void> _showEditDeleteDialog(
     BuildContext context, WidgetRef ref, PackageModel paket) async {
-  Log.info('Menampilkan dialog opsi untuk paket: ${paket.name}');
   await showDialog<void>(
     context: context,
     builder: (dialogContext) {
@@ -252,7 +242,6 @@ Future<void> _showEditDeleteDialog(
 
 Future<void> _showDeleteConfirmationDialog(
     BuildContext context, WidgetRef ref, PackageModel paket) async {
-  Log.info('Menampilkan konfirmasi hapus untuk: ${paket.name}');
   final paketOperasi = ref.read(packageOperationProvider);
 
   await showDialog<void>(
@@ -274,10 +263,9 @@ Future<void> _showDeleteConfirmationDialog(
               Navigator.of(dialogContext).pop();
 
               try {
-                Log.info('Menjalankan soft delete untuk: ${paket.name}');
                 await paketOperasi.softDelete(paket.id);
 
-                ref.invalidate(packageListProvider);
+                final _ = ref.refresh(packageListProvider);
 
                 if (context.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
@@ -319,9 +307,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               try {
                 Log.info('Menjalankan soft delete semua paket');
                 await paketOperasi.softDeleteAll();
-
-                ref.invalidate(packageListProvider);
-
+                final _ = ref.refresh(packageListProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
                 }

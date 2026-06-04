@@ -45,8 +45,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
 
     // Jadwalkan untuk 10 detik dari sekarang agar lebih cepat diuji
     final jadwal = DateTime.now().add(const Duration(seconds: 10));
-    Log.info(
-        'Memperbarui jadwal notifikasi (ID: $_testNotificationId) untuk $jadwal');
 
     try {
       await _notifikasiServis.perbaruiJadwalNotifikasi(
@@ -57,10 +55,10 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
         payload: payload.isNotEmpty ? payload : null,
       );
       _tampilkanSnackbar(
-          'Notifikasi dijadwalkan ulang pukul ${jadwal.hour}:${jadwal.minute}:${jadwal.second}');
+          'Notifikasi dijadwalkan ulang pukul \${jadwal.hour}:\${jadwal.minute}:\${jadwal.second}');
     } on Exception catch (e) {
       Log.error('Gagal memperbarui jadwal notifikasi', e: e);
-      _tampilkanSnackbar('Error: $e');
+      _tampilkanSnackbar('Error: \$e');
     }
   }
 
@@ -74,9 +72,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
       return;
     }
 
-    Log.info('=== TEST: Mencoba menampilkan notifikasi langsung ===');
-    Log.info('Judul: $title, Isi: $body, Payload: $payload');
-
     try {
       await _notifikasiServis.tampilkanNotifikasiLangsung(
         title: title,
@@ -86,7 +81,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
       _tampilkanSnackbar('Notifikasi berhasil dikirim!');
     } on Exception catch (e, st) {
       Log.error('=== TEST: Gagal menampilkan notifikasi ===', e: e, st: st);
-      _tampilkanSnackbar('Gagal mengirim notifikasi: $e');
+      _tampilkanSnackbar('Gagal mengirim notifikasi: \$e');
     }
   }
 
@@ -163,7 +158,6 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
-                  Log.info('Membatalkan semua notifikasi...');
                   await _notifikasiServis.batalSemuaNotifikasi();
                   _tampilkanSnackbar('Semua notifikasi telah dibatalkan.');
                 },
@@ -186,9 +180,9 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '1. Kirim notifikasi dari halaman ini.\n'
-                        '2. Notifikasi akan langsung muncul di panel notifikasi sistem.\n'
-                        '3. Klik notifikasi tersebut, pastikan Snackbar "Dibuka dari notifikasi" muncul di halaman utama.\n'
+                        '1. Kirim notifikasi dari halaman ini.\\n'
+                        '2. Notifikasi akan langsung muncul di panel notifikasi sistem.\\n'
+                        '3. Klik notifikasi tersebut, pastikan Snackbar "Dibuka dari notifikasi" muncul di halaman utama.\\n'
                         '4. Tutup paksa aplikasi, lalu kirim notifikasi lagi, dan klik untuk menguji skenario terminated.',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -22733,7 +22727,7 @@ import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
-void main() async {
+Future<void> main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -24227,8 +24221,6 @@ class PackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun UI halaman Daftar Paket');
-
     final asyncPackages = ref.watch(packageListProvider);
     final urutanSaatIni = ref.watch(urutanPaketStateProvider);
 
@@ -24256,7 +24248,6 @@ class PackagePage extends ConsumerWidget {
         },
         data: (paketList) {
           if (paketList.isEmpty) {
-            Log.info('Data paket kosong, tidak ada paket yang tersedia');
             return const Center(child: Text('Tidak ada paket yang tersedia.'));
           }
 
@@ -24264,16 +24255,12 @@ class PackagePage extends ConsumerWidget {
           final sortedList = List<PackageModel>.from(paketList);
           _urutkanList(sortedList, urutanSaatIni);
 
-          Log.info(
-              'Menampilkan ${sortedList.length} paket, urutan: $urutanSaatIni');
-
           return ListView.builder(
             itemCount: sortedList.length,
             itemBuilder: (context, index) {
               final paket = sortedList[index];
               return InkWell(
                 onTap: () async {
-                  Log.info('Navigasi ke Detail Paket: ${paket.name}');
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
@@ -24303,7 +24290,6 @@ class PackagePage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Log.info('Navigasi ke Form Tambah Paket');
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
@@ -24371,7 +24357,6 @@ int _getDurationInMinutes(PackageModel paket) {
 
 Future<void> _tampilkanDialogUrutkan(
     BuildContext context, WidgetRef ref) async {
-  Log.info('Menampilkan dialog urutkan');
   final urutanSaatIni = ref.read(urutanPaketStateProvider);
 
   final hasil = await showDialog<UrutanPaket>(
@@ -24416,7 +24401,6 @@ Future<void> _tampilkanDialogUrutkan(
 
 Future<void> _showEditDeleteDialog(
     BuildContext context, WidgetRef ref, PackageModel paket) async {
-  Log.info('Menampilkan dialog opsi untuk paket: ${paket.name}');
   await showDialog<void>(
     context: context,
     builder: (dialogContext) {
@@ -24451,7 +24435,6 @@ Future<void> _showEditDeleteDialog(
 
 Future<void> _showDeleteConfirmationDialog(
     BuildContext context, WidgetRef ref, PackageModel paket) async {
-  Log.info('Menampilkan konfirmasi hapus untuk: ${paket.name}');
   final paketOperasi = ref.read(packageOperationProvider);
 
   await showDialog<void>(
@@ -24473,10 +24456,9 @@ Future<void> _showDeleteConfirmationDialog(
               Navigator.of(dialogContext).pop();
 
               try {
-                Log.info('Menjalankan soft delete untuk: ${paket.name}');
                 await paketOperasi.softDelete(paket.id);
 
-                ref.invalidate(packageListProvider);
+                final _ = ref.refresh(packageListProvider);
 
                 if (context.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
@@ -24518,9 +24500,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               try {
                 Log.info('Menjalankan soft delete semua paket');
                 await paketOperasi.softDeleteAll();
-
-                ref.invalidate(packageListProvider);
-
+                final _ = ref.refresh(packageListProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
                 }
@@ -36999,11 +36979,23 @@ class HalamanUtama extends ConsumerStatefulWidget {
 }
 
 class _HalamanUtamaState extends ConsumerState<HalamanUtama>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin<HalamanUtama> {
   late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
   late final SyncCheckService _syncService;
   bool _sedangSinkronisasi = false;
   int _selectedIndex = 0;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      Log.info('Aplikasi kembali ke foreground, memicu sinkronisasi.');
+      unawaited(_sinkronisasiDataSaatOnline());
+    }
+  }
 
   @override
   void initState() {
@@ -37026,7 +37018,6 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Future<void> _initAsync() async {
     await _handleInitialNotification();
     await _scheduleSync();
-    Log.info('Frame pertama selesai dirender.');
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
@@ -37077,7 +37068,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     if (mounted) setState(() => _sedangSinkronisasi = true);
     try {
       await _syncService.runSyncCheck();
-      Log.info('Sinkronisasi data selesai. Memberi sinyal refresh.');
+      Log.info('Sinkronisasi data selesai.');
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
@@ -37117,6 +37108,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
   @override
   Widget build(final BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigationBar(

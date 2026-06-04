@@ -29,11 +29,23 @@ class HalamanUtama extends ConsumerStatefulWidget {
 }
 
 class _HalamanUtamaState extends ConsumerState<HalamanUtama>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin<HalamanUtama> {
   late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
   late final SyncCheckService _syncService;
   bool _sedangSinkronisasi = false;
   int _selectedIndex = 0;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      Log.info('Aplikasi kembali ke foreground, memicu sinkronisasi.');
+      unawaited(_sinkronisasiDataSaatOnline());
+    }
+  }
 
   @override
   void initState() {
@@ -56,7 +68,6 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Future<void> _initAsync() async {
     await _handleInitialNotification();
     await _scheduleSync();
-    Log.info('Frame pertama selesai dirender.');
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
@@ -107,7 +118,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     if (mounted) setState(() => _sedangSinkronisasi = true);
     try {
       await _syncService.runSyncCheck();
-      Log.info('Sinkronisasi data selesai. Memberi sinyal refresh.');
+      Log.info('Sinkronisasi data selesai.');
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
@@ -147,6 +158,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
   @override
   Widget build(final BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigationBar(
