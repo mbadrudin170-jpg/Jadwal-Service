@@ -267,7 +267,11 @@ Jika belum mengetahui padanan kata yang tepat:
 **7. Menjalankan `flutter analyze` Setiap Selesai Perubahan**  
 - Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.  
 - Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.  
-- Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.# // path: prompt/aturan_kepatuhan_ai.md
+- Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.
+
+## Komentar
+1. tambahkan sebuah komentar disetiap fungsi didalam sebuah file contoh `// 1. Menginisialisasi konfigurasi zona waktu`.
+# // path: prompt/aturan_kepatuhan_ai.md
 
 
 ---
