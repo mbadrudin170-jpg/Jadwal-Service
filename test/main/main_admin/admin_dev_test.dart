@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/main/main_admin/admin_dev.dart' as admin_dev;
@@ -10,9 +11,17 @@ import 'firebase_mock.dart';
 
 class FakeBootService implements BootService {
   int schedulePeriodicArchiveTaskCalled = 0;
+  int rescheduleArchivingTaskCalled = 0;
+
   @override
-  Future<void> schedulePeriodicArchiveTask(dynamic container) {
+  Future<void> schedulePeriodicArchiveTask(ProviderContainer container) {
     schedulePeriodicArchiveTaskCalled++;
+    return Future.value();
+  }
+
+  @override
+  Future<void> rescheduleArchivingTask(ProviderContainer container) {
+    rescheduleArchivingTaskCalled++;
     return Future.value();
   }
 }

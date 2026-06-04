@@ -42,7 +42,23 @@ class AndroidAlarmScheduler implements AlarmScheduler {
   }
 
   @override
-  Future<bool> cancelAlarm(int id) {
+  Future<bool> oneShotAt(DateTime time, int id, void Function() callback, {
+    bool exact = false,
+    bool wakeup = false,
+    bool rescheduleOnReboot = false,
+  }) {
+    return AndroidAlarmManager.oneShotAt(
+      time,
+      id,
+      callback,
+      exact: exact,
+      wakeup: wakeup,
+      rescheduleOnReboot: rescheduleOnReboot,
+    );
+  }
+
+  @override
+  Future<bool> cancel(int id) {
     return AndroidAlarmManager.cancel(id);
   }
 }
