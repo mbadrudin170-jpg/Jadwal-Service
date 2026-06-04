@@ -33,8 +33,7 @@ void main() {
       ApkArchitectureEnum.x86_64: 'http://example.com/x86_64.apk'
     },
     releaseNotes: 'Initial release',
-    isUpdateRequired: false,
-    updatedAt: DateTime(2023, 1, 1),
+    updatedAt: DateTime(2023),
   );
 
   test(

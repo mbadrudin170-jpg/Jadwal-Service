@@ -26,8 +26,8 @@ void main() {
     id: 'cust1',
     customerId: 'cust1',
     packageId: 'pkg1',
-    startDate: DateTime(2023, 1, 1),
-    endDate: DateTime(2023, 2, 1),
+    startDate: DateTime(2023),
+    endDate: DateTime(2023, 2),
     status: PaymentStatus.paid,
   );
 

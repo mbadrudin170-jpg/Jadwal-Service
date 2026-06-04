@@ -19,11 +19,14 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     mockStatusOpFirebase = MockStatusOpFirebase();
 
+    // Atur mock untuk mengembalikan Future<void> yang sudah selesai.
+    // Ini diperlukan karena metode yang diuji memanggilnya dan mengharapkan Future.
+    when(mockStatusOpFirebase.updateGlobalStatus()).thenAnswer((_) async {});
+
     baseOpFirebase = BaseOpFirebase(
       firestore: fakeFirestore,
       statusOp: mockStatusOpFirebase,
     );
-    reset(mockStatusOpFirebase);
   });
 
   group('BaseOpFirebase', () {

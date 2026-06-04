@@ -11,14 +11,17 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 /// Koleksi ini berfungsi sebagai cache atau ringkasan untuk mempermudah
 /// dan mempercepat query data pelanggan yang sedang aktif berlangganan.
 class ActiveCustomerOpFirebase extends BaseOpFirebase {
+  final FirebaseFirestore _firestore;
+
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  ActiveCustomerOpFirebase({super.firestore}) {
+  ActiveCustomerOpFirebase({super.firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance {
     Log.info('ActiveCustomerOpFirebase diinisialisasi.');
   }
 
   /// Mendapatkan referensi ke koleksi active_customers.
-  CollectionReference get _collection => FirebaseFirestore.instance
-      .collection(TableNameValue.get(TableName.activeCustomer));
+  CollectionReference get _collection =>
+      _firestore.collection(TableNameValue.get(TableName.activeCustomer));
 
   /// Menambah atau memperbarui data pelanggan aktif.
   /// Fungsi ini menggunakan ID pelanggan sebagai ID dokumen untuk memastikan
