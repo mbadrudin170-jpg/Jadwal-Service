@@ -20,10 +20,7 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Mengambil semua data pengumuman');
     try {
       Log.info('1️⃣ Membangun query...');
-      final query = _supabase
-          .from(_tableName)
-          .select()
-          .order(ColumnNames.createdAt, ascending: false);
+      final query = _supabase.from(_tableName).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
       final List<Map<String, dynamic>> response =
           await query.timeout(const Duration(seconds: 10));

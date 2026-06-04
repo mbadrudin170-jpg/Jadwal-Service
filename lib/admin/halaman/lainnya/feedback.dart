@@ -1,25 +1,17 @@
-// path: lib/admin/halaman/lainnya/feedback.dart
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 
-/// Halaman untuk menampilkan daftar kritik dan saran dari pengguna.
-///
-/// Admin dapat melihat, membuka detail, dan menghapus kritik dan saran
-/// yang masuk melalui halaman ini.
 class FeedbackPage extends ConsumerStatefulWidget {
-  /// Membuat instance dari [FeedbackPage].
   const FeedbackPage({super.key});
 
   @override
@@ -27,10 +19,8 @@ class FeedbackPage extends ConsumerStatefulWidget {
 }
 
 class _FeedbackPageState extends ConsumerState<FeedbackPage> {
-  List<FeedbackModel> _allFeedback = [];
   List<FeedbackModel> _hasilFilter = [];
   Map<String, String> _mapNamaUser = {};
-  bool _isLoading = true;
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -38,70 +28,46 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
-    unawaited(_loadFeedback());
-    _searchController.addListener(_applyFilter);
+    _searchController.addListener(_syncFilterOnly);
+    // Memuat data pelanggan di awal untuk map nama
+    unawaited(_loadPelangganMapping());
   }
 
   @override
   void dispose() {
     Log.info('Menutup halaman Kritik & Saran');
-    _searchController.removeListener(_applyFilter);
+    _searchController.removeListener(_syncFilterOnly);
     _searchController.dispose();
     super.dispose();
   }
 
-  void _applyFilter() {
-    final query = _searchController.text.toLowerCase();
-    Log.info('Menerapkan filter dengan query: "$query"');
-    setState(() {
-      _hasilFilter = _allFeedback.where((item) {
-        final isi = item.content.toLowerCase();
-        final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
-        return isi.contains(query) || namaPengirim.contains(query);
-      }).toList();
-    });
+  /// Memuat data pelanggan sekali saja untuk mapping ID -> Nama
+  Future<void> _loadPelangganMapping() async {
+    try {
+      final pelangganList = await ref.read(customerOperationProvider).getAll();
+      if (mounted) {
+        setState(() {
+          _mapNamaUser = {for (var p in pelangganList) p.id: p.name};
+        });
+      }
+    } catch (e) {
+      Log.error('Gagal memuat mapping pelanggan', e: e);
+    }
   }
 
-  Future<void> _loadFeedback() async {
-    Log.info('Memuat data kritik dan saran dari database');
-    if (!_isLoading && mounted) {
-      setState(() {
-        _isLoading = true;
-      });
-    }
+  /// Fungsi pembantu untuk memfilter data lokal berdasarkan query pencarian
+  void _applyFilter(List<FeedbackModel> allFeedback) {
+    final query = _searchController.text.toLowerCase();
+    _hasilFilter = allFeedback.where((item) {
+      final isi = item.content.toLowerCase();
+      final namaPengirim = _mapNamaUser[item.userId]?.toLowerCase() ?? '';
+      return isi.contains(query) || namaPengirim.contains(query);
+    }).toList();
+  }
 
-    try {
-      final List<dynamic> results = await Future.wait([
-        ref.read(feedbackOperationProvider).getAllActiveFeedback(),
-        ref.read(customerOperationProvider).getAll(),
-      ]);
-
-      final List<FeedbackModel> kritikSaranList =
-          results[0] as List<FeedbackModel>;
-      final List<CustomerModel> pelangganList =
-          results[1] as List<CustomerModel>;
-
-      if (mounted) {
-        setState(() {
-          _allFeedback = kritikSaranList;
-          _mapNamaUser = {for (var p in pelangganList) p.id: p.name};
-          _applyFilter();
-          _isLoading = false;
-        });
-      }
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal memuat data kritik dan saran dari database',
-        e: e,
-        st: st,
-      );
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat data: $e');
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+  /// Listener sederhana saat mengetik di search bar agar UI lokal ter-update
+  void _syncFilterOnly() {
+    setState(() {});
   }
 
   Future<void> _deleteFeedback(final FeedbackModel item) async {
@@ -110,8 +76,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
       builder: (final context) => AlertDialog(
         title: const Text('Konfirmasi Hapus'),
         content: const Text(
-          'Apakah Anda yakin ingin menghapus kritik dan saran ini?',
-        ),
+            'Apakah Anda yakin ingin menghapus kritik dan saran ini?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -127,20 +92,15 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     );
 
     if ((konfirmasi ?? false) && mounted) {
-      // Sisipan: log info awal proses hapus
       Log.info('Memproses penghapusan kritik/saran ID: ${item.id}');
       try {
         await ref.read(feedbackOperationProvider).softDelete(item.id);
-        final _ = ref.invalidate(feedbackOperationProvider);
+        final _ = ref.refresh(activeFeedbackListProvider);
         if (mounted) {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
       } on Exception catch (e, st) {
-        Log.error(
-          'Gagal menghapus kritik/saran ID: ${item.id}',
-          e: e,
-          st: st,
-        );
+        Log.error('Gagal menghapus kritik/saran ID: ${item.id}', e: e, st: st);
         if (mounted) {
           ToastUtil.error(context, 'Gagal menghapus: $e');
         }
@@ -150,76 +110,91 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
 
   @override
   Widget build(final BuildContext context) {
+    // 3. Ambil dan pantau (watch) state dari provider baru Anda di sini
+    final feedbackAsync = ref.watch(activeFeedbackListProvider);
+
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
-        onRefresh: _loadFeedback,
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : (_hasilFilter.isEmpty
-                ? Center(
-                    child: Text(
-                      _searchController.text.isNotEmpty
-                          ? 'Tidak ada hasil ditemukan.'
-                          : 'Belum ada kritik dan saran.',
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: _hasilFilter.length,
-                    itemBuilder: (final context, final index) {
-                      final item = _hasilFilter[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: InkWell(
-                          onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute<bool>(
-                                builder: (final context) =>
-                                    FeedbackDetailPage(id: item.id),
-                              ),
-                            );
-                            if ((result ?? false) && mounted) {
-                              await _loadFeedback();
-                            }
-                          },
-                          onLongPress: () => _deleteFeedback(item),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomerNameWidget(customerId: item.userId),
-                                const SizedBox(height: 12),
-                                Text(
-                                  item.content,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const Divider(height: 24),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    item.date != null
-                                        ? FormatDateTime
-                                            .formatDateAndTimeCompact(
-                                            item.date!,
-                                          )
-                                        : 'Tanggal tidak tersedia',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+        // Pull to refresh sekarang sangat mudah, tinggal gunakan ref.refresh
+        onRefresh: () => ref.refresh(activeFeedbackListProvider.future),
+        child: feedbackAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, st) {
+            Log.error('Gagal memuat data kritik dan saran', e: e, st: st);
+            return Center(child: Text('Gagal memuat data: $e'));
+          },
+          data: (allFeedback) {
+            // Jalankan filter pencarian terhadap data real-time dari Riverpod
+            _applyFilter(allFeedback);
+
+            if (_hasilFilter.isEmpty) {
+              return Center(
+                child: Text(
+                  _searchController.text.isNotEmpty
+                      ? 'Tidak ada hasil ditemukan.'
+                      : 'Belum ada kritik dan saran.',
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(8.0),
+              itemCount: _hasilFilter.length,
+              itemBuilder: (final context, final index) {
+                final item = _hasilFilter[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: InkWell(
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute<bool>(
+                          builder: (final context) =>
+                              FeedbackDetailPage(id: item.id),
                         ),
                       );
+                      // Jika kembali membawa nilai true, segarkan data
+                      if ((result ?? false) && mounted) {
+                        ref.invalidate(activeFeedbackListProvider);
+                      }
                     },
-                  )),
+                    onLongPress: () => _deleteFeedback(item),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomerNameWidget(customerId: item.userId),
+                          const SizedBox(height: 12),
+                          Text(
+                            item.content,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const Divider(height: 24),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              item.date != null
+                                  ? FormatDateTime.formatDateAndTimeCompact(
+                                      item.date!)
+                                  : 'Tanggal tidak tersedia',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
