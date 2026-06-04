@@ -1,4 +1,4 @@
-// path: lib/main/main_user/user_dev.dart
+// path: lib/main/main_user/user_prod.dart
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +31,10 @@ void main() async {
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
-  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  final supabasePublishableKey =
+      dotenv.env[AppConstants.supabasePublishableKey]!;
+  await Supabase.initialize(
+      url: supabaseUrl, publishableKey: supabasePublishableKey);
   Log.info('Inisialisasi Supabase selesai.');
 
   Log.info('Menginisialisasi workmanager');
@@ -47,7 +49,7 @@ void main() async {
   await MobileAds.instance.initialize();
 
   Log.info(
-      '[main-dev] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
+      '[main-prod] Memulai aplikasi user. Menyerahkan kendali ke AppUser...');
 
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(

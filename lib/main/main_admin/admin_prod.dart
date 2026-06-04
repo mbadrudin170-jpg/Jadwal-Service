@@ -22,11 +22,13 @@ Future<void> _callbackAlarm() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // await dotenv.load();
-  // await Supabase.initialize(
-  //   url: dotenv.env['SUPABASE_URL']!,
-  //   anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
-  // );
+  await dotenv.load();
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
+  final supabasePublishableKey =
+      dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+  await Supabase.initialize(
+      url: supabaseUrl, publishableKey: supabasePublishableKey);
+
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
 
   final container = ProviderContainer();
@@ -60,7 +62,7 @@ Future<void> _rescheduleOnBoot() async {
   }
 }
 
-/// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
+/// Fungsi utama untuk menjalankan aplikasi admin dalam mode produksi (prod).
 void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
@@ -79,8 +81,9 @@ void main() async {
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
-  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  final supabasePublishableKey = dotenv.env[AppConstants.supabasePublishableKey]!;
+  await Supabase.initialize(
+      url: supabaseUrl, publishableKey: supabasePublishableKey);
   Log.info('Inisialisasi Supabase selesai.');
 
   Log.info('Menginisialisasi Android Alarm Manager...');

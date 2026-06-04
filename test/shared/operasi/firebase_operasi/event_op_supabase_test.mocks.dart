@@ -435,19 +435,28 @@ class MockSupabaseQueryBuilder extends _i1.Mock
   }
 
   @override
-  _i2.SupabaseStreamFilterBuilder stream({required List<String>? primaryKey}) =>
+  _i2.SupabaseStreamFilterBuilder stream({
+    required List<String>? primaryKey,
+    bool? private = false,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #stream,
           [],
-          {#primaryKey: primaryKey},
+          {
+            #primaryKey: primaryKey,
+            #private: private,
+          },
         ),
         returnValue: _FakeSupabaseStreamFilterBuilder_9(
           this,
           Invocation.method(
             #stream,
             [],
-            {#primaryKey: primaryKey},
+            {
+              #primaryKey: primaryKey,
+              #private: private,
+            },
           ),
         ),
       ) as _i2.SupabaseStreamFilterBuilder);

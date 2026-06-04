@@ -23,8 +23,10 @@ Future<void> _callbackAlarm() async {
   );
   await dotenv.load();
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
-  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey] ?? '';
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  final supabasePublishableKey =
+      dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+  await Supabase.initialize(
+      url: supabaseUrl, publishableKey: supabasePublishableKey);
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
   final container = ProviderContainer();
   try {
@@ -76,13 +78,15 @@ void main() async {
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
-  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey] ?? '';
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+  final supabasePublishableKey =
+      dotenv.env[AppConstants.supabasePublishableKey] ?? '';
+  await Supabase.initialize(
+      url: supabaseUrl, publishableKey: supabasePublishableKey);
   Log.info('Inisialisasi Supabase selesai.');
   Log.info('DEBUG URL: $supabaseUrl');
-  Log.info('DEBUG ANON KEY LENGTH: ${supabaseAnonKey.length}');
+  Log.info('DEBUG PUBLISHABLE KEY LENGTH: ${supabasePublishableKey.length}');
 
-  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+  if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty) {
     Log.error('❌ ERROR KRUSIAL: Nilai di file .env kosong atau tidak terbaca!');
   }
   Log.info('Menginisialisasi Android Alarm Manager...');
