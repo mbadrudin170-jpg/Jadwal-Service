@@ -63,6 +63,7 @@ class NotifikasiServis {
   @visibleForTesting
   NotifikasiServis.testing(this.plugin);
 
+  // 1. Menginisialisasi konfigurasi zona waktu
   /// Menginisialisasi konfigurasi zona waktu untuk penjadwalan notifikasi.
   /// mengembalikan 'GMT' yang ambigu, dan menggantinya dengan 'Asia/Jakarta'
   /// agar penjadwalan sesuai dengan waktu lokal Indonesia.
@@ -116,6 +117,7 @@ class NotifikasiServis {
     }
   }
 
+  // 2. Menginisialisasi layanan notifikasi
   /// Menginisialisasi layanan notifikasi.
   ///
   /// Wajib dipanggil sebelum menggunakan fitur notifikasi lainnya.
@@ -155,6 +157,7 @@ class NotifikasiServis {
     }
   }
 
+  // 3. Menyiapkan channel notifikasi khusus untuk Android
   /// Menyiapkan channel notifikasi khusus untuk Android.
   Future<void> _setupAndroidChannel() async {
     Log.info('Memulai pengaturan channel notifikasi Android.');
@@ -188,6 +191,7 @@ class NotifikasiServis {
     }
   }
 
+  // 4. Meminta izin dari pengguna untuk menampilkan notifikasi
   /// Meminta izin dari pengguna untuk menampilkan notifikasi.
   Future<void> requestPermissions() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
@@ -218,6 +222,7 @@ class NotifikasiServis {
     }
   }
 
+  // 5. Mendapatkan detail notifikasi peluncuran aplikasi
   /// Mendapatkan detail notifikasi yang menyebabkan aplikasi diluncurkan.
   ///
   /// Berguna untuk menangani aksi setelah pengguna men-tap notifikasi
@@ -237,6 +242,7 @@ class NotifikasiServis {
     return details;
   }
 
+  // 6. Menampilkan notifikasi secara langsung
   /// Menampilkan notifikasi secara langsung (instan).
   ///
   /// ID notifikasi dibuat secara acak.
@@ -285,6 +291,7 @@ class NotifikasiServis {
     }
   }
 
+  // 7. Menjadwalkan notifikasi di masa depan
   /// Menjadwalkan notifikasi untuk ditampilkan di masa depan.
   ///
   /// [id] harus unik untuk setiap notifikasi yang dijadwalkan.
@@ -355,6 +362,7 @@ class NotifikasiServis {
     }
   }
 
+  // 8. Memperbarui notifikasi yang sudah ada
   /// Memperbarui notifikasi yang sudah ada atau menjadwalkannya jika belum ada.
   ///
   /// Ini adalah kombinasi dari `batalNotifikasi` dan `jadwalNotifikasi`.
@@ -379,6 +387,7 @@ class NotifikasiServis {
     Log.info('Pembaruan jadwal selesai dilakukan untuk ID: $id.');
   }
 
+  // 9. Membatalkan notifikasi tertentu
   /// Membatalkan notifikasi yang terjadwal atau yang sedang ditampilkan.
   Future<void> batalNotifikasi(final int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
@@ -394,6 +403,7 @@ class NotifikasiServis {
     }
   }
 
+  // 10. Membatalkan semua notifikasi
   /// Membatalkan semua notifikasi yang telah dibuat oleh aplikasi.
   Future<void> batalSemuaNotifikasi() async {
     Log.info(
@@ -411,6 +421,7 @@ class NotifikasiServis {
     }
   }
 
+  // 11. Memastikan izin Exact Alarm di Android
   /// Memastikan aplikasi memiliki izin Exact Alarm di Android.
   /// Jika tidak, arahkan pengguna ke pengaturan.
   Future<bool> pastikanIzinExactAlarm() async {

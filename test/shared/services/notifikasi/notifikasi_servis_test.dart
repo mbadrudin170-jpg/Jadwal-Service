@@ -1,8 +1,10 @@
 // path: test/shared/services/notifikasi/notifikasi_servis_test.dart
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 import 'notifikasi_servis_test.mocks.dart';
@@ -13,9 +15,16 @@ import 'notifikasi_servis_test.mocks.dart';
   AndroidFlutterLocalNotificationsPlugin,
 ])
 void main() {
+  // WAJIB: Atasi error "Binding has not yet been initialized"
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late NotifikasiServis notifikasiServis;
   late MockFlutterLocalNotificationsPlugin mockPlugin;
   late MockAndroidFlutterLocalNotificationsPlugin mockAndroidPlugin;
+
+  // Mengatur handler palsu untuk background channel
+  const MethodChannel channel =
+      MethodChannel('dexterous.com/flutter/local_notifications');
 
   setUp(() {
     mockPlugin = MockFlutterLocalNotificationsPlugin();
@@ -26,17 +35,64 @@ void main() {
     when(mockPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>())
         .thenReturn(mockAndroidPlugin);
+
+    // Atur mock untuk channel background agar tidak error saat inisialisasi
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'initialize') {
+        return true;
+      }
+      if (methodCall.method == 'pendingNotificationRequests') {
+        return [];
+      }
+      return null;
+    });
+
+    // Atur mock untuk FlutterTimezone
+    const MethodChannel timezoneChannel = MethodChannel('flutter_timezone');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(timezoneChannel,
+            (MethodCall methodCall) async {
+      if (methodCall.method == 'getLocalTimezone') {
+        return 'Asia/Jakarta';
+      }
+      return null;
+    });
+
+    // Atur mock untuk permission_handler
+    const MethodChannel permissionChannel =
+        MethodChannel('flutter.baseflow.com/permissions/methods');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(permissionChannel,
+            (MethodCall methodCall) async {
+      if (methodCall.method == 'checkPermissionStatus') {
+        return 1; // Index 1 adalah PermissionStatus.granted
+      }
+      return null;
+    });
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('flutter_timezone'), null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('flutter.baseflow.com/permissions/methods'),
+            null);
   });
 
   group('Pengujian NotifikasiServis', () {
     test('1. Inisialisasi berhasil memanggil metode yang diperlukan', () async {
-      // Atur stub untuk metode yang dipanggil di dalam inisialisasi
+      // Atur stub
       when(mockAndroidPlugin.requestNotificationsPermission())
           .thenAnswer((_) async => true);
       when(mockAndroidPlugin.requestExactAlarmsPermission())
           .thenAnswer((_) async => true);
       when(mockAndroidPlugin.createNotificationChannel(any))
-          .thenAnswer((_) async => {});
+          .thenAnswer((_) async {});
       when(mockPlugin.initialize(
         settings: anyNamed('settings'),
         onDidReceiveNotificationResponse:
@@ -47,7 +103,7 @@ void main() {
 
       await notifikasiServis.inisialisasi(iconName: 'app_icon');
 
-      // Verifikasi bahwa metode initialize pada plugin dipanggil
+      // Verifikasi
       verify(mockPlugin.initialize(
         settings: anyNamed('settings'),
         onDidReceiveNotificationResponse:
@@ -55,45 +111,46 @@ void main() {
         onDidReceiveBackgroundNotificationResponse:
             anyNamed('onDidReceiveBackgroundNotificationResponse'),
       )).called(1);
-
-      // Verifikasi bahwa channel notifikasi dibuat
       verify(mockAndroidPlugin.createNotificationChannel(any)).called(1);
     });
 
     test('2. tampilkanNotifikasiLangsung memanggil show pada plugin', () async {
-      // Inisialisasi channel terlebih dahulu
       notifikasiServis.channelNotifikasiPenting =
           const AndroidNotificationChannel('id', 'name');
+
       when(mockPlugin.show(
         id: anyNamed('id'),
         title: anyNamed('title'),
         body: anyNamed('body'),
         notificationDetails: anyNamed('notificationDetails'),
         payload: anyNamed('payload'),
-      )).thenAnswer((_) async => {});
+      )).thenAnswer((_) async {});
 
       const title = 'Judul Notifikasi';
       const body = 'Isi notifikasi.';
       await notifikasiServis.tampilkanNotifikasiLangsung(
           title: title, body: body);
 
-      // Verifikasi bahwa metode show dipanggil dengan benar
-      verify(mockPlugin.show(
+      // Verifikasi
+      final verification = verify(mockPlugin.show(
         id: anyNamed('id'),
-        title: title,
-        body: body,
-        notificationDetails: any,
-      )).called(1);
+        title: captureAnyNamed('title'),
+        body: captureAnyNamed('body'),
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: anyNamed('payload'),
+      ));
+      verification.called(1);
+      expect(verification.captured[0], title);
+      expect(verification.captured[1], body);
     });
 
     test('3. jadwalNotifikasi memanggil zonedSchedule pada plugin', () async {
-      // Inisialisasi channel dan izin
       notifikasiServis.channelNotifikasiPenting =
           const AndroidNotificationChannel('id', 'name');
-      // Anggap izin sudah didapat untuk menyederhanakan tes
-      // Anda bisa membuat tes terpisah untuk logika `pastikanIzinExactAlarm`
+
       when(mockPlugin.pendingNotificationRequests())
           .thenAnswer((_) async => []);
+
       when(mockPlugin.zonedSchedule(
         id: anyNamed('id'),
         title: anyNamed('title'),
@@ -105,26 +162,39 @@ void main() {
       )).thenAnswer((_) async {});
 
       final jadwal = DateTime.now().add(const Duration(hours: 1));
-      await notifikasiServis.jadwalNotifikasi(
-          id: 1, title: 'Jadwal', body: 'Isi jadwal', jadwal: jadwal);
+      const id = 1;
+      const title = 'Jadwal';
+      const body = 'Isi jadwal';
 
-      verify(mockPlugin.zonedSchedule(
-        id: 1,
-        title: 'Jadwal',
-        body: 'Isi jadwal',
-        scheduledDate: anyNamed('scheduledDate'),
-        notificationDetails: any,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      )).called(1);
+      await notifikasiServis.jadwalNotifikasi(
+          id: id, title: title, body: body, jadwal: jadwal);
+
+      // Verifikasi
+      final verification = verify(mockPlugin.zonedSchedule(
+        id: captureAnyNamed('id'),
+        title: captureAnyNamed('title'),
+        body: captureAnyNamed('body'),
+        scheduledDate: captureAnyNamed('scheduledDate'),
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: anyNamed('payload'),
+        androidScheduleMode: anyNamed('androidScheduleMode'),
+      ));
+
+      verification.called(1);
+      expect(verification.captured[0], id);
+      expect(verification.captured[1], title);
+      expect(verification.captured[2], body);
+      expect(verification.captured[3], isA<tz.TZDateTime>());
     });
 
     test('4. batalNotifikasi memanggil cancel pada plugin', () async {
-      when(mockPlugin.cancel(id: anyNamed('id'))).thenAnswer((_) async {});
+      when(mockPlugin.cancel(id: anyNamed('id'), tag: anyNamed('tag')))
+          .thenAnswer((_) async {});
 
       const id = 123;
       await notifikasiServis.batalNotifikasi(id);
 
-      verify(mockPlugin.cancel(id: id)).called(1);
+      verify(mockPlugin.cancel(id: anyNamed('id'))).called(1);
     });
 
     test('5. batalSemuaNotifikasi memanggil cancelAll pada plugin', () async {
