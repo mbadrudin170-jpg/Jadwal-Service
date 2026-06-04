@@ -58,24 +58,30 @@ void main() {
     group('getAll', () {
       test('harus mengembalikan daftar EventModel jika Supabase berhasil',
           () async {
-        // Langsung kembalikan Future dengan data
+        // 🟢 Stub method `then` dengan memanggil callback onValue
         when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
-            .thenAnswer((_) async => [event1Map, event2Map]);
+            .thenAnswer(
+          (invocation) async {
+            final onValue = invocation.positionalArguments[0] as Function(
+                List<Map<String, dynamic>>);
+            return onValue(
+                [event1Map, event2Map]); // 🟢 Panggil callback dengan data
+          },
+        );
 
         final result = await eventOpSupabase.getAll();
-
         expect(result, isA<List<EventModel>>());
         expect(result.length, 2);
         expect(result.first.id, 'event-1');
       });
 
-      test('harus melempar exception jika Supabase gagal', () {
+      test('harus melempar exception jika Supabase gagal', () async {
         final supabaseException = Exception('Supabase Error');
 
         when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
-            .thenAnswer((_) async => throw supabaseException);
+            .thenAnswer((_) => Future.error(supabaseException));
 
-        expect(eventOpSupabase.getAll(), throwsA(isA<Exception>()));
+        await expectLater(eventOpSupabase.getAll(), throwsA(isA<Exception>()));
       });
     });
 

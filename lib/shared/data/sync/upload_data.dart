@@ -578,18 +578,12 @@ class UploadDataService {
         );
       }
 
-      Log.info('========================================');
       Log.info('PROSES UNGGAH DATA GENERIK SELESAI');
       Log.info('Tabel: $tableName -> Koleksi: $collectionName');
       Log.info('Total data diunggah: $successCount dokumen');
-      Log.info('========================================');
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal mengunggah data untuk tabel $tableName ke koleksi Firestore $collectionName. '
-        'Proses unggah data generik mengalami kegagalan. '
-        'Kemungkinan penyebab: koneksi database SQLite terputus, '
-        'koneksi Firestore gagal, data corrupt, atau format data tidak sesuai. '
-        'Error ini akan dilempar ulang ke fungsi pemanggil.',
+        'Gagal mengunggah data untuk tabel $tableName ke koleksi Firestore $collectionName. ',
         e: e,
         st: s,
       );

@@ -8,8 +8,15 @@ import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
 
 /// Implementasi [PointsPageDataSource] untuk mengambil data dari Firebase.
 class FirebasePointsDataSource implements PointsPageDataSource {
-  final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
-  final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
+  final TransactionOpFirebase _transactionOpFirebase;
+  final PackageOpFirebase _packageOpFirebase;
+
+  FirebasePointsDataSource({
+    final TransactionOpFirebase? transactionOpFirebase,
+    final PackageOpFirebase? packageOpFirebase,
+  })  : _transactionOpFirebase = transactionOpFirebase ?? TransactionOpFirebase(),
+        _packageOpFirebase = packageOpFirebase ?? PackageOpFirebase();
+
 
   @override
   Future<int> getTotalPoints(final String customerId) {
