@@ -1,11 +1,4 @@
 // path: lib/user/services/storage/local_storage_service.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan oleh halaman user untuk menyimpan data lokal.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'dart:convert';
 

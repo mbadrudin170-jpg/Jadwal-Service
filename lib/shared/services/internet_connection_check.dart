@@ -4,8 +4,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wifi/shared/debug/log.dart';
+
+final internetConnectionServiceProvider =
+    Provider<InternetConnectionService>((ref) {
+  return InternetConnectionService();
+});
 
 /// Kelas layanan untuk memeriksa status koneksi internet.
 class InternetConnectionService {
@@ -74,8 +80,9 @@ class InternetConnectionService {
     Log.info(
         '[Internet] Koneksi lokal terdeteksi. Mencoba menghubungi $_lookupUrl...');
     try {
-      final response =
-          await _httpClient.get(Uri.https(_lookupUrl)).timeout(_timeoutDuration);
+      final response = await _httpClient
+          .get(Uri.https(_lookupUrl))
+          .timeout(_timeoutDuration);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         Log.info(

@@ -1,6 +1,4 @@
 // path: lib/shared/data/sync/initial_download.dart
-// diperbaiki: Mengganti semua nama tabel hardcoded dengan konstanta dari TableNameValue.
-// diperbaiki: Menggunakan TableName yang sesuai untuk setiap fungsi.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
@@ -14,7 +12,6 @@ class InitialDownloadService {
   final DatabaseHelper _dbHelper;
   final DownloadDataService _downloadService;
 
-  /// Konstruktor dengan injeksi dependensi (wajib).
   InitialDownloadService({
     required DatabaseHelper dbHelper,
     required DownloadDataService downloadService,
@@ -24,10 +21,8 @@ class InitialDownloadService {
         'InitialDownloadService diinisialisasi dengan dependency injection.');
   }
 
-  /// Menjalankan pengecekan dan pengunduhan data awal untuk seluruh tabel.
   Future<void> runInitialDownload() async {
     Log.info('Memulai sinkronisasi awal: Mengecek tabel lokal yang kosong...');
-
     final stopwatch = Stopwatch()..start();
 
     await _downloadPackageDataIfEmpty();
@@ -44,36 +39,26 @@ class InitialDownloadService {
 
     stopwatch.stop();
     Log.info(
-      'Proses unduhan awal selesai dalam ${stopwatch.elapsed.inSeconds} detik.',
-    );
+        'Proses unduhan awal selesai dalam ${stopwatch.elapsed.inSeconds} detik.');
   }
 
-  /// Memeriksa apakah sebuah tabel kosong.
-  Future<bool> _isTableEmpty(final String tableName) async {
+  Future<bool> _isTableEmpty(String tableName) async {
     try {
       final db = await _dbHelper.database;
-      // Escape nama tabel dengan double quotes untuk reserved keyword seperti 'order'
-      final result = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM $tableName',
-      );
+      final result =
+          await db.rawQuery('SELECT COUNT(*) as count FROM $tableName');
       final count = Sqflite.firstIntValue(result) ?? 0;
       Log.info("Tabel '$tableName': $count baris.");
       return count == 0;
     } on Exception catch (e, st) {
-      // tambahkan st
-      Log.error(
-        "Gagal mengecek tabel '$tableName'.",
-        e: e,
-        st: st, // tambahkan stack trace
-      );
+      Log.error("Gagal mengecek tabel '$tableName'.", e: e, st: st);
       return false;
     }
   }
 
-  /// Template fungsi pembungkus untuk proses unduh per tabel agar kode lebih bersih.
   Future<void> _downloadIfEmpty({
-    required final String tableName,
-    required final Future<void> Function() downloadFunction,
+    required String tableName,
+    required Future<void> Function() downloadFunction,
   }) async {
     try {
       if (await _isTableEmpty(tableName)) {
@@ -84,15 +69,9 @@ class InitialDownloadService {
         Log.info("Skip '$tableName' (Sudah ada data).");
       }
     } on Exception catch (e, s) {
-      Log.error(
-        "ERROR saat mengunduh '$tableName'",
-        e: e,
-        st: s,
-      );
+      Log.error("ERROR saat mengunduh '$tableName'", e: e, st: s);
     }
   }
-
-  // --- Implementasi Fungsi Khusus dengan nama tabel sesuai konstanta ---
 
   Future<void> _downloadPackageDataIfEmpty() => _downloadIfEmpty(
         tableName: TableNameValue.get(TableName.package),
@@ -144,15 +123,13 @@ class InitialDownloadService {
         downloadFunction: _downloadService.downloadFeedbackData,
       );
 
-  // Perbaikan: Untuk order, gunakan tabel 'order' (bukan 'pesan')
   Future<void> _downloadOrderDataIfEmpty() => _downloadIfEmpty(
         tableName: TableNameValue.get(TableName.customerOrder),
         downloadFunction: _downloadService.downloadOrderData,
       );
 }
-// ============================================================
-// Provider Riverpod untuk InitialDownloadService
-// ============================================================
+
+// ✅ HANYA SATU PROVIDER - gunakan Provider biasa
 final initialDownloadServiceProvider = Provider<InitialDownloadService>((ref) {
   return InitialDownloadService(
     dbHelper: ref.read(databaseHelperProvider),

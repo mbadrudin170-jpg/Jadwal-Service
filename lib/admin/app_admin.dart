@@ -14,7 +14,8 @@ import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/providers/shared_providers.dart'
+    hide initialDownloadServiceProvider;
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -48,8 +49,6 @@ class AppInitializer extends ConsumerStatefulWidget {
 
 class _AppInitializerState extends ConsumerState<AppInitializer> {
   late Future<bool> _initialization;
-  final InternetConnectionService _connectionService =
-      InternetConnectionService();
 
   @override
   void initState() {
@@ -59,6 +58,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(notifikasiServisProvider);
+    final connectionService = ref.read(internetConnectionServiceProvider);
+    final dbHelper = ref.read(databaseHelperProvider);
     try {
       // Inisialisasi Workmanager untuk tugas latar belakang.
       await BackgroundService.init();
@@ -83,14 +84,14 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       await initializeDateFormatting('id_ID');
 
       // Inisialisasi Database
-      await DatabaseHelper.instance.database;
+      await dbHelper.database;
 
       // Pembersihan: Arsipkan pelanggan yang masa aktifnya sudah habis (Soft Delete)
       final activeCustomerOp = ref.read(activeCustomerOperationProvider);
       await activeCustomerOp.archiveExpiredCustomers();
 
       // DIUBAH: Menggunakan metode pengecekan internet yang lebih andal.
-      final isOnline = await _connectionService.isInternetAvailable();
+      final isOnline = await connectionService.isInternetAvailable();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
         // Jalankan unduhan awal hanya jika perangkat online
@@ -133,7 +134,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
           // DIUBAH: Logika lebih sederhana untuk menangani status offline.
           final bool isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
-            Log.error('Error pada FutureBuilder inisialisasi', e: snapshot.error);
+            Log.error('Error pada FutureBuilder inisialisasi',
+                e: snapshot.error);
           }
           return AppMaterial(isOffline: isOffline);
         }
