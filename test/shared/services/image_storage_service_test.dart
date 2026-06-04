@@ -56,7 +56,7 @@ void main() {
         verify(mockStorageFileApi.getPublicUrl(any)).called(1);
       });
 
-      test('should throw an exception when upload fails', () async {
+      test('should throw an exception when upload fails', () {
         // Arrange
         when(mockStorageFileApi.upload(any, any,
                 fileOptions: anyNamed('fileOptions')))
