@@ -22,8 +22,7 @@ class EventOpSupabase {
       Log.info('1️⃣ Membangun query...');
       final query = _supabase.from(_tableName).select();
       Log.info('2️⃣ Eksekusi query ke Supabase...');
-      final List<Map<String, dynamic>> response =
-          await query.timeout(const Duration(seconds: 10));
+      final List<Map<String, dynamic>> response = await query;
       Log.info('3️⃣ Response diterima, jumlah data: ${response.length}');
 
       return response.map((data) {
@@ -35,6 +34,30 @@ class EventOpSupabase {
       Log.error('❌ Gagal ambil data pengumuman', e: e, st: s);
       rethrow;
     }
+  }
+
+  /// Mengambil aliran data (Stream) pengumuman secara realtime (Versi Asinkron Aman).
+  Stream<List<EventModel>> getRealtimeStream() async* {
+    Log.info('EventOpSupabase: Membuka stream realtime untuk $_tableName');
+
+    // Gunakan yield* untuk mengalirkan data tanpa mengunci thread utama
+    yield* _supabase
+        .from(_tableName)
+        .stream(primaryKey: [ColumnNames.id]).handleError((error, stackTrace) {
+      Log.error(
+        '❌ Error di dalam stream: $error',
+        e: error,
+      );
+    }).map((List<Map<String, dynamic>> response) {
+      Log.info(
+          '⚡ Realtime: Menerima ${response.length} data pengumuman terbaru');
+      return response.map((data) {
+        return EventModel.fromSupabase(
+          data[ColumnNames.id]?.toString() ?? '',
+          data,
+        );
+      }).toList();
+    });
   }
 
   Future<EventModel?> getActive() async {

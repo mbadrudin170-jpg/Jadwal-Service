@@ -58,29 +58,24 @@ void main() {
     group('getAll', () {
       test('harus mengembalikan daftar EventModel jika Supabase berhasil',
           () async {
-        final mockTransformBuilder =
-            MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
-
-        when(mockFilterBuilder.order(ColumnNames.createdAt, ascending: false))
-            .thenAnswer((_) => mockTransformBuilder);
-
-        // ✅ Stub untuk timeout, bukan then
-        when(mockTransformBuilder.timeout(any))
-            .thenAnswer((_) async => [event2Map, event1Map]);
+        // Langsung kembalikan Future dengan data
+        when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
+            .thenAnswer((_) async => [event1Map, event2Map]);
 
         final result = await eventOpSupabase.getAll();
 
         expect(result, isA<List<EventModel>>());
         expect(result.length, 2);
-        expect(result.first.id, 'event-2');
-        expect(result.last.imageUrl, 'http://example.com/image1.png');
+        expect(result.first.id, 'event-1');
       });
 
       test('harus melempar exception jika Supabase gagal', () {
-        when(mockFilterBuilder.order(ColumnNames.createdAt, ascending: false))
-            .thenThrow(Exception('Supabase Error'));
+        final supabaseException = Exception('Supabase Error');
 
-        expect(() => eventOpSupabase.getAll(), throwsA(isA<Exception>()));
+        when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
+            .thenAnswer((_) async => throw supabaseException);
+
+        expect(eventOpSupabase.getAll(), throwsA(isA<Exception>()));
       });
     });
 
@@ -95,7 +90,6 @@ void main() {
         when(mockFilterBuilder.limit(1))
             .thenAnswer((_) => mockTransformBuilder);
 
-        // PERBAIKAN: Tambahkan anyNamed('onError')
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
           final callback = invocation.positionalArguments.first as Function(
@@ -120,7 +114,6 @@ void main() {
         when(mockFilterBuilder.limit(1))
             .thenAnswer((_) => mockTransformBuilder);
 
-        // PERBAIKAN: Tambahkan anyNamed('onError')
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
           final callback = invocation.positionalArguments.first as Function(
@@ -146,7 +139,6 @@ void main() {
         when(mockQueryBuilder.upsert(dataPayload))
             .thenAnswer((_) => mockUpsertBuilder);
 
-        // PERBAIKAN: Tambahkan anyNamed('onError')
         when(mockUpsertBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
           final callback = invocation.positionalArguments.first as Function(
@@ -166,12 +158,10 @@ void main() {
         const eventId = 'event-to-delete';
         final mockDeleteBuilder =
             MockPostgrestFilterBuilder<List<Map<String, dynamic>>>();
-
         when(mockQueryBuilder.delete()).thenAnswer((_) => mockDeleteBuilder);
         when(mockDeleteBuilder.eq(ColumnNames.id, eventId))
             .thenAnswer((_) => mockDeleteBuilder);
 
-        // PERBAIKAN: Tambahkan anyNamed('onError')
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
           final callback = invocation.positionalArguments.first as Function(

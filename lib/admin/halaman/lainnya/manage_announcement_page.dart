@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/services/image_storage_service.dart';
@@ -215,8 +217,8 @@ class _ManageAnnouncementPageState
     if (_selectedImage != null) {
       final storageService = ref.read(imageStorageServiceProvider);
       try {
-        final String uploadUrl =
-            await storageService.uploadImage(_selectedImage!, 'announcements');
+        final String uploadUrl = await storageService.uploadImage(
+            _selectedImage!, TableNameValue.get(TableName.events));
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');

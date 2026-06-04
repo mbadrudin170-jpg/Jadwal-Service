@@ -21,13 +21,11 @@ Future<void> _callbackAlarm() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // await dotenv.load();
-  // await Supabase.initialize(
-  //   url: dotenv.env['SUPABASE_URL']!,
-  //   anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
-  // );
+  await dotenv.load();
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
+  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey] ?? '';
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
-
   final container = ProviderContainer();
   try {
     final service = container.read(expiredSubscriptionCheckServiceProvider);
@@ -77,11 +75,16 @@ void main() async {
   Log.info('Inisialisasi Firebase selesai.');
 
   Log.info('Menginisialisasi Supabase...');
-  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
-  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey]!;
+  final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey] ?? '';
+  final supabaseAnonKey = dotenv.env[AppConstants.supabaseAnonKey] ?? '';
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Log.info('Inisialisasi Supabase selesai.');
+  Log.info('DEBUG URL: $supabaseUrl');
+  Log.info('DEBUG ANON KEY LENGTH: ${supabaseAnonKey.length}');
 
+  if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    Log.error('❌ ERROR KRUSIAL: Nilai di file .env kosong atau tidak terbaca!');
+  }
   Log.info('Menginisialisasi Android Alarm Manager...');
   await AndroidAlarmManager.initialize();
   Log.info('Inisialisasi Android Alarm Manager selesai.');

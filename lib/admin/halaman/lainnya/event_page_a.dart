@@ -5,12 +5,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
-/// Provider untuk mengambil daftar pengumuman secara asinkron.
-final announcementsFutureProvider = FutureProvider.autoDispose((ref) async {
+/// Menggunakan StreamProvider dengan proteksi siklus hidup
+final announcementsStreamProvider =
+    StreamProvider.autoDispose<List<EventModel>>((ref) {
   final operator = ref.watch(eventOpSupabaseProvider);
-  return await operator.getAll();
+
+  // Mencegah provider langsung dihancurkan saat layar sedikit bergeser/rebuild
+  final link = ref.keepAlive();
+
+  // Pastikan stream ditutup bersih saat halaman BENAR-BENAR ditinggalkan (di-pop)
+  ref.onDispose(() {
+    Log.warning(
+        'announcementsStreamProvider: Menutup stream dan membersihkan memori.');
+    link.close();
+  });
+
+  return operator.getRealtimeStream();
 });
 
 class EventPageA extends ConsumerWidget {
@@ -18,19 +31,21 @@ class EventPageA extends ConsumerWidget {
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
-    // Tonton state dari FutureProvider
-    final announcementsAsync = ref.watch(announcementsFutureProvider);
+    // 2. Tonton state dari StreamProvider terbaru
+    final announcementsAsync = ref.watch(announcementsStreamProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pengumuman'),
+        title: const Text('Pengumuman Realtime'),
       ),
+      // 3. RefreshIndicator sekarang opsional karena data sudah otomatis realtime.
+      // Namun tetap dipertahankan jika pengguna ingin memaksa pembersihan cache/sinkronisasi ulang.
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(announcementsFutureProvider.future),
+        onRefresh: () => ref.refresh(announcementsStreamProvider.future),
         child: announcementsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) {
-            Log.error('Error saat memuat pengumuman: $error',
+            Log.error('Error saat memuat pengumuman realtime: $error',
                 e: error, st: stackTrace);
             return const Center(
               child: Padding(
@@ -49,6 +64,9 @@ class EventPageA extends ConsumerWidget {
 
             return ListView.builder(
               padding: const EdgeInsets.all(TSizes.p16),
+              // Tambahkan physics AlwaysScrollableScrollPhysics agar RefreshIndicator
+              // tetap berfungsi normal meskipun jumlah item sedikit.
+              physics: const AlwaysScrollableScrollPhysics(),
               itemCount: announcements.length,
               itemBuilder: (final context, final index) {
                 final announcement = announcements[index];

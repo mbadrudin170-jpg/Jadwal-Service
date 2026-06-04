@@ -102,8 +102,7 @@ class EventModel implements HasId {
   /// Mengonversi [EventModel] ke map untuk penyimpanan Supabase.
   Map<String, dynamic> toSupabase() {
     return {
-      // ID tidak di-pass karena akan di-handle oleh Supabase (serial primary key)
-      // 'id': id,
+      ColumnNames.id: id,
       ColumnNames.imageUrl: imageUrl,
       ColumnNames.isActive: isActive,
       ColumnNames.startDate: startDate.toIso8601String(),
