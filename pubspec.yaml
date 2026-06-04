@@ -75,6 +75,8 @@ dev_dependencies:
   riverpod_generator: ^4.0.3
   fake_cloud_firestore: ^4.1.1
   mockito: ^5.6.4
+  plugin_platform_interface: ^2.1.8
+  workmanager_platform_interface: ^0.9.1+1
 
 flutter_native_splash:
   color: "#FFFFFF"
