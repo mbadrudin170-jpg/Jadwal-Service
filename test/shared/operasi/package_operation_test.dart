@@ -43,7 +43,7 @@ void main() {
     final tPackageMap = tPackage.toSqlite();
     final tableName = TableNameValue.get(TableName.package);
 
-    test('getAll should return a list of packages from database', () async {
+    test('1. getAll harus mengembalikan daftar paket dari database', () async {
       when(mockDatabase.rawQuery(any)).thenAnswer((_) async => [tPackageMap]);
 
       final result = await packageOperation.getAll();
@@ -54,7 +54,7 @@ void main() {
       verify(mockDatabase.rawQuery(any)).called(1);
     });
 
-    test('getById should return a single package from database', () async {
+    test('2. getById harus mengembalikan satu paket dari database', () async {
       when(mockDatabase.query(
         any,
         where: anyNamed('where'),
@@ -72,7 +72,7 @@ void main() {
       )).called(1);
     });
 
-    test('add should call insert on baseOperation', () async {
+    test('3. add harus memanggil insert pada baseOperation', () async {
       when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
 
       await packageOperation.add(tPackage);
@@ -80,7 +80,7 @@ void main() {
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('update should call update on baseOperation', () async {
+    test('4. update harus memanggil update pada baseOperation', () async {
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async => 1);
 
       await packageOperation.update(tPackage);
@@ -88,7 +88,7 @@ void main() {
       verify(mockBaseOperation.update(tableName, any, tPackage.id)).called(1);
     });
 
-    test('delete should call delete on baseOperation', () async {
+    test('5. delete harus memanggil delete pada baseOperation', () async {
       when(mockBaseOperation.delete(any, any)).thenAnswer((_) async => 1);
 
       await packageOperation.delete('1');
@@ -96,7 +96,7 @@ void main() {
       verify(mockBaseOperation.delete(tableName, '1')).called(1);
     });
 
-    test('softDelete should call softDelete on baseOperation', () async {
+    test('6. softDelete harus memanggil softDelete pada baseOperation', () async {
       when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
       await packageOperation.softDelete('1');
@@ -104,7 +104,7 @@ void main() {
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
-    test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
+    test('7. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
         () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
           .thenAnswer((_) async {});

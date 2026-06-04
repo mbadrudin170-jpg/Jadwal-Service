@@ -61,7 +61,7 @@ void main() {
     final tCustomer = CustomerModel(
         name: 'test', phone: '123', address: '-', password: '123');
 
-    test('getAllActiveCustomers should return a list of active customers',
+    test('1. getAllActiveCustomers harus mengembalikan daftar pelanggan aktif',
         () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
@@ -77,7 +77,7 @@ void main() {
           .called(1);
     });
 
-    test('getActiveCustomerById should return a single active customer',
+    test('2. getActiveCustomerById harus mengembalikan satu pelanggan aktif',
         () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
@@ -92,7 +92,7 @@ void main() {
           .called(1);
     });
 
-    test('createActiveCustomer should insert a new active customer', () async {
+    test('3. createActiveCustomer harus menyisipkan pelanggan aktif baru', () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((_) async {});
       when(mockCustomerOperation.getById(any)).thenAnswer((_) async => null);
@@ -110,7 +110,7 @@ void main() {
       verify(mockBaseOperation.runComplexOperation<void>(any)).called(1);
     });
 
-    test('updateActiveCustomer should update an existing active customer',
+    test('4. updateActiveCustomer harus memperbarui pelanggan aktif yang ada',
         () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((_) async {});
@@ -130,7 +130,7 @@ void main() {
       verify(mockBaseOperation.runComplexOperation<void>(any)).called(1);
     });
 
-    test('softDelete should archive an active customer', () async {
+    test('5. softDelete harus mengarsipkan pelanggan aktif', () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tActiveCustomerMap]);

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
@@ -60,6 +61,8 @@ void main() {
   late MockQuerySnapshot<Map<String, dynamic>> mockQuerySnapshot;
   late MockQueryDocumentSnapshot<Map<String, dynamic>> mockDoc;
   late MockCollectionReference<Map<String, dynamic>> mockCollection;
+  late MockDocumentReference<Map<String, dynamic>> mockDocRef;
+  late MockDocumentSnapshot<Map<String, dynamic>> mockSettingsDoc;
   late MockQuery<Map<String, dynamic>> mockQuery;
 
   setUp(() {
@@ -79,6 +82,8 @@ void main() {
     mockQuerySnapshot = MockQuerySnapshot<Map<String, dynamic>>();
     mockDoc = MockQueryDocumentSnapshot<Map<String, dynamic>>();
     mockCollection = MockCollectionReference<Map<String, dynamic>>();
+    mockDocRef = MockDocumentReference<Map<String, dynamic>>();
+    mockSettingsDoc = MockDocumentSnapshot<Map<String, dynamic>>();
     mockQuery = MockQuery<Map<String, dynamic>>();
 
     downloadDataService = DownloadDataService.test(
@@ -98,27 +103,31 @@ void main() {
     );
   });
 
-  group('DownloadDataService', () {
+  group('Pengujian DownloadDataService', () {
     final lastSync = DateTime(2023);
 
     setUp(() {
       when(mockSyncManager.getLastDownload()).thenAnswer((_) async => lastSync);
 
       when(mockFirestore.collection(any)).thenReturn(mockCollection);
+      when(mockCollection.doc(any)).thenReturn(mockDocRef);
+      when(mockDocRef.get(any)).thenAnswer((_) async => mockSettingsDoc);
       when(
-        mockCollection.where(any, isGreaterThan: any),
+        mockCollection.where(any, isGreaterThan: anyNamed('isGreaterThan')),
       ).thenReturn(mockQuery);
-      when(mockQuery.get(any)).thenAnswer((_) async => mockQuerySnapshot);
+      when(mockQuery.get(any)).thenAnswer((final _) async => mockQuerySnapshot);
 
-      when(mockQuerySnapshot.docs).thenReturn([mockDoc]);
+      when(mockQuerySnapshot.docs).thenReturn([]);
       when(mockDoc.id).thenReturn('doc1');
       when(
         mockDoc.data(),
-      ).thenReturn({'updatedAt': Timestamp.fromDate(DateTime(2024))});
+      ).thenReturn({ColumnNames.updatedAt: Timestamp.fromDate(DateTime(2024))});
+
+      when(mockSettingsDoc.exists).thenReturn(false);
     });
 
     test(
-      'downloadAllData orchestrates all individual download methods',
+      '1. downloadAllData harus mengoordinasikan semua metode unduh individu',
       () async {
         await downloadDataService.downloadAllData();
 
@@ -130,17 +139,19 @@ void main() {
     );
 
     test(
-      'synchronizeCollection saves data when new documents are found',
+      '2. synchronizeCollection harus menyimpan data ketika dokumen baru ditemukan',
       () async {
+        when(mockQuerySnapshot.docs).thenReturn([mockDoc]);
+
         await downloadDataService.synchronizeCollection<CategoryModel>(
           collectionName: 'categories',
           lastDownloadTime: lastSync,
-          fromFirebase: (id, data) => CategoryModel(
+          fromFirebase: (final id, final data) => CategoryModel(
             id: id,
             name: 'Test Category',
             type: CategoryType.income,
           ),
-          batchOperation: (data) =>
+          batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
         );
 
@@ -151,44 +162,45 @@ void main() {
     );
 
     test(
-      'synchronizeCollection does nothing when no new documents are found',
+      '3. synchronizeCollection tidak melakukan apa pun jika tidak ada dokumen baru',
       () async {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
         await downloadDataService.synchronizeCollection<CategoryModel>(
           collectionName: 'categories',
           lastDownloadTime: lastSync,
-          fromFirebase: (id, data) => CategoryModel(
+          fromFirebase: (final id, final data) => CategoryModel(
             id: id,
             name: 'Test Category',
             type: CategoryType.income,
           ),
-          batchOperation: (data) =>
+          batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
         );
 
         verifyNever(
-          mockCategoryOperation.insertOrUpdateBatch(any, fromServer: any),
+          mockCategoryOperation.insertOrUpdateBatch(
+            any,
+            fromServer: anyNamed('fromServer'),
+          ),
         );
       },
     );
 
     test(
-      'downloadSettingsData updates settings if server time is newer',
+      '4. downloadSettingsData harus memperbarui pengaturan jika waktu server lebih baru',
       () async {
         final serverTime = DateTime(2025);
-        final mockSettingsDoc = MockDocumentSnapshot<Map<String, dynamic>>();
-        final mockDocRef = MockDocumentReference<Map<String, dynamic>>();
-
-        when(
-          mockFirestore.collection('settings').doc(any),
-        ).thenReturn(mockDocRef);
-        when(mockDocRef.get(any)).thenAnswer((_) async => mockSettingsDoc);
+        when(mockDocRef.get(any))
+            .thenAnswer((final _) async => mockSettingsDoc);
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.id).thenReturn('settingsId');
         when(mockSettingsDoc.data()).thenReturn({
-          'updatedAt': Timestamp.fromDate(serverTime),
-          'some_setting': 'new_value',
+          ColumnNames.updatedAt: Timestamp.fromDate(serverTime),
+          'autoSyncInterval': 2,
+          'autoDeleteArchiveDays': 30,
+          'maintenanceMode': false,
+          'maintenanceInfo': '',
         });
 
         await downloadDataService.downloadSettingsData();
@@ -200,26 +212,27 @@ void main() {
     );
 
     test(
-      'downloadSettingsData does not update if local time is newer or same',
+      '5. downloadSettingsData tidak boleh memperbarui jika waktu lokal lebih baru atau sama',
       () async {
         final serverTime = DateTime(2022); // Older than lastSync
-        final mockSettingsDoc = MockDocumentSnapshot<Map<String, dynamic>>();
-        final mockDocRef = MockDocumentReference<Map<String, dynamic>>();
-
-        when(
-          mockFirestore.collection('settings').doc(any),
-        ).thenReturn(mockDocRef);
-        when(mockDocRef.get(any)).thenAnswer((_) async => mockSettingsDoc);
+        when(mockDocRef.get(any))
+            .thenAnswer((final _) async => mockSettingsDoc);
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.data()).thenReturn({
-          'updatedAt': Timestamp.fromDate(serverTime),
-          'some_setting': 'old_value',
+          ColumnNames.updatedAt: Timestamp.fromDate(serverTime),
+          'autoSyncInterval': 2,
+          'autoDeleteArchiveDays': 30,
+          'maintenanceMode': false,
+          'maintenanceInfo': '',
         });
 
         await downloadDataService.downloadSettingsData();
 
         verifyNever(
-          mockSettingsOperation.saveOrUpdateSettings(any, fromServer: any),
+          mockSettingsOperation.saveOrUpdateSettings(
+            any,
+            fromServer: anyNamed('fromServer'),
+          ),
         );
       },
     );

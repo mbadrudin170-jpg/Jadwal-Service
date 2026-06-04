@@ -30,8 +30,8 @@ void main() {
     );
   });
 
-  group('InitialDownloadService', () {
-    test('runInitialDownload melakukan unduh jika tabel-tabel kosong',
+  group('Pengujian InitialDownloadService', () {
+    test('1. runInitialDownload harus melakukan unduh jika tabel-tabel kosong',
         () async {
       // Mock query count mengembalikan 0 (tabel kosong)
       when(mockDb.rawQuery(any)).thenAnswer((_) async => [
@@ -70,7 +70,7 @@ void main() {
       verify(mockDownloadDataService.downloadWalletData()).called(1);
     });
 
-    test('runInitialDownload melewati unduh jika tabel sudah memiliki data',
+    test('2. runInitialDownload harus melewati unduh jika tabel sudah memiliki data',
         () async {
       // Mock query count mengembalikan nilai > 0 (tabel tidak kosong)
       when(mockDb.rawQuery(any)).thenAnswer((_) async => [

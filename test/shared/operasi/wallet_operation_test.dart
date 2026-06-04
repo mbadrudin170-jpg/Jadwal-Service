@@ -42,7 +42,7 @@ void main() {
     final tWalletMap = tWallet.toSqlite();
     final tableName = TableNameValue.get(TableName.wallet);
 
-    test('getWallets should return a list of wallets', () async {
+    test('1. getWallets harus mengembalikan daftar dompet', () async {
       // Atur stub untuk mengembalikan data palsu ketika query dijalankan
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tWalletMap]);
@@ -60,7 +60,7 @@ void main() {
           .called(1);
     });
 
-    test('createWallet should call insert on baseOperation', () async {
+    test('2. createWallet harus memanggil insert pada baseOperation', () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
 
@@ -69,7 +69,7 @@ void main() {
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('updateWallet should call update on baseOperation', () async {
+    test('3. updateWallet harus memanggil update pada baseOperation', () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
@@ -78,7 +78,7 @@ void main() {
       verify(mockBaseOperation.update(tableName, any, tWallet.id)).called(1);
     });
 
-    test('softDelete should call softDelete on baseOperation', () async {
+    test('4. softDelete harus memanggil softDelete pada baseOperation', () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
@@ -87,8 +87,8 @@ void main() {
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
-    test('deleteAllWallets should run a complex operation to delete all',
-        () async {
+    test('5. deleteAllWallets harus menjalankan operasi kompleks untuk menghapus semua',
+         () async {
       // Pindahkan stub untuk mockTransaction ke luar dari thenAnswer
       when(mockTransaction.delete(any)).thenAnswer((_) async => 1);
 
@@ -112,8 +112,8 @@ void main() {
     });
 
     test(
-        'insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',
-        () async {
+        '6. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
+         () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
           .thenAnswer((_) async {});

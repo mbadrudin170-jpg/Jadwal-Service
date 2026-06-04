@@ -52,7 +52,7 @@ void main() {
       when(mockSyncManager.getLastUpload()).thenAnswer((_) async => lastSync);
     });
 
-    test('uploadAllData orchestrates all individual upload methods', () async {
+    test('1. uploadAllData harus mengoordinasikan semua metode unggah individu', () async {
       when(mockDb.query(
         any,
         where: anyNamed('where'),
@@ -64,7 +64,7 @@ void main() {
       verify(mockSyncManager.getLastUpload()).called(greaterThanOrEqualTo(10));
     });
 
-    test('uploadGenericData uploads data when local unsynced data is found',
+    test('2. uploadGenericData harus mengunggah data ketika ditemukan data lokal yang belum sinkron',
         () async {
       final unsyncedMap = {
         'id': 'wallet1',
@@ -96,7 +96,7 @@ void main() {
       verify(mockBatch.commit()).called(1);
     });
 
-    test('uploadGenericData does not upload when no unsynced data is found',
+    test('3. uploadGenericData tidak boleh mengunggah jika tidak ada data yang belum sinkron',
         () async {
       when(mockDb.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))

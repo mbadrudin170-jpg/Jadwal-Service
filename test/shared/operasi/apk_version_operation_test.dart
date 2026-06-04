@@ -42,7 +42,7 @@ void main() {
     );
     final tApkVersionMap = tApkVersion.toSqlite();
 
-    test('getAllApkVersions should return a list of apk versions', () async {
+    test('1. getAllApkVersions harus mengembalikan daftar versi apk', () async {
       when(mockDatabase.query(any, orderBy: anyNamed('orderBy')))
           .thenAnswer((_) async => [tApkVersionMap]);
 
@@ -54,7 +54,7 @@ void main() {
       verify(mockDatabase.query(any, orderBy: anyNamed('orderBy'))).called(1);
     });
 
-    test('getLatestApkVersion should return the latest apk version', () async {
+    test('2. getLatestApkVersion harus mengembalikan versi apk terbaru', () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'),
               orderBy: anyNamed('orderBy'),
@@ -67,7 +67,7 @@ void main() {
       expect(result?.id, tApkVersion.id);
     });
 
-    test('addApkVersion should insert a new apk version', () async {
+    test('3. addApkVersion harus menyisipkan versi apk baru', () async {
       when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
 
       await apkVersionOperation.addApkVersion(tApkVersion);
@@ -75,7 +75,7 @@ void main() {
       verify(mockBaseOperation.insert(any, any)).called(1);
     });
 
-    test('updateApkVersion should update an existing apk version', () async {
+    test('4. updateApkVersion harus memperbarui versi apk yang ada', () async {
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
       await apkVersionOperation.updateApkVersion(tApkVersion);
@@ -83,7 +83,7 @@ void main() {
       verify(mockBaseOperation.update(any, any, any)).called(1);
     });
 
-    test('softDelete should soft delete an apk version', () async {
+    test('5. softDelete harus melakukan soft delete pada versi apk', () async {
       when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
       await apkVersionOperation.softDelete('1');
