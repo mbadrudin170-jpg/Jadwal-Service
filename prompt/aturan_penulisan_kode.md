@@ -11,14 +11,9 @@ Seluruh percakapan antara AI dan pengembang **wajib menggunakan Bahasa Indonesia
 **1. Bahasa Komentar dan Percakapan**  
 Seluruh komentar di dalam kode serta percakapan dengan AI wajib menggunakan **Bahasa Indonesia**.
 
-**2. Penamaan dalam Kode**  
-Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditulis dalam **Bahasa Inggris**.  
+2. Penamaan dalam Kode
+Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditulis dalam **Bahasa Indonesia**.  
 Jika belum mengetahui padanan kata yang tepat:
-- Tulis perkiraan nama dalam Bahasa Indonesia di komentar.
-- Tanyakan langsung ke AI untuk mendapatkan padanan Bahasa Inggris yang lazim di Flutter/Dart.
-
-**3. Pembiasaan Bahasa Inggris Bertahap**  
-Penulisan nama tetap dimulai dengan Bahasa Inggris terlebih dahulu. Proses tanya-jawab ini bertujuan mempercepat migrasi ke Bahasa Inggris penuh tanpa menghambat alur ngoding, sambil tetap belajar secara bertahap.
 
 **4. Format dan Kerapihan Kode**  
 - Wajib menggunakan *trailing comma* di setiap widget tree agar auto-format rapi (sesuai `dart format`).  
