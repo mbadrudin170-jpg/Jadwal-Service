@@ -37,8 +37,8 @@ void main() {
   group('ImageStorageService', () {
     const bucket = 'announcements';
 
-    group('uploadImage', () {
-      test('should upload file and return public URL on success', () async {
+    group('1. uploadImage', () {
+      test('1.1 harus mengunggah file dan mengembalikan URL publik saat berhasil', () async {
         // Arrange
         const uploadUrl =
             'https://example.com/storage/v1/object/public/announcements/test_image.png';
@@ -56,7 +56,7 @@ void main() {
         verify(mockStorageFileApi.getPublicUrl(any)).called(1);
       });
 
-      test('should throw an exception when upload fails', () {
+      test('1.2 harus melempar exception saat unggahan gagal', () {
         // Arrange
         when(mockStorageFileApi.upload(any, any,
                 fileOptions: anyNamed('fileOptions')))
@@ -68,8 +68,8 @@ void main() {
       });
     });
 
-    group('getImageUrl', () {
-      test('should return the public URL for a given path', () {
+    group('2. getImageUrl', () {
+      test('2.1 harus mengembalikan URL publik untuk path yang diberikan', () {
         // Arrange
         const path = 'folder/image.png';
         const expectedUrl =
@@ -85,8 +85,8 @@ void main() {
       });
     });
 
-    group('deleteFiles', () {
-      test('should return true when files deletion is successful', () async {
+    group('3. deleteFiles', () {
+      test('3.1 harus mengembalikan true saat penghapusan file berhasil', () async {
         // Arrange
         final paths = ['path1.png', 'path2.png'];
         when(mockStorageFileApi.remove(any))
@@ -100,7 +100,7 @@ void main() {
         verify(mockStorageFileApi.remove(paths)).called(1);
       });
 
-      test('should return false on exception during deletion', () async {
+      test('3.2 harus mengembalikan false saat terjadi exception selama penghapusan', () async {
         // Arrange
         final paths = ['path1.png'];
         when(mockStorageFileApi.remove(any))
@@ -114,8 +114,8 @@ void main() {
       });
     });
 
-    group('downloadImage', () {
-      test('should return image bytes on success', () async {
+    group('4. downloadImage', () {
+      test('4.1 harus mengembalikan byte gambar saat berhasil', () async {
         // Arrange
         final bytes = Uint8List.fromList([1, 2, 3]);
         when(mockStorageFileApi.download(any)).thenAnswer((_) async => bytes);
@@ -129,7 +129,7 @@ void main() {
         verify(mockStorageFileApi.download('image.png')).called(1);
       });
 
-      test('should return null on failure', () async {
+      test('4.2 harus mengembalikan null saat gagal', () async {
         // Arrange
         when(mockStorageFileApi.download(any))
             .thenThrow(const StorageException('Download failed'));
@@ -143,8 +143,8 @@ void main() {
       });
     });
 
-    group('listFiles', () {
-      test('should return list of FileObject on success', () async {
+    group('5. listFiles', () {
+      test('5.1 harus mengembalikan daftar FileObject saat berhasil', () async {
         // Arrange
         final fileList = [
           const FileObject(
@@ -170,7 +170,7 @@ void main() {
         verify(mockStorageFileApi.list(path: 'images')).called(1);
       });
 
-      test('should return null on failure', () async {
+      test('5.2 harus mengembalikan null saat gagal', () async {
         // Arrange
         when(mockStorageFileApi.list(path: anyNamed('path')))
             .thenThrow(const StorageException('List failed'));
