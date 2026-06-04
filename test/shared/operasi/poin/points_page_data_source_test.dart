@@ -1,15 +1,17 @@
 // path: test/shared/operasi/poin/points_page_data_source_test.dart
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
 
-class MockPointsPageDataSource extends Mock implements PointsPageDataSource {}
+import 'points_page_data_source_test.mocks.dart';
 
+@GenerateMocks([PointsPageDataSource])
 void main() {
   group('PointsPageDataSource', () {
-    late PointsPageDataSource dataSource;
+    late MockPointsPageDataSource dataSource;
 
     setUp(() {
       dataSource = MockPointsPageDataSource();
