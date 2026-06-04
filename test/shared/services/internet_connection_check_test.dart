@@ -1,11 +1,12 @@
 // path: test/shared/services/internet_connection_check_test.dart
 
 import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart' as http;
 import 'package:wifi/shared/services/internet_connection_check.dart';
 
 import 'internet_connection_check_test.mocks.dart';
