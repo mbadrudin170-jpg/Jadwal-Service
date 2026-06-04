@@ -1,54 +1,25 @@
 // path: lib/shared/services/boot_service.dart
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/utils/alarm_utils.dart'; // import callback
 
-final bootServiceProvider = Provider((ref) => BootService());
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/shared/services/alarm/alarm_scheduler_provider.dart';
+import 'package:wifi/shared/services/background_service.dart';
+
+const int archiveExpiredId = 999; // ID unik untuk alarm periodik
 
 class BootService {
-  // Anda bisa menambahkan 'final Ref ref;' dan constructor jika ingin
-  // mengakses provider lain di masa depan.
-  BootService();
-
-  Future<void> rescheduleAlarmsOnBoot(ProviderContainer container) async {
-    Log.info('[BOOT] Memulai proses penjadwalan ulang alarm setelah boot.');
-    try {
-      // Gunakan data LOKAL (SQLite) karena internet mungkin belum siap saat boot
-      final activeCustomerOp = container.read(activeCustomerOperationProvider);
-      final activeCustomers = await activeCustomerOp.getAllActiveCustomers();
-
-      if (activeCustomers.isEmpty) {
-        Log.warning(
-            '[BOOT] Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
-        return;
-      }
-
-      int scheduledCount = 0;
-      for (final customer in activeCustomers) {
-        if (customer.endDate.isAfter(DateTime.now())) {
-          final alarmId = customer.id.hashCode;
-          final scheduledTime = customer.endDate;
-
-          // BATALKAN alarm lama dengan ID yang sama sebelum menjadwalkan ulang
-          await AndroidAlarmManager.cancel(alarmId);
-
-          await AndroidAlarmManager.oneShotAt(
-            scheduledTime,
-            alarmId,
-            alarmCallback, // ← perbaiki nama callback
-            exact: true,
-            wakeup: true,
-          );
-          Log.info(
-              '[BOOT] Alarm dijadwalkan untuk customer $customer pada $scheduledTime');
-          scheduledCount++;
-        }
-      }
-      Log.info('[BOOT] Selesai menjadwalkan $scheduledCount alarm.');
-    } catch (e, st) {
-      Log.error('[BOOT] Gagal saat menjadwalkan ulang alarm.', e: e, st: st);
-    }
+  /// Menjadwalkan alarm periodik untuk memeriksa dan mengarsipkan pelanggan yang kedaluwarsa.
+  Future<void> schedulePeriodicArchiveTask(ProviderContainer container) async {
+    final alarmScheduler = container.read(alarmSchedulerProvider);
+    
+    // Jalankan setiap 1 jam. Anda bisa menyesuaikan durasi ini.
+    await alarmScheduler.schedulePeriodic(
+      const Duration(hours: 1),
+      archiveExpiredId, // ID unik untuk tugas ini
+      BackgroundService.checkAndArchiveExpiredCustomers,
+      startAt: DateTime.now().add(const Duration(seconds: 10)), // Mulai setelah 10 detik
+      exact: true, // Pastikan alarm berjalan tepat waktu
+      wakeup: true, // Bangunkan perangkat jika perlu
+      rescheduleOnReboot: true, // Jadwalkan ulang setelah reboot
+    );
   }
 }

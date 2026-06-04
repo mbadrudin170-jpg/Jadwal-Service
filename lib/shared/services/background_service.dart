@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:workmanager/workmanager.dart';
 
 /// Nama unik untuk tugas sinkronisasi periodik.
@@ -16,9 +17,7 @@ void callbackDispatcher() {
     Log.info('Background task dimulai: $task');
 
     // Inisialisasi Flutter binding dan Firebase di isolate
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    Log.info('Firebase berhasil diinisialisasi di background isolate.');
+    await _initializeBackgroundIsolate();
 
     // Buat ProviderContainer lokal untuk mengakses provider
     final container = ProviderContainer();
@@ -50,11 +49,19 @@ void callbackDispatcher() {
   });
 }
 
+/// Helper untuk inisialisasi di dalam background isolate.
+Future<void> _initializeBackgroundIsolate() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  Log.info('Firebase berhasil diinisialisasi di background isolate.');
+}
+
 /// Kelas helper untuk mengelola inisialisasi dan pendaftaran background service.
 class BackgroundService {
-  /// Melakukan inisialisasi Workmanager dengan callback dispatcher.
+  /// Melakukan inisialisasi Workmanager dan mendaftarkan tugas.
   static Future<void> init() async {
     try {
+      // Inisialisasi Workmanager
       await Workmanager().initialize(
         callbackDispatcher,
       );
@@ -63,7 +70,29 @@ class BackgroundService {
       // Langsung daftarkan tugas setelah inisialisasi berhasil
       await registerPeriodicSync();
     } on Exception catch (e, st) {
-      Log.error('Gagal menginisialisasi Workmanager.', e: e, st: st);
+      Log.error('Gagal menginisialisasi background services.', e: e, st: st);
+    }
+  }
+
+  /// Callback statis untuk dijalankan oleh AndroidAlarmManager saat pelanggan kedaluwarsa.
+  @pragma('vm:entry-point')
+  static Future<void> checkAndArchiveExpiredCustomers() async {
+    Log.info(
+        'Alarm terpicu: Memulai pemeriksaan dan pengarsipan pelanggan kedaluwarsa.');
+    await _initializeBackgroundIsolate();
+    final container = ProviderContainer();
+    try {
+      final activeCustomerOp = container.read(activeCustomerOperationProvider);
+      final count = await activeCustomerOp.archiveExpiredCustomers();
+      Log.info(
+          'Proses pengarsipan selesai. $count pelanggan kedaluwarsa telah diarsipkan.');
+    } on Exception catch (e, st) {
+      Log.error(
+          'Gagal menjalankan checkAndArchiveExpiredCustomers di background',
+          e: e,
+          st: st);
+    } finally {
+      container.dispose();
     }
   }
 

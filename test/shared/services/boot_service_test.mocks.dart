@@ -3,14 +3,10 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/admin/data/sqlite.dart' as _i2;
-import 'package:wifi/shared/export/model.dart' as _i3;
-import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i6;
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
-    as _i4;
+import 'package:wifi/shared/services/alarm/alarm_scheduler.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -27,196 +23,72 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDatabaseHelper_0 extends _i1.SmartFake
-    implements _i2.DatabaseHelper {
-  _FakeDatabaseHelper_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeActiveCustomerModel_1 extends _i1.SmartFake
-    implements _i3.ActiveCustomerModel {
-  _FakeActiveCustomerModel_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-/// A class which mocks [ActiveCustomerOperation].
+/// A class which mocks [AlarmScheduler].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockActiveCustomerOperation extends _i1.Mock
-    implements _i4.ActiveCustomerOperation {
-  MockActiveCustomerOperation() {
+class MockAlarmScheduler extends _i1.Mock implements _i2.AlarmScheduler {
+  MockAlarmScheduler() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_0(
-          this,
-          Invocation.getter(#dbHelper),
-        ),
-      ) as _i2.DatabaseHelper);
-
-  @override
-  _i5.Future<List<_i6.ActiveCustomerDetailModel>>
-      getAllActiveCustomersWithDetails() => (super.noSuchMethod(
-            Invocation.method(
-              #getAllActiveCustomersWithDetails,
-              [],
-            ),
-            returnValue: _i5.Future<List<_i6.ActiveCustomerDetailModel>>.value(
-                <_i6.ActiveCustomerDetailModel>[]),
-          ) as _i5.Future<List<_i6.ActiveCustomerDetailModel>>);
-
-  @override
-  _i5.Future<_i3.ActiveCustomerModel> createActiveCustomer(
-    _i3.ActiveCustomerModel? activeCustomer, {
-    bool? fromServer = false,
+  _i3.Future<bool> scheduleOneShot(
+    DateTime? time,
+    int? id,
+    void Function()? callback, {
+    bool? wakeup,
+    bool? exact,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createActiveCustomer,
-          [activeCustomer],
-          {#fromServer: fromServer},
+          #scheduleOneShot,
+          [
+            time,
+            id,
+            callback,
+          ],
+          {
+            #wakeup: wakeup,
+            #exact: exact,
+          },
         ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_1(
-          this,
-          Invocation.method(
-            #createActiveCustomer,
-            [activeCustomer],
-            {#fromServer: fromServer},
-          ),
-        )),
-      ) as _i5.Future<_i3.ActiveCustomerModel>);
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 
   @override
-  _i5.Future<List<_i3.ActiveCustomerModel>> getAllActiveCustomers() =>
+  _i3.Future<bool> schedulePeriodic(
+    Duration? duration,
+    int? id,
+    void Function()? callback, {
+    DateTime? startAt,
+    bool? exact,
+    bool? wakeup,
+    bool? rescheduleOnReboot,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAllActiveCustomers,
-          [],
+          #schedulePeriodic,
+          [
+            duration,
+            id,
+            callback,
+          ],
+          {
+            #startAt: startAt,
+            #exact: exact,
+            #wakeup: wakeup,
+            #rescheduleOnReboot: rescheduleOnReboot,
+          },
         ),
-        returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
-            <_i3.ActiveCustomerModel>[]),
-      ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 
   @override
-  _i5.Future<_i3.ActiveCustomerModel?> getActiveCustomerById(String? id) =>
-      (super.noSuchMethod(
+  _i3.Future<bool> cancelAlarm(int? id) => (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomerById,
+          #cancelAlarm,
           [id],
         ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel?>.value(),
-      ) as _i5.Future<_i3.ActiveCustomerModel?>);
-
-  @override
-  _i5.Future<_i3.ActiveCustomerModel> updateActiveCustomer(
-    _i3.ActiveCustomerModel? activeCustomer, {
-    bool? fromServer = false,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #updateActiveCustomer,
-          [activeCustomer],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_1(
-          this,
-          Invocation.method(
-            #updateActiveCustomer,
-            [activeCustomer],
-            {#fromServer: fromServer},
-          ),
-        )),
-      ) as _i5.Future<_i3.ActiveCustomerModel>);
-
-  @override
-  _i5.Future<void> insertOrUpdateBatch(
-    List<_i3.ActiveCustomerModel>? items, {
-    bool? fromServer = false,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #insertOrUpdateBatch,
-          [items],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> softDelete(
-    String? id, {
-    bool? fromServer = false,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #softDelete,
-          [id],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
-
-  @override
-  _i5.Future<void> permanentlyDeleteArchivedCustomers(
-          {bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #permanentlyDeleteArchivedCustomers,
-          [],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
-
-  @override
-  _i5.Future<int> archiveExpiredCustomers({bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #archiveExpiredCustomers,
-          [],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
-
-  @override
-  _i5.Future<int> softDeleteAll({bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #softDeleteAll,
-          [],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
-
-  @override
-  _i5.Future<List<_i3.ActiveCustomerModel>> getActiveCustomersByIds(
-          List<String>? ids) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getActiveCustomersByIds,
-          [ids],
-        ),
-        returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
-            <_i3.ActiveCustomerModel>[]),
-      ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
+        returnValue: _i3.Future<bool>.value(false),
+      ) as _i3.Future<bool>);
 }

@@ -63,10 +63,12 @@ class MockWorkmanagerPlatform extends Mock
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  // Mock untuk Firebase Core
   const MethodChannel firebaseCoreChannel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
 
+  // Pengaturan Mock Handler untuk channel Firebase
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(firebaseCoreChannel,
           (MethodCall methodCall) async {
