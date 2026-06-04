@@ -14,7 +14,7 @@ import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
-void main() async {
+Future<void> main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
