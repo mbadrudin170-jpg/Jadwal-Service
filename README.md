@@ -1951,7 +1951,7 @@ import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
 final activeAnnouncementProvider =
-    FutureProvider.autoDispose<EventModel?>((ref) async {
+    FutureProvider.autoDispose<EventModel?>((ref) {
   final operator = ref.watch(eventOpSupabaseProvider);
   return operator.getActive();
 });

@@ -11,7 +11,7 @@ import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
 final activeAnnouncementProvider =
-    FutureProvider.autoDispose<EventModel?>((ref) async {
+    FutureProvider.autoDispose<EventModel?>((ref) {
   final operator = ref.watch(eventOpSupabaseProvider);
   return operator.getActive();
 });
@@ -86,7 +86,6 @@ class _EventPageUState extends ConsumerState<EventPageU> {
                   data.imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    // Jika gambar gagal dimuat, langsung tutup halaman ini.
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) Navigator.of(context).pop();
                     });
@@ -98,10 +97,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
                       child: CircularProgressIndicator(color: Colors.white),
                     );
                   },
-                )
-              else
-                // Jika URL gambar kosong, langsung tutup halaman ini.
-                const Center(child: Text('Gambar tidak tersedia.')),
+                ),
               Positioned(
                 top: 40,
                 left: 16,

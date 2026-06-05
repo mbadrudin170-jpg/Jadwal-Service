@@ -1,10 +1,4 @@
-// path: lib/shared/operasi/apk_version_operation.dart
-// diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi v50.
-// diubah: Menggunakan DateTime.now().toUtc() pada pengarsipan agar konsisten dengan BaseOperation.
-// diperbaiki: Menggunakan konstanta ColumnNames untuk query agar sesuai dengan skema DB v50.
-// diperbaiki: Menambahkan `const` pada variabel final untuk optimasi performa.
-// diperbaiki: Menambahkan kata kunci final pada parameter.
-// diperbaiki: Mendelegasikan fungsi softDelete dan softDeleteAll ke BaseOperation.
+// path: lib/shared/operasi/sqlite_operasi/apk_version_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
