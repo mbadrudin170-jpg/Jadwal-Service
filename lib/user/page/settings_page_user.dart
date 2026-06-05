@@ -62,7 +62,7 @@ class SettingsPageUser extends ConsumerWidget {
                 context,
                 MaterialPageRoute<void>(
                   builder: (final context) =>
-                      FeedbackHistoryPage(userId: userId),
+                      const FeedbackHistoryUser(),
                 ),
               );
             },
