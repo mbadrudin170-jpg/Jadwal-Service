@@ -3,16 +3,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-
-final localStorageServiceProvider =
-    FutureProvider<LocalStorageService>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  return LocalStorageService(prefs: prefs);
-});
 
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.
@@ -177,7 +170,7 @@ class LocalStorageService {
   }
 
   /// Mengambil data [CustomerModel] untuk akun yang saat ini sedang login.
-  Future<CustomerModel?> getCurrentAccount() async {
+  Future<CustomerModel?> getUserIdLogin() async {
     Log.info('[Ambil Akun Saat Ini] Mengambil akun yang sedang login.');
     final userId = prefs.getString(_userIdKey);
     if (userId == null) {

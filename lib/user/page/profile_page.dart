@@ -20,7 +20,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 // PENJELASAN: Kelas ini dibuat untuk menampung semua data yang dibutuhkan oleh halaman profil.
 // Tujuannya adalah memuat semua data ini dalam satu operasi asynchronous,
@@ -41,13 +41,8 @@ class _ProfileData {
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends ConsumerStatefulWidget {
-  final String userId;
-  final LocalStorageService localStorageService;
-
   const ProfilePage({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
@@ -65,8 +60,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    Log.info(
-        'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}');
     ref.read(interstitialAdServiceProvider).preloadAd();
     _initializeData();
   }
@@ -81,14 +74,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
   Future<_ProfileData> _loadProfileData() async {
-    Log.info(
-        'Memulai pengambilan data profil lengkap untuk userId: ${widget.userId}.');
+    final userId = ref.watch(userIdProvider);
+
+    Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      // 1. Ambil data customer (wajib ada)
-      final customer = await _customerOp.getCustomerOnce(widget.userId);
+      final customer = await _customerOp.getCustomerOnce(userId as String);
       if (customer == null) {
-        throw Exception(
-            'Pelanggan dengan ID ${widget.userId} tidak ditemukan.');
+        throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
       Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
 
@@ -175,8 +167,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           }
 
           if (!snapshot.hasData) {
+            final userId = ref.watch(userIdProvider);
             return Center(
-              child: Text('Profil ID: ${widget.userId} tidak ditemukan.'),
+              child: Text('Profil ID: $userId tidak ditemukan.'),
             );
           }
 

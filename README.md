@@ -645,7 +645,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 // PENJELASAN: Kelas ini dibuat untuk menampung semua data yang dibutuhkan oleh halaman profil.
 // Tujuannya adalah memuat semua data ini dalam satu operasi asynchronous,
@@ -666,13 +666,8 @@ class _ProfileData {
 
 /// Halaman profil pengguna yang menampilkan informasi pribadi dan paket aktif.
 class ProfilePage extends ConsumerStatefulWidget {
-  final String userId;
-  final LocalStorageService localStorageService;
-
   const ProfilePage({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
@@ -690,8 +685,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    Log.info(
-        'Memulai inisialisasi state untuk ProfilePage, userId: ${widget.userId}');
     ref.read(interstitialAdServiceProvider).preloadAd();
     _initializeData();
   }
@@ -706,14 +699,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
   Future<_ProfileData> _loadProfileData() async {
-    Log.info(
-        'Memulai pengambilan data profil lengkap untuk userId: ${widget.userId}.');
+    final userId = ref.watch(userIdProvider);
+
+    Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      // 1. Ambil data customer (wajib ada)
-      final customer = await _customerOp.getCustomerOnce(widget.userId);
+      final customer = await _customerOp.getCustomerOnce(userId as String);
       if (customer == null) {
-        throw Exception(
-            'Pelanggan dengan ID ${widget.userId} tidak ditemukan.');
+        throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
       Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
 
@@ -800,8 +792,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           }
 
           if (!snapshot.hasData) {
+            final userId = ref.watch(userIdProvider);
             return Center(
-              child: Text('Profil ID: ${widget.userId} tidak ditemukan.'),
+              child: Text('Profil ID: $userId tidak ditemukan.'),
             );
           }
 
@@ -1234,381 +1227,28 @@ class _UserCustomerDetailPageState
   }
 }
 // path: lib/user/page/account_list_page.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman daftar akun untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/theme/app_colors.dart (TColors)
-//   - lib/user/page/login_page.dart (LoginPage)
-//   - lib/user/page/main_page.dart (MainPage)
-//   - lib/user/services/storage/local_storage_service.dart (LocalStorageService)
-//   - lib/shared/debug/log.dart (Log)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/services/user_activity_service.dart (UserActivityService) // DITAMBAHKAN
-
-import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/services/user_activity_service.dart'; // DITAMBAHKAN
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/providers/account_list_providers.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-/// Typedef untuk membangun halaman utama.
-typedef MainPageBuilder = Widget Function(
-  String userId,
-  LocalStorageService localStorageService,
-);
-
-/// Halaman untuk menampilkan daftar akun yang pernah login di perangkat.
-class AccountListPage extends StatefulWidget {
-  /// Layanan opsional untuk mengakses penyimpanan lokal.
-  /// Digunakan untuk injeksi dependensi, terutama saat testing.
-  final LocalStorageService? localStorageService;
-
-  /// Builder opsional untuk membuat halaman utama setelah login berhasil.
-  /// Digunakan untuk injeksi dependensi dan kustomisasi navigasi.
-  final MainPageBuilder? mainPageBuilder;
-
-  /// {@template account_list_page}
-  /// Membuat instance [AccountListPage].
-  /// {@endtemplate}
-  const AccountListPage({
-    super.key,
-    this.localStorageService,
-    this.mainPageBuilder,
-  });
+class AccountListPage extends ConsumerWidget {
+  const AccountListPage({super.key});
 
   @override
-  State<AccountListPage> createState() => _AccountListPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accountsAsync = ref.watch(accountListProvider);
+    // Tonton juga localStorageServiceProvider untuk menangani state loading awalnya
+    final storageAsync = ref.watch(localStorageServiceProvider);
 
-class _AccountListPageState extends State<AccountListPage> {
-  late Future<List<CustomerModel>> _accountListFuture;
-  late LocalStorageService _localStorageService;
-  bool _isLocalStorageInitialized = false;
-  final UserActivityService _activityService =
-      UserActivityService(); // DITAMBAHKAN
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_initializeLocalStorage());
-  }
-
-  Future<void> _initializeLocalStorage() async {
-    if (widget.localStorageService != null) {
-      _localStorageService = widget.localStorageService!;
-      if (mounted) {
-        setState(() => _isLocalStorageInitialized = true);
-      }
-      _loadAccountList();
-    } else {
-      final prefs = await SharedPreferences.getInstance();
-      if (mounted) {
-        setState(() {
-          _localStorageService = LocalStorageService(prefs: prefs);
-          _isLocalStorageInitialized = true;
-        });
-        _loadAccountList();
-      }
-    }
-  }
-
-  void _loadAccountList() {
-    if (_isLocalStorageInitialized && mounted) {
-      Log.info('Memulai pengambilan daftar akun');
-      setState(() {
-        _accountListFuture = _fetchAccountList();
-      });
-    }
-  }
-
-  Future<List<CustomerModel>> _fetchAccountList() async {
-    try {
-      final list = await _localStorageService.getAccountList();
-      Log.info('Daftar akun berhasil dimuat', {'jumlah_akun': list.length});
-      return list;
-    } on Exception catch (e, st) {
-      Log.error('Gagal memuat daftar akun', e: e, st: st);
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memuat daftar akun',
-            logData: e.toString());
-      }
-      rethrow;
-    }
-  }
-
-  Future<void> _selectAccount(final CustomerModel customer) async {
-    if (!_isLocalStorageInitialized) return;
-
-    Log.info('Mulai memilih akun', {
-      'customer_id': customer.id,
-      'nama': customer.name,
-    });
-
-    final navigator = Navigator.of(context);
-    try {
-      await _localStorageService.saveCurrentAccount(customer);
-      unawaited(
-        _activityService.pingActivity(customer.id, force: true),
-      );
-      Log.info(
-          'set waktu terakhir user aktif ', {'customer.id, customer.name'});
-      if (!mounted) return;
-      final page = widget.mainPageBuilder != null
-          ? widget.mainPageBuilder!(customer.id, _localStorageService)
-          : MainPage(
-              userId: customer.id,
-              localStorageService: _localStorageService,
-            );
-
-      // PERBAIKAN: Menggunakan pushAndRemoveUntil untuk memastikan tumpukan navigasi bersih.
-      // Ini akan menghapus semua halaman sebelumnya dan menjadikan MainPage sebagai root baru,
-      // sehingga mencegah state ganda dan memastikan banner iklan dimuat ulang dengan benar.
-      await navigator.pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (final context) => page),
-        (final route) => false,
-      );
-
-      // Toast tidak dapat ditampilkan setelah navigasi pushAndRemoveUntil karena context lama tidak valid.
-      // Notifikasi keberhasilan login seharusnya ditangani di halaman tujuan jika diperlukan.
-    } on Exception catch (e, st) {
-      Log.error('Gagal menyimpan akun yang dipilih',
-          e: e, st: st, data: {'customer_id': customer.id});
-      if (mounted) {
-        ToastUtil.error(context, 'Gagal memilih akun, silakan coba lagi',
-            logData: e.toString());
-      }
-    }
-  }
-
-  Future<void> _showDeleteDialog(
-    final BuildContext context,
-    final CustomerModel customer,
-  ) async {
-    await showDialog<void>(
-      context: context,
-      builder: (final BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Hapus Akun'),
-          content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              child: const Text('Hapus'),
-              onPressed: () async {
-                final dialogNavigator = Navigator.of(dialogContext);
-                final pageContext = context; // simpan referensi halaman utama
-
-                if (!_isLocalStorageInitialized) return;
-
-                try {
-                  final currentAccount =
-                      await _localStorageService.getCurrentAccount();
-
-                  if (!dialogContext.mounted) return;
-
-                  if (currentAccount?.id == customer.id) {
-                    // Tutup dialog hapus dulu
-                    dialogNavigator.pop();
-
-                    // Konfirmasi kedua
-                    await showDialog<void>(
-                      context: pageContext,
-                      builder: (final BuildContext confirmDialogContext) {
-                        return AlertDialog(
-                          title: const Text('Konfirmasi Hapus'),
-                          content: const Text(
-                            'Ini adalah akun yang sedang Anda gunakan. Anda akan keluar dan perlu login kembali. Lanjutkan?',
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Batal'),
-                              onPressed: () =>
-                                  Navigator.of(confirmDialogContext).pop(),
-                            ),
-                            TextButton(
-                              child: const Text(
-                                'Hapus & Keluar',
-                                style: TextStyle(color: TColors.errorColor),
-                              ),
-                              onPressed: () async {
-                                final navigator =
-                                    Navigator.of(pageContext); // bukan context
-
-                                try {
-                                  Log.info('Menghapus akun aktif & keluar', {
-                                    'customer_id': customer.id,
-                                    'nama': customer.name,
-                                  });
-
-                                  await _localStorageService
-                                      .deleteAccount(customer.id);
-                                  await _localStorageService
-                                      .deleteCurrentAccount();
-
-                                  if (!pageContext.mounted) return;
-
-                                  ToastUtil.success(pageContext,
-                                      'Akun berhasil dihapus, silakan login ulang');
-
-                                  await navigator.pushAndRemoveUntil(
-                                    MaterialPageRoute<void>(
-                                      builder: (final context) =>
-                                          const LoginPage(),
-                                    ),
-                                    (final route) => false,
-                                  );
-                                } on Exception catch (e, st) {
-                                  Log.error('Gagal menghapus akun aktif',
-                                      e: e,
-                                      st: st,
-                                      data: {'customer_id': customer.id});
-                                  if (pageContext.mounted) {
-                                    ToastUtil.error(
-                                        pageContext, 'Gagal menghapus akun',
-                                        logData: e.toString());
-                                  }
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    // Hapus akun biasa
-                    Log.info('Menghapus akun tersimpan', {
-                      'customer_id': customer.id,
-                      'nama': customer.name,
-                    });
-
-                    await _localStorageService.deleteAccount(customer.id);
-
-                    dialogNavigator.pop();
-                    _loadAccountList();
-
-                    if (pageContext.mounted) {
-                      ToastUtil.success(pageContext, 'Akun berhasil dihapus');
-                    }
-                  }
-                } on Exception catch (e, st) {
-                  Log.error('Gagal menghapus akun',
-                      e: e, st: st, data: {'customer_id': customer.id});
-                  if (dialogContext.mounted) {
-                    ToastUtil.error(dialogContext, 'Gagal menghapus akun',
-                        logData: e.toString());
-                  }
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showExitDialog(final BuildContext context) async {
-    await showDialog<void>(
-      context: context,
-      builder: (final dialogContext) => AlertDialog(
-        title: const Text('Keluar'),
-        content: const Text('Pilih metode keluar:'),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(dialogContext);
-              if (!_isLocalStorageInitialized) return;
-
-              try {
-                Log.info('Keluar & hapus akun yang sedang digunakan');
-
-                final account = await _localStorageService.getCurrentAccount();
-                if (account != null) {
-                  await _localStorageService.deleteAccount(account.id);
-                }
-                await _localStorageService.deleteCurrentAccount();
-
-                if (!context.mounted) return;
-
-                ToastUtil.success(
-                    context, 'Anda telah keluar dan akun dihapus');
-                await navigator.pushAndRemoveUntil(
-                  MaterialPageRoute<void>(builder: (final context) => const LoginPage()),
-                  (final route) => false,
-                );
-              } on Exception catch (e, st) {
-                Log.error('Gagal keluar & hapus akun', e: e, st: st);
-                if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal keluar',
-                      logData: e.toString());
-                }
-              }
-            },
-            style: TextButton.styleFrom(
-              backgroundColor: TColors.errorColor,
-              foregroundColor: TColors.textOnDark,
-            ),
-            child: const Text('Keluar/Hapus Akun'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: TColors.errorColor,
-              foregroundColor: TColors.textOnDark,
-            ),
-            onPressed: () async {
-              final pageNavigator = Navigator.of(context);
-              Navigator.of(dialogContext).pop(); // tutup dialog
-
-              if (!_isLocalStorageInitialized) return;
-
-              try {
-                Log.info('Mulai proses logout (hapus token)');
-                await _localStorageService.deleteLoginToken();
-
-                if (!context.mounted) return;
-
-                ToastUtil.success(context, 'Token berhasil dihapus');
-
-                await pageNavigator.pushAndRemoveUntil(
-                  MaterialPageRoute<void>(
-                    builder: (final context) => const LoginPage(),
-                  ),
-                  (final route) => false,
-                );
-              } on Exception catch (e, st) {
-                Log.error('Gagal menghapus token login', e: e, st: st);
-                if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal keluar, coba lagi',
-                      logData: e.toString());
-                }
-              }
-            },
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    if (!_isLocalStorageInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -1620,24 +1260,15 @@ class _AccountListPageState extends State<AccountListPage> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<CustomerModel>>(
-              future: _accountListFuture,
-              builder: (final context, final snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final accountList = snapshot.data ?? [];
-                if (snapshot.hasError) {
-                  // Error sudah dilog & snackbar ditampilkan di _fetchAccountList,
-                  // di sini hanya tampilkan widget fallback.
-                  return Center(
-                    child: Text(
-                      'Gagal memuat akun: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                }
-
+            child: accountsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(
+                child: Text(
+                  'Gagal memuat akun: $err',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+              data: (accountList) {
                 if (accountList.isEmpty) {
                   return const Center(
                     child: Text('Belum ada riwayat login di perangkat ini.'),
@@ -1645,21 +1276,20 @@ class _AccountListPageState extends State<AccountListPage> {
                 }
                 return ListView.builder(
                   itemCount: accountList.length,
-                  itemBuilder: (final context, final index) {
+                  itemBuilder: (context, index) {
                     final account = accountList[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                          horizontal: 16, vertical: 8),
                       child: ListTile(
                         leading: CircleAvatar(
                           child: Text(
                               account.name.isNotEmpty ? account.name[0] : ''),
                         ),
                         title: Text(account.name),
-                        onTap: () => _selectAccount(account),
-                        onLongPress: () => _showDeleteDialog(context, account),
+                        onTap: () => _selectAccount(context, ref, account),
+                        onLongPress: () =>
+                            _showDeleteDialog(context, ref, account),
                       ),
                     );
                   },
@@ -1667,38 +1297,201 @@ class _AccountListPageState extends State<AccountListPage> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _showExitDialog(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: TColors.errorColor.withAlpha(200),
-                  foregroundColor: Colors.white,
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.logout, size: 20, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(
-                      'Keluar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+          // Gunakan .when dari storage untuk mengaktifkan tombol hanya saat service siap
+          storageAsync.when(
+            data: (_) => Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _showExitDialog(context, ref),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: TColors.errorColor.withAlpha(200),
+                    foregroundColor: Colors.white,
+                    elevation: 2,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.logout, size: 20, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Keluar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
+            // Saat loading atau error, tampilkan tombol yang dinonaktifkan
+            loading: () => const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
+              child: SizedBox(
+                  width: double.infinity,
+                  child:
+                      ElevatedButton(onPressed: null, child: Text('Keluar'))),
+            ),
+            error: (e, st) => const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectAccount(
+      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+    final navigator = Navigator.of(context);
+    try {
+      final storage = await ref.read(localStorageServiceProvider.future);
+      final activityService = await ref.read(userActivityServiceProvider.future);
+
+      Log.info('Mulai memilih akun',
+          {'customer_id': customer.id, 'nama': customer.name});
+      await storage.saveCurrentAccount(customer);
+      await activityService.pingActivity(customer.id, force: true);
+
+      await navigator.pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (context) => const MainPage()),
+        (route) => false,
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menyimpan akun yang dipilih',
+          e: e, st: st, data: {'customer_id': customer.id});
+      ToastUtil.error(context, 'Gagal memilih akun', logData: e.toString());
+    }
+  }
+
+  Future<void> _showDeleteDialog(
+      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Akun'),
+        content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Batal')),
+          TextButton(
+            child: const Text('Hapus'),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop(); // Tutup dialog
+              try {
+                final storage =
+                    await ref.read(localStorageServiceProvider.future);
+                final currentAccount = await storage.getUserIdLogin();
+
+                if (currentAccount?.id == customer.id) {
+                  await _handleDeleteActiveAccount(
+                      context, ref, customer, storage);
+                } else {
+                  Log.info('Menghapus akun tersimpan',
+                      {'customer_id': customer.id, 'nama': customer.name});
+                  await storage.deleteAccount(customer.id);
+                  ref.invalidate(accountListProvider);
+                  ToastUtil.success(context, 'Akun berhasil dihapus');
+                }
+              } on Exception catch (e, st) {
+                Log.error('Gagal menghapus akun',
+                    e: e, st: st, data: {'customer_id': customer.id});
+                ToastUtil.error(context, 'Gagal menghapus akun',
+                    logData: e.toString());
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleDeleteActiveAccount(BuildContext context, WidgetRef ref,
+      CustomerModel customer, LocalStorageService storage) async {
+    final navigator = Navigator.of(context);
+    Log.info('Menghapus akun aktif & keluar',
+        {'customer_id': customer.id, 'nama': customer.name});
+    await storage.deleteAccount(customer.id);
+    await storage.deleteCurrentAccount();
+
+    ToastUtil.success(
+        navigator.context, 'Akun berhasil dihapus, silakan login ulang');
+
+    await navigator.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (context) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
+  Future<void> _showExitDialog(BuildContext context, WidgetRef ref) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Pilih metode keluar:'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              try {
+                final storage =
+                    await ref.read(localStorageServiceProvider.future);
+                Log.info('Keluar & hapus akun yang sedang digunakan');
+                final account = await storage.getUserIdLogin();
+                if (account != null) {
+                  await storage.deleteAccount(account.id);
+                }
+                await storage.deleteCurrentAccount();
+                ref.invalidate(accountListProvider);
+
+                ToastUtil.success(
+                    context, 'Anda telah keluar dan akun dihapus');
+                await navigator.pushAndRemoveUntil(
+                  MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              } on Exception catch (e, st) {
+                Log.error('Gagal keluar & hapus akun', e: e, st: st);
+                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
+              }
+            },
+            style: TextButton.styleFrom(
+                backgroundColor: TColors.errorColor,
+                foregroundColor: TColors.textOnDark),
+            child: const Text('Keluar/Hapus Akun'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+                backgroundColor: TColors.errorColor,
+                foregroundColor: TColors.textOnDark),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              try {
+                final storage =
+                    await ref.read(localStorageServiceProvider.future);
+                Log.info('Mulai proses logout (hapus token)');
+                await storage.deleteLoginToken();
+
+                ToastUtil.success(context, 'Token berhasil dihapus');
+                await navigator.pushAndRemoveUntil(
+                  MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              } on Exception catch (e, st) {
+                Log.error('Gagal menghapus token login', e: e, st: st);
+                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
+              }
+            },
+            child: const Text('Keluar'),
           ),
         ],
       ),
@@ -1725,13 +1518,13 @@ import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/event_page_u.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
@@ -1903,15 +1696,14 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       final isConnected =
           await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
-        unawaited(UserActivityService().pingActivity(userId));
+        final userActivityService =
+            await ref.read(userActivityServiceProvider.future);
+        unawaited(userActivityService.pingActivity(userId));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => MainPage(
-            userId: userId,
-            localStorageService: widget.localStorageService,
-          ),
+          builder: (final context) => const MainPage(),
         ),
       ));
     } else {
@@ -2026,7 +1818,6 @@ class _EventPageUState extends ConsumerState<EventPageU> {
                   data.imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    // Jika gambar gagal dimuat, langsung tutup halaman ini.
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) Navigator.of(context).pop();
                     });
@@ -2038,10 +1829,7 @@ class _EventPageUState extends ConsumerState<EventPageU> {
                       child: CircularProgressIndicator(color: Colors.white),
                     );
                   },
-                )
-              else
-                // Jika URL gambar kosong, langsung tutup halaman ini.
-                const Center(child: Text('Gambar tidak tersedia.')),
+                ),
               Positioned(
                 top: 40,
                 left: 16,
@@ -2204,6 +1992,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 enum SortMode {
   endDateNewest,
@@ -2213,9 +2002,7 @@ enum SortMode {
 }
 
 class SubscriptionHistoryPage extends ConsumerStatefulWidget {
-  final String userId;
-
-  const SubscriptionHistoryPage({super.key, required this.userId});
+  const SubscriptionHistoryPage({super.key});
 
   @override
   ConsumerState<SubscriptionHistoryPage> createState() =>
@@ -2238,7 +2025,10 @@ class _SubscriptionHistoryPageState
   }
 
   Future<List<TransactionModel>> _loadHistory() async {
-    final customer = await _customerOpFirebase.getCustomerOnce(widget.userId);
+    final userIdValue = await ref.read(userIdProvider.future);
+
+    if (userIdValue == null) return [];
+    final customer = await _customerOpFirebase.getCustomerOnce(userIdValue);
     if (customer == null) return [];
     return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
   }
@@ -2305,6 +2095,7 @@ class _SubscriptionHistoryPageState
 
   @override
   Widget build(BuildContext context) {
+    final userId = ref.watch(userIdProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -2329,7 +2120,13 @@ class _SubscriptionHistoryPageState
         ],
       ),
       body: StreamBuilder<CustomerModel?>(
-        stream: _customerOpFirebase.getCustomerStream(widget.userId),
+        stream: userId.when(
+          data: (id) => id != null
+              ? _customerOpFirebase.getCustomerStream(id)
+              : const Stream.empty(),
+          loading: () => const Stream.empty(),
+          error: (_, __) => const Stream.empty(),
+        ),
         builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -2426,31 +2223,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends ConsumerStatefulWidget {
-  /// ID unik pengguna yang sedang login.
-  final String userId;
-
-  /// Layanan untuk mengakses penyimpanan lokal.
-  final LocalStorageService localStorageService;
-
-  /// Konstruktor untuk [MainPage].
   const MainPage({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
@@ -2466,35 +2252,29 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   void initState() {
     super.initState();
-    final notifikasiServis = ref.read(notifikasiServisProvider);
-    PenjadwalNotifikasi.aturNotifikasiLangganan(
-      notifikasiServis,
-      widget.userId,
-    );
-    UserActivityService().pingActivity(widget.userId);
-    _pages = [
-      ProfilePage(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-      SubscriptionHistoryPage(
-        userId: widget.userId,
-      ),
-      SettingsPageUser(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-    ];
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId != null) {
+        final notifikasiServis = ref.read(notifikasiServisProvider);
+        PenjadwalNotifikasi.aturNotifikasiLangganan(
+          notifikasiServis,
+          userId,
+        );
 
-    // Inisialisasi AppLifecycleReactor untuk iklan. Konstruktornya ringan.
+        final userActivityService =
+            await ref.read(userActivityServiceProvider.future);
+        await userActivityService.pingActivity(userId);
+      }
+    });
+
+    _pages = [
+      const ProfilePage(),
+      const SubscriptionHistoryPage(),
+      const SettingsPageUser(),
+    ];
     _appLifecycleReactor =
         AppLifecycleReactor(appOpenAdService: _appOpenAdService);
     _appLifecycleReactor.listenToAppStateChanges();
-
-    Log.info(
-        'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
-
-    // Hapus splash screen agar UI dasar aplikasi terlihat.
     FlutterNativeSplash.remove();
   }
 
@@ -2559,6 +2339,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -2566,15 +2347,15 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman login untuk pengguna.
-class LoginPage extends StatelessWidget {
+class LoginPage extends ConsumerWidget {
   /// Instance Firestore untuk akses database.
   final FirebaseFirestore? firestore;
 
@@ -2585,7 +2366,7 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, WidgetRef ref) {
     return _LoginView(
       firestore: firestore,
       localStorageService: localStorageService,
@@ -2593,20 +2374,19 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _LoginView extends StatefulWidget {
+class _LoginView extends ConsumerStatefulWidget {
   final FirebaseFirestore? firestore;
   final LocalStorageService? localStorageService;
 
   const _LoginView({this.firestore, this.localStorageService});
 
   @override
-  State<_LoginView> createState() => _LoginViewState();
+  ConsumerState<_LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<_LoginView> {
+class _LoginViewState extends ConsumerState<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
-  final UserActivityService _activityService = UserActivityService();
   final InternetConnectionService _internetService =
       InternetConnectionService();
   bool _isPasswordVisible = false;
@@ -2659,7 +2439,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Future<void> _processLogin() async {
- final isConnected = await _internetService.isInternetAvailable();
+    final isConnected = await _internetService.isInternetAvailable();
     if (!mounted) return;
 
     if (!isConnected) {
@@ -2696,8 +2476,9 @@ class _LoginViewState extends State<_LoginView> {
         final userDoc = querySnapshot.docs.first;
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
-
-        unawaited(_activityService.pingActivity(customer.id, force: true));
+        final activityService =
+            await ref.read(userActivityServiceProvider.future);
+        unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
         await _localStorageService.saveAccount(customer);
         Log.info('Menyimpan id akun ke memori lokal');
@@ -2707,10 +2488,7 @@ class _LoginViewState extends State<_LoginView> {
 
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
-            builder: (final context) => MainPage(
-              userId: customer.id,
-              localStorageService: _localStorageService,
-            ),
+            builder: (final context) => const MainPage(),
           ),
         );
       } else {
@@ -3037,9 +2815,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => MainPage(
-            userId: userId,
-            localStorageService: widget.localStorageService,
+          builder: (final context) => const MainPage(
           ),
         ),
       ));
@@ -3569,28 +3345,20 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
 class SettingsPageUser extends ConsumerWidget {
-  final String userId;
-  final LocalStorageService localStorageService;
-
   const SettingsPageUser({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun halaman pengaturan untuk pengguna: $userId');
-
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
         children: <Widget>[
           _SettingsMenuItem(
             icon: TIcons.theme,
@@ -3606,7 +3374,7 @@ class SettingsPageUser extends ConsumerWidget {
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const Icon(Icons.error),
+                  error: (_, __) => const Icon(TIcons.error),
                 );
               },
             ),
@@ -3619,8 +3387,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) =>
-                      FeedbackHistoryPage(userId: userId),
+                  builder: (final context) => const FeedbackHistoryUser(),
                 ),
               );
             },
@@ -3662,9 +3429,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => AccountListPage(
-                    localStorageService: localStorageService,
-                  ),
+                  builder: (context) => const AccountListPage(),
                 ),
               );
             },
@@ -3811,35 +3576,109 @@ class TransactionDetailPage extends StatelessWidget {
   }
 }
 // path: lib/user/page/feedback_history_user.dart
-// diubah: Menggunakan ToastUtil, menghapus SnackBarUtil.
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/form_feedback_u.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
-class FeedbackHistoryPage extends StatefulWidget {
-  final String userId;
-
-  const FeedbackHistoryPage({super.key, required this.userId});
+class FeedbackHistoryUser extends ConsumerWidget {
+  const FeedbackHistoryUser({super.key});
 
   @override
-  State<FeedbackHistoryPage> createState() => _FeedbackHistoryPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userIdAsync = ref.watch(userIdProvider);
 
-class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
-  final FeedbackOpFirebase _operation =
-      FeedbackOpFirebase(firestore: FirebaseFirestore.instance);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Riwayat Masukan'),
+      ),
+      body: userIdAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) =>
+            Center(child: Text('Gagal memuat ID Pengguna: $err')),
+        data: (userId) {
+          if (userId == null) {
+            return const Center(
+              child: Text('Silakan login untuk melihat riwayat masukan.'),
+            );
+          }
 
-  Future<void> _showOptionsDialog(final FeedbackModel feedback) async {
+          // Menggunakan StreamProvider baru untuk data feedback
+          final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
+
+          return feedbackAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) =>
+                Center(child: Text('Gagal memuat masukan: $err')),
+            data: (feedbacks) {
+              if (feedbacks.isEmpty) {
+                return const Center(
+                  child: Text('Anda belum pernah mengirim masukan.'),
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: feedbacks.length,
+                itemBuilder: (context, index) {
+                  final feedback = feedbacks[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListTile(
+                      onTap: () =>
+                          _showOptionsDialog(context, ref, feedback, userId),
+                      title: Text(feedback.content),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          feedback.date != null
+                              ? FormatDateTime.formatDateAndTimeCompact(
+                                  feedback.date!)
+                              : '',
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: userIdAsync.when(
+        data: (userId) {
+          if (userId == null) return null;
+          return FloatingActionButton.extended(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (context) => FormKritikDanSaran(userId: userId),
+              ),
+            ),
+            label: const Text('Beri Masukan'),
+            icon: const Icon(TIcons.add),
+          );
+        },
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Future<void> _showOptionsDialog(BuildContext context, WidgetRef ref,
+      FeedbackModel feedback, String userId) async {
     await showDialog<void>(
       context: context,
-      builder: (final dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Pilih Aksi'),
           actions: <Widget>[
@@ -3847,7 +3686,8 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await _showDeleteConfirmationAndExecute(feedback.id);
+                await _showDeleteConfirmationAndExecute(
+                    context, ref, feedback.id, userId);
               },
             ),
             TextButton(
@@ -3857,8 +3697,8 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
                 await Navigator.push<void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (final _) => FormKritikDanSaran(
-                      userId: widget.userId,
+                    builder: (_) => FormKritikDanSaran(
+                      userId: userId,
                       kritikId: feedback.id,
                       initialValue: feedback.content,
                     ),
@@ -3876,10 +3716,11 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
     );
   }
 
-  Future<void> _showDeleteConfirmationAndExecute(final String docId) async {
+  Future<void> _showDeleteConfirmationAndExecute(
+      BuildContext context, WidgetRef ref, String docId, String userId) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
-      builder: (final dialogContext) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
           content: const Text('Yakin ingin menghapus masukan ini?'),
@@ -3900,80 +3741,15 @@ class _FeedbackHistoryPageState extends State<FeedbackHistoryPage> {
 
     if (shouldDelete ?? false) {
       try {
-        await _operation.softDeleteFeedback(docId);
-        if (!mounted) return;
+        final feedbackOp = ref.read(feedbackOpFirebaseProvider);
+        await feedbackOp.softDeleteFeedback(docId);
+        // Invalidate stream provider agar UI memuat ulang data terbaru
+        ref.invalidate(feedbackStreamProvider(userId));
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {
-        if (!mounted) return;
         ToastUtil.error(context, 'Gagal menghapus: $e');
       }
     }
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Riwayat Masukan'),
-        centerTitle: true,
-      ),
-      body: StreamBuilder<List<FeedbackModel>>(
-        stream: _operation.getByUser(widget.userId),
-        builder: (final context, final snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Anda belum pernah mengirim masukan.'),
-            );
-          }
-
-          final feedbacks = snapshot.data!;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: feedbacks.length,
-            itemBuilder: (final context, final index) {
-              final feedback = feedbacks[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  onTap: () => _showOptionsDialog(feedback),
-                  title: Text(feedback.content),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      feedback.date != null
-                          ? FormatDateTime.formatDateAndTimeCompact(
-                              feedback.date!)
-                          : '',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute<void>(
-              builder: (final context) =>
-                  FormKritikDanSaran(userId: widget.userId),
-            ),
-          );
-        },
-        label: const Text('Beri Masukan'),
-        icon: const Icon(Icons.add),
-      ),
-    );
   }
 }
 // path: lib/user/firebase_option/firebase_option_user_dev.dart
@@ -4899,16 +4675,9 @@ class DataNotFound extends StatelessWidget {
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-
-final localStorageServiceProvider =
-    FutureProvider<LocalStorageService>((ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  return LocalStorageService(prefs: prefs);
-});
 
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.
@@ -5073,7 +4842,7 @@ class LocalStorageService {
   }
 
   /// Mengambil data [CustomerModel] untuk akun yang saat ini sedang login.
-  Future<CustomerModel?> getCurrentAccount() async {
+  Future<CustomerModel?> getUserIdLogin() async {
     Log.info('[Ambil Akun Saat Ini] Mengambil akun yang sedang login.');
     final userId = prefs.getString(_userIdKey);
     if (userId == null) {
@@ -5257,9 +5026,254 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
 }
 
 String _$notifikasiServisHash() => r'5ac9b5c81a21e80bd12e57882e0334c0ace4c5bc';
+
+@ProviderFor(userId)
+final userIdProvider = UserIdProvider._();
+
+final class UserIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  UserIdProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'userIdProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$userIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return userId(ref);
+  }
+}
+
+String _$userIdHash() => r'ab97fc2ae47662359e2a6ffd042cc817bbcad0ba';
+
+@ProviderFor(userActivityService)
+final userActivityServiceProvider = UserActivityServiceProvider._();
+
+final class UserActivityServiceProvider extends $FunctionalProvider<
+        AsyncValue<UserActivityService>,
+        UserActivityService,
+        FutureOr<UserActivityService>>
+    with
+        $FutureModifier<UserActivityService>,
+        $FutureProvider<UserActivityService> {
+  UserActivityServiceProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'userActivityServiceProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$userActivityServiceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<UserActivityService> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<UserActivityService> create(Ref ref) {
+    return userActivityService(ref);
+  }
+}
+
+String _$userActivityServiceHash() =>
+    r'7f5ad796551860f2e2cd3b41bfd77187555773d8';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'account_list_providers.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+
+@ProviderFor(sharedPreferences)
+final sharedPreferencesProvider = SharedPreferencesProvider._();
+
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+
+final class SharedPreferencesProvider extends $FunctionalProvider<
+        AsyncValue<SharedPreferences>,
+        SharedPreferences,
+        FutureOr<SharedPreferences>>
+    with
+        $FutureModifier<SharedPreferences>,
+        $FutureProvider<SharedPreferences> {
+  /// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+  SharedPreferencesProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'sharedPreferencesProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<SharedPreferences> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SharedPreferences> create(Ref ref) {
+    return sharedPreferences(ref);
+  }
+}
+
+String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+
+@ProviderFor(localStorageService)
+final localStorageServiceProvider = LocalStorageServiceProvider._();
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+
+final class LocalStorageServiceProvider extends $FunctionalProvider<
+        AsyncValue<LocalStorageService>,
+        LocalStorageService,
+        FutureOr<LocalStorageService>>
+    with
+        $FutureModifier<LocalStorageService>,
+        $FutureProvider<LocalStorageService> {
+  /// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+  LocalStorageServiceProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'localStorageServiceProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$localStorageServiceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<LocalStorageService> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LocalStorageService> create(Ref ref) {
+    return localStorageService(ref);
+  }
+}
+
+String _$localStorageServiceHash() =>
+    r'682f08594d407537f17f21974997a6a4de059ac8';
+
+/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
+
+@ProviderFor(accountList)
+final accountListProvider = AccountListProvider._();
+
+/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
+
+final class AccountListProvider extends $FunctionalProvider<
+        AsyncValue<List<CustomerModel>>,
+        List<CustomerModel>,
+        FutureOr<List<CustomerModel>>>
+    with
+        $FutureModifier<List<CustomerModel>>,
+        $FutureProvider<List<CustomerModel>> {
+  /// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
+  AccountListProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'accountListProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$accountListHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<CustomerModel>> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<CustomerModel>> create(Ref ref) {
+    return accountList(ref);
+  }
+}
+
+String _$accountListHash() => r'bd2eb351403f2bd12885e68ef68fbbec3668979f';
+// path: lib/user/providers/account_list_providers.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
+
+part 'account_list_providers.g.dart';
+
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+@Riverpod(keepAlive: true)
+Future<SharedPreferences> sharedPreferences(Ref ref) {
+  return SharedPreferences.getInstance();
+}
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+@Riverpod(keepAlive: true)
+Future<LocalStorageService> localStorageService(Ref ref) async {
+  // Menunggu SharedPreferences selesai diinisialisasi.
+  final prefs = await ref.watch(sharedPreferencesProvider.future);
+  return LocalStorageService(prefs: prefs);
+}
+
+/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
+@riverpod
+Future<List<CustomerModel>> accountList(Ref ref) async {
+  // Menunggu LocalStorageService selesai diinisialisasi.
+  final storage = await ref.watch(localStorageServiceProvider.future);
+  // Setelah siap, panggil fungsi untuk mendapatkan daftar akun.
+  return storage.getAccountList();
+}
 // path: lib/user/providers/user_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/services/user_activity_service.dart';
+import 'package:wifi/user/providers/account_list_providers.dart';
 
 part 'user_providers.g.dart';
 
@@ -5267,7 +5281,6 @@ part 'user_providers.g.dart';
 class AppReadiness extends _$AppReadiness {
   @override
   bool build() => false; // Awalnya aplikasi belum siap
-
   void setReady(bool isReady) {
     state = isReady;
   }
@@ -5275,8 +5288,25 @@ class AppReadiness extends _$AppReadiness {
 
 @riverpod
 NotifikasiServis notifikasiServis(Ref ref) {
-  // DIHAPUS: NotifikasiServisRef
   return NotifikasiServis();
+}
+
+@riverpod
+Future<String?> userId(Ref ref) async {
+  final storage = await ref.watch(localStorageServiceProvider.future);
+  final akun = await storage.getUserIdLogin();
+  return akun?.id;
+}
+
+@riverpod
+Future<UserActivityService> userActivityService(Ref ref) async {
+  // Dependensi ke customerOpFirebase diambil dari provider lain.
+  final customerOp = ref.watch(customerOpFirebaseProvider);
+  final prefs = ref.watch(sharedPreferencesProvider.future);
+  return UserActivityService(
+    customerOpFirebase: customerOp,
+    prefs: await prefs,
+  );
 }
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
@@ -5469,7 +5499,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/providers/account_list_providers.dart' hide sharedPreferencesProvider;
 
 class AppUser extends ConsumerWidget {
   const AppUser({super.key});
@@ -10349,6 +10379,7 @@ const gapW64 = SizedBox(width: TSizes.p64);
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/user/providers/account_list_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Provider tema menggunakan AsyncNotifier (modern Riverpod)
@@ -10686,9 +10717,6 @@ class BackgroundService {
   }
 }
 // path: lib/shared/services/user_activity_service.dart
-// PENTING: Panggil `UserActivityService().pingActivity(customerId)` dari UI
-//          saat aplikasi pertama kali dibuka (misal di initState SplashScreen)
-//          setelah memastikan pengguna sudah login.
 
 import 'dart:async';
 
@@ -10699,26 +10727,16 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 /// Service untuk menangani pelacakan aktivitas pengguna.
 class UserActivityService {
   final CustomerOpFirebase _customerOpFirebase;
-
-  /// Kunci untuk menyimpan timestamp ping terakhir di SharedPreferences.
+  final SharedPreferences _prefs;
   static const String lastPingTimestampKey = 'last_activity_ping_timestamp';
-
-  /// Durasi minimum antar ping untuk mencegah panggilan berlebihan.
   static const Duration pingInterval = Duration(minutes: 5);
 
-  /// Konstruktor, memungkinkan injeksi dependensi untuk pengujian.
   UserActivityService({
-    final CustomerOpFirebase? customerOpFirebase,
-  }) : _customerOpFirebase = customerOpFirebase ?? CustomerOpFirebase();
+    required CustomerOpFirebase customerOpFirebase,
+    required SharedPreferences prefs,
+  })  : _customerOpFirebase = customerOpFirebase,
+        _prefs = prefs;
 
-  /// Mengirim "ping" ke server untuk memperbarui waktu aktif terakhir pengguna.
-  ///
-  /// Fungsi ini memiliki mekanisme throttling: "ping" hanya akan dikirim jika
-  /// panggilan terakhir sudah lebih dari `pingInterval` yang lalu.
-  /// Throttling bisa diabaikan dengan menyetel `force` menjadi `true`.
-  ///
-  /// Panggil fungsi ini saat aplikasi dibuka atau kembali ke foreground,
-  /// dengan menyediakan `customerId` dari pengguna yang sedang login.
   Future<void> pingActivity(
     final String customerId, {
     final bool force = false,
@@ -10729,8 +10747,7 @@ class UserActivityService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastPingMillis = prefs.getInt(lastPingTimestampKey);
+      final lastPingMillis = _prefs.getInt(lastPingTimestampKey);
       final now = DateTime.now();
 
       if (lastPingMillis != null && !force) {
@@ -10752,7 +10769,7 @@ class UserActivityService {
       unawaited(_customerOpFirebase.updateLastActive(customerId));
 
       // Jika ping terkirim, perbarui timestamp lokal.
-      await prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
+      await _prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info(
           'pingActivity: Timestamp ping terakhir diperbarui secara lokal.');
     } on Object catch (e, st) {
@@ -12870,13 +12887,197 @@ final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
 
 String _$activeCustomerOpFirebaseHash() =>
     r'0c89da5e78bec7637eb99e3ada1bd1113bfa7e16';
+
+/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
+
+@ProviderFor(feedbackOpFirebase)
+final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
+
+final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
+    FeedbackOpFirebase,
+    FeedbackOpFirebase,
+    FeedbackOpFirebase> with $Provider<FeedbackOpFirebase> {
+  /// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
+  FeedbackOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'feedbackOpFirebaseProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<FeedbackOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  FeedbackOpFirebase create(Ref ref) {
+    return feedbackOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FeedbackOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FeedbackOpFirebase>(value),
+    );
+  }
+}
+
+String _$feedbackOpFirebaseHash() =>
+    r'3c193febabd074229daf73794f7242e9c5eb7738';
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+@ProviderFor(feedbackStream)
+final feedbackStreamProvider = FeedbackStreamFamily._();
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+final class FeedbackStreamProvider extends $FunctionalProvider<
+        AsyncValue<List<FeedbackModel>>,
+        List<FeedbackModel>,
+        Stream<List<FeedbackModel>>>
+    with
+        $FutureModifier<List<FeedbackModel>>,
+        $StreamProvider<List<FeedbackModel>> {
+  /// Provider untuk mengelola stream data feedback berdasarkan userId.
+  FeedbackStreamProvider._(
+      {required FeedbackStreamFamily super.from,
+      required String super.argument})
+      : super(
+          retry: null,
+          name: r'feedbackStreamProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackStreamHash();
+
+  @override
+  String toString() {
+    return r'feedbackStreamProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<FeedbackModel>> $createElement(
+          $ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<FeedbackModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return feedbackStream(
+      ref,
+      argument,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FeedbackStreamProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$feedbackStreamHash() => r'37aa40ee5f44034dbf909d0c085d96cda07c7989';
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+final class FeedbackStreamFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {
+  FeedbackStreamFamily._()
+      : super(
+          retry: null,
+          name: r'feedbackStreamProvider',
+          dependencies: null,
+          $allTransitiveDependencies: null,
+          isAutoDispose: true,
+        );
+
+  /// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+  FeedbackStreamProvider call(
+    String userId,
+  ) =>
+      FeedbackStreamProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'feedbackStreamProvider';
+}
+
+@ProviderFor(customerOpFirebase)
+final customerOpFirebaseProvider = CustomerOpFirebaseProvider._();
+
+final class CustomerOpFirebaseProvider extends $FunctionalProvider<
+    CustomerOpFirebase,
+    CustomerOpFirebase,
+    CustomerOpFirebase> with $Provider<CustomerOpFirebase> {
+  CustomerOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'customerOpFirebaseProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$customerOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CustomerOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CustomerOpFirebase create(Ref ref) {
+    return customerOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CustomerOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CustomerOpFirebase>(value),
+    );
+  }
+}
+
+String _$customerOpFirebaseHash() =>
+    r'7577a84a5c278f4792c37268839cc74b1afe2d65';
 // path: lib/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
 part 'firebase_operation_provider.g.dart';
@@ -12914,6 +13115,33 @@ ActiveCustomerOpFirebase activeCustomerOpFirebase(Ref ref) {
 
   return ActiveCustomerOpFirebase(firestore: firestoreInstance);
 }
+
+/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
+@Riverpod(keepAlive: true)
+FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
+  Log.info('Membuat instance FeedbackOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+
+  return FeedbackOpFirebase(
+    firestore: firestoreInstance,
+    baseOp: baseOp,
+  );
+}
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+@riverpod
+Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
+  final feedbackOp = ref.read(feedbackOpFirebaseProvider);
+  return feedbackOp.getByUser(userId);
+}
+@riverpod
+CustomerOpFirebase customerOpFirebase(Ref ref) {
+  // Saat ini tidak ada dependensi, jadi langsung buat instance.
+  return CustomerOpFirebase();
+}
+
+/// Provider untuk menyediakan instance dari UserActivityService.
 // path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
 // diubah: Menambahkan getLatestPaidTransactionByUserId.
 // diperbaiki: Menambahkan logging inisialisasi dan menerjemahkan komentar.
@@ -13183,7 +13411,7 @@ class CustomerOpFirebase {
   }
 
   /// Memperbarui waktu terakhir pengguna aktif.
-  Future<void> updateLastActive(final String customerId) async {
+  Future<void> updateLastActive( String customerId) async {
     Log.info('Mendelegasikan update last active untuk: $customerId');
     await _baseOp.update(_collectionName, customerId, {
       ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
@@ -13286,8 +13514,8 @@ class FeedbackOpFirebase {
   FeedbackOpFirebase({
     final FirebaseFirestore? firestore,
     final BaseOpFirebase? baseOp,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -13336,21 +13564,22 @@ class FeedbackOpFirebase {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(ColumnNames.userId, isEqualTo: userId)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
         .orderBy(ColumnNames.updatedAt, descending: true)
         .snapshots()
         .map((final snapshot) {
-          return snapshot.docs.map((final doc) {
-            return FeedbackModel.fromFirebase(
-              doc.id,
-              doc.data() as Map<String, dynamic>,
-            );
-          }).toList();
-        })
-        .handleError((final Object e, final StackTrace s) {
-          Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
-        });
+      return snapshot.docs.map((final doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    }).handleError((final Object e, final StackTrace s) {
+      Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
+    });
   }
 }
+
 // path: lib/shared/operasi/firebase_operasi/status_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13449,13 +13678,7 @@ class ApkVersionOpFirebase {
     }
   }
 }
-// path: lib/shared/operasi/apk_version_operation.dart
-// diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi v50.
-// diubah: Menggunakan DateTime.now().toUtc() pada pengarsipan agar konsisten dengan BaseOperation.
-// diperbaiki: Menggunakan konstanta ColumnNames untuk query agar sesuai dengan skema DB v50.
-// diperbaiki: Menambahkan `const` pada variabel final untuk optimasi performa.
-// diperbaiki: Menambahkan kata kunci final pada parameter.
-// diperbaiki: Mendelegasikan fungsi softDelete dan softDeleteAll ke BaseOperation.
+// path: lib/shared/operasi/sqlite_operasi/apk_version_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';

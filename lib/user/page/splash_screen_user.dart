@@ -18,13 +18,13 @@ import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/update_check_service.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/event_page_u.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
@@ -196,15 +196,14 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       final isConnected =
           await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
-        unawaited(UserActivityService().pingActivity(userId));
+        final userActivityService =
+            await ref.read(userActivityServiceProvider.future);
+        unawaited(userActivityService.pingActivity(userId));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => MainPage(
-            userId: userId,
-            localStorageService: widget.localStorageService,
-          ),
+          builder: (final context) => const MainPage(),
         ),
       ));
     } else {

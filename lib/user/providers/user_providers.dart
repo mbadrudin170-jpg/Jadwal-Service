@@ -1,7 +1,9 @@
 // path: lib/user/providers/user_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/shared/services/user_activity_service.dart';
 
 part 'user_providers.g.dart';
 
@@ -9,7 +11,6 @@ part 'user_providers.g.dart';
 class AppReadiness extends _$AppReadiness {
   @override
   bool build() => false; // Awalnya aplikasi belum siap
-
   void setReady(bool isReady) {
     state = isReady;
   }
@@ -17,14 +18,23 @@ class AppReadiness extends _$AppReadiness {
 
 @riverpod
 NotifikasiServis notifikasiServis(Ref ref) {
-  // DIHAPUS: NotifikasiServisRef
   return NotifikasiServis();
 }
 
-/// Provider untuk mendapatkan ID pengguna yang sedang login dari SharedPreferences.
 @riverpod
 Future<String?> userId(Ref ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  // Kunci 'userId' digunakan saat login di `login_page.dart` dan `splash_screen_user.dart`.
-  return prefs.getString('userId');
+  final storage = await ref.watch(localStorageServiceProvider.future);
+  final akun = await storage.getUserIdLogin();
+  return akun?.id;
+}
+
+@riverpod
+Future<UserActivityService> userActivityService(Ref ref) async {
+  // Dependensi ke customerOpFirebase diambil dari provider lain.
+  final customerOp = ref.watch(customerOpFirebaseProvider);
+  final prefs = ref.watch(sharedPreferencesProvider.future);
+  return UserActivityService(
+    customerOpFirebase: customerOp,
+    prefs: await prefs,
+  );
 }

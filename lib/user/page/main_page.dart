@@ -4,31 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/notifikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Halaman utama aplikasi yang berfungsi sebagai container untuk navigasi bawah.
 class MainPage extends ConsumerStatefulWidget {
-  /// ID unik pengguna yang sedang login.
-  final String userId;
-
-  /// Layanan untuk mengakses penyimpanan lokal.
-  final LocalStorageService localStorageService;
-
-  /// Konstruktor untuk [MainPage].
   const MainPage({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
@@ -44,35 +33,29 @@ class _MainPageState extends ConsumerState<MainPage> {
   @override
   void initState() {
     super.initState();
-    final notifikasiServis = ref.read(notifikasiServisProvider);
-    PenjadwalNotifikasi.aturNotifikasiLangganan(
-      notifikasiServis,
-      widget.userId,
-    );
-    UserActivityService().pingActivity(widget.userId);
-    _pages = [
-      ProfilePage(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-      SubscriptionHistoryPage(
-        userId: widget.userId,
-      ),
-      SettingsPageUser(
-        userId: widget.userId,
-        localStorageService: widget.localStorageService,
-      ),
-    ];
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userId = await ref.read(userIdProvider.future);
+      if (userId != null) {
+        final notifikasiServis = ref.read(notifikasiServisProvider);
+        PenjadwalNotifikasi.aturNotifikasiLangganan(
+          notifikasiServis,
+          userId,
+        );
 
-    // Inisialisasi AppLifecycleReactor untuk iklan. Konstruktornya ringan.
+        final userActivityService =
+            await ref.read(userActivityServiceProvider.future);
+        await userActivityService.pingActivity(userId);
+      }
+    });
+
+    _pages = [
+      const ProfilePage(),
+      const SubscriptionHistoryPage(),
+      const SettingsPageUser(),
+    ];
     _appLifecycleReactor =
         AppLifecycleReactor(appOpenAdService: _appOpenAdService);
     _appLifecycleReactor.listenToAppStateChanges();
-
-    Log.info(
-        'MainPage diinisialisasi untuk pengguna dengan ID: ${widget.userId}');
-
-    // Hapus splash screen agar UI dasar aplikasi terlihat.
     FlutterNativeSplash.remove();
   }
 

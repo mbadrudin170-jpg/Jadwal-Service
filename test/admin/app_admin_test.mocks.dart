@@ -978,9 +978,9 @@ class MockLocalStorageService extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i4.CustomerModel?> getCurrentAccount() => (super.noSuchMethod(
+  _i7.Future<_i4.CustomerModel?> getUserIdLogin() => (super.noSuchMethod(
         Invocation.method(
-          #getCurrentAccount,
+          #getUserIdLogin,
           [],
         ),
         returnValue: _i7.Future<_i4.CustomerModel?>.value(),

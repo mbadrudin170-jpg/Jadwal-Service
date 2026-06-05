@@ -7,7 +7,6 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 class AppUser extends ConsumerWidget {
   const AppUser({super.key});

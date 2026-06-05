@@ -164,9 +164,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => MainPage(
-            userId: userId,
-            localStorageService: widget.localStorageService,
+          builder: (final context) => const MainPage(
           ),
         ),
       ));

@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -17,15 +18,15 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Halaman login untuk pengguna.
-class LoginPage extends StatelessWidget {
+class LoginPage extends ConsumerWidget {
   /// Instance Firestore untuk akses database.
   final FirebaseFirestore? firestore;
 
@@ -36,7 +37,7 @@ class LoginPage extends StatelessWidget {
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, WidgetRef ref) {
     return _LoginView(
       firestore: firestore,
       localStorageService: localStorageService,
@@ -44,20 +45,19 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _LoginView extends StatefulWidget {
+class _LoginView extends ConsumerStatefulWidget {
   final FirebaseFirestore? firestore;
   final LocalStorageService? localStorageService;
 
   const _LoginView({this.firestore, this.localStorageService});
 
   @override
-  State<_LoginView> createState() => _LoginViewState();
+  ConsumerState<_LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<_LoginView> {
+class _LoginViewState extends ConsumerState<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
-  final UserActivityService _activityService = UserActivityService();
   final InternetConnectionService _internetService =
       InternetConnectionService();
   bool _isPasswordVisible = false;
@@ -110,7 +110,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   Future<void> _processLogin() async {
- final isConnected = await _internetService.isInternetAvailable();
+    final isConnected = await _internetService.isInternetAvailable();
     if (!mounted) return;
 
     if (!isConnected) {
@@ -147,8 +147,9 @@ class _LoginViewState extends State<_LoginView> {
         final userDoc = querySnapshot.docs.first;
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
-
-        unawaited(_activityService.pingActivity(customer.id, force: true));
+        final activityService =
+            await ref.read(userActivityServiceProvider.future);
+        unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
         await _localStorageService.saveAccount(customer);
         Log.info('Menyimpan id akun ke memori lokal');
@@ -158,10 +159,7 @@ class _LoginViewState extends State<_LoginView> {
 
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
-            builder: (final context) => MainPage(
-              userId: customer.id,
-              localStorageService: _localStorageService,
-            ),
+            builder: (final context) => const MainPage(),
           ),
         );
       } else {

@@ -66,7 +66,7 @@ class CustomerOpFirebase {
   }
 
   /// Memperbarui waktu terakhir pengguna aktif.
-  Future<void> updateLastActive(final String customerId) async {
+  Future<void> updateLastActive( String customerId) async {
     Log.info('Mendelegasikan update last active untuk: $customerId');
     await _baseOp.update(_collectionName, customerId, {
       ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),

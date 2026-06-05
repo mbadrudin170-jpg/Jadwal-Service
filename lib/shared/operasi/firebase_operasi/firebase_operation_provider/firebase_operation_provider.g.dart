@@ -332,3 +332,47 @@ final class FeedbackStreamFamily extends $Family
   @override
   String toString() => r'feedbackStreamProvider';
 }
+
+@ProviderFor(customerOpFirebase)
+final customerOpFirebaseProvider = CustomerOpFirebaseProvider._();
+
+final class CustomerOpFirebaseProvider extends $FunctionalProvider<
+    CustomerOpFirebase,
+    CustomerOpFirebase,
+    CustomerOpFirebase> with $Provider<CustomerOpFirebase> {
+  CustomerOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'customerOpFirebaseProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$customerOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CustomerOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CustomerOpFirebase create(Ref ref) {
+    return customerOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CustomerOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CustomerOpFirebase>(value),
+    );
+  }
+}
+
+String _$customerOpFirebaseHash() =>
+    r'7577a84a5c278f4792c37268839cc74b1afe2d65';

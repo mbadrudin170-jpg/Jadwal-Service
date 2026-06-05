@@ -1,7 +1,4 @@
 // path: lib/shared/services/user_activity_service.dart
-// PENTING: Panggil `UserActivityService().pingActivity(customerId)` dari UI
-//          saat aplikasi pertama kali dibuka (misal di initState SplashScreen)
-//          setelah memastikan pengguna sudah login.
 
 import 'dart:async';
 
@@ -12,26 +9,16 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 /// Service untuk menangani pelacakan aktivitas pengguna.
 class UserActivityService {
   final CustomerOpFirebase _customerOpFirebase;
-
-  /// Kunci untuk menyimpan timestamp ping terakhir di SharedPreferences.
+  final SharedPreferences _prefs;
   static const String lastPingTimestampKey = 'last_activity_ping_timestamp';
-
-  /// Durasi minimum antar ping untuk mencegah panggilan berlebihan.
   static const Duration pingInterval = Duration(minutes: 5);
 
-  /// Konstruktor, memungkinkan injeksi dependensi untuk pengujian.
   UserActivityService({
-    final CustomerOpFirebase? customerOpFirebase,
-  }) : _customerOpFirebase = customerOpFirebase ?? CustomerOpFirebase();
+    required CustomerOpFirebase customerOpFirebase,
+    required SharedPreferences prefs,
+  })  : _customerOpFirebase = customerOpFirebase,
+        _prefs = prefs;
 
-  /// Mengirim "ping" ke server untuk memperbarui waktu aktif terakhir pengguna.
-  ///
-  /// Fungsi ini memiliki mekanisme throttling: "ping" hanya akan dikirim jika
-  /// panggilan terakhir sudah lebih dari `pingInterval` yang lalu.
-  /// Throttling bisa diabaikan dengan menyetel `force` menjadi `true`.
-  ///
-  /// Panggil fungsi ini saat aplikasi dibuka atau kembali ke foreground,
-  /// dengan menyediakan `customerId` dari pengguna yang sedang login.
   Future<void> pingActivity(
     final String customerId, {
     final bool force = false,
@@ -42,8 +29,7 @@ class UserActivityService {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastPingMillis = prefs.getInt(lastPingTimestampKey);
+      final lastPingMillis = _prefs.getInt(lastPingTimestampKey);
       final now = DateTime.now();
 
       if (lastPingMillis != null && !force) {
@@ -65,7 +51,7 @@ class UserActivityService {
       unawaited(_customerOpFirebase.updateLastActive(customerId));
 
       // Jika ping terkirim, perbarui timestamp lokal.
-      await prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
+      await _prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info(
           'pingActivity: Timestamp ping terakhir diperbarui secara lokal.');
     } on Object catch (e, st) {

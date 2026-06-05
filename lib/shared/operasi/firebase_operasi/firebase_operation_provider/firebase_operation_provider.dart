@@ -6,6 +6,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
@@ -64,3 +65,10 @@ Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
   final feedbackOp = ref.read(feedbackOpFirebaseProvider);
   return feedbackOp.getByUser(userId);
 }
+@riverpod
+CustomerOpFirebase customerOpFirebase(Ref ref) {
+  // Saat ini tidak ada dependensi, jadi langsung buat instance.
+  return CustomerOpFirebase();
+}
+
+/// Provider untuk menyediakan instance dari UserActivityService.

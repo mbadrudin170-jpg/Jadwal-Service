@@ -11,28 +11,20 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 /// Halaman pengaturan untuk pengguna.
 class SettingsPageUser extends ConsumerWidget {
-  final String userId;
-  final LocalStorageService localStorageService;
-
   const SettingsPageUser({
     super.key,
-    required this.userId,
-    required this.localStorageService,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Log.info('Membangun halaman pengaturan untuk pengguna: $userId');
-
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
         children: <Widget>[
           _SettingsMenuItem(
             icon: TIcons.theme,
@@ -103,9 +95,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => AccountListPage(
-                    localStorageService: localStorageService,
-                  ),
+                  builder: (context) => const AccountListPage(),
                 ),
               );
             },

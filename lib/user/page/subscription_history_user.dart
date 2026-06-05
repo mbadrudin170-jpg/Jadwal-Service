@@ -13,6 +13,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 enum SortMode {
   endDateNewest,
@@ -22,9 +23,7 @@ enum SortMode {
 }
 
 class SubscriptionHistoryPage extends ConsumerStatefulWidget {
-  final String userId;
-
-  const SubscriptionHistoryPage({super.key, required this.userId});
+  const SubscriptionHistoryPage({super.key});
 
   @override
   ConsumerState<SubscriptionHistoryPage> createState() =>
@@ -47,7 +46,10 @@ class _SubscriptionHistoryPageState
   }
 
   Future<List<TransactionModel>> _loadHistory() async {
-    final customer = await _customerOpFirebase.getCustomerOnce(widget.userId);
+    final userIdValue = await ref.read(userIdProvider.future);
+
+    if (userIdValue == null) return [];
+    final customer = await _customerOpFirebase.getCustomerOnce(userIdValue);
     if (customer == null) return [];
     return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
   }
@@ -114,6 +116,7 @@ class _SubscriptionHistoryPageState
 
   @override
   Widget build(BuildContext context) {
+    final userId = ref.watch(userIdProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -138,7 +141,13 @@ class _SubscriptionHistoryPageState
         ],
       ),
       body: StreamBuilder<CustomerModel?>(
-        stream: _customerOpFirebase.getCustomerStream(widget.userId),
+        stream: userId.when(
+          data: (id) => id != null
+              ? _customerOpFirebase.getCustomerStream(id)
+              : const Stream.empty(),
+          loading: () => const Stream.empty(),
+          error: (_, __) => const Stream.empty(),
+        ),
         builder: (context, customerSnapshot) {
           if (customerSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
