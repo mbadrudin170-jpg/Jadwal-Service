@@ -18,7 +18,8 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
 class ManageAnnouncementPage extends ConsumerStatefulWidget {
-  const ManageAnnouncementPage({super.key});
+  const ManageAnnouncementPage({super.key, this.event});
+  final EventModel? event;
 
   @override
   ConsumerState<ManageAnnouncementPage> createState() =>
@@ -42,7 +43,15 @@ class _ManageAnnouncementPageState
   @override
   void initState() {
     super.initState();
-    _isSwitched = false;
+    if (widget.event != null) {
+      _selectedAnnouncement = widget.event;
+      _imageUrlController.text = widget.event!.imageUrl;
+      _isSwitched = widget.event!.isActive;
+      _selectedStartDate = widget.event!.startDate;
+      _selectedEndDate = widget.event!.endDate;
+    } else {
+      _isSwitched = false;
+    }
     _loadData();
   }
 
@@ -54,6 +63,8 @@ class _ManageAnnouncementPageState
   }
 
   Future<void> _loadData() async {
+    if (widget.event != null) return;
+
     final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.getAll();
@@ -225,8 +236,7 @@ class _ManageAnnouncementPageState
         }
       } catch (e, st) {
         Log.error('Gagal mengunggah gambar', e: e, st: st);
-        ToastUtil.error(
-            context, 'Gagal mengunggah gambar. Silakan coba lagi.');
+        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
         setState(() {
           _isUploading = false;
         });
@@ -266,7 +276,7 @@ class _ManageAnnouncementPageState
             currentActive.id != announcementToSave.id) {
           final oldActive =
               currentActive.copyWith(isActive: false, updatedAt: now);
-          await operator.upsert(oldActive);
+          await operator.update(oldActive);
         }
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
@@ -281,7 +291,12 @@ class _ManageAnnouncementPageState
 
     // 5. Eksekusi penyimpanan ke Supabase via Provider
     try {
-      await operator.upsert(announcementToSave);
+      if (_selectedAnnouncement != null) {
+        await operator.update(announcementToSave);
+      } else {
+        await operator.create(announcementToSave);
+      }
+      final _ = ref.refresh(eventOpSupabaseProvider);
       ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
       if (mounted) {
         Navigator.of(context).pop();

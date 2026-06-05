@@ -84,14 +84,26 @@ class EventOpSupabase {
     }
   }
 
-  /// Menambahkan atau memperbarui (upsert) data pengumuman di Supabase.
-  Future<void> upsert(final EventModel event) async {
-    Log.info('EventOpSupabase: Upsert pengumuman ${event.id}');
+  /// Menambahkan data pengumuman baru ke Supabase.
+  Future<void> create(final EventModel event) async {
+    Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
-      await _supabase.from(_tableName).upsert(dataPayload);
+      await _supabase.from(_tableName).insert(dataPayload);
     } catch (e, s) {
-      Log.error('Gagal melakukan upsert pengumuman di Supabase', e: e, st: s);
+      Log.error('Gagal membuat pengumuman di Supabase', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui data pengumuman yang sudah ada di Supabase.
+  Future<void> update(final EventModel event) async {
+    Log.info('EventOpSupabase: Memperbarui pengumuman ${event.id}');
+    try {
+      final Map<String, dynamic> dataPayload = event.toSupabase();
+      await _supabase.from(_tableName).update(dataPayload).eq(ColumnNames.id, event.id);
+    } catch (e, s) {
+      Log.error('Gagal memperbarui pengumuman di Supabase', e: e, st: s);
       rethrow;
     }
   }
