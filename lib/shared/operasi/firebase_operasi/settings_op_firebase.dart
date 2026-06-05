@@ -7,7 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/model.dart';
 
 /// Kelas untuk mengelola operasi terkait data pengaturan di Firestore.
 class SettingsOpFirebase {
@@ -16,7 +17,6 @@ class SettingsOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   SettingsOpFirebase({final FirebaseFirestore? firestore})
       : _db = firestore ?? FirebaseFirestore.instance {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('SettingsOpFirebase diinisialisasi.');
   }
 
@@ -27,7 +27,7 @@ class SettingsOpFirebase {
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {
     try {
-      final doc = await _collection.doc('app').get();
+      final doc = await _collection.doc(globalSettingsId).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>?;
         Log.info('Pengaturan dari Firestore berhasil diambil.', data);

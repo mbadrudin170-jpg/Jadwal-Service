@@ -105,6 +105,21 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _continueInitialization() async {
+    final maintenanceSettings = await _checkMaintenanceMode();
+    if (maintenanceSettings != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => MaintenancePage(
+            maintenanceInfo: maintenanceSettings.maintenanceInfo,
+            onRefresh: _initializeApp,
+            onExit: SystemNavigator.pop,
+          ),
+        ),
+      ));
+      return;
+    }
+
     final updateInfo = await _checkAppUpdate();
     if (updateInfo != null) {
       if (!mounted) return;
@@ -121,22 +136,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       ));
       return;
     }
-
-    final maintenanceSettings = await _checkMaintenanceMode();
-    if (maintenanceSettings != null) {
-      if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (final context) => MaintenancePage(
-            maintenanceInfo: maintenanceSettings.maintenanceInfo,
-            onRefresh: _initializeApp,
-            onExit: SystemNavigator.pop,
-          ),
-        ),
-      ));
-      return;
-    }
-
     await _navigateToNextPage();
   }
 
