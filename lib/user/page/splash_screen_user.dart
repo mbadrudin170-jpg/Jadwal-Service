@@ -1,19 +1,20 @@
 // path: lib/user/page/splash_screen_user.dart
-// DIUBAH: Menghapus ConsentManager dan semua logika terkait GDPR.
-// Mobile Ads SDK sekarang diinisialisasi secara langsung.
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
@@ -21,6 +22,7 @@ import 'package:wifi/shared/services/update_check_service.dart';
 import 'package:wifi/shared/services/user_activity_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
+import 'package:wifi/user/page/event_page_u.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
@@ -36,7 +38,7 @@ typedef UpdateInfoRecord = ({
 });
 
 /// Halaman splash screen yang ditampilkan saat aplikasi pengguna pertama kali dibuka.
-class SplashScreenUser extends StatefulWidget {
+class SplashScreenUser extends ConsumerStatefulWidget {
   final SharedPreferences prefs;
   final LocalStorageService localStorageService;
 
@@ -47,10 +49,10 @@ class SplashScreenUser extends StatefulWidget {
   });
 
   @override
-  State<SplashScreenUser> createState() => _SplashScreenUserState();
+  ConsumerState<SplashScreenUser> createState() => _SplashScreenUserState();
 }
 
-class _SplashScreenUserState extends State<SplashScreenUser> {
+class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   final SettingsOpFirebase _settingsOp = SettingsOpFirebase();
   final adUnitId = IdInterstitialAds.interstitialAdUnitIds[0];
 
@@ -76,6 +78,15 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
       if (isConnected) {
         // Hanya jalankan layanan yang butuh internet jika koneksi tersedia
         await _initializeOnlineServices();
+
+        final eventInfo = await _cekEvent();
+        if (eventInfo != null && mounted) {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (final context) => const EventPageU(),
+            ),
+          );
+        }
 
         final updateInfo = await _checkAppUpdate();
         if (updateInfo != null) {
@@ -162,6 +173,12 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     Log.info('Inisialisasi layanan online selesai.');
   }
 
+  Future<EventModel?> _cekEvent() async {
+    final eventOpSupabase = ref.read(eventOpSupabaseProvider);
+    final infoEvent = await eventOpSupabase.getActive();
+    return infoEvent;
+  }
+
   Future<UpdateInfoRecord?> _checkAppUpdate() async {
     Log.info('Memeriksa pembaruan aplikasi...');
     if (!mounted) return null;
@@ -206,7 +223,8 @@ class _SplashScreenUserState extends State<SplashScreenUser> {
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       // Pindahkan pingActivity ke dalam blok online jika memungkinkan
-      final isConnected = await InternetConnectionService().isInternetAvailable();
+      final isConnected =
+          await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
         unawaited(UserActivityService().pingActivity(userId)); // Diubah
       }
