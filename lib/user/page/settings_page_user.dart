@@ -48,7 +48,7 @@ class SettingsPageUser extends ConsumerWidget {
                     },
                   ),
                   loading: () => const SizedBox.shrink(),
-                  error: (_, __) => const Icon(Icons.error),
+                  error: (_, __) => const Icon(TIcons.error),
                 );
               },
             ),
@@ -61,8 +61,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) =>
-                      const FeedbackHistoryUser(),
+                  builder: (final context) => const FeedbackHistoryUser(),
                 ),
               );
             },
@@ -104,7 +103,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (final context) => AccountListPage(
+                  builder: (context) => AccountListPage(
                     localStorageService: localStorageService,
                   ),
                 ),
