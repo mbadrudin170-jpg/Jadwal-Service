@@ -1719,7 +1719,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
@@ -1774,110 +1773,93 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   Future<void> _initializeApp() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-      // Pindahkan inisialisasi layanan inti yang tidak memerlukan internet ke atas
       await _initializeOfflineServices();
 
       final internetService = InternetConnectionService();
       final isConnected = await internetService.isInternetAvailable();
-      Log.info(
-          isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
       if (isConnected) {
-        // Hanya jalankan layanan yang butuh internet jika koneksi tersedia
         await _initializeOnlineServices();
 
         final eventInfo = await _cekEvent();
-        if (eventInfo != null && mounted) {
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (final context) => const EventPageU(),
-            ),
-          );
+        if (eventInfo != null) {
+          if (mounted) {
+            // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (final context) => const EventPageU(),
+              ),
+            );
+          }
         }
 
-        final updateInfo = await _checkAppUpdate();
-        if (updateInfo != null) {
-          if (!mounted) return;
-          unawaited(Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (final context) => UpdateApkPage(
-                apkInfo: updateInfo.apkInfo!,
-                packageInfo: updateInfo.packageInfo!,
-                architecture: updateInfo.architecture!,
-                prefs: widget.prefs,
-                localStorageService: widget.localStorageService,
-              ),
-            ),
-          ));
-          return;
-        }
-
-        final maintenanceSettings = await _checkMaintenanceMode();
-        if (maintenanceSettings != null) {
-          if (!mounted) return;
-          unawaited(Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (final context) => MaintenancePage(
-                maintenanceInfo: maintenanceSettings.maintenanceInfo,
-                onRefresh: _initializeApp,
-                onExit: SystemNavigator.pop,
-              ),
-            ),
-          ));
-          return;
-        }
+        // Setelah halaman event selesai, lanjutkan alur inisialisasi.
+        await _continueInitialization();
       } else {
-        // Beri tahu pengguna bahwa mereka offline
         if (mounted) {
-          ToastUtil.info(context,
-              'Anda sedang offline. Beberapa fitur mungkin tidak tersedia.');
+          ToastUtil.info(context, 'Anda sedang offline.');
         }
+        await _navigateToNextPage();
       }
-
-      Log.info('Inisialisasi selesai. Menavigasi ke halaman yang sesuai.');
-      await _navigateToNextPage();
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, st: st);
       if (mounted) {
-        ToastUtil.error(context,
-            'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.');
+        ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
-      // Tetap navigasi meskipun ada error agar pengguna tidak terjebak
       await _navigateToNextPage();
     }
   }
 
-  /// Inisialisasi layanan yang bisa berjalan tanpa koneksi internet.
+  Future<void> _continueInitialization() async {
+    final updateInfo = await _checkAppUpdate();
+    if (updateInfo != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => UpdateApkPage(
+            apkInfo: updateInfo.apkInfo!,
+            packageInfo: updateInfo.packageInfo!,
+            architecture: updateInfo.architecture!,
+            prefs: widget.prefs,
+            localStorageService: widget.localStorageService,
+          ),
+        ),
+      ));
+      return;
+    }
+
+    final maintenanceSettings = await _checkMaintenanceMode();
+    if (maintenanceSettings != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => MaintenancePage(
+            maintenanceInfo: maintenanceSettings.maintenanceInfo,
+            onRefresh: _initializeApp,
+            onExit: SystemNavigator.pop,
+          ),
+        ),
+      ));
+      return;
+    }
+
+    await _navigateToNextPage();
+  }
+
   Future<void> _initializeOfflineServices() async {
-    Log.info('Memulai inisialisasi layanan offline...');
     await NotifikasiServis().inisialisasi(iconName: 'ic_notification');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
-    Log.info('Inisialisasi layanan offline selesai.');
   }
 
-  /// Inisialisasi layanan yang membutuhkan koneksi internet.
   Future<void> _initializeOnlineServices() async {
-    Log.info('Memulai inisialisasi layanan online...');
     try {
-      Log.info('Menginisialisasi Mobile Ads SDK...');
       await MobileAds.instance.initialize();
-
-      Log.info('Mobile Ads SDK berhasil diinisialisasi.');
-    } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
-    }
-
-    try {
-      Log.info('Mengkonfigurasi persistensi Firestore...');
       FirebaseFirestore.instance.settings =
           const Settings(persistenceEnabled: true);
-      Log.info('Persistensi Firestore berhasil dikonfigurasi.');
     } on Exception catch (e, st) {
-      Log.error('Gagal mengkonfigurasi persistensi Firestore', e: e, st: st);
+      Log.error('Gagal inisialisasi layanan online', e: e, st: st);
     }
-
-    Log.info('Inisialisasi layanan online selesai.');
   }
 
   Future<EventModel?> _cekEvent() async {
@@ -1887,7 +1869,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<UpdateInfoRecord?> _checkAppUpdate() async {
-    Log.info('Memeriksa pembaruan aplikasi...');
     if (!mounted) return null;
     final updateService = UpdateCheckService(
       prefs: widget.prefs,
@@ -1896,23 +1877,18 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     );
     final updateInfo = await updateService.getUpdateInfo();
     if (updateInfo.isUpdateRequired) {
-      Log.info('Pembaruan diperlukan.');
       return updateInfo;
     }
-    Log.info('Aplikasi sudah versi terbaru.');
     return null;
   }
 
   Future<SettingsModel?> _checkMaintenanceMode() async {
-    Log.info('Memeriksa status server...');
     try {
       final settingsMap = await _settingsOp.getSettings();
       final settings = SettingsModel.fromFirebase(settingsMap);
       if (settings.maintenanceMode) {
-        Log.info('Server dalam mode pemeliharaan.');
         return settings;
       }
-      Log.info('Server tidak dalam mode pemeliharaan.');
       return null;
     } on Exception catch (e, st) {
       Log.error('Gagal memeriksa mode pemeliharaan', e: e, st: st);
@@ -1921,19 +1897,13 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _navigateToNextPage() async {
-    if (!mounted) {
-      Log.warning(
-          'Navigasi dibatalkan karena widget sudah tidak terpasang (unmounted).');
-      return;
-    }
+    if (!mounted) return;
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
-      Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      // Pindahkan pingActivity ke dalam blok online jika memungkinkan
       final isConnected =
           await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
-        unawaited(UserActivityService().pingActivity(userId)); // Diubah
+        unawaited(UserActivityService().pingActivity(userId));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
@@ -1945,7 +1915,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         ),
       ));
     } else {
-      Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (final context) => const LoginPage()),
@@ -1975,22 +1944,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
-// Menggunakan FutureProvider agar data di-cache dan tidak melakukan re-fetch terus-menerus
-final activeAnnouncementsProvider =
-    FutureProvider.autoDispose<List<EventModel>>((ref) async {
+final activeAnnouncementProvider =
+    FutureProvider.autoDispose<EventModel?>((ref) async {
   final operator = ref.watch(eventOpSupabaseProvider);
-  final allEvents = await operator.getAll();
-  // Filter hanya pengumuman yang aktif untuk aplikasi pengguna
-  return allEvents.where((e) => e.isActive).toList();
+  return operator.getActive();
 });
 
 class EventPageU extends ConsumerStatefulWidget {
+  // DIHAPUS: Tidak perlu lagi callback onDone.
   const EventPageU({super.key});
 
   @override
@@ -1998,170 +1965,99 @@ class EventPageU extends ConsumerStatefulWidget {
 }
 
 class _EventPageUState extends ConsumerState<EventPageU> {
-  // Controller untuk mengontrol halaman pada PageView
-  final PageController _pageController = PageController();
-  // Timer untuk perpindahan otomatis
   Timer? _timer;
-  // Durasi setiap halaman ditampilkan
   final Duration _pageDuration = const Duration(seconds: 5);
-  // Indeks halaman saat ini
-  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    // Sembunyikan UI sistem untuk pengalaman fullscreen
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    FlutterNativeSplash.remove();
   }
 
   @override
   void dispose() {
-    // Kembalikan UI sistem saat halaman ditutup
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    // Hentikan timer dan hapus controller untuk mencegah memory leak
     _timer?.cancel();
-    _pageController.dispose();
     super.dispose();
   }
 
-  // Fungsi untuk memulai atau mereset timer
-  void _startTimer(int totalPages) {
-    _timer?.cancel(); // Batalkan timer yang ada jika ada
-    _timer = Timer.periodic(_pageDuration, (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      // Jika bukan halaman terakhir, pindah ke halaman berikutnya
-      if (_currentPage < totalPages - 1) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeIn,
-        );
-      } else {
-        // Jika sudah di halaman terakhir, tutup halaman event
-        timer.cancel();
-        Navigator.of(context).pop();
-      }
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer(_pageDuration, () {
+      // Setelah durasi selesai, tutup halaman ini.
+      if (mounted) Navigator.of(context).pop();
     });
-  }
-
-  // Fungsi untuk menangani aksi tap pada layar
-  void _handleTap(TapDownDetails details, int totalPages) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    // Jika tap di sepertiga kanan layar, pindah ke halaman berikutnya
-    if (details.globalPosition.dx > screenWidth * 2 / 3) {
-      if (_currentPage < totalPages - 1) {
-        _pageController.nextPage(
-            duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
-      } else {
-        Navigator.of(context).pop();
-      }
-    } 
-    // Jika tap di sepertiga kiri layar, kembali ke halaman sebelumnya
-    else if (details.globalPosition.dx < screenWidth / 3) {
-      if (_currentPage > 0) {
-        _pageController.previousPage(
-            duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
-      }
-    }
-    // Reset timer setiap kali ada interaksi tap
-    _startTimer(totalPages);
   }
 
   @override
   Widget build(final BuildContext context) {
-    final announcementsAsync = ref.watch(activeAnnouncementsProvider);
+    final announcementAsync = ref.watch(activeAnnouncementProvider);
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: announcementsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) {
-          Log.error('Error saat memuat pengumuman', e: error, st: stackTrace);
-          return const Center(
-            child: Text(
-              'Gagal memuat pengumuman.',
-              style: TextStyle(color: Colors.white),
-            ),
-          );
+      body: announcementAsync.when(
+        loading: Container.new,
+        error: (e, st) {
+          Log.error('Error saat memuat pengumuman', e: e, st: st);
+          // Jika error, langsung tutup halaman ini.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+          return const SizedBox.shrink();
         },
-        data: (announcements) {
-          if (announcements.isEmpty) {
-            // Jika tidak ada pengumuman, langsung tutup halaman
+        data: (data) {
+          if (data == null) {
+            // Jika tidak ada pengumuman, langsung tutup halaman ini.
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
+              if (mounted) Navigator.of(context).pop();
             });
             return const SizedBox.shrink();
           }
 
-          // Mulai timer jika belum berjalan
+          // Mulai timer HANYA setelah data siap.
           if (_timer == null) {
-            _startTimer(announcements.length);
+            _startTimer();
           }
 
-          return GestureDetector(
-            onTapDown: (details) => _handleTap(details, announcements.length),
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: announcements.length,
-                  onPageChanged: (index) {
-                    setState(() => _currentPage = index);
-                    // Reset timer setiap kali pengguna swipe manual
-                    _startTimer(announcements.length);
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              if (data.imageUrl.isNotEmpty)
+                Image.network(
+                  data.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Jika gambar gagal dimuat, langsung tutup halaman ini.
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) Navigator.of(context).pop();
+                    });
+                    return const SizedBox.shrink();
                   },
-                  itemBuilder: (final context, final index) {
-                    final announcement = announcements[index];
-
-                    if (announcement.imageUrl.isEmpty) {
-                      return const Center(child: Text('Gambar tidak tersedia.'));
-                    }
-
-                    return Image.network(
-                      announcement.imageUrl,
-                      fit: BoxFit.cover, 
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        Log.error(
-                            'Gagal memuat gambar full screen: ${announcement.imageUrl}');
-                        return const Center(
-                          child: Icon(TIcons.error, color: Colors.white, size: 50),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
                     );
                   },
-                ),
-                // Tombol kembali
-                Positioned(
-                  top: 40,
-                  left: 16,
-                  child: Material(
-                    color: Colors.black.withOpacity(0.3),
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+                )
+              else
+                // Jika URL gambar kosong, langsung tutup halaman ini.
+                const Center(child: Text('Gambar tidak tersedia.')),
+              Positioned(
+                top: 40,
+                left: 16,
+                child: Material(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      _timer?.cancel(); // Hentikan timer jika ditutup manual
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
@@ -9878,6 +9774,7 @@ export '../model/active_customer_model.dart';
 export '../model/apk_version_model.dart';
 export '../model/category_model.dart';
 export '../model/customer_model.dart';
+export '../model/event_model.dart';
 export '../model/feedback_model.dart';
 export '../model/has_id.dart';
 export '../model/order_model.dart';
@@ -22941,7 +22838,7 @@ import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
-Future<void> main() async {
+void main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);

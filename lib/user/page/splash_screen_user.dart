@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
@@ -67,110 +66,93 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   Future<void> _initializeApp() async {
     try {
       Log.info('Memulai inisialisasi dari Splash Screen...');
-      // Pindahkan inisialisasi layanan inti yang tidak memerlukan internet ke atas
       await _initializeOfflineServices();
 
       final internetService = InternetConnectionService();
       final isConnected = await internetService.isInternetAvailable();
-      Log.info(
-          isConnected ? 'Status koneksi: Online' : 'Status koneksi: Offline');
 
       if (isConnected) {
-        // Hanya jalankan layanan yang butuh internet jika koneksi tersedia
         await _initializeOnlineServices();
 
         final eventInfo = await _cekEvent();
-        if (eventInfo != null && mounted) {
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (final context) => const EventPageU(),
-            ),
-          );
+        if (eventInfo != null) {
+          if (mounted) {
+            // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
+            await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (final context) => const EventPageU(),
+              ),
+            );
+          }
         }
 
-        final updateInfo = await _checkAppUpdate();
-        if (updateInfo != null) {
-          if (!mounted) return;
-          unawaited(Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (final context) => UpdateApkPage(
-                apkInfo: updateInfo.apkInfo!,
-                packageInfo: updateInfo.packageInfo!,
-                architecture: updateInfo.architecture!,
-                prefs: widget.prefs,
-                localStorageService: widget.localStorageService,
-              ),
-            ),
-          ));
-          return;
-        }
-
-        final maintenanceSettings = await _checkMaintenanceMode();
-        if (maintenanceSettings != null) {
-          if (!mounted) return;
-          unawaited(Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (final context) => MaintenancePage(
-                maintenanceInfo: maintenanceSettings.maintenanceInfo,
-                onRefresh: _initializeApp,
-                onExit: SystemNavigator.pop,
-              ),
-            ),
-          ));
-          return;
-        }
+        // Setelah halaman event selesai, lanjutkan alur inisialisasi.
+        await _continueInitialization();
       } else {
-        // Beri tahu pengguna bahwa mereka offline
         if (mounted) {
-          ToastUtil.info(context,
-              'Anda sedang offline. Beberapa fitur mungkin tidak tersedia.');
+          ToastUtil.info(context, 'Anda sedang offline.');
         }
+        await _navigateToNextPage();
       }
-
-      Log.info('Inisialisasi selesai. Menavigasi ke halaman yang sesuai.');
-      await _navigateToNextPage();
     } on Exception catch (e, st) {
       Log.error('Error kritis saat inisialisasi', e: e, st: st);
       if (mounted) {
-        ToastUtil.error(context,
-            'Gagal terhubung ke server. Aplikasi berjalan dalam mode offline.');
+        ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
-      // Tetap navigasi meskipun ada error agar pengguna tidak terjebak
       await _navigateToNextPage();
     }
   }
 
-  /// Inisialisasi layanan yang bisa berjalan tanpa koneksi internet.
+  Future<void> _continueInitialization() async {
+    final updateInfo = await _checkAppUpdate();
+    if (updateInfo != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => UpdateApkPage(
+            apkInfo: updateInfo.apkInfo!,
+            packageInfo: updateInfo.packageInfo!,
+            architecture: updateInfo.architecture!,
+            prefs: widget.prefs,
+            localStorageService: widget.localStorageService,
+          ),
+        ),
+      ));
+      return;
+    }
+
+    final maintenanceSettings = await _checkMaintenanceMode();
+    if (maintenanceSettings != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => MaintenancePage(
+            maintenanceInfo: maintenanceSettings.maintenanceInfo,
+            onRefresh: _initializeApp,
+            onExit: SystemNavigator.pop,
+          ),
+        ),
+      ));
+      return;
+    }
+
+    await _navigateToNextPage();
+  }
+
   Future<void> _initializeOfflineServices() async {
-    Log.info('Memulai inisialisasi layanan offline...');
     await NotifikasiServis().inisialisasi(iconName: 'ic_notification');
     await NotifikasiServis().requestPermissions();
     await initializeDateFormatting('id_ID');
-    Log.info('Inisialisasi layanan offline selesai.');
   }
 
-  /// Inisialisasi layanan yang membutuhkan koneksi internet.
   Future<void> _initializeOnlineServices() async {
-    Log.info('Memulai inisialisasi layanan online...');
     try {
-      Log.info('Menginisialisasi Mobile Ads SDK...');
       await MobileAds.instance.initialize();
-
-      Log.info('Mobile Ads SDK berhasil diinisialisasi.');
-    } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi Mobile Ads', e: e, st: st);
-    }
-
-    try {
-      Log.info('Mengkonfigurasi persistensi Firestore...');
       FirebaseFirestore.instance.settings =
           const Settings(persistenceEnabled: true);
-      Log.info('Persistensi Firestore berhasil dikonfigurasi.');
     } on Exception catch (e, st) {
-      Log.error('Gagal mengkonfigurasi persistensi Firestore', e: e, st: st);
+      Log.error('Gagal inisialisasi layanan online', e: e, st: st);
     }
-
-    Log.info('Inisialisasi layanan online selesai.');
   }
 
   Future<EventModel?> _cekEvent() async {
@@ -180,7 +162,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<UpdateInfoRecord?> _checkAppUpdate() async {
-    Log.info('Memeriksa pembaruan aplikasi...');
     if (!mounted) return null;
     final updateService = UpdateCheckService(
       prefs: widget.prefs,
@@ -189,23 +170,18 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     );
     final updateInfo = await updateService.getUpdateInfo();
     if (updateInfo.isUpdateRequired) {
-      Log.info('Pembaruan diperlukan.');
       return updateInfo;
     }
-    Log.info('Aplikasi sudah versi terbaru.');
     return null;
   }
 
   Future<SettingsModel?> _checkMaintenanceMode() async {
-    Log.info('Memeriksa status server...');
     try {
       final settingsMap = await _settingsOp.getSettings();
       final settings = SettingsModel.fromFirebase(settingsMap);
       if (settings.maintenanceMode) {
-        Log.info('Server dalam mode pemeliharaan.');
         return settings;
       }
-      Log.info('Server tidak dalam mode pemeliharaan.');
       return null;
     } on Exception catch (e, st) {
       Log.error('Gagal memeriksa mode pemeliharaan', e: e, st: st);
@@ -214,19 +190,13 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _navigateToNextPage() async {
-    if (!mounted) {
-      Log.warning(
-          'Navigasi dibatalkan karena widget sudah tidak terpasang (unmounted).');
-      return;
-    }
+    if (!mounted) return;
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
-      Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
-      // Pindahkan pingActivity ke dalam blok online jika memungkinkan
       final isConnected =
           await InternetConnectionService().isInternetAvailable();
       if (isConnected) {
-        unawaited(UserActivityService().pingActivity(userId)); // Diubah
+        unawaited(UserActivityService().pingActivity(userId));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
@@ -238,7 +208,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         ),
       ));
     } else {
-      Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (final context) => const LoginPage()),
