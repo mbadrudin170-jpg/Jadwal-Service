@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
@@ -39,6 +40,13 @@ BaseOpFirebase baseOpFirebase(Ref ref) {
 ActiveCustomerOpFirebase activeCustomerOpFirebase(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
-
   return ActiveCustomerOpFirebase(firestore: firestoreInstance);
+}
+
+@Riverpod(keepAlive: true)
+FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
+  Log.info('Membuat instance FeedbackOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return FeedbackOpFirebase(firestore: firestoreInstance, baseOp: baseOp);
 }

@@ -195,3 +195,47 @@ final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
 
 String _$activeCustomerOpFirebaseHash() =>
     r'0c89da5e78bec7637eb99e3ada1bd1113bfa7e16';
+
+@ProviderFor(feedbackOpFirebase)
+final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
+
+final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
+    FeedbackOpFirebase,
+    FeedbackOpFirebase,
+    FeedbackOpFirebase> with $Provider<FeedbackOpFirebase> {
+  FeedbackOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'feedbackOpFirebaseProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<FeedbackOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  FeedbackOpFirebase create(Ref ref) {
+    return feedbackOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FeedbackOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FeedbackOpFirebase>(value),
+    );
+  }
+}
+
+String _$feedbackOpFirebaseHash() =>
+    r'3c193febabd074229daf73794f7242e9c5eb7738';

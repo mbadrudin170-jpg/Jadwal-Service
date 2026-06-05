@@ -18,8 +18,8 @@ class FeedbackOpFirebase {
   FeedbackOpFirebase({
     final FirebaseFirestore? firestore,
     final BaseOpFirebase? baseOp,
-  }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
@@ -68,18 +68,18 @@ class FeedbackOpFirebase {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(ColumnNames.userId, isEqualTo: userId)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
         .orderBy(ColumnNames.updatedAt, descending: true)
         .snapshots()
         .map((final snapshot) {
-          return snapshot.docs.map((final doc) {
-            return FeedbackModel.fromFirebase(
-              doc.id,
-              doc.data() as Map<String, dynamic>,
-            );
-          }).toList();
-        })
-        .handleError((final Object e, final StackTrace s) {
-          Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
-        });
+      return snapshot.docs.map((final doc) {
+        return FeedbackModel.fromFirebase(
+          doc.id,
+          doc.data() as Map<String, dynamic>,
+        );
+      }).toList();
+    }).handleError((final Object e, final StackTrace s) {
+      Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
+    });
   }
 }

@@ -95,3 +95,41 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
 }
 
 String _$notifikasiServisHash() => r'5ac9b5c81a21e80bd12e57882e0334c0ace4c5bc';
+
+/// Provider untuk mendapatkan ID pengguna yang sedang login dari SharedPreferences.
+
+@ProviderFor(userId)
+final userIdProvider = UserIdProvider._();
+
+/// Provider untuk mendapatkan ID pengguna yang sedang login dari SharedPreferences.
+
+final class UserIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  /// Provider untuk mendapatkan ID pengguna yang sedang login dari SharedPreferences.
+  UserIdProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'userIdProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$userIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return userId(ref);
+  }
+}
+
+String _$userIdHash() => r'7f05f63cadaff802484e69701ed696b37d996efa';
