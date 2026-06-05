@@ -196,13 +196,18 @@ final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
 String _$activeCustomerOpFirebaseHash() =>
     r'0c89da5e78bec7637eb99e3ada1bd1113bfa7e16';
 
+/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
+
 @ProviderFor(feedbackOpFirebase)
 final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
 
 final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
     FeedbackOpFirebase,
     FeedbackOpFirebase,
     FeedbackOpFirebase> with $Provider<FeedbackOpFirebase> {
+  /// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
   FeedbackOpFirebaseProvider._()
       : super(
           from: null,
@@ -239,3 +244,91 @@ final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
 
 String _$feedbackOpFirebaseHash() =>
     r'3c193febabd074229daf73794f7242e9c5eb7738';
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+@ProviderFor(feedbackStream)
+final feedbackStreamProvider = FeedbackStreamFamily._();
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+final class FeedbackStreamProvider extends $FunctionalProvider<
+        AsyncValue<List<FeedbackModel>>,
+        List<FeedbackModel>,
+        Stream<List<FeedbackModel>>>
+    with
+        $FutureModifier<List<FeedbackModel>>,
+        $StreamProvider<List<FeedbackModel>> {
+  /// Provider untuk mengelola stream data feedback berdasarkan userId.
+  FeedbackStreamProvider._(
+      {required FeedbackStreamFamily super.from,
+      required String super.argument})
+      : super(
+          retry: null,
+          name: r'feedbackStreamProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$feedbackStreamHash();
+
+  @override
+  String toString() {
+    return r'feedbackStreamProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<List<FeedbackModel>> $createElement(
+          $ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<FeedbackModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return feedbackStream(
+      ref,
+      argument,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FeedbackStreamProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$feedbackStreamHash() => r'37aa40ee5f44034dbf909d0c085d96cda07c7989';
+
+/// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+final class FeedbackStreamFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {
+  FeedbackStreamFamily._()
+      : super(
+          retry: null,
+          name: r'feedbackStreamProvider',
+          dependencies: null,
+          $allTransitiveDependencies: null,
+          isAutoDispose: true,
+        );
+
+  /// Provider untuk mengelola stream data feedback berdasarkan userId.
+
+  FeedbackStreamProvider call(
+    String userId,
+  ) =>
+      FeedbackStreamProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'feedbackStreamProvider';
+}
