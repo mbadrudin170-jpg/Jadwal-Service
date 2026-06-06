@@ -39,3 +39,6 @@ Jika belum mengetahui padanan kata yang tepat:
 
 ## Komentar
 1. tambahkan sebuah komentar disetiap fungsi didalam sebuah file contoh `// 1. Menginisialisasi konfigurasi zona waktu`.
+
+## withOpacity
+1. dilarang menggunakan withOpacity, diharuskan menggunakan withValues, withAlpha, demi konsistensi proyek

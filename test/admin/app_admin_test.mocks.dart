@@ -543,6 +543,16 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i3.DatabaseHelper);
 
   @override
+  _i7.Future<void> rescheduleAllNotifications() => (super.noSuchMethod(
+        Invocation.method(
+          #rescheduleAllNotifications,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
   _i7.Future<List<_i12.ActiveCustomerDetailModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
@@ -617,6 +627,18 @@ class MockActiveCustomerOperation extends _i1.Mock
           ),
         )),
       ) as _i7.Future<_i4.ActiveCustomerModel>);
+
+  @override
+  _i7.Future<void> scheduleNotification(
+          _i4.ActiveCustomerModel? activeCustomer) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #scheduleNotification,
+          [activeCustomer],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
 
   @override
   _i7.Future<void> insertOrUpdateBatch(

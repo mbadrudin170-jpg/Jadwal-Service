@@ -29,9 +29,9 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDocumentReference_0<T extends Object?> extends _i1.SmartFake
-    implements _i2.DocumentReference<T> {
-  _FakeDocumentReference_0(
+class _FakeFirebaseFirestore_0 extends _i1.SmartFake
+    implements _i2.FirebaseFirestore {
+  _FakeFirebaseFirestore_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -40,9 +40,9 @@ class _FakeDocumentReference_0<T extends Object?> extends _i1.SmartFake
         );
 }
 
-class _FakeFirebaseFirestore_1 extends _i1.SmartFake
-    implements _i2.FirebaseFirestore {
-  _FakeFirebaseFirestore_1(
+class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+    implements _i2.DocumentReference<T> {
+  _FakeDocumentReference_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -59,6 +59,15 @@ class MockTransactionOpFirebase extends _i1.Mock
   MockTransactionOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  _i2.FirebaseFirestore get firestore => (super.noSuchMethod(
+        Invocation.getter(#firestore),
+        returnValue: _FakeFirebaseFirestore_0(
+          this,
+          Invocation.getter(#firestore),
+        ),
+      ) as _i2.FirebaseFirestore);
 
   @override
   _i4.Future<void> addTransaction(_i5.TransactionModel? transaction) =>
@@ -151,7 +160,7 @@ class MockTransactionOpFirebase extends _i1.Mock
           ],
         ),
         returnValue: _i4.Future<_i2.DocumentReference<Object?>>.value(
-            _FakeDocumentReference_0<Object?>(
+            _FakeDocumentReference_1<Object?>(
           this,
           Invocation.method(
             #add,
@@ -275,7 +284,7 @@ class MockPackageOpFirebase extends _i1.Mock implements _i6.PackageOpFirebase {
   @override
   _i2.FirebaseFirestore get db => (super.noSuchMethod(
         Invocation.getter(#db),
-        returnValue: _FakeFirebaseFirestore_1(
+        returnValue: _FakeFirebaseFirestore_0(
           this,
           Invocation.getter(#db),
         ),

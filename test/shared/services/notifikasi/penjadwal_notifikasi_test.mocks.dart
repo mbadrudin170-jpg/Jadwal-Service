@@ -40,9 +40,20 @@ class _FakeFlutterLocalNotificationsPlugin_0 extends _i1.SmartFake
         );
 }
 
-class _FakeDocumentReference_1<T extends Object?> extends _i1.SmartFake
+class _FakeFirebaseFirestore_1 extends _i1.SmartFake
+    implements _i3.FirebaseFirestore {
+  _FakeFirebaseFirestore_1(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
     implements _i3.DocumentReference<T> {
-  _FakeDocumentReference_1(
+  _FakeDocumentReference_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -218,6 +229,15 @@ class MockTransactionOpFirebase extends _i1.Mock
   }
 
   @override
+  _i3.FirebaseFirestore get firestore => (super.noSuchMethod(
+        Invocation.getter(#firestore),
+        returnValue: _FakeFirebaseFirestore_1(
+          this,
+          Invocation.getter(#firestore),
+        ),
+      ) as _i3.FirebaseFirestore);
+
+  @override
   _i5.Future<void> addTransaction(_i7.TransactionModel? transaction) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -308,7 +328,7 @@ class MockTransactionOpFirebase extends _i1.Mock
           ],
         ),
         returnValue: _i5.Future<_i3.DocumentReference<Object?>>.value(
-            _FakeDocumentReference_1<Object?>(
+            _FakeDocumentReference_2<Object?>(
           this,
           Invocation.method(
             #add,

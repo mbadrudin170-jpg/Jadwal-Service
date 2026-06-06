@@ -271,7 +271,9 @@ Jika belum mengetahui padanan kata yang tepat:
 
 ## Komentar
 1. tambahkan sebuah komentar disetiap fungsi didalam sebuah file contoh `// 1. Menginisialisasi konfigurasi zona waktu`.
-# // path: prompt/aturan_kepatuhan_ai.md
+
+## withOpacity
+dilarang menggunakan withOpacity, diharuskan menggunakan withValues, withAlpha,# // path: prompt/aturan_kepatuhan_ai.md
 
 
 ---
