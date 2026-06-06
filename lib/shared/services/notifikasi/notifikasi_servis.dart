@@ -6,7 +6,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -15,11 +14,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
-final notifikasiServisProvider = Provider<NotifikasiServis>((ref) {
-  Log.info('Membuat instance NotifikasiServis melalui Riverpod provider');
-  // Factory constructor NotifikasiServis() sudah mengembalikan instance singleton
-  return NotifikasiServis();
-});
 @pragma('vm:entry-point')
 void onDidReceiveBackgroundNotificationResponse(
     final NotificationResponse response) {
@@ -198,13 +192,9 @@ class NotifikasiServis {
     }
   }
 
-  ///
-  /// Metode ini akan mendengarkan stream dari `NotifikasiOpFirebase` dan
-  /// menampilkan notifikasi lokal untuk setiap item baru yang diterima.
   void pantauNotifikasiDariFirebase(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
 
-    // Batalkan listener sebelumnya jika ada untuk menghindari kebocoran memori
     _langgananNotifikasiFirebase?.cancel();
 
     _langgananNotifikasiFirebase = notifikasiOp.getActiveNotifications().listen(

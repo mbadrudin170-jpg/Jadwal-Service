@@ -20,6 +20,7 @@ import 'notifikasi_servis_test.mocks.dart';
   AndroidFlutterLocalNotificationsPlugin,
   NotifikasiOpFirebase,
 ])
+
 void main() {
   // WAJIB: Atasi error "Binding has not yet been initialized"
   TestWidgetsFlutterBinding.ensureInitialized();

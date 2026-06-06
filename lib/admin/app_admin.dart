@@ -17,7 +17,6 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/opera
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 class AppAdmin extends ConsumerWidget {
   const AppAdmin({super.key});
@@ -154,6 +153,10 @@ class AppMaterial extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Aktifkan dan pantau NotifikasiServisProvider di sini.
+    // Ini memastikan listener notifikasi Firebase aktif selama aplikasi berjalan.
+    ref.watch(notifikasiServisProvider);
+
     // Tonton AsyncNotifier tema.
     final themeAsync = ref.watch(themeProvider);
 

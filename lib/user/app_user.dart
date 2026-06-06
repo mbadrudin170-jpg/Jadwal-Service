@@ -13,6 +13,10 @@ class AppUser extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Aktifkan dan pantau NotifikasiServisProvider di sini.
+    // Ini memastikan listener notifikasi Firebase aktif selama aplikasi berjalan.
+    ref.watch(notifikasiServisProvider);
+
     final themeAsync = ref.watch(themeProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     final localStorageAsync = ref.watch(localStorageServiceProvider);

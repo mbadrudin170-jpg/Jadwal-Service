@@ -73,7 +73,6 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           if (a.endDate == null && b.endDate == null) return 0;
           if (a.endDate == null) return 1;
           if (b.endDate == null) return -1;
-          // DIUBAH: Mengurutkan secara descending (terbaru ke terlama)
           return b.endDate!.compareTo(a.endDate!);
         });
         break;
@@ -85,9 +84,10 @@ class PackageActivationHistory extends _$PackageActivationHistory {
         list.sort(
             (a, b) => (a.updatedAt ?? a.date).compareTo(b.updatedAt ?? b.date));
         break;
-      // Tambahkan logic sorting untuk option lainnya (nameAZ, paid, dll) di sini...
       default:
         break;
     }
   }
 }
+// TODO : tambahkan ospi sort lainnya
+// TODO : tambahkan unit test nya untuk file ini
