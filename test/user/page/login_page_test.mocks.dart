@@ -10,6 +10,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:shared_preferences/shared_preferences.dart' as _i2;
 import 'package:wifi/shared/model/customer_model.dart' as _i7;
 import 'package:wifi/shared/services/internet_connection_check.dart' as _i3;
+import 'package:wifi/shared/services/user_activity_service.dart' as _i8;
 import 'package:wifi/user/services/storage/local_storage_service.dart' as _i5;
 
 // ignore_for_file: type=lint
@@ -469,4 +470,29 @@ class MockNavigatorObserver extends _i1.Mock implements _i6.NavigatorObserver {
         ),
         returnValueForMissingStub: null,
       );
+}
+
+/// A class which mocks [UserActivityService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockUserActivityService extends _i1.Mock
+    implements _i8.UserActivityService {
+  MockUserActivityService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<void> pingActivity(
+    String? customerId, {
+    bool? force = false,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #pingActivity,
+          [customerId],
+          {#force: force},
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
