@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
@@ -34,8 +32,6 @@ class UserCustomerDetailPage extends ConsumerStatefulWidget {
 
 class _UserCustomerDetailPageState
     extends ConsumerState<UserCustomerDetailPage> {
-  final CustomerOpFirebase _customerOp = CustomerOpFirebase();
-  final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
   Future<_ProfileData>? _dataFuture;
   bool _hasMadeChanges = false;
 
@@ -51,7 +47,10 @@ class _UserCustomerDetailPageState
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final customer = await _customerOp.getCustomerOnce(widget.userId);
+      final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+      final transactionOp = ref.read(transactionOpFirebaseProvider);
+
+      final customer = await customerOpFirebase.getCustomerOnce(widget.userId);
       if (customer == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
@@ -60,7 +59,7 @@ class _UserCustomerDetailPageState
       Log.info(
         'Pelanggan ditemukan: ${customer.name}. Mengambil riwayat transaksi...',
       );
-      final totalPoin = await _transactionOp.getTotalPoints(customer.id);
+      final totalPoin = await transactionOp.getTotalPoints(customer.id);
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
       return _ProfileData(customer: customer, totalPoints: totalPoin);
     } catch (e, s) {
@@ -108,8 +107,6 @@ class _UserCustomerDetailPageState
       MaterialPageRoute<bool>(
         builder: (final context) => PointsPage(
           customerId: customerId,
-          dataSource:
-              FirebasePointsDataSource(), // Menggunakan data source Firebase
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
           role: UserRole.user,
         ),

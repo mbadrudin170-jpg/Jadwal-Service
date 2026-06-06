@@ -2,46 +2,43 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
+import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
-import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
+import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
-class PointsPage extends StatefulWidget {
+class PointsPage extends ConsumerStatefulWidget {
   final String customerId;
-  final PointsPageDataSource dataSource;
   final bool showAd;
   final UserRole role;
 
   const PointsPage({
     super.key,
     required this.customerId,
-    required this.dataSource,
     required this.role,
     this.showAd = false,
   });
 
   @override
-  State<PointsPage> createState() => _PointsPageState();
+  ConsumerState<PointsPage> createState() => _PointsPageState();
 }
 
-class _PointsPageState extends State<PointsPage> {
-  final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
-  final ActiveCustomerOpFirebase _activeCustomerOpFirebase =
-      ActiveCustomerOpFirebase();
+class _PointsPageState extends ConsumerState<PointsPage> {
+  late final PointsPageDataSource _dataSource;
   final _interstitialAdService = InterstitialAdService();
 
   MenuPoin _selectedMenu = MenuPoin.penukaran;
@@ -56,6 +53,13 @@ class _PointsPageState extends State<PointsPage> {
   @override
   void initState() {
     super.initState();
+    // DIPERBAIKI: Memilih data source berdasarkan role
+    if (widget.role == UserRole.admin) {
+      _dataSource = ref.read(sqlitePointsDataSourceProvider);
+    } else {
+      _dataSource = ref.read(firebasePointsDataSourceProvider);
+    }
+
     Log.info(
         'Initializing PointsPage for customer: ${widget.customerId} with role: ${widget.role}');
     _appBarTitle = Row(
@@ -64,7 +68,7 @@ class _PointsPageState extends State<PointsPage> {
         Expanded(
           child: CustomerNameWidget(
             customerId: widget.customerId,
-            useFirebase: widget.dataSource.isFirebase,
+            useFirebase: _dataSource.isFirebase,
           ),
         ),
       ],
@@ -85,9 +89,8 @@ class _PointsPageState extends State<PointsPage> {
       _errorMessage = null;
     });
     try {
-      final totalPoints =
-          await widget.dataSource.getTotalPoints(widget.customerId);
-      final rewardList = await widget.dataSource.getPublicPackages();
+      final totalPoints = await _dataSource.getTotalPoints(widget.customerId);
+      final rewardList = await _dataSource.getPublicPackages();
       if (!mounted) return;
       setState(() {
         _totalPoints = totalPoints;
@@ -114,7 +117,7 @@ class _PointsPageState extends State<PointsPage> {
     setState(() => _isLoadingHistory = true);
     try {
       final history =
-          await widget.dataSource.getPointsTransactions(widget.customerId);
+          await _dataSource.getPointsTransactions(widget.customerId);
       if (!mounted) return;
       setState(() {
         _transactionHistory = history;
@@ -203,9 +206,12 @@ class _PointsPageState extends State<PointsPage> {
           endDate: endDate,
         );
 
-        await _activeCustomerOpFirebase.setActiveCustomer(activeCustomer);
+        final transactionOp = ref.read(transactionOpFirebaseProvider);
+        final activeCustomerOp = ref.read(activeCustomerOpFirebaseProvider);
+
+        await activeCustomerOp.setActiveCustomer(activeCustomer);
         Log.info('menyimpan transaksi baru untuk tukar poin', transaction);
-        await _transactionOpFirebase.addTransaction(transaction);
+        await transactionOp.addTransaction(transaction);
         Log.info(
             'menyimpan active customer  baru untuk tukar poin', activeCustomer);
 
@@ -227,8 +233,7 @@ class _PointsPageState extends State<PointsPage> {
     PackageModel? package;
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
       try {
-        package =
-            await widget.dataSource.getPackageById(transaction.packageId!);
+        package = await _dataSource.getPackageById(transaction.packageId!);
       } on Exception catch (e, st) {
         Log.error('Failed to get package ${transaction.packageId}: $e',
             e: e, st: st);

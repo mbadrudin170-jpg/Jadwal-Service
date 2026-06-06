@@ -7,30 +7,38 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
 
 /// Implementasi [PointsPageDataSource] untuk mengambil data dari Firebase.
+///
+/// Kelas ini sekarang bergantung pada [TransactionOpFirebase] dan [PackageOpFirebase]
+/// yang disuntikkan dari luar, alih-alih membuatnya sendiri.
 class FirebasePointsDataSource implements PointsPageDataSource {
   final TransactionOpFirebase _transactionOpFirebase;
   final PackageOpFirebase _packageOpFirebase;
 
+  // 1. Konstruktor diperbarui untuk menerima dependensi secara langsung.
+  // Tidak ada lagi instance `FirebaseFirestore.instance` atau pembuatan
+  // `TransactionOpFirebase` dan `PackageOpFirebase` secara internal.
   FirebasePointsDataSource({
-    final TransactionOpFirebase? transactionOpFirebase,
-    final PackageOpFirebase? packageOpFirebase,
-  })  : _transactionOpFirebase = transactionOpFirebase ?? TransactionOpFirebase(),
-        _packageOpFirebase = packageOpFirebase ?? PackageOpFirebase();
-
+    required TransactionOpFirebase transactionOpFirebase,
+    required PackageOpFirebase packageOpFirebase,
+  })  : _transactionOpFirebase = transactionOpFirebase,
+        _packageOpFirebase = packageOpFirebase;
 
   @override
   Future<int> getTotalPoints(final String customerId) {
+    // 2. Mengambil total poin pelanggan
     return _transactionOpFirebase.getTotalPoints(customerId);
   }
 
   @override
   Future<List<PackageModel>> getPublicPackages() {
+    // 3. Mengambil daftar paket publik
     return _packageOpFirebase.getPublicPackages();
   }
 
   @override
   Future<List<TransactionModel>> getPointsTransactions(
       final String customerId) async {
+    // 4. Mengambil riwayat transaksi poin pelanggan
     final history =
         await _transactionOpFirebase.getTransactionsByCustomerId(customerId);
     return history
@@ -40,6 +48,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<PackageModel?> getPackageById(final String packageId) {
+    // 5. Mengambil detail paket berdasarkan ID
     return _packageOpFirebase.getPackageById(packageId);
   }
 

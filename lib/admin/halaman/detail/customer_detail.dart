@@ -9,7 +9,6 @@ import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
@@ -59,7 +58,6 @@ MAC : ${customer.macAddress}
   Future<void> _navigateToPoints(
       BuildContext context, WidgetRef ref, CustomerModel? customer) async {
     if (customer == null) return;
-    final sqLitePointsDataSource = ref.read(sqlitePointsDataSourceProvider);
     Log.info('Navigasi ke halaman poin pelanggan: ${customer.name}');
 
     await Navigator.push<void>(
@@ -67,7 +65,6 @@ MAC : ${customer.macAddress}
       MaterialPageRoute<void>(
         builder: (final context) => PointsPage(
           customerId: customer.id,
-          dataSource: sqLitePointsDataSource,
           role: UserRole.admin,
         ),
       ),

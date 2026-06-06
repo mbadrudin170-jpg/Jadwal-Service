@@ -196,18 +196,13 @@ final class ActiveCustomerOpFirebaseProvider extends $FunctionalProvider<
 String _$activeCustomerOpFirebaseHash() =>
     r'0c89da5e78bec7637eb99e3ada1bd1113bfa7e16';
 
-/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
-
 @ProviderFor(feedbackOpFirebase)
 final feedbackOpFirebaseProvider = FeedbackOpFirebaseProvider._();
-
-/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
 
 final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
     FeedbackOpFirebase,
     FeedbackOpFirebase,
     FeedbackOpFirebase> with $Provider<FeedbackOpFirebase> {
-  /// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
   FeedbackOpFirebaseProvider._()
       : super(
           from: null,
@@ -337,7 +332,7 @@ final class CustomerOpFirebaseProvider extends $FunctionalProvider<
           argument: null,
           retry: null,
           name: r'customerOpFirebaseProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -366,7 +361,7 @@ final class CustomerOpFirebaseProvider extends $FunctionalProvider<
 }
 
 String _$customerOpFirebaseHash() =>
-    r'9fe56bd5649dca605abc63e73053d675e896c12b';
+    r'296a6bd7e00e9f018c13c4b561f1bc101c7b7689';
 
 @ProviderFor(packageOpFirebase)
 final packageOpFirebaseProvider = PackageOpFirebaseProvider._();
@@ -381,7 +376,7 @@ final class PackageOpFirebaseProvider extends $FunctionalProvider<
           argument: null,
           retry: null,
           name: r'packageOpFirebaseProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -409,7 +404,7 @@ final class PackageOpFirebaseProvider extends $FunctionalProvider<
   }
 }
 
-String _$packageOpFirebaseHash() => r'95175763100452b50a5372c436f9849d295dd39f';
+String _$packageOpFirebaseHash() => r'b35081ba0f083713c1f722aa3c3fd0d741f784ff';
 
 @ProviderFor(transactionOpFirebase)
 final transactionOpFirebaseProvider = TransactionOpFirebaseProvider._();
@@ -424,7 +419,7 @@ final class TransactionOpFirebaseProvider extends $FunctionalProvider<
           argument: null,
           retry: null,
           name: r'transactionOpFirebaseProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -453,4 +448,48 @@ final class TransactionOpFirebaseProvider extends $FunctionalProvider<
 }
 
 String _$transactionOpFirebaseHash() =>
-    r'64ad7d5fa2e92daeb151d5a8bf85a9bbfc0e3642';
+    r'3d7e4c75d1c790bfc69d8adae6084cc50af22687';
+
+@ProviderFor(firebasePointsDataSource)
+final firebasePointsDataSourceProvider = FirebasePointsDataSourceProvider._();
+
+final class FirebasePointsDataSourceProvider extends $FunctionalProvider<
+    FirebasePointsDataSource,
+    FirebasePointsDataSource,
+    FirebasePointsDataSource> with $Provider<FirebasePointsDataSource> {
+  FirebasePointsDataSourceProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'firebasePointsDataSourceProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$firebasePointsDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<FirebasePointsDataSource> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  FirebasePointsDataSource create(Ref ref) {
+    return firebasePointsDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FirebasePointsDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FirebasePointsDataSource>(value),
+    );
+  }
+}
+
+String _$firebasePointsDataSourceHash() =>
+    r'e9809cc27aa8563d766cb3985c89542d486564ac';

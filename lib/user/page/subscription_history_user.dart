@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -32,9 +33,7 @@ class SubscriptionHistoryPage extends ConsumerStatefulWidget {
 
 class _SubscriptionHistoryPageState
     extends ConsumerState<SubscriptionHistoryPage> {
-  final CustomerOpFirebase _customerOpFirebase = CustomerOpFirebase();
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
-  final PackageOpFirebase _packageOpFirebase = PackageOpFirebase();
 
   SortMode _sortMode = SortMode.endDateNewest;
   late Future<List<TransactionModel>> _historyFuture;
@@ -49,7 +48,8 @@ class _SubscriptionHistoryPageState
     final userIdValue = await ref.read(userIdProvider.future);
 
     if (userIdValue == null) return [];
-    final customer = await _customerOpFirebase.getCustomerOnce(userIdValue);
+    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+    final customer = await customerOpFirebase.getCustomerOnce(userIdValue);
     if (customer == null) return [];
     return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
   }
@@ -116,6 +116,8 @@ class _SubscriptionHistoryPageState
 
   @override
   Widget build(BuildContext context) {
+    final packageOpFirebase = ref.read(packageOpFirebaseProvider);
+    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
     final userId = ref.watch(userIdProvider);
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +145,7 @@ class _SubscriptionHistoryPageState
       body: StreamBuilder<CustomerModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? _customerOpFirebase.getCustomerStream(id)
+              ? customerOpFirebase.getCustomerStream(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, __) => const Stream.empty(),
@@ -186,7 +188,7 @@ class _SubscriptionHistoryPageState
                         itemBuilder: (context, index) {
                           final tx = sorted[index];
                           final packageFuture = tx.packageId != null
-                              ? _packageOpFirebase.getPackageById(tx.packageId!)
+                              ? packageOpFirebase.getPackageById(tx.packageId!)
                               : Future<PackageModel?>.value();
                           final activeText = tx.endDate != null
                               ? CalculationUtil.getRemainingActivePeriodText(

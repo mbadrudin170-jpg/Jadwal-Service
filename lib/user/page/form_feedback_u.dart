@@ -1,15 +1,15 @@
 // path: lib/user/page/form_feedback_u.dart
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
-class FormKritikDanSaran extends StatefulWidget {
+class FormKritikDanSaran extends ConsumerStatefulWidget {
   final String userId;
 
   final String? kritikId;
@@ -23,15 +23,13 @@ class FormKritikDanSaran extends StatefulWidget {
   });
 
   @override
-  State<FormKritikDanSaran> createState() => _FormKritikDanSaranState();
+  ConsumerState<FormKritikDanSaran> createState() => _FormKritikDanSaranState();
 }
 
-class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
+class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
-  final FeedbackOpFirebase _feedbackOpFirebase =
-      FeedbackOpFirebase(firestore: FirebaseFirestore.instance);
 
   @override
   void initState() {
@@ -42,19 +40,20 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
   }
 
   Future<void> _saveForm() async {
+    final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
         if (widget.kritikId != null) {
-          await _feedbackOpFirebase.update(
+          await feedbackOpFirebase.update(
               widget.kritikId!, _feedbackController.text);
         } else {
           final newFeedback = FeedbackModel(
             content: _feedbackController.text,
             userId: widget.userId,
           );
-          await _feedbackOpFirebase.create(newFeedback);
+          await feedbackOpFirebase.create(newFeedback);
         }
 
         if (mounted) {

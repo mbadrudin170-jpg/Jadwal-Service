@@ -11,9 +11,10 @@
 //   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -22,7 +23,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Halaman untuk mengedit profil pengguna.
 ///
 /// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
-class EditProfilePage extends StatefulWidget {
+class EditProfilePage extends ConsumerStatefulWidget {
   /// Data pelanggan yang akan diedit.
   final CustomerModel customer;
 
@@ -37,15 +38,14 @@ class EditProfilePage extends StatefulWidget {
   });
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  ConsumerState<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _passwordController;
-  final _customerOpFirebase = CustomerOpFirebase();
   final _internetConnectionService = InternetConnectionService();
 
   bool _isPasswordVisible = false;
@@ -81,9 +81,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           phone: _phoneController.text,
           password: _passwordController.text,
         );
-
-        await _customerOpFirebase.updateCustomer(updatedCustomer);
-
+        final customerOpFirebase = ref.read(customerOpFirebaseProvider);
+        await customerOpFirebase.updateCustomer(updatedCustomer);
+        ref.invalidate(customerOpFirebaseProvider);
         if (!mounted) return;
 
         ToastUtil.success(context, 'Profil berhasil diperbarui.');

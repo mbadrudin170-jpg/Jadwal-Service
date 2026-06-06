@@ -21,10 +21,11 @@ class CustomerOpFirebase {
   final String _collectionName = TableNameValue.get(TableName.customer);
 
   /// Konstruktor untuk inisialisasi.
-  CustomerOpFirebase(
-      {final FirebaseFirestore? firestore, final BaseOpFirebase? baseOp})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
+  CustomerOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  })  : _firestore = firestore,
+        _baseOp = baseOp {
     Log.info('CustomerOpFirebase diinisialisasi.');
   }
 
@@ -66,7 +67,7 @@ class CustomerOpFirebase {
   }
 
   /// Memperbarui waktu terakhir pengguna aktif.
-  Future<void> updateLastActive( String customerId) async {
+  Future<void> updateLastActive(String customerId) async {
     Log.info('Mendelegasikan update last active untuk: $customerId');
     await _baseOp.update(_collectionName, customerId, {
       ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
@@ -106,7 +107,7 @@ class CustomerOpFirebase {
           doc.data()! as Map<String, dynamic>,
         );
       }).toList();
-      
+
       Log.info('Berhasil mengambil ${customers.length} pelanggan.');
       return customers;
     } on Exception catch (e, s) {

@@ -11,6 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 
 part 'firebase_operation_provider.g.dart';
 
@@ -44,17 +45,14 @@ BaseOpFirebase baseOpFirebase(Ref ref) {
 ActiveCustomerOpFirebase activeCustomerOpFirebase(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
-
   return ActiveCustomerOpFirebase(firestore: firestoreInstance);
 }
 
-/// Provider untuk menyediakan instance dari [FeedbackOpFirebase].
 @Riverpod(keepAlive: true)
 FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
   Log.info('Membuat instance FeedbackOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-
   return FeedbackOpFirebase(
     firestore: firestoreInstance,
     baseOp: baseOp,
@@ -67,23 +65,27 @@ Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
   return feedbackOp.getByUser(userId);
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 CustomerOpFirebase customerOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+
   return CustomerOpFirebase(
     firestore: firestoreInstance,
+    baseOp: baseOp,
   );
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 PackageOpFirebase packageOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
+
   return PackageOpFirebase(
     firestore: firestoreInstance,
   );
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 TransactionOpFirebase transactionOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   return TransactionOpFirebase(
@@ -91,4 +93,12 @@ TransactionOpFirebase transactionOpFirebase(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari UserActivityService.
+@Riverpod(keepAlive: true)
+FirebasePointsDataSource firebasePointsDataSource(Ref ref) {
+  final transactionOp = ref.watch(transactionOpFirebaseProvider);
+  final packageOp = ref.watch(packageOpFirebaseProvider);
+  return FirebasePointsDataSource(
+    transactionOpFirebase: transactionOp,
+    packageOpFirebase: packageOp,
+  );
+}

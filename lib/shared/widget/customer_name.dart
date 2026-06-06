@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 
 /// Widget yang menampilkan nama pelanggan berdasarkan ID dari dua sumber data.
@@ -31,14 +31,14 @@ class CustomerNameWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (useFirebase) {
-      return _buildFromFirebase();
+      return _buildFromFirebase(ref);
     }
     return _buildFromSqlite(ref);
   }
 
   /// Membangun widget menggunakan data dari Firebase (Stream).
-  Widget _buildFromFirebase() {
-    final customerOpFirebase = CustomerOpFirebase();
+  Widget _buildFromFirebase(WidgetRef ref) {
+    final customerOpFirebase = ref.read(customerOpFirebaseProvider);
     return StreamBuilder<CustomerModel?>(
       stream: customerOpFirebase.getCustomerStream(customerId),
       builder: (final context, final snapshot) {

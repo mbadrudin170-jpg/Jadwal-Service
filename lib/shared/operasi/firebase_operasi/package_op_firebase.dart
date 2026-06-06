@@ -17,8 +17,7 @@ class PackageOpFirebase {
   final FirebaseFirestore db;
 
   /// Konstruktor untuk PackageOpFirebase.
-  PackageOpFirebase({final FirebaseFirestore? firestore})
-      : db = firestore ?? FirebaseFirestore.instance {
+  PackageOpFirebase({required FirebaseFirestore firestore}) : db = firestore {
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
@@ -47,7 +46,6 @@ class PackageOpFirebase {
     }
   }
 
-  /// Mengambil model [PackageModel] lengkap berdasarkan ID paket.
   Future<PackageModel?> getPackageById(final String packageId) async {
     try {
       Log.info('Mengambil model paket untuk ID: $packageId');

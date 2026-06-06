@@ -13,7 +13,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -64,7 +63,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _customerOp = ref.read(customerOpFirebaseProvider);
     _transactionOp = ref.read(transactionOpFirebaseProvider);
     _packageOp = ref.read(packageOpFirebaseProvider);
-    _loadProfileData();
+    _futureProfileData = _loadProfileData();
   }
 
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
@@ -311,7 +310,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         MaterialPageRoute<bool>(
           builder: (context) => PointsPage(
             customerId: customerId,
-            dataSource: FirebasePointsDataSource(),
             showAd: true,
             role: UserRole.user,
           ),
@@ -394,7 +392,7 @@ class _InfoItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style:
+                    style: 
                         TextStyle(color: Colors.grey.shade700, fontSize: 14)),
                 gapH4,
                 Text(

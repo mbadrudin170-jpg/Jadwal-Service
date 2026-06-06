@@ -16,10 +16,10 @@ class FeedbackOpFirebase {
 
   /// Konstruktor untuk inisialisasi.
   FeedbackOpFirebase({
-    final FirebaseFirestore? firestore,
-    final BaseOpFirebase? baseOp,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _baseOp = baseOp ?? BaseOpFirebase(firestore: firestore) {
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  })  : _firestore = firestore,
+        _baseOp = baseOp {
     Log.info('FeedbackOpFirebase diinisialisasi.');
   }
 
