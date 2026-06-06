@@ -57,18 +57,6 @@ void main() {
       updatedAt: now,
     );
 
-    final notifikasiKedaluwarsa = NotifikasiModel(
-      id: 'notif3',
-      title: 'Judul 3',
-      description: 'Isi 3',
-      type: TipeNotifikasiEnum.order,
-      idTujuan: 'user3',
-      startDate: now.subtract(const Duration(days: 2)),
-      endDate: now.subtract(const Duration(days: 1)),
-      tanggalTampil: now.subtract(const Duration(days: 2)),
-      updatedAt: now.subtract(const Duration(days: 2)),
-    );
-
     final notifikasiTerbaca = NotifikasiModel(
       id: 'notif4',
       title: 'Judul 4',
@@ -95,8 +83,20 @@ void main() {
       updatedAt: now,
     );
 
+    final notifikasiMasaDepan = NotifikasiModel(
+      id: 'notif6',
+      title: 'Judul 6',
+      description: 'Isi 6',
+      type: TipeNotifikasiEnum.transaksi,
+      idTujuan: 'user6',
+      startDate: now.add(const Duration(days: 1)),
+      endDate: now.add(const Duration(days: 2)),
+      tanggalTampil: now.add(const Duration(days: 1)),
+      updatedAt: now,
+    );
+
     test(
-        'Test 1: getActiveNotifications harus mengembalikan notifikasi yang aktif, belum dibaca, dan belum dihapus',
+        'Test 1: getActiveNotifications harus mengambil data yang ${ColumnNames.isRead} false, ${ColumnNames.isDeleted} false, ${ColumnNames.tanggalTampil} <= now,',
         () async {
       // Menambahkan data uji ke firestore palsu
       await firestore
@@ -109,42 +109,38 @@ void main() {
           .set(notifikasi2.toFirebase());
       await firestore
           .collection(collection)
-          .doc(notifikasiKedaluwarsa.id)
-          .set(notifikasiKedaluwarsa.toFirebase());
-      await firestore
-          .collection(collection)
           .doc(notifikasiTerbaca.id)
           .set(notifikasiTerbaca.toFirebase());
       await firestore
           .collection(collection)
           .doc(notifikasiDihapus.id)
           .set(notifikasiDihapus.toFirebase());
+      await firestore
+          .collection(collection)
+          .doc(notifikasiMasaDepan.id)
+          .set(notifikasiMasaDepan.toFirebase());
 
       // Mendengarkan stream
       final stream = notifikasiOp.getActiveNotifications();
 
       // Memeriksa hasil stream
+      // Harapannya hanya notif1 dan notif2 yang muncul.
+      // notifikasiKedaluwarsa, notifikasiTerbaca, notifikasiDihapus, dan notifikasiMasaDepan
+      // seharusnya tidak ada dalam hasil.
       expect(
         stream,
-        emits((List<NotifikasiModel> list) {
-          // Hanya notifikasi1 dan notifikasi2 yang harus muncul
-          final ids = list.map((e) => e.id).toList();
-          return list.length == 2 &&
-              ids.contains(notifikasi1.id) &&
-              ids.contains(notifikasi2.id);
-        }),
+        emits(isA<List<NotifikasiModel>>().having(
+          (list) => list.map((e) => e.id).toSet(),
+          'ID set',
+          {notifikasi1.id, notifikasi2.id},
+        )),
       );
     });
 
     test('Test 2: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
-      // Mengatur mock untuk mengembalikan Future kosong
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
-
-      // Memanggil metode add
       await notifikasiOp.add(notifikasi1);
-
-      // Memverifikasi bahwa baseOp.insert dipanggil dengan argumen yang benar
       verify(mockBaseOp.insert(
         collection,
         notifikasi1.id,
@@ -155,13 +151,8 @@ void main() {
     test('Test 3: delete harus memanggil baseOp.delete dengan ID yang benar',
         () async {
       const idToDelete = 'notif1';
-      // Mengatur mock untuk mengembalikan Future kosong
       when(mockBaseOp.delete(any, any)).thenAnswer((_) async {});
-
-      // Memanggil metode delete
       await notifikasiOp.delete(idToDelete);
-
-      // Memverifikasi bahwa baseOp.delete dipanggil dengan argumen yang benar
       verify(mockBaseOp.delete(collection, idToDelete)).called(1);
     });
 
@@ -169,13 +160,8 @@ void main() {
         'Test 4: tandaiSudahDibaca harus memanggil baseOp.update dengan data yang benar',
         () async {
       const idToUpdate = 'notif1';
-      // Mengatur mock untuk mengembalikan Future kosong
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
-
-      // Memanggil metode tandaiSudahDibaca
       await notifikasiOp.tandaiSudahDibaca(idToUpdate);
-
-      // Memverifikasi bahwa baseOp.update dipanggil dengan argumen yang benar
       verify(mockBaseOp.update(collection, idToUpdate, {
         ColumnNames.isRead: true,
       })).called(1);

@@ -20,7 +20,7 @@ class NotifikasiOpFirebase {
         _baseOp = baseOp;
 
   Stream<List<NotifikasiModel>> getActiveNotifications() {
-    final now = DateTime.now().toUtc();
+    final now = DateTime.now();
     return _firestore
         .collection(_collection)
         .where(ColumnNames.isDeleted, isEqualTo: false)
