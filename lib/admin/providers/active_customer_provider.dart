@@ -69,7 +69,6 @@ class ActiveCustomer extends _$ActiveCustomer {
     sorted.sort((a, b) {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
-          // 1. Normalisasi tanggal berakhir pelanggan A dan B (buang jam/menit/detik)
           final dateA = DateTime(
             a.activeCustomer.endDate.year,
             a.activeCustomer.endDate.month,
