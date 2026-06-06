@@ -20,6 +20,7 @@ class NotifikasiModel implements HasId {
   final TipeNotifikasiEnum type;
   final DateTime updatedAt;
   final String idTujuan;
+  final String userId;
   final bool isDeleted;
   final DateTime? archivedAt;
 
@@ -34,6 +35,7 @@ class NotifikasiModel implements HasId {
     required this.type,
     required this.updatedAt,
     required this.idTujuan,
+    required this.userId,
     this.isDeleted = false,
     this.archivedAt,
   }) : id = id ?? const Uuid().v4() {
@@ -51,6 +53,7 @@ class NotifikasiModel implements HasId {
     final TipeNotifikasiEnum? type,
     final DateTime? updatedAt,
     final String? idTujuan,
+    final String? userId,
     final bool? isDeleted,
     final DateTime? archivedAt,
   }) {
@@ -64,6 +67,7 @@ class NotifikasiModel implements HasId {
       type: type ?? this.type,
       updatedAt: updatedAt ?? this.updatedAt,
       idTujuan: idTujuan ?? this.idTujuan,
+      userId: userId ?? this.userId,
       isDeleted: isDeleted ?? this.isDeleted,
       archivedAt: archivedAt ?? this.archivedAt,
       tanggalTampil: tanggalTampil ?? this.tanggalTampil,
@@ -105,6 +109,7 @@ class NotifikasiModel implements HasId {
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]) ??
           DateTime.now(),
       idTujuan: map[ColumnNames.idTujuan] as String? ?? '',
+      userId: map[ColumnNames.userId] as String? ?? '',
       isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
       tanggalTampil: ParserUtil.parseDateTime(map[ColumnNames.tanggalTampil]) ??
@@ -123,6 +128,7 @@ class NotifikasiModel implements HasId {
       ColumnNames.type: type.name,
       ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
       ColumnNames.idTujuan: idTujuan,
+      ColumnNames.userId: userId,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
       ColumnNames.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
@@ -152,6 +158,7 @@ class NotifikasiModel implements HasId {
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]) ??
           DateTime.now(),
       idTujuan: data[ColumnNames.idTujuan] as String? ?? '',
+      userId: data[ColumnNames.userId] as String? ?? '',
       isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
       archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
     );
@@ -168,6 +175,7 @@ class NotifikasiModel implements HasId {
       ColumnNames.type: type.name,
       ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
       ColumnNames.idTujuan: idTujuan,
+      ColumnNames.userId: userId,
       ColumnNames.isDeleted: isDeleted,
       ColumnNames.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
       ColumnNames.archivedAt:

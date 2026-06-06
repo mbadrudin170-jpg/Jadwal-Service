@@ -39,6 +39,7 @@ void main() {
       description: 'Isi 1',
       type: TipeNotifikasiEnum.transaksi,
       idTujuan: 'user1',
+      userId: 'user1',
       startDate: now,
       endDate: now.add(const Duration(days: 1)),
       tanggalTampil: now,
@@ -51,6 +52,7 @@ void main() {
       description: 'Isi 2',
       type: TipeNotifikasiEnum.events,
       idTujuan: 'user2',
+      userId: 'user2',
       startDate: now,
       endDate: now.add(const Duration(days: 2)),
       tanggalTampil: now,
@@ -63,6 +65,7 @@ void main() {
       description: 'Isi 4',
       type: TipeNotifikasiEnum.transaksi,
       idTujuan: 'user4',
+      userId: 'user4',
       isRead: true,
       startDate: now,
       endDate: now.add(const Duration(days: 1)),
@@ -76,6 +79,7 @@ void main() {
       description: 'Isi 5',
       type: TipeNotifikasiEnum.transaksi,
       idTujuan: 'user5',
+      userId: 'user5',
       isDeleted: true,
       startDate: now,
       endDate: now.add(const Duration(days: 1)),
@@ -89,6 +93,7 @@ void main() {
       description: 'Isi 6',
       type: TipeNotifikasiEnum.transaksi,
       idTujuan: 'user6',
+      userId: 'user6',
       startDate: now.add(const Duration(days: 1)),
       endDate: now.add(const Duration(days: 2)),
       tanggalTampil: now.add(const Duration(days: 1)),
@@ -123,10 +128,6 @@ void main() {
       // Mendengarkan stream
       final stream = notifikasiOp.getActiveNotifications();
 
-      // Memeriksa hasil stream
-      // Harapannya hanya notif1 dan notif2 yang muncul.
-      // notifikasiKedaluwarsa, notifikasiTerbaca, notifikasiDihapus, dan notifikasiMasaDepan
-      // seharusnya tidak ada dalam hasil.
       expect(
         stream,
         emits(isA<List<NotifikasiModel>>().having(
@@ -159,6 +160,7 @@ void main() {
         description: 'Isi',
         type: TipeNotifikasiEnum.transaksi,
         idTujuan: 'user1',
+        userId: 'user1',
         isRead: true,
         startDate: now,
         endDate: now.add(const Duration(days: 1)),
@@ -212,6 +214,7 @@ void main() {
         description: 'Isi',
         type: TipeNotifikasiEnum.transaksi,
         idTujuan: 'user1',
+        userId: 'user1',
         isRead: true,
         startDate: now,
         endDate: now.add(const Duration(days: 1)),
@@ -234,6 +237,7 @@ void main() {
         )),
       );
     });
+
     test('Test 2: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
@@ -245,6 +249,11 @@ void main() {
       )).called(1);
     });
 
+    test('3 update harus memanggil baseOp.update dengan data yang benar',
+        () async {
+      await notifikasiOp.update(notifikasi1);
+    });
+    
     test('Test 3: delete harus memanggil baseOp.delete dengan ID yang benar',
         () async {
       const idToDelete = 'notif1';

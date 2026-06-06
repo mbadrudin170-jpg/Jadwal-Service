@@ -14,6 +14,8 @@ import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -253,6 +255,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Future<SaveResultModel<ActiveCustomerModel>> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
+    final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
     final pelangganAktifOperasi = ref.read(activeCustomerOperationProvider);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
@@ -324,12 +327,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transactionProvider.notifier)
             .updateTransaction(transaksiData);
+        await notifikasiOpFirebase.update();
       } else {
         pelangganAktifHasil = await pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
             .addTransaction(transaksiData);
+        await notifikasiOpFirebase.add();
       }
       final internetService = InternetConnectionService();
       final isOnline = await internetService.isInternetAvailable();

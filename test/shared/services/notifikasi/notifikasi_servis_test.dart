@@ -228,6 +228,7 @@ void main() {
         type: TipeNotifikasiEnum.info,
         updatedAt: now,
         idTujuan: 'user-1',
+        userId: 'user-1',
       );
       final notif2 = NotifikasiModel(
         id: 'notif-2',
@@ -239,6 +240,7 @@ void main() {
         type: TipeNotifikasiEnum.info,
         updatedAt: now,
         idTujuan: 'user-2',
+        userId: 'user-2',
       );
 
       // Atur stub untuk getActiveNotifications agar mengembalikan stream dari controller
@@ -292,6 +294,7 @@ void main() {
         type: TipeNotifikasiEnum.info,
         updatedAt: now,
         idTujuan: 'user-3',
+        userId: 'user-3',
       );
       streamController.add([notif1, notif2, notif3]);
 
