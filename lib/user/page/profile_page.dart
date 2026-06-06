@@ -1,5 +1,4 @@
-// path: lib/user/page/profile_page.dart
-// REVISI TOTAL: Merombak logika pemuatan data untuk efisiensi dan menghilangkan jank.
+// path lib/user/page/profile_page.dart
 
 import 'dart:async';
 
