@@ -8,6 +8,54 @@ part of 'shared_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
+/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
+
+@ProviderFor(appRole)
+final appRoleProvider = AppRoleProvider._();
+
+/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
+/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
+
+final class AppRoleProvider
+    extends $FunctionalProvider<AppRole, AppRole, AppRole>
+    with $Provider<AppRole> {
+  /// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
+  /// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
+  AppRoleProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'appRoleProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$appRoleHash();
+
+  @$internal
+  @override
+  $ProviderElement<AppRole> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  AppRole create(Ref ref) {
+    return appRole(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AppRole value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AppRole>(value),
+    );
+  }
+}
+
+String _$appRoleHash() => r'cb30ce59264980d6e8d623c1c86512db1c3caf35';
 
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
@@ -86,13 +134,18 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
 String _$localStorageServiceHash() =>
     r'682f08594d407537f17f21974997a6a4de059ac8';
 
+/// Provider sederhana yang hanya membuat instance NotifikasiServis.
+
 @ProviderFor(notifikasiServis)
 final notifikasiServisProvider = NotifikasiServisProvider._();
+
+/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
 final class NotifikasiServisProvider extends $FunctionalProvider<
     NotifikasiServis,
     NotifikasiServis,
     NotifikasiServis> with $Provider<NotifikasiServis> {
+  /// Provider sederhana yang hanya membuat instance NotifikasiServis.
   NotifikasiServisProvider._()
       : super(
           from: null,
@@ -126,4 +179,53 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
   }
 }
 
-String _$notifikasiServisHash() => r'50f8527c09c44d5e6a2ffe769c02a165eca31c73';
+String _$notifikasiServisHash() => r'1a5abc571c94904cfc22a487d7725efdd85923a1';
+
+/// Controller utama untuk notifikasi.
+/// Tonton provider ini dari UI untuk menginisialisasi listener.
+
+@ProviderFor(notifikasiController)
+final notifikasiControllerProvider = NotifikasiControllerProvider._();
+
+/// Controller utama untuk notifikasi.
+/// Tonton provider ini dari UI untuk menginisialisasi listener.
+
+final class NotifikasiControllerProvider
+    extends $FunctionalProvider<void, void, void> with $Provider<void> {
+  /// Controller utama untuk notifikasi.
+  /// Tonton provider ini dari UI untuk menginisialisasi listener.
+  NotifikasiControllerProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'notifikasiControllerProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$notifikasiControllerHash();
+
+  @$internal
+  @override
+  $ProviderElement<void> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  void create(Ref ref) {
+    return notifikasiController(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$notifikasiControllerHash() =>
+    r'6109697d2b74ed1cecc93c227ec47398373c9665';

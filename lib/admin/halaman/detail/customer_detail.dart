@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/user_role_enum.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -65,7 +65,7 @@ MAC : ${customer.macAddress}
       MaterialPageRoute<void>(
         builder: (final context) => PointsPage(
           customerId: customer.id,
-          role: UserRole.admin,
+          role: AppRole.admin,
         ),
       ),
     );

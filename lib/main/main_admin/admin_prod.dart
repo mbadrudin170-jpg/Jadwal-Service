@@ -10,6 +10,8 @@ import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/firebase_option/firebase_option_admin_prod.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/shared/services/boot_service.dart';
 
@@ -66,8 +68,11 @@ void main() async {
   Log.info('Memulai aplikasi admin. Menyerahkan kendali ke AppAdmin...');
 
   runApp(
-    const ProviderScope(
-      child: AppAdmin(),
+    ProviderScope(
+      overrides: [
+        appRoleProvider.overrideWithValue(AppRole.admin),
+      ],
+      child: const AppAdmin(),
     ),
   );
 }

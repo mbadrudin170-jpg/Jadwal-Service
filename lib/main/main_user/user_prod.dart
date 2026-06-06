@@ -11,6 +11,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:wifi/user/app_user.dart';
 import 'package:wifi/user/firebase_option/firebase_option_user_prod.dart';
@@ -55,8 +57,11 @@ void main() async {
 
   // Native splash akan dihilangkan dari dalam SplashScreenUser.
   runApp(
-    const ProviderScope(
-      child: AppUser(),
+    ProviderScope(
+      overrides: [
+        appRoleProvider.overrideWithValue(AppRole.user),
+      ],
+      child: const AppUser(),
     ),
   );
 }

@@ -2,11 +2,20 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 part 'shared_providers.g.dart';
+
+/// Provider ini WAJIB di-override di root setiap aplikasi (main_user.dart/main_admin.dart).
+/// Ini digunakan untuk memberi tahu provider lain dalam konteks aplikasi mana mereka berjalan.
+@Riverpod(keepAlive: true)
+AppRole appRole(Ref ref) {
+  throw UnimplementedError(
+      'appRoleProvider harus di-override di dalam ProviderScope');
+}
 
 @Riverpod(keepAlive: true)
 Future<SharedPreferences> sharedPreferences(Ref ref) {
@@ -15,32 +24,59 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<LocalStorageService> localStorageService(Ref ref) async {
-  // Menunggu SharedPreferences selesai diinisialisasi.
   final prefs = await ref.watch(sharedPreferencesProvider.future);
   return LocalStorageService(prefs: prefs);
 }
 
+/// Provider sederhana yang hanya membuat instance NotifikasiServis.
 @Riverpod(keepAlive: true)
 NotifikasiServis notifikasiServis(Ref ref) {
-  Log.info(
-      'Membuat instance NotifikasiServis dan memulai pemantauan Firebase.');
+  return NotifikasiServis();
+}
 
-  // 1. Dapatkan dependensi NotifikasiOpFirebase dari providernya.
+/// Controller utama untuk notifikasi.
+/// Tonton provider ini dari UI untuk menginisialisasi listener.
+@Riverpod(keepAlive: true)
+void notifikasiController(Ref ref) {
+  final role = ref.watch(appRoleProvider);
+  final servis = ref.watch(notifikasiServisProvider);
   final notifikasiOp = ref.watch(notifikasiOpFirebaseProvider);
 
-  // 2. Buat instance NotifikasiServis.
-  final servis = NotifikasiServis();
+  Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
 
-  // 3. Langsung panggil fungsi untuk memulai pemantauan.
-  servis.pantauNotifikasiDariFirebase(notifikasiOp);
+  if (role == AppRole.admin) {
+    // LOGIKA UNTUK ADMIN
+    Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
+    servis.pantauNotifikasiUmum(notifikasiOp);
+  } else {
+    // LOGIKA UNTUK USER
+    Log.info('Mode User: Menyiapkan listener untuk status login.');
+    ref.listen(localStorageServiceProvider, (previous, next) {
+      next.when(
+        data: (localStorage) async {
+          final customer = await localStorage.getUserIdLogin();
+          if (customer != null) {
+            Log.info(
+                'User login terdeteksi, memulai pemantauan untuk ${customer.id}');
+            servis.pantauNotifikasiUser(notifikasiOp, customer.id);
+          } else {
+            Log.info(
+                'User logout terdeteksi, menghentikan pemantauan notifikasi.');
+            servis.hentikanPemantauanNotifikasi();
+          }
+        },
+        loading: () => Log.info('Menunggu LocalStorageService siap...'),
+        error: (e, st) {
+          Log.error('Error pada localStorageServiceProvider', e: e, st: st);
+          servis.hentikanPemantauanNotifikasi();
+        },
+      );
+    });
+  }
 
-  // 4. Daftarkan fungsi cleanup/dispose.
   ref.onDispose(() {
     Log.info(
-        'Provider di-dispose, menghentikan pemantauan notifikasi Firebase.');
+        'Notifikasi controller di-dispose, menghentikan semua pemantauan.');
     servis.hentikanPemantauanNotifikasi();
   });
-
-  // 5. Kembalikan instance servis.
-  return servis;
 }

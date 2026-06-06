@@ -1,7 +1,8 @@
-// path: lib/shared/enum/user_role_enum.dart
+// path: lib/shared/enum/app_role_enum.dart
+
 
 /// Mendefinisikan peran pengguna dalam aplikasi.
-enum UserRole {
+enum AppRole {
   /// Peran administrator dengan hak akses penuh.
   admin,
 

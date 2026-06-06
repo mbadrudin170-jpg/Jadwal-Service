@@ -65,6 +65,22 @@ class NotifikasiOpFirebase {
     });
   }
 
+// TODO : tambahkan unit test
+  Stream<List<NotifikasiModel>> getKhususAdmin() {
+    return _firestore
+        .collection(_collection)
+        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
+        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.order.name)
+        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
+        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
+        .where(ColumnNames.isRead, isEqualTo: false)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
+            .toList());
+  }
+
   Future<void> add(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');

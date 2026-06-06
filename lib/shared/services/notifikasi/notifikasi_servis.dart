@@ -191,13 +191,33 @@ class NotifikasiServis {
       Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
     }
   }
+// TODO : tambahkan unit test
+  void pantauNotifikasiUmum(NotifikasiOpFirebase notifikasiOp) {
+    Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
+    _langgananNotifikasiFirebase?.cancel();
+    _langgananNotifikasiFirebase =
+        notifikasiOp.getActiveNotifications().listen((listNotifikasi) {
+      for (final notifikasi in listNotifikasi) {
+        if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+          tampilkanNotifikasiLangsung(
+            title: notifikasi.title,
+            body: notifikasi.description,
+            payload: 'notifikasi_id_${notifikasi.id}',
+          );
+          _idNotifikasiTampil.add(notifikasi.id);
+        }
+      }
+    }, onError: (e, StackTrace st) {
+      Log.error('Error pada stream notifikasi umum', e: e, st: st);
+    });
+  }
 
-  void pantauNotifikasiDariFirebase(NotifikasiOpFirebase notifikasiOp) {
+  void pantauNotifikasiUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
 
     _langgananNotifikasiFirebase?.cancel();
 
-    _langgananNotifikasiFirebase = notifikasiOp.getActiveNotifications().listen(
+    _langgananNotifikasiFirebase = notifikasiOp.getByUserId(userId).listen(
       (listNotifikasi) {
         Log.info(
             'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.');

@@ -3,6 +3,7 @@
 // Tujuan: Mengekspor semua enum dari satu file untuk impor yang lebih bersih.
 
 export '../enum/apk_architecture_enum.dart';
+export '../enum/app_role_enum.dart';
 export '../enum/category_type_enum.dart';
 export '../enum/duration_type_enum.dart';
 export '../enum/payment_status_enum.dart';

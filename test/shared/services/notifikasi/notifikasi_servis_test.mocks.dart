@@ -695,6 +695,16 @@ class MockNotifikasiOpFirebase extends _i1.Mock
       ) as _i3.Stream<List<_i18.NotifikasiModel>>);
 
   @override
+  _i3.Stream<List<_i18.NotifikasiModel>> getKhususAdmin() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getKhususAdmin,
+          [],
+        ),
+        returnValue: _i3.Stream<List<_i18.NotifikasiModel>>.empty(),
+      ) as _i3.Stream<List<_i18.NotifikasiModel>>);
+
+  @override
   _i3.Future<void> add(_i18.NotifikasiModel? notifikasi) => (super.noSuchMethod(
         Invocation.method(
           #add,

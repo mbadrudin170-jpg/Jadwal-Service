@@ -104,11 +104,27 @@ class MockNotifikasiServis extends _i1.Mock implements _i4.NotifikasiServis {
       ) as _i5.Future<void>);
 
   @override
-  void pantauNotifikasiDariFirebase(_i6.NotifikasiOpFirebase? notifikasiOp) =>
+  void pantauNotifikasiUmum(_i6.NotifikasiOpFirebase? notifikasiOp) =>
       super.noSuchMethod(
         Invocation.method(
-          #pantauNotifikasiDariFirebase,
+          #pantauNotifikasiUmum,
           [notifikasiOp],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void pantauNotifikasiUser(
+    _i6.NotifikasiOpFirebase? notifikasiOp,
+    String? userId,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #pantauNotifikasiUser,
+          [
+            notifikasiOp,
+            userId,
+          ],
         ),
         returnValueForMissingStub: null,
       );

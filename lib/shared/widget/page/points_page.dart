@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -24,7 +23,7 @@ import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 class PointsPage extends ConsumerStatefulWidget {
   final String customerId;
   final bool showAd;
-  final UserRole role;
+  final AppRole role;
 
   const PointsPage({
     super.key,
@@ -54,7 +53,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   void initState() {
     super.initState();
     // DIPERBAIKI: Memilih data source berdasarkan role
-    if (widget.role == UserRole.admin) {
+    if (widget.role == AppRole.admin) {
       _dataSource = ref.read(sqlitePointsDataSourceProvider);
     } else {
       _dataSource = ref.read(firebasePointsDataSourceProvider);
@@ -135,7 +134,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   }
 
   Future<void> _redeemReward(final PackageModel reward) async {
-    if (widget.role == UserRole.admin) {
+    if (widget.role == AppRole.admin) {
       Log.warning('Admin mencoba menukar poin, operasi diblokir.');
       if (!mounted) return;
       ToastUtil.error(
