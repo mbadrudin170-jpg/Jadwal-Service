@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-// Menggunakan anotasi Riverpod terbaru
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -10,7 +9,6 @@ import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-// Wajib ditambahkan agar generator build_runner bisa bekerja
 part 'active_customer_provider.g.dart';
 
 enum SortOption {
@@ -45,57 +43,36 @@ class ActiveCustomerState {
   }
 }
 
-// Memicu pembuatan kode otomatis untuk 'activeCustomerProvider'
 @riverpod
 class ActiveCustomer extends _$ActiveCustomer {
   @override
   ActiveCustomerState build() {
-    final currentState = stateOrNull;
-    ref.watch(activeCustomerOperationProvider);
-    Future.microtask(fetchActiveCustomers);
-    return ActiveCustomerState(
-        activeCustomers: [],
-        sortBy: currentState?.sortBy ?? SortOption.berakhirHariIni);
+    return ActiveCustomerState();
   }
 
   List<ActiveCustomerDetailModel> _sortData(
       List<ActiveCustomerDetailModel> data, SortOption sortBy) {
     final sorted = List<ActiveCustomerDetailModel>.from(data);
-
-    // Ambil waktu sekarang dan normalisasi ke jam 00:00 agar perhitungan tanggal murni akurat
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
     sorted.sort((a, b) {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
-          final dateA = DateTime(
-            a.activeCustomer.endDate.year,
-            a.activeCustomer.endDate.month,
-            a.activeCustomer.endDate.day,
-          );
-          final dateB = DateTime(
-            b.activeCustomer.endDate.year,
-            b.activeCustomer.endDate.month,
-            b.activeCustomer.endDate.day,
-          );
-
-          // 2. Hitung sisa hari (bisa bernilai minus jika sudah lewat/kadaluarsa)
-          final sisaHariA = dateA.difference(today).inDays;
-          final sisaHariB = dateB.difference(today).inDays;
-
-          // 3. Logika Urutan:
-          // Kita ingin sisa hari yang paling kecil/mendekati nol (atau minus kecil) berada di atas.
-          // Menggunakan nilai absolut (.abs()) memastikan selisih 0 hari (hari ini) berada di urutan teratas,
-          // diikuti selisih 1 hari (besok/kemarin), dst.
-          return sisaHariA.abs().compareTo(sisaHariB.abs());
+          final sisaHariA = a.activeCustomer.endDate.difference(today).inDays;
+          final sisaHariB = b.activeCustomer.endDate.difference(today).inDays;
+          final comparison = sisaHariA.abs().compareTo(sisaHariB.abs());
+          if (comparison != 0) {
+            return comparison;
+          }
+          return sisaHariA.compareTo(sisaHariB);
 
         case SortOption.tanggalBerakhir:
           return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
         case SortOption.tanggalMulai:
           return a.activeCustomer.startDate
               .compareTo(b.activeCustomer.startDate);
-        case SortOption.lunas: // Paid (index 0) vs Unpaid (index 1)
+        case SortOption.lunas:
           return a.activeCustomer.status.index
               .compareTo(b.activeCustomer.status.index);
         case SortOption.belumLunas:
@@ -111,7 +88,7 @@ class ActiveCustomer extends _$ActiveCustomer {
               .compareTo(a.customerName.toLowerCase());
         case SortOption.terbaru:
           return b.activeCustomer.startDate
-              .compareTo(a.activeCustomer.startDate);
+              .compareTo(b.activeCustomer.startDate);
         case SortOption.terlama:
           return a.activeCustomer.startDate
               .compareTo(b.activeCustomer.startDate);
@@ -124,19 +101,9 @@ class ActiveCustomer extends _$ActiveCustomer {
     Log.info('Memulai pengambilan data pelanggan aktif.');
     try {
       final operation = ref.read(activeCustomerOperationProvider);
-      final List<ActiveCustomerDetailModel> data =
-          await operation.getAllActiveCustomersWithDetails();
-
+      final data = await operation.getAllActiveCustomersWithDetails();
       final sortedData = _sortData(data, state.sortBy);
-
       state = state.copyWith(activeCustomers: sortedData);
-
-      final context = NavigasiServis.navigatorKey.currentContext;
-
-      if (context != null) {
-      } else {
-        Log.warning('Context tidak tersedia saat menampilkan success toast.');
-      }
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, st: st);
       final context = NavigasiServis.navigatorKey.currentContext;

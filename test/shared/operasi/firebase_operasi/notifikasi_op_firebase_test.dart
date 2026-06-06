@@ -253,7 +253,7 @@ void main() {
         () async {
       await notifikasiOp.update(notifikasi1);
     });
-    
+
     test('Test 3: delete harus memanggil baseOp.delete dengan ID yang benar',
         () async {
       const idToDelete = 'notif1';
