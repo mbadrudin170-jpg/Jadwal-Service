@@ -35,6 +35,35 @@ class NotifikasiOpFirebase {
     });
   }
 
+  /// Mendapatkan stream notifikasi aktif untuk user tertentu (belum dibaca & belum dihapus)
+  Stream<List<NotifikasiModel>> getByUserId(String userId) {
+    return _firestore
+        .collection(_collection)
+        .where(ColumnNames.idTujuan, isEqualTo: userId)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
+        .where(ColumnNames.isRead, isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
+            .toList());
+  }
+
+  Stream<List<NotifikasiModel>> getById(String id) {
+    return _firestore
+        .collection(_collection)
+        .doc(id)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists) return [];
+      final data = snapshot.data()!;
+      if (data[ColumnNames.isDeleted] == true ||
+          data[ColumnNames.isRead] == true) {
+        return [];
+      }
+      return [NotifikasiModel.fromFirebase(snapshot.id, data)];
+    });
+  }
+
   Future<void> add(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');

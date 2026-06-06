@@ -137,12 +137,103 @@ void main() {
       );
     });
 
-test('2 getByUserId harus mengambil data yang ${ColumnNames.idTujuan} nya sesuai ', ()async
-{
- final data = notifikasiOp.getByUserId(notifikasi1.idTujuan);
-expect(data, emits(isA))
-}
-);
+    test(
+        '2 getByUserId harus mengambil data yang ${ColumnNames.idTujuan} nya sesuai, ${ColumnNames.isDeleted}=false, ${ColumnNames.isRead}=false,} ',
+        () async {
+      // Menambahkan data uji
+      await firestore.collection(collection).doc(notifikasi1.id).set(notifikasi1
+          .toFirebase()); // idTujuan = user1, isRead=false, isDeleted=false
+
+      await firestore
+          .collection(collection)
+          .doc(notifikasiTerbaca.id)
+          .set(notifikasiTerbaca.toFirebase()); // idTujuan = user4, isRead=true
+
+      await firestore.collection(collection).doc(notifikasiDihapus.id).set(
+          notifikasiDihapus.toFirebase()); // idTujuan = user5, isDeleted=true
+
+      // Notifikasi dengan user1 tapi sudah dibaca (kita buat data baru)
+      final notifikasi1Terbaca = NotifikasiModel(
+        id: 'notif1_read',
+        title: 'Judul 1 dibaca',
+        description: 'Isi',
+        type: TipeNotifikasiEnum.transaksi,
+        idTujuan: 'user1',
+        isRead: true,
+        startDate: now,
+        endDate: now.add(const Duration(days: 1)),
+        tanggalTampil: now,
+        updatedAt: now,
+      );
+      await firestore
+          .collection(collection)
+          .doc(notifikasi1Terbaca.id)
+          .set(notifikasi1Terbaca.toFirebase());
+      final stream = notifikasiOp.getByUserId('user1');
+
+      expect(
+        stream,
+        emits(isA<List<NotifikasiModel>>().having(
+          (list) => list.map((e) => e.id).toSet(),
+          'ID set',
+          {notifikasi1.id}, // hanya notifikasi1, bukan notifikasi1Terbaca
+        )),
+      );
+    });
+
+    test(
+        '3. getById harus mengambil data yang ${ColumnNames.id} nya sesuai, ${ColumnNames.isDeleted}=false, ${ColumnNames.isRead}=false,}',
+        () async {
+      // Notifikasi aktif
+      await firestore
+          .collection(collection)
+          .doc(notifikasi1.id)
+          .set(notifikasi1.toFirebase());
+
+      final stream = notifikasiOp.getById(notifikasi1.id);
+
+      expect(
+        stream,
+        emits(isA<List<NotifikasiModel>>().having(
+          (list) => list.map((e) => e.id).toSet(),
+          'ID set',
+          {notifikasi1.id},
+        )),
+      );
+    });
+
+    test(
+        '3b. getById tidak mengembalikan notifikasi jika sudah dibaca (isRead=true)',
+        () async {
+      // Notifikasi dengan isRead=true
+      final notifikasi1Terbaca = NotifikasiModel(
+        id: notifikasi1.id,
+        title: 'Judul 1 dibaca',
+        description: 'Isi',
+        type: TipeNotifikasiEnum.transaksi,
+        idTujuan: 'user1',
+        isRead: true,
+        startDate: now,
+        endDate: now.add(const Duration(days: 1)),
+        tanggalTampil: now,
+        updatedAt: now,
+      );
+      await firestore
+          .collection(collection)
+          .doc(notifikasi1.id)
+          .set(notifikasi1Terbaca.toFirebase());
+
+      final stream = notifikasiOp.getById(notifikasi1.id);
+
+      expect(
+        stream,
+        emits(isA<List<NotifikasiModel>>().having(
+          (list) => list.length,
+          'length',
+          0,
+        )),
+      );
+    });
     test('Test 2: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
