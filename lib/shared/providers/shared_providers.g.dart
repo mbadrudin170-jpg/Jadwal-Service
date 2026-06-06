@@ -85,3 +85,45 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
 
 String _$localStorageServiceHash() =>
     r'682f08594d407537f17f21974997a6a4de059ac8';
+
+@ProviderFor(notifikasiServis)
+final notifikasiServisProvider = NotifikasiServisProvider._();
+
+final class NotifikasiServisProvider extends $FunctionalProvider<
+    NotifikasiServis,
+    NotifikasiServis,
+    NotifikasiServis> with $Provider<NotifikasiServis> {
+  NotifikasiServisProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'notifikasiServisProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$notifikasiServisHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotifikasiServis> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  NotifikasiServis create(Ref ref) {
+    return notifikasiServis(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotifikasiServis value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotifikasiServis>(value),
+    );
+  }
+}
+
+String _$notifikasiServisHash() => r'50f8527c09c44d5e6a2ffe769c02a165eca31c73';

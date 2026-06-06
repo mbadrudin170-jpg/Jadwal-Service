@@ -1,5 +1,4 @@
 // path: lib/shared/providers/shared_providers.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -21,9 +20,8 @@ Future<LocalStorageService> localStorageService(Ref ref) async {
   return LocalStorageService(prefs: prefs);
 }
 
-
-
-final notifikasiServisProvider = Provider<NotifikasiServis>((ref) {
+@Riverpod(keepAlive: true)
+NotifikasiServis notifikasiServis(Ref ref) {
   Log.info(
       'Membuat instance NotifikasiServis dan memulai pemantauan Firebase.');
 
@@ -45,4 +43,4 @@ final notifikasiServisProvider = Provider<NotifikasiServis>((ref) {
 
   // 5. Kembalikan instance servis.
   return servis;
-});
+}

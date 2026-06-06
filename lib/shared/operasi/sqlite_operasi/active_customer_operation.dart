@@ -107,9 +107,7 @@ class ActiveCustomerOperation {
     try {
       final List<Map<String, dynamic>> maps = await db.rawQuery(
         query,
-        [
-          _nowUtc.millisecondsSinceEpoch
-        ],
+        [_nowUtc.millisecondsSinceEpoch],
       );
       Log.info(
           'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.');
@@ -241,7 +239,7 @@ class ActiveCustomerOperation {
         },
         fromServer: fromServer,
       );
-      
+
       // Panggil penjadwalan
       await scheduleNotification(customerToSave);
 
@@ -387,7 +385,7 @@ class ActiveCustomerOperation {
       rethrow;
     }
   }
-  
+
   // ... (sisa fungsi lainnya tetap sama)
 
   /// Menghapus permanen pelanggan yang sudah diarsipkan lebih dari 30 hari.
@@ -435,7 +433,7 @@ class ActiveCustomerOperation {
   }
 
   /// Mengarsipkan pelanggan yang sudah kadaluarsa.
-  Future<int> archiveExpiredCustomers({final bool fromServer = false}) async {
+  Future<int> archiveExpiredCustomers({bool fromServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
       final db = await dbHelper.database;

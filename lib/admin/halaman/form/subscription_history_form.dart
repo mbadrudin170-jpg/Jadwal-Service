@@ -101,7 +101,7 @@ class _SubscriptionHistoryFormState
 
     // Mengakses dependency melalui Riverpod's ref
     final transactionOperation = ref.read(transactionOperationProvider);
-    final notifikasiServis = ref.read(notifikasiServisProvider);
+    final notifikasiServis =  ref.read(notifikasiServisProvider);
 
     try {
       final updatedTransaction = widget.transaction.copyWith(
