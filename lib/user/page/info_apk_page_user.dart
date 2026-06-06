@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 class InfoApkPageUser extends StatefulWidget {
   const InfoApkPageUser({super.key});
@@ -66,7 +67,7 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              gapH8,
               Text(
                 'Versi $_version',
                 style: const TextStyle(
@@ -74,12 +75,12 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
                   color: Colors.grey,
                 ),
               ),
-              const SizedBox(height: 24),
+              gapH24,
               const CircleAvatar(
                 radius: 50,
                 backgroundImage: AssetImage('assets/image/ikon_apk.png'),
               ),
-              const SizedBox(height: 24),
+              gapH24,
               const Text(
                 'Dibuat dengan Flutter',
                 style: TextStyle(

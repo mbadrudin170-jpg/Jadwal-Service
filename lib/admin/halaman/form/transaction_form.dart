@@ -9,6 +9,7 @@ import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
@@ -439,7 +440,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
+                    gapH24,
                     DateTimePickerWidget(
                       selectedDate: _selectedDate,
                       selectedTime: _selectedTime,
@@ -544,7 +545,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
                         validator: (final val) =>
                             val == null ? 'Sub Kategori harus dipilih' : null,
                       ),
-                    const SizedBox(height: 20),
+                    gapH20,
                     ElevatedButton(
                       onPressed: _isSaving ? null : _simpanForm,
                       child: _isSaving

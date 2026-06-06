@@ -6,14 +6,14 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
   late TransactionOpFirebase transactionOpFirebase;
-  final transactionsCollection =
-      TableNameValue.get(TableName.transactions);
+  final transactionsCollection = TableNameValue.get(TableName.transactions);
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
@@ -24,55 +24,44 @@ void main() {
   final t1 = TransactionModel(
     id: 'trx-001',
     customerId: 'cust-123',
-
-    paymentStatus: PaymentStatus.paid.name,
-    endDate: DateTime.now().add(const Duration(days: 30)),
     date: DateTime.now(),
+    description: 'Pembelian paket 30 hari',
+    amount: 100000,
+    type: TransactionType.expense, // DIUBAH
+    walletId: 'wallet-01',
+    categoryId: 'cat-internet',
+    paymentStatus: PaymentStatus.paid,
+    endDate: DateTime.now().add(const Duration(days: 30)),
     earnedPoints: 10,
-    usedPoints: 0,
-    isDeleted: false,
-    packageName: '',
-    packageId: '',
-    price: 0,
-    month: 0,
-    transactionType: '',
-    paymentMethod: '',
-    createdBy: '',
   );
 
   final t2 = TransactionModel(
     id: 'trx-002',
     customerId: 'cust-123',
-    paymentStatus: PaymentStatus.unpaid.name,
-    endDate: DateTime.now().add(const Duration(days: 60)),
     date: DateTime.now(),
+    description: 'Pembelian paket 60 hari',
+    amount: 200000,
+    type: TransactionType.expense, // DIUBAH
+    walletId: 'wallet-01',
+    categoryId: 'cat-internet',
+    // paymentStatus default-nya unpaid
+    endDate: DateTime.now().add(const Duration(days: 60)),
     earnedPoints: 20,
     usedPoints: 5,
-    isDeleted: false,
-    packageName: '',
-    packageId: '',
-    price: 0,
-    month: 0,
-    transactionType: '',
-    paymentMethod: '',
-    createdBy: '',
   );
 
   final t3 = TransactionModel(
     id: 'trx-003',
     customerId: 'cust-456',
-    paymentStatus: PaymentStatus.paid.name,
-    endDate: DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
     date: DateTime.now(),
+    description: 'Paket Kedaluwarsa',
+    amount: 50000,
+    type: TransactionType.expense, // DIUBAH
+    walletId: 'wallet-02',
+    categoryId: 'cat-internet',
+    paymentStatus: PaymentStatus.paid,
+    endDate: DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
     earnedPoints: 5,
-    isDeleted: false,
-    packageName: '',
-    packageId: '',
-    price: 0,
-    month: 0,
-    transactionType: '',
-    paymentMethod: '',
-    createdBy: '',
   );
 
   group('1. Pengujian TransactionOpFirebase', () {
@@ -157,17 +146,17 @@ void main() {
           await transactionOpFirebase.getPaketAktifCustomer('cust-123');
       
       // getPaketAktifCustomer tidak memfilter berdasarkan paymentStatus
-      expect(activePackages.length, 2); 
+      expect(activePackages.length, 2);
       expect(activePackages.any((t) => t.id == t1.id), isTrue);
       expect(activePackages.any((t) => t.id == t2.id), isTrue);
     });
 
-     test('1.9. getPaketAktifCustomer harus mengembalikan list kosong jika semua paket kedaluwarsa', () async {
-      final expiredTransaction = t1.copyWith(endDate: DateTime.now().subtract(Duration(days: 1)));
+    test('1.9. getPaketAktifCustomer harus mengembalikan list kosong jika semua paket kedaluwarsa', () async {
+      final expiredTransaction = t1.copyWith(endDate: DateTime.now().subtract(const Duration(days: 1)));
       await transactionOpFirebase.addTransaction(expiredTransaction);
 
       final activePackages =
-          await transactionOpFirebase.getPaketAktifCustomer(t1.customerId);
+          await transactionOpFirebase.getPaketAktifCustomer(t1.customerId!);
       
       expect(activePackages.isEmpty, isTrue);
     });

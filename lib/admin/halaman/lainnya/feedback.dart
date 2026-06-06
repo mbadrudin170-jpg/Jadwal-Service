@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
@@ -166,7 +166,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomerNameWidget(customerId: item.userId),
-                          const SizedBox(height: 12),
+                          gapH12,
                           Text(
                             item.content,
                             maxLines: 3,

@@ -2,7 +2,7 @@
 // diubah: Mengganti SnackBarUtil menjadi ToastUtil dan menambahkan pencatatan waktu login.
 // PERBAIKAN: Menghapus toast otomatis di initState untuk mencegah notifikasi ganda.
 // FITUR: Menambahkan pengecekan koneksi internet sebelum login.
-// FITUR: Menambahkan tombol untuk memilih akun yang sudah tersimpan.
+// FITUR: Menambahkan tombol untuk memilih akun yang sudah tersimpan & menggunakan app_sizes.
 // PERBAIKAN: Mencegah navigasi ke halaman list akun jika tidak ada akun tersimpan.
 
 import 'dart:async';
@@ -19,6 +19,7 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
@@ -224,7 +225,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                     ?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              gapH32,
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(
@@ -235,7 +236,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
               ),
-              const SizedBox(height: 16),
+              gapH16,
               TextFormField(
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
@@ -253,7 +254,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (final _) => _processLogin(),
               ),
-              const SizedBox(height: 24),
+              gapH24,
               ElevatedButton(
                 onPressed: _processLogin,
                 style: ElevatedButton.styleFrom(
@@ -265,7 +266,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 ),
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 16),
+              gapH16,
               Row(
                 children: [
                   const Expanded(child: Divider()),
@@ -279,7 +280,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                   const Expanded(child: Divider()),
                 ],
               ),
-              const SizedBox(height: 16),
+              gapH16,
               OutlinedButton.icon(
                 icon: const Icon(Icons.people_alt_outlined),
                 label: const Text('Pilih dari Akun Tersimpan'),
@@ -292,7 +293,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              gapH8,
               Align(
                 child: TextButton(
                   onPressed: () {

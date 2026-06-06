@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -268,12 +269,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   ),
                 ],
               ),
-              const Divider(height: 24),
-              Text(order.packageId),
-              const SizedBox(height: 8),
-              Text(DateFormat('dd MMM yyyy HH:mm').format(order.date)),
-              const SizedBox(height: 12),
-              Row(
+gapH24,              Text(order.packageId),
+gapH8,              Text(DateFormat('dd MMM yyyy HH:mm').format(order.date)),
+gapH12,              Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   _actionButton('Proses',
@@ -335,8 +333,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             Text('Detail Pesanan #${order.id}',
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            _detailRow('Nama Pelanggan', order.customerId),
+gapH20,            _detailRow('Nama Pelanggan', order.customerId),
             _detailRow('Paket', order.packageId),
             _detailRow(
                 'Tanggal', DateFormat('dd MMM yyyy HH:mm').format(order.date)),

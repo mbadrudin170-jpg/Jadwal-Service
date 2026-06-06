@@ -86,7 +86,7 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                             .getById(transaction.packageId ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),
-                      const SizedBox(height: 4),
+                      gapH4,
                       Text(
                         'Status: ${transaction.paymentStatus.displayName}',
                         style: TextStyle(

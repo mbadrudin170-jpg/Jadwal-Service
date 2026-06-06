@@ -16,6 +16,7 @@ import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk mengedit profil pengguna.
@@ -128,7 +129,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              gapH16,
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(labelText: 'No. HP'),
@@ -140,7 +141,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              gapH16,
               TextFormField(
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
@@ -166,7 +167,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 32),
+              gapH32,
               ElevatedButton(
                 onPressed: _saveChanges,
                 style: ElevatedButton.styleFrom(

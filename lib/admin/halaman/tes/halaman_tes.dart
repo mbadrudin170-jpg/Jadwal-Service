@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
@@ -42,7 +43,7 @@ class _HalamanTesState extends State<HalamanTes> {
                 unawaited(_adService.show());
               },
             ),
-            const SizedBox(height: 40),
+      gapH40,
             // [PERBAIKAN] Menampilkan status kesiapan iklan untuk debugging
             StreamBuilder<void>(
               stream: Stream.periodic(const Duration(seconds: 1)),

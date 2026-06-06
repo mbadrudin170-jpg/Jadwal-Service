@@ -103,8 +103,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                         '${package?.duration ?? 0} ${package?.type.displayName ?? ""}'),
                   ],
                 ),
-                const SizedBox(height: 16),
-
+gapH16,
                 // CARD 3: POIN TRANSAKSI
                 if (transaction.earnedPoints > 0 ||
                     transaction.usedPoints > 0) ...[
@@ -119,7 +118,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                           color: Colors.red),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  gapH16,
                 ],
 
                 // CARD 4: WAKTU & STATUS

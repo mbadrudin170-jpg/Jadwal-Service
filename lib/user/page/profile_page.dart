@@ -14,6 +14,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -204,7 +205,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                gapH16,
                 _buildInfoCard(
                   context,
                   title: 'Informasi Paket Aktif',
@@ -348,7 +349,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Row(
               children: [
                 Icon(icon, color: Theme.of(context).primaryColor, size: 20),
-                const SizedBox(width: 8),
+                gapW8,
                 Text(
                   title,
                   style: Theme.of(context)
@@ -392,7 +393,7 @@ class _InfoItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: Colors.grey.shade600, size: 20),
-          const SizedBox(width: 16),
+          gapW16,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,7 +401,7 @@ class _InfoItem extends StatelessWidget {
                 Text(label,
                     style:
                         TextStyle(color: Colors.grey.shade700, fontSize: 14)),
-                const SizedBox(height: 2),
+                gapH4,
                 Text(
                   value,
                   style: TextStyle(

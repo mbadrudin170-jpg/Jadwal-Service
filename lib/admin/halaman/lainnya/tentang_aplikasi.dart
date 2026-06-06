@@ -10,6 +10,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 /// Halaman yang menampilkan detail tentang aplikasi, seperti versi, build, dan informasi teknis lainnya.
 class TentangAplikasiPage extends StatefulWidget {
@@ -109,30 +110,25 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
       body: ListView(
         padding: const EdgeInsets.all(20.0),
         children: <Widget>[
-          const SizedBox(height: 20),
-          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
-          const SizedBox(height: 20),
-          Text(
+gapH20,          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
+gapH20,          Text(
             _packageInfo.appName,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
-          Text(
+gapH8,          Text(
             'Versi ${_packageInfo.version}',
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
-          const Text(
+gapH24,          const Text(
             'Aplikasi ini membantu Anda mengelola pelanggan dan layanan WiFi dengan lebih mudah. Lacak pembayaran, kelola paket, dan dapatkan notifikasi penting langsung di perangkat Anda.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),
-          const SizedBox(height: 30),
-          Card(
+gapH32,          Card(
             elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -157,8 +153,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
             style: TextStyle(color: Colors.grey, fontSize: 12),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
-        ],
+gapH20,        ],
       ),
     );
   }

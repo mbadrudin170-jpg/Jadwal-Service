@@ -1,10 +1,12 @@
 // path: lib/admin/halaman/widget/info_tambahan.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 /// Sebuah widget untuk menampilkan informasi tambahan dengan label dan nilai.
 class InfoTambahan extends StatelessWidget {
   /// Label dari informasi.
   final String label;
+
   /// Nilai dari informasi.
   final String value;
 
@@ -23,7 +25,7 @@ class InfoTambahan extends StatelessWidget {
             fontSize: 14,
           ),
         ),
-        const SizedBox(height: 4),
+        gapH4,
         Text(
           value,
           style: const TextStyle(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
@@ -77,7 +78,8 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
         await _settingsOperation.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
 
-        final hasConnection = await InternetConnectionService().isInternetAvailable();
+        final hasConnection =
+            await InternetConnectionService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();
@@ -125,7 +127,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
                     ? 'Harap masukkan interval'
                     : null,
               ),
-              const SizedBox(height: 16),
+              gapH16,
               _buildTextFormField(
                 controller: _hapusArsipController,
                 label: 'Hapus Arsip Otomatis (Hari)',
@@ -135,18 +137,18 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
                     ? 'Harap masukkan hari'
                     : null,
               ),
-              const SizedBox(height: 16),
+              gapH16,
               _buildSwitchTile(),
-              const SizedBox(height: 16),
+              gapH16,
               _buildTextFormField(
                 controller: _infoPemeliharaanController,
                 label: 'Info Mode Pemeliharaan',
                 icon: Icons.info_outline,
                 maxLines: 3,
               ),
-              const SizedBox(height: 32),
+              gapH32,
               ElevatedButton.icon(
-                icon: const Icon(Icons.save),
+                icon: const Icon(TIcons.save),
                 label: const Text('Simpan Perubahan'),
                 onPressed: _saveForm,
                 style: ElevatedButton.styleFrom(

@@ -1,6 +1,7 @@
 // path: lib/tes_fitur/tes_notifikasi.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 /// Halaman untuk melakukan tes fungsionalitas notifikasi.
@@ -58,7 +59,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
 
     final daftarNotifikasi =
         await _notifikasiServis.plugin.pendingNotificationRequests();
-    
+
     // PERBAIKAN: Pemeriksaan `mounted` setelah AWAIT.
     if (!mounted) return;
 
@@ -89,7 +90,7 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     Log.info('Tombol "Batalkan Semua Notifikasi" ditekan.');
     // PERBAIKAN: Tambahkan await karena ini adalah operasi async
     await _notifikasiServis.batalSemuaNotifikasi();
-    
+
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -115,17 +116,17 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
                 onPressed: _tampilkanNotifikasiLangsung,
                 child: const Text('Tampilkan Notifikasi Langsung'),
               ),
-              const SizedBox(height: 16),
+              gapH16,
               ElevatedButton(
                 onPressed: _jadwalkanNotifikasi,
                 child: const Text('Jadwalkan Notifikasi (5 detik)'),
               ),
-              const SizedBox(height: 16),
+              gapH16,
               ElevatedButton(
                 onPressed: _cekNotifikasiTerjadwal,
                 child: const Text('Cek Notifikasi Terjadwal'),
               ),
-              const SizedBox(height: 16),
+              gapH16,
               ElevatedButton(
                 onPressed: _batalkanSemuaNotifikasi,
                 style: ElevatedButton.styleFrom(

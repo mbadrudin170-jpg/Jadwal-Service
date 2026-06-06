@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 /// Halaman untuk menampilkan detail pelanggan (versi uji coba).
 class DetailPelangganPage extends StatefulWidget {
@@ -135,8 +136,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        const SizedBox(height: 20),
-
+                        gapH20,
                         // Profile Card
                         Container(
                           width: double.infinity,
@@ -164,8 +164,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                   color: Color(0xFF1E293B),
                                 ),
                               ),
-                              const SizedBox(height: 32),
-                              // Points Button (Gradient)
+                              gapH32, // Points Button (Gradient)
                               GestureDetector(
                                 onTap: () {},
                                 child: Container(
@@ -202,7 +201,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                             size: 16,
                                             color: Color(0xFF78350F),
                                           ),
-                                          SizedBox(width: 8),
+                                          gapW8,
                                           Text(
                                             'SALDO POIN',
                                             style: TextStyle(
@@ -214,7 +213,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 4),
+                                      gapH4,
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -230,7 +229,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                               color: Color(0xFF451A03),
                                             ),
                                           ),
-                                          SizedBox(width: 4),
+                                          gapW4,
                                           Text(
                                             'PTS',
                                             style: TextStyle(
@@ -249,8 +248,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 24),
-
+                        gapH24,
                         // Info List Card
                         Container(
                           padding: const EdgeInsets.all(24),
@@ -326,8 +324,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 24),
-
+                        gapH24,
                         // Master Copy Button
                         GestureDetector(
                           onTap: _handleCopyAll,
@@ -364,7 +361,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                                     size: 20,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
+                                gapW16,
                                 const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -391,7 +388,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        gapH40,
                       ],
                     ),
                   ),
@@ -456,7 +453,7 @@ class _DetailPelangganPageState extends State<DetailPelangganPage> {
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      gapW12,
                       Text(
                         _toastMessage,
                         style: const TextStyle(
@@ -539,7 +536,7 @@ class _InfoRow extends StatelessWidget {
                 ),
                 child: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
               ),
-              const SizedBox(width: 16),
+              gapW16,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +550,7 @@ class _InfoRow extends StatelessWidget {
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    gapH4,
                     Text(
                       value,
                       style: const TextStyle(

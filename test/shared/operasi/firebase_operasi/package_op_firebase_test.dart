@@ -4,6 +4,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
@@ -22,15 +23,10 @@ void main() {
   final p1 = PackageModel(
     id: 'pkg-001',
     name: 'Paket Internet Super Cepat',
-    isPublic: true,
     redemptionPoints: 100,
-    isDeleted: false,
-    duration: 0,
-    price: 0,
-    description: '',
-    durationType: '',
-    category: '',
-    createdAt: DateTime.now(),
+    duration: 30,
+    price: 100000,
+    type: DurationType.days,
   );
 
   final p2 = PackageModel(
@@ -38,40 +34,26 @@ void main() {
     name: 'Paket Hemat',
     isPublic: false, // Bukan paket publik
     redemptionPoints: 50,
-    isDeleted: false,
-    duration: 0,
-    price: 0,
-    description: '',
-    durationType: '',
-    category: '',
-    createdAt: DateTime.now(),
+    duration: 7,
+    price: 25000,
+    type: DurationType.days,
   );
 
   final p3 = PackageModel(
     id: 'pkg-003',
     name: 'Paket Bonus',
-    isPublic: true,
-    redemptionPoints: 0, // Tidak bisa ditukar poin
-    isDeleted: false,
-    duration: 0,
+    duration: 1,
     price: 0,
-    description: '',
-    durationType: '',
-    category: '',
-    createdAt: DateTime.now(),
+    type: DurationType.days,
   );
-    final p4 = PackageModel(
+  final p4 = PackageModel(
     id: 'pkg-004',
     name: 'Paket Dihapus',
-    isPublic: true,
-    redemptionPoints: 120,
     isDeleted: true, // Sudah dihapus
-    duration: 0,
-    price: 0,
-    description: '',
-    durationType: '',
-    category: '',
-    createdAt: DateTime.now(),
+    redemptionPoints: 120,
+    duration: 30,
+    price: 120000,
+    type: DurationType.days,
   );
 
   // Helper untuk menambahkan data ke fake firestore
@@ -83,7 +65,6 @@ void main() {
   }
 
   group('3. Pengujian PackageOpFirebase', () {
-
     test('3.1. harus bisa mendapatkan paket publik yang bisa ditukar poin', () async {
       await addPackageToFirestore(p1);
       await addPackageToFirestore(p2);

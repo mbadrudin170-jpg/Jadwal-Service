@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 class TestNotificationPage extends StatefulWidget {
@@ -111,7 +112,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              gapH24,
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(
@@ -119,7 +120,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
+              gapH16,
               TextField(
                 controller: _bodyController,
                 decoration: const InputDecoration(
@@ -128,7 +129,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                 ),
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
+              gapH16,
               TextField(
                 controller: _payloadController,
                 decoration: const InputDecoration(
@@ -137,7 +138,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 32),
+              gapH32,
               ElevatedButton.icon(
                 onPressed: _jadwalkanNotifikasi,
                 icon: const Icon(Icons.schedule),
@@ -145,7 +146,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                 label: const Text('Jadwalkan Notifikasi (10 detik)'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               ),
-              const SizedBox(height: 8),
+              gapH8,
               ElevatedButton.icon(
                 onPressed: _tampilkanNotifikasi,
                 icon: const Icon(Icons.notifications_active),
@@ -154,7 +155,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
-              const SizedBox(height: 8),
+              gapH8,
               // Tombol untuk membatalkan semua notifikasi
               ElevatedButton.icon(
                 onPressed: () async {
@@ -165,7 +166,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                 label: const Text('Batalkan Semua Notifikasi'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               ),
-              const SizedBox(height: 24),
+              gapH24,
               const Card(
                 color: Colors.blue,
                 child: Padding(
@@ -178,7 +179,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 8),
+                      gapH8,
                       Text(
                         '1. Kirim notifikasi dari halaman ini.\\n'
                         '2. Notifikasi akan langsung muncul di panel notifikasi sistem.\\n'

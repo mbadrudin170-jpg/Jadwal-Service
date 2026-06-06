@@ -1,6 +1,7 @@
 // path: lib/shared/widget/date_time_picker_widget.dart
 
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -40,7 +41,7 @@ class DateTimePickerWidget extends StatelessWidget {
           labelText,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8),
+        gapH8,
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

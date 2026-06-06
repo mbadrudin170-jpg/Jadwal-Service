@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/card/point_card.dart';
@@ -82,10 +83,8 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildPointCard(),
-            const SizedBox(height: 24),
-            _buildCustomerInfoSection(),
-            const SizedBox(height: 24),
-            if (widget.onCopyAll != null) _buildCopyAllButton(),
+gapH24,            _buildCustomerInfoSection(),
+gapH24,                if (widget.onCopyAll != null) _buildCopyAllButton(),
           ],
         ),
       ),
@@ -162,8 +161,7 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
               color: Colors.blueGrey,
             ),
           ),
-          const SizedBox(height: 4),
-          Row(
+gapH4,          Row(
             children: [
               Expanded(
                 child: Text(

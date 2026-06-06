@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
@@ -207,7 +208,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
                 color: iconColor,
               ),
             ),
-            const SizedBox(height: 4),
+            gapH4,
             Text(
               TimeFormat.formatHourMinute(widget.transaction.date),
               style: textTheme.bodySmall,

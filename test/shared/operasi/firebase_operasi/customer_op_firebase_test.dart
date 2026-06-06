@@ -25,30 +25,26 @@ void main() {
   final c1 = CustomerModel(
     id: 'cust-001',
     name: 'Pelanggan Satu',
-    email: 'satu@example.com',
-    isDeleted: false,
-    fcmToken: 'token-awal',
-    role: '',
-    createdAt: DateTime.now(),
+    phone: '0811111111',
+    address: 'Jalan Satu',
+    password: 'password',
   );
 
   final c2 = CustomerModel(
     id: 'cust-002',
     name: 'Pelanggan Dua',
-    email: 'dua@example.com',
+    phone: '0822222222',
+    address: 'Jalan Dua',
+    password: 'password',
     isDeleted: true, // soft-deleted
-    role: '',
-    createdAt: DateTime.now(),
   );
-    final c3 = CustomerModel(
+  final c3 = CustomerModel(
     id: 'cust-003',
     name: 'Pelanggan Tiga',
-    email: 'tiga@example.com',
-    isDeleted: false,
-    role: '',
-    createdAt: DateTime.now(),
+    phone: '0833333333',
+    address: 'Jalan Tiga',
+    password: 'password',
   );
-
 
   group('2. Pengujian CustomerOpFirebase', () {
     test('2.1. harus bisa membuat pelanggan baru', () async {
@@ -104,17 +100,22 @@ void main() {
     });
 
     test('2.7. tidak boleh menyimpan FCM token jika null atau kosong', () async {
+      const initialToken = 'token-awal';
       await customerOpFirebase.createCustomer(c1);
-      
-      // Test dengan token null
-      await customerOpFirebase.saveFcmToken(c1.id, null);
+      // Simpan token awal terlebih dahulu
+      await customerOpFirebase.saveFcmToken(c1.id, initialToken);
       var snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
-      expect(snapshot.data()!['fcmToken'], 'token-awal'); // harus tetap token awal
-      
-      // Test dengan token kosong
+      expect(snapshot.data()!['fcmToken'], initialToken);
+
+      // Test dengan token null, seharusnya tidak berubah
+      await customerOpFirebase.saveFcmToken(c1.id, null);
+      snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      expect(snapshot.data()!['fcmToken'], initialToken);
+
+      // Test dengan token kosong, seharusnya tidak berubah
       await customerOpFirebase.saveFcmToken(c1.id, '');
       snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
-      expect(snapshot.data()!['fcmToken'], 'token-awal'); // harus tetap token awal
+      expect(snapshot.data()!['fcmToken'], initialToken);
     });
 
     test('2.8. harus bisa mendapatkan semua pelanggan yang tidak di-soft-delete', () async {

@@ -198,13 +198,13 @@ class _SubscriptionHistoryFormState
                 date: _startDate,
                 onPressed: () => _selectDateTime(true),
               ),
-              const SizedBox(height: 16),
+                          gapH16,
               _buildDateTimePickerTile(
                 label: 'Tanggal & Waktu Berakhir',
                 date: _endDate,
                 onPressed: () => _selectDateTime(false),
               ),
-              const SizedBox(height: 24),
+              gapH24,
               DropdownButtonFormField<PaymentStatus>(
                 initialValue: _paymentStatus,
                 decoration: const InputDecoration(
@@ -228,7 +228,7 @@ class _SubscriptionHistoryFormState
                   }
                 },
               ),
-              const SizedBox(height: 32),
+              gapH32,
               ElevatedButton.icon(
                 label: const Text('Simpan Perubahan'),
                 onPressed: _saveChanges,

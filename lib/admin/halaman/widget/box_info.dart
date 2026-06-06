@@ -32,8 +32,7 @@ class BoxInfo extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 40, color: color),
-          const SizedBox(width: 16),
-          Column(
+gapH16,          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(

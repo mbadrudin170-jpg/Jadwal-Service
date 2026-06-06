@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wifi/services/firebase_migration/firebase_migration_service.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk alat migrasi data Firebase.
@@ -104,7 +105,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 30),
+           gapH32,
             ElevatedButton.icon(
               onPressed: isButtonDisabled ? null : _runMigration,
               icon: buttonIcon,
@@ -190,7 +191,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-          if (!_isDone) const SizedBox(width: 12),
+          if (!_isDone) gapH12,
           Text(_isDone
               ? (_hasError ? 'Migrasi Gagal' : 'Migrasi Selesai')
               : 'Sedang Bermigrasi'),

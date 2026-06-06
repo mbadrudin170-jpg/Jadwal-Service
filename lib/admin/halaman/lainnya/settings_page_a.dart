@@ -102,7 +102,7 @@ class SettingsAdminPage extends ConsumerWidget {
                         ikon: Icons.sync,
                         context: context,
                       ),
-                      const SizedBox(height: 12),
+  gapH12,
                       _buildInfoCard(
                         judul: 'Hapus Arsip Otomatis',
                         nilai: '${settings.autoDeleteArchiveDays} Hari',
@@ -177,7 +177,7 @@ class SettingsAdminPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+              gapH16,
                       ElevatedButton.icon(
                         icon: const Icon(Icons.sync_problem),
                         label: const Text('Reset Waktu Sinkronisasi'),
@@ -190,8 +190,7 @@ class SettingsAdminPage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
+gapH16,                ElevatedButton.icon(
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
                   onPressed: () => _editSettings(context, ref, settings),

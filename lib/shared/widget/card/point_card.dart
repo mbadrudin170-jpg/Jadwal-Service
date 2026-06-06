@@ -1,5 +1,6 @@
 // path: lib/shared/widget/card/point_card.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -97,8 +98,7 @@ class TotalPointCard extends StatelessWidget {
                       size: 30,
                     ),
                   ),
-                  const SizedBox(width: 20),
-                  Column(
+gapW20,                  Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,8 +109,7 @@ class TotalPointCard extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
+gapH4,                      Text(
                         formattedPoints,
                         style: textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
