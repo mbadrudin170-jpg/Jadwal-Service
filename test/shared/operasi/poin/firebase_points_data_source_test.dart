@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -14,10 +15,12 @@ import 'firebase_points_data_source_test.mocks.dart';
 
 @GenerateMocks([TransactionOpFirebase, PackageOpFirebase])
 void main() {
+  // 2. Deklarasi Mocks dan SUT (System Under Test)
   late MockTransactionOpFirebase mockTransactionOpFirebase;
   late MockPackageOpFirebase mockPackageOpFirebase;
   late FirebasePointsDataSource dataSource;
 
+  // 3. Inisialisasi Mocks dan SUT sebelum setiap test dijalankan
   setUp(() {
     mockTransactionOpFirebase = MockTransactionOpFirebase();
     mockPackageOpFirebase = MockPackageOpFirebase();
@@ -27,111 +30,155 @@ void main() {
     );
   });
 
-  group('FirebasePointsDataSource', () {
-    const customerId = 'test_customer_id';
+  group('Tes Unit untuk FirebasePointsDataSource', () {
+    const customerId = 'test-customer-id';
+    const packageId = 'test-package-id';
 
-    test('getTotalPoints should return total points from transaction operation',
+    // Test case 1
+    test(
+        '1. getTotalPoints harus memanggil metode yang benar pada TransactionOpFirebase',
         () async {
+      // Arrange: Atur mock untuk mengembalikan nilai yang diharapkan
       when(mockTransactionOpFirebase.getTotalPoints(customerId))
-          .thenAnswer((_) async => 100);
+          .thenAnswer((_) async => 150);
 
+      // Act: Panggil metode yang akan diuji
       final result = await dataSource.getTotalPoints(customerId);
 
-      expect(result, 100);
-      verify(mockTransactionOpFirebase.getTotalPoints(customerId));
+      // Assert: Verifikasi bahwa hasilnya benar dan metode mock dipanggil
+      expect(result, 150);
+      verify(mockTransactionOpFirebase.getTotalPoints(customerId)).called(1);
       verifyNoMoreInteractions(mockTransactionOpFirebase);
+      verifyZeroInteractions(mockPackageOpFirebase);
     });
 
+    // Test case 2
     test(
-        'getPublicPackages should return public packages from package operation',
+        '2. getPublicPackages harus memanggil metode yang benar pada PackageOpFirebase',
         () async {
-      final packages = [
+      // Arrange
+      final mockPackages = [
         PackageModel(
-          id: '1',
-          name: 'Test Package',
-          price: 0,
-          duration: 0,
-          type: DurationType.hours,
-        )
+            id: '1',
+            name: 'Paket A',
+            redemptionPoints: 100,
+            price: 0,
+            duration: 30,
+            type: DurationType.days),
+        PackageModel(
+            id: '2',
+            name: 'Paket B',
+            redemptionPoints: 200,
+            price: 0,
+            duration: 30,
+            type: DurationType.days),
       ];
       when(mockPackageOpFirebase.getPublicPackages())
-          .thenAnswer((_) async => packages);
+          .thenAnswer((_) async => mockPackages);
 
+      // Act
       final result = await dataSource.getPublicPackages();
 
-      expect(result, packages);
-      verify(mockPackageOpFirebase.getPublicPackages());
+      // Assert
+      expect(result, equals(mockPackages));
+      verify(mockPackageOpFirebase.getPublicPackages()).called(1);
       verifyNoMoreInteractions(mockPackageOpFirebase);
+      verifyZeroInteractions(mockTransactionOpFirebase);
     });
 
+    // Test case 3
     test(
-        'getPointsTransactions should return transactions with points from transaction operation',
+        '3. getPointsTransactions harus memfilter dan hanya mengembalikan transaksi poin',
         () async {
-      final transactions = [
+      // Arrange
+      final now = DateTime.now();
+      final allTransactions = [
+        // Transaksi yang harus lolos filter
         TransactionModel(
-          id: '1',
-          earnedPoints: 10,
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
-        ),
+            id: '1',
+            description: 'Beli Poin',
+            earnedPoints: 50,
+            date: now,
+            type: TransactionType.income,
+            amount: 5000,
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            walletId: 'wallet1',
+            categoryId: 'cat1'),
         TransactionModel(
-          id: '2',
-          usedPoints: 5,
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
-        ),
+            id: '3',
+            description: 'Tukar Hadiah',
+            usedPoints: 100,
+            date: now,
+            type: TransactionType.expense,
+            amount: 0,
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            walletId: 'wallet1',
+            categoryId: 'cat1'),
+        // Transaksi ini harus diabaikan karena tidak ada poin yang didapat atau digunakan
         TransactionModel(
-          id: '3',
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
-        ),
+            id: '2',
+            description: 'Bayar Tagihan',
+            date: now,
+            type: TransactionType.income,
+            amount: 50000,
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            walletId: 'wallet1',
+            categoryId: 'cat1'),
       ];
       when(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId))
-          .thenAnswer((_) async => transactions);
-
+          .thenAnswer((_) async => allTransactions);
+      // Act
       final result = await dataSource.getPointsTransactions(customerId);
 
-      expect(result, hasLength(2));
-      expect(result.any((t) => t.id == '1'), isTrue);
-      expect(result.any((t) => t.id == '2'), isTrue);
-      verify(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId));
+      // Assert
+      expect(result.length, 2);
+      expect(result.any((t) => t.id == '1'), isTrue,
+          reason: 'Transaksi dengan earnedPoints > 0 harus ada');
+      expect(result.any((t) => t.id == '3'), isTrue,
+          reason: 'Transaksi dengan usedPoints > 0 harus ada');
+      expect(result.any((t) => t.id == '2'), isFalse,
+          reason: 'Transaksi tanpa poin harus diabaikan');
+      verify(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId))
+          .called(1);
       verifyNoMoreInteractions(mockTransactionOpFirebase);
+      verifyZeroInteractions(mockPackageOpFirebase);
     });
 
-    test('getPackageById should return package from package operation',
+    // Test case 4
+    test(
+        '4. getPackageById harus memanggil metode yang benar pada PackageOpFirebase',
         () async {
-      const packageId = 'test_package_id';
-      final package = PackageModel(
-        id: packageId,
-        name: 'Test Package',
-        price: 0,
-        duration: 0,
-        type: DurationType.hours,
-      );
+      // Arrange
+      final mockPackage = PackageModel(
+          id: packageId,
+          name: 'Paket Detail',
+          redemptionPoints: 50,
+          price: 0,
+          duration: 7,
+          type: DurationType.days);
       when(mockPackageOpFirebase.getPackageById(packageId))
-          .thenAnswer((_) async => package);
+          .thenAnswer((_) async => mockPackage);
 
+      // Act
       final result = await dataSource.getPackageById(packageId);
 
-      expect(result, package);
-      verify(mockPackageOpFirebase.getPackageById(packageId));
+      // Assert
+      expect(result, equals(mockPackage));
+      verify(mockPackageOpFirebase.getPackageById(packageId)).called(1);
       verifyNoMoreInteractions(mockPackageOpFirebase);
+      verifyZeroInteractions(mockTransactionOpFirebase);
     });
 
-    test('isFirebase should return true', () {
+    // Test case 5
+    test('5. Properti isFirebase harus selalu mengembalikan true', () {
+      // Act & Assert
       expect(dataSource.isFirebase, isTrue);
+      // Pastikan tidak ada interaksi dengan mock untuk properti sederhana ini
+      verifyZeroInteractions(mockTransactionOpFirebase);
+      verifyZeroInteractions(mockPackageOpFirebase);
     });
   });
 }
