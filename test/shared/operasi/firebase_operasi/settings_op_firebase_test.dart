@@ -2,6 +2,9 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 
 void main() {
@@ -23,8 +26,8 @@ void main() {
         ColumnNames.maintenanceInfo: 'Sedang maintenance!',
       };
       await fakeFirestore
-          .collection('settings')
-          .doc('app')
+          .collection(TableNameValue.get(TableName.settings))
+          .doc(globalSettingsId)
           .set(settingsData);
 
       // Aksi

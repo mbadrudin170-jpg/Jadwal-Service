@@ -6,7 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 
@@ -53,12 +52,6 @@ class _EventPageUState extends ConsumerState<EventPageU> {
     });
   }
 
-  Future<void> _handleTap(String? url) async {
-    if (url != null && await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   Widget build(final BuildContext context) {
     final EventModel data = widget.event;
@@ -67,15 +60,9 @@ class _EventPageUState extends ConsumerState<EventPageU> {
         body: Stack(
       fit: StackFit.expand,
       children: [
-        GestureDetector(
-          onTap: () => _handleTap(data.imageUrl),
-          child: CachedNetworkImage(
-            imageUrl: data.imageUrl,
-            fit: BoxFit.cover,
-            // placeholder: (context, url) =>
-            //     const Center(child: CircularProgressIndicator()),
-            // errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+        CachedNetworkImage(
+          imageUrl: data.imageUrl,
+          fit: BoxFit.cover,
         ),
         Positioned(
           top: 30,

@@ -81,7 +81,6 @@ void main() {
           () async {
         when(mockFilterBuilder.eq(ColumnNames.isActive, true))
             .thenAnswer((_) => mockFilterBuilder);
-
         final mockTransformBuilder =
             MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
         when(mockFilterBuilder.limit(1))
@@ -93,9 +92,7 @@ void main() {
               List<Map<String, dynamic>>);
           return callback([event1Map]);
         });
-
         final result = await eventOpSupabase.getActive();
-
         expect(result, isA<EventModel>());
         expect(result?.id, 'event-1');
         expect(result?.isActive, true);
@@ -138,8 +135,8 @@ void main() {
 
         when(mockInsertBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -166,8 +163,8 @@ void main() {
 
         when(mockUpdateBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -190,8 +187,8 @@ void main() {
 
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
