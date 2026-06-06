@@ -316,6 +316,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         endDate: tanggalBerakhir,
         isActivated: true,
       );
+
       Log.info(
           'Menyimpan data: customerId=${_selectedPelanggan!.id}, packageId=${_selectedPaket!.id}, transaksiId=$transaksiId');
 
@@ -326,16 +327,67 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transactionProvider.notifier)
             .updateTransaction(transaksiData);
-        await notifikasiOpFirebase.update();
+
+        // Hapus notifikasi lama sebelum membuat yang baru
+        await notifikasiOpFirebase.deleteByTransactionId(transaksiId);
       } else {
         pelangganAktifHasil = await pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
             .addTransaction(transaksiData);
-        await notifikasiOpFirebase.add();
       }
-      final internetService = InternetConnectionService();
+
+      // Membuat daftar notifikasi untuk H-1, Hari H, dan H+1
+      final List<NotifikasiModel> daftarNotifikasi = [
+        // H-1: Besok kedaluwarsa
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
+          userId: _selectedPelanggan!.id,
+          tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
+          title: 'Pengingat: Masa Aktif Segera Habis',
+          description:
+              'Masa aktif paket ${_selectedPaket!.name} Anda akan berakhir besok.',
+          idTujuan: transaksiId,
+          type: TipeNotifikasiEnum.transaksi,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+        // Hari H: Hari ini kedaluwarsa
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
+          userId: _selectedPelanggan!.id,
+          tanggalTampil: tanggalBerakhir,
+          title: 'Masa Aktif Paket Habis',
+          description:
+              'Masa aktif untuk paket ${_selectedPaket!.name} telah berakhir hari ini.',
+          idTujuan: transaksiId,
+          type: TipeNotifikasiEnum.transaksi,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+        // H+1: Kemarin kedaluwarsa
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
+          userId: _selectedPelanggan!.id,
+          tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
+          title: 'Masa Aktif Telah Berakhir',
+          description:
+              'Masa aktif untuk paket ${_selectedPaket!.name} telah berakhir kemarin. Silakan perpanjang.',
+          idTujuan: transaksiId,
+          type: TipeNotifikasiEnum.transaksi,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      ];
+
+      for (final notif in daftarNotifikasi) {
+        await notifikasiOpFirebase.add(notif);
+      }
+      final internetService = ref.read(internetConnectionServiceProvider);
       final isOnline = await internetService.isInternetAvailable();
       String successMessage;
       if (isOnline) {

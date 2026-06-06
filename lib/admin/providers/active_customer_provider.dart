@@ -50,6 +50,14 @@ class ActiveCustomer extends _$ActiveCustomer {
     return ActiveCustomerState();
   }
 
+  // Helper untuk perbandingan DateTime nullable
+  int _compareNullableDates(DateTime? a, DateTime? b, {bool ascending = true}) {
+    if (a == null && b == null) return 0;
+    if (a == null) return 1; // null dianggap paling besar/lama
+    if (b == null) return -1; // non-null dianggap lebih kecil/baru
+    return ascending ? a.compareTo(b) : b.compareTo(a);
+  }
+
   List<ActiveCustomerDetailModel> _sortData(
       List<ActiveCustomerDetailModel> data, SortOption sortBy) {
     final sorted = List<ActiveCustomerDetailModel>.from(data);
@@ -62,36 +70,42 @@ class ActiveCustomer extends _$ActiveCustomer {
           final sisaHariA = a.activeCustomer.endDate.difference(today).inDays;
           final sisaHariB = b.activeCustomer.endDate.difference(today).inDays;
           final comparison = sisaHariA.abs().compareTo(sisaHariB.abs());
-          if (comparison != 0) {
-            return comparison;
-          }
+          if (comparison != 0) return comparison;
           return sisaHariA.compareTo(sisaHariB);
 
-        case SortOption.tanggalBerakhir:
-          return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
+        case SortOption.terbaru:
+          return _compareNullableDates(
+              a.activeCustomer.updatedAt, b.activeCustomer.updatedAt,
+              ascending: false); // Terbaru di atas (descending)
+
+        case SortOption.terlama:
+          return _compareNullableDates(a.activeCustomer.updatedAt,
+              b.activeCustomer.updatedAt); // Terlama di atas (ascending)
+
         case SortOption.tanggalMulai:
           return a.activeCustomer.startDate
               .compareTo(b.activeCustomer.startDate);
+
+        case SortOption.tanggalBerakhir:
+          return b.activeCustomer.endDate.compareTo(a.activeCustomer.endDate);
+
         case SortOption.lunas:
           return a.activeCustomer.status.index
               .compareTo(b.activeCustomer.status.index);
+
         case SortOption.belumLunas:
           return b.activeCustomer.status.index
               .compareTo(a.activeCustomer.status.index);
+
         case SortOption.namaAZ:
           return a.customerName
               .toLowerCase()
               .compareTo(b.customerName.toLowerCase());
+
         case SortOption.namaZA:
           return b.customerName
               .toLowerCase()
               .compareTo(a.customerName.toLowerCase());
-        case SortOption.terbaru:
-          return b.activeCustomer.startDate
-              .compareTo(b.activeCustomer.startDate);
-        case SortOption.terlama:
-          return a.activeCustomer.startDate
-              .compareTo(b.activeCustomer.startDate);
       }
     });
     return sorted;

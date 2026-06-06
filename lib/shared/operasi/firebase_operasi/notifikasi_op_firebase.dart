@@ -39,7 +39,8 @@ class NotifikasiOpFirebase {
   Stream<List<NotifikasiModel>> getByUserId(String userId) {
     return _firestore
         .collection(_collection)
-        .where(ColumnNames.idTujuan, isEqualTo: userId)
+        .where(ColumnNames.userId,
+            isEqualTo: userId) // Diperbaiki dari idTujuan ke userId
         .where(ColumnNames.isDeleted, isEqualTo: false)
         .where(ColumnNames.isRead, isEqualTo: false)
         .snapshots()
@@ -78,12 +79,49 @@ class NotifikasiOpFirebase {
     }
   }
 
+  Future<void> update(NotifikasiModel notifikasi) async {
+    try {
+      Log.info(
+          'Updating notification in Firebase via BaseOp: ${notifikasi.id}');
+      await _baseOp.update(
+        _collection,
+        notifikasi.id,
+        notifikasi.toFirebase(),
+      );
+    } catch (e) {
+      Log.error('Error updating notification: $e');
+      rethrow;
+    }
+  }
+
   Future<void> delete(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');
       await _baseOp.delete(_collection, id);
     } catch (e) {
       Log.error('Error deleting notification: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteByTransactionId(String transactionId) async {
+    try {
+      Log.info(
+          'Menghapus notifikasi berdasarkan idTujuan (transactionId): $transactionId');
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .where(ColumnNames.idTujuan, isEqualTo: transactionId)
+          .get();
+
+      final batch = _firestore.batch();
+      for (final doc in querySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      Log.info('Berhasil menghapus ${querySnapshot.docs.length} notifikasi.');
+    } catch (e, st) {
+      Log.error('Gagal menghapus notifikasi berdasarkan transactionId',
+          e: e, st: st);
       rethrow;
     }
   }

@@ -705,10 +705,32 @@ class MockNotifikasiOpFirebase extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
+  _i3.Future<void> update(_i18.NotifikasiModel? notifikasi) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #update,
+          [notifikasi],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
   _i3.Future<void> delete(String? id) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteByTransactionId(String? transactionId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteByTransactionId,
+          [transactionId],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),

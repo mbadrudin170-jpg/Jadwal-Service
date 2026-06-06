@@ -54,14 +54,14 @@ class _FakeActiveCustomerModel_1 extends _i1.SmartFake
 /// See the documentation for Mockito's code generation for more information.
 class MockActiveCustomerOperation extends _i1.Mock
     implements _i4.ActiveCustomerOperation {
-  MockActiveCustomerOperation() {
-    _i1.throwOnMissingStub(this);
-  }
-
   @override
   _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
+          this,
+          Invocation.getter(#dbHelper),
+        ),
+        returnValueForMissingStub: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
@@ -86,6 +86,9 @@ class MockActiveCustomerOperation extends _i1.Mock
             ),
             returnValue: _i5.Future<List<_i6.ActiveCustomerDetailModel>>.value(
                 <_i6.ActiveCustomerDetailModel>[]),
+            returnValueForMissingStub:
+                _i5.Future<List<_i6.ActiveCustomerDetailModel>>.value(
+                    <_i6.ActiveCustomerDetailModel>[]),
           ) as _i5.Future<List<_i6.ActiveCustomerDetailModel>>);
 
   @override
@@ -108,6 +111,15 @@ class MockActiveCustomerOperation extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
+        returnValueForMissingStub: _i5.Future<_i3.ActiveCustomerModel>.value(
+            _FakeActiveCustomerModel_1(
+          this,
+          Invocation.method(
+            #createActiveCustomer,
+            [activeCustomer],
+            {#fromServer: fromServer},
+          ),
+        )),
       ) as _i5.Future<_i3.ActiveCustomerModel>);
 
   @override
@@ -119,6 +131,9 @@ class MockActiveCustomerOperation extends _i1.Mock
         ),
         returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
             <_i3.ActiveCustomerModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i3.ActiveCustomerModel>>.value(
+                <_i3.ActiveCustomerModel>[]),
       ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
 
   @override
@@ -129,6 +144,7 @@ class MockActiveCustomerOperation extends _i1.Mock
           [id],
         ),
         returnValue: _i5.Future<_i3.ActiveCustomerModel?>.value(),
+        returnValueForMissingStub: _i5.Future<_i3.ActiveCustomerModel?>.value(),
       ) as _i5.Future<_i3.ActiveCustomerModel?>);
 
   @override
@@ -143,6 +159,15 @@ class MockActiveCustomerOperation extends _i1.Mock
           {#fromServer: fromServer},
         ),
         returnValue: _i5.Future<_i3.ActiveCustomerModel>.value(
+            _FakeActiveCustomerModel_1(
+          this,
+          Invocation.method(
+            #updateActiveCustomer,
+            [activeCustomer],
+            {#fromServer: fromServer},
+          ),
+        )),
+        returnValueForMissingStub: _i5.Future<_i3.ActiveCustomerModel>.value(
             _FakeActiveCustomerModel_1(
           this,
           Invocation.method(
@@ -217,6 +242,7 @@ class MockActiveCustomerOperation extends _i1.Mock
           {#fromServer: fromServer},
         ),
         returnValue: _i5.Future<int>.value(0),
+        returnValueForMissingStub: _i5.Future<int>.value(0),
       ) as _i5.Future<int>);
 
   @override
@@ -228,6 +254,7 @@ class MockActiveCustomerOperation extends _i1.Mock
           {#fromServer: fromServer},
         ),
         returnValue: _i5.Future<int>.value(0),
+        returnValueForMissingStub: _i5.Future<int>.value(0),
       ) as _i5.Future<int>);
 
   @override
@@ -240,5 +267,8 @@ class MockActiveCustomerOperation extends _i1.Mock
         ),
         returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
             <_i3.ActiveCustomerModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i3.ActiveCustomerModel>>.value(
+                <_i3.ActiveCustomerModel>[]),
       ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
 }

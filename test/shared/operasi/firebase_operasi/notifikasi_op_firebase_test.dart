@@ -38,7 +38,7 @@ void main() {
       title: 'Judul 1',
       description: 'Isi 1',
       type: TipeNotifikasiEnum.transaksi,
-      idTujuan: 'user1',
+      idTujuan: 'trx1', // ID Transaksi
       userId: 'user1',
       startDate: now,
       endDate: now.add(const Duration(days: 1)),
@@ -51,7 +51,20 @@ void main() {
       title: 'Judul 2',
       description: 'Isi 2',
       type: TipeNotifikasiEnum.events,
-      idTujuan: 'user2',
+      idTujuan: 'trx1', // ID Transaksi yang sama
+      userId: 'user1',
+      startDate: now,
+      endDate: now.add(const Duration(days: 2)),
+      tanggalTampil: now,
+      updatedAt: now,
+    );
+    
+    final notifikasi3 = NotifikasiModel(
+      id: 'notif3',
+      title: 'Judul 3',
+      description: 'Isi 3',
+      type: TipeNotifikasiEnum.events,
+      idTujuan: 'trx2', // ID Transaksi berbeda
       userId: 'user2',
       startDate: now,
       endDate: now.add(const Duration(days: 2)),
@@ -101,7 +114,7 @@ void main() {
     );
 
     test(
-        'Test 1: getActiveNotifications harus mengambil data yang ${ColumnNames.isRead} false, ${ColumnNames.isDeleted} false, ${ColumnNames.tanggalTampil} <= now,',
+        'Test 1: getActiveNotifications harus mengembalikan notifikasi yang aktif',
         () async {
       // Menambahkan data uji ke firestore palsu
       await firestore
@@ -139,38 +152,21 @@ void main() {
     });
 
     test(
-        '2 getByUserId harus mengambil data yang ${ColumnNames.idTujuan} nya sesuai, ${ColumnNames.isDeleted}=false, ${ColumnNames.isRead}=false,} ',
+        'Test 2: getByUserId harus mengembalikan notifikasi yang sesuai untuk userId tertentu',
         () async {
       // Menambahkan data uji
       await firestore.collection(collection).doc(notifikasi1.id).set(notifikasi1
-          .toFirebase()); // idTujuan = user1, isRead=false, isDeleted=false
+          .toFirebase()); // userId = user1, isRead=false, isDeleted=false
+      await firestore.collection(collection).doc(notifikasi3.id).set(notifikasi3
+          .toFirebase()); // userId = user2
 
+      // Notifikasi dengan userId = user1 tapi sudah dibaca
+      final notifikasiUser1Terbaca = notifikasi1.copyWith(id: 'notif_user1_read', isRead: true);
       await firestore
           .collection(collection)
-          .doc(notifikasiTerbaca.id)
-          .set(notifikasiTerbaca.toFirebase()); // idTujuan = user4, isRead=true
+          .doc(notifikasiUser1Terbaca.id)
+          .set(notifikasiUser1Terbaca.toFirebase());
 
-      await firestore.collection(collection).doc(notifikasiDihapus.id).set(
-          notifikasiDihapus.toFirebase()); // idTujuan = user5, isDeleted=true
-
-      // Notifikasi dengan user1 tapi sudah dibaca (kita buat data baru)
-      final notifikasi1Terbaca = NotifikasiModel(
-        id: 'notif1_read',
-        title: 'Judul 1 dibaca',
-        description: 'Isi',
-        type: TipeNotifikasiEnum.transaksi,
-        idTujuan: 'user1',
-        userId: 'user1',
-        isRead: true,
-        startDate: now,
-        endDate: now.add(const Duration(days: 1)),
-        tanggalTampil: now,
-        updatedAt: now,
-      );
-      await firestore
-          .collection(collection)
-          .doc(notifikasi1Terbaca.id)
-          .set(notifikasi1Terbaca.toFirebase());
       final stream = notifikasiOp.getByUserId('user1');
 
       expect(
@@ -178,13 +174,13 @@ void main() {
         emits(isA<List<NotifikasiModel>>().having(
           (list) => list.map((e) => e.id).toSet(),
           'ID set',
-          {notifikasi1.id}, // hanya notifikasi1, bukan notifikasi1Terbaca
+          {notifikasi1.id}, // Harusnya hanya notifikasi1
         )),
       );
     });
 
     test(
-        '3. getById harus mengambil data yang ${ColumnNames.id} nya sesuai, ${ColumnNames.isDeleted}=false, ${ColumnNames.isRead}=false,}',
+        'Test 3: getById harus mengembalikan notifikasi yang aktif dengan ID yang cocok',
         () async {
       // Notifikasi aktif
       await firestore
@@ -205,22 +201,10 @@ void main() {
     });
 
     test(
-        '3b. getById tidak mengembalikan notifikasi jika sudah dibaca (isRead=true)',
+        'Test 4: getById tidak boleh mengembalikan notifikasi jika sudah dibaca',
         () async {
       // Notifikasi dengan isRead=true
-      final notifikasi1Terbaca = NotifikasiModel(
-        id: notifikasi1.id,
-        title: 'Judul 1 dibaca',
-        description: 'Isi',
-        type: TipeNotifikasiEnum.transaksi,
-        idTujuan: 'user1',
-        userId: 'user1',
-        isRead: true,
-        startDate: now,
-        endDate: now.add(const Duration(days: 1)),
-        tanggalTampil: now,
-        updatedAt: now,
-      );
+      final notifikasi1Terbaca = notifikasi1.copyWith(isRead: true);
       await firestore
           .collection(collection)
           .doc(notifikasi1.id)
@@ -228,17 +212,14 @@ void main() {
 
       final stream = notifikasiOp.getById(notifikasi1.id);
 
+      // Harusnya mengembalikan list kosong
       expect(
         stream,
-        emits(isA<List<NotifikasiModel>>().having(
-          (list) => list.length,
-          'length',
-          0,
-        )),
+        emits(isA<List<NotifikasiModel>>().having((l) => l.isEmpty, 'is empty', true)),
       );
     });
 
-    test('Test 2: add harus memanggil baseOp.insert dengan data yang benar',
+    test('Test 5: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
       await notifikasiOp.add(notifikasi1);
@@ -249,12 +230,18 @@ void main() {
       )).called(1);
     });
 
-    test('3 update harus memanggil baseOp.update dengan data yang benar',
+    test('Test 6: update harus memanggil baseOp.update dengan data yang benar',
         () async {
+      when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
       await notifikasiOp.update(notifikasi1);
+      verify(mockBaseOp.update(
+        collection,
+        notifikasi1.id,
+        notifikasi1.toFirebase(),
+      )).called(1);
     });
 
-    test('Test 3: delete harus memanggil baseOp.delete dengan ID yang benar',
+    test('Test 7: delete harus memanggil baseOp.delete dengan ID yang benar',
         () async {
       const idToDelete = 'notif1';
       when(mockBaseOp.delete(any, any)).thenAnswer((_) async {});
@@ -263,7 +250,7 @@ void main() {
     });
 
     test(
-        'Test 4: tandaiSudahDibaca harus memanggil baseOp.update dengan data yang benar',
+        'Test 8: tandaiSudahDibaca harus memanggil baseOp.update dengan data yang benar',
         () async {
       const idToUpdate = 'notif1';
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
@@ -272,5 +259,34 @@ void main() {
         ColumnNames.isRead: true,
       })).called(1);
     });
+    
+    test(
+        'Test 9: deleteByTransactionId harus menghapus semua notifikasi dengan idTujuan yang cocok',
+        () async {
+      // Setup: Tambahkan beberapa notifikasi ke firestore palsu
+      await firestore
+          .collection(collection)
+          .doc(notifikasi1.id)
+          .set(notifikasi1.toFirebase()); // idTujuan: trx1
+      await firestore
+          .collection(collection)
+          .doc(notifikasi2.id)
+          .set(notifikasi2.toFirebase()); // idTujuan: trx1
+      await firestore
+          .collection(collection)
+          .doc(notifikasi3.id)
+          .set(notifikasi3.toFirebase()); // idTujuan: trx2
+
+      // Eksekusi: Hapus notifikasi yang berhubungan dengan 'trx1'
+      await notifikasiOp.deleteByTransactionId('trx1');
+
+      // Verifikasi: Periksa isi firestore setelah penghapusan
+      final snapshot = await firestore.collection(collection).get();
+      
+      // Harusnya hanya notifikasi3 (dengan idTujuan 'trx2') yang tersisa
+      expect(snapshot.docs.length, 1);
+      expect(snapshot.docs.first.id, notifikasi3.id);
+    });
+
   });
 }
