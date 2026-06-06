@@ -699,11 +699,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
   Future<_ProfileData> _loadProfileData() async {
-    final userId = ref.watch(userIdProvider);
-
+    final userId = await ref.read(userIdProvider.future);
+    if (userId == null) {
+      throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
+    }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.getCustomerOnce(userId as String);
+      final customer = await _customerOp.getCustomerOnce(userId);
       if (customer == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
@@ -1232,6 +1234,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
@@ -1577,10 +1580,11 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         final eventInfo = await _cekEvent();
         if (eventInfo != null) {
           if (mounted) {
+            Log.info('menuju ke halaman event');
             // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
             await Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (final context) => const EventPageU(),
+                builder: (final context) => EventPageU(event: eventInfo),
               ),
             );
           }
@@ -1604,6 +1608,21 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _continueInitialization() async {
+    final maintenanceSettings = await _checkMaintenanceMode();
+    if (maintenanceSettings != null) {
+      if (!mounted) return;
+      unawaited(Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (final context) => MaintenancePage(
+            maintenanceInfo: maintenanceSettings.maintenanceInfo,
+            onRefresh: _initializeApp,
+            onExit: SystemNavigator.pop,
+          ),
+        ),
+      ));
+      return;
+    }
+
     final updateInfo = await _checkAppUpdate();
     if (updateInfo != null) {
       if (!mounted) return;
@@ -1620,22 +1639,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       ));
       return;
     }
-
-    final maintenanceSettings = await _checkMaintenanceMode();
-    if (maintenanceSettings != null) {
-      if (!mounted) return;
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (final context) => MaintenancePage(
-            maintenanceInfo: maintenanceSettings.maintenanceInfo,
-            onRefresh: _initializeApp,
-            onExit: SystemNavigator.pop,
-          ),
-        ),
-      ));
-      return;
-    }
-
     await _navigateToNextPage();
   }
 
@@ -1734,23 +1737,17 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/shared/model/event_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
-
-final activeAnnouncementProvider =
-    FutureProvider.autoDispose<EventModel?>((ref) {
-  final operator = ref.watch(eventOpSupabaseProvider);
-  return operator.getActive();
-});
+import 'package:wifi/shared/theme/app_colors.dart';
 
 class EventPageU extends ConsumerStatefulWidget {
-  // DIHAPUS: Tidak perlu lagi callback onDone.
-  const EventPageU({super.key});
+  const EventPageU({super.key, required this.event});
+  final EventModel event;
 
   @override
   ConsumerState<EventPageU> createState() => _EventPageUState();
@@ -1758,98 +1755,87 @@ class EventPageU extends ConsumerStatefulWidget {
 
 class _EventPageUState extends ConsumerState<EventPageU> {
   Timer? _timer;
-  final Duration _pageDuration = const Duration(seconds: 5);
+  int _countdown = 5;
 
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     FlutterNativeSplash.remove();
+    _startTimer();
   }
 
   @override
   void dispose() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _timer?.cancel();
     super.dispose();
   }
 
   void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer(_pageDuration, () {
-      // Setelah durasi selesai, tutup halaman ini.
-      if (mounted) Navigator.of(context).pop();
+    _timer?.cancel(); // Hentikan timer sebelumnya jika ada
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_countdown > 0) {
+        if (mounted) {
+          setState(() {
+            _countdown--;
+          });
+        }
+      } else {
+        timer.cancel();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      }
     });
+  }
+
+  Future<void> _handleTap(String? url) async {
+    if (url != null && await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
   Widget build(final BuildContext context) {
-    final announcementAsync = ref.watch(activeAnnouncementProvider);
+    final EventModel data = widget.event;
+
     return Scaffold(
-      body: announcementAsync.when(
-        loading: Container.new,
-        error: (e, st) {
-          Log.error('Error saat memuat pengumuman', e: e, st: st);
-          // Jika error, langsung tutup halaman ini.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context).pop();
-          });
-          return const SizedBox.shrink();
-        },
-        data: (data) {
-          if (data == null) {
-            // Jika tidak ada pengumuman, langsung tutup halaman ini.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) Navigator.of(context).pop();
-            });
-            return const SizedBox.shrink();
-          }
-
-          // Mulai timer HANYA setelah data siap.
-          if (_timer == null) {
-            _startTimer();
-          }
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              if (data.imageUrl.isNotEmpty)
-                Image.network(
-                  data.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) Navigator.of(context).pop();
-                    });
-                    return const SizedBox.shrink();
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    );
-                  },
-                ),
-              Positioned(
-                top: 40,
-                left: 16,
-                child: Material(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  shape: const CircleBorder(),
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      _timer?.cancel(); // Hentikan timer jika ditutup manual
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
+        body: Stack(
+      fit: StackFit.expand,
+      children: [
+        GestureDetector(
+          onTap: () => _handleTap(data.imageUrl),
+          child: CachedNetworkImage(
+            imageUrl: data.imageUrl,
+            fit: BoxFit.cover,
+            // placeholder: (context, url) =>
+            //     const Center(child: CircularProgressIndicator()),
+            // errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        ),
+        Positioned(
+          top: 30,
+          right: 10,
+          child: ElevatedButton(
+            onPressed: () {
+              _timer?.cancel();
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
+              backgroundColor: TColors.darkBackground.withValues(alpha: 0.7),
+            ),
+            child: Text(
+              _countdown > 0 ? '$_countdown' : 'X',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          );
-        },
-      ),
-    );
+            ),
+          ),
+        ),
+      ],
+    ));
   }
 }
 // path: lib/user/page/form_feedback_u.dart
@@ -5108,93 +5094,6 @@ part of 'account_list_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
-
-@ProviderFor(sharedPreferences)
-final sharedPreferencesProvider = SharedPreferencesProvider._();
-
-/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
-
-final class SharedPreferencesProvider extends $FunctionalProvider<
-        AsyncValue<SharedPreferences>,
-        SharedPreferences,
-        FutureOr<SharedPreferences>>
-    with
-        $FutureModifier<SharedPreferences>,
-        $FutureProvider<SharedPreferences> {
-  /// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
-  SharedPreferencesProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'sharedPreferencesProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
-
-  @override
-  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<SharedPreferences> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<SharedPreferences> create(Ref ref) {
-    return sharedPreferences(ref);
-  }
-}
-
-String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
-
-/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
-
-@ProviderFor(localStorageService)
-final localStorageServiceProvider = LocalStorageServiceProvider._();
-
-/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
-
-final class LocalStorageServiceProvider extends $FunctionalProvider<
-        AsyncValue<LocalStorageService>,
-        LocalStorageService,
-        FutureOr<LocalStorageService>>
-    with
-        $FutureModifier<LocalStorageService>,
-        $FutureProvider<LocalStorageService> {
-  /// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
-  LocalStorageServiceProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'localStorageServiceProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
-
-  @override
-  String debugGetCreateSourceHash() => _$localStorageServiceHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<LocalStorageService> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<LocalStorageService> create(Ref ref) {
-    return localStorageService(ref);
-  }
-}
-
-String _$localStorageServiceHash() =>
-    r'682f08594d407537f17f21974997a6a4de059ac8';
-
 /// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
 
 @ProviderFor(accountList)
@@ -5240,25 +5139,10 @@ String _$accountListHash() => r'bd2eb351403f2bd12885e68ef68fbbec3668979f';
 // path: lib/user/providers/account_list_providers.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/model/customer_model.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'account_list_providers.g.dart';
-
-/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
-@Riverpod(keepAlive: true)
-Future<SharedPreferences> sharedPreferences(Ref ref) {
-  return SharedPreferences.getInstance();
-}
-
-/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
-@Riverpod(keepAlive: true)
-Future<LocalStorageService> localStorageService(Ref ref) async {
-  // Menunggu SharedPreferences selesai diinisialisasi.
-  final prefs = await ref.watch(sharedPreferencesProvider.future);
-  return LocalStorageService(prefs: prefs);
-}
 
 /// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
 @riverpod
@@ -5271,9 +5155,9 @@ Future<List<CustomerModel>> accountList(Ref ref) async {
 // path: lib/user/providers/user_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/services/user_activity_service.dart';
-import 'package:wifi/user/providers/account_list_providers.dart';
 
 part 'user_providers.g.dart';
 
@@ -5499,7 +5383,6 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
-import 'package:wifi/user/providers/account_list_providers.dart' hide sharedPreferencesProvider;
 
 class AppUser extends ConsumerWidget {
   const AppUser({super.key});
@@ -10379,7 +10262,7 @@ const gapW64 = SizedBox(width: TSizes.p64);
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/user/providers/account_list_providers.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 /// Provider tema menggunakan AsyncNotifier (modern Riverpod)
@@ -10393,7 +10276,6 @@ class ThemeNotifier extends AsyncNotifier<ThemeMode> {
   Future<ThemeMode> build() async {
     // Ambil instance LocalStorageService dari provider (async)
     _storage = await ref.watch(localStorageServiceProvider.future);
-
     // Muat tema yang tersimpan
     final savedTheme = await _storage.getThemeMode();
     Log.info('[ThemeNotifier] Tema awal dimuat: $savedTheme');
@@ -11980,15 +11862,122 @@ class UpdateService {
     }
   }
 }
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'shared_providers.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+
+@ProviderFor(sharedPreferences)
+final sharedPreferencesProvider = SharedPreferencesProvider._();
+
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+
+final class SharedPreferencesProvider extends $FunctionalProvider<
+        AsyncValue<SharedPreferences>,
+        SharedPreferences,
+        FutureOr<SharedPreferences>>
+    with
+        $FutureModifier<SharedPreferences>,
+        $FutureProvider<SharedPreferences> {
+  /// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+  SharedPreferencesProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'sharedPreferencesProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$sharedPreferencesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<SharedPreferences> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SharedPreferences> create(Ref ref) {
+    return sharedPreferences(ref);
+  }
+}
+
+String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+
+@ProviderFor(localStorageService)
+final localStorageServiceProvider = LocalStorageServiceProvider._();
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+
+final class LocalStorageServiceProvider extends $FunctionalProvider<
+        AsyncValue<LocalStorageService>,
+        LocalStorageService,
+        FutureOr<LocalStorageService>>
+    with
+        $FutureModifier<LocalStorageService>,
+        $FutureProvider<LocalStorageService> {
+  /// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+  LocalStorageServiceProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'localStorageServiceProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$localStorageServiceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<LocalStorageService> $createElement(
+          $ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LocalStorageService> create(Ref ref) {
+    return localStorageService(ref);
+  }
+}
+
+String _$localStorageServiceHash() =>
+    r'682f08594d407537f17f21974997a6a4de059ac8';
 // path: lib/shared/providers/shared_providers.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/user/services/storage/local_storage_service.dart';
 
-final sharedPreferencesProvider =
-    FutureProvider<SharedPreferences>((ref) async {
-  return await SharedPreferences.getInstance();
-});
+part 'shared_providers.g.dart';
 
+/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
+@Riverpod(keepAlive: true)
+Future<SharedPreferences> sharedPreferences(Ref ref) {
+  return SharedPreferences.getInstance();
+}
+
+/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
+@Riverpod(keepAlive: true)
+Future<LocalStorageService> localStorageService(Ref ref) async {
+  // Menunggu SharedPreferences selesai diinisialisasi.
+  final prefs = await ref.watch(sharedPreferencesProvider.future);
+  return LocalStorageService(prefs: prefs);
+}
 // path: lib/shared/operasi/poin/points_page_data_source.dart
 
 import 'package:wifi/shared/model/package_model.dart';
@@ -12523,14 +12512,26 @@ class EventOpSupabase {
     }
   }
 
-  /// Menambahkan atau memperbarui (upsert) data pengumuman di Supabase.
-  Future<void> upsert(final EventModel event) async {
-    Log.info('EventOpSupabase: Upsert pengumuman ${event.id}');
+  /// Menambahkan data pengumuman baru ke Supabase.
+  Future<void> create(final EventModel event) async {
+    Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
-      await _supabase.from(_tableName).upsert(dataPayload);
+      await _supabase.from(_tableName).insert(dataPayload);
     } catch (e, s) {
-      Log.error('Gagal melakukan upsert pengumuman di Supabase', e: e, st: s);
+      Log.error('Gagal membuat pengumuman di Supabase', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui data pengumuman yang sudah ada di Supabase.
+  Future<void> update(final EventModel event) async {
+    Log.info('EventOpSupabase: Memperbarui pengumuman ${event.id}');
+    try {
+      final Map<String, dynamic> dataPayload = event.toSupabase();
+      await _supabase.from(_tableName).update(dataPayload).eq(ColumnNames.id, event.id);
+    } catch (e, s) {
+      Log.error('Gagal memperbarui pengumuman di Supabase', e: e, st: s);
       rethrow;
     }
   }
@@ -12560,7 +12561,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/model.dart';
 
 /// Kelas untuk mengelola operasi terkait data pengaturan di Firestore.
 class SettingsOpFirebase {
@@ -12569,7 +12571,6 @@ class SettingsOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
   SettingsOpFirebase({final FirebaseFirestore? firestore})
       : _db = firestore ?? FirebaseFirestore.instance {
-    // DITAMBAHKAN: Logging saat inisialisasi
     Log.info('SettingsOpFirebase diinisialisasi.');
   }
 
@@ -12580,7 +12581,7 @@ class SettingsOpFirebase {
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {
     try {
-      final doc = await _collection.doc('app').get();
+      final doc = await _collection.doc(globalSettingsId).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>?;
         Log.info('Pengaturan dari Firestore berhasil diambil.', data);
@@ -25086,6 +25087,105 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
     );
   }
 }
+// path: lib/admin/halaman/lainnya/detail_event_a.dart
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
+import 'package:wifi/shared/model/event_model.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
+
+class DetailEventA extends ConsumerWidget {
+  const DetailEventA({super.key, required this.event});
+  final EventModel event;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Pengumuman'),
+        actions: [
+          IconButton(
+            icon: const Icon(TIcons.edit),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ManageAnnouncementPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(TSizes.p16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(TSizes.p12),
+              child: CachedNetworkImage(
+                imageUrl: event.imageUrl,
+                placeholder: (context, url) => const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
+            gapH24,
+            _buildInfoRow('ID Pengumuman', event.id),
+            const Divider(),
+            _buildInfoRow('Status', event.isActive ? 'Aktif' : 'Tidak Aktif',
+                color: event.isActive ? Colors.green : Colors.red),
+            const Divider(),
+            _buildInfoRow('Mulai', event.startDate.toLocal().toString()),
+            const Divider(),
+            _buildInfoRow('Selesai', event.endDate.toLocal().toString()),
+            const Divider(),
+            _buildInfoRow(
+                'Dibuat pada', event.createdAt.toLocal().toString()),
+            const Divider(),
+            _buildInfoRow('Terakhir Diperbarui',
+                event.updatedAt?.toLocal().toString() ?? '-'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: TSizes.p8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          gapH4,
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // path: lib/admin/halaman/lainnya/manage_announcement_page.dart
 
 import 'dart:io';
@@ -25106,7 +25206,8 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
 class ManageAnnouncementPage extends ConsumerStatefulWidget {
-  const ManageAnnouncementPage({super.key});
+  const ManageAnnouncementPage({super.key, this.event});
+  final EventModel? event;
 
   @override
   ConsumerState<ManageAnnouncementPage> createState() =>
@@ -25130,7 +25231,15 @@ class _ManageAnnouncementPageState
   @override
   void initState() {
     super.initState();
-    _isSwitched = false;
+    if (widget.event != null) {
+      _selectedAnnouncement = widget.event;
+      _imageUrlController.text = widget.event!.imageUrl;
+      _isSwitched = widget.event!.isActive;
+      _selectedStartDate = widget.event!.startDate;
+      _selectedEndDate = widget.event!.endDate;
+    } else {
+      _isSwitched = false;
+    }
     _loadData();
   }
 
@@ -25142,6 +25251,8 @@ class _ManageAnnouncementPageState
   }
 
   Future<void> _loadData() async {
+    if (widget.event != null) return;
+
     final operator = ref.read(eventOpSupabaseProvider);
     try {
       final announcements = await operator.getAll();
@@ -25313,8 +25424,7 @@ class _ManageAnnouncementPageState
         }
       } catch (e, st) {
         Log.error('Gagal mengunggah gambar', e: e, st: st);
-        ToastUtil.error(
-            context, 'Gagal mengunggah gambar. Silakan coba lagi.');
+        ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
         setState(() {
           _isUploading = false;
         });
@@ -25354,7 +25464,7 @@ class _ManageAnnouncementPageState
             currentActive.id != announcementToSave.id) {
           final oldActive =
               currentActive.copyWith(isActive: false, updatedAt: now);
-          await operator.upsert(oldActive);
+          await operator.update(oldActive);
         }
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
@@ -25369,7 +25479,12 @@ class _ManageAnnouncementPageState
 
     // 5. Eksekusi penyimpanan ke Supabase via Provider
     try {
-      await operator.upsert(announcementToSave);
+      if (_selectedAnnouncement != null) {
+        await operator.update(announcementToSave);
+      } else {
+        await operator.create(announcementToSave);
+      }
+      final _ = ref.refresh(eventOpSupabaseProvider);
       ToastUtil.success(context, 'Pengumuman berhasil disimpan!');
       if (mounted) {
         Navigator.of(context).pop();
@@ -25538,7 +25653,8 @@ class _ManageAnnouncementPageState
       ),
     );
   }
-}import 'dart:async';
+}
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
