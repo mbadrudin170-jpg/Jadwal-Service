@@ -165,8 +165,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => const MainPage(
-          ),
+          builder: (final context) => const MainPage(),
         ),
       ));
     } else {
@@ -445,12 +444,12 @@ class _UpdateApkPageState extends State<UpdateApkPage>
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.green.withAlpha(77)),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(TIcons.check, color: Colors.green, size: 16),
+                Icon(TIcons.check, color: Colors.green, size: 16),
                 gapW4,
-                const Text(
+                Text(
                   'Aktif',
                   style: TextStyle(
                     color: Colors.green,
@@ -514,8 +513,8 @@ class _UpdateApkPageState extends State<UpdateApkPage>
               color: Colors.orange.withAlpha(26),
               shape: BoxShape.circle,
             ),
-            child: const Icon(TIcons.warningAmber,
-                color: Colors.orange, size: 22),
+            child:
+                const Icon(TIcons.warningAmber, color: Colors.orange, size: 22),
           ),
           gapW12,
           Expanded(

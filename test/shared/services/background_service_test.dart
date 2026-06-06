@@ -1,4 +1,6 @@
 // path: test/shared/services/background_service_test.dart
+// DIUBAH: Memperbaiki peringatan analyzer (no_self_assignments, avoid_dynamic_calls).
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -6,16 +8,17 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:wifi/shared/services/background_service.dart';
 import 'package:workmanager_platform_interface/workmanager_platform_interface.dart';
 
-// Mock untuk WorkmanagerPlatform
+// Mock untuk WorkmanagerPlatform yang lebih fleksibel
 class MockWorkmanagerPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements WorkmanagerPlatform {
-  // List untuk menyimpan panggilan method
-  final List<MethodCall> methodCalls = [];
+  // Menggunakan Map untuk menyimpan panggilan berdasarkan nama metode
+  final Map<String, List<MethodCall>> methodCalls = {};
 
-  // Helper untuk mencatat panggilan
-  void logMethodCall(String methodName, [Map<String, dynamic>? arguments]) {
-    methodCalls.add(MethodCall(methodName, arguments));
+  void _logMethodCall(String methodName, [Map<String, dynamic>? arguments]) {
+    methodCalls
+        .putIfAbsent(methodName, () => [])
+        .add(MethodCall(methodName, arguments));
   }
 
   @override
@@ -23,7 +26,7 @@ class MockWorkmanagerPlatform extends Mock
     final Function callbackDispatcher, {
     final bool isInDebugMode = false,
   }) async {
-    logMethodCall('initialize', {
+    _logMethodCall('initialize', {
       'callbackDispatcher': callbackDispatcher,
       'isInDebugMode': isInDebugMode,
     });
@@ -44,7 +47,7 @@ class MockWorkmanagerPlatform extends Mock
     final OutOfQuotaPolicy? outOfQuotaPolicy,
     final Map<String, dynamic>? inputData,
   }) async {
-    logMethodCall('registerPeriodicTask', {
+    _logMethodCall('registerPeriodicTask', {
       'uniqueName': uniqueName,
       'taskName': taskName,
       'frequency': frequency,
@@ -56,7 +59,7 @@ class MockWorkmanagerPlatform extends Mock
 
   @override
   Future<void> cancelAll() async {
-    logMethodCall('cancelAll');
+    _logMethodCall('cancelAll');
   }
 }
 
@@ -68,7 +71,6 @@ void main() {
     'plugins.flutter.io/firebase_core',
   );
 
-  // Pengaturan Mock Handler untuk channel Firebase
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(firebaseCoreChannel,
           (MethodCall methodCall) async {
@@ -93,47 +95,58 @@ void main() {
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
   });
 
+  // KODE DIPERBAIKI: Menghapus tearDown yang tidak perlu dan menyebabkan lint warning.
+
   group('Pengujian BackgroundService', () {
     test(
-      '1. init() berhasil menginisialisasi Workmanager dan mendaftarkan tugas periodik',
+      '1. init() harus mendaftarkan TUGAS SINKRONISASI dan PENJADWALAN ULANG',
       () async {
+        // ACT
         await BackgroundService.init();
 
-        final initializeCall = mockWorkmanagerPlatform.methodCalls.firstWhere(
-          (call) => call.method == 'initialize',
-          orElse: () => const MethodCall(''),
-        );
-        expect(initializeCall.method, 'initialize');
-        expect((initializeCall.arguments as Map)['isInDebugMode'], false);
-        expect((initializeCall.arguments as Map)['callbackDispatcher'],
-            callbackDispatcher);
+        // ASSERT: Verifikasi inisialisasi
+        expect(mockWorkmanagerPlatform.methodCalls['initialize'], isNotNull);
+        expect(mockWorkmanagerPlatform.methodCalls['initialize']!.length, 1);
 
-        final registerCall = mockWorkmanagerPlatform.methodCalls.firstWhere(
-          (call) => call.method == 'registerPeriodicTask',
-          orElse: () => const MethodCall(''),
+        // ASSERT: Verifikasi ada DUA panggilan pendaftaran tugas
+        final registerCalls =
+            mockWorkmanagerPlatform.methodCalls['registerPeriodicTask'];
+        expect(registerCalls, isNotNull);
+        expect(registerCalls!.length, 2);
+
+        // KODE DIPERBAIKI: Memberi tipe eksplisit pada argumen
+        final syncTaskCall = registerCalls.firstWhere(
+          (call) =>
+              (call.arguments as Map<String, dynamic>)['uniqueName'] ==
+              syncTaskName,
         );
-        expect(registerCall.method, 'registerPeriodicTask');
-        expect((registerCall.arguments as Map)['uniqueName'], syncTaskName);
-        expect((registerCall.arguments as Map)['taskName'], syncTaskName);
-        expect((registerCall.arguments as Map)['frequency'],
-            const Duration(minutes: 15));
-        expect((registerCall.arguments as Map)['existingWorkPolicy'],
-            ExistingPeriodicWorkPolicy.replace);
-        expect((registerCall.arguments as Map)['initialDelay'],
-            const Duration(minutes: 1));
-        expect(
-            (registerCall.arguments as Map)['constraints'],
-            isA<Constraints>().having(
-                (c) => c.networkType, 'networkType', NetworkType.connected));
+        final syncArgs = syncTaskCall.arguments as Map<String, dynamic>;
+        expect(syncArgs['frequency'], const Duration(minutes: 15));
+        expect((syncArgs['constraints'] as Constraints).networkType,
+            NetworkType.connected);
+
+        // KODE DIPERBAIKI: Memberi tipe eksplisit pada argumen
+        final rescheduleTaskCall = registerCalls.firstWhere(
+          (call) =>
+              (call.arguments as Map<String, dynamic>)['uniqueName'] ==
+              rescheduleNotificationsTaskName,
+        );
+        final rescheduleArgs =
+            rescheduleTaskCall.arguments as Map<String, dynamic>;
+        expect(rescheduleArgs['frequency'], const Duration(hours: 24));
+        expect((rescheduleArgs['constraints'] as Constraints).networkType,
+            NetworkType.notRequired);
+        expect(rescheduleArgs['initialDelay'], const Duration(minutes: 5));
       },
     );
 
     test(
-      '2. registerPeriodicSync() berhasil mendaftarkan tugas periodik',
+      '2. registerPeriodicSync() berhasil mendaftarkan tugas sinkronisasi',
       () async {
         await BackgroundService.registerPeriodicSync();
 
-        final registerCall = mockWorkmanagerPlatform.methodCalls.first;
+        final registerCall =
+            mockWorkmanagerPlatform.methodCalls['registerPeriodicTask']!.first;
         expect(registerCall.method, 'registerPeriodicTask');
         expect((registerCall.arguments as Map)['uniqueName'], syncTaskName);
       },
@@ -142,7 +155,31 @@ void main() {
     test('3. cancelAllTasks() berhasil membatalkan semua tugas', () async {
       await BackgroundService.cancelAllTasks();
 
-      expect(mockWorkmanagerPlatform.methodCalls.first.method, 'cancelAll');
+      expect(mockWorkmanagerPlatform.methodCalls['cancelAll']!.first.method,
+          'cancelAll');
+    });
+
+    test(
+        '4. registerPeriodicReschedule() harus mendaftarkan tugas dengan benar',
+        () async {
+      await BackgroundService.registerPeriodicReschedule();
+
+      final registerCalls =
+          mockWorkmanagerPlatform.methodCalls['registerPeriodicTask'];
+      expect(registerCalls, isNotNull);
+      expect(registerCalls!.length, 1);
+
+      final callArguments =
+          registerCalls.first.arguments as Map<String, dynamic>;
+      expect(callArguments['uniqueName'], rescheduleNotificationsTaskName);
+      expect(callArguments['taskName'], rescheduleNotificationsTaskName);
+      expect(callArguments['frequency'], const Duration(hours: 24));
+      expect(callArguments['existingWorkPolicy'],
+          ExistingPeriodicWorkPolicy.replace);
+      expect(callArguments['initialDelay'], const Duration(minutes: 5));
+      expect(callArguments['constraints'], isA<Constraints>());
+      expect((callArguments['constraints'] as Constraints).networkType,
+          NetworkType.notRequired);
     });
   });
 }

@@ -1,4 +1,6 @@
 // path: lib/shared/services/background_service.dart
+// KOREKSI: Memperbaiki kesalahan ketik dari NetworkType.not_required menjadi NetworkType.notRequired.
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,9 @@ import 'package:workmanager/workmanager.dart';
 
 /// Nama unik untuk tugas sinkronisasi periodik.
 const String syncTaskName = 'syncDataTask';
+
+/// Nama unik untuk tugas penjadwalan ulang notifikasi.
+const String rescheduleNotificationsTaskName = 'rescheduleNotificationsTask';
 
 /// Fungsi top-level yang dijalankan oleh Workmanager di background isolate.
 @pragma('vm:entry-point')
@@ -38,6 +43,23 @@ void callbackDispatcher() {
             );
             return false;
           }
+
+        case rescheduleNotificationsTaskName:
+          try {
+            final activeCustomerOp =
+                container.read(activeCustomerOperationProvider);
+            await activeCustomerOp.rescheduleAllNotifications();
+            Log.info('Background task "$task" (reschedule) selesai dengan sukses.');
+            return true;
+          } on Object catch (e, st) {
+            Log.error(
+              'Error saat menjalankan background task "$task" (reschedule)',
+              e: e,
+              st: st,
+            );
+            return false;
+          }
+
         default:
           Log.warning('Task tidak dikenal: $task');
           return false;
@@ -51,30 +73,34 @@ void callbackDispatcher() {
 
 /// Helper untuk inisialisasi di dalam background isolate.
 Future<void> _initializeBackgroundIsolate() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  Log.info('Firebase berhasil diinisialisasi di background isolate.');
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp();
+      Log.info('Firebase berhasil diinisialisasi di background isolate.');
+    }
+  } catch (e) {
+    Log.warning('Gagal menginisialisasi background isolate: $e');
+  }
 }
 
 /// Kelas helper untuk mengelola inisialisasi dan pendaftaran background service.
 class BackgroundService {
-  /// Melakukan inisialisasi Workmanager dan mendaftarkan tugas.
+  /// Melakukan inisialisasi Workmanager dan mendaftarkan semua tugas.
   static Future<void> init() async {
     try {
-      // Inisialisasi Workmanager
       await Workmanager().initialize(
         callbackDispatcher,
       );
       Log.info('Workmanager berhasil diinisialisasi.');
 
-      // Langsung daftarkan tugas setelah inisialisasi berhasil
       await registerPeriodicSync();
+      await registerPeriodicReschedule();
     } on Exception catch (e, st) {
       Log.error('Gagal menginisialisasi background services.', e: e, st: st);
     }
   }
 
-  /// Callback statis untuk dijalankan oleh AndroidAlarmManager saat pelanggan kedaluwarsa.
   @pragma('vm:entry-point')
   static Future<void> checkAndArchiveExpiredCustomers() async {
     Log.info(
@@ -113,7 +139,29 @@ class BackgroundService {
         'Tugas sinkronisasi periodik ($syncTaskName) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal mendaftarkan tugas periodik.', e: e, st: st);
+      Log.error('Gagal mendaftarkan tugas periodik sync.', e: e, st: st);
+    }
+  }
+
+  /// Mendaftarkan tugas penjadwalan ulang notifikasi secara periodik.
+  static Future<void> registerPeriodicReschedule() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        rescheduleNotificationsTaskName, // ID Unik
+        rescheduleNotificationsTaskName, // Nama tugas
+        frequency: const Duration(hours: 24), // Jalankan setiap 24 jam
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
+        initialDelay: const Duration(minutes: 5), // Mulai 5 menit setelah init
+        constraints: Constraints(
+          // TIDAK PERLU KONEKSI INTERNET UNTUK TUGAS INI (KODE SUDAH DIPERBAIKI)
+          networkType: NetworkType.notRequired, 
+        ),
+      );
+      Log.info(
+        'Tugas penjadwalan ulang notifikasi ($rescheduleNotificationsTaskName) berhasil didaftarkan.',
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal mendaftarkan tugas penjadwalan ulang notifikasi.', e: e, st: st);
     }
   }
 
