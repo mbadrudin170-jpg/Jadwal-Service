@@ -4,6 +4,7 @@
 // FITUR: Menambahkan pengecekan koneksi internet sebelum login.
 // FITUR: Menambahkan tombol untuk memilih akun yang sudah tersimpan & menggunakan app_sizes.
 // PERBAIKAN: Mencegah navigasi ke halaman list akun jika tidak ada akun tersimpan.
+// PERBAIKAN: Menambahkan state-management sederhana untuk mencegah login ganda & memberi feedback visual.
 
 import 'dart:async';
 
@@ -66,6 +67,9 @@ class _LoginViewState extends ConsumerState<_LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLocalStorageInitialized = false;
 
+  // 1. TAMBAHKAN VARIABEL STATUS UNTUK PROSES LOGIN
+  bool _isLoggingIn = false;
+
   @override
   void initState() {
     super.initState();
@@ -110,30 +114,37 @@ class _LoginViewState extends ConsumerState<_LoginView> {
     setState(() => _isPasswordVisible = !_isPasswordVisible);
   }
 
+  // 2. MODIFIKASI FUNGSI `_processLogin`
   Future<void> _processLogin() async {
-    final isConnected = await _internetService.isInternetAvailable();
-    if (!mounted) return;
+    // Jika sudah dalam proses login, jangan lakukan apa-apa
+    if (_isLoggingIn) return;
 
-    if (!isConnected) {
-      ToastUtil.error(
-          context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
-      return;
-    }
-
-    if (!_isLocalStorageInitialized) {
-      await _showErrorAlert('Layanan penyimpanan lokal belum siap. Coba lagi.');
-      return;
-    }
-
-    final phone = _phoneController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (phone.isEmpty || password.isEmpty) {
-      await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
-      return;
-    }
+    // Atur status menjadi "sedang login" dan perbarui UI
+    setState(() => _isLoggingIn = true);
 
     try {
+      final isConnected = await _internetService.isInternetAvailable();
+      if (!mounted) return;
+      if (!isConnected) {
+        ToastUtil.error(
+            context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
+        return;
+      }
+
+      if (!_isLocalStorageInitialized) {
+        await _showErrorAlert(
+            'Layanan penyimpanan lokal belum siap. Coba lagi.');
+        return;
+      }
+
+      final phone = _phoneController.text.trim();
+      final password = _passwordController.text.trim();
+
+      if (phone.isEmpty || password.isEmpty) {
+        await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
+        return;
+      }
+
       final querySnapshot = await _firestore
           .collection(TableNameValue.get(TableName.customer))
           .where(ColumnNames.phone, isEqualTo: phone)
@@ -172,11 +183,18 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       if (!mounted) return;
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
+    } finally {
+      // Apapun hasilnya, setel kembali status "sedang login" menjadi false
+      if (mounted) {
+        setState(() => _isLoggingIn = false);
+      }
     }
   }
 
   // DITAMBAHKAN: Logika untuk menangani pemilihan akun yang ada.
   Future<void> _handleChooseExistingAccount() async {
+    if (_isLoggingIn) return; // Jangan lakukan apa-apa jika sedang login
+
     if (!_isLocalStorageInitialized) {
       if (mounted) {
         ToastUtil.warning(context, 'Penyimpanan data lokal belum siap.');
@@ -235,6 +253,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 ),
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
+                enabled: !_isLoggingIn, // Nonaktifkan saat login
               ),
               gapH16,
               TextFormField(
@@ -253,18 +272,33 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 ),
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (final _) => _processLogin(),
+                enabled: !_isLoggingIn, // Nonaktifkan saat login
               ),
               gapH24,
+              // 3. MODIFIKASI TOMBOL LOGIN
               ElevatedButton(
-                onPressed: _processLogin,
+                onPressed: _isLoggingIn ? null : _processLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
+                  // Menonaktifkan tombol secara visual
+                  disabledBackgroundColor:
+                      TColors.primaryColor.withValues(alpha: 0.5),
                 ),
-                child: const Text('Login'),
+                child: _isLoggingIn
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text('Login'),
               ),
               gapH16,
               Row(
@@ -284,8 +318,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
               OutlinedButton.icon(
                 icon: const Icon(Icons.people_alt_outlined),
                 label: const Text('Pilih dari Akun Tersimpan'),
-                // diubah: Memanggil fungsi baru dengan logika pengecekan.
-                onPressed: _handleChooseExistingAccount,
+                onPressed: _isLoggingIn ? null : _handleChooseExistingAccount,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -296,21 +329,24 @@ class _LoginViewState extends ConsumerState<_LoginView> {
               gapH8,
               Align(
                 child: TextButton(
-                  onPressed: () {
-                    unawaited(showDialog<void>(
-                      context: context,
-                      builder: (final ctx) => AlertDialog(
-                        title: const Text('Fitur Dalam Pengembangan'),
-                        content: const Text('Fitur ini sedang kami kerjakan.'),
-                        actions: [
-                          TextButton(
-                            child: const Text('OK'),
-                            onPressed: () => Navigator.of(ctx).pop(),
-                          ),
-                        ],
-                      ),
-                    ));
-                  },
+                  onPressed: _isLoggingIn
+                      ? null
+                      : () {
+                          unawaited(showDialog<void>(
+                            context: context,
+                            builder: (final ctx) => AlertDialog(
+                              title: const Text('Fitur Dalam Pengembangan'),
+                              content:
+                                  const Text('Fitur ini sedang kami kerjakan.'),
+                              actions: [
+                                TextButton(
+                                  child: const Text('OK'),
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                ),
+                              ],
+                            ),
+                          ));
+                        },
                   child: const Text('Lupa Sandi?'),
                 ),
               ),

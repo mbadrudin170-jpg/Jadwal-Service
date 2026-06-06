@@ -1,4 +1,5 @@
 // path: lib/main/main_user/user_prod.dart
+// PERUBAHAN: Menambahkan inisialisasi NotifikasiServis agar APK user bisa menampilkan notifikasi.
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ void main() async {
       url: supabaseUrl, publishableKey: supabasePublishableKey);
   Log.info('Inisialisasi Supabase selesai.');
 
+  // Baris yang ditambahkan: Mengaktifkan service notifikasi untuk aplikasi user
   Log.info('Menginisialisasi workmanager');
   await BackgroundService.init();
 
