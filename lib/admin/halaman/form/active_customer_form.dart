@@ -328,8 +328,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .read(transactionProvider.notifier)
             .updateTransaction(transaksiData);
 
-        // Hapus notifikasi lama sebelum membuat yang baru
-        await notifikasiOpFirebase.deleteByTransactionId(transaksiId);
+        notifikasiOpFirebase.deleteByTransactionId(transaksiId);
       } else {
         pelangganAktifHasil = await pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
@@ -337,9 +336,29 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .read(transactionProvider.notifier)
             .addTransaction(transaksiData);
       }
+      // Menghitung titik tengah durasi untuk notifikasi 50%
+      final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
+      final durasiSetengahJalan =
+          Duration(microseconds: (totalDurasi.inMicroseconds / 2).round());
+      final tanggalNotifikasiSetengahJalan =
+          tanggalMulai.add(durasiSetengahJalan);
 
-      // Membuat daftar notifikasi untuk H-1, Hari H, dan H+1
+      // Membuat daftar notifikasi untuk 50%, H-1, Hari H, dan H+1
       final List<NotifikasiModel> daftarNotifikasi = [
+        // Notifikasi 50% masa aktif
+        NotifikasiModel(
+          id: const Uuid().v4(),
+          startDate: tanggalMulai,
+          endDate: tanggalBerakhir,
+          userId: _selectedPelanggan!.id,
+          tanggalTampil: tanggalNotifikasiSetengahJalan,
+          title: 'Info: Setengah Perjalanan Paket',
+          description:
+              'Anda telah menggunakan 50% dari masa aktif paket ${_selectedPaket!.name}.',
+          idTujuan: transaksiId,
+          type: TipeNotifikasiEnum.transaksi,
+          updatedAt: DateTime.now().toUtc(),
+        ),
         // H-1: Besok kedaluwarsa
         NotifikasiModel(
           id: const Uuid().v4(),
@@ -385,7 +404,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       ];
 
       for (final notif in daftarNotifikasi) {
-        await notifikasiOpFirebase.add(notif);
+        notifikasiOpFirebase.add(notif);
       }
       final internetService = ref.read(internetConnectionServiceProvider);
       final isOnline = await internetService.isInternetAvailable();
