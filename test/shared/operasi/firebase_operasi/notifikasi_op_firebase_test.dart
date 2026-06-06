@@ -137,6 +137,12 @@ void main() {
       );
     });
 
+test('2 getByUserId harus mengambil data yang ${ColumnNames.idTujuan} nya sesuai ', ()async
+{
+ final data = notifikasiOp.getByUserId(notifikasi1.idTujuan);
+expect(data, emits(isA))
+}
+);
     test('Test 2: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
