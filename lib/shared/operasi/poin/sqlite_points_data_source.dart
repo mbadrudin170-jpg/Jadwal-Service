@@ -54,7 +54,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 // ============================================================
 final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
   return SQLitePointsDataSource(
-    transactionOperation: ref.read(transactionOperationProvider),
-    packageOperation: ref.read(packageOperationProvider),
+    transactionOperation: ref.watch(transactionOperationProvider),
+    packageOperation: ref.watch(packageOperationProvider),
   );
 });

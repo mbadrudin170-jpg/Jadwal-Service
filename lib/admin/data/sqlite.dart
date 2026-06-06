@@ -1,12 +1,4 @@
 // path: lib/admin/data/sqlite.dart
-// diubah: Mengintegrasikan ColumnNames dan TableNameValue untuk mendefinisikan skema v50.
-// diubah: Menaikkan versi DB ke 51, menambahkan migrasi _migrateToV51
-//         untuk menambahkan kolom last_active_at ke tabel customer.
-// diubah: Semua definisi CREATE TABLE menggunakan nama tabel & kolom berbasis konstanta.
-// diubah: Semua index menggunakan nama tabel baru dari TableNameValue.
-// diperbaiki: Urutan direktif import (directives_ordering) diatur secara alfabetis.
-// diperbaiki: Menambahkan kembali konstanta _tabelPengaturanV45 yang hilang untuk mengatasi undefined_identifier.
-// diperbaiki: Escaping reserved keywords ("transaction" & "order") untuk mencegah SQLITE_ERROR.
 
 import 'dart:io';
 
