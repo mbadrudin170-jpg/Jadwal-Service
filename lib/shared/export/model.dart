@@ -8,6 +8,7 @@ export '../model/customer_model.dart';
 export '../model/event_model.dart';
 export '../model/feedback_model.dart';
 export '../model/has_id.dart';
+export '../model/notifikasi_model.dart';
 export '../model/order_model.dart';
 export '../model/package_model.dart';
 export '../model/save_result_model.dart';

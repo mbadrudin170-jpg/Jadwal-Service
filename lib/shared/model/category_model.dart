@@ -69,7 +69,6 @@ class CategoryModel implements HasId {
     );
   }
 
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(

@@ -493,3 +493,86 @@ final class FirebasePointsDataSourceProvider extends $FunctionalProvider<
 
 String _$firebasePointsDataSourceHash() =>
     r'e9809cc27aa8563d766cb3985c89542d486564ac';
+
+@ProviderFor(notifikasiOpFirebase)
+final notifikasiOpFirebaseProvider = NotifikasiOpFirebaseProvider._();
+
+final class NotifikasiOpFirebaseProvider extends $FunctionalProvider<
+    NotifikasiOpFirebase,
+    NotifikasiOpFirebase,
+    NotifikasiOpFirebase> with $Provider<NotifikasiOpFirebase> {
+  NotifikasiOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'notifikasiOpFirebaseProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$notifikasiOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotifikasiOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  NotifikasiOpFirebase create(Ref ref) {
+    return notifikasiOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotifikasiOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotifikasiOpFirebase>(value),
+    );
+  }
+}
+
+String _$notifikasiOpFirebaseHash() =>
+    r'489e388fa84e197606c8be3132176f01addc564c';
+
+@ProviderFor(activeNotificationsStream)
+final activeNotificationsStreamProvider = ActiveNotificationsStreamProvider._();
+
+final class ActiveNotificationsStreamProvider extends $FunctionalProvider<
+        AsyncValue<List<NotifikasiModel>>,
+        List<NotifikasiModel>,
+        Stream<List<NotifikasiModel>>>
+    with
+        $FutureModifier<List<NotifikasiModel>>,
+        $StreamProvider<List<NotifikasiModel>> {
+  ActiveNotificationsStreamProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'activeNotificationsStreamProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$activeNotificationsStreamHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<NotifikasiModel>> $createElement(
+          $ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<NotifikasiModel>> create(Ref ref) {
+    return activeNotificationsStream(ref);
+  }
+}
+
+String _$activeNotificationsStreamHash() =>
+    r'1018648da844207c72b484206aade00561771760';

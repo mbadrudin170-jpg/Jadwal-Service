@@ -4,20 +4,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-/// Kelas utilitas untuk mengurai (parse) tipe data dari format yang beragam.
-///
-/// Memusatkan logika parsing untuk memastikan konsistensi di seluruh model
-/// saat mengonversi data dari Firestore (Timestamp), SQLite (int), atau JSON (String).
 class ParserUtil {
   // Mencegah class ini diinstansiasi.
   ParserUtil._();
 
-  /// Mengurai nilai dinamis menjadi [DateTime].
-  ///
-  /// Menerima [Timestamp] dari Firestore, [int] (millisecondsSinceEpoch) dari SQLite,
-  /// [String] (ISO 8601), atau [DateTime] yang sudah ada.
-  /// Akan mengembalikan waktu dalam zona waktu lokal perangkat.
-  static DateTime? parseDateTime(final dynamic value) {
+  static DateTime? parseDateTime(dynamic value) {
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -29,16 +20,14 @@ class ParserUtil {
     return null;
   }
 
-  /// Mengurai nilai dinamis menjadi [bool].
-  ///
-  /// Menerima [bool] asli, [int] (1 untuk true, lainnya false),
-  /// atau [String] ('true', case-insensitive).
-  static bool parseBool(final dynamic value) {
+  static bool parseBool(dynamic value) {
     if (value == null) return false;
     if (value is bool) return value;
     if (value is int) return value == 1;
-    if (value is String) return value.toLowerCase() == 'true';
-
+    if (value is String) {
+      final lowered = value.toLowerCase();
+      return lowered == 'true' || lowered == '1';
+    }
     // Jika format tidak dikenali, anggap false.
     Log.warning('Format bool tidak dikenali: $value, dianggap false.');
     return false;

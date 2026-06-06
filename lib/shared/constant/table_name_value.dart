@@ -20,6 +20,7 @@ abstract final class TableNameValue {
     TableName.message: 'message',
     TableName.fcmToken: 'fcm_token',
     TableName.notification: 'notification',
+    TableName.notifikasi: 'notifikasi',
     TableName.statusGlobal: 'status_global',
     TableName.events: 'events',
   };

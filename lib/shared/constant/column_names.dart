@@ -165,4 +165,13 @@ abstract final class ColumnNames {
 
   /// Nama kolom untuk waktu pembuatan.
   static const String createdAt = 'created_at';
+
+  /// Nama kolom untuk judul (misalnya, judul notifikasi).
+  static const String title = 'title';
+
+  /// Nama kolom untuk status apakah sudah dibaca.
+  static const String isRead = 'is_read';
+
+  /// Nama kolom untuk ID tujuan navigasi.
+  static const String idTujuan = 'id_tujuan';
 }

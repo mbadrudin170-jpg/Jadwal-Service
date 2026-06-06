@@ -12,9 +12,7 @@ enum CategoryType {
   transfer,
 }
 
-/// Extension untuk mendapatkan representasi String yang mudah dibaca dari [CategoryType].
 extension CategoryTypeExtension on CategoryType {
-  /// Mengembalikan nama tampilan dalam bahasa Indonesia.
   String get displayName {
     switch (this) {
       case CategoryType.income:

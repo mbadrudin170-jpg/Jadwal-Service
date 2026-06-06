@@ -52,4 +52,5 @@ enum TableName {
 
   /// Tabel pengumuman (event).
   events,
+  notifikasi,
 }

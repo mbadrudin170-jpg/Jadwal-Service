@@ -3,11 +3,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
@@ -101,4 +102,21 @@ FirebasePointsDataSource firebasePointsDataSource(Ref ref) {
     transactionOpFirebase: transactionOp,
     packageOpFirebase: packageOp,
   );
+}
+
+@Riverpod(keepAlive: true)
+NotifikasiOpFirebase notifikasiOpFirebase(Ref ref) {
+  Log.info('Membuat instance NotifikasiOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return NotifikasiOpFirebase(
+    firestore: firestoreInstance,
+    baseOp: baseOp,
+  );
+}
+
+@riverpod
+Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
+  final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
+  return notifikasiOp.getActiveNotifications();
 }
