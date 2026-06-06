@@ -30,6 +30,7 @@ class NotifikasiOpFirebase {
         .where(ColumnNames.endDate,
             isGreaterThanOrEqualTo: Timestamp.fromDate(now))
         .where(ColumnNames.isRead, isEqualTo: false)
+        .where(ColumnNames.tanggalTampil, )
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {

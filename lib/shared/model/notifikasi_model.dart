@@ -125,6 +125,7 @@ class NotifikasiModel implements HasId {
       ColumnNames.idTujuan: idTujuan,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      ColumnNames.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
     };
   }
 
@@ -168,6 +169,7 @@ class NotifikasiModel implements HasId {
       ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
       ColumnNames.idTujuan: idTujuan,
       ColumnNames.isDeleted: isDeleted,
+      ColumnNames.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
