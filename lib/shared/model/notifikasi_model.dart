@@ -13,6 +13,7 @@ class NotifikasiModel implements HasId {
   final String id;
   final DateTime startDate;
   final DateTime endDate;
+  final DateTime tanggalTampil;
   final String title;
   final String description;
   final bool isRead;
@@ -21,12 +22,12 @@ class NotifikasiModel implements HasId {
   final String idTujuan;
   final bool isDeleted;
   final DateTime? archivedAt;
-  
 
   NotifikasiModel({
     final String? id,
     required this.startDate,
     required this.endDate,
+    required this.tanggalTampil,
     required this.title,
     required this.description,
     this.isRead = false,
@@ -43,6 +44,7 @@ class NotifikasiModel implements HasId {
     final String? id,
     final DateTime? startDate,
     final DateTime? endDate,
+    final DateTime? tanggalTampil,
     final String? title,
     final String? description,
     final bool? isRead,
@@ -64,6 +66,7 @@ class NotifikasiModel implements HasId {
       idTujuan: idTujuan ?? this.idTujuan,
       isDeleted: isDeleted ?? this.isDeleted,
       archivedAt: archivedAt ?? this.archivedAt,
+      tanggalTampil: tanggalTampil ?? this.tanggalTampil,
     );
   }
 
@@ -104,6 +107,8 @@ class NotifikasiModel implements HasId {
       idTujuan: map[ColumnNames.idTujuan] as String? ?? '',
       isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      tanggalTampil: ParserUtil.parseDateTime(map[ColumnNames.tanggalTampil]) ??
+          DateTime.now(),
     );
   }
 
@@ -132,6 +137,9 @@ class NotifikasiModel implements HasId {
           DateTime.now(),
       endDate:
           ParserUtil.parseDateTime(data[ColumnNames.endDate]) ?? DateTime.now(),
+      tanggalTampil:
+          ParserUtil.parseDateTime(data[ColumnNames.tanggalTampil]) ??
+              DateTime.now(),
       title: data[ColumnNames.title] as String? ?? '',
       description: data[ColumnNames.description] as String? ?? '',
       isRead: ParserUtil.parseBool(data[ColumnNames.isRead]),

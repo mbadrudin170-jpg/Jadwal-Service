@@ -174,4 +174,5 @@ abstract final class ColumnNames {
 
   /// Nama kolom untuk ID tujuan navigasi.
   static const String idTujuan = 'id_tujuan';
+  static const String tanggalTampil = 'tanggal_tampil';
 }
