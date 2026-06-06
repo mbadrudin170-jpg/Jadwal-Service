@@ -1,5 +1,6 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
 
+import 'dart:async';
 import 'dart:io'; // untuk Platform
 import 'dart:math';
 
@@ -11,6 +12,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 
 final notifikasiServisProvider = Provider<NotifikasiServis>((ref) {
   Log.info('Membuat instance NotifikasiServis melalui Riverpod provider');
@@ -52,6 +55,10 @@ class NotifikasiServis {
   AndroidNotificationChannel? channelNotifikasiPenting;
 
   static bool _zonaWaktuTelahDiinisialisasi = false;
+
+  /// untuk mencegah notifikasi ganda saat stream diperbarui.
+  final Set<String> _idNotifikasiTampil = {};
+  StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
 
   /// Konstruktor internal privat untuk implementasi Singleton.
   NotifikasiServis._internal() : plugin = FlutterLocalNotificationsPlugin() {
@@ -191,6 +198,53 @@ class NotifikasiServis {
     }
   }
 
+  ///
+  /// Metode ini akan mendengarkan stream dari `NotifikasiOpFirebase` dan
+  /// menampilkan notifikasi lokal untuk setiap item baru yang diterima.
+  void pantauNotifikasiDariFirebase(NotifikasiOpFirebase notifikasiOp) {
+    Log.info('Memulai pemantauan notifikasi dari Firebase...');
+
+    // Batalkan listener sebelumnya jika ada untuk menghindari kebocoran memori
+    _langgananNotifikasiFirebase?.cancel();
+
+    _langgananNotifikasiFirebase = notifikasiOp.getActiveNotifications().listen(
+      (listNotifikasi) {
+        Log.info(
+            'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.');
+        for (final notifikasi in listNotifikasi) {
+          // Hanya tampilkan notifikasi jika ID-nya belum pernah ditampilkan sebelumnya
+          if (!_idNotifikasiTampil.contains(notifikasi.id)) {
+            Log.info(
+                'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.title}');
+            tampilkanNotifikasiLangsung(
+              title: notifikasi.title,
+              body: notifikasi.description,
+              payload: 'notifikasi_id_${notifikasi.id}',
+            );
+            // Tandai notifikasi ini sebagai sudah ditampilkan
+            _idNotifikasiTampil.add(notifikasi.id);
+          }
+        }
+      },
+      onError: (e, StackTrace st) {
+        Log.error(
+          'Error pada stream notifikasi Firebase',
+          e: e,
+          st: st,
+        );
+      },
+      onDone: () {
+        Log.warning('Stream notifikasi Firebase selesai.');
+      },
+    );
+  }
+
+  void hentikanPemantauanNotifikasi() {
+    Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
+    _langgananNotifikasiFirebase?.cancel();
+    _idNotifikasiTampil.clear();
+  }
+
   // 4. Meminta izin dari pengguna untuk menampilkan notifikasi
   /// Meminta izin dari pengguna untuk menampilkan notifikasi.
   Future<void> requestPermissions() async {
@@ -261,8 +315,9 @@ class NotifikasiServis {
     }
     Log.info('Channel notifikasi ditemukan: ${channelNotifikasiPenting!.id}');
 
-    final int id = _random.nextInt(pow(2, 31).toInt());
-    Log.info('Mengirim notifikasi langsung (ID Unik: $id, Judul: $title)');
+    // Gunakan hash code dari payload atau title/body jika payload null, agar lebih konsisten
+    final int id = payload?.hashCode ?? _random.nextInt(pow(2, 31).toInt());
+    Log.info('Mengirim notifikasi langsung (ID: $id, Judul: $title)');
 
     final androidDetails = AndroidNotificationDetails(
       channelNotifikasiPenting!.id,

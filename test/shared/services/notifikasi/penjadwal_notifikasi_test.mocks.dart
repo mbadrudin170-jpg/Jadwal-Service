@@ -9,9 +9,11 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i3;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/shared/model/transaction_model.dart' as _i7;
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
+import 'package:wifi/shared/model/transaction_model.dart' as _i8;
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i6;
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
+    as _i7;
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart' as _i4;
 
 // ignore_for_file: type=lint
@@ -100,6 +102,25 @@ class MockNotifikasiServis extends _i1.Mock implements _i4.NotifikasiServis {
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),
       ) as _i5.Future<void>);
+
+  @override
+  void pantauNotifikasiDariFirebase(_i6.NotifikasiOpFirebase? notifikasiOp) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #pantauNotifikasiDariFirebase,
+          [notifikasiOp],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void hentikanPemantauanNotifikasi() => super.noSuchMethod(
+        Invocation.method(
+          #hentikanPemantauanNotifikasi,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i5.Future<void> requestPermissions() => (super.noSuchMethod(
@@ -223,7 +244,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i4.NotifikasiServis {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTransactionOpFirebase extends _i1.Mock
-    implements _i6.TransactionOpFirebase {
+    implements _i7.TransactionOpFirebase {
   MockTransactionOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
@@ -238,7 +259,7 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i3.FirebaseFirestore);
 
   @override
-  _i5.Future<void> addTransaction(_i7.TransactionModel? transaction) =>
+  _i5.Future<void> addTransaction(_i8.TransactionModel? transaction) =>
       (super.noSuchMethod(
         Invocation.method(
           #addTransaction,
@@ -249,27 +270,27 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<_i7.TransactionModel?> getLatestPaidTransactionByUserId(
+  _i5.Future<_i8.TransactionModel?> getLatestPaidTransactionByUserId(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getLatestPaidTransactionByUserId,
           [customerId],
         ),
-        returnValue: _i5.Future<_i7.TransactionModel?>.value(),
-      ) as _i5.Future<_i7.TransactionModel?>);
+        returnValue: _i5.Future<_i8.TransactionModel?>.value(),
+      ) as _i5.Future<_i8.TransactionModel?>);
 
   @override
-  _i5.Future<List<_i7.TransactionModel>> getTransactionsByCustomerId(
+  _i5.Future<List<_i8.TransactionModel>> getTransactionsByCustomerId(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByCustomerId,
           [customerId],
         ),
-        returnValue: _i5.Future<List<_i7.TransactionModel>>.value(
-            <_i7.TransactionModel>[]),
-      ) as _i5.Future<List<_i7.TransactionModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
   _i5.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
@@ -303,16 +324,16 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i7.TransactionModel>> getPaketAktifCustomer(
+  _i5.Future<List<_i8.TransactionModel>> getPaketAktifCustomer(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPaketAktifCustomer,
           [customerId],
         ),
-        returnValue: _i5.Future<List<_i7.TransactionModel>>.value(
-            <_i7.TransactionModel>[]),
-      ) as _i5.Future<List<_i7.TransactionModel>>);
+        returnValue: _i5.Future<List<_i8.TransactionModel>>.value(
+            <_i8.TransactionModel>[]),
+      ) as _i5.Future<List<_i8.TransactionModel>>);
 
   @override
   _i5.Future<_i3.DocumentReference<Object?>> add(

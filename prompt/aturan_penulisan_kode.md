@@ -42,3 +42,8 @@ Jika belum mengetahui padanan kata yang tepat:
 
 ## withOpacity
 1. dilarang menggunakan withOpacity, diharuskan menggunakan withValues, withAlpha, demi konsistensi proyek
+
+## riverpod
+1. semuanya harus menggunakan flutter_riverpod dan riverpod_annotation demi menjaga konsistensinya.
+2. setiap ui nantinya yang membutuhkan data akan memanggil provider-provider itu.
+3. untuk provider yang akan terus digunakan selama apk hidup maka harus menggunakan @Riverpod(keepAlive: true).

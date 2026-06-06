@@ -1,10 +1,15 @@
 // path: test/shared/services/notifikasi/notifikasi_servis_test.dart
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/model/notifikasi_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
 import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
 
 import 'notifikasi_servis_test.mocks.dart';
@@ -13,6 +18,7 @@ import 'notifikasi_servis_test.mocks.dart';
 @GenerateMocks([
   FlutterLocalNotificationsPlugin,
   AndroidFlutterLocalNotificationsPlugin,
+  NotifikasiOpFirebase,
 ])
 void main() {
   // WAJIB: Atasi error "Binding has not yet been initialized"
@@ -21,6 +27,7 @@ void main() {
   late NotifikasiServis notifikasiServis;
   late MockFlutterLocalNotificationsPlugin mockPlugin;
   late MockAndroidFlutterLocalNotificationsPlugin mockAndroidPlugin;
+  late MockNotifikasiOpFirebase mockNotifikasiOp;
 
   // Mengatur handler palsu untuk background channel
   const MethodChannel channel =
@@ -29,6 +36,7 @@ void main() {
   setUp(() {
     mockPlugin = MockFlutterLocalNotificationsPlugin();
     mockAndroidPlugin = MockAndroidFlutterLocalNotificationsPlugin();
+    mockNotifikasiOp = MockNotifikasiOpFirebase();
     notifikasiServis = NotifikasiServis.testing(mockPlugin);
 
     // Mengatur agar pemanggilan resolvePlatformSpecificImplementation mengembalikan mock android
@@ -70,6 +78,10 @@ void main() {
       }
       return null;
     });
+
+    // Inisialisasi channel notifikasi penting
+    notifikasiServis.channelNotifikasiPenting =
+        const AndroidNotificationChannel('id', 'name');
   });
 
   tearDown(() {
@@ -115,9 +127,6 @@ void main() {
     });
 
     test('2. tampilkanNotifikasiLangsung memanggil show pada plugin', () async {
-      notifikasiServis.channelNotifikasiPenting =
-          const AndroidNotificationChannel('id', 'name');
-
       when(mockPlugin.show(
         id: anyNamed('id'),
         title: anyNamed('title'),
@@ -145,9 +154,6 @@ void main() {
     });
 
     test('3. jadwalNotifikasi memanggil zonedSchedule pada plugin', () async {
-      notifikasiServis.channelNotifikasiPenting =
-          const AndroidNotificationChannel('id', 'name');
-
       when(mockPlugin.pendingNotificationRequests())
           .thenAnswer((_) async => []);
 
@@ -203,6 +209,122 @@ void main() {
       await notifikasiServis.batalSemuaNotifikasi();
 
       verify(mockPlugin.cancelAll()).called(1);
+    });
+
+    test(
+        '6. pantauNotifikasiDariFirebase harus menampilkan notifikasi dari stream dan mencegah duplikat',
+        () async {
+      // 1. Setup
+      final streamController = StreamController<List<NotifikasiModel>>();
+      final now = DateTime.now();
+      final notif1 = NotifikasiModel(
+        id: 'notif-1',
+        title: 'Judul 1',
+        description: 'Deskripsi 1',
+        tanggalTampil: now,
+        startDate: now,
+        endDate: now.add(const Duration(days: 1)),
+        type: TipeNotifikasiEnum.info,
+        updatedAt: now,
+        idTujuan: 'user-1',
+      );
+      final notif2 = NotifikasiModel(
+        id: 'notif-2',
+        title: 'Judul 2',
+        description: 'Deskripsi 2',
+        tanggalTampil: now,
+        startDate: now,
+        endDate: now.add(const Duration(days: 1)),
+        type: TipeNotifikasiEnum.info,
+        updatedAt: now,
+        idTujuan: 'user-2',
+      );
+
+      // Atur stub untuk getActiveNotifications agar mengembalikan stream dari controller
+      when(mockNotifikasiOp.getActiveNotifications())
+          .thenAnswer((_) => streamController.stream);
+
+      // Atur stub untuk show() pada plugin notifikasi
+      when(mockPlugin.show(
+        id: anyNamed('id'),
+        title: anyNamed('title'),
+        body: anyNamed('body'),
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: anyNamed('payload'),
+      )).thenAnswer((_) async => {});
+
+      // 2. Action
+      notifikasiServis.pantauNotifikasiDariFirebase(mockNotifikasiOp);
+
+      // 3. Menambahkan data ke stream
+      streamController.add([notif1, notif2]);
+
+      // Tunggu sebentar agar stream diproses
+      await Future.delayed(Duration.zero);
+
+      // 4. Verifikasi
+      // Verifikasi show() dipanggil 2 kali
+      verify(mockPlugin.show(
+        id: anyNamed('id'),
+        title: 'Judul 1',
+        body: 'Deskripsi 1',
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: 'notifikasi_id_notif-1',
+      )).called(1);
+
+      verify(mockPlugin.show(
+        id: anyNamed('id'),
+        title: 'Judul 2',
+        body: 'Deskripsi 2',
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: 'notifikasi_id_notif-2',
+      )).called(1);
+
+      // 5. Menambahkan data yang sama lagi (plus satu baru) untuk menguji pencegahan duplikat
+      final notif3 = NotifikasiModel(
+        id: 'notif-3',
+        title: 'Judul 3',
+        description: 'Deskripsi 3',
+        tanggalTampil: now,
+        startDate: now,
+        endDate: now.add(const Duration(days: 1)),
+        type: TipeNotifikasiEnum.info,
+        updatedAt: now,
+        idTujuan: 'user-3',
+      );
+      streamController.add([notif1, notif2, notif3]);
+
+      await Future.delayed(Duration.zero);
+
+      // Verifikasi show() untuk notif3 yang baru
+      verify(mockPlugin.show(
+        id: anyNamed('id'),
+        title: 'Judul 3',
+        body: 'Deskripsi 3',
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: 'notifikasi_id_notif-3',
+      )).called(1);
+
+      // Verifikasi bahwa show() tidak dipanggil lagi untuk notif1 dan notif2
+      verifyNever(mockPlugin.show(
+        id: anyNamed('id'),
+        title: 'Judul 1',
+        body: 'Deskripsi 1',
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: 'notifikasi_id_notif-1',
+      ));
+
+      verifyNever(mockPlugin.show(
+        id: anyNamed('id'),
+        title: 'Judul 2',
+        body: 'Deskripsi 2',
+        notificationDetails: anyNamed('notificationDetails'),
+        payload: 'notifikasi_id_notif-2',
+      ));
+
+      // 6. Cleanup
+      notifikasiServis.hentikanPemantauanNotifikasi();
+      streamController.close();
     });
   });
 }

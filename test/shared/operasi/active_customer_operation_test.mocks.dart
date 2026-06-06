@@ -12,6 +12,8 @@ import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
 import 'package:wifi/shared/model/customer_model.dart' as _i9;
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
+    as _i11;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
     as _i8;
@@ -487,6 +489,25 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
+
+  @override
+  void pantauNotifikasiDariFirebase(_i11.NotifikasiOpFirebase? notifikasiOp) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #pantauNotifikasiDariFirebase,
+          [notifikasiOp],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void hentikanPemantauanNotifikasi() => super.noSuchMethod(
+        Invocation.method(
+          #hentikanPemantauanNotifikasi,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.Future<void> requestPermissions() => (super.noSuchMethod(

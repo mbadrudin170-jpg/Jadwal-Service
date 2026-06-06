@@ -4,6 +4,7 @@ enum TipeNotifikasiEnum {
   transaksi,
   events,
   order,
+  info
 }
 
 extension TipeNotifikasiExtension on TipeNotifikasiEnum {
@@ -15,6 +16,8 @@ extension TipeNotifikasiExtension on TipeNotifikasiEnum {
         return 'Event';
       case TipeNotifikasiEnum.order:
         return 'Pesanan';
-    }
+        case TipeNotifikasiEnum.info:
+        return 'Info';
+      }
   }
 }

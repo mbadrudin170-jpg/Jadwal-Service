@@ -32,6 +32,9 @@ import 'package:flutter_local_notifications_platform_interface/flutter_local_not
     as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:timezone/timezone.dart' as _i7;
+import 'package:wifi/shared/model/notifikasi_model.dart' as _i18;
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
+    as _i17;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -650,4 +653,54 @@ class MockAndroidFlutterLocalNotificationsPlugin extends _i1.Mock
         returnValue: _i3.Future<List<_i5.ActiveNotification>>.value(
             <_i5.ActiveNotification>[]),
       ) as _i3.Future<List<_i5.ActiveNotification>>);
+}
+
+/// A class which mocks [NotifikasiOpFirebase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNotifikasiOpFirebase extends _i1.Mock
+    implements _i17.NotifikasiOpFirebase {
+  MockNotifikasiOpFirebase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Stream<List<_i18.NotifikasiModel>> getActiveNotifications() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getActiveNotifications,
+          [],
+        ),
+        returnValue: _i3.Stream<List<_i18.NotifikasiModel>>.empty(),
+      ) as _i3.Stream<List<_i18.NotifikasiModel>>);
+
+  @override
+  _i3.Future<void> add(_i18.NotifikasiModel? notifikasi) => (super.noSuchMethod(
+        Invocation.method(
+          #add,
+          [notifikasi],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> delete(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #delete,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> tandaiSudahDibaca(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #tandaiSudahDibaca,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }
