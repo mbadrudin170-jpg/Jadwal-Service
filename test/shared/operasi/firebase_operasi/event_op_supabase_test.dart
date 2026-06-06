@@ -123,29 +123,58 @@ void main() {
       });
     });
 
-    group('upsert', () {
-      test('harus memanggil upsert di Supabase dengan data yang benar',
+    group('create', () {
+      test('harus memanggil insert di Supabase dengan data yang benar',
           () async {
         final String eventId = event1Map[ColumnNames.id]?.toString() ?? '';
         final eventModel = EventModel.fromSupabase(eventId, event1Map);
         final dataPayload = eventModel.toSupabase();
 
-        final mockUpsertBuilder =
+        final mockInsertBuilder =
             MockPostgrestFilterBuilder<List<Map<String, dynamic>>>();
 
-        when(mockQueryBuilder.upsert(dataPayload))
-            .thenAnswer((_) => mockUpsertBuilder);
+        when(mockQueryBuilder.insert(dataPayload))
+            .thenAnswer((_) => mockInsertBuilder);
 
-        when(mockUpsertBuilder.then(any, onError: anyNamed('onError')))
+        when(mockInsertBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 
-        await eventOpSupabase.upsert(eventModel);
+        await eventOpSupabase.create(eventModel);
 
-        verify(mockQueryBuilder.upsert(dataPayload)).called(1);
+        verify(mockQueryBuilder.insert(dataPayload)).called(1);
+      });
+    });
+
+    group('update', () {
+      test('harus memanggil update dan eq di Supabase dengan data yang benar',
+          () async {
+        final String eventId = event1Map[ColumnNames.id]?.toString() ?? '';
+        final eventModel = EventModel.fromSupabase(eventId, event1Map);
+        final dataPayload = eventModel.toSupabase();
+
+        final mockUpdateBuilder =
+            MockPostgrestFilterBuilder<List<Map<String, dynamic>>>();
+
+        when(mockQueryBuilder.update(dataPayload))
+            .thenAnswer((_) => mockUpdateBuilder);
+        when(mockUpdateBuilder.eq(ColumnNames.id, eventModel.id))
+            .thenAnswer((_) => mockUpdateBuilder);
+
+        when(mockUpdateBuilder.then(any, onError: anyNamed('onError')))
+            .thenAnswer((invocation) async {
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
+          return callback([]);
+        });
+
+        await eventOpSupabase.update(eventModel);
+
+        verify(mockQueryBuilder.update(dataPayload)).called(1);
+        verify(mockUpdateBuilder.eq(ColumnNames.id, eventModel.id)).called(1);
       });
     });
 
@@ -161,8 +190,8 @@ void main() {
 
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 

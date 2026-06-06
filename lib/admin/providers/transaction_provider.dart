@@ -3,6 +3,8 @@
 import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart'; // Impor enum SortBy
+import 'package:wifi/admin/providers/statistik_provider.dart';
+import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
@@ -121,6 +123,8 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.addTransaction(transaction);
+      ref.invalidate(walletProvider);
+      ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
   }
@@ -130,6 +134,8 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.updateTransaction(transaction.id, transaction);
+      ref.invalidate(walletProvider);
+      ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
   }
@@ -139,6 +145,8 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDelete(id);
+      ref.invalidate(walletProvider);
+      ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
   }
@@ -147,6 +155,8 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDeleteAll();
+      ref.invalidate(walletProvider);
+      ref.invalidate(statistikProvider);
       return _loadData(SortBy.newest); // Reset ke newest jika semua dihapus
     });
   }

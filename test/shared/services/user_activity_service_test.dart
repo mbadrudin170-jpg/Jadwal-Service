@@ -29,6 +29,7 @@ void main() {
     // Inisialisasi service dengan mock
     userActivityService = UserActivityService(
       customerOpFirebase: mockCustomerOpFirebase,
+      prefs: sharedPreferences,
     );
   });
 

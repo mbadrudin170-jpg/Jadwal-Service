@@ -83,7 +83,7 @@ void main() {
       dotenv.env['SUPABASE_URL'] = 'https://mock.supabase.co';
       dotenv.env['SUPABASE_PUBLISHABLE_KEY'] = 'mock_key_12345';
 
-      await admin_dev.main();
+      admin_dev.main();
       await tester.pumpAndSettle();
       expect(find.byType(AppAdmin), findsOneWidget);
 
@@ -96,7 +96,7 @@ void main() {
       dotenv.env.remove('SUPABASE_URL');
       dotenv.env.remove('SUPABASE_PUBLISHABLE_KEY');
 
-      await admin_dev.main();
+      admin_dev.main();
       await tester.pumpAndSettle();
       expect(find.byType(AppAdmin), findsOneWidget);
     });
