@@ -8,7 +8,6 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-/// Operasi Firebase untuk model Notifikasi.
 class NotifikasiOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
@@ -20,17 +19,14 @@ class NotifikasiOpFirebase {
   })  : _firestore = firestore,
         _baseOp = baseOp;
 
-  /// Mendapatkan stream daftar notifikasi yang masih berlaku (berdasarkan endDate).
-  /// Catatan: Jika query dibatasi per-user, disarankan menambah filter ColumnNames.idTujuan
   Stream<List<NotifikasiModel>> getActiveNotifications() {
     final now = DateTime.now().toUtc();
     return _firestore
         .collection(_collection)
         .where(ColumnNames.isDeleted, isEqualTo: false)
-        .where(ColumnNames.endDate,
-            isGreaterThanOrEqualTo: Timestamp.fromDate(now))
         .where(ColumnNames.isRead, isEqualTo: false)
-        .where(ColumnNames.tanggalTampil, )
+        .where(ColumnNames.tanggalTampil,
+            isLessThanOrEqualTo: Timestamp.fromDate(now))
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -39,13 +35,9 @@ class NotifikasiOpFirebase {
     });
   }
 
-  /// Menambahkan atau memperbarui notifikasi secara aman via BaseOp.
   Future<void> add(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
-
-      // Gunakan 'insert' karena di dalamnya memakai docRef.set(data),
-      // yang aman untuk data baru maupun update total data lama.
       await _baseOp.insert(
         _collection,
         notifikasi.id,
@@ -57,8 +49,6 @@ class NotifikasiOpFirebase {
     }
   }
 
-  /// Menghapus notifikasi berdasarkan ID secara permanen (Hard Delete).
-  /// Jika ingin soft delete, Anda bisa membuat metode memanggil _baseOp.softDelete.
   Future<void> delete(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');

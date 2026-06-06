@@ -40,8 +40,9 @@ void main() {
       type: TipeNotifikasiEnum.transaksi,
       idTujuan: 'user1',
       startDate: now,
-      updatedAt: now,
       endDate: now.add(const Duration(days: 1)),
+      tanggalTampil: now,
+      updatedAt: now,
     );
 
     final notifikasi2 = NotifikasiModel(
@@ -51,8 +52,9 @@ void main() {
       type: TipeNotifikasiEnum.events,
       idTujuan: 'user2',
       startDate: now,
-      updatedAt: now,
       endDate: now.add(const Duration(days: 2)),
+      tanggalTampil: now,
+      updatedAt: now,
     );
 
     final notifikasiKedaluwarsa = NotifikasiModel(
@@ -62,8 +64,9 @@ void main() {
       type: TipeNotifikasiEnum.order,
       idTujuan: 'user3',
       startDate: now.subtract(const Duration(days: 2)),
-      updatedAt: now.subtract(const Duration(days: 2)),
       endDate: now.subtract(const Duration(days: 1)),
+      tanggalTampil: now.subtract(const Duration(days: 2)),
+      updatedAt: now.subtract(const Duration(days: 2)),
     );
 
     final notifikasiTerbaca = NotifikasiModel(
@@ -74,8 +77,9 @@ void main() {
       idTujuan: 'user4',
       isRead: true,
       startDate: now,
-      updatedAt: now,
       endDate: now.add(const Duration(days: 1)),
+      tanggalTampil: now,
+      updatedAt: now,
     );
 
     final notifikasiDihapus = NotifikasiModel(
@@ -86,8 +90,9 @@ void main() {
       idTujuan: 'user5',
       isDeleted: true,
       startDate: now,
-      updatedAt: now,
       endDate: now.add(const Duration(days: 1)),
+      tanggalTampil: now,
+      updatedAt: now,
     );
 
     test(
