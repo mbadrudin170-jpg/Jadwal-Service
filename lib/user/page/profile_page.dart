@@ -11,6 +11,7 @@ import 'package:wifi/shared/enum/user_role_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
@@ -50,9 +51,9 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  final CustomerOpFirebase _customerOp = CustomerOpFirebase();
-  final TransactionOpFirebase _transactionOp = TransactionOpFirebase();
-  final PackageOpFirebase _packageOp = PackageOpFirebase();
+  late final CustomerOpFirebase _customerOp;
+  late final TransactionOpFirebase _transactionOp;
+  late final PackageOpFirebase _packageOp;
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
   Future<_ProfileData>? _futureProfileData;
@@ -61,14 +62,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     ref.read(interstitialAdServiceProvider).preloadAd();
-    _initializeData();
-  }
-
-  // DIUBAH: Logika inisialisasi data disatukan dalam satu method.
-  void _initializeData() {
-    setState(() {
-      _futureProfileData = _loadProfileData();
-    });
+    _customerOp = ref.read(customerOpFirebaseProvider);
+    _transactionOp = ref.read(transactionOpFirebaseProvider);
+    _packageOp = ref.read(packageOpFirebaseProvider);
+    _loadProfileData();
   }
 
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
@@ -136,9 +133,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   // Method _reloadData diubah untuk memanggil _initializeData lagi.
   Future<void> _reloadData() async {
-    Log.info('Memuat ulang semua data profil via onRefresh.');
-    _initializeData();
-    // Menunggu future yang baru selesai agar RefreshIndicator berhenti.
+    setState(() {
+      _futureProfileData = _loadProfileData();
+    });
     await _futureProfileData;
     if (mounted) {
       ToastUtil.success(context, 'Data berhasil diperbarui.');

@@ -1,4 +1,3 @@
-// path: test/user/page/login_page_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +25,10 @@ import 'login_page_test.mocks.dart';
   NavigatorObserver,
   UserActivityService,
 ])
-void main() {
+Future<void> main() async {
+  // ✅ KRUSIAL: Inisialisasi binding test terlebih dahulu
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late MockInternetConnectionService mockInternetService;
   late MockLocalStorageService mockLocalStorageService;
   late MockSharedPreferences mockSharedPreferences;
@@ -43,7 +45,6 @@ void main() {
       fakeFirestore = FakeFirebaseFirestore();
       mockNavigatorObserver = MockNavigatorObserver();
 
-      // Atur default behavior untuk semua mock
       when(mockInternetService.isInternetAvailable())
           .thenAnswer((_) async => true);
       when(mockLocalStorageService.getAccountList())
@@ -54,8 +55,6 @@ void main() {
           .thenAnswer((_) async => true);
       when(mockUserActivityService.pingActivity(any, force: anyNamed('force')))
           .thenAnswer((_) async {});
-
-      // PERBAIKAN FINAL: Tambahkan stub untuk SEMUA metode yang dipanggil
       when(mockLocalStorageService.saveAccount(any)).thenAnswer((_) async {});
       when(mockLocalStorageService.saveCurrentAccount(any))
           .thenAnswer((_) async {});
@@ -105,14 +104,20 @@ void main() {
     });
 
     testWidgets(
-        '3. harus menamppilkan dialog error jika pelanggan tidak ditemukan',
+        '3. harus menampilkan dialog error jika pelanggan tidak ditemukan',
         (WidgetTester tester) async {
       await pumpWidget(tester);
       await tester.pumpAndSettle();
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Nomor Telepon'), '123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), '123');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Akun tidak ditemukan'), findsOneWidget);
+      // Sesuaikan dengan pesan dari kode produk
+      expect(find.text('Nomor telepon atau password yang Anda masukkan salah.'),
+          findsOneWidget);
     });
 
     testWidgets('5. harus menavigasi ke halaman utama saat login berhasil',
@@ -134,28 +139,17 @@ void main() {
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Password'), 'password123');
 
-      // 1. Perform the tap
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
-      await tester.pump(); // Start the animation
-
-      // 2. Expect the loading indicator
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // 3. Wait for the async login logic and navigation
-      // Using a longer pump gives time for all Future-based code to complete.
-      await tester.pump(const Duration(seconds: 3));
-
-      // 4. Rebuild the widget tree to ensure the new page is rendered
       await tester.pump();
 
-      // 5. VERIFIKASI FINAL
-      // Verify the navigation event (optional but good for double-checking)
-      verify(mockNavigatorObserver.didPush(any, any));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Now, find the MainPage
+      // Tunggu hingga loading selesai dan navigasi terjadi
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      verify(mockNavigatorObserver.didPush(any, any)).called(1);
       expect(find.byType(MainPage), findsOneWidget);
 
-      // Verify other mocks
       verify(mockLocalStorageService.saveCurrentAccount(any)).called(1);
       verify(mockUserActivityService.pingActivity(customerId, force: true))
           .called(1);

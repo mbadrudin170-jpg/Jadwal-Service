@@ -8,7 +8,9 @@ import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 
 part 'firebase_operation_provider.g.dart';
 
@@ -59,16 +61,34 @@ FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
   );
 }
 
-/// Provider untuk mengelola stream data feedback berdasarkan userId.
 @riverpod
 Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
   final feedbackOp = ref.read(feedbackOpFirebaseProvider);
   return feedbackOp.getByUser(userId);
 }
+
 @riverpod
 CustomerOpFirebase customerOpFirebase(Ref ref) {
-  // Saat ini tidak ada dependensi, jadi langsung buat instance.
-  return CustomerOpFirebase();
+  final firestoreInstance = ref.watch(firestoreProvider);
+  return CustomerOpFirebase(
+    firestore: firestoreInstance,
+  );
+}
+
+@riverpod
+PackageOpFirebase packageOpFirebase(Ref ref) {
+  final firestoreInstance = ref.watch(firestoreProvider);
+  return PackageOpFirebase(
+    firestore: firestoreInstance,
+  );
+}
+
+@riverpod
+TransactionOpFirebase transactionOpFirebase(Ref ref) {
+  final firestoreInstance = ref.watch(firestoreProvider);
+  return TransactionOpFirebase(
+    firestore: firestoreInstance,
+  );
 }
 
 /// Provider untuk menyediakan instance dari UserActivityService.

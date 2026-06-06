@@ -245,12 +245,8 @@ final class FeedbackOpFirebaseProvider extends $FunctionalProvider<
 String _$feedbackOpFirebaseHash() =>
     r'3c193febabd074229daf73794f7242e9c5eb7738';
 
-/// Provider untuk mengelola stream data feedback berdasarkan userId.
-
 @ProviderFor(feedbackStream)
 final feedbackStreamProvider = FeedbackStreamFamily._();
-
-/// Provider untuk mengelola stream data feedback berdasarkan userId.
 
 final class FeedbackStreamProvider extends $FunctionalProvider<
         AsyncValue<List<FeedbackModel>>,
@@ -259,7 +255,6 @@ final class FeedbackStreamProvider extends $FunctionalProvider<
     with
         $FutureModifier<List<FeedbackModel>>,
         $StreamProvider<List<FeedbackModel>> {
-  /// Provider untuk mengelola stream data feedback berdasarkan userId.
   FeedbackStreamProvider._(
       {required FeedbackStreamFamily super.from,
       required String super.argument})
@@ -309,8 +304,6 @@ final class FeedbackStreamProvider extends $FunctionalProvider<
 
 String _$feedbackStreamHash() => r'37aa40ee5f44034dbf909d0c085d96cda07c7989';
 
-/// Provider untuk mengelola stream data feedback berdasarkan userId.
-
 final class FeedbackStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {
   FeedbackStreamFamily._()
@@ -321,8 +314,6 @@ final class FeedbackStreamFamily extends $Family
           $allTransitiveDependencies: null,
           isAutoDispose: true,
         );
-
-  /// Provider untuk mengelola stream data feedback berdasarkan userId.
 
   FeedbackStreamProvider call(
     String userId,
@@ -375,4 +366,91 @@ final class CustomerOpFirebaseProvider extends $FunctionalProvider<
 }
 
 String _$customerOpFirebaseHash() =>
-    r'7577a84a5c278f4792c37268839cc74b1afe2d65';
+    r'9fe56bd5649dca605abc63e73053d675e896c12b';
+
+@ProviderFor(packageOpFirebase)
+final packageOpFirebaseProvider = PackageOpFirebaseProvider._();
+
+final class PackageOpFirebaseProvider extends $FunctionalProvider<
+    PackageOpFirebase,
+    PackageOpFirebase,
+    PackageOpFirebase> with $Provider<PackageOpFirebase> {
+  PackageOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'packageOpFirebaseProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$packageOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<PackageOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PackageOpFirebase create(Ref ref) {
+    return packageOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PackageOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PackageOpFirebase>(value),
+    );
+  }
+}
+
+String _$packageOpFirebaseHash() => r'95175763100452b50a5372c436f9849d295dd39f';
+
+@ProviderFor(transactionOpFirebase)
+final transactionOpFirebaseProvider = TransactionOpFirebaseProvider._();
+
+final class TransactionOpFirebaseProvider extends $FunctionalProvider<
+    TransactionOpFirebase,
+    TransactionOpFirebase,
+    TransactionOpFirebase> with $Provider<TransactionOpFirebase> {
+  TransactionOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'transactionOpFirebaseProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionOpFirebase> $createElement(
+          $ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  TransactionOpFirebase create(Ref ref) {
+    return transactionOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionOpFirebase>(value),
+    );
+  }
+}
+
+String _$transactionOpFirebaseHash() =>
+    r'64ad7d5fa2e92daeb151d5a8bf85a9bbfc0e3642';

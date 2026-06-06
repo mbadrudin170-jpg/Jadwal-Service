@@ -8,12 +8,9 @@ part of 'shared_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
 
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider = SharedPreferencesProvider._();
-
-/// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
 
 final class SharedPreferencesProvider extends $FunctionalProvider<
         AsyncValue<SharedPreferences>,
@@ -22,7 +19,6 @@ final class SharedPreferencesProvider extends $FunctionalProvider<
     with
         $FutureModifier<SharedPreferences>,
         $FutureProvider<SharedPreferences> {
-  /// Provider untuk menyediakan instance SharedPreferences secara asynchronous.
   SharedPreferencesProvider._()
       : super(
           from: null,
@@ -51,12 +47,8 @@ final class SharedPreferencesProvider extends $FunctionalProvider<
 
 String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
 
-/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
-
 @ProviderFor(localStorageService)
 final localStorageServiceProvider = LocalStorageServiceProvider._();
-
-/// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
 
 final class LocalStorageServiceProvider extends $FunctionalProvider<
         AsyncValue<LocalStorageService>,
@@ -65,7 +57,6 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
     with
         $FutureModifier<LocalStorageService>,
         $FutureProvider<LocalStorageService> {
-  /// DIUBAH: Provider diubah menjadi FutureProvider untuk menangani inisialisasi async.
   LocalStorageServiceProvider._()
       : super(
           from: null,
