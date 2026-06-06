@@ -64,7 +64,6 @@ class Statistik extends _$Statistik {
       _repository.getBestSellingPackages(),
     ]);
     Log.info('[StatistikNotifier] Semua future dari repository selesai.');
-
     return StatistikState(
       pendapatanBulanIni: results[0] as double,
       totalPelanggan: results[1] as int,

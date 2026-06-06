@@ -361,7 +361,6 @@ class _PointsPageState extends State<PointsPage> {
             : isAddition
                 ? Colors.green
                 : Colors.red;
-
         return InkWell(
           onTap: () => _navigateToDetailTransaksi(tx),
           child: Card(
