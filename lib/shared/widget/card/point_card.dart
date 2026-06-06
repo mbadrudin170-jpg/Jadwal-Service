@@ -1,8 +1,6 @@
 // path: lib/shared/widget/card/point_card.dart
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Kartu yang menampilkan total poin pengguna.
@@ -83,11 +81,13 @@ class TotalPointCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(26), // Menggunakan withAlpha
+                      color:
+                          Colors.white.withAlpha(26), // Menggunakan withAlpha
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.white.withAlpha(26), // Menggunakan withAlpha
+                          color: Colors.white
+                              .withAlpha(26), // Menggunakan withAlpha
                           blurRadius: 10,
                         )
                       ],
@@ -98,18 +98,21 @@ class TotalPointCard extends StatelessWidget {
                       size: 30,
                     ),
                   ),
-gapW20,                  Column(
+                  gapW20,
+                  Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Total Poin',
                         style: textTheme.titleMedium?.copyWith(
-                          color: Colors.white.withAlpha(204), // Menggunakan withAlpha
+                          color: Colors.white
+                              .withAlpha(204), // Menggunakan withAlpha
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-gapH4,                      Text(
+                      gapH4,
+                      Text(
                         formattedPoints,
                         style: textTheme.headlineMedium?.copyWith(
                           color: Colors.white,

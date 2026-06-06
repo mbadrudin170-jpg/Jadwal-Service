@@ -17,6 +17,7 @@ import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/services/update_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
@@ -183,15 +184,15 @@ class _UpdateApkPageState extends State<UpdateApkPage>
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            gapH12,
             _buildHeaderAnimation(),
-            const SizedBox(height: 30),
+            gapH32,
             _buildVersionCard(),
-            const SizedBox(height: 20),
+            gapH20,
             _buildUpdateStatusCard(),
-            const SizedBox(height: 24),
+            gapH24,
             _buildActionButtons(),
-            const SizedBox(height: 20),
+            gapH20,
             if (_changelog.isNotEmpty) _buildChangelogCard(),
           ],
         ),
@@ -233,7 +234,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
           ),
         ),
         if (!isUpdateRequired || hasTutorial) ...[
-          const SizedBox(height: 12),
+          gapH12,
           Row(
             children: [
               if (hasTutorial)
@@ -259,7 +260,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                     ),
                   ),
                 ),
-              if (hasTutorial && !isUpdateRequired) const SizedBox(width: 12),
+              if (hasTutorial && !isUpdateRequired) gapW12,
               if (!isUpdateRequired)
                 Expanded(
                   child: SizedBox(
@@ -385,7 +386,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
           ),
           child: Icon(icon, color: iconColor, size: 24),
         ),
-        const SizedBox(width: 16),
+        gapW16,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +399,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 4),
+              gapH4,
               Row(
                 children: [
                   Text(
@@ -410,7 +411,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                     ),
                   ),
                   if (badge != null) ...[
-                    const SizedBox(width: 10),
+                    gapW12,
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
@@ -444,12 +445,12 @@ class _UpdateApkPageState extends State<UpdateApkPage>
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: Colors.green.withAlpha(77)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(TIcons.check, color: Colors.green, size: 16),
-                SizedBox(width: 4),
-                Text(
+                const Icon(TIcons.check, color: Colors.green, size: 16),
+                gapW4,
+                const Text(
                   'Aktif',
                   style: TextStyle(
                     color: Colors.green,
@@ -478,7 +479,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                 color: Color(0xFF2D3142),
               ),
             ),
-            const SizedBox(height: 12),
+            gapH12,
             LinearProgressIndicator(
               value: _downloadProgress,
               minHeight: 12,
@@ -487,7 +488,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                   const AlwaysStoppedAnimation<Color>(Color(0xFF6C63FF)),
               borderRadius: BorderRadius.circular(6),
             ),
-            const SizedBox(height: 8),
+            gapH8,
             Align(
               alignment: Alignment.centerRight,
               child: Text(
@@ -516,7 +517,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
             child: const Icon(TIcons.warningAmber,
                 color: Colors.orange, size: 22),
           ),
-          const SizedBox(width: 12),
+          gapW12,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,7 +591,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                 child: const Icon(TIcons.listAlt,
                     color: Color(0xFFFF6B6B), size: 22),
               ),
-              const SizedBox(width: 12),
+              gapW12,
               const Text(
                 'Apa yang Baru?',
                 style: TextStyle(
@@ -601,7 +602,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          gapH20,
           ..._changelog.map((final item) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
@@ -623,7 +624,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
                         ],
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    gapW16,
                     Expanded(
                       child: Text(
                         item,

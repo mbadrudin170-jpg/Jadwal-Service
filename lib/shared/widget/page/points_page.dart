@@ -11,7 +11,6 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
-import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -314,7 +313,8 @@ class _PointsPageState extends State<PointsPage> {
                     ),
                   ],
                 ),
-gapH4,                LinearProgressIndicator(value: progress, minHeight: 8),
+                gapH4,
+                LinearProgressIndicator(value: progress, minHeight: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
