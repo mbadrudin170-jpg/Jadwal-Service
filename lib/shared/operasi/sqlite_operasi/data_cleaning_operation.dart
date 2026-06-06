@@ -46,6 +46,7 @@ class DataCleaningOperation {
       TableNameValue.get(TableName.customerOrder),
       TableNameValue.get(TableName.userApkVersion),
       TableNameValue.get(TableName.feedback),
+      TableNameValue.get(TableName.notifikasi),
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---

@@ -26,10 +26,10 @@ class NotifikasiOpFirebase {
     final now = DateTime.now().toUtc();
     return _firestore
         .collection(_collection)
-        .where(ColumnNames.isDeleted,
-            isEqualTo: false) // Filter agar data terhapus tidak ikut ditarik
+        .where(ColumnNames.isDeleted, isEqualTo: false)
         .where(ColumnNames.endDate,
             isGreaterThanOrEqualTo: Timestamp.fromDate(now))
+        .where(ColumnNames.isRead, isEqualTo: false)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
