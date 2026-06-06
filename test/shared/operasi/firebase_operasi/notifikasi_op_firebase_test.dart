@@ -288,5 +288,40 @@ void main() {
       expect(snapshot.docs.first.id, notifikasi3.id);
     });
 
+    test(
+      'Test 10: getKhususAdmin harus mengembalikan notifikasi order dan transaksi yang valid',
+      () async {
+        // Data Uji
+        final notifOrder = NotifikasiModel(id: 'order1', title: 'Order Baru', description: '', type: TipeNotifikasiEnum.order, idTujuan: 't1', userId: 'u1', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
+        final notifTransaksi = NotifikasiModel(id: 'transaksi1', title: 'Transaksi Baru', description: '', type: TipeNotifikasiEnum.transaksi, idTujuan: 't2', userId: 'u2', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
+        final notifEvent = NotifikasiModel(id: 'event1', title: 'Event Baru', description: '', type: TipeNotifikasiEnum.events, idTujuan: 't3', userId: 'u3', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
+        final notifOrderDibaca = notifOrder.copyWith(id: 'order2', isRead: true);
+        final notifTransaksiDihapus = notifTransaksi.copyWith(id: 'transaksi2', isDeleted: true);
+
+        // Menambahkan data ke firestore palsu
+        await firestore.collection(collection).doc(notifOrder.id).set(notifOrder.toFirebase());
+        await firestore.collection(collection).doc(notifTransaksi.id).set(notifTransaksi.toFirebase());
+        await firestore.collection(collection).doc(notifEvent.id).set(notifEvent.toFirebase());
+        await firestore.collection(collection).doc(notifOrderDibaca.id).set(notifOrderDibaca.toFirebase());
+        await firestore.collection(collection).doc(notifTransaksiDihapus.id).set(notifTransaksiDihapus.toFirebase());
+
+        // Mendengarkan stream
+        final stream = notifikasiOp.getKhususAdmin();
+
+        // Ekspektasi
+        expect(
+          stream,
+          emits(
+            isA<List<NotifikasiModel>>()
+                .having(
+                  (list) => list.map((e) => e.id).toSet(),
+                  'ID set',
+                  {notifOrder.id, notifTransaksi.id}, // Harusnya hanya notifikasi order dan transaksi yg valid
+                )
+                .having((list) => list.length, 'length', 2),
+          ),
+        );
+      },
+    );
   });
 }

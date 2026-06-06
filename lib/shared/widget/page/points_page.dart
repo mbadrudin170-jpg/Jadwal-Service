@@ -11,6 +11,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -23,12 +24,10 @@ import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 class PointsPage extends ConsumerStatefulWidget {
   final String customerId;
   final bool showAd;
-  final AppRole role;
 
   const PointsPage({
     super.key,
     required this.customerId,
-    required this.role,
     this.showAd = false,
   });
 
@@ -39,7 +38,6 @@ class PointsPage extends ConsumerStatefulWidget {
 class _PointsPageState extends ConsumerState<PointsPage> {
   late final PointsPageDataSource _dataSource;
   final _interstitialAdService = InterstitialAdService();
-
   MenuPoin _selectedMenu = MenuPoin.penukaran;
   int _totalPoints = 0;
   List<PackageModel> _rewardList = [];
@@ -52,15 +50,16 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   @override
   void initState() {
     super.initState();
-    // DIPERBAIKI: Memilih data source berdasarkan role
-    if (widget.role == AppRole.admin) {
+    final role = ref.read(appRoleProvider);
+
+    if (role == AppRole.admin) {
       _dataSource = ref.read(sqlitePointsDataSourceProvider);
     } else {
       _dataSource = ref.read(firebasePointsDataSourceProvider);
     }
 
     Log.info(
-        'Initializing PointsPage for customer: ${widget.customerId} with role: ${widget.role}');
+        'Initializing PointsPage for customer: ${widget.customerId} with role: $role');
     _appBarTitle = Row(
       children: [
         const Text('Poin: '),
@@ -134,7 +133,8 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   }
 
   Future<void> _redeemReward(final PackageModel reward) async {
-    if (widget.role == AppRole.admin) {
+    final role = ref.read(appRoleProvider);
+    if (role == AppRole.admin) {
       Log.warning('Admin mencoba menukar poin, operasi diblokir.');
       if (!mounted) return;
       ToastUtil.error(
@@ -204,10 +204,8 @@ class _PointsPageState extends ConsumerState<PointsPage> {
           usedPoints: reward.redemptionPoints,
           endDate: endDate,
         );
-
         final transactionOp = ref.read(transactionOpFirebaseProvider);
         final activeCustomerOp = ref.read(activeCustomerOpFirebaseProvider);
-
         await activeCustomerOp.setActiveCustomer(activeCustomer);
         Log.info('menyimpan transaksi baru untuk tukar poin', transaction);
         await transactionOp.addTransaction(transaction);

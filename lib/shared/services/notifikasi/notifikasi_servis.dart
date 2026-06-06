@@ -191,12 +191,12 @@ class NotifikasiServis {
       Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
     }
   }
-// TODO : tambahkan unit test
+
   void pantauNotifikasiUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     _langgananNotifikasiFirebase?.cancel();
     _langgananNotifikasiFirebase =
-        notifikasiOp.getActiveNotifications().listen((listNotifikasi) {
+        notifikasiOp.getKhususAdmin().listen((listNotifikasi) {
       for (final notifikasi in listNotifikasi) {
         if (!_idNotifikasiTampil.contains(notifikasi.id)) {
           tampilkanNotifikasiLangsung(

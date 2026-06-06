@@ -69,10 +69,10 @@ class NotifikasiOpFirebase {
   Stream<List<NotifikasiModel>> getKhususAdmin() {
     return _firestore
         .collection(_collection)
-        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
-        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.order.name)
-        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
-        .where(ColumnNames.type, isEqualTo: TipeNotifikasiEnum.transaksi.name)
+        .where(ColumnNames.type, whereIn: [
+          TipeNotifikasiEnum.order.name,
+          TipeNotifikasiEnum.transaksi.name
+        ])
         .where(ColumnNames.isRead, isEqualTo: false)
         .where(ColumnNames.isDeleted, isEqualTo: false)
         .snapshots()

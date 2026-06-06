@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -311,7 +310,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           builder: (context) => PointsPage(
             customerId: customerId,
             showAd: true,
-            role: AppRole.user,
           ),
         ),
       );

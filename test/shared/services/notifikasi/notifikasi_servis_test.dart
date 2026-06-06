@@ -338,7 +338,7 @@ void main() {
         tanggalTampil: now,
         startDate: now,
         endDate: now.add(const Duration(days: 1)),
-        type: TipeNotifikasiEnum.info,
+        type: TipeNotifikasiEnum.order,
         updatedAt: now,
         idTujuan: '',
         userId: '',
@@ -350,13 +350,13 @@ void main() {
         tanggalTampil: now,
         startDate: now,
         endDate: now.add(const Duration(days: 1)),
-        type: TipeNotifikasiEnum.info,
+        type: TipeNotifikasiEnum.transaksi,
         updatedAt: now,
         idTujuan: '',
         userId: '',
       );
 
-      when(mockNotifikasiOp.getActiveNotifications())
+      when(mockNotifikasiOp.getKhususAdmin())
           .thenAnswer((_) => streamController.stream);
 
       when(mockPlugin.show(
@@ -401,7 +401,7 @@ void main() {
         tanggalTampil: now,
         startDate: now,
         endDate: now.add(const Duration(days: 1)),
-        type: TipeNotifikasiEnum.info,
+        type: TipeNotifikasiEnum.order,
         updatedAt: now,
         idTujuan: '',
         userId: '',
