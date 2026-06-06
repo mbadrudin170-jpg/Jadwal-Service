@@ -1,14 +1,18 @@
 // path: lib/admin/halaman/widget/box_info.dart
 import 'package:flutter/material.dart';
+import 'package:wifi/shared/export/theme.dart';
 
 /// Sebuah widget untuk menampilkan informasi dalam sebuah kotak.
 class BoxInfo extends StatelessWidget {
   /// Judul dari kotak informasi.
   final String title;
+
   /// Nilai yang akan ditampilkan.
   final String value;
+
   /// Ikon yang akan ditampilkan.
   final IconData icon;
+
   /// Warna dari kotak dan ikon.
   final Color color;
 
@@ -32,7 +36,8 @@ class BoxInfo extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 40, color: color),
-gapH16,          Column(
+          gapH16,
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(

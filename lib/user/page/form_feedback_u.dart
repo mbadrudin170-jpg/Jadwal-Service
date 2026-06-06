@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -64,7 +65,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
       } on Exception catch (e, s) {
         Log.error('Gagal mengirim kritik dan saran', e: e, st: s);
         if (mounted) {
-          ToastUtil.error(context, 'Gagal mengirim masukan: $e');
+          ToastUtil.error(context, 'Gagal mengirim masukan: \$e');
         }
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -107,7 +108,7 @@ class _FormKritikDanSaranState extends State<FormKritikDanSaran> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              gapH20,
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveForm,
                 child: _isLoading

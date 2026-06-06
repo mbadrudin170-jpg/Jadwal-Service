@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
@@ -222,7 +223,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: 16),
+            gapH16,
             Text('Memuat aplikasi...'),
           ],
         ),

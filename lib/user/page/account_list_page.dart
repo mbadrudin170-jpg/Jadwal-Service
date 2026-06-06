@@ -6,6 +6,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
+import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
@@ -91,7 +92,7 @@ class AccountListPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.logout, size: 20, color: Colors.white),
-                      SizedBox(width: 8),
+                      gapW8,
                       Text(
                         'Keluar',
                         style: TextStyle(

@@ -21,8 +21,8 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Mendapatkan referensi ke koleksi transaction.
-  CollectionReference get _collection => FirebaseFirestore.instance
-      .collection(TableNameValue.get(TableName.transactions));
+  CollectionReference get _collection =>
+      firestore.collection(TableNameValue.get(TableName.transactions));
 
   /// Menambahkan transaksi baru ke Firestore.
   Future<void> addTransaction(final TransactionModel transaction) async {
