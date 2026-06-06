@@ -201,23 +201,21 @@ class _TransactionBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (state.transactions.isEmpty) {
-      return const Center(child: Text('Tidak ada transaksi'));
-    }
-
     return RefreshIndicator(
       onRefresh: () => ref.read(transactionProvider.notifier).refresh(),
       child: Column(
         children: [
-          // Ringkasan Keuangan
+          // Ringkasan Keuangan (selalu ditampilkan)
           TransactionSummary(
             income: state.totalIncome,
             expense: state.totalExpense,
             total: state.netTotal,
           ),
-          // Daftar Transaksi
+          // Bagian ini akan berganti antara list dan pesan kosong
           Expanded(
-            child: _TransactionListView(transactions: state.transactions),
+            child: state.transactions.isEmpty
+                ? const Center(child: Text('Tidak ada transaksi'))
+                : _TransactionListView(transactions: state.transactions),
           ),
         ],
       ),
