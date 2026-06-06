@@ -1,11 +1,4 @@
 // path: lib/user/page/login_page.dart
-// diubah: Mengganti SnackBarUtil menjadi ToastUtil dan menambahkan pencatatan waktu login.
-// PERBAIKAN: Menghapus toast otomatis di initState untuk mencegah notifikasi ganda.
-// FITUR: Menambahkan pengecekan koneksi internet sebelum login.
-// FITUR: Menambahkan tombol untuk memilih akun yang sudah tersimpan & menggunakan app_sizes.
-// PERBAIKAN: Mencegah navigasi ke halaman list akun jika tidak ada akun tersimpan.
-// PERBAIKAN: Menambahkan state-management sederhana untuk mencegah login ganda & memberi feedback visual.
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -60,8 +53,6 @@ class _LoginView extends ConsumerStatefulWidget {
 class _LoginViewState extends ConsumerState<_LoginView> {
   late FirebaseFirestore _firestore;
   late LocalStorageService _localStorageService;
-  final InternetConnectionService _internetService =
-      InternetConnectionService();
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -116,14 +107,23 @@ class _LoginViewState extends ConsumerState<_LoginView> {
 
   // 2. MODIFIKASI FUNGSI `_processLogin`
   Future<void> _processLogin() async {
-    // Jika sudah dalam proses login, jangan lakukan apa-apa
-    if (_isLoggingIn) return;
+    // 1. Validasi input dilakukan pertama kali tanpa menyalakan spinner.
+    // Ini mencegah timeout pada pengujian form kosong.
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text.trim();
 
-    // Atur status menjadi "sedang login" dan perbarui UI
+    if (phone.isEmpty || password.isEmpty) {
+      await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
+      return;
+    }
+
+    // 2. Jika input valid, baru nyalakan spinner.
+    if (_isLoggingIn) return;
     setState(() => _isLoggingIn = true);
 
     try {
-      final isConnected = await _internetService.isInternetAvailable();
+      final internetService = ref.read(internetConnectionServiceProvider);
+      final isConnected = await internetService.isInternetAvailable();
       if (!mounted) return;
       if (!isConnected) {
         ToastUtil.error(
@@ -134,14 +134,6 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       if (!_isLocalStorageInitialized) {
         await _showErrorAlert(
             'Layanan penyimpanan lokal belum siap. Coba lagi.');
-        return;
-      }
-
-      final phone = _phoneController.text.trim();
-      final password = _passwordController.text.trim();
-
-      if (phone.isEmpty || password.isEmpty) {
-        await _showErrorAlert('Nomor telepon dan password tidak boleh kosong.');
         return;
       }
 
@@ -163,23 +155,25 @@ class _LoginViewState extends ConsumerState<_LoginView> {
             await ref.read(userActivityServiceProvider.future);
         unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
-        await _localStorageService.saveAccount(customer);
-        Log.info('Menyimpan id akun ke memori lokal');
-        await _localStorageService.prefs.setString('userId', customer.id);
+        await _localStorageService.saveCurrentAccount(customer);
 
         if (!mounted) return;
-
-        await Navigator.of(context).pushReplacement(
+        unawaited(Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (final context) => const MainPage(),
           ),
-        );
+        ));
+        return; // Keluar dari fungsi agar blok finally segera dieksekusi
       } else {
+        // Hentikan status loading jika kredensial salah sebelum menampilkan alert
+        setState(() => _isLoggingIn = false);
         await _showErrorAlert(
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
     } on Exception catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
+      // Hentikan status loading jika terjadi error jaringan/server
+      if (mounted) setState(() => _isLoggingIn = false);
       if (!mounted) return;
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');

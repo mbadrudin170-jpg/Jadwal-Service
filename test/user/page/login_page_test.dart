@@ -48,6 +48,7 @@ void main() {
           .thenAnswer((_) async => true);
       when(mockLocalStorageService.getAccountList())
           .thenAnswer((_) async => []);
+      when(mockNavigatorObserver.navigator).thenReturn(null);
       when(mockLocalStorageService.prefs).thenReturn(mockSharedPreferences);
       when(mockSharedPreferences.setString(any, any))
           .thenAnswer((_) async => true);
@@ -55,8 +56,7 @@ void main() {
           .thenAnswer((_) async {});
 
       // PERBAIKAN FINAL: Tambahkan stub untuk SEMUA metode yang dipanggil
-      when(mockLocalStorageService.saveAccount(any))
-          .thenAnswer((_) async => true);
+      when(mockLocalStorageService.saveAccount(any)).thenAnswer((_) async {});
       when(mockLocalStorageService.saveCurrentAccount(any))
           .thenAnswer((_) async {});
 
@@ -104,6 +104,17 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets(
+        '3. harus menamppilkan dialog error jika pelanggan tidak ditemukan',
+        (WidgetTester tester) async {
+      await pumpWidget(tester);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Akun tidak ditemukan'), findsOneWidget);
+    });
+
     testWidgets('5. harus menavigasi ke halaman utama saat login berhasil',
         (WidgetTester tester) async {
       const customerId = 'user-sukses';
@@ -122,20 +133,30 @@ void main() {
           find.widgetWithText(TextFormField, 'Nomor Telepon'), '08123456789');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Password'), 'password123');
+
+      // 1. Perform the tap
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+      await tester.pump(); // Start the animation
 
-      await tester.pump(const Duration(milliseconds: 100));
+      // 2. Expect the loading indicator
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      await tester.pumpAndSettle();
 
-      // VERIFIKASI FINAL
+      // 3. Wait for the async login logic and navigation
+      // Using a longer pump gives time for all Future-based code to complete.
+      await tester.pump(const Duration(seconds: 3));
+
+      // 4. Rebuild the widget tree to ensure the new page is rendered
+      await tester.pump();
+
+      // 5. VERIFIKASI FINAL
+      // Verify the navigation event (optional but good for double-checking)
       verify(mockNavigatorObserver.didPush(any, any));
+
+      // Now, find the MainPage
       expect(find.byType(MainPage), findsOneWidget);
 
-      // Verifikasi semua panggilan mock yang relevan
-      verify(mockLocalStorageService.saveAccount(any)).called(1);
-      verify(mockLocalStorageService.saveCurrentAccount(any))
-          .called(1); // Ini yang benar!
+      // Verify other mocks
+      verify(mockLocalStorageService.saveCurrentAccount(any)).called(1);
       verify(mockUserActivityService.pingActivity(customerId, force: true))
           .called(1);
     });
