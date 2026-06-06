@@ -147,21 +147,31 @@ void main() {
     });
 
     test('2.11. harus bisa mendapatkan stream data pelanggan', () async {
+      // 1. Buat customer dulu
       await customerOpFirebase.createCustomer(c1);
 
+      // 2. Dapatkan stream-nya
       final stream = customerOpFirebase.getCustomerStream(c1.id);
 
-      // Menunggu item pertama dari stream
-      final customerFromStream = await stream.first;
-      expect(customerFromStream, isNotNull);
-      expect(customerFromStream!.id, c1.id);
+      // 3. Siapkan ekspektasi. Stream akan mengeluarkan:
+      //    a. Customer awal (karena data sudah ada saat listen)
+      //    b. Customer yang sudah diupdate (setelah diupdate)
+      expectLater(
+        stream,
+        emitsInOrder([
+          // Matcher untuk data pertama
+          isA<CustomerModel>().having((c) => c.name, 'name', c1.name),
+          // Matcher untuk data kedua setelah update
+          isA<CustomerModel>()
+              .having((c) => c.name, 'name', 'Nama Baru dari Stream'),
+        ]),
+      );
 
-      // Memperbarui data dan memeriksa apakah stream memancarkan data baru
+      // 4. Update data, ini akan memicu emisi kedua dari stream
       final updatedCustomer = c1.copyWith(name: 'Nama Baru dari Stream');
+      // Tambahkan sedikit delay untuk memastikan expectLater sudah subscribe
+      await Future.delayed(const Duration(milliseconds: 10));
       await customerOpFirebase.updateCustomer(updatedCustomer);
-      
-      final updatedCustomerFromStream = await stream.first;
-      expect(updatedCustomerFromStream!.name, 'Nama Baru dari Stream');
     });
   });
 }

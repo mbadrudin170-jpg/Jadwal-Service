@@ -13,13 +13,13 @@ import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 /// memanggil `StatusOpFirebase` untuk memperbarui timestamp global
 /// setiap kali ada perubahan data.
 class BaseOpFirebase {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore firestore;
   final StatusOpFirebase _statusOp;
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   BaseOpFirebase(
       {final FirebaseFirestore? firestore, final StatusOpFirebase? statusOp})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
+      : firestore = firestore ?? FirebaseFirestore.instance,
         _statusOp = statusOp ?? StatusOpFirebase(firestore: firestore) {
     Log.info('BaseOpFirebase diinisialisasi.');
   }
@@ -35,7 +35,7 @@ class BaseOpFirebase {
   ) async {
     Log.info('Base add: Menambah dokumen baru di $collectionName');
     try {
-      final collectionRef = _firestore.collection(collectionName);
+      final collectionRef = firestore.collection(collectionName);
       data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
       final docRef = await collectionRef.add(data);
       unawaited(_statusOp.updateGlobalStatus());
@@ -60,7 +60,7 @@ class BaseOpFirebase {
   ) async {
     Log.info('Base insert: $collectionName/$docId');
     try {
-      final docRef = _firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(collectionName).doc(docId);
       data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
       await docRef.set(data);
       unawaited(_statusOp.updateGlobalStatus());
@@ -84,7 +84,7 @@ class BaseOpFirebase {
   ) async {
     Log.info('Base update: $collectionName/$docId');
     try {
-      final docRef = _firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(collectionName).doc(docId);
       data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
       await docRef.update(data);
       unawaited(_statusOp.updateGlobalStatus());
@@ -105,7 +105,7 @@ class BaseOpFirebase {
       final String collectionName, final String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
-      final docRef = _firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(collectionName).doc(docId);
       await docRef.update({
         ColumnNames.isDeleted: true,
         ColumnNames.updatedAt: FieldValue.serverTimestamp(),
@@ -127,7 +127,7 @@ class BaseOpFirebase {
   Future<void> delete(final String collectionName, final String docId) async {
     Log.warning('Base delete (permanen): $collectionName/$docId');
     try {
-      final docRef = _firestore.collection(collectionName).doc(docId);
+      final docRef = firestore.collection(collectionName).doc(docId);
       await docRef.delete();
       unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base delete (permanen) berhasil: $collectionName/$docId');
@@ -146,7 +146,7 @@ class BaseOpFirebase {
   Future<int> softDeleteAll(final String collectionName) async {
     Log.info('Base softDeleteAll: Memulai untuk koleksi $collectionName');
     try {
-      final querySnapshot = await _firestore
+      final querySnapshot = await firestore
           .collection(collectionName)
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .get();
@@ -156,7 +156,7 @@ class BaseOpFirebase {
         return 0;
       }
 
-      final batch = _firestore.batch();
+      final batch = firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
           ColumnNames.isDeleted: true,
@@ -197,11 +197,11 @@ class BaseOpFirebase {
     Log.info(
         'Base insertOrUpdateBatch: Memulai untuk ${items.length} item di $collectionName');
     try {
-      final batch = _firestore.batch();
+      final batch = firestore.batch();
       for (final item in items) {
         final docId = item[idKey] as String?;
         if (docId != null) {
-          final docRef = _firestore.collection(collectionName).doc(docId);
+          final docRef = firestore.collection(collectionName).doc(docId);
           item[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
           // Menggunakan set dengan merge: true untuk perilaku upsert
           batch.set(docRef, item, SetOptions(merge: true));
