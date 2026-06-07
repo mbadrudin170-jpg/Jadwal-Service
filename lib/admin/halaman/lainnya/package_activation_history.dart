@@ -119,14 +119,14 @@ class PackageActivationHistoryPage extends ConsumerWidget {
         return SimpleDialog(
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
+            buildOption('Berakhir Hari Ini', SortOption.endingToday),
             buildOption('Tanggal Berakhir', SortOption.endDate),
             buildOption('Nama A-Z', SortOption.nameAZ),
             buildOption('Nama Z-A', SortOption.nameZA),
-            buildOption('Berakhir Hari Ini', SortOption.endingToday),
             buildOption('Lunas', SortOption.paid),
             buildOption('Belum Lunas', SortOption.unpaid),
-            buildOption('Terbaru', SortOption.newest),
-            buildOption('Terlama', SortOption.oldest),
+            buildOption('Update Terbaru', SortOption.updatedAtAZ),
+            buildOption('Update Terlama', SortOption.updatedAtZA),
           ],
         );
       },

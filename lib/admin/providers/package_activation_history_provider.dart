@@ -26,8 +26,8 @@ enum SortOption {
   nameAZ,
   nameZA,
   endingToday,
-  newest,
-  oldest,
+  updatedAtAZ,
+  updatedAtZA,
   paid,
   unpaid
 }
@@ -39,7 +39,7 @@ class PackageActivationHistoryState {
 
   PackageActivationHistoryState({
     this.items = const [],
-    this.sortBy = SortOption.endDate,
+    this.sortBy = SortOption.endingToday,
   });
 
   PackageActivationHistoryState copyWith({
@@ -126,20 +126,32 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           return a.transaction.id.compareTo(b.transaction.id);
         });
         break;
-      case SortOption.newest:
+      case SortOption.updatedAtAZ:
         list.sort((a, b) {
-          final dateA = a.transaction.updatedAt ?? a.transaction.date;
-          final dateB = b.transaction.updatedAt ?? b.transaction.date;
-          final dateCompare = dateB.compareTo(dateA);
+          final updateAtA = a.transaction.updatedAt;
+          final updateAtB = b.transaction.updatedAt;
+          if (updateAtA == null && updateAtB == null) {
+            return 0;
+          }
+          if (updateAtA == null) return 1;
+          if (updateAtB == null) return -1;
+
+          final dateCompare = updateAtB.compareTo(updateAtA);
           if (dateCompare != 0) return dateCompare;
           return a.transaction.id.compareTo(b.transaction.id);
         });
         break;
-      case SortOption.oldest:
+      case SortOption.updatedAtZA:
         list.sort((a, b) {
-          final dateA = a.transaction.updatedAt ?? a.transaction.date;
-          final dateB = b.transaction.updatedAt ?? b.transaction.date;
-          final dateCompare = dateA.compareTo(dateB);
+          final updateAtA = a.transaction.updatedAt;
+          final updateAtB = b.transaction.updatedAt;
+          if (updateAtA == null && updateAtB == null) {
+            return 0;
+          }
+          if (updateAtA == null) return -1;
+          if (updateAtB == null) return 1;
+
+          final dateCompare = updateAtA.compareTo(updateAtB);
           if (dateCompare != 0) return dateCompare;
           return b.transaction.id.compareTo(a.transaction.id);
         });

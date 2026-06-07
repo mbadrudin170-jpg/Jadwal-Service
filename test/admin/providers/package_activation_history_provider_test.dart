@@ -17,7 +17,7 @@ import 'package_activation_history_provider_test.mocks.dart';
 void main() {
   // 1. Definisikan data dummy yang valid
   final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
+  final today = DateTime(now.year, now.month, now.day, now.hour, now.minute);
   final yesterday = today.subtract(const Duration(days: 1));
   final tomorrow = today.add(const Duration(days: 1));
 
@@ -31,17 +31,17 @@ void main() {
 
   // Transaction dummies
   final t1 = TransactionModel(
-    id: '1',
-    customerId: 'c1',
-    date: yesterday,
-    endDate: today,
-    paymentStatus: PaymentStatus.paid,
-    description: '',
-    amount: 0,
-    type: TransactionType.income,
-    walletId: '',
-    categoryId: '',
-  );
+      id: '1',
+      customerId: 'c1',
+      date: yesterday,
+      endDate: today,
+      paymentStatus: PaymentStatus.paid,
+      description: '',
+      amount: 0,
+      type: TransactionType.income,
+      walletId: '',
+      categoryId: '',
+      updatedAt: today);
   final t2 = TransactionModel(
     id: '2',
     customerId: 'c2',
@@ -52,6 +52,7 @@ void main() {
     type: TransactionType.income,
     walletId: '',
     categoryId: '',
+    updatedAt: tomorrow,
   );
   final t3 = TransactionModel(
     id: '3',
@@ -64,6 +65,7 @@ void main() {
     type: TransactionType.income,
     walletId: '',
     categoryId: '',
+    updatedAt: yesterday,
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
   final t4 = TransactionModel(
@@ -75,6 +77,8 @@ void main() {
     type: TransactionType.income,
     walletId: '',
     categoryId: '',
+    // Waktu sama, menit berbeda
+    updatedAt: today.add(const Duration(minutes: 1)),
   );
 
   final mockTransactions = [t1, t2, t3, t4];
@@ -159,14 +163,14 @@ void main() {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
-          .changeSort(SortOption.newest);
+          .changeSort(SortOption.updatedAtAZ);
 
       final state = container.read(packageActivationHistoryProvider).value!;
 
-      // Verifikasi urutan berdasarkan tanggal terbaru
+      // Verifikasi urutan berdasarkan tanggal terbaru: t2, t4, t1, t3
       expect(state.items.map((item) => item.transaction.id).toList(),
-          ['2', '1', '3', '4']);
-      expect(state.sortBy, SortOption.newest);
+          ['2', '4', '1', '3']);
+      expect(state.sortBy, SortOption.updatedAtAZ);
     });
 
     test(
@@ -175,14 +179,14 @@ void main() {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
-          .changeSort(SortOption.oldest);
+          .changeSort(SortOption.updatedAtZA);
 
       final state = container.read(packageActivationHistoryProvider).value!;
 
-      // Verifikasi urutan berdasarkan tanggal terlama
+      // Verifikasi urutan berdasarkan tanggal terlama: t3, t1, t4, t2
       expect(state.items.map((item) => item.transaction.id).toList(),
-          ['4', '3', '1', '2']);
-      expect(state.sortBy, SortOption.oldest);
+          ['3', '1', '4', '2']);
+      expect(state.sortBy, SortOption.updatedAtZA);
     });
 
     test(
