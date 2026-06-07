@@ -211,10 +211,10 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         await transactionOp.addTransaction(transaction);
         Log.info(
             'menyimpan active customer  baru untuk tukar poin', activeCustomer);
-
+        final _ = ref.refresh(transactionOpFirebaseProvider);
         if (!mounted) return;
         ToastUtil.success(context, '${reward.name} berhasil ditukar!');
-        await _loadPointsData(); // Muat ulang data poin
+        // await _loadPointsData(); // Muat ulang data poin
       } on Exception catch (e, st) {
         Log.error('Gagal menukar poin: $e', e: e, st: st);
         if (!mounted) return;
@@ -249,7 +249,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
     return PoinPageUi(
       appBarTitle: _appBarTitle,

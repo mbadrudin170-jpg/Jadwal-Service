@@ -21,7 +21,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
         _packageOperation = packageOperation;
 
   @override
-  Future<int> getTotalPoints(final String customerId) {
+  Future<int> getTotalPoints(String customerId) {
     return _transactionOperation.getTotalPoints(customerId);
   }
 
@@ -36,12 +36,12 @@ class SQLitePointsDataSource implements PointsPageDataSource {
     final history =
         await _transactionOperation.getTransactionsByCustomerId(customerId);
     return history
-        .where((final t) => t.earnedPoints > 0 || t.usedPoints > 0)
+        .where((t) => t.earnedPoints > 0 || t.usedPoints > 0)
         .toList();
   }
 
   @override
-  Future<PackageModel?> getPackageById(final String packageId) {
+  Future<PackageModel?> getPackageById(String packageId) {
     return _packageOperation.getById(packageId);
   }
 

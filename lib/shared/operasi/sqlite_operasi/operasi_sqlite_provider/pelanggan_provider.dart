@@ -18,13 +18,10 @@ Future<List<(CustomerModel, int)>> customerList(Ref ref) async {
 
   final customerOp = ref.watch(customerOperationProvider);
   final pointsOp = ref.watch(sqlitePointsDataSourceProvider);
-
   final customers = await customerOp.getAll();
-
   final pointsFutures =
       customers.map((c) => pointsOp.getTotalPoints(c.id)).toList();
   final points = await Future.wait(pointsFutures);
-
   final List<(CustomerModel, int)> result = [];
   for (int i = 0; i < customers.length; i++) {
     result.add((customers[i], points[i]));

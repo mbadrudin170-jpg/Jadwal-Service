@@ -6,6 +6,7 @@ import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -108,9 +109,12 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
           );
           await customerOperation.updateCustomer(newCustomer);
         }
-        ref.invalidate(customerOperationProvider);
+        ref.invalidate(customerDetailProvider(widget.customer!.id));
+        ref.invalidate(customerListProvider);
         if (!mounted) return;
-        final hasConnection = await InternetConnectionService().isInternetAvailable();
+
+        final cekKoneksi = ref.read(internetConnectionServiceProvider);
+        final hasConnection = await cekKoneksi.checkLocalConnection();
         if (hasConnection) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
           final syncCheckService = ref.read(syncCheckServiceProvider);

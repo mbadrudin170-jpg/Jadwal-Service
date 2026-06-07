@@ -19,21 +19,15 @@ class CustomerDetailPage extends ConsumerWidget {
   const CustomerDetailPage({super.key, required this.customerId});
 
   Future<void> _editCustomer(
-      BuildContext context, WidgetRef ref, CustomerModel? customer) async {
+      BuildContext context, CustomerModel? customer) async {
     if (customer == null) return;
     Log.info('Navigasi ke form edit pelanggan: ${customer.name}');
-    final result = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => CustomerForm(customer: customer),
+        builder: (context) => CustomerForm(customer: customer),
       ),
     );
-    if (result ?? false) {
-      Log.info('Kembali dari edit pelanggan, memuat ulang data.');
-      ref.invalidate(customerDetailProvider(customerId));
-      ref.invalidate(
-          customerListProvider); // Biar halaman daftar pelanggan ikut terbarui
-    }
   }
 
   Future<void> _copyAllInfo(
@@ -55,23 +49,23 @@ MAC : ${customer.macAddress}
   }
 
   Future<void> _navigateToPoints(
-      BuildContext context, WidgetRef ref, CustomerModel? customer) async {
+      BuildContext context, CustomerModel? customer) async {
     if (customer == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${customer.name}');
 
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (final context) => PointsPage(
+        builder: (context) => PointsPage(
           customerId: customer.id,
         ),
       ),
     );
 
-    Log.info('Kembali dari halaman poin, memuat ulang data detail poin.');
-    ref.invalidate(customerDetailProvider(customerId));
-    ref.invalidate(
-        customerListProvider); // Biar poin di halaman daftar ikut terbarui
+    // Log.info('Kembali dari halaman poin, memuat ulang data detail poin.');
+    // ref.invalidate(customerDetailProvider(customerId));
+    // ref.invalidate(
+    //     customerListProvider); // Biar poin di halaman daftar ikut terbarui
   }
 
   @override
@@ -105,8 +99,8 @@ MAC : ${customer.macAddress}
         return CustomerDetailUI(
           customer: customer,
           totalPoints: totalPoints,
-          onEdit: () => _editCustomer(context, ref, customer),
-          onNavigateToPoints: () => _navigateToPoints(context, ref, customer),
+          onEdit: () => _editCustomer(context, customer),
+          onNavigateToPoints: () => _navigateToPoints(context, customer),
           onCopyAll: () => _copyAllInfo(context, customer),
         );
       },

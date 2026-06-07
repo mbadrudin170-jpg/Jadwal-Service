@@ -1,7 +1,9 @@
 // path: lib/shared/operasi/poin/firebase_points_data_source.dart
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
@@ -24,7 +26,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
         _packageOpFirebase = packageOpFirebase;
 
   @override
-  Future<int> getTotalPoints(final String customerId) {
+  Future<int> getTotalPoints(String customerId) {
     // 2. Mengambil total poin pelanggan
     return _transactionOpFirebase.getTotalPoints(customerId);
   }
@@ -37,8 +39,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<TransactionModel>> getPointsTransactions(
-      final String customerId) async {
-    // 4. Mengambil riwayat transaksi poin pelanggan
+      String customerId) async {
     final history =
         await _transactionOpFirebase.getTransactionsByCustomerId(customerId);
     return history
@@ -47,7 +48,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   }
 
   @override
-  Future<PackageModel?> getPackageById(final String packageId) {
+  Future<PackageModel?> getPackageById(String packageId) {
     // 5. Mengambil detail paket berdasarkan ID
     return _packageOpFirebase.getPackageById(packageId);
   }
@@ -55,3 +56,13 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   @override
   bool get isFirebase => true;
 }
+
+// ============================================================
+// Provider Riverpod untuk SQLitePointsDataSource
+// ============================================================
+final firebasePointsDataSource = Provider<FirebasePointsDataSource>((ref) {
+  return FirebasePointsDataSource(
+    transactionOpFirebase: ref.watch(transactionOpFirebaseProvider),
+    packageOpFirebase: ref.watch(packageOpFirebaseProvider),
+  );
+});
