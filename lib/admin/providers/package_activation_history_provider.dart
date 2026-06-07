@@ -26,8 +26,8 @@ enum SortOption {
   nameAZ,
   nameZA,
   endingToday,
-  updatedAtAZ,
-  updatedAtZA,
+  updatedAtAZ, // Harusnya: Terbaru ke Terlama (Descending)
+  updatedAtZA, // Harusnya: Terlama ke Terbaru (Ascending)
   paid,
   unpaid
 }
@@ -126,34 +126,24 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           return a.transaction.id.compareTo(b.transaction.id);
         });
         break;
-      case SortOption.updatedAtAZ:
+      case SortOption.updatedAtAZ: // Sesuai instruksi: Terbaru ke Terlama (Descending)
         list.sort((a, b) {
           final updateAtA = a.transaction.updatedAt;
           final updateAtB = b.transaction.updatedAt;
-          if (updateAtA == null && updateAtB == null) {
-            return 0;
-          }
-          if (updateAtA == null) return 1;
-          if (updateAtB == null) return -1;
-
-          final dateCompare = updateAtB.compareTo(updateAtA);
-          if (dateCompare != 0) return dateCompare;
-          return a.transaction.id.compareTo(b.transaction.id);
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return 1; // null di akhir
+          if (updateAtB == null) return -1; // null di akhir
+          return updateAtB.compareTo(updateAtA); // b vs a untuk descending
         });
         break;
-      case SortOption.updatedAtZA:
+      case SortOption.updatedAtZA: // Sesuai instruksi: Terlama ke Terbaru (Ascending)
         list.sort((a, b) {
           final updateAtA = a.transaction.updatedAt;
           final updateAtB = b.transaction.updatedAt;
-          if (updateAtA == null && updateAtB == null) {
-            return 0;
-          }
-          if (updateAtA == null) return -1;
-          if (updateAtB == null) return 1;
-
-          final dateCompare = updateAtA.compareTo(updateAtB);
-          if (dateCompare != 0) return dateCompare;
-          return b.transaction.id.compareTo(a.transaction.id);
+          if (updateAtA == null && updateAtB == null) return 0;
+          if (updateAtA == null) return -1; // null di awal
+          if (updateAtB == null) return 1; // null di awal
+          return updateAtA.compareTo(updateAtB); // a vs b untuk ascending
         });
         break;
       case SortOption.nameAZ:
