@@ -33,7 +33,7 @@ final class ActiveCustomerProvider
   ActiveCustomer create() => ActiveCustomer();
 }
 
-String _$activeCustomerHash() => r'c1fb80742e897fb7264934b68d25a4b5b4aea194';
+String _$activeCustomerHash() => r'6201772fd67e32c56373e466edc95d997f573922';
 
 abstract class _$ActiveCustomer extends $AsyncNotifier<ActiveCustomerState> {
   FutureOr<ActiveCustomerState> build();

@@ -135,7 +135,12 @@ void main() {
     });
 
     test('2. fetchActiveCustomers harus menangani error', () async {
-      // Arrange: Override default mock to throw an error
+      // Arrange
+      // 1. Ensure the initial build is successful.
+      await container.read(activeCustomerProvider.future);
+      expect(container.read(activeCustomerProvider), isA<AsyncData>());
+
+      // 2. Now, set up the mock to throw an error for the next call.
       when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
           .thenThrow(Exception('Database Error'));
 
@@ -147,6 +152,7 @@ void main() {
       // Assert
       final state = container.read(activeCustomerProvider);
       expect(state, isA<AsyncError<ActiveCustomerState>>());
+      expect((state as AsyncError).error, isA<Exception>());
     });
 
     group('Pengujian Logika Pengurutan melalui setSortBy', () {
