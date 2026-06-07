@@ -351,7 +351,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         child: activeCustomerAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
-            Log.error("Error UI Pelanggan Aktif", e: error, st: stack);
+            Log.error('Error UI Pelanggan Aktif', e: error, st: stack);
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {

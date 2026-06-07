@@ -146,7 +146,7 @@ void main() {
 
       // Assert
       final state = container.read(activeCustomerProvider);
-      expect(state, isA<AsyncError>());
+      expect(state, isA<AsyncError<ActiveCustomerState>>());
     });
 
     group('Pengujian Logika Pengurutan melalui setSortBy', () {
@@ -217,7 +217,7 @@ void main() {
       test('9. Urutkan berdasarkan terlama (updatedAt ascending)', () {
         container
             .read(activeCustomerProvider.notifier)
-            .setSortby(SortOption.terlama);
+            .setSortBy(SortOption.terlama);
         final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
             ['ac1', 'ac2', 'ac3']);
