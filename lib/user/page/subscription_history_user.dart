@@ -51,7 +51,7 @@ class _SubscriptionHistoryPageState
     final customerOpFirebase = ref.read(customerOpFirebaseProvider);
     final customer = await customerOpFirebase.getCustomerOnce(userIdValue);
     if (customer == null) return [];
-    return _transactionOpFirebase.getTransactionsByCustomerId(customer.id);
+    return _transactionOpFirebase.getByCustomerId(customer.id);
   }
 
   List<TransactionModel> _sortHistory(List<TransactionModel> history) {

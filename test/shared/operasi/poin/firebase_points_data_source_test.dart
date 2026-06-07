@@ -128,7 +128,7 @@ void main() {
             walletId: 'wallet1',
             categoryId: 'cat1'),
       ];
-      when(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId))
+      when(mockTransactionOpFirebase.getByCustomerId(customerId))
           .thenAnswer((_) async => allTransactions);
       // Act
       final result = await dataSource.getPointsTransactions(customerId);
@@ -141,7 +141,7 @@ void main() {
           reason: 'Transaksi dengan usedPoints > 0 harus ada');
       expect(result.any((t) => t.id == '2'), isFalse,
           reason: 'Transaksi tanpa poin harus diabaikan');
-      verify(mockTransactionOpFirebase.getTransactionsByCustomerId(customerId))
+      verify(mockTransactionOpFirebase.getByCustomerId(customerId))
           .called(1);
       verifyNoMoreInteractions(mockTransactionOpFirebase);
       verifyZeroInteractions(mockPackageOpFirebase);

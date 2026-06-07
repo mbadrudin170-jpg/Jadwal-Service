@@ -6,9 +6,10 @@ import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
 class TransactionDetailPage extends ConsumerStatefulWidget {
@@ -72,22 +73,45 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
   Future<void> _openEditForm() async {
     Log.info(
         'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
-    final updatedTransaction = await Navigator.push<TransactionModel?>(
+    // 1. Ubah tipe data yang diharapkan dari `Navigator.push` menjadi `bool?`
+    final isSaved = await Navigator.push<bool?>(
       context,
-      MaterialPageRoute<TransactionModel?>(
+      MaterialPageRoute(
         builder: (final context) =>
             FormTransaksiPage(transaction: _currentTransaction),
       ),
     );
-    if (updatedTransaction != null) {
+
+    if (isSaved ?? false) {
       Log.info(
-          'Transaksi ${_currentTransaction.id} diperbarui. Memperbarui UI detail dan menandai untuk reload.');
-      setState(() {
-        _currentTransaction = updatedTransaction;
-        _diUpdate = true;
-      });
+          'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.');
+      try {
+        final transactionOp = ref.read(transactionOperationProvider);
+        final updatedTransaction =
+            await transactionOp.getTransactionById(_currentTransaction.id);
+
+        if (updatedTransaction != null) {
+          Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
+          // 4. Perbarui state dengan data baru.
+          setState(() {
+            _currentTransaction = updatedTransaction;
+            _diUpdate = true;
+          });
+        } else {
+          Log.warning(
+              'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.');
+          // Mungkin transaksi dihapus? Kembali saja.
+          if (mounted) Navigator.pop(context, true);
+        }
+      } catch (e, s) {
+        Log.error('Gagal memuat ulang data transaksi setelah edit.',
+            e: e, st: s);
+        if (mounted) {
+          ToastUtil.error(context, 'Gagal memuat data terbaru.');
+        }
+      }
     } else {
-      Log.info('Kembali dari form edit tanpa pembaruan.');
+      Log.info('Kembali dari form edit tanpa pembaruan atau gagal disimpan.');
     }
   }
 
@@ -104,7 +128,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit),
+            icon: const Icon(TIcons.edit),
             onPressed: _openEditForm,
             tooltip: 'Edit Transaksi',
           ),

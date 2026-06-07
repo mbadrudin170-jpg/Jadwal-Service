@@ -41,7 +41,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   Future<List<TransactionModel>> getPointsTransactions(
       String customerId) async {
     final history =
-        await _transactionOpFirebase.getTransactionsByCustomerId(customerId);
+        await _transactionOpFirebase.getByCustomerId(customerId);
     return history
         .where((final t) => t.earnedPoints > 0 || t.usedPoints > 0)
         .toList();

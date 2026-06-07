@@ -77,7 +77,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransactionModel>> getTransactionsByCustomerId(
+  Future<List<TransactionModel>> getByCustomerId(
     final String customerId,
   ) async {
     try {
@@ -89,7 +89,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
           .get();
 
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
-      return querySnapshot.docs.map((final doc) {
+      return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return TransactionModel.fromFirebase(doc.id, data);
       }).toList();
@@ -100,7 +100,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Menghitung total poin yang dimiliki oleh pelanggan.
-  Future<int> getTotalPoints(final String customerId) async {
+  Future<int> getTotalPoints(String customerId) async {
     try {
       Log.info('Menghitung total poin untuk: $customerId');
       final querySnapshot = await _collection
@@ -108,14 +108,13 @@ class TransactionOpFirebase extends BaseOpFirebase {
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
           .get();
-
+          
       int totalPoints = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         totalPoints += (data[ColumnNames.earnedPoints] as int? ?? 0);
         totalPoints -= (data[ColumnNames.usedPoints] as int? ?? 0);
       }
-
       Log.info('Total poin untuk $customerId adalah $totalPoints');
       return totalPoints;
     } on Exception catch (e, s) {

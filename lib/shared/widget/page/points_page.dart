@@ -147,8 +147,6 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         Log.info(
             'Menyimpan active customer baru untuk tukar poin', activeCustomer);
 
-        // **KUNCI REFACTORING**
-        // Invalidate kedua provider. UI akan otomatis update!
         ref.invalidate(pointsPageDataProvider);
         ref.invalidate(pointsHistoryProvider);
 

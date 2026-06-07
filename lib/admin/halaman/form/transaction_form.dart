@@ -281,7 +281,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        final hasConnection = await InternetConnectionService().isInternetAvailable();
+        final hasConnection =
+            await InternetConnectionService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

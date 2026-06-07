@@ -297,11 +297,10 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<_i8.TransactionModel?>);
 
   @override
-  _i5.Future<List<_i8.TransactionModel>> getTransactionsByCustomerId(
-          String? customerId) =>
+  _i5.Future<List<_i8.TransactionModel>> getByCustomerId(String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getTransactionsByCustomerId,
+          #getByCustomerId,
           [customerId],
         ),
         returnValue: _i5.Future<List<_i8.TransactionModel>>.value(

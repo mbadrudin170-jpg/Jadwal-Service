@@ -60,7 +60,8 @@ void main() {
     walletId: 'wallet-02',
     categoryId: 'cat-internet',
     paymentStatus: PaymentStatus.paid,
-    endDate: DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
+    endDate:
+        DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
     earnedPoints: 5,
   );
 
@@ -68,8 +69,10 @@ void main() {
     test('1.1. harus bisa menambahkan transaksi', () async {
       await transactionOpFirebase.addTransaction(t1);
 
-      final snapshot =
-          await fakeFirestore.collection(transactionsCollection).doc(t1.id).get();
+      final snapshot = await fakeFirestore
+          .collection(transactionsCollection)
+          .doc(t1.id)
+          .get();
       expect(snapshot.exists, isTrue);
       expect(snapshot.data()![ColumnNames.customerId], t1.customerId);
     });
@@ -78,86 +81,186 @@ void main() {
       await transactionOpFirebase.addTransaction(t1);
       await transactionOpFirebase.addTransaction(t2);
 
-      final latestPaid =
-          await transactionOpFirebase.getLatestPaidTransactionByUserId('cust-123');
+      final latestPaid = await transactionOpFirebase
+          .getLatestPaidTransactionByUserId('cust-123');
 
       expect(latestPaid, isNotNull);
       expect(latestPaid!.id, t1.id);
     });
 
-    test('1.3. harus mengembalikan null jika tidak ada transaksi lunas', () async {
+    test('1.3. harus mengembalikan null jika tidak ada transaksi lunas',
+        () async {
       await transactionOpFirebase.addTransaction(t2); // Hanya transaksi unpaid
 
-      final latestPaid =
-          await transactionOpFirebase.getLatestPaidTransactionByUserId('cust-123');
+      final latestPaid = await transactionOpFirebase
+          .getLatestPaidTransactionByUserId('cust-123');
 
       expect(latestPaid, isNull);
     });
 
-    test('1.4. harus bisa mendapatkan semua transaksi milik pelanggan', () async {
+    test('1.4. harus bisa mendapatkan semua transaksi milik pelanggan',
+        () async {
       await transactionOpFirebase.addTransaction(t1);
       await transactionOpFirebase.addTransaction(t2);
       await transactionOpFirebase.addTransaction(t3); // Beda pelanggan
 
       final transactions =
-          await transactionOpFirebase.getTransactionsByCustomerId('cust-123');
+          await transactionOpFirebase.getByCustomerId('cust-123');
 
       expect(transactions.length, 2);
       expect(transactions.any((t) => t.id == t1.id), isTrue);
       expect(transactions.any((t) => t.id == t2.id), isTrue);
     });
 
-    test('1.5. harus bisa menghitung total poin dengan benar', () async {
+    test('1.5. getTotalPoints harus bisa menghitung total poin dengan benar',
+        () async {
       // t1: 10 earned, 0 used -> 10
       // t2: 20 earned, 5 used, tapi status UNPAID -> tidak dihitung
       await transactionOpFirebase.addTransaction(t1);
       await transactionOpFirebase.addTransaction(t2);
 
-      final totalPoints = await transactionOpFirebase.getTotalPoints('cust-123');
+      final totalPoints =
+          await transactionOpFirebase.getTotalPoints('cust-123');
 
       expect(totalPoints, 10);
     });
 
-    test('1.6. harus bisa menghapus transaksi secara permanen', () async {
+    test(
+      '1.6 getTotalPoints harus melakukan perhitungan dengan melakukan sum untuk semua earnedPoints dan dikurangi semua usedPoints pada transaksi yang statusnya lunas dan tidak disoft delete ',
+      () async {
+        const customerId = 'cust-test-points';
+
+        // Data Transaksi
+        // 1. Lunas, tidak dihapus -> Dihitung (100 - 10 = 90)
+        final trx1 = TransactionModel(
+            id: 'trx-p1',
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            earnedPoints: 100,
+            usedPoints: 10,
+            date: DateTime.now(),
+            description: '',
+            type: TransactionType.expense,
+            amount: 5,
+            walletId: '',
+            categoryId: '');
+
+        // 2. Lunas, tidak dihapus -> Dihitung (50 - 5 = 45)
+        final trx2 = TransactionModel(
+            id: 'trx-p2',
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            earnedPoints: 50,
+            type: TransactionType.expense,
+            usedPoints: 5,
+            date: DateTime.now(),
+            description: '',
+            amount: 5,
+            walletId: '',
+            categoryId: '');
+
+        // 3. Belum lunas -> Diabaikan
+        final trx3 = TransactionModel(
+            id: 'trx-p3',
+            customerId: customerId,
+            earnedPoints: 200,
+            date: DateTime.now(),
+            description: '',
+            amount: 5,
+            type: TransactionType.expense,
+            walletId: '',
+            categoryId: '');
+
+        // 4. Lunas, tapi soft deleted -> Diabaikan
+        final trx4 = TransactionModel(
+            id: 'trx-p4',
+            customerId: customerId,
+            paymentStatus: PaymentStatus.paid,
+            earnedPoints: 75,
+            isDeleted: true,
+            date: DateTime.now(),
+            description: '',
+            amount: 5,
+            type: TransactionType.expense,
+            walletId: '',
+            categoryId: '');
+
+        // 5. Lunas, tidak dihapus, tapi beda customer -> Diabaikan
+        final trx5 = TransactionModel(
+            id: 'trx-p5',
+            customerId: 'cust-other',
+            paymentStatus: PaymentStatus.paid,
+            earnedPoints: 40,
+            date: DateTime.now(),
+            description: '',
+            amount: 5,
+            type: TransactionType.expense,
+            walletId: '',
+            categoryId: '');
+
+        // Menambahkan semua transaksi ke firestore palsu
+        await transactionOpFirebase.addTransaction(trx1);
+        await transactionOpFirebase.addTransaction(trx2);
+        await transactionOpFirebase.addTransaction(trx3);
+        await transactionOpFirebase.addTransaction(trx4);
+        await transactionOpFirebase.addTransaction(trx5);
+
+        // Aksi: panggil method yang diuji
+        final totalPoints =
+            await transactionOpFirebase.getTotalPoints(customerId);
+
+        // Aserasi: total poin harus 90 + 45 = 135
+        expect(totalPoints, 135);
+      },
+    );
+
+    test('1.7. harus bisa menghapus transaksi secara permanen', () async {
       await transactionOpFirebase.addTransaction(t1);
       await transactionOpFirebase.deleteTransaction(t1.id);
 
-      final snapshot =
-          await fakeFirestore.collection(transactionsCollection).doc(t1.id).get();
+      final snapshot = await fakeFirestore
+          .collection(transactionsCollection)
+          .doc(t1.id)
+          .get();
       expect(snapshot.exists, isFalse);
     });
 
-    test('1.7. harus bisa melakukan soft delete pada transaksi', () async {
+    test('1.8. harus bisa melakukan soft delete pada transaksi', () async {
       await transactionOpFirebase.addTransaction(t1);
       await transactionOpFirebase.softDeleteTransaction(t1.id);
 
-      final snapshot =
-          await fakeFirestore.collection(transactionsCollection).doc(t1.id).get();
+      final snapshot = await fakeFirestore
+          .collection(transactionsCollection)
+          .doc(t1.id)
+          .get();
       expect(snapshot.exists, isTrue);
       expect(snapshot.data()![ColumnNames.isDeleted], isTrue);
     });
 
-    test('1.8. harus bisa mendapatkan paket aktif pelanggan', () async {
+    test('1.9. harus bisa mendapatkan paket aktif pelanggan', () async {
       await transactionOpFirebase.addTransaction(t1); // Aktif
       await transactionOpFirebase.addTransaction(t2); // Aktif, tapi unpaid
       await transactionOpFirebase.addTransaction(t3); // Kedaluwarsa
 
       final activePackages =
           await transactionOpFirebase.getPaketAktifCustomer('cust-123');
-      
+
       // getPaketAktifCustomer tidak memfilter berdasarkan paymentStatus
       expect(activePackages.length, 2);
       expect(activePackages.any((t) => t.id == t1.id), isTrue);
       expect(activePackages.any((t) => t.id == t2.id), isTrue);
     });
 
-    test('1.9. getPaketAktifCustomer harus mengembalikan list kosong jika semua paket kedaluwarsa', () async {
-      final expiredTransaction = t1.copyWith(endDate: DateTime.now().subtract(const Duration(days: 1)));
+    test(
+        '1.10. getPaketAktifCustomer harus mengembalikan list kosong jika semua paket kedaluwarsa',
+        () async {
+      final expiredTransaction = t1.copyWith(
+          endDate: DateTime.now().subtract(const Duration(days: 1)));
       await transactionOpFirebase.addTransaction(expiredTransaction);
 
       final activePackages =
           await transactionOpFirebase.getPaketAktifCustomer(t1.customerId!);
-      
+
       expect(activePackages.isEmpty, isTrue);
     });
   });
