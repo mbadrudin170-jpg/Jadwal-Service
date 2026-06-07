@@ -120,16 +120,29 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           }
           if (a.transaction.endDate == null) return 1;
           if (b.transaction.endDate == null) return -1;
-          return b.transaction.endDate!.compareTo(a.transaction.endDate!);
+          final dateCompare =
+              b.transaction.endDate!.compareTo(a.transaction.endDate!);
+          if (dateCompare != 0) return dateCompare;
+          return a.transaction.id.compareTo(b.transaction.id);
         });
         break;
       case SortOption.newest:
-        list.sort((a, b) => (b.transaction.updatedAt ?? b.transaction.date)
-            .compareTo(a.transaction.updatedAt ?? a.transaction.date));
+        list.sort((a, b) {
+          final dateA = a.transaction.updatedAt ?? a.transaction.date;
+          final dateB = b.transaction.updatedAt ?? b.transaction.date;
+          final dateCompare = dateB.compareTo(dateA);
+          if (dateCompare != 0) return dateCompare;
+          return a.transaction.id.compareTo(b.transaction.id);
+        });
         break;
       case SortOption.oldest:
-        list.sort((a, b) => (a.transaction.updatedAt ?? a.transaction.date)
-            .compareTo(b.transaction.updatedAt ?? b.transaction.date));
+        list.sort((a, b) {
+          final dateA = a.transaction.updatedAt ?? a.transaction.date;
+          final dateB = b.transaction.updatedAt ?? b.transaction.date;
+          final dateCompare = dateA.compareTo(dateB);
+          if (dateCompare != 0) return dateCompare;
+          return b.transaction.id.compareTo(a.transaction.id);
+        });
         break;
       case SortOption.nameAZ:
         // Sekarang kita bisa sort berdasarkan `customerName`

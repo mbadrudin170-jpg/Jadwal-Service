@@ -22,9 +22,12 @@ void main() {
   final tomorrow = today.add(const Duration(days: 1));
 
   // Customer dummies
-  final c1 = CustomerModel(id: 'c1', name: 'Charlie', phone: '', address: '', password: '');
-  final c2 = CustomerModel(id: 'c2', name: 'Alpha', phone: '', address: '', password: '');
-  final c3 = CustomerModel(id: 'c3', name: 'Bravo', phone: '', address: '', password: '');
+  final c1 = CustomerModel(
+      id: 'c1', name: 'Charlie', phone: '', address: '', password: '');
+  final c2 = CustomerModel(
+      id: 'c2', name: 'Alpha', phone: '', address: '', password: '');
+  final c3 = CustomerModel(
+      id: 'c3', name: 'Bravo', phone: '', address: '', password: '');
 
   // Transaction dummies
   final t1 = TransactionModel(
@@ -89,7 +92,8 @@ void main() {
 
     container = ProviderContainer(
       overrides: [
-        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
+        transactionOperationProvider
+            .overrideWithValue(mockTransactionOperation),
         customerOperationProvider.overrideWithValue(mockCustomerOperation),
       ],
     );
@@ -106,45 +110,52 @@ void main() {
   });
 
   group('PackageActivationHistory Provider Sorting Tests', () {
-    test('1. Test default sort (endDate)', () async {
+    test('1. endDate harus mengurutkan list berdasarkan endDate descending',
+        () async {
       // Tunggu provider untuk inisialisasi
-      final state = await container.read(packageActivationHistoryProvider.future);
+      final state =
+          await container.read(packageActivationHistoryProvider.future);
 
       // Verifikasi urutan default adalah berdasarkan endDate descending (null di akhir)
-      expect(state.items.map((item) => item.transaction.id).toList(), ['2', '1', '3', '4']);
+      expect(state.items.map((item) => item.transaction.id).toList(),
+          ['2', '1', '3', '4']);
       expect(state.sortBy, SortOption.endDate);
     });
 
-    test('2. Test sort by nameAZ', () async {
+    test('2. nameAZ harus mengurutkan list berdasarkan nama A-Z', () async {
       // Inisialisasi dulu
       await container.read(packageActivationHistoryProvider.future);
-      
+
       // Panggil changeSort
       container
           .read(packageActivationHistoryProvider.notifier)
           .changeSort(SortOption.nameAZ);
-      
+
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi urutan berdasarkan nama A-Z, customer tidak diketahui paling akhir
-      expect(state.items.map((item) => item.customerName).toList(), ['Alpha', 'Bravo', 'Charlie', 'Tidak diketahui']);
+      expect(state.items.map((item) => item.customerName).toList(),
+          ['Alpha', 'Bravo', 'Charlie', 'Tidak diketahui']);
       expect(state.sortBy, SortOption.nameAZ);
     });
 
-    test('3. Test sort by nameZA', () async {
+    test('3. namaZA harus mengurutkan list berdasarkan nama Z-A', () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
           .changeSort(SortOption.nameZA);
 
       final state = container.read(packageActivationHistoryProvider).value!;
-      
+
       // Verifikasi urutan berdasarkan nama Z-A
-      expect(state.items.map((item) => item.customerName).toList(), ['Tidak diketahui', 'Charlie', 'Bravo', 'Alpha']);
+      expect(state.items.map((item) => item.customerName).toList(),
+          ['Tidak diketahui', 'Charlie', 'Bravo', 'Alpha']);
       expect(state.sortBy, SortOption.nameZA);
     });
 
-    test('4. Test sort by newest', () async {
+    test(
+        '4. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
+        () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
@@ -153,11 +164,14 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi urutan berdasarkan tanggal terbaru
-      expect(state.items.map((item) => item.transaction.id).toList(), ['2', '1', '3', '4']);
+      expect(state.items.map((item) => item.transaction.id).toList(),
+          ['2', '1', '3', '4']);
       expect(state.sortBy, SortOption.newest);
     });
 
-    test('5. Test sort by oldest', () async {
+    test(
+        '5. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
+        () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
@@ -166,52 +180,60 @@ void main() {
       final state = container.read(packageActivationHistoryProvider).value!;
 
       // Verifikasi urutan berdasarkan tanggal terlama
-      expect(state.items.map((item) => item.transaction.id).toList(), ['4', '3', '1', '2']);
+      expect(state.items.map((item) => item.transaction.id).toList(),
+          ['4', '3', '1', '2']);
       expect(state.sortBy, SortOption.oldest);
     });
-    
-    test('6. Test sort by endingToday', () async {
+
+    test(
+        '6. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
+        () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
           .changeSort(SortOption.endingToday);
 
       final state = container.read(packageActivationHistoryProvider).value!;
-      
+
       // Verifikasi: t1 (berakhir hari ini) harus di paling atas
       expect(state.items.first.transaction.id, '1');
       expect(state.sortBy, SortOption.endingToday);
     });
 
-    test('7. Test sort by paid', () async {
+    test('7. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
+        () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
           .changeSort(SortOption.paid);
 
       final state = container.read(packageActivationHistoryProvider).value!;
-      
+
       // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaction.id).toList();
-      expect(ids.sublist(0, 2), containsAll(['1', '3']));
+      expect(ids, ['1', '3', '2', '4']);
       expect(state.items[0].transaction.paymentStatus, PaymentStatus.paid);
       expect(state.items[1].transaction.paymentStatus, PaymentStatus.paid);
       expect(state.sortBy, SortOption.paid);
     });
 
-    test('8. Test sort by unpaid', () async {
+    test('8. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
+        () async {
       await container.read(packageActivationHistoryProvider.future);
       container
           .read(packageActivationHistoryProvider.notifier)
           .changeSort(SortOption.unpaid);
 
       final state = container.read(packageActivationHistoryProvider).value!;
-      
+
       // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaction.id).toList();
-      expect(ids.sublist(0, 2), containsAll(['2', '4']));
+      expect(ids, ['2', '4', '1', '3']);
       expect(state.items[0].transaction.paymentStatus, PaymentStatus.unpaid);
       expect(state.items[1].transaction.paymentStatus, PaymentStatus.unpaid);
+      expect(state.items[2].transaction.paymentStatus, PaymentStatus.paid);
+      expect(state.items[3].transaction.paymentStatus, PaymentStatus.paid);
+
       expect(state.sortBy, SortOption.unpaid);
     });
   });
