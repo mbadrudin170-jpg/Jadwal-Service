@@ -450,50 +450,6 @@ final class TransactionOpFirebaseProvider extends $FunctionalProvider<
 String _$transactionOpFirebaseHash() =>
     r'3d7e4c75d1c790bfc69d8adae6084cc50af22687';
 
-@ProviderFor(firebasePointsDataSource)
-final firebasePointsDataSourceProvider = FirebasePointsDataSourceProvider._();
-
-final class FirebasePointsDataSourceProvider extends $FunctionalProvider<
-    FirebasePointsDataSource,
-    FirebasePointsDataSource,
-    FirebasePointsDataSource> with $Provider<FirebasePointsDataSource> {
-  FirebasePointsDataSourceProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'firebasePointsDataSourceProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
-
-  @override
-  String debugGetCreateSourceHash() => _$firebasePointsDataSourceHash();
-
-  @$internal
-  @override
-  $ProviderElement<FirebasePointsDataSource> $createElement(
-          $ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  FirebasePointsDataSource create(Ref ref) {
-    return firebasePointsDataSource(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(FirebasePointsDataSource value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<FirebasePointsDataSource>(value),
-    );
-  }
-}
-
-String _$firebasePointsDataSourceHash() =>
-    r'e9809cc27aa8563d766cb3985c89542d486564ac';
-
 @ProviderFor(notifikasiOpFirebase)
 final notifikasiOpFirebaseProvider = NotifikasiOpFirebaseProvider._();
 

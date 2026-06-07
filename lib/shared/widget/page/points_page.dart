@@ -9,8 +9,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/poin/points_page_data_source.dart';
-import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/shared/operasi/poin/points_page_providers.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -36,37 +35,25 @@ class PointsPage extends ConsumerStatefulWidget {
 }
 
 class _PointsPageState extends ConsumerState<PointsPage> {
-  late final PointsPageDataSource _dataSource;
   final _interstitialAdService = InterstitialAdService();
   MenuPoin _selectedMenu = MenuPoin.penukaran;
-  int _totalPoints = 0;
-  List<PackageModel> _rewardList = [];
-  List<TransactionModel> _transactionHistory = [];
-  bool _isLoading = false;
-  bool _isLoadingHistory = false;
-  String? _errorMessage;
   late final Widget _appBarTitle;
 
   @override
   void initState() {
     super.initState();
-    final role = ref.read(appRoleProvider);
-
-    if (role == AppRole.admin) {
-      _dataSource = ref.read(sqlitePointsDataSourceProvider);
-    } else {
-      _dataSource = ref.read(firebasePointsDataSourceProvider);
-    }
+    final isFirebase = ref.read(appRoleProvider) == AppRole.user;
 
     Log.info(
-        'Initializing PointsPage for customer: ${widget.customerId} with role: $role');
+        'Initializing PointsPage for customer: ${widget.customerId} with role: ${ref.read(appRoleProvider)}');
+
     _appBarTitle = Row(
       children: [
         const Text('Poin: '),
         Expanded(
           child: CustomerNameWidget(
             customerId: widget.customerId,
-            useFirebase: _dataSource.isFirebase,
+            useFirebase: isFirebase,
           ),
         ),
       ],
@@ -76,73 +63,19 @@ class _PointsPageState extends ConsumerState<PointsPage> {
       Log.info('Preloading interstitial ad for PointsPage.');
       unawaited(_interstitialAdService.preloadAd());
     }
-    unawaited(_loadPointsData());
   }
 
-  Future<void> _loadPointsData() async {
-    if (!mounted) return;
-    Log.info('Loading points data...');
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-    try {
-      final totalPoints = await _dataSource.getTotalPoints(widget.customerId);
-      final rewardList = await _dataSource.getPublicPackages();
-      if (!mounted) return;
-      setState(() {
-        _totalPoints = totalPoints;
-        _rewardList = rewardList;
-        _isLoading = false;
-      });
-      Log.info('Successfully loaded points data and rewards.');
-      if (_selectedMenu == MenuPoin.riwayat) {
-        await _loadTransactionHistory();
-      }
-    } on Exception catch (e, st) {
-      Log.error('Failed to load points data: $e', e: e, st: st);
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Failed to load data: $e';
-      });
-    }
-  }
-
-  Future<void> _loadTransactionHistory() async {
-    if (!mounted) return;
-    Log.info('Loading points transaction history...');
-    setState(() => _isLoadingHistory = true);
-    try {
-      final history =
-          await _dataSource.getPointsTransactions(widget.customerId);
-      if (!mounted) return;
-      setState(() {
-        _transactionHistory = history;
-        _isLoadingHistory = false;
-      });
-      Log.info('Successfully loaded points transaction history.');
-    } on Exception catch (e, st) {
-      Log.error('Failed to load history: $e', e: e, st: st);
-      if (!mounted) return;
-      setState(() {
-        _isLoadingHistory = false;
-        _transactionHistory = [];
-      });
-    }
-  }
-
-  Future<void> _redeemReward(final PackageModel reward) async {
+  Future<void> _redeemReward(BuildContext context, WidgetRef ref,
+      PackageModel reward, int currentPoints) async {
     final role = ref.read(appRoleProvider);
     if (role == AppRole.admin) {
       Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-      if (!mounted) return;
       ToastUtil.error(
           context, 'Admin tidak dapat menukar poin dari antarmuka ini.');
       return;
     }
-    if (!mounted) return;
-    final bool enoughPoints = _totalPoints >= reward.redemptionPoints;
+
+    final bool enoughPoints = currentPoints >= reward.redemptionPoints;
     if (!enoughPoints) {
       ToastUtil.warning(
           context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
@@ -151,7 +84,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
 
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (final dialogContext) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Konfirmasi Penukaran'),
         content: Text('Anda yakin ingin menukar poin dengan ${reward.name}?'),
         actions: [
@@ -190,7 +123,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
           id: transactionId,
           description: 'Tukar Poin: ${reward.name}',
           type: TransactionType.income,
-          date: DateTime.now(),
+          date: now,
           packageId: reward.id,
           walletId: '',
           categoryId: '',
@@ -198,23 +131,29 @@ class _PointsPageState extends ConsumerState<PointsPage> {
           customerId: widget.customerId,
           durationType: reward.type,
           packageDuration: reward.duration,
-          startDate: DateTime.now(),
+          startDate: now,
           paymentStatus: PaymentStatus.paid,
           subCategoryId: '',
           usedPoints: reward.redemptionPoints,
           endDate: endDate,
         );
+
         final transactionOp = ref.read(transactionOpFirebaseProvider);
         final activeCustomerOp = ref.read(activeCustomerOpFirebaseProvider);
+
         await activeCustomerOp.setActiveCustomer(activeCustomer);
-        Log.info('menyimpan transaksi baru untuk tukar poin', transaction);
+        Log.info('Menyimpan transaksi baru untuk tukar poin', transaction);
         await transactionOp.addTransaction(transaction);
         Log.info(
-            'menyimpan active customer  baru untuk tukar poin', activeCustomer);
-        final _ = ref.refresh(transactionOpFirebaseProvider);
+            'Menyimpan active customer baru untuk tukar poin', activeCustomer);
+
+        // **KUNCI REFACTORING**
+        // Invalidate kedua provider. UI akan otomatis update!
+        ref.invalidate(pointsPageDataProvider);
+        ref.invalidate(pointsHistoryProvider);
+
         if (!mounted) return;
         ToastUtil.success(context, '${reward.name} berhasil ditukar!');
-        // await _loadPointsData(); // Muat ulang data poin
       } on Exception catch (e, st) {
         Log.error('Gagal menukar poin: $e', e: e, st: st);
         if (!mounted) return;
@@ -223,14 +162,14 @@ class _PointsPageState extends ConsumerState<PointsPage> {
     }
   }
 
-  Future<void> _navigateToDetailTransaksi(
-      final TransactionModel transaction) async {
+  Future<void> _navigateToDetailTransaksi(TransactionModel transaction) async {
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaction.id}');
     PackageModel? package;
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
+      final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        package = await _dataSource.getPackageById(transaction.packageId!);
+        package = await dataSource.getPackageById(transaction.packageId!);
       } on Exception catch (e, st) {
         Log.error('Failed to get package ${transaction.packageId}: $e',
             e: e, st: st);
@@ -240,7 +179,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (final context) => TransactionDetailPage(
+        builder: (context) => TransactionDetailPage(
           transaction: transaction,
           package: package,
         ),
@@ -251,53 +190,57 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   @override
   Widget build(BuildContext context) {
     Log.info('Building PointsPage UI, selected menu: $_selectedMenu');
-    return PoinPageUi(
-      appBarTitle: _appBarTitle,
-      totalPoin: _totalPoints,
-      menuPilihan: _selectedMenu,
-      onSelectionChanged: (final Set<MenuPoin> newSelection) async {
-        final selection = newSelection.first;
-        Log.info('Points menu changed to: $selection');
-        setState(() => _selectedMenu = selection);
+    // Tonton provider data utama.
+    final asyncData = ref.watch(pointsPageDataProvider(widget.customerId));
 
-        if (selection == MenuPoin.riwayat) {
-          if (widget.showAd) {
-            await _interstitialAdService.show();
-          }
-          if (_transactionHistory.isEmpty) {
-            await _loadTransactionHistory();
-          }
-        }
+    return asyncData.when(
+      loading: () => Scaffold(
+        appBar: AppBar(title: _appBarTitle),
+        body: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, stack) => Scaffold(
+        appBar: AppBar(title: _appBarTitle),
+        body: Center(
+          child: Text('Error: $err'),
+        ),
+      ),
+      data: (pageData) {
+        return PoinPageUi(
+          appBarTitle: _appBarTitle,
+          totalPoin: pageData.totalPoints,
+          menuPilihan: _selectedMenu,
+          onSelectionChanged: (newSelection) async {
+            final selection = newSelection.first;
+            Log.info('Points menu changed to: $selection');
+            setState(() => _selectedMenu = selection);
+
+            if (selection == MenuPoin.riwayat && widget.showAd) {
+              await _interstitialAdService.show();
+            }
+          },
+          contentView: _selectedMenu == MenuPoin.penukaran
+              ? _buildRewardList(pageData.rewards, pageData.totalPoints)
+              : _buildPointsHistory(),
+          bottomWidget: widget.showAd ? const BannerAdsWidget() : null,
+        );
       },
-      contentView: _selectedMenu == MenuPoin.penukaran
-          ? _buildRewardList()
-          : _buildPointsHistory(),
-      bottomWidget: widget.showAd
-          ? const BannerAdsWidget() // DIUBAH
-          : null,
     );
   }
 
-  Widget _buildRewardList() {
+  Widget _buildRewardList(List<PackageModel> rewardList, int totalPoints) {
     Log.info('Building reward list.');
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_errorMessage != null) {
-      return Center(child: Text(_errorMessage!));
-    }
-    if (_rewardList.isEmpty) {
-      return const Center(child: Text('No rewards available yet'));
+    if (rewardList.isEmpty) {
+      return const Center(child: Text('Belum ada hadiah yang tersedia'));
     }
     return ListView.builder(
-      itemCount: _rewardList.length,
-      itemBuilder: (final context, final index) {
-        final reward = _rewardList[index];
-        final enoughPoints = _totalPoints >= reward.redemptionPoints;
+      itemCount: rewardList.length,
+      itemBuilder: (context, index) {
+        final reward = rewardList[index];
+        final enoughPoints = totalPoints >= reward.redemptionPoints;
         final progress = reward.redemptionPoints > 0
-            ? (_totalPoints / reward.redemptionPoints).clamp(0.0, 1.0)
+            ? (totalPoints / reward.redemptionPoints).clamp(0.0, 1.0)
             : 1.0;
-        final poinKurang = _totalPoints - reward.redemptionPoints;
+        final poinKurang = totalPoints - reward.redemptionPoints;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
@@ -308,9 +251,10 @@ class _PointsPageState extends ConsumerState<PointsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${reward.redemptionPoints} Points'),
+                    Text('${reward.redemptionPoints} Poin'),
                     ElevatedButton(
-                      onPressed: () => _redeemReward(reward),
+                      onPressed: () =>
+                          _redeemReward(context, ref, reward, totalPoints),
                       child: const Text('Tukar'),
                     ),
                   ],
@@ -320,7 +264,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Points: $_totalPoints / ${reward.redemptionPoints}',
+                    Text('Poin: $totalPoints / ${reward.redemptionPoints}',
                         style: TextStyle(
                             fontSize: 12,
                             color: enoughPoints ? Colors.green : Colors.grey)),
@@ -343,53 +287,59 @@ class _PointsPageState extends ConsumerState<PointsPage> {
 
   Widget _buildPointsHistory() {
     Log.info('Building points history.');
-    if (_isLoadingHistory) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_transactionHistory.isEmpty) {
-      return const Center(child: Text('No points history yet'));
-    }
-    return ListView.builder(
-      itemCount: _transactionHistory.length,
-      itemBuilder: (final context, final index) {
-        final tx = _transactionHistory[index];
-        final isAddition = tx.earnedPoints > 0;
-        final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
-        final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
+    // Tonton provider riwayat.
+    final asyncHistory = ref.watch(pointsHistoryProvider(widget.customerId));
 
-        final bool isUnpaid = tx.paymentStatus == PaymentStatus.unpaid;
-        final Color pointColor = isUnpaid
-            ? Colors.grey
-            : isAddition
-                ? Colors.green
-                : Colors.red;
-        return InkWell(
-          onTap: () => _navigateToDetailTransaksi(tx),
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: ListTile(
-              leading: Icon(
-                isUnpaid
-                    ? TIcons.hourglass
-                    : isAddition
-                        ? TIcons.arrowUp
-                        : TIcons.arrowDown,
-                color: pointColor,
-              ),
-              title: Text(tx.description),
-              subtitle: Text(
-                FormatDate.formatDateBasic(tx.date),
-              ),
-              trailing: Text(
-                pointsStr,
-                style: TextStyle(
-                  color: pointColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+    return asyncHistory.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+      data: (history) {
+        if (history.isEmpty) {
+          return const Center(child: Text('Belum ada riwayat poin'));
+        }
+        return ListView.builder(
+          itemCount: history.length,
+          itemBuilder: (context, index) {
+            final tx = history[index];
+            final isAddition = tx.earnedPoints > 0;
+            final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
+            final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
+
+            final bool isUnpaid = tx.paymentStatus == PaymentStatus.unpaid;
+            final Color pointColor = isUnpaid
+                ? Colors.grey
+                : isAddition
+                    ? Colors.green
+                    : Colors.red;
+            return InkWell(
+              onTap: () => _navigateToDetailTransaksi(tx),
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: ListTile(
+                  leading: Icon(
+                    isUnpaid
+                        ? TIcons.hourglass
+                        : isAddition
+                            ? TIcons.arrowUp
+                            : TIcons.arrowDown,
+                    color: pointColor,
+                  ),
+                  title: Text(tx.description),
+                  subtitle: Text(
+                    FormatDate.formatDateBasic(tx.date),
+                  ),
+                  trailing: Text(
+                    pointsStr,
+                    style: TextStyle(
+                      color: pointColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

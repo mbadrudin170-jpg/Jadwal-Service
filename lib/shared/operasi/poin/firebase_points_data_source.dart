@@ -60,7 +60,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 // ============================================================
 // Provider Riverpod untuk SQLitePointsDataSource
 // ============================================================
-final firebasePointsDataSource = Provider<FirebasePointsDataSource>((ref) {
+final firebasePointsDataSourceProvider = Provider<FirebasePointsDataSource>((ref) {
   return FirebasePointsDataSource(
     transactionOpFirebase: ref.watch(transactionOpFirebaseProvider),
     packageOpFirebase: ref.watch(packageOpFirebaseProvider),

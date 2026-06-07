@@ -12,7 +12,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/operasi/poin/firebase_points_data_source.dart';
 
 part 'firebase_operation_provider.g.dart';
 
@@ -91,16 +90,6 @@ TransactionOpFirebase transactionOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   return TransactionOpFirebase(
     firestore: firestoreInstance,
-  );
-}
-
-@Riverpod(keepAlive: true)
-FirebasePointsDataSource firebasePointsDataSource(Ref ref) {
-  final transactionOp = ref.watch(transactionOpFirebaseProvider);
-  final packageOp = ref.watch(packageOpFirebaseProvider);
-  return FirebasePointsDataSource(
-    transactionOpFirebase: transactionOp,
-    packageOpFirebase: packageOp,
   );
 }
 
