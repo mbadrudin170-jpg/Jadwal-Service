@@ -58,5 +58,3 @@
    - **Jangan mengubah** struktur, logika, alur navigasi, nama fungsi/variabel, atau perilaku kode yang sudah ada.
    - Jika operasi penting belum memiliki penanganan error, tambahkan **blok `try`/`on Exception catch` minimal** untuk mencatat log dan menampilkan toast error, tetapi **biarkan isi blok `try` sama persis** dengan kode asli (tidak diubah).
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
-
----

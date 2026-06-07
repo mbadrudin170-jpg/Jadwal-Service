@@ -21,7 +21,6 @@ class _ProfileData {
 /// Halaman untuk menampilkan detail profil pengguna.
 class UserCustomerDetailPage extends ConsumerStatefulWidget {
   final String userId;
-
   const UserCustomerDetailPage({super.key, required this.userId});
 
   @override
@@ -83,8 +82,7 @@ class _UserCustomerDetailPageState
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) =>
-            EditProfilePage(customer: customer, userId: widget.userId),
+        builder: (final context) => EditProfilePage(customer: customer),
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();

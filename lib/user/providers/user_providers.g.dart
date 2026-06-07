@@ -108,7 +108,7 @@ final class UserIdProvider
           argument: null,
           retry: null,
           name: r'userIdProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -127,7 +127,7 @@ final class UserIdProvider
   }
 }
 
-String _$userIdHash() => r'ab97fc2ae47662359e2a6ffd042cc817bbcad0ba';
+String _$userIdHash() => r'f4386bffa2227de828ab6e3300c0be5a0808453c';
 
 @ProviderFor(userActivityService)
 final userActivityServiceProvider = UserActivityServiceProvider._();

@@ -34,7 +34,7 @@ final class PackageActivationHistoryProvider extends $AsyncNotifierProvider<
 }
 
 String _$packageActivationHistoryHash() =>
-    r'f8cf57b111573b389edf509fe94a73965643be10';
+    r'f4a352af4ac9d4720f85ca6337ea761feed4aa83';
 
 abstract class _$PackageActivationHistory
     extends $AsyncNotifier<PackageActivationHistoryState> {

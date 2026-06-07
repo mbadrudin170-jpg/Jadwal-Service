@@ -21,7 +21,7 @@ NotifikasiServis notifikasiServis(Ref ref) {
   return NotifikasiServis();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<String?> userId(Ref ref) async {
   final storage = await ref.watch(localStorageServiceProvider.future);
   final akun = await storage.getUserIdLogin();

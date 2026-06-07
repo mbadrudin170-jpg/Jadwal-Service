@@ -6,10 +6,10 @@
 ### Aturan Analisis error
 1. jika terjadi error  maka AI di wajibkan membaca file yang bersangkutan, misalnya jika ada sebuah kode yang error didalam file maka AI harus melakukan analysa apakah kode ini menggunakan kode dari file lain, maka AI wajib membaca file yang di import nya itu
 2. kalau AI tidak tahu path file yang di import nya itu maka AI di wajibkan menjalankan `ls -R lib test` agar bisa lebih akurat lagi.
-4. AI hanya berfokus pada kode yang bermasalah saja dan jangan menyentuh kode yang tidak bermasalah, tetapi kalau kode tersebut bersangkutan dengan kode yang error maka AI boleh menyentuh kode itu.
-
-
+3. AI hanya berfokus pada kode yang bermasalah saja dan jangan menyentuh kode yang tidak bermasalah, tetapi kalau kode tersebut bersangkutan dengan kode yang error maka AI boleh menyentuh kode itu.
 // path: prompt/aturan_test.md
+
+### Aturan Test
 
 1. nama test harus menggunakan bahasa indonesia dan kasih nomor urut nya di masing masing test.
 2. kalau bisa setiap file unit test nya harus lengkap agar tidak semua kode bisa sesuai dengan yang di harapkan.
@@ -17,7 +17,11 @@
 4. setelah memperbarui file test nya jalankan flutter analzye agar tidak ada error lalu jalankan flutter test untuk file tersebut contoh `flutter test test/shared/operasi/firebase_operasi/settings_op_firebase_test.dart`.
 5. jangan pernah merubah test yang tidak error dan test yang sukses cukup rubah saja unit test nya bermasalah.
 6. sebelum membuatkan unit test nya tolong baca dan pahami kode sumber nya.
-7. Tolong pahami dan selalu ingat aturan ini
+7. Tolong pahami dan selalu ingat aturan ini:
+    1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
+    2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
+    3. kode di setiap file harus konsisten.
+Tolong pahami dan selalu ingat aturan ini
 
 1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
 2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
@@ -144,8 +148,7 @@ File APK yang dihasilkan akan berada di direktori: `build/app/outputs/flutter-ap
    - **Jangan mengubah** struktur, logika, alur navigasi, nama fungsi/variabel, atau perilaku kode yang sudah ada.
    - Jika operasi penting belum memiliki penanganan error, tambahkan **blok `try`/`on Exception catch` minimal** untuk mencatat log dan menampilkan toast error, tetapi **biarkan isi blok `try` sama persis** dengan kode asli (tidak diubah).
    - Jangan menambahkan fungsionalitas baru, refaktor, atau "perbaikan" yang tidak diminta.
-
----
+# // path: prompt/flutter.md
 # Panduan Gaya Flutter
 
 Panduan gaya ini menguraikan konvensi pengkodean untuk kontribusi ke
@@ -234,7 +237,6 @@ Untuk panduan lebih rinci, lihat dokumen berikut:
 - [Panduan pengujian mesin](https://github.com/flutter/flutter/blob/main/docs/engine/testing/Testing-the-engine.md)
 # // path: prompt/aturan_penulisan_kode.md
 
-
 ---
 
 ### Aturan Ngoding Flutter (AI)
@@ -242,45 +244,44 @@ Untuk panduan lebih rinci, lihat dokumen berikut:
 **0. Bahasa Percakapan dengan AI**
 Seluruh percakapan antara AI dan pengembang **wajib menggunakan Bahasa Indonesia**, baik saat menjelaskan kode, memberi saran, maupun menanggapi pertanyaan. Aturan ini berlaku mutlak dalam sesi ini.
 
-**1. Bahasa Komentar dan Percakapan**  
+**1. Bahasa Komentar dan Percakapan**
 Seluruh komentar di dalam kode serta percakapan dengan AI wajib menggunakan **Bahasa Indonesia**.
 
-2. Penamaan dalam Kode
-Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditulis dalam **Bahasa Indonesia**.  
-Jika belum mengetahui padanan kata yang tepat:
+**2. Penamaan dalam Kode**
+Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditulis dalam **Bahasa Indonesia**.
 
-**4. Format dan Kerapihan Kode**  
-- Wajib menggunakan *trailing comma* di setiap widget tree agar auto-format rapi (sesuai `dart format`).  
-- Gunakan `const` constructor sebanyak mungkin untuk widget stateless.  
-- Pisahkan widget besar menjadi widget-widget kecil yang fokus pada satu tanggung jawab.  
-- Jika widget tree sudah menjorok terlalu dalam (nested), ekstrak bagian tersebut menjadi widget private di file yang sama.  
+**3. Format dan Kerapihan Kode**
+- Wajib menggunakan *trailing comma* di setiap widget tree agar auto-format rapi (sesuai `dart format`).
+- Gunakan `const` constructor sebanyak mungkin untuk widget stateless.
+- Pisahkan widget besar menjadi widget-widget kecil yang fokus pada satu tanggung jawab.
+- Jika widget tree sudah menjorok terlalu dalam (nested), ekstrak bagian tersebut menjadi widget private di file yang sama.
 - Maksimal satu widget publik per file, kecuali widget private kecil yang hanya digunakan dalam file yang sama.
 
-**5. Penggunaan Ikon Wajib dari `AppIcons`**  
-- Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.  
-- Jika ikon yang dibutuhkan **belum tersedia** di `AppIcons`, **wajib menambahkannya terlebih dahulu** sebagai properti `static const` baru dengan nama yang deskriptif dalam Bahasa Inggris, lalu gunakan properti tersebut.  
+**4. Penggunaan Ikon Wajib dari `AppIcons`**
+- Semua ikon dalam aplikasi **harus diambil dari class `AppIcons`** (`lib/shared/theme/app_icons.dart`), **tidak boleh** menggunakan `Icons.xxx` secara langsung di widget.
+- Jika ikon yang dibutuhkan **belum tersedia** di `AppIcons`, **wajib menambahkannya terlebih dahulu** sebagai properti `static const` baru dengan nama yang deskriptif dalam Bahasa Inggris, lalu gunakan properti tersebut.
 - Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
 
-**6. Komentar Path di Awal Setiap File**  
-- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart`.  
-- Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.  
+**5. Komentar Path di Awal Setiap File**
+- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart`.
+- Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.
 - Tujuan: memudahkan identifikasi lokasi file, terutama saat salin-tempel atau diskusi kode.
 
-**7. Menjalankan `flutter analyze` Setiap Selesai Perubahan**  
-- Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.  
-- Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.  
+**6. Menjalankan `flutter analyze` Setiap Selesai Perubahan**
+- Setelah menyelesaikan setiap perubahan kode (fitur baru, perbaikan bug, atau refaktor), **wajib menjalankan `flutter analyze`** untuk memastikan tidak ada *error* atau *warning* yang tertinggal.
+- Jika ditemukan masalah, perbaiki terlebih dahulu sebelum melanjutkan ke tugas lain atau menganggap pekerjaan selesai.
 - Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.
 
-## Komentar
-1. tambahkan sebuah komentar disetiap fungsi didalam sebuah file contoh `// 1. Menginisialisasi konfigurasi zona waktu`.
+**7. Komentar Fungsi**
+Tambahkan sebuah komentar di setiap fungsi di dalam sebuah file, contoh: `// 1. Menginisialisasi konfigurasi zona waktu`.
 
-## withOpacity
-1. dilarang menggunakan withOpacity, diharuskan menggunakan withValues, withAlpha, demi konsistensi proyek
+**8. Aturan `withOpacity`**
+Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk menjaga konsistensi proyek.
 
-## riverpod
-1. semuanya harus menggunakan flutter_riverpod dan riverpod_annotation demi menjaga konsistensinya.
-2. setiap ui nantinya yang membutuhkan data akan memanggil provider-provider itu.
-3. untuk provider yang akan terus digunakan selama apk hidup maka harus menggunakan @Riverpod(keepAlive: true).# // path: prompt/aturan_kepatuhan_ai.md
+**9. Aturan Riverpod**
+- Semua state management harus menggunakan `flutter_riverpod` dengan `riverpod_annotation` untuk menjaga konsistensi.
+- Setiap UI yang membutuhkan data akan memanggil provider yang sesuai.
+- Untuk provider yang datanya perlu dijaga selama aplikasi berjalan, gunakan anotasi `@Riverpod(keepAlive: true)`.# // path: prompt/aturan_kepatuhan_ai.md
 
 
 ---

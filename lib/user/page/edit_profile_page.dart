@@ -17,14 +17,14 @@ class EditProfilePage extends ConsumerStatefulWidget {
   /// Data pelanggan yang akan diedit.
   final CustomerModel customer;
 
-  /// ID unik pengguna yang sedang login.
-  final String userId;
+  // /// ID unik pengguna yang sedang login.
+  // final String userId;
 
   /// Membuat instance dari [EditProfilePage].
   const EditProfilePage({
     super.key,
     required this.customer,
-    required this.userId,
+    // required this.userId,
   });
 
   @override

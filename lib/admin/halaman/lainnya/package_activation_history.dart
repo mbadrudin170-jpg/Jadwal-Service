@@ -8,19 +8,7 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/format_util.dart';
-import 'package:wifi/shared/widget/customer_name.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-
-enum SortOption {
-  endDate,
-  nameAZ,
-  nameZA,
-  endingToday,
-  newest,
-  oldest,
-  paid,
-  unpaid
-}
 
 class PackageActivationHistoryPage extends ConsumerWidget {
   const PackageActivationHistoryPage({super.key});
@@ -48,19 +36,19 @@ class PackageActivationHistoryPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (state) {
-          if (state.transactions.isEmpty) {
+          if (state.items.isEmpty) {
             return const Center(
                 child: Text('Tidak ada riwayat langganan ditemukan.'));
           }
           return ListView.builder(
-            itemCount: state.transactions.length,
+            itemCount: state.items.length,
             itemBuilder: (context, index) {
-              final transaction = state.transactions[index];
+              final item = state.items[index];
+              final transaction = item.transaction;
               final paymentStatusColor =
                   transaction.paymentStatus == PaymentStatus.paid
                       ? Colors.green
                       : Colors.red;
-
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(
@@ -74,8 +62,8 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                       ),
                     );
                   },
-                  title: CustomerNameWidget(
-                    customerId: transaction.customerId ?? ' ',
+                  title: Text(
+                    item.customerName,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
@@ -132,6 +120,11 @@ class PackageActivationHistoryPage extends ConsumerWidget {
           title: const Text('Urutkan Berdasarkan'),
           children: <Widget>[
             buildOption('Tanggal Berakhir', SortOption.endDate),
+            buildOption('Nama A-Z', SortOption.nameAZ),
+            buildOption('Nama Z-A', SortOption.nameZA),
+            buildOption('Berakhir Hari Ini', SortOption.endingToday),
+            buildOption('Lunas', SortOption.paid),
+            buildOption('Belum Lunas', SortOption.unpaid),
             buildOption('Terbaru', SortOption.newest),
             buildOption('Terlama', SortOption.oldest),
           ],

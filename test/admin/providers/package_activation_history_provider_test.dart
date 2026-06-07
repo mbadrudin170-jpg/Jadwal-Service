@@ -1,0 +1,218 @@
+// path: test/admin/providers/package_activation_history_provider_test.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:wifi/admin/providers/package_activation_history_provider.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+
+import 'package_activation_history_provider_test.mocks.dart';
+
+@GenerateMocks([TransactionOperation, CustomerOperation])
+void main() {
+  // 1. Definisikan data dummy yang valid
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(const Duration(days: 1));
+  final tomorrow = today.add(const Duration(days: 1));
+
+  // Customer dummies
+  final c1 = CustomerModel(id: 'c1', name: 'Charlie', phone: '', address: '', password: '');
+  final c2 = CustomerModel(id: 'c2', name: 'Alpha', phone: '', address: '', password: '');
+  final c3 = CustomerModel(id: 'c3', name: 'Bravo', phone: '', address: '', password: '');
+
+  // Transaction dummies
+  final t1 = TransactionModel(
+    id: '1',
+    customerId: 'c1',
+    date: yesterday,
+    endDate: today,
+    paymentStatus: PaymentStatus.paid,
+    description: '',
+    amount: 0,
+    type: TransactionType.income,
+    walletId: '',
+    categoryId: '',
+  );
+  final t2 = TransactionModel(
+    id: '2',
+    customerId: 'c2',
+    date: today,
+    endDate: tomorrow,
+    description: '',
+    amount: 0,
+    type: TransactionType.income,
+    walletId: '',
+    categoryId: '',
+  );
+  final t3 = TransactionModel(
+    id: '3',
+    customerId: 'c3',
+    date: yesterday.subtract(const Duration(days: 1)),
+    endDate: yesterday,
+    paymentStatus: PaymentStatus.paid,
+    description: '',
+    amount: 0,
+    type: TransactionType.income,
+    walletId: '',
+    categoryId: '',
+  );
+  // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
+  final t4 = TransactionModel(
+    id: '4',
+    customerId: 'c4-nonexistent',
+    date: today.subtract(const Duration(days: 2)),
+    description: '',
+    amount: 0,
+    type: TransactionType.income,
+    walletId: '',
+    categoryId: '',
+  );
+
+  final mockTransactions = [t1, t2, t3, t4];
+  final mockCustomers = [c1, c2, c3];
+
+  // 2. Buat mock untuk semua dependensi
+  late MockTransactionOperation mockTransactionOperation;
+  late MockCustomerOperation mockCustomerOperation;
+  late ProviderContainer container;
+
+  // 3. Atur setup untuk setiap test
+  setUp(() {
+    mockTransactionOperation = MockTransactionOperation();
+    mockCustomerOperation = MockCustomerOperation();
+
+    container = ProviderContainer(
+      overrides: [
+        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
+        customerOperationProvider.overrideWithValue(mockCustomerOperation),
+      ],
+    );
+
+    // Atur mock untuk mengembalikan data dummy
+    when(mockTransactionOperation.getTransactionsByPackageActivation())
+        .thenAnswer((_) async => List.from(mockTransactions));
+    when(mockCustomerOperation.getAll())
+        .thenAnswer((_) async => List.from(mockCustomers));
+  });
+
+  tearDown(() {
+    container.dispose();
+  });
+
+  group('PackageActivationHistory Provider Sorting Tests', () {
+    test('1. Test default sort (endDate)', () async {
+      // Tunggu provider untuk inisialisasi
+      final state = await container.read(packageActivationHistoryProvider.future);
+
+      // Verifikasi urutan default adalah berdasarkan endDate descending (null di akhir)
+      expect(state.items.map((item) => item.transaction.id).toList(), ['2', '1', '3', '4']);
+      expect(state.sortBy, SortOption.endDate);
+    });
+
+    test('2. Test sort by nameAZ', () async {
+      // Inisialisasi dulu
+      await container.read(packageActivationHistoryProvider.future);
+      
+      // Panggil changeSort
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.nameAZ);
+      
+      final state = container.read(packageActivationHistoryProvider).value!;
+
+      // Verifikasi urutan berdasarkan nama A-Z, customer tidak diketahui paling akhir
+      expect(state.items.map((item) => item.customerName).toList(), ['Alpha', 'Bravo', 'Charlie', 'Tidak diketahui']);
+      expect(state.sortBy, SortOption.nameAZ);
+    });
+
+    test('3. Test sort by nameZA', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.nameZA);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+      
+      // Verifikasi urutan berdasarkan nama Z-A
+      expect(state.items.map((item) => item.customerName).toList(), ['Tidak diketahui', 'Charlie', 'Bravo', 'Alpha']);
+      expect(state.sortBy, SortOption.nameZA);
+    });
+
+    test('4. Test sort by newest', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.newest);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+
+      // Verifikasi urutan berdasarkan tanggal terbaru
+      expect(state.items.map((item) => item.transaction.id).toList(), ['2', '1', '3', '4']);
+      expect(state.sortBy, SortOption.newest);
+    });
+
+    test('5. Test sort by oldest', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.oldest);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+
+      // Verifikasi urutan berdasarkan tanggal terlama
+      expect(state.items.map((item) => item.transaction.id).toList(), ['4', '3', '1', '2']);
+      expect(state.sortBy, SortOption.oldest);
+    });
+    
+    test('6. Test sort by endingToday', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.endingToday);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+      
+      // Verifikasi: t1 (berakhir hari ini) harus di paling atas
+      expect(state.items.first.transaction.id, '1');
+      expect(state.sortBy, SortOption.endingToday);
+    });
+
+    test('7. Test sort by paid', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.paid);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+      
+      // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
+      final ids = state.items.map((item) => item.transaction.id).toList();
+      expect(ids.sublist(0, 2), containsAll(['1', '3']));
+      expect(state.items[0].transaction.paymentStatus, PaymentStatus.paid);
+      expect(state.items[1].transaction.paymentStatus, PaymentStatus.paid);
+      expect(state.sortBy, SortOption.paid);
+    });
+
+    test('8. Test sort by unpaid', () async {
+      await container.read(packageActivationHistoryProvider.future);
+      container
+          .read(packageActivationHistoryProvider.notifier)
+          .changeSort(SortOption.unpaid);
+
+      final state = container.read(packageActivationHistoryProvider).value!;
+      
+      // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
+      final ids = state.items.map((item) => item.transaction.id).toList();
+      expect(ids.sublist(0, 2), containsAll(['2', '4']));
+      expect(state.items[0].transaction.paymentStatus, PaymentStatus.unpaid);
+      expect(state.items[1].transaction.paymentStatus, PaymentStatus.unpaid);
+      expect(state.sortBy, SortOption.unpaid);
+    });
+  });
+}
