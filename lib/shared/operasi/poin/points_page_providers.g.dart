@@ -244,7 +244,7 @@ final class PointsHistoryProvider extends $FunctionalProvider<
   }
 }
 
-String _$pointsHistoryHash() => r'20d9d32528796de414d6c92c3ff6845467d4d65b';
+String _$pointsHistoryHash() => r'f9a8be686559629aebe8db1978f853829d8bef9d';
 
 /// Langkah 3.2: Provider Data untuk Riwayat Transaksi
 ///
