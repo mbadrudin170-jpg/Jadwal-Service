@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
@@ -23,7 +24,7 @@ class OrderModel implements HasId {
   final DateTime date;
 
   /// The status of the order (e.g., "new", "processing", "completed").
-  final String status;
+  final StatusOrderEnum status;
 
   /// The last time the data was updated.
   final DateTime? updatedAt;
@@ -54,7 +55,7 @@ class OrderModel implements HasId {
     final String? customerId,
     final String? packageId,
     final DateTime? date,
-    final String? status,
+    final StatusOrderEnum? status,
     final DateTime? updatedAt,
     final bool? isDeleted,
     final DateTime? archivedAt,
@@ -71,6 +72,22 @@ class OrderModel implements HasId {
     );
   }
 
+  /// Safe helper to parse an enum from a string.
+  static T? _safeParseEnum<T extends Enum>(
+    final List<T> values,
+    final dynamic name,
+  ) {
+    if (name == null || name is! String) {
+      return null;
+    }
+    for (final value in values) {
+      if (value.name == name) {
+        return value;
+      }
+    }
+    Log.warning('Failed to parse enum for type $T', name);
+    return null;
+  }
   // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
   /// Creates an `OrderModel` instance from SQLite map data.
@@ -82,7 +99,8 @@ class OrderModel implements HasId {
       packageId: map[ColumnNames.packageId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
       date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
-      status: map[ColumnNames.status] as String? ?? 'new',
+      status: _safeParseEnum(StatusOrderEnum.values, map[ColumnNames.status]) ??
+          StatusOrderEnum.baru,
       updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
       isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
       archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
@@ -96,9 +114,9 @@ class OrderModel implements HasId {
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,
       ColumnNames.date: date.millisecondsSinceEpoch,
-      ColumnNames.status: status,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.status: status.name,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
@@ -112,9 +130,10 @@ class OrderModel implements HasId {
       id: id,
       customerId: data[ColumnNames.customerId] as String? ?? '',
       packageId: data[ColumnNames.packageId] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
       date: ParserUtil.parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
-      status: data[ColumnNames.status] as String? ?? 'new',
+      status:
+          _safeParseEnum(StatusOrderEnum.values, data[ColumnNames.status]) ??
+              StatusOrderEnum.baru,
       updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
       isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
       archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
@@ -124,16 +143,14 @@ class OrderModel implements HasId {
   /// Converts `OrderModel` to a Map format for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
+      ColumnNames.id: id,
       ColumnNames.customerId: customerId,
       ColumnNames.packageId: packageId,
-      // DIUBAH: Menggunakan .toUtc()
       ColumnNames.date: Timestamp.fromDate(date.toUtc()),
-      ColumnNames.status: status,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
+      ColumnNames.status: status.name,
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.isDeleted: isDeleted,
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       ColumnNames.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

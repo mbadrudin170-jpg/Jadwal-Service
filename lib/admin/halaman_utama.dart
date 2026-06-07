@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
+import 'package:wifi/admin/halaman/tab/order_page_a.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
@@ -153,6 +154,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     const WalletPage(),
     const TransactionPageA(),
     const StatistikPageA(),
+    const OrderPageA(),
     const LainnyaPage(),
   ];
 
@@ -177,6 +179,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
             icon: Icon(TIcons.report),
             label: 'Statistik',
           ),
+          BottomNavigationBarItem(icon: Icon(TIcons.listAlt), label: 'Pesanan'),
           BottomNavigationBarItem(icon: Icon(TIcons.apps), label: 'Lainnya'),
         ],
         currentIndex: _selectedIndex,

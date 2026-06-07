@@ -292,7 +292,6 @@ class TransactionModel implements HasId {
       ColumnNames.paymentStatus: paymentStatus.name,
       ColumnNames.earnedPoints: earnedPoints,
       ColumnNames.usedPoints: usedPoints,
-      // DIUBAH: Memastikan updatedAt tidak pernah null.
       ColumnNames.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       ColumnNames.archivedAt:

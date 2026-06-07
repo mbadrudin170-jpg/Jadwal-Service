@@ -6,7 +6,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
@@ -85,18 +85,18 @@ class OrderOperation {
   }
 
   /// Mengambil pesanan berdasarkan [status].
-  Future<List<OrderModel>> getOrdersByStatus(final String status) async {
-    Log.info('Mengambil pesanan dengan status: $status');
+  Future<List<OrderModel>> getOrdersByStatus(final StatusOrderEnum status) async {
+    Log.info('Mengambil pesanan dengan status: ${status.name}');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
-        whereArgs: [status],
+        whereArgs: [status.name],
         orderBy: '${ColumnNames.date} DESC',
       );
       Log.info(
-          'Berhasil mengambil ${maps.length} data pesanan aktif berstatus $status.');
+          'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.');
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, st: s);
@@ -107,10 +107,10 @@ class OrderOperation {
   /// Memperbarui status [OrderModel] berdasarkan [id].
   Future<void> updateOrderStatus(
     final String id,
-    final String status, {
+    final StatusOrderEnum status, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memperbarui status pesanan ID: $id menjadi $status');
+    Log.info('Memperbarui status pesanan ID: $id menjadi ${status.name}');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(

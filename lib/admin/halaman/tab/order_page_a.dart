@@ -1,7 +1,4 @@
 // path: lib/admin/halaman/tab/order_page.dart
-// diubah: Mengganti deleteOrder dengan softDelete.
-// diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
-// diperbaiki: Menambahkan dokumentasi dan kata kunci final.
 
 import 'dart:async';
 
@@ -9,24 +6,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan dan mengelola daftar pesanan.
-class OrderPage extends ConsumerStatefulWidget {
+class OrderPageA extends ConsumerStatefulWidget {
   /// Halaman untuk menampilkan dan mengelola daftar pesanan.
-  const OrderPage({super.key});
+  const OrderPageA({super.key});
 
   @override
-  ConsumerState<OrderPage> createState() => _OrderPageState();
+  ConsumerState<OrderPageA> createState() => _OrderPageState();
 }
 
-class _OrderPageState extends ConsumerState<OrderPage> {
+class _OrderPageState extends ConsumerState<OrderPageA> {
   List<OrderModel> _orderList = [];
   bool _isLoading = true;
-  String _filterStatus = 'semua';
+  StatusOrderEnum? _filterStatus;
 
   @override
   void initState() {
@@ -37,21 +35,21 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Future<void> _loadOrders() async {
     final orderOperation = ref.read(orderOperationProvider);
-    Log.info('Memuat pesanan dengan filter: $_filterStatus');
+    Log.info('Memuat pesanan dengan filter: ${_filterStatus?.name ?? 'semua'}');
     setState(() => _isLoading = true);
 
     try {
       final List<OrderModel> orders;
-      if (_filterStatus == 'semua') {
+      if (_filterStatus == null) {
         orders = await orderOperation.getAllActiveOrders();
       } else {
-        orders = await orderOperation.getOrdersByStatus(_filterStatus);
+        orders = await orderOperation.getOrdersByStatus(_filterStatus!);
       }
       setState(() {
         _orderList = orders;
         _isLoading = false;
       });
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Gagal memuat pesanan', e: e, st: s);
       setState(() => _isLoading = false);
       if (mounted) {
@@ -61,8 +59,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   }
 
   Future<void> _updateStatus(
-      final OrderModel order, final String newStatus) async {
-    Log.info('Mengubah status pesanan ID: ${order.id} ke "$newStatus"');
+      OrderModel order, StatusOrderEnum newStatus) async {
+    Log.info('Mengubah status pesanan ID: ${order.id} ke "${newStatus.name}"');
     final orderOperation = ref.read(orderOperationProvider);
 
     try {
@@ -79,7 +77,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     }
   }
 
-  Future<void> _softDeleteOrder(final OrderModel order) async {
+  Future<void> _softDeleteOrder(OrderModel order) async {
     Log.info('Memulai soft delete untuk pesanan ID: ${order.id}');
     final confirmed = await showDialog<bool>(
       context: context,
@@ -162,14 +160,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         title: const Text('Daftar Pesanan'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.archive_outlined),
-            onPressed: _softDeleteAllOrders,
-            tooltip: 'Arsipkan Semua',
+            icon: const Icon(TIcons.sort),
+            onPressed: () {},
+            tooltip: 'Hapus Semua',
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => unawaited(_loadOrders()),
-            tooltip: 'Refresh',
+            icon: const Icon(TIcons.delete),
+            onPressed: _softDeleteAllOrders,
+            tooltip: 'Hapus Semua',
           ),
         ],
       ),
@@ -195,11 +193,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _filterChip('Semua', 'semua'),
-            _filterChip('Baru', 'baru'),
-            _filterChip('Diproses', 'diproses'),
-            _filterChip('Selesai', 'selesai'),
-            _filterChip('Ditolak', 'ditolak'),
+            _filterChip('Semua', null),
+            _filterChip('Baru', StatusOrderEnum.baru),
+            _filterChip('Diproses', StatusOrderEnum.diproses),
+            _filterChip('Selesai', StatusOrderEnum.selesai),
+            _filterChip('Ditolak', StatusOrderEnum.ditolak),
           ]
               .map((final e) =>
                   Padding(padding: const EdgeInsets.only(right: 8), child: e))
@@ -209,7 +207,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _filterChip(final String label, final String value) {
+  Widget _filterChip(final String label, final StatusOrderEnum? value) {
     final isSelected = _filterStatus == value;
     return FilterChip(
       label: Text(label),
@@ -269,17 +267,26 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   ),
                 ],
               ),
-gapH24,              Text(order.packageId),
-gapH8,              Text(DateFormat('dd MMM yyyy HH:mm').format(order.date)),
-gapH12,              Row(
+              gapH24,
+              Text(order.packageId),
+              gapH8,
+              Text(DateFormat('dd MMM yyyy HH:mm').format(order.date)),
+              gapH12,
+              Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  _actionButton('Proses',
-                      () => unawaited(_updateStatus(order, 'diproses'))),
-                  _actionButton('Selesai',
-                      () => unawaited(_updateStatus(order, 'selesai'))),
-                  _actionButton('Tolak',
-                      () => unawaited(_updateStatus(order, 'ditolak'))),
+                  _actionButton(
+                      'Proses',
+                      () => unawaited(
+                          _updateStatus(order, StatusOrderEnum.diproses))),
+                  _actionButton(
+                      'Selesai',
+                      () => unawaited(
+                          _updateStatus(order, StatusOrderEnum.selesai))),
+                  _actionButton(
+                      'Tolak',
+                      () => unawaited(
+                          _updateStatus(order, StatusOrderEnum.ditolak))),
                   IconButton(
                     icon: const Icon(Icons.archive, color: Colors.grey),
                     onPressed: () => unawaited(_softDeleteOrder(order)),
@@ -303,22 +310,21 @@ gapH12,              Row(
 
   Color _getStatusColor(final OrderModel order) {
     switch (order.status) {
-      case 'baru':
+      case StatusOrderEnum.baru:
         return Colors.blue;
-      case 'diproses':
+      case StatusOrderEnum.diproses:
         return Colors.orange;
-      case 'selesai':
+      case StatusOrderEnum.selesai:
         return Colors.green;
-      case 'ditolak':
+      case StatusOrderEnum.ditolak:
         return Colors.red;
-      default:
+      case StatusOrderEnum.arsip:
         return Colors.grey;
     }
   }
 
-  String _getStatusText(final OrderModel order) {
-    return order.status.substring(0, 1).toUpperCase() +
-        order.status.substring(1);
+  String _getStatusText(OrderModel order) {
+    return order.status.displayName;
   }
 
   Future<void> _showOrderDetail(final OrderModel order) async {
@@ -333,7 +339,8 @@ gapH12,              Row(
             Text('Detail Pesanan #${order.id}',
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-gapH20,            _detailRow('Nama Pelanggan', order.customerId),
+            gapH20,
+            _detailRow('Nama Pelanggan', order.customerId),
             _detailRow('Paket', order.packageId),
             _detailRow(
                 'Tanggal', DateFormat('dd MMM yyyy HH:mm').format(order.date)),
