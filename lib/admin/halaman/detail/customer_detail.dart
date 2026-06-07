@@ -61,18 +61,11 @@ MAC : ${customer.macAddress}
         ),
       ),
     );
-
-    // Log.info('Kembali dari halaman poin, memuat ulang data detail poin.');
-    // ref.invalidate(customerDetailProvider(customerId));
-    // ref.invalidate(
-    //     customerListProvider); // Biar poin di halaman daftar ikut terbarui
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Di sini penggunaan ref.watch sangat tepat karena diletakkan di dalam metode build
     final detailAsync = ref.watch(customerDetailProvider(customerId));
-
     return detailAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),

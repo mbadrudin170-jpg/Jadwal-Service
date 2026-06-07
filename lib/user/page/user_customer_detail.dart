@@ -48,7 +48,6 @@ class _UserCustomerDetailPageState
       Log.info('Mengambil data pelanggan dari Firestore...');
       final customerOpFirebase = ref.read(customerOpFirebaseProvider);
       final transactionOp = ref.read(transactionOpFirebaseProvider);
-
       final customer = await customerOpFirebase.getCustomerOnce(widget.userId);
       if (customer == null) {
         throw Exception(
@@ -79,7 +78,7 @@ class _UserCustomerDetailPageState
   }
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _navigateToEdit(final CustomerModel customer) async {
+  Future<void> _navigateToEdit(CustomerModel customer) async {
     await ref.read(interstitialAdServiceProvider).show();
     final bool? result = await Navigator.push<bool>(
       context,
@@ -125,7 +124,7 @@ class _UserCustomerDetailPageState
   Widget build(BuildContext context) {
     return PopScope<bool>(
       canPop: false,
-      onPopInvokedWithResult: (final bool didPop, final bool? result) {
+      onPopInvokedWithResult: (bool didPop, bool? result) {
         if (didPop) {
           return;
         }

@@ -1,14 +1,4 @@
 // path: lib/user/page/edit_profile_page.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai halaman edit profil untuk user.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/model/customer_model.dart (CustomerModel)
-//   - lib/shared/operasi/firebase_operasi/customer_op_firebase.dart (CustomerOpFirebase)
-//   - lib/shared/theme/app_colors.dart (TColors)
-//   - lib/shared/utils/toast_util.dart (ToastUtil)
-//   - lib/shared/debug/log.dart (Log)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,9 +45,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.customer.name);
     _phoneController = TextEditingController(text: widget.customer.phone);
-    _passwordController = TextEditingController(
-      text: widget.customer.password,
-    );
+    _passwordController = TextEditingController(text: widget.customer.password);
   }
 
   Future<void> _saveChanges() async {

@@ -83,8 +83,10 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildPointCard(),
-gapH24,            _buildCustomerInfoSection(),
-gapH24,                if (widget.onCopyAll != null) _buildCopyAllButton(),
+            gapH24,
+            _buildCustomerInfoSection(),
+            gapH24,
+            if (widget.onCopyAll != null) _buildCopyAllButton(),
           ],
         ),
       ),
@@ -161,7 +163,8 @@ gapH24,                if (widget.onCopyAll != null) _buildCopyAllButton(),
               color: Colors.blueGrey,
             ),
           ),
-gapH4,          Row(
+          gapH4,
+          Row(
             children: [
               Expanded(
                 child: Text(

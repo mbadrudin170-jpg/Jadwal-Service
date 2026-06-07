@@ -72,7 +72,6 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 Future<(CustomerModel?, int)> customerDetail(Ref ref, String id) async {
   final customerOp = ref.watch(customerOperationProvider);
   final transactionOp = ref.watch(transactionOperationProvider);
-
   final customer = await customerOp.getById(id);
   final points = await transactionOp.getTotalPoints(id);
 
