@@ -55,7 +55,7 @@ Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
 ///
 /// Terpisah agar kita hanya memuatnya saat tab "Riwayat" dipilih.
 @riverpod
-Future<List<TransactionModel>> pointsHistory(Ref ref, String customerId) async {
+Future<List<TransactionModel>> pointsHistory(Ref ref, String customerId)  {
   final dataSource = ref.watch(pointsDataSourceProvider);
   return dataSource.getPointsTransactions(customerId);
 }
