@@ -92,7 +92,8 @@ class PoinPageUi extends StatelessWidget {
                   color:
                       isSelected ? Colors.white : theme.colorScheme.onSurface,
                 ),
-gapH8,                Text(
+                gapH8,
+                Text(
                   label,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,

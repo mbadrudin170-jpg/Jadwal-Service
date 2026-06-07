@@ -390,7 +390,7 @@ class _InfoItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: 
+                    style:
                         TextStyle(color: Colors.grey.shade700, fontSize: 14)),
                 gapH4,
                 Text(

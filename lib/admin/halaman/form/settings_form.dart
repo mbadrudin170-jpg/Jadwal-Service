@@ -68,7 +68,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
       Log.info('Memvalidasi dan menyimpan perubahan pengaturan.');
       try {
         final newSettings = SettingsModel(
-          id: widget.settings.id, // ID tetap sama
+          id: widget.settings.id,
           autoSyncInterval: int.tryParse(_intervalController.text) ?? 24,
           autoDeleteArchiveDays: int.tryParse(_hapusArsipController.text) ?? 30,
           maintenanceMode: _modePemeliharaan,
@@ -77,9 +77,10 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
 
         await _settingsOperation.saveOrUpdateSettings(newSettings);
         Log.info('Pengaturan berhasil diperbarui di database.');
-
+        final internetConnectionService =
+            ref.read(internetConnectionServiceProvider);
         final hasConnection =
-            await InternetConnectionService().isInternetAvailable();
+            await internetConnectionService.checkLocalConnection();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

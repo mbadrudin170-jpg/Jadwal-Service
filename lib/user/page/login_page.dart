@@ -123,7 +123,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
 
     try {
       final internetService = ref.read(internetConnectionServiceProvider);
-      final isConnected = await internetService.isInternetAvailable();
+      final isConnected = await internetService.checkLocalConnection();
       if (!mounted) return;
       if (!isConnected) {
         ToastUtil.error(
@@ -144,7 +144,6 @@ class _LoginViewState extends ConsumerState<_LoginView> {
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .limit(1)
           .get();
-
       if (!mounted) return;
 
       if (querySnapshot.docs.isNotEmpty) {

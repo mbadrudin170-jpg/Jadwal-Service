@@ -122,7 +122,7 @@ class _UserCustomerDetailPageState
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return PopScope<bool>(
       canPop: false,
       onPopInvokedWithResult: (final bool didPop, final bool? result) {

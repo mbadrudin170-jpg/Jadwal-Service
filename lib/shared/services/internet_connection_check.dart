@@ -36,8 +36,7 @@ class InternetConnectionService {
     Log.info('InternetConnectionService diinisialisasi.');
   }
 
-  /// Memeriksa apakah perangkat memiliki koneksi lokal (WiFi atau Mobile).
-  /// Ini adalah langkah pertama sebelum memeriksa akses internet sebenarnya.
+/// mengecek apakah perangkat terhubung ke wifi ataupun data
   Future<bool> checkLocalConnection() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
