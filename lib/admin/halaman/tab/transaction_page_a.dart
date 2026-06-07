@@ -95,10 +95,8 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Dapatkan state sorting saat ini langsung dari provider
     final currentSortBy =
         ref.watch(transactionProvider).value?.sortBy ?? SortBy.newest;
-
     return AppBar(
       title: const Text('Transaksi'),
       actions: [

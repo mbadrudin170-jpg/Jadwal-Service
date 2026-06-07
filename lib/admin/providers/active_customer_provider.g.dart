@@ -13,7 +13,7 @@ part of 'active_customer_provider.dart';
 final activeCustomerProvider = ActiveCustomerProvider._();
 
 final class ActiveCustomerProvider
-    extends $NotifierProvider<ActiveCustomer, ActiveCustomerState> {
+    extends $AsyncNotifierProvider<ActiveCustomer, ActiveCustomerState> {
   ActiveCustomerProvider._()
       : super(
           from: null,
@@ -31,27 +31,20 @@ final class ActiveCustomerProvider
   @$internal
   @override
   ActiveCustomer create() => ActiveCustomer();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ActiveCustomerState value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<ActiveCustomerState>(value),
-    );
-  }
 }
 
-String _$activeCustomerHash() => r'8ab739106dc33685ad13b0ab7ba6009559c219fc';
+String _$activeCustomerHash() => r'c1fb80742e897fb7264934b68d25a4b5b4aea194';
 
-abstract class _$ActiveCustomer extends $Notifier<ActiveCustomerState> {
-  ActiveCustomerState build();
+abstract class _$ActiveCustomer extends $AsyncNotifier<ActiveCustomerState> {
+  FutureOr<ActiveCustomerState> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<ActiveCustomerState, ActiveCustomerState>;
+    final ref =
+        this.ref as $Ref<AsyncValue<ActiveCustomerState>, ActiveCustomerState>;
     final element = ref.element as $ClassProviderElement<
-        AnyNotifier<ActiveCustomerState, ActiveCustomerState>,
-        ActiveCustomerState,
+        AnyNotifier<AsyncValue<ActiveCustomerState>, ActiveCustomerState>,
+        AsyncValue<ActiveCustomerState>,
         Object?,
         Object?>;
     element.handleCreate(ref, build);

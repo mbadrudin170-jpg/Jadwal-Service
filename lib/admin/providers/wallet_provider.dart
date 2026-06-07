@@ -53,7 +53,6 @@ class Wallet extends _$Wallet {
   Future<WalletState> _loadData() async {
     // RESMI: Gunakan ref.watch untuk dependency provider lain di dalam build/load data
     final operation = ref.watch(walletOperationProvider);
-
     final results = await Future.wait([
       operation.getWallets(),
       operation.getPositiveBalance(),

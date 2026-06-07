@@ -16,21 +16,18 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/opera
 import 'active_customer_provider_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<ActiveCustomerOperation>()])
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockActiveCustomerOperation mockActiveCustomerOperation;
   late ProviderContainer container;
 
-  // ✅ Gunakan waktu real saat test berjalan (bukan hardcoded 2024)
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final yesterday = today.subtract(const Duration(days: 1));
   final tomorrow = today.add(const Duration(days: 1));
   final twoDaysAgo = today.subtract(const Duration(days: 2));
 
-  // Data pelanggan (tidak berubah, hanya updatedAt pakai now)
   final customer1 = CustomerModel(
       id: 'cust1',
       name: 'Budi',
@@ -61,14 +58,13 @@ void main() {
       type: DurationType.days,
       updatedAt: now);
 
-  // Pelanggan aktif dengan endDate relatif terhadap today
   final activeCust1 = ActiveCustomerDetailModel(
     activeCustomer: ActiveCustomerModel(
         id: 'ac1',
         customerId: 'cust1',
         packageId: 'pkg1',
         startDate: twoDaysAgo,
-        endDate: today, // berakhir hari ini
+        endDate: today,
         status: PaymentStatus.unpaid,
         updatedAt: now.subtract(const Duration(hours: 2))),
     customerName: customer1.name,
@@ -81,7 +77,7 @@ void main() {
         customerId: 'cust2',
         packageId: 'pkg1',
         startDate: yesterday,
-        endDate: tomorrow, // berakhir besok
+        endDate: tomorrow,
         status: PaymentStatus.paid,
         updatedAt: now.subtract(const Duration(hours: 1))),
     customerName: customer2.name,
@@ -94,7 +90,7 @@ void main() {
         customerId: 'cust3',
         packageId: 'pkg1',
         startDate: today,
-        endDate: tomorrow.add(const Duration(days: 1)), // berakhir lusa
+        endDate: tomorrow.add(const Duration(days: 1)),
         status: PaymentStatus.paid,
         updatedAt: now),
     customerName: customer3.name,
@@ -102,7 +98,6 @@ void main() {
   );
 
   final mockList = [activeCust1, activeCust2, activeCust3];
-
 
   setUp(() {
     mockActiveCustomerOperation = MockActiveCustomerOperation();
@@ -112,6 +107,9 @@ void main() {
             .overrideWithValue(mockActiveCustomerOperation),
       ],
     );
+    // Mock default behavior for all tests
+    when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
+        .thenAnswer((_) async => mockList);
   });
 
   tearDown(() {
@@ -119,46 +117,52 @@ void main() {
   });
 
   group('Uji ActiveCustomer Provider', () {
-    test('1. fetchActiveCustomers harus memuat dan mengurutkan data awal',
+    test(
+        '1. fetchActiveCustomers harus memuat data dan mengurutkan berdasarkan default (berakhirHariIni)',
         () async {
-      when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
-          .thenAnswer((_) async => mockList);
-
+      // Act
       await container
           .read(activeCustomerProvider.notifier)
           .fetchActiveCustomers();
 
-      final state = container.read(activeCustomerProvider);
+      // Assert
+      final state = container.read(activeCustomerProvider).value!;
 
       expect(state.activeCustomers.length, 3);
-      // Urutan default adalah `berakhirHariIni`
+      expect(state.sortBy, SortOption.berakhirHariIni);
       expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
           ['ac1', 'ac2', 'ac3']);
     });
 
     test('2. fetchActiveCustomers harus menangani error', () async {
+      // Arrange: Override default mock to throw an error
       when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
-          .thenThrow(Exception('Error'));
+          .thenThrow(Exception('Database Error'));
 
+      // Act
       await container
           .read(activeCustomerProvider.notifier)
           .fetchActiveCustomers();
 
+      // Assert
       final state = container.read(activeCustomerProvider);
-      expect(state.activeCustomers.isEmpty, isTrue);
+      expect(state, isA<AsyncError>());
     });
 
     group('Pengujian Logika Pengurutan melalui setSortBy', () {
-      setUp(() {
-        container.read(activeCustomerProvider.notifier).state =
-            ActiveCustomerState(activeCustomers: mockList);
+      // This setup will run before each test in this group.
+      // It ensures the provider is initialized with data before sorting.
+      setUp(() async {
+        await container
+            .read(activeCustomerProvider.notifier)
+            .fetchActiveCustomers();
       });
 
       test('3. Urutkan berdasarkan namaAZ', () {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.namaAZ);
-        final state = container.read(activeCustomerProvider);
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.customerName).toList(),
             ['Andi', 'Budi', 'Cici']);
       });
@@ -167,7 +171,7 @@ void main() {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.namaZA);
-        final state = container.read(activeCustomerProvider);
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.customerName).toList(),
             ['Cici', 'Budi', 'Andi']);
       });
@@ -176,7 +180,7 @@ void main() {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.lunas);
-        final state = container.read(activeCustomerProvider);
+        final state = container.read(activeCustomerProvider).value!;
         expect(
             state.activeCustomers.map((e) => e.activeCustomer.status).toList(),
             [PaymentStatus.paid, PaymentStatus.paid, PaymentStatus.unpaid]);
@@ -186,7 +190,7 @@ void main() {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.belumLunas);
-        final state = container.read(activeCustomerProvider);
+        final state = container.read(activeCustomerProvider).value!;
         expect(
             state.activeCustomers.map((e) => e.activeCustomer.status).toList(),
             [PaymentStatus.unpaid, PaymentStatus.paid, PaymentStatus.paid]);
@@ -196,18 +200,16 @@ void main() {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.tanggalBerakhir);
-        final state = container.read(activeCustomerProvider);
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
             ['ac3', 'ac2', 'ac1']);
       });
 
-      // Tes baru yang diminta
       test('8. Urutkan berdasarkan terbaru (updatedAt descending)', () {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.terbaru);
-        final state = container.read(activeCustomerProvider);
-        // Harusnya: ac3 (paling baru) -> ac2 -> ac1 (paling lama diupdate)
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
             ['ac3', 'ac2', 'ac1']);
       });
@@ -215,9 +217,8 @@ void main() {
       test('9. Urutkan berdasarkan terlama (updatedAt ascending)', () {
         container
             .read(activeCustomerProvider.notifier)
-            .setSortBy(SortOption.terlama);
-        final state = container.read(activeCustomerProvider);
-        // Harusnya: ac1 (paling lama diupdate) -> ac2 -> ac3 (paling baru)
+            .setSortby(SortOption.terlama);
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
             ['ac1', 'ac2', 'ac3']);
       });
@@ -226,8 +227,7 @@ void main() {
         container
             .read(activeCustomerProvider.notifier)
             .setSortBy(SortOption.tanggalMulai);
-        final state = container.read(activeCustomerProvider);
-        // Harusnya: ac1 (mulai 2 hari lalu) -> ac2 (mulai kemarin) -> ac3 (mulai hari ini)
+        final state = container.read(activeCustomerProvider).value!;
         expect(state.activeCustomers.map((e) => e.activeCustomer.id).toList(),
             ['ac1', 'ac2', 'ac3']);
       });

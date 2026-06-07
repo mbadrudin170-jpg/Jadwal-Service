@@ -74,7 +74,8 @@ void main() {
           .thenAnswer((_) => Future.value());
 
       // Act
-      await orderOperation.updateOrderStatus(tOrder.id, newStatus);
+      await orderOperation.updateOrderStatus(
+          tOrder.id, newStatus as StatusOrderEnum);
 
       // Assert
       final verificationResult = verify(mockBaseOperation.update(

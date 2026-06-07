@@ -57,8 +57,6 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     with AutomaticKeepAliveClientMixin<ActiveCustomerPage> {
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
-  // final InternetConnectionService _connectionService =
-  //     InternetConnectionService();
 
   @override
   bool get wantKeepAlive => true;
@@ -69,7 +67,6 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);
 
-    // Jalankan pembersihan otomatis saat halaman pertama kali dimuat
     Future.microtask(() async {
       try {
         await _activeCustomerOperation.archiveExpiredCustomers();
@@ -155,17 +152,19 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   }
 
   Future<void> _showSortDialog() async {
-    final ActiveCustomerState state = ref.read(activeCustomerProvider);
+    final currentState = ref.read(activeCustomerProvider).value;
+    if (currentState == null) {
+      ToastUtil.info(context, 'Data sedang dimuat, coba sesaat lagi.');
+      return;
+    }
 
     await showDialog<SortOption>(
       context: context,
       builder: (final ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
-        // Berikan padding horizontal 0 agar ListTile bisa menyentuh pinggir kanan-kiri dengan rapi
         contentPadding:
             const EdgeInsets.only(top: TSizes.p12, bottom: TSizes.p12),
         content: Column(
-          // KUNCI UTAMA: Memaksa Column menciut pas sesuai tinggi konten di dalamnya
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
@@ -173,9 +172,8 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: SortOption.values.map((o) {
-                    final diPilih = state.sortBy == o;
+                    final diPilih = currentState.sortBy == o;
                     return ListTile(
-                      // Mengurangi padding bawaan ListTile agar jarak antar baris tidak terlalu jauh
                       dense: true,
                       visualDensity: const VisualDensity(vertical: -2),
                       contentPadding: const EdgeInsets.symmetric(
@@ -316,19 +314,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   @override
   Widget build(final BuildContext context) {
     super.build(context);
-    final ActiveCustomerState state = ref.watch(activeCustomerProvider);
-    final List<ActiveCustomerDetailModel> customersFromProvider =
-        state.activeCustomers;
-    final query = _searchController.text.toLowerCase();
-    List<ActiveCustomerDetailModel> displayedCustomers;
-    if (query.isNotEmpty) {
-      displayedCustomers = customersFromProvider.where((final c) {
-        final name = c.customerName.toLowerCase();
-        return name.contains(query);
-      }).toList();
-    } else {
-      displayedCustomers = List.of(customersFromProvider);
-    }
+    final activeCustomerAsync = ref.watch(activeCustomerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -362,65 +348,79 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
       ),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: displayedCustomers.isEmpty
-            ? const Center(child: Text('Tidak ada pelanggan aktif ditemukan.'))
-            : displayedCustomers.isEmpty && _searchController.text.isNotEmpty
-                ? const Center(child: Text('Pelanggan tidak ditemukan.'))
-                : ListView.builder(
-                    itemCount: displayedCustomers.length,
-                    itemBuilder: (_, i) {
-                      final detail = displayedCustomers[i];
-                      final c = detail.activeCustomer;
-                      return Card(
-                        margin: const EdgeInsets.only(
-                            left: TSizes.p16,
-                            right: TSizes.p16,
-                            bottom: TSizes.p12),
-                        child: InkWell(
-                          onLongPress: () => _softDeleteCustomer(detail),
-                          onTap: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute<void>(
-                                    builder: (final _) =>
-                                        ActiveCustomerDetailPage(
-                                            activeCustomer: c)));
-                            // await _loadData(); // Cukup load data lokal setelah kembali
-                          },
-                          child: ListTile(
-                            title: Text(
-                              detail.customerName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(detail.packageName),
-                                Text('Pembayaran: ${c.status.displayName}',
-                                    style: TextStyle(
-                                        color: c.status == PaymentStatus.paid
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.bold)),
-                                Text(
-                                    'Status: ${CalculationUtil.getRemainingActivePeriodText(c.endDate)}',
-                                    style: TextStyle(
-                                        color: CalculationUtil
-                                            .getRemainingActivePeriodColor(
-                                                c.endDate))),
-                                Text(
-                                    'Berakhir: ${FormatDate.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
-                              ],
-                            ),
-                            trailing: const Icon(TIcons.chevronRight),
-                          ),
-                        ),
-                      );
+        child: activeCustomerAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) {
+            Log.error("Error UI Pelanggan Aktif", e: error, st: stack);
+            return Center(child: Text('Terjadi kesalahan: $error'));
+          },
+          data: (state) {
+            final customersFromProvider = state.activeCustomers;
+            final query = _searchController.text.toLowerCase();
+            final displayedCustomers = customersFromProvider
+                .where((c) => c.customerName.toLowerCase().contains(query))
+                .toList();
+
+            if (displayedCustomers.isEmpty) {
+              return Center(
+                  child: Text(query.isNotEmpty
+                      ? 'Pelanggan tidak ditemukan.'
+                      : 'Tidak ada pelanggan aktif.'));
+            }
+
+            return ListView.builder(
+              itemCount: displayedCustomers.length,
+              itemBuilder: (_, i) {
+                final detail = displayedCustomers[i];
+                final c = detail.activeCustomer;
+                return Card(
+                  margin: const EdgeInsets.only(
+                      left: TSizes.p16, right: TSizes.p16, bottom: TSizes.p12),
+                  child: InkWell(
+                    onLongPress: () => _softDeleteCustomer(detail),
+                    onTap: () async {
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                              builder: (final _) =>
+                                  ActiveCustomerDetailPage(activeCustomer: c)));
                     },
+                    child: ListTile(
+                      title: Text(
+                        detail.customerName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(detail.packageName),
+                          Text('Pembayaran: ${c.status.displayName}',
+                              style: TextStyle(
+                                  color: c.status == PaymentStatus.paid
+                                      ? Colors.green
+                                      : Colors.red,
+                                  fontWeight: FontWeight.bold)),
+                          Text(
+                              'Status: ${CalculationUtil.getRemainingActivePeriodText(c.endDate)}',
+                              style: TextStyle(
+                                  color: CalculationUtil
+                                      .getRemainingActivePeriodColor(
+                                          c.endDate))),
+                          Text(
+                              'Berakhir: ${FormatDate.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
+                        ],
+                      ),
+                      trailing: const Icon(TIcons.chevronRight),
+                    ),
                   ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
           heroTag: 'fab_active_customer',

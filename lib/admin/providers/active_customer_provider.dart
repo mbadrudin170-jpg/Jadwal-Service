@@ -46,8 +46,8 @@ class ActiveCustomerState {
 @riverpod
 class ActiveCustomer extends _$ActiveCustomer {
   @override
-  ActiveCustomerState build() {
-    return ActiveCustomerState();
+  FutureOr<ActiveCustomerState> build() {
+    return _loadData();
   }
 
   // Helper untuk perbandingan DateTime nullable
@@ -111,13 +111,27 @@ class ActiveCustomer extends _$ActiveCustomer {
     return sorted;
   }
 
+  Future<ActiveCustomerState> _loadData() async {
+    final operation = ref.watch(activeCustomerOperationProvider);
+    final results = await Future.wait([
+      operation.getAllActiveCustomersWithDetails(),
+    ]);
+
+    return ActiveCustomerState(
+      activeCustomers: results[0],
+    );
+  }
+
   Future<void> fetchActiveCustomers() async {
     Log.info('Memulai pengambilan data pelanggan aktif.');
+    final currentSortBy = state.value?.sortBy ?? SortOption.berakhirHariIni;
+    state = const AsyncValue.loading();
     try {
       final operation = ref.read(activeCustomerOperationProvider);
       final data = await operation.getAllActiveCustomersWithDetails();
-      final sortedData = _sortData(data, state.sortBy);
-      state = state.copyWith(activeCustomers: sortedData);
+      final sortedData = _sortData(data, currentSortBy);
+      state = AsyncValue.data(
+          ActiveCustomerState(activeCustomers: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, st: st);
       final context = NavigasiServis.navigatorKey.currentContext;
@@ -126,13 +140,22 @@ class ActiveCustomer extends _$ActiveCustomer {
       } else {
         Log.warning('Context tidak tersedia saat menampilkan error toast.');
       }
-      state = state.copyWith(activeCustomers: []);
+      state = AsyncValue.error(e, st);
     }
   }
 
   void setSortBy(SortOption newSortBy) {
-    if (state.sortBy == newSortBy) return;
-    final sortedCustomers = _sortData(state.activeCustomers, newSortBy);
-    state = state.copyWith(activeCustomers: sortedCustomers, sortBy: newSortBy);
+    final currentState = state.value;
+    if (currentState == null || currentState.sortBy == newSortBy) {
+      return;
+    }
+
+    final sortedCustomers = _sortData(currentState.activeCustomers, newSortBy);
+    state = AsyncValue.data(
+      currentState.copyWith(
+        activeCustomers: sortedCustomers,
+        sortBy: newSortBy,
+      ),
+    );
   }
 }
