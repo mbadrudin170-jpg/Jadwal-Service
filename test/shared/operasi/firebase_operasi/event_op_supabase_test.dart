@@ -55,6 +55,61 @@ void main() {
   };
 
   group('EventOpSupabase Final Tests', () {
+    group('1 getByid', () {
+      test('1.1 harus mengambil data berdasarkan id nya', () async {
+        // Arrange
+        const eventId = 'event-1';
+        when(mockFilterBuilder.eq(ColumnNames.id, eventId))
+            .thenAnswer((_) => mockFilterBuilder);
+        final mockTransformBuilder =
+            MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
+        when(mockFilterBuilder.limit(1))
+            .thenAnswer((_) => mockTransformBuilder);
+
+        when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
+            .thenAnswer((invocation) async {
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
+          return callback([event1Map]);
+        });
+
+        // Act
+        final result = await eventOpSupabase.getById(eventId);
+
+        // Assert
+        expect(result, isA<EventModel>());
+        expect(result?.id, eventId);
+        verify(mockFilterBuilder.eq(ColumnNames.id, eventId)).called(1);
+        verify(mockFilterBuilder.limit(1)).called(1);
+      });
+
+      test('1.2 harus mengembalikan null jika id tidak ditemukan', () async {
+        // Arrange
+        const eventId = 'event-x';
+        when(mockFilterBuilder.eq(ColumnNames.id, eventId))
+            .thenAnswer((_) => mockFilterBuilder);
+        final mockTransformBuilder =
+            MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
+        when(mockFilterBuilder.limit(1))
+            .thenAnswer((_) => mockTransformBuilder);
+
+        when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
+            .thenAnswer((invocation) async {
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
+          return callback([]);
+        });
+
+        // Act
+        final result = await eventOpSupabase.getById(eventId);
+
+        // Assert
+        expect(result, isNull);
+        verify(mockFilterBuilder.eq(ColumnNames.id, eventId)).called(1);
+        verify(mockFilterBuilder.limit(1)).called(1);
+      });
+    });
+
     group('getAll', () {
       test('harus mengembalikan daftar EventModel jika Supabase berhasil',
           () async {
@@ -62,8 +117,8 @@ void main() {
         when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer(
           (invocation) async {
-            final onValue = invocation.positionalArguments[0] as Function(
-                List<Map<String, dynamic>>);
+            final onValue = invocation.positionalArguments[0]
+                as Function(List<Map<String, dynamic>>);
             return onValue(
                 [event1Map, event2Map]); // 🟢 Panggil callback dengan data
           },
@@ -88,8 +143,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([event1Map]);
         });
         final result = await eventOpSupabase.getActive();
@@ -110,8 +165,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -135,8 +190,8 @@ void main() {
 
         when(mockInsertBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -163,8 +218,8 @@ void main() {
 
         when(mockUpdateBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -187,8 +242,8 @@ void main() {
 
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first as Function(
-              List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first
+              as Function(List<Map<String, dynamic>>);
           return callback([]);
         });
 

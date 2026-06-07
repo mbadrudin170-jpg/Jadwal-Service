@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/admin/halaman/event/detail_event_a.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -81,32 +82,12 @@ class EventPageA extends ConsumerWidget {
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
+                              errorBuilder: (context, e, st) {
                                 Log.error(
                                     'Gagal memuat gambar: ${announcement.imageUrl}',
-                                    e: error,
-                                    st: stackTrace);
+                                    e: e,
+                                    st: st);
                                 return const Icon(TIcons.error);
-                              },
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      value:
-                                          loadingProgress.expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                    ),
-                                  ),
-                                );
                               },
                             ),
                           )
@@ -142,7 +123,11 @@ class EventPageA extends ConsumerWidget {
                       ],
                     ),
                     onTap: () {
-                      Log.info('Pengumuman ${announcement.id} diklik');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailEventA(event: announcement)));
                     },
                   ),
                 );

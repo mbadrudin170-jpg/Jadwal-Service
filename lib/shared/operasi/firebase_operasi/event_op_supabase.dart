@@ -84,6 +84,30 @@ class EventOpSupabase {
     }
   }
 
+  Future<EventModel?> getById(String id) async {
+    Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
+    try {
+      final List<Map<String, dynamic>> response = await _supabase
+          .from(_tableName)
+          .select()
+          .eq(ColumnNames.id, id)
+          .limit(1);
+
+      if (response.isEmpty) {
+        Log.warning('Pengumuman dengan id: $id tidak ditemukan');
+        return null;
+      }
+
+      final data = response.first;
+      Log.info('Pengumuman ditemukan: $data');
+      return EventModel.fromSupabase(
+          data[ColumnNames.id]?.toString() ?? '', data);
+    } catch (e, s) {
+      Log.error('Gagal mengambil pengumuman dengan id: $id', e: e, st: s);
+      rethrow;
+    }
+  }
+
   /// Menambahkan data pengumuman baru ke Supabase.
   Future<void> create(final EventModel event) async {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
@@ -101,7 +125,10 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Memperbarui pengumuman ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
-      await _supabase.from(_tableName).update(dataPayload).eq(ColumnNames.id, event.id);
+      await _supabase
+          .from(_tableName)
+          .update(dataPayload)
+          .eq(ColumnNames.id, event.id);
     } catch (e, s) {
       Log.error('Gagal memperbarui pengumuman di Supabase', e: e, st: s);
       rethrow;

@@ -97,7 +97,6 @@ class AppTheme {
           _lightTextTheme.headlineSmall?.copyWith(color: Colors.white),
     ),
     listTileTheme: ListTileThemeData(
-      // Tidak perlu override warna di sini lagi, akan diwariskan dari _lightTextTheme
       subtitleTextStyle: _lightTextTheme.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
