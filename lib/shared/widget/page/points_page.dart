@@ -119,6 +119,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
             status: StatusOrderEnum.baru);
 
         final notifikasiData = NotifikasiModel(
+            id: const Uuid().v4(),
             startDate: now,
             endDate: now,
             tanggalTampil: now,
@@ -129,19 +130,22 @@ class _PointsPageState extends ConsumerState<PointsPage> {
             idTujuan: idOrder,
             userId: widget.customerId);
 
-        final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
         final orderOperation = ref.read(orderOperationProvider);
-        await orderOperation.saveOrder(orderData);
+        orderOperation.saveOrder(orderData);
+
+        final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
         notifikasiOp.add(notifikasiData);
 
         ref.invalidate(pointsPageDataProvider);
         ref.invalidate(pointsHistoryProvider);
+
         final cekKoneksi = ref.read(internetConnectionServiceProvider);
         final isConnected = await cekKoneksi.checkLocalConnection();
         if (isConnected) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();
         }
+
         if (!mounted) return;
         ToastUtil.success(context, '${reward.name} berhasil ditukar!');
       } on Exception catch (e, st) {
