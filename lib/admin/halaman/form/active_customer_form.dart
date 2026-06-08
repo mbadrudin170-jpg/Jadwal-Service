@@ -10,7 +10,6 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
-import 'package:wifi/admin/providers/wallet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -86,7 +85,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   @override
   void initState() {
     super.initState();
-    _bonusDurationController = TextEditingController(text: '0');
+    _bonusDurationController = TextEditingController();
     Log.info('FormPelangganAktif initState, isEditMode=$_isEditMode');
     unawaited(_loadAllData());
   }
@@ -186,6 +185,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           : _kategoriPengeluaranList;
       _selectedKategori =
           kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.categoryId);
+
+      if (transaksi.durasiBonus != null && transaksi.durasiBonus! > 0) {
+        _isBonus = true;
+        _bonusDurationController.text = transaksi.durasiBonus.toString();
+        _bonusDurationType = transaksi.durasiBonusType ?? DurationType.minutes;
+      }
     } else {
       Log.warning(
           'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.');
@@ -348,6 +353,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .read(transactionProvider.notifier)
             .addTransaction(transaksiData);
       }
+      ref.invalidate(activeCustomerProvider);
       // Menghitung titik tengah durasi untuk notifikasi 50%
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan =
@@ -419,7 +425,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         notifikasiOpFirebase.add(notif);
       }
       final internetService = ref.read(internetConnectionServiceProvider);
-      final isOnline = await internetService.isInternetAvailable();
+      final isOnline = await internetService.checkLocalConnection();
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
@@ -723,7 +729,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (final v) {
+                validator: (v) {
                   if (_isBonus && (v == null || v.isEmpty)) {
                     return 'Wajib diisi';
                   }
@@ -774,10 +780,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           }
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
-            final _ = ref.refresh(activeCustomerProvider);
-            ref.invalidate(walletProvider);
+            ref.invalidate(activeCustomerOpFirebaseProvider);
+            ref.invalidate(activeCustomerOperationProvider);
+            ref.invalidate(transactionOperationProvider);
+            ref.invalidate(transactionOpFirebaseProvider);
+            ref.invalidate(walletOperationProvider);
             ref.invalidate(statistikProvider);
-            navigator.pop(true);
+            navigator.pop();
             Log.info(
                 'Form berhasil disimpan, memicu refresh dompet, statistik, dan menutup halaman.');
           } else {

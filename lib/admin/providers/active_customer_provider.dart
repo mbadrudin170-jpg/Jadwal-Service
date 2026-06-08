@@ -130,8 +130,8 @@ class ActiveCustomer extends _$ActiveCustomer {
       final operation = ref.read(activeCustomerOperationProvider);
       final data = await operation.getAllActiveCustomersWithDetails();
       final sortedData = _sortData(data, currentSortBy);
-      state = AsyncValue.data(
-          ActiveCustomerState(activeCustomers: sortedData, sortBy: currentSortBy));
+      state = AsyncValue.data(ActiveCustomerState(
+          activeCustomers: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, st: st);
       final context = NavigasiServis.navigatorKey.currentContext;
@@ -144,17 +144,19 @@ class ActiveCustomer extends _$ActiveCustomer {
     }
   }
 
-  void setSortBy(SortOption newSortBy) {
+  // 5. Mengatur kriteria pengurutan
+  void setSortBy(SortOption urutanBaru) {
     final currentState = state.value;
-    if (currentState == null || currentState.sortBy == newSortBy) {
+    if (currentState == null || currentState.sortBy == urutanBaru) {
       return;
     }
 
-    final sortedCustomers = _sortData(currentState.activeCustomers, newSortBy);
+    final pelangganTerurut =
+        _sortData(currentState.activeCustomers, urutanBaru);
     state = AsyncValue.data(
       currentState.copyWith(
-        activeCustomers: sortedCustomers,
-        sortBy: newSortBy,
+        activeCustomers: pelangganTerurut,
+        sortBy: urutanBaru,
       ),
     );
   }

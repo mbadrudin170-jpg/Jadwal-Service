@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart'; // Import untuk firstWhereOrNull
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
+import 'package:wifi/admin/providers/active_customer_provider.dart'; // Import activeCustomerProvider
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/customer_model.dart';
@@ -21,14 +23,56 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/whatsapp/info_paket.dart';
 
-/// Halaman untuk menampilkan detail pelanggan aktif.
+/// Provider untuk memuat detail lengkap pelanggan aktif secara asinkron.
+final activeCustomerDetailProvider = FutureProvider.family<
+    ({
+      CustomerModel? customer,
+      PackageModel? package,
+      TransactionModel? transaction,
+      ActiveCustomerModel activeCustomer,
+    }),
+    String>((ref, id) async {
+  // 1. Ambil daftar pelanggan aktif dari activeCustomerProvider
+  final activeCustomerState = await ref.watch(activeCustomerProvider.future);
+  final activeCustomerDetails = activeCustomerState.activeCustomers;
+
+  // 2. Cari ActiveCustomerDetailModel yang sesuai dengan ID
+  final detailModel = activeCustomerDetails.firstWhereOrNull(
+    (detail) => detail.activeCustomer.id == id,
+  );
+
+  if (detailModel == null) {
+    throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
+  }
+
+  final activeCustomer = detailModel.activeCustomer;
+
+  // 3. Fetch detail tambahan menggunakan operasi individual
+  final customerOp = ref.watch(customerOperationProvider);
+  final packageOp = ref.watch(packageOperationProvider);
+  final transactionOp = ref.watch(transactionOperationProvider);
+  final results = await Future.wait([
+    customerOp.getById(activeCustomer.customerId),
+    activeCustomer.packageId.isNotEmpty
+        ? packageOp.getById(activeCustomer.packageId)
+        : Future.value(),
+    (activeCustomer.transactionId != null &&
+            activeCustomer.transactionId!.isNotEmpty)
+        ? transactionOp.getTransactionById(activeCustomer.transactionId!)
+        : Future.value(),
+  ]);
+
+  return (
+    customer: results[0] as CustomerModel?,
+    package: results[1] as PackageModel?,
+    transaction: results[2] as TransactionModel?,
+    activeCustomer: activeCustomer,
+  );
+});
+
 class ActiveCustomerDetailPage extends ConsumerStatefulWidget {
-  /// Model pelanggan aktif yang akan ditampilkan.
   final ActiveCustomerModel activeCustomer;
-
-  /// Konstruktor untuk ActiveCustomerDetailPage.
   const ActiveCustomerDetailPage({super.key, required this.activeCustomer});
-
   @override
   ConsumerState<ActiveCustomerDetailPage> createState() =>
       _ActiveCustomerDetailPageState();
@@ -36,25 +80,7 @@ class ActiveCustomerDetailPage extends ConsumerStatefulWidget {
 
 class _ActiveCustomerDetailPageState
     extends ConsumerState<ActiveCustomerDetailPage> {
-  late ActiveCustomerModel _activeCustomer;
-  CustomerModel? _customer;
-  PackageModel? _package;
-  TransactionModel? _transaction;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    Log.info('Membuka halaman Detail Pelanggan Aktif');
-    Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
-    Log.info('  - ID Pelanggan: ${widget.activeCustomer.customerId}');
-    Log.info('  - ID Paket: ${widget.activeCustomer.packageId}');
-    Log.info('  - Status: ${widget.activeCustomer.status.displayName}');
-
-    _activeCustomer = widget.activeCustomer;
-    unawaited(_loadDetails());
-  }
-
+  // 1. Meluncurkan aplikasi WhatsApp
   Future<void> _launchWhatsApp(final String phoneNumber) async {
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
@@ -76,7 +102,7 @@ class _ActiveCustomerDetailPageState
       }
     } on Exception catch (e, s) {
       Log.error('Gagal membuka WhatsApp', e: e, st: s);
-      if (mounted) {
+      if (context.mounted) {
         ToastUtil.error(
           context,
           'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
@@ -85,242 +111,221 @@ class _ActiveCustomerDetailPageState
     }
   }
 
-  Future<void> _loadDetails() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-    Log.info('Memuat detail pelanggan dan paket...');
-
-    final customerOperation = ref.read(customerOperationProvider);
-    final packageOperation = ref.read(packageOperationProvider);
-    final transactionOperation = ref.read(transactionOperationProvider);
-    final packageId = _activeCustomer.packageId;
-    final transactionId = _activeCustomer.transactionId;
-
-    try {
-      final results = await Future.wait<dynamic>([
-        customerOperation.getById(_activeCustomer.customerId),
-        if (packageId.isNotEmpty)
-          packageOperation.getById(packageId)
-        else
-          Future<PackageModel?>.value(),
-        if (transactionId != null && transactionId.isNotEmpty)
-          transactionOperation.getTransactionById(transactionId)
-        else
-          Future<TransactionModel?>.value(),
-      ]);
-
-      if (mounted) {
-        setState(() {
-          _customer = results[0] as CustomerModel?;
-          _package = results.length > 1 ? results[1] as PackageModel? : null;
-          _transaction =
-              results.length > 2 ? results[2] as TransactionModel? : null;
-          _isLoading = false;
-        });
-        Log.info(
-            'Detail pelanggan berhasil dimuat. Customer: ${_customer?.name}, Paket: ${_package?.name}, Transaksi: ${_transaction?.id}');
-      }
-    } on Exception catch (e, s) {
-      Log.error('Gagal memuat detail pelanggan aktif', e: e, st: s);
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _navigateToEdit() async {
-    Log.info('Navigasi ke form edit pelanggan aktif ID: ${_activeCustomer.id}');
-    final result = await Navigator.push<bool>(
+  // 2. Navigasi ke halaman edit pelanggan aktif
+  Future<void> _navigateToEdit(ActiveCustomerModel model) async {
+    Log.info('Navigasi ke form edit pelanggan aktif ID: ${model.id}');
+    await Navigator.push<void>(
       context,
-      MaterialPageRoute<bool>(
-        builder: (final context) =>
-            FormPelangganAktif(pelangganAktif: _activeCustomer),
+      MaterialPageRoute<void>(
+        builder: (context) => FormPelangganAktif(pelangganAktif: model),
       ),
     );
-
-    if (result ?? false) {
-      Log.info('Kembali dari edit dengan perubahan. Memuat ulang data.');
-      final operation = ref.read(activeCustomerOperationProvider);
-      final updatedActiveCustomer =
-          await operation.getActiveCustomerById(_activeCustomer.id);
-      if (mounted && updatedActiveCustomer != null) {
-        setState(() {
-          _activeCustomer = updatedActiveCustomer;
-        });
-        await _loadDetails();
-      }
-    } else {
-      Log.info('Kembali dari edit tanpa perubahan.');
-    }
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun UI detail pelanggan aktif.');
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_customer?.name ?? 'Detail Pelanggan'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context, true),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: _navigateToEdit,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  final customer = _customer;
-                                  if (customer != null) {
-                                    Log.info(
-                                        'Navigasi ke detail pelanggan: ${customer.name}');
-                                    unawaited(Navigator.push<void>(
-                                      context,
-                                      MaterialPageRoute<void>(
-                                        builder: (final context) =>
-                                            CustomerDetailPage(
-                                          customerId: customer.id,
-                                        ),
-                                      ),
-                                    ));
-                                  }
-                                },
-                                child: Text(
-                                  _customer?.name ?? _activeCustomer.customerId,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(color: Colors.blue),
-                                ),
-                              ),
-                            ),
-                            gapH16,
-                            const Divider(),
-                            _buildWhatsAppInfoRow(
-                              'No HP',
-                              _customer?.phone ?? 'Tidak ditemukan',
-                            ),
-                            InkWell(
-                              onTap: () {
-                                final pkg = _package;
-                                if (pkg != null) {
-                                  Log.info(
-                                      'Navigasi ke detail paket: ${pkg.name}');
-                                  unawaited(Navigator.push<void>(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (final context) =>
-                                          PackageDetailPage(package: pkg),
-                                    ),
-                                  ));
-                                }
-                              },
-                              child: _buildInfoRow(
-                                'Paket',
-                                _package?.name ??
-                                    ' (ID: ${_activeCustomer.packageId})',
-                              ),
-                            ),
-                            _buildInfoRow(
-                              'Status',
-                              _activeCustomer.status.displayName,
-                            ),
-                            if (_package != null)
-                              _buildInfoRow(
-                                'Poin Diperoleh',
-                                '${_package!.rewardPoints} Poin',
-                              ),
-                            if (_transaction != null &&
-                                (_transaction!.durasiBonus ?? 0) > 0)
-                              _buildInfoRow(
-                                'Bonus',
-                                '${_transaction!.durasiBonus} ${_transaction!.durasiBonusType?.displayName ?? ""}',
-                              ),
-                            _buildInfoRow(
-                              'Mulai',
-                              FormatDateTime.formatDateAndTimeCompact(
-                                  _activeCustomer.startDate),
-                            ),
-                            _buildInfoRow(
-                              'Berakhir',
-                              FormatDateTime.formatDateAndTimeCompact(
-                                  _activeCustomer.endDate),
-                            ),
-                            const Divider(),
-                            gapH16,
-                            Text(
-                              CalculationUtil.getRemainingActivePeriodText(
-                                _activeCustomer.endDate,
-                              ),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    color: CalculationUtil
-                                        .getRemainingActivePeriodColor(
-                                      _activeCustomer.endDate,
-                                    ),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
-                            gapH24,
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.send_to_mobile),
-                              label: const Text('Kirim Info via WhatsApp'),
-                              onPressed: () {
-                                Log.info('Tombol kirim info WhatsApp ditekan.');
-                                final pesanInfoPaket =
-                                    ref.read(pesanInfoPaketProvider);
-                                unawaited(pesanInfoPaket
-                                    .kirimRincianPaket(_activeCustomer));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                backgroundColor: Colors.green.shade600,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+  void initState() {
+    super.initState();
+    Log.info('Membuka halaman Detail Pelanggan Aktif');
+    Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Log.info(
+        'Membangun UI detail pelanggan aktif untuk ID: ${widget.activeCustomer.id}.');
+    final detailAsync =
+        ref.watch(activeCustomerDetailProvider(widget.activeCustomer.id));
+    return detailAsync.when(
+      data: (data) => _buildScaffold(context, data),
+      loading: () => const Scaffold(body: Center(child: Text(''))),
+      error: (e, s) =>
+          Scaffold(body: Center(child: Text('Terjadi kesalahan: $e'))),
     );
   }
 
-  Widget _buildInfoRow(final String label, final String value) {
+  // 3. Membangun Scaffold utama halaman detail
+  Widget _buildScaffold(
+    BuildContext context,
+    ({
+      CustomerModel? customer,
+      PackageModel? package,
+      TransactionModel? transaction,
+      ActiveCustomerModel activeCustomer
+    }) data,
+  ) {
+    final activeCustomer = data.activeCustomer;
+    final customer = data.customer;
+    final package = data.package;
+    final transaction = data.transaction;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(customer?.name ?? 'Detail Pelanggan'),
+        actions: [
+          // 4. Tombol edit di AppBar
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _navigateToEdit(activeCustomer),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 5. Kartu informasi utama
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    // 6. Nama pelanggan (bisa diklik)
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            if (customer != null) {
+                              Log.info(
+                                  'Navigasi ke detail pelanggan: ${customer.name}');
+                              unawaited(Navigator.push<void>(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (final context) =>
+                                      CustomerDetailPage(
+                                    customerId: customer.id,
+                                  ),
+                                ),
+                              ));
+                            }
+                          },
+                          child: Text(
+                            customer?.name ?? activeCustomer.customerId,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: Colors.blue),
+                          ),
+                        ),
+                      ),
+                      gapH16, // 7. Divider
+                      const Divider(), // 8. Baris info WhatsApp
+                      _buildWhatsAppInfoRow(
+                        // 9. Baris info paket (bisa diklik)
+                        context,
+                        'No HP',
+                        customer?.phone ??
+                            'Tidak ditemukan', // 10. Baris info status
+                      ),
+                      InkWell(
+                        onTap: () {
+                          if (package != null) {
+                            Log.info(
+                                'Navigasi ke detail paket: ${package.name}');
+                            unawaited(Navigator.push<void>(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder: (final context) =>
+                                    PackageDetailPage(package: package),
+                              ),
+                            ));
+                          }
+                        },
+                        child: _buildInfoRow(
+                          context,
+                          'Paket',
+                          package?.name ?? ' (ID: ${activeCustomer.packageId})',
+                        ),
+                      ),
+                      _buildInfoRow(
+                        context,
+                        'Status',
+                        activeCustomer.status.displayName,
+                      ),
+                      if (package != null)
+                        _buildInfoRow(
+                          context,
+                          'Poin Diperoleh',
+                          '${package.rewardPoints} Poin',
+                        ),
+                      if (transaction != null &&
+                          (transaction.durasiBonus ?? 0) > 0)
+                        _buildInfoRow(
+                          context,
+                          'Bonus',
+                          '${transaction.durasiBonus} ${transaction.durasiBonusType?.displayName ?? ""}',
+                        ),
+                      _buildInfoRow(
+                        context,
+                        'Mulai',
+                        FormatDateTime.formatDateAndTimeCompact(
+                            activeCustomer.startDate),
+                      ),
+                      _buildInfoRow(
+                        context,
+                        'Berakhir',
+                        FormatDateTime.formatDateAndTimeCompact(
+                            activeCustomer.endDate),
+                      ),
+                      const Divider(),
+                      gapH16,
+                      Text(
+                        CalculationUtil.getRemainingActivePeriodText(
+                          activeCustomer.endDate,
+                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color:
+                                  CalculationUtil.getRemainingActivePeriodColor(
+                                activeCustomer.endDate,
+                              ),
+                              fontWeight: FontWeight.bold,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                      gapH24,
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.send_to_mobile),
+                        label: const Text('Kirim Info via WhatsApp'),
+                        onPressed: () {
+                          Log.info('Tombol kirim info WhatsApp ditekan.');
+                          final pesanInfoPaket =
+                              ref.read(pesanInfoPaketProvider);
+                          unawaited(
+                              pesanInfoPaket.kirimRincianPaket(activeCustomer));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                          ),
+                          backgroundColor: Colors.green.shade600,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ], // 33. Label tombol
+                  ), // 34. Fungsi onPressed
+                ), // 35. Logika untuk mengirim info paket via WhatsApp
+              ), // 36. Menggunakan pesanInfoPaketProvider
+            ], // 37. Logika untuk tombol
+          ),
+        ),
+      ),
+    );
+  } // 38. Style tombol
+
+  Widget _buildInfoRow(
+      // 39. Padding tombol
+      BuildContext context,
+      final String label,
+      final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -342,7 +347,9 @@ class _ActiveCustomerDetailPageState
     );
   }
 
-  Widget _buildWhatsAppInfoRow(final String label, final String value) {
+  // 40. Warna tombol
+  Widget _buildWhatsAppInfoRow(
+      BuildContext context, final String label, final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -381,4 +388,4 @@ class _ActiveCustomerDetailPageState
       ),
     );
   }
-}
+} // 41. Warna teks tombol

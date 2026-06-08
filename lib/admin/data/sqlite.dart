@@ -26,8 +26,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // diubah: Versi dinaikkan ke 52 untuk menambah tabel notification.
-  static const int _databaseVersion = 52;
+  // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
+  static const int _databaseVersion = 53;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -151,6 +151,13 @@ class DatabaseHelper {
       await _migrateToV52(db);
     }
 
+    if (oldVersion < 53) {
+      Log.info(
+        '[MIGRASI v53] Menambahkan kolom durasi bonus ke tabel transaksi.',
+      );
+      await _migrateToV53(db);
+    }
+
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
@@ -171,6 +178,31 @@ class DatabaseHelper {
     Log.info('[MIGRASI v52] Membuat tabel notification...');
     await db.execute(_tabelNotification);
     Log.info('[MIGRASI v52] Tabel notification berhasil dibuat.');
+  }
+
+  Future<void> _migrateToV53(final Database db) async {
+    Log.info(
+        '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...');
+
+    final String tableName = TableNameValue.get(TableName.transactions);
+    // Mengambil informasi kolom yang ada saat ini di tabel transactions
+    final results = await db.rawQuery('PRAGMA table_info("$tableName")');
+    final existingColumns =
+        results.map((row) => row['name'] as String).toList();
+
+    // Hanya tambahkan kolom jika belum ada dalam daftar kolom yang ada
+    if (!existingColumns.contains(ColumnNames.durasiBonus)) {
+      await db.execute(
+        'ALTER TABLE "$tableName" ADD COLUMN ${ColumnNames.durasiBonus} INTEGER',
+      );
+    }
+
+    if (!existingColumns.contains(ColumnNames.durasiBonusType)) {
+      await db.execute(
+        'ALTER TABLE "$tableName" ADD COLUMN ${ColumnNames.durasiBonusType} TEXT',
+      );
+    }
+    Log.info('[MIGRASI v53] Penambahan kolom selesai.');
   }
 
   Future<void> _migrateToV45(final Database db) async {
@@ -514,6 +546,8 @@ class DatabaseHelper {
       ${ColumnNames.paymentStatus} TEXT,
       ${ColumnNames.packageDuration} INTEGER,
       ${ColumnNames.durationType} TEXT,
+      ${ColumnNames.durasiBonus} INTEGER,
+      ${ColumnNames.durasiBonusType} TEXT,
       ${ColumnNames.startDate} INTEGER,
       ${ColumnNames.endDate} INTEGER,
       ${ColumnNames.isActivated} INTEGER DEFAULT 0
