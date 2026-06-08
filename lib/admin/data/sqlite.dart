@@ -26,8 +26,8 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
   static Database? _database;
 
-  // diubah: Versi dinaikkan ke 51 untuk menambah kolom last_active_at di customer.
-  static const int _databaseVersion = 51;
+  // diubah: Versi dinaikkan ke 52 untuk menambah tabel notification.
+  static const int _databaseVersion = 52;
 
   DatabaseHelper._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
@@ -144,11 +144,17 @@ class DatabaseHelper {
       await _migrateToV51(db);
     }
 
+    if (oldVersion < 52) {
+      Log.info(
+        '[MIGRASI v52] Membuat tabel `${TableNameValue.get(TableName.notification)}`.',
+      );
+      await _migrateToV52(db);
+    }
+
     Log.info('========================================');
     Log.info('PROSES UPGRADE DATABASE SELESAI');
     Log.info(
-      'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.',
-    );
+        'Database berhasil diupgrade dari versi $oldVersion ke versi $newVersion.');
     Log.info('========================================');
   }
 
@@ -159,6 +165,12 @@ class DatabaseHelper {
     );
     Log.info(
         '[MIGRASI v51] Penambahan kolom ${ColumnNames.lastActiveAt} selesai.');
+  }
+
+  Future<void> _migrateToV52(final Database db) async {
+    Log.info('[MIGRASI v52] Membuat tabel notification...');
+    await db.execute(_tabelNotification);
+    Log.info('[MIGRASI v52] Tabel notification berhasil dibuat.');
   }
 
   Future<void> _migrateToV45(final Database db) async {
@@ -431,7 +443,9 @@ class DatabaseHelper {
     batch.execute(_tabelSetting);
     batch.execute(_tabelUploadStatus);
     batch.execute(_tabelMessage);
-    Log.info('Semua 14 definisi tabel (v51) ditambahkan ke batch.');
+    batch
+        .execute(_tabelNotification); // 2. Tambahkan pembuatan tabel notifikasi
+    Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     final String trxTable = '"${TableNameValue.get(TableName.transactions)}"';
@@ -652,6 +666,18 @@ class DatabaseHelper {
     )
   ''';
 
+  // 1. Definisi tabel notifikasi
+  static final String _tabelNotification = '''
+    CREATE TABLE ${TableNameValue.get(TableName.notification)}(
+      ${ColumnNames.id} TEXT PRIMARY KEY,
+      ${ColumnNames.content} TEXT NOT NULL,
+      ${ColumnNames.date} INTEGER NOT NULL,
+      ${ColumnNames.status} TEXT NOT NULL,
+      ${ColumnNames.updatedAt} INTEGER,
+      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${ColumnNames.archivedAt} INTEGER
+    )
+  ''';
   // ============================================================
   // DEFINISI TABEL LAMA (Tetap Konstan untuk Jalur Migrasi Sinkron)
   // ============================================================

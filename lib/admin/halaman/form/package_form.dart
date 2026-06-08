@@ -67,8 +67,10 @@ class _PackageFormState extends ConsumerState<PackageForm> {
       final newPackage = PackageModel(
           id: _isEditMode ? widget.package!.id : null,
           name: _nameController.text,
-          price: int.parse(_priceController.text.replaceAll('.', '')),
-          duration: int.parse(_durationController.text),
+          price: int.tryParse(
+                  _priceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+              0,
+          duration: int.tryParse(_durationController.text) ?? 0,
           type: _selectedType,
           rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
           redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
@@ -169,7 +171,8 @@ class _PackageFormState extends ConsumerState<PackageForm> {
                     if (value == null || value.isEmpty) {
                       return 'Harga tidak boleh kosong';
                     }
-                    if (int.tryParse(value.replaceAll('.', '')) == null) {
+                    if (int.tryParse(value.replaceAll(RegExp(r'[^0-9]'), '')) ==
+                        null) {
                       return 'Harga harus berupa angka';
                     }
                     return null;
