@@ -167,26 +167,25 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  void _mapEditData(final TransactionModel? transaksi) {
+  void _mapEditData(TransactionModel? transaksi) {
     final transaksiOperasi = ref.read(transactionOperationProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
     _selectedPelanggan =
-        _pelangganList.firstWhereOrNull((final p) => p.id == pa.customerId);
-    _selectedPaket =
-        _paketList.firstWhereOrNull((final p) => p.id == pa.packageId);
+        _pelangganList.firstWhereOrNull((p) => p.id == pa.customerId);
+    _selectedPaket = _paketList.firstWhereOrNull((p) => p.id == pa.packageId);
 
     if (transaksi != null) {
       Log.info(
           'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.');
-      _selectedDompet = _daftarDompet
-          .firstWhereOrNull((final d) => d.id == transaksi.walletId);
+      _selectedDompet =
+          _daftarDompet.firstWhereOrNull((d) => d.id == transaksi.walletId);
       final kategoriSumber = transaksi.type == TransactionType.income
           ? _kategoriPemasukanList
           : _kategoriPengeluaranList;
-      _selectedKategori = kategoriSumber
-          .firstWhereOrNull((final k) => k.id == transaksi.categoryId);
+      _selectedKategori =
+          kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.categoryId);
     } else {
       Log.warning(
           'Transaksi terkait untuk PelangganAktif ID: ${pa.id} tidak ditemukan.');
@@ -201,9 +200,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     _statusPembayaran = pa.status;
 
     if (_selectedPelanggan != null) {
-      transaksiOperasi
-          .getTotalPoints(_selectedPelanggan!.id)
-          .then((final poin) {
+      transaksiOperasi.getTotalPoints(_selectedPelanggan!.id).then((poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
         }
@@ -223,12 +220,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
     if (_kategoriPemasukanList.isNotEmpty) {
       _selectedKategori = _kategoriPemasukanList.firstWhereOrNull(
-              (final k) => k.name.toLowerCase() == 'aktivasi paket') ??
+              (k) => k.name.toLowerCase() == 'aktivasi paket') ??
           _kategoriPemasukanList.first;
     }
   }
 
-  Future<void> _selectDate(final BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_selectedDate');
     final picked = await showDatePicker(
       context: context,

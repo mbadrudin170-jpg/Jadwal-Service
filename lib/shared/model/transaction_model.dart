@@ -199,7 +199,7 @@ class TransactionModel implements HasId {
       ColumnNames.packageDuration: packageDuration,
       ColumnNames.durationType: durationType?.name,
       ColumnNames.durasiBonus: durasiBonus,
-      ColumnNames.durasiBonusType: durasiBonusType,
+      ColumnNames.durasiBonusType: durasiBonusType?.name,
       ColumnNames.startDate: startDate?.millisecondsSinceEpoch,
       ColumnNames.endDate: endDate?.millisecondsSinceEpoch,
       ColumnNames.isActivated: isActivated ? 1 : 0,
