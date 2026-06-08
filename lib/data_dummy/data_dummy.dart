@@ -1,5 +1,6 @@
 // path: lib/data_dummy/data_dummy.dart
 
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 
@@ -34,7 +35,6 @@ class DataDummy {
           customerId: customerBudiId,
           packageId: paketHematId,
           date: DateTime.now().subtract(const Duration(hours: 2)),
-          status: StatusOrderEnum.baru,
         ),
         OrderModel(
           id: 'ORD-002',

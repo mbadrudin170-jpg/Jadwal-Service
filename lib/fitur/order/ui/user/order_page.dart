@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -182,9 +182,9 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
   // 2. Memperbarui _listTombolFilter untuk memanggil count dan meneruskannya ke tombol
   Widget _listTombolFilter() {
     final appRole = ref.watch(appRoleProvider);
-    // final IOrderOperation orderOperation = appRole == AppRole.admin
-    //     ? ref.watch(iOrderOperationProvider)
-    //     : ref.watch(iOrderOpFirebaseProvider);
+    final IOrderOperation orderOperation = appRole == AppRole.admin
+        ? ref.watch(iOrderOperationProvider)
+        : ref.watch(iOrderOpFirebaseProvider);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

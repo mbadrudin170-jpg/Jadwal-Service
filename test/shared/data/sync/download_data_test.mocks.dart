@@ -4,18 +4,19 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i9;
-import 'dart:typed_data' as _i29;
+import 'dart:typed_data' as _i30;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i8;
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
     as _i7;
 import 'package:firebase_core/firebase_core.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i28;
+import 'package:mockito/src/dummies.dart' as _i29;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/order/model/order_model.dart' as _i24;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
-import 'package:wifi/shared/export/enum.dart' as _i24;
+import 'package:wifi/shared/export/enum.dart' as _i25;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
 import 'package:wifi/shared/model/category_model.dart' as _i3;
@@ -24,7 +25,7 @@ import 'package:wifi/shared/model/wallet_model.dart' as _i12;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
     as _i19;
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
-    as _i26;
+    as _i27;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart'
     as _i13;
@@ -37,9 +38,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart'
     as _i15;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
-    as _i27;
+    as _i28;
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart'
-    as _i25;
+    as _i26;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i21;
 import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart'
@@ -1650,16 +1651,16 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
       ) as _i4.BaseOperation);
 
   @override
-  _i9.Stream<List<_i5.OrderModel>> getAllOrdersStream() => (super.noSuchMethod(
+  _i9.Stream<List<_i24.OrderModel>> getAllOrdersStream() => (super.noSuchMethod(
         Invocation.method(
           #getAllOrdersStream,
           [],
         ),
-        returnValue: _i9.Stream<List<_i5.OrderModel>>.empty(),
-      ) as _i9.Stream<List<_i5.OrderModel>>);
+        returnValue: _i9.Stream<List<_i24.OrderModel>>.empty(),
+      ) as _i9.Stream<List<_i24.OrderModel>>);
 
   @override
-  _i9.Future<int> countOrdersByStatus(_i24.StatusOrderEnum? status) =>
+  _i9.Future<int> countOrdersByStatus(_i25.StatusOrderEnum? status) =>
       (super.noSuchMethod(
         Invocation.method(
           #countOrdersByStatus,
@@ -1670,7 +1671,7 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
 
   @override
   _i9.Future<void> saveOrder(
-    _i5.OrderModel? order, {
+    _i24.OrderModel? order, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1684,38 +1685,41 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i5.OrderModel>> getAllOrders() => (super.noSuchMethod(
+  _i9.Future<List<_i24.OrderModel>> getAllOrders() => (super.noSuchMethod(
         Invocation.method(
           #getAllOrders,
           [],
         ),
-        returnValue: _i9.Future<List<_i5.OrderModel>>.value(<_i5.OrderModel>[]),
-      ) as _i9.Future<List<_i5.OrderModel>>);
+        returnValue:
+            _i9.Future<List<_i24.OrderModel>>.value(<_i24.OrderModel>[]),
+      ) as _i9.Future<List<_i24.OrderModel>>);
 
   @override
-  _i9.Future<List<_i5.OrderModel>> getAllActiveOrders() => (super.noSuchMethod(
+  _i9.Future<List<_i24.OrderModel>> getAllActiveOrders() => (super.noSuchMethod(
         Invocation.method(
           #getAllActiveOrders,
           [],
         ),
-        returnValue: _i9.Future<List<_i5.OrderModel>>.value(<_i5.OrderModel>[]),
-      ) as _i9.Future<List<_i5.OrderModel>>);
+        returnValue:
+            _i9.Future<List<_i24.OrderModel>>.value(<_i24.OrderModel>[]),
+      ) as _i9.Future<List<_i24.OrderModel>>);
 
   @override
-  _i9.Future<List<_i5.OrderModel>> getOrdersByStatus(
-          _i24.StatusOrderEnum? status) =>
+  _i9.Future<List<_i24.OrderModel>> getOrdersByStatus(
+          _i25.StatusOrderEnum? status) =>
       (super.noSuchMethod(
         Invocation.method(
           #getOrdersByStatus,
           [status],
         ),
-        returnValue: _i9.Future<List<_i5.OrderModel>>.value(<_i5.OrderModel>[]),
-      ) as _i9.Future<List<_i5.OrderModel>>);
+        returnValue:
+            _i9.Future<List<_i24.OrderModel>>.value(<_i24.OrderModel>[]),
+      ) as _i9.Future<List<_i24.OrderModel>>);
 
   @override
   _i9.Future<void> updateOrderStatus(
     String? id,
-    _i24.StatusOrderEnum? status, {
+    _i25.StatusOrderEnum? status, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1774,7 +1778,7 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
 
   @override
   _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.OrderModel>? items, {
+    List<_i24.OrderModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1788,21 +1792,22 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i5.OrderModel>> getOrdersByIds(List<String>? ids) =>
+  _i9.Future<List<_i24.OrderModel>> getOrdersByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getOrdersByIds,
           [ids],
         ),
-        returnValue: _i9.Future<List<_i5.OrderModel>>.value(<_i5.OrderModel>[]),
-      ) as _i9.Future<List<_i5.OrderModel>>);
+        returnValue:
+            _i9.Future<List<_i24.OrderModel>>.value(<_i24.OrderModel>[]),
+      ) as _i9.Future<List<_i24.OrderModel>>);
 }
 
 /// A class which mocks [SubCategoryOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSubCategoryOperation extends _i1.Mock
-    implements _i25.SubCategoryOperation {
+    implements _i26.SubCategoryOperation {
   MockSubCategoryOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -1950,7 +1955,7 @@ class MockSubCategoryOperation extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockApkVersionOperation extends _i1.Mock
-    implements _i26.ApkVersionOperation {
+    implements _i27.ApkVersionOperation {
   MockApkVersionOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -2080,7 +2085,7 @@ class MockApkVersionOperation extends _i1.Mock
 /// A class which mocks [SettingsOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOperation extends _i1.Mock implements _i27.SettingsOperation {
+class MockSettingsOperation extends _i1.Mock implements _i28.SettingsOperation {
   MockSettingsOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -2166,7 +2171,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
   @override
   String get databaseId => (super.noSuchMethod(
         Invocation.getter(#databaseId),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#databaseId),
         ),
@@ -2257,7 +2262,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
       ) as _i9.Future<void>);
 
   @override
-  _i8.LoadBundleTask loadBundle(_i29.Uint8List? bundle) => (super.noSuchMethod(
+  _i8.LoadBundleTask loadBundle(_i30.Uint8List? bundle) => (super.noSuchMethod(
         Invocation.method(
           #loadBundle,
           [bundle],
@@ -2423,8 +2428,8 @@ class MockFirebaseFirestore extends _i1.Mock implements _i8.FirebaseFirestore {
             #maxAttempts: maxAttempts,
           },
         ),
-        returnValue: _i28.ifNotNull(
-              _i28.dummyValueOrNull<T>(
+        returnValue: _i29.ifNotNull(
+              _i29.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #runTransaction,
@@ -2510,7 +2515,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -2519,7 +2524,7 @@ class MockCollectionReference<T extends Object?> extends _i1.Mock
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
@@ -3482,7 +3487,7 @@ class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -3518,7 +3523,7 @@ class MockQueryDocumentSnapshot<T extends Object?> extends _i1.Mock
           #data,
           [],
         ),
-        returnValue: _i28.dummyValue<T>(
+        returnValue: _i29.dummyValue<T>(
           this,
           Invocation.method(
             #data,
@@ -3562,7 +3567,7 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -3580,7 +3585,7 @@ class MockDocumentReference<T extends Object?> extends _i1.Mock
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
@@ -3714,7 +3719,7 @@ class MockDocumentSnapshot<T extends Object?> extends _i1.Mock
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
-        returnValue: _i28.dummyValue<String>(
+        returnValue: _i29.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),

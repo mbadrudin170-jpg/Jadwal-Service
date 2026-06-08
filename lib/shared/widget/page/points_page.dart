@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -115,8 +116,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
             id: idOrder,
             customerId: widget.customerId,
             packageId: reward.id,
-            date: now,
-            status: StatusOrderEnum.baru);
+            date: now);
 
         final notifikasiData = NotifikasiModel(
             id: const Uuid().v4(),

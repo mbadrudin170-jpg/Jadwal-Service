@@ -4,9 +4,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/order_model.dart';
+import 'package:wifi/shared/model/order_model_ok.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 
@@ -36,7 +37,6 @@ void main() {
       customerId: 'cust1',
       packageId: 'pkg1',
       date: DateTime.now(),
-      status: StatusOrderEnum.baru,
       updatedAt: DateTime.now(),
     );
     final tOrderMap = tOrder.toSqlite();

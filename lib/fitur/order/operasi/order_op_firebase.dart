@@ -3,12 +3,12 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
