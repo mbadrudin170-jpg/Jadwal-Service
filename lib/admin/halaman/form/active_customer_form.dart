@@ -331,7 +331,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         endDate: tanggalBerakhir,
         isActivated: true,
       );
-
       Log.info(
           'Menyimpan data: customerId=${_selectedPelanggan!.id}, packageId=${_selectedPaket!.id}, transaksiId=$transaksiId');
 
@@ -342,8 +341,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         await ref
             .read(transactionProvider.notifier)
             .updateTransaction(transaksiData);
-
         notifikasiOpFirebase.deleteByTransactionId(transaksiId);
+        Log.info(
+            'menghapus data notifikasi dalam mode edit agar data selalu terbaru');
       } else {
         pelangganAktifHasil = await pelangganAktifOperasi
             .createActiveCustomer(pelangganAktifData);
@@ -352,6 +352,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .addTransaction(transaksiData);
       }
       ref.invalidate(activeCustomerProvider);
+
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan =
           Duration(microseconds: (totalDurasi.inMicroseconds / 2).round());
@@ -412,6 +413,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           updatedAt: DateTime.now().toUtc(),
         ),
       ];
+      Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
 
       for (final notif in daftarNotifikasi) {
         notifikasiOpFirebase.add(notif);
