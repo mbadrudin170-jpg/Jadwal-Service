@@ -1,0 +1,101 @@
+// path: lib/fitur/order/operasi/order_op_firebase.dart
+
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/model/order_model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+class OrderOpFirebase extends BaseOpFirebase {
+  final BaseOpFirebase _baseOp;
+  final String _collectionName = TableNameValue.get(TableName.customerOrder);
+
+  OrderOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOp,
+  }) : _baseOp = baseOp {
+    Log.info('OrderOpFirebase diinisialisasi.');
+  }
+
+  /// 1. Menambahkan pesanan baru
+  Future<void> addOrder(OrderModel order) async {
+    Log.info('Menambahkan pesanan baru: ${order.id}');
+    await _baseOp.insert(_collectionName, order.id, order.toFirebase());
+  }
+
+  /// 2. Memperbarui pesanan yang ada
+  Future<void> updateOrder(OrderModel order) async {
+    Log.info('Memperbarui pesanan: ${order.id}');
+    await _baseOp.update(_collectionName, order.id, order.toFirebase());
+  }
+
+  /// 3. Menghapus pesanan (soft delete)
+  Future<void> softDeleteOrder(String orderId) async {
+    Log.info('Menghapus pesanan: $orderId');
+    await softDelete(_collectionName, orderId);
+  }
+
+  /// 4. Mendapatkan stream semua pesanan
+  Stream<List<OrderModel>> getAll() {
+    Log.info('Mendapatkan stream semua pesanan');
+    return firestore
+        .collection(_collectionName)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
+        .orderBy(ColumnNames.updatedAt, descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+            .toList())
+        .handleError((e, StackTrace st) {
+      Log.error(
+        'Error mendapatkan stream pesanan',
+        e: e,
+        st: st,
+      );
+      return [];
+    });
+  }
+
+  /// 5. Mendapatkan satu pesanan berdasarkan ID
+  Future<OrderModel?> getOrderById(String orderId) async {
+    Log.info('Mendapatkan pesanan by ID: $orderId');
+    try {
+      final doc =
+          await firestore.collection(_collectionName).doc(orderId).get();
+      if (doc.exists) {
+        return OrderModel.fromFirebase(doc.id, doc.data()!);
+      }
+      return null;
+    } catch (e, st) {
+      Log.error(
+        'Error mendapatkan pesanan by ID',
+        e: e,
+        st: st,
+        data: {'orderId': orderId},
+      );
+      return null;
+    }
+  }
+
+  Future<OrderModel?> getByUserId(String userId) async {
+    try {
+      final doc = await firestore.collection(_collectionName).doc(userId).get();
+      if (doc.exists) {
+        return OrderModel.fromFirebase(doc.id, doc.data()!);
+      }
+      return null;
+    } catch (e, st) {
+      Log.error(
+        'Error mendapatkan pesanan by ID',
+        e: e,
+        st: st,
+        data: {'userId': userId},
+      );
+      return null;
+    }
+  }
+}

@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
-import 'package:wifi/admin/halaman/tab/order_page_a.dart';
+import 'package:wifi/fitur/order/ui/user/order_page_a.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';

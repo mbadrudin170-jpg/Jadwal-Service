@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/tab/order_page.dart
+// path: lib/fitur/order/ui/user/order_page_a.dart
 
 import 'dart:async';
 
@@ -12,9 +12,7 @@ import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-/// Halaman untuk menampilkan dan mengelola daftar pesanan.
 class OrderPageA extends ConsumerStatefulWidget {
-  /// Halaman untuk menampilkan dan mengelola daftar pesanan.
   const OrderPageA({super.key});
 
   @override
@@ -81,7 +79,7 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     Log.info('Memulai soft delete untuk pesanan ID: ${order.id}');
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (final context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Arsipkan Pesanan'),
         content:
             Text('Yakin ingin mengarsipkan pesanan dari ${order.customerId}?'),
@@ -119,7 +117,7 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     Log.info('Memulai soft delete untuk semua pesanan');
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (final context) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Arsipkan Semua Pesanan?'),
         content: const Text(
             'Anda yakin ingin mengarsipkan semua pesanan yang aktif?'),
@@ -154,7 +152,7 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Pesanan'),
@@ -199,7 +197,7 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
             _filterChip('Selesai', StatusOrderEnum.selesai),
             _filterChip('Ditolak', StatusOrderEnum.ditolak),
           ]
-              .map((final e) =>
+              .map((e) =>
                   Padding(padding: const EdgeInsets.only(right: 8), child: e))
               .toList(),
         ),
@@ -207,12 +205,12 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     );
   }
 
-  Widget _filterChip(final String label, final StatusOrderEnum? value) {
+  Widget _filterChip(String label, StatusOrderEnum? value) {
     final isSelected = _filterStatus == value;
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (final selected) {
+      onSelected: (selected) {
         setState(() => _filterStatus = value);
         unawaited(_loadOrders());
       },
@@ -225,14 +223,14 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _orderList.length,
-      itemBuilder: (final context, final index) {
+      itemBuilder: (context, index) {
         final order = _orderList[index];
         return _buildOrderCard(order);
       },
     );
   }
 
-  Widget _buildOrderCard(final OrderModel order) {
+  Widget _buildOrderCard(OrderModel order) {
     final Color statusColor = _getStatusColor(order);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -301,14 +299,14 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     );
   }
 
-  Widget _actionButton(final String label, final VoidCallback onPressed) {
+  Widget _actionButton(String label, VoidCallback onPressed) {
     return TextButton(
       onPressed: onPressed,
       child: Text(label),
     );
   }
 
-  Color _getStatusColor(final OrderModel order) {
+  Color _getStatusColor(OrderModel order) {
     switch (order.status) {
       case StatusOrderEnum.baru:
         return Colors.blue;
@@ -327,10 +325,10 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     return order.status.displayName;
   }
 
-  Future<void> _showOrderDetail(final OrderModel order) async {
+  Future<void> _showOrderDetail(OrderModel order) async {
     await showModalBottomSheet<void>(
       context: context,
-      builder: (final context) => Padding(
+      builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -350,7 +348,7 @@ class _OrderPageState extends ConsumerState<OrderPageA> {
     );
   }
 
-  Widget _detailRow(final String label, final String value) {
+  Widget _detailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(

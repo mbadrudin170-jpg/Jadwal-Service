@@ -5,11 +5,11 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas ini menangani semua operasi terkait data pelanggan di Firestore.
@@ -34,7 +34,7 @@ class CustomerOpFirebase {
       _firestore.collection(_collectionName);
 
   /// Membuat pelanggan baru di Firestore.
-  Future<void> createCustomer(final CustomerModel customer) async {
+  Future<void> addCustomer(CustomerModel customer) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${customer.id}');
     await _baseOp.insert(
       _collectionName,
