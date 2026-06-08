@@ -11,75 +11,33 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
-/// Model that represents a single transaction in the application.
 class TransactionModel implements HasId {
   @override
   final String id;
-
-  /// The date and time when the transaction was created.
   final DateTime date;
-
-  /// A description or note about the transaction.
   final String description;
-
-  /// The amount of the transaction.
   final double amount;
-
-  /// The type of transaction (e.g., income, expense, transfer, subscription).
   final TransactionType type;
-
-  /// The ID of the source wallet.
   final String walletId;
-
-  /// The ID of the main category of the transaction.
   final String categoryId;
-
-  /// The ID of the destination wallet, only used for transfer transactions.
   final String? destinationWalletId;
-
-  /// The ID of the customer associated with this transaction.
   final String? customerId;
-
-  /// The ID of the package, if this is a subscription activation.
   final String? packageId;
-
-  /// The ID of the sub-category of the transaction.
   final String? subCategoryId;
-
-  /// The payment status of the transaction (e.g., paid, unpaid).
   final PaymentStatus paymentStatus;
-
-  /// The number of points earned from this transaction.
   final int earnedPoints;
-
-  /// The number of points used in this transaction.
   final int usedPoints;
-
-  /// The last time this data was updated.
   final DateTime? updatedAt;
-
-  /// The time this data was archived.
   final DateTime? archivedAt;
-
-  /// A flag indicating if this data has been deleted (soft delete).
   final bool isDeleted;
-
-  /// The duration of the subscription package (e.g., 30).
   final int? packageDuration;
-
-  /// The type of duration for the package (e.g., day, month).
   final DurationType? durationType;
-
-  /// The start date of the subscription period.
+  final int? durasiBonus;
+  final DurationType? durasiBonusType;
   final DateTime? startDate;
-
-  /// The end date of the subscription period.
   final DateTime? endDate;
-
-  /// A flag indicating if this is a new package activation.
   final bool isActivated;
 
-  /// Main constructor for creating a [TransactionModel] instance.
   TransactionModel({
     final String? id,
     required this.date,
@@ -100,6 +58,8 @@ class TransactionModel implements HasId {
     this.isDeleted = false,
     this.packageDuration,
     this.durationType,
+    this.durasiBonus,
+    this.durasiBonusType,
     this.startDate,
     this.endDate,
     this.isActivated = false,
@@ -107,7 +67,6 @@ class TransactionModel implements HasId {
     Log.info('TransactionModel created: $id, type: ${type.name}');
   }
 
-  /// Creates a copy of this [TransactionModel] with some modified values.
   TransactionModel copyWith({
     final String? id,
     final DateTime? date,
@@ -128,6 +87,8 @@ class TransactionModel implements HasId {
     final bool? isDeleted,
     final int? packageDuration,
     final DurationType? durationType,
+    final int? durasiBonus,
+    final DurationType? durasiBonusType,
     final DateTime? startDate,
     final DateTime? endDate,
     final bool? isActivated,
@@ -152,13 +113,14 @@ class TransactionModel implements HasId {
       isDeleted: isDeleted ?? this.isDeleted,
       packageDuration: packageDuration ?? this.packageDuration,
       durationType: durationType ?? this.durationType,
+      durasiBonus: durasiBonus ?? this.durasiBonus,
+      durasiBonusType: durasiBonusType ?? this.durasiBonusType,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       isActivated: isActivated ?? this.isActivated,
     );
   }
 
-  /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
     final dynamic name,
@@ -175,7 +137,6 @@ class TransactionModel implements HasId {
     return null;
   }
 
-  /// Factory constructor to create [TransactionModel] from SQLite data.
   factory TransactionModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating TransactionModel from SQLite: ${map[ColumnNames.id]}');
     return TransactionModel(
@@ -204,13 +165,17 @@ class TransactionModel implements HasId {
       packageDuration: (map[ColumnNames.packageDuration] as num?)?.toInt(),
       durationType:
           _safeParseEnum(DurationType.values, map[ColumnNames.durationType]),
+      durasiBonus: (map[ColumnNames.durasiBonus] as num? ?? 0).toInt(),
+      durasiBonusType: _safeParseEnum(
+        DurationType.values,
+        map[ColumnNames.durasiBonusType],
+      ),
       startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]),
       endDate: ParserUtil.parseDateTime(map[ColumnNames.endDate]),
       isActivated: ParserUtil.parseBool(map[ColumnNames.isActivated]),
     );
   }
 
-  /// Converts this [TransactionModel] to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
@@ -233,13 +198,14 @@ class TransactionModel implements HasId {
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.packageDuration: packageDuration,
       ColumnNames.durationType: durationType?.name,
+      ColumnNames.durasiBonus: durasiBonus,
+      ColumnNames.durasiBonusType: durasiBonusType,
       ColumnNames.startDate: startDate?.millisecondsSinceEpoch,
       ColumnNames.endDate: endDate?.millisecondsSinceEpoch,
       ColumnNames.isActivated: isActivated ? 1 : 0,
     };
   }
 
-  /// Factory constructor to create [TransactionModel] from Firebase data.
   factory TransactionModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating TransactionModel from Firebase: $id');
@@ -269,13 +235,17 @@ class TransactionModel implements HasId {
       packageDuration: (data[ColumnNames.packageDuration] as num?)?.toInt(),
       durationType:
           _safeParseEnum(DurationType.values, data[ColumnNames.durationType]),
+      durasiBonus: (data[ColumnNames.durasiBonus] as num? ?? 0).toInt(),
+      durasiBonusType: _safeParseEnum(
+        DurationType.values,
+        data[ColumnNames.durasiBonusType],
+      ),
       startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]),
       endDate: ParserUtil.parseDateTime(data[ColumnNames.endDate]),
       isActivated: ParserUtil.parseBool(data[ColumnNames.isActivated]),
     );
   }
 
-  /// Converts this [TransactionModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       ColumnNames.id: id,
@@ -299,6 +269,8 @@ class TransactionModel implements HasId {
       ColumnNames.isDeleted: isDeleted,
       ColumnNames.packageDuration: packageDuration,
       ColumnNames.durationType: durationType?.name,
+      ColumnNames.durasiBonus: durasiBonus,
+      ColumnNames.durasiBonusType: durasiBonusType?.name,
       ColumnNames.startDate:
           startDate != null ? Timestamp.fromDate(startDate!.toUtc()) : null,
       ColumnNames.endDate:

@@ -4,20 +4,22 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/admin/providers/wallet_provider.dart';
+import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -48,6 +50,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   CategoryModel? _selectedKategori;
   bool _isLoading = true;
   bool _gunakanPoin = false;
+  late TextEditingController _bonusDurationController;
+  DurationType _bonusDurationType = DurationType.minutes;
+  bool _isBonus = false;
   int _saldoPoinPelanggan = 0;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -81,6 +86,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   @override
   void initState() {
     super.initState();
+    _bonusDurationController = TextEditingController(text: '0');
     Log.info('FormPelangganAktif initState, isEditMode=$_isEditMode');
     unawaited(_loadAllData());
   }
@@ -281,8 +287,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     try {
       final tanggalMulai = DateTime(_selectedDate!.year, _selectedDate!.month,
           _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
-      final tanggalBerakhir =
-          CalculationUtil.hitungTanggalBerakhir(tanggalMulai, _selectedPaket!);
+      final int nilaiBonus =
+          _isBonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
+      final DateTime tanggalBerakhir = CalculationUtil.hitungTanggalBerakhir(
+        tanggalMulai,
+        _selectedPaket!,
+        durasiBonus: nilaiBonus,
+        durasiBonusType: _isBonus ? _bonusDurationType : null,
+      );
+
       final transaksiId =
           (_isEditMode && widget.pelangganAktif?.transactionId != null)
               ? widget.pelangganAktif!.transactionId!
@@ -312,6 +325,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         usedPoints: _gunakanPoin ? _selectedPaket!.redemptionPoints : 0,
         packageDuration: _selectedPaket!.duration,
         durationType: _selectedPaket!.type,
+        durasiBonus: nilaiBonus,
+        durasiBonusType: _isBonus ? _bonusDurationType : null,
         startDate: tanggalMulai,
         endDate: tanggalBerakhir,
         isActivated: true,
@@ -453,6 +468,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       _buildPaketDropdown(),
                       gapH16,
                       _buildDompetDropdown(),
+                      gapH16,
+                      _buildTombolBonus(),
+                      _buildDurasiBonus(),
                       gapH16,
                       _buildKategoriDropdown(),
                       gapH24,
@@ -651,15 +669,99 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 _selectedDate!.day,
                 _selectedTime!.hour,
                 _selectedTime!.minute);
-            return FormatDateTime.formatDateAndTimeCompact(
-                CalculationUtil.hitungTanggalBerakhir(
-                    startDate, _selectedPaket!));
+            final int nilaiBonus = _isBonus
+                ? (int.tryParse(_bonusDurationController.text) ?? 0)
+                : 0;
+            final DateTime endDate = CalculationUtil.hitungTanggalBerakhir(
+              startDate,
+              _selectedPaket!,
+              durasiBonus: nilaiBonus,
+              durasiBonusType: _isBonus ? _bonusDurationType : null,
+            );
+
+            return FormatDateTime.formatDateAndTimeCompact(endDate);
           } else {
             return 'Pilih paket & tanggal mulai';
           }
         }())),
       ]),
     ]);
+  }
+
+  Widget _buildTombolBonus() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const TeksBodySedang('Bonus'),
+        Switch(
+          value: _isBonus,
+          onChanged: (final value) {
+            setState(() {
+              _isBonus = value;
+              Log.info('Status bonus diubah: $_isBonus');
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDurasiBonus() {
+    if (!_isBonus) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        gapH8,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
+              child: TextFormField(
+                controller: _bonusDurationController,
+                decoration: const InputDecoration(
+                  labelText: 'Durasi Bonus',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(TIcons.timerOutlined),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (final v) {
+                  if (_isBonus && (v == null || v.isEmpty)) {
+                    return 'Wajib diisi';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            gapW8,
+            Expanded(
+              child: DropdownButtonFormField<DurationType>(
+                key: const Key('dropdown_bonus_duration_type'),
+                initialValue: _bonusDurationType,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                items: DurationType.values.map((final type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type.displayName),
+                  );
+                }).toList(),
+                onChanged: (final newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _bonusDurationType = newValue;
+                      Log.info('Tipe durasi bonus diubah: $_bonusDurationType');
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildSaveButton() {

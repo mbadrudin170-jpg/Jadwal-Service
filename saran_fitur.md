@@ -14,6 +14,11 @@ Fitur-fitur ini bertujuan membuat pengguna lebih sering kembali dan lebih lama m
     *   **Misi Harian/Mingguan:** Beri pengguna poin jika mereka melakukan aksi tertentu, seperti "Tonton 2 iklan bonus hari ini" atau "Login 7 hari berturut-turut".
     *   **Gamifikasi:** Tampilkan papan peringkat (leaderboard) untuk pengguna dengan poin terbanyak.
 
+*   **Uji Kecepatan (Speed Test) Internal:**
+    *   Memungkinkan pengguna mengecek kecepatan unduh (download) dan unggah (upload) langsung di aplikasi.
+    *   Data hasil uji bisa disimpan sebagai riwayat untuk membantu teknisi mendiagnosa masalah jika ada komplain.
+    *   Integrasi dengan provider server terdekat untuk akurasi data.
+
 *   **Program Referral (Ajak Teman):**
     *   Setiap pengguna mendapatkan kode referral unik.
     *   Jika pengguna baru mendaftar menggunakan kode tersebut, baik pengajak maupun yang diajak akan mendapatkan hadiah (misalnya diskon, poin, atau masa aktif tambahan).

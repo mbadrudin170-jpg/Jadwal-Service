@@ -276,4 +276,11 @@ class TIcons {
 
   /// Ikon untuk status switch tidak aktif.
   static const IconData toggleOff = Icons.toggle_off;
+
+  /// Ikon untuk fitur uji kecepatan (speedtest).
+  static const IconData speed = Icons.speed_rounded;
+
+  /// Ikon untuk pengecekan jaringan.
+  static const IconData networkCheck = Icons.network_check_rounded;
+ static const IconData timerOutlined= Icons.timer_outlined;
 }

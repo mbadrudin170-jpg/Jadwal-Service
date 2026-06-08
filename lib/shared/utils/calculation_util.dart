@@ -18,34 +18,43 @@ class CalculationUtil {
   /// menghitung kapan tanggal berkahirnya sebuah paket user
   static DateTime hitungTanggalBerakhir(
     final DateTime startDate,
-    final PackageModel paket,
-  ) {
+    final PackageModel paket, {
+    final int? durasiBonus,
+    final DurationType? durasiBonusType,
+  }) {
     Log.info('FUNGSI GLOBAL: hitungTanggalBerakhir() dipanggil.');
     Log.info('  - Tanggal Mulai: ${startDate.toIso8601String()}');
     Log.info('  - Nama Paket: ${paket.name}');
-    Log.info('  - Tipe Durasi: ${paket.type.name}');
-    Log.info('  - Durasi: ${paket.duration}');
 
-    DateTime hasil;
-    switch (paket.type) {
-      case DurationType.hours:
-        hasil = startDate.add(Duration(hours: paket.duration));
-        break;
-      case DurationType.days:
-        hasil = startDate.add(Duration(days: paket.duration));
-        break;
-      case DurationType.months:
-        hasil = Jiffy.parseFromDateTime(startDate)
-            .add(months: paket.duration)
-            .dateTime;
-        break;
-      case DurationType.minutes:
-        hasil = startDate.add(Duration(minutes: paket.duration));
-        break;
+    // 1. Hitung durasi paket dasar
+    DateTime hasil = _tambahDurasi(startDate, paket.type, paket.duration);
+
+    // 2. Tambahkan bonus jika ada
+    if (durasiBonus != null && durasiBonus > 0 && durasiBonusType != null) {
+      Log.info('  - Menambahkan Bonus: $durasiBonus ${durasiBonusType.name}');
+      hasil = _tambahDurasi(hasil, durasiBonusType, durasiBonus);
     }
 
     Log.info('  - Hasil Tanggal Berakhir: ${hasil.toIso8601String()}');
     return hasil;
+  }
+
+  // 1. Fungsi internal untuk menambahkan durasi ke DateTime
+  static DateTime _tambahDurasi(
+    final DateTime asal,
+    final DurationType tipe,
+    final int jumlah,
+  ) {
+    switch (tipe) {
+      case DurationType.minutes:
+        return asal.add(Duration(minutes: jumlah));
+      case DurationType.hours:
+        return asal.add(Duration(hours: jumlah));
+      case DurationType.days:
+        return asal.add(Duration(days: jumlah));
+      case DurationType.months:
+        return Jiffy.parseFromDateTime(asal).add(months: jumlah).dateTime;
+    }
   }
 
   /// Mengecek apakah poin pelanggan sudah hangus.
