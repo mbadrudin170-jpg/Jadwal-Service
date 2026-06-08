@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/widget/package_name.dart';
 
 class UserOrderPage extends ConsumerStatefulWidget {
   const UserOrderPage({super.key});
@@ -51,13 +51,13 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe('99+', StatusOrderEnum.selesai.displayName,
-                isActive: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe('', StatusOrderEnum.diproses.displayName,
-                isActive: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe('10', StatusOrderEnum.baru.displayName,
+            _tombolTipe('99+', StatusOrderEnum.selesai,
                 isActive: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe('10', StatusOrderEnum.ditolak.displayName,
+            _tombolTipe('', StatusOrderEnum.diproses,
+                isActive: _filterAktif == StatusOrderEnum.diproses.name),
+            _tombolTipe('10', StatusOrderEnum.baru,
+                isActive: _filterAktif == StatusOrderEnum.baru.name),
+            _tombolTipe('10', StatusOrderEnum.ditolak,
                 isActive: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
@@ -66,14 +66,16 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
   }
 
   // 3. Memperbarui _tombolTipe untuk menangani state, onTap, dan tampilan
-  Widget _tombolTipe(String info, String label, {required bool isActive}) {
+  Widget _tombolTipe(String info, StatusOrderEnum status,
+      {required bool isActive}) {
+    final label = status.displayName;
     return InkWell(
       // 4. Memperbarui logika onTap untuk mengubah filter yang aktif
       onTap: () {
         // Hanya update state jika tombol yang ditekan belum aktif
         if (!isActive) {
           setState(() {
-            _filterAktif = label;
+            _filterAktif = status.name;
             Log.info('Filter pesanan diubah menjadi: $_filterAktif');
           });
         }
@@ -158,7 +160,6 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
         final paketOpFirebase = ref.watch(packageOpFirebaseProvider);
-final data =paketOpFirebase.getPackageStreamById(allOrders.pack)
         return ListView.builder(
           itemCount: filteredOrders.length,
           itemBuilder: (context, index) {
