@@ -13,8 +13,8 @@ import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
-import 'package:wifi/shared/services/device_info_service.dart';
-import 'package:wifi/shared/services/package_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/device_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/package_info_service.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 

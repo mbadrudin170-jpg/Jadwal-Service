@@ -12,8 +12,8 @@ import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/background_service.dart';
-import 'package:wifi/shared/services/boot_service.dart';
+import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/background/boot_service.dart';
 
 /// Fungsi utama untuk menjalankan aplikasi admin dalam mode pengembangan (dev).
 void main() async {

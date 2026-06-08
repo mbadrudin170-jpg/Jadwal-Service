@@ -1,6 +1,6 @@
 // path: lib/shared/services/alarm/android_alarm_scheduler.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:wifi/shared/services/alarm/alarm_scheduler.dart';
+import 'package:wifi/fitur/alarm/alarm_scheduler.dart';
 
 /// Implementasi dari [AlarmScheduler] menggunakan paket `android_alarm_manager_plus`.
 class AndroidAlarmScheduler implements AlarmScheduler {

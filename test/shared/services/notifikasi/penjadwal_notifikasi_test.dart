@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 

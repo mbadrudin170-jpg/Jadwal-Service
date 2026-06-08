@@ -13,7 +13,7 @@ import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/background_service.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/user/app_user.dart';
 import 'package:wifi/user/firebase_option/firebase_option_user_prod.dart';
 

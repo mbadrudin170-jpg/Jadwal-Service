@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/user/services/storage/local_storage_service.dart';
 
 part 'shared_providers.g.dart';

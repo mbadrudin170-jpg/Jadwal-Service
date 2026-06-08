@@ -15,7 +15,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
-import 'package:wifi/shared/services/update_service.dart';
+import 'package:wifi/fitur/sinkronisasi/update_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';

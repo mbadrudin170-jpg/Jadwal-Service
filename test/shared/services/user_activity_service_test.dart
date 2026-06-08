@@ -5,7 +5,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/services/user_activity_service.dart';
+import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
 
 import 'user_activity_service_test.mocks.dart';
 

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:wifi/shared/services/background_service.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:workmanager_platform_interface/workmanager_platform_interface.dart';
 
 // Mock untuk WorkmanagerPlatform yang lebih fleksibel

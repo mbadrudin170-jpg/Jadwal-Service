@@ -12,7 +12,7 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 import 'active_customer_operation_test.mocks.dart';
 

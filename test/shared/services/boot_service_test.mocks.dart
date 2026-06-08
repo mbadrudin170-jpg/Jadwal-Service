@@ -11,7 +11,7 @@ import 'package:wifi/shared/export/model.dart' as _i3;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i7;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
     as _i6;
-import 'package:wifi/shared/services/alarm/alarm_scheduler.dart' as _i4;
+import 'package:wifi/fitur/alarm/alarm_scheduler.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

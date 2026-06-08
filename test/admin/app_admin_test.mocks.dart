@@ -26,9 +26,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
     as _i15;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
     as _i14;
-import 'package:wifi/shared/services/background_service.dart' as _i16;
+import 'package:wifi/fitur/background/background_service.dart' as _i16;
 import 'package:wifi/shared/services/internet_connection_check.dart' as _i8;
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart' as _i9;
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i9;
 import 'package:wifi/user/services/storage/local_storage_service.dart' as _i17;
 
 // ignore_for_file: type=lint

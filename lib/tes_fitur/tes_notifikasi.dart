@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 /// Halaman untuk melakukan tes fungsionalitas notifikasi.
 class TesNotifikasiPage extends StatefulWidget {

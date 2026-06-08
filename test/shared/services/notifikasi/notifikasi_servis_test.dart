@@ -10,7 +10,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/notifikasi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/shared/services/notifikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 import 'notifikasi_servis_test.mocks.dart';
 

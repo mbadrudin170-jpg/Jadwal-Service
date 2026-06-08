@@ -66,7 +66,7 @@ void main() {
 
     test('updateOrderStatus should call update on baseOperation', () async {
       // Arrange
-      const newStatus = 'paid';
+      const newStatus = StatusOrderEnum.selesai;
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tOrderMap]);
@@ -74,8 +74,7 @@ void main() {
           .thenAnswer((_) => Future.value());
 
       // Act
-      await orderOperation.updateOrderStatus(
-          tOrder.id, newStatus as StatusOrderEnum);
+      await orderOperation.updateOrderStatus(tOrder.id, newStatus);
 
       // Assert
       final verificationResult = verify(mockBaseOperation.update(
@@ -88,7 +87,7 @@ void main() {
       // Check that the status in the captured map is updated
       final capturedMap =
           verificationResult.captured.first as Map<String, dynamic>;
-      expect(capturedMap['status'], newStatus);
+      expect(capturedMap['status'], newStatus.name);
     });
 
     test('deleteOrder should call delete on baseOperation', () async {
