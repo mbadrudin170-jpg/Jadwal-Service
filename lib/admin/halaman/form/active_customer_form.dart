@@ -117,23 +117,21 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
 
       final pelangganList = (results[0] as List<CustomerModel>)
-        ..sort((final a, final b) =>
-            a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
       final paketList = (results[1] as List<PackageModel>)
-        ..sort((final a, final b) =>
+        ..sort((a, b) =>
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
-      final daftarDompet = (results[2] as List<WalletModel>)
-          .where((final d) => !d.isDeleted)
-          .toList();
+      final daftarDompet =
+          (results[2] as List<WalletModel>).where((d) => !d.isDeleted).toList();
 
       final semuaKategori = results[3] as List<CategoryModel>;
       final kategoriPemasukanList = semuaKategori
-          .where((final k) => k.type == CategoryType.income && !k.isDeleted)
+          .where((k) => k.type == CategoryType.income && !k.isDeleted)
           .toList();
       final kategoriPengeluaranList = semuaKategori
-          .where((final k) => k.type == CategoryType.expense && !k.isDeleted)
+          .where((k) => k.type == CategoryType.expense && !k.isDeleted)
           .toList();
 
       final transaksiTerkait =
@@ -244,13 +242,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<void> _selectTime(final BuildContext context) async {
+  Future<void> _selectTime(BuildContext context) async {
     Log.info('Memilih waktu, saat ini: $_selectedTime');
     final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
       context: context,
       initialTime: initial,
-      builder: (final context, final child) => MediaQuery(
+      builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
     );
@@ -516,7 +514,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         ]),
         Switch(
             value: _gunakanPoin,
-            onChanged: (final value) {
+            onChanged: (value) {
               setState(() {
                 _gunakanPoin = value;
                 Log.info(
@@ -539,9 +537,9 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
       initialValue: _selectedPelanggan,
       items: _pelangganList
-          .map((final p) => DropdownMenuItem(value: p, child: Text(p.name)))
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
-      onChanged: (final newValue) async {
+      onChanged: (newValue) async {
         if (newValue == null) {
           return;
         }
@@ -555,7 +553,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           });
         }
       },
-      validator: (final v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
+      validator: (v) => v == null ? 'Pelanggan tidak boleh kosong' : null,
     );
   }
 
@@ -566,13 +564,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Paket', border: OutlineInputBorder()),
       initialValue: _selectedPaket,
       items: _paketList
-          .map((final p) => DropdownMenuItem(value: p, child: Text(p.name)))
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
-      onChanged: (final newValue) {
+      onChanged: (newValue) {
         Log.info('Paket dipilih: id=${newValue?.id} nama=${newValue?.name}');
         setState(() => _selectedPaket = newValue);
       },
-      validator: (final v) => v == null ? 'Paket tidak boleh kosong' : null,
+      validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
     );
   }
 
@@ -583,13 +581,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
       initialValue: _selectedDompet,
       items: _daftarDompet
-          .map((final d) => DropdownMenuItem(value: d, child: Text(d.name)))
+          .map((d) => DropdownMenuItem(value: d, child: Text(d.name)))
           .toList(),
-      onChanged: (final newValue) {
+      onChanged: (newValue) {
         Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.name}');
         setState(() => _selectedDompet = newValue);
       },
-      validator: (final v) => v == null ? 'Dompet tidak boleh kosong' : null,
+      validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,
     );
   }
 
@@ -600,13 +598,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),
       initialValue: _selectedKategori,
       items: _kategoriList
-          .map((final k) => DropdownMenuItem(value: k, child: Text(k.name)))
+          .map((k) => DropdownMenuItem(value: k, child: Text(k.name)))
           .toList(),
-      onChanged: (final newValue) {
+      onChanged: (newValue) {
         Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.name}');
         setState(() => _selectedKategori = newValue);
       },
-      validator: (final v) => v == null ? 'Kategori tidak boleh kosong' : null,
+      validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
     );
   }
 
@@ -698,7 +696,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         const TeksBodySedang('Bonus'),
         Switch(
           value: _isBonus,
-          onChanged: (final value) {
+          onChanged: (value) {
             setState(() {
               _isBonus = value;
               Log.info('Status bonus diubah: $_isBonus');
@@ -745,13 +743,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
-                items: DurationType.values.map((final type) {
+                items: DurationType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
                     child: Text(type.displayName),
                   );
                 }).toList(),
-                onChanged: (final newValue) {
+                onChanged: (newValue) {
                   if (newValue != null) {
                     setState(() {
                       _bonusDurationType = newValue;
