@@ -220,6 +220,10 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
                 'Masa Aktif Berakhir',
                 FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
               ),
+            if (transaction.durasiBonus! > 0 &&
+                transaction.durasiBonusType != null)
+              _buildDetailRow('Bonus',
+                  '${transaction.durasiBonus} ${transaction.durasiBonusType?.displayName}')
           ],
         ),
       ),

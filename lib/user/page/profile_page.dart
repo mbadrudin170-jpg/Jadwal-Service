@@ -278,6 +278,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               .toUpperCase(),
           valueColor: paymentStatusColor,
         ),
+        if (lastSubscription.durasiBonus! > 0 &&
+            lastSubscription.durasiBonusType != null)
+          _InfoItem(
+            icon: Icon(TIcons.reward),
+            label: 'Bonus',
+            value:
+                '${lastSubscription.durasiBonus} ${lastSubscription.durasiBonusType!.displayName}',
+          )
       ],
     );
   }

@@ -342,7 +342,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                     icon: const Icon(TIcons.filter),
                     onPressed: _showSortDialog),
                 IconButton(
-                    icon: const Icon(TIcons.settings),
+                    icon: const Icon(TIcons.delete),
                     onPressed: _advancedOptions),
               ],
       ),

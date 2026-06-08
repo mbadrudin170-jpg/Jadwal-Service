@@ -103,7 +103,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                         '${package?.duration ?? 0} ${package?.type.displayName ?? ""}'),
                   ],
                 ),
-gapH16,
+                gapH16,
                 // CARD 3: POIN TRANSAKSI
                 if (transaction.earnedPoints > 0 ||
                     transaction.usedPoints > 0) ...[

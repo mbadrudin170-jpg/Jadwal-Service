@@ -64,6 +64,10 @@ class TransactionDetailPage extends StatelessWidget {
               'Poin digunakan:',
               transaction.usedPoints.toString(),
             ),
+            if (transaction.durasiBonus! > 0 &&
+                transaction.durasiBonusType != null)
+              _buildInfoRow('Bonus',
+                  '${transaction.durasiBonus} ${transaction.durasiBonusType!.displayName}')
           ],
         ),
       ),

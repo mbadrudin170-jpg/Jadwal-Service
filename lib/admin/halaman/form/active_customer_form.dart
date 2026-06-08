@@ -189,7 +189,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (transaksi.durasiBonus != null && transaksi.durasiBonus! > 0) {
         _isBonus = true;
         _bonusDurationController.text = transaksi.durasiBonus.toString();
-        _bonusDurationType = transaksi.durasiBonusType ?? DurationType.minutes;
+        _bonusDurationType = transaksi.durasiBonusType ?? DurationType.hours;
       }
     } else {
       Log.warning(
