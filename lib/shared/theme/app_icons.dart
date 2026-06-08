@@ -282,5 +282,13 @@ class TIcons {
 
   /// Ikon untuk pengecekan jaringan.
   static const IconData networkCheck = Icons.network_check_rounded;
- static const IconData timerOutlined= Icons.timer_outlined;
+
+  /// Ikon untuk input durasi waktu.
+  static const IconData timerOutlined = Icons.timer_outlined;
+
+  /// Ikon untuk fitur bonus atau hadiah tambahan.
+  static const IconData bonus = Icons.card_giftcard;
+
+  /// Ikon untuk reward atau penghargaan pelanggan.
+  static const IconData reward = Icons.workspace_premium;
 }

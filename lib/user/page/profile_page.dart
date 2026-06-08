@@ -219,8 +219,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  // DIUBAH: Method ini sekarang menjadi sinkron dan hanya bertanggung jawab membangun UI
-  // dari data yang sudah siap, bukan lagi melakukan fetching.
   Widget _buildActivePackageDetails(
     BuildContext context,
     TransactionModel? lastSubscription,
@@ -281,11 +279,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         if (lastSubscription.durasiBonus! > 0 &&
             lastSubscription.durasiBonusType != null)
           _InfoItem(
-            icon: Icon(TIcons.reward),
-            label: 'Bonus',
-            value:
-                '${lastSubscription.durasiBonus} ${lastSubscription.durasiBonusType!.displayName}',
-          )
+              icon: TIcons.bonus,
+              label: 'Bonus',
+              value:
+                  '${lastSubscription.durasiBonus} ${lastSubscription.durasiBonusType!.displayName}')
       ],
     );
   }
