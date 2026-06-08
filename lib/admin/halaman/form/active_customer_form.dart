@@ -352,16 +352,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .addTransaction(transaksiData);
       }
       ref.invalidate(activeCustomerProvider);
-      // Menghitung titik tengah durasi untuk notifikasi 50%
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan =
           Duration(microseconds: (totalDurasi.inMicroseconds / 2).round());
       final tanggalNotifikasiSetengahJalan =
           tanggalMulai.add(durasiSetengahJalan);
 
-      // Membuat daftar notifikasi untuk 50%, H-1, Hari H, dan H+1
       final List<NotifikasiModel> daftarNotifikasi = [
-        // Notifikasi 50% masa aktif
         NotifikasiModel(
           id: const Uuid().v4(),
           startDate: tanggalMulai,
@@ -375,7 +372,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
-        // H-1: Besok kedaluwarsa
         NotifikasiModel(
           id: const Uuid().v4(),
           startDate: tanggalMulai,
@@ -389,7 +385,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
-        // Hari H: Hari ini kedaluwarsa
         NotifikasiModel(
           id: const Uuid().v4(),
           startDate: tanggalMulai,
@@ -403,7 +398,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
         ),
-        // H+1: Kemarin kedaluwarsa
         NotifikasiModel(
           id: const Uuid().v4(),
           startDate: tanggalMulai,
@@ -422,6 +416,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       for (final notif in daftarNotifikasi) {
         notifikasiOpFirebase.add(notif);
       }
+
       final internetService = ref.read(internetConnectionServiceProvider);
       final isOnline = await internetService.checkLocalConnection();
       String successMessage;

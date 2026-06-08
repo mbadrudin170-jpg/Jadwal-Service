@@ -23,13 +23,13 @@ import 'package:wifi/user/providers/user_providers.dart';
 class _ProfileData {
   final CustomerModel customer;
   final int totalPoints;
-  final TransactionModel? lastActiveSubscription;
+  final TransactionModel? paketAktif;
   final PackageModel? packageModel;
 
   _ProfileData({
     required this.customer,
     required this.totalPoints,
-    this.lastActiveSubscription,
+    this.paketAktif,
     this.packageModel,
   });
 }
@@ -112,7 +112,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       return _ProfileData(
         customer: customer,
         totalPoints: totalPoints,
-        lastActiveSubscription: lastSubscription,
+        paketAktif: lastSubscription,
         packageModel: packageModel,
       );
     } on Exception catch (e, st) {
@@ -143,7 +143,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       appBar: AppBar(
         title: const Text('Profil Pelanggan'),
       ),
-      // DIUBAH: Hanya ada satu FutureBuilder utama yang mengelola state loading/error/data.
       body: FutureBuilder<_ProfileData>(
         future: _futureProfileData,
         builder: (context, snapshot) {
@@ -203,7 +202,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   children: [
                     _buildActivePackageDetails(
                       context,
-                      profileData.lastActiveSubscription,
+                      profileData.paketAktif,
                       profileData.packageModel,
                     ),
                   ],

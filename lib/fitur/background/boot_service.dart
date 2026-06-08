@@ -1,10 +1,11 @@
-// path: lib/shared/services/boot_service.dart
+// path: lib/fitur/background/boot_service.dart
+
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/alarm/alarm_scheduler_provider.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 
 const int archiveExpiredId = 999; // ID unik untuk alarm periodik
 const int oneShotArchivedId = 998; // ID unik untuk alarm sekali jalan
@@ -18,7 +19,7 @@ class BootService {
     await alarmScheduler.schedulePeriodic(
       const Duration(hours: 1),
       archiveExpiredId, // ID unik untuk tugas ini
-      BackgroundService.checkAndArchiveExpiredCustomers,
+      BackgroundService.periksaDanArsipkanPelangganKedaluwarsa,
       startAt: DateTime.now().add(const Duration(seconds: 10)), // Mulai setelah 10 detik
       exact: true, // Pastikan alarm berjalan tepat waktu
       wakeup: true, // Bangunkan perangkat jika perlu
@@ -55,7 +56,7 @@ class BootService {
       await alarmScheduler.oneShotAt(
         nearestExpiryDate,
         oneShotArchivedId,
-        BackgroundService.checkAndArchiveExpiredCustomers,
+        BackgroundService.periksaDanArsipkanPelangganKedaluwarsa,
         exact: true,
         wakeup: true,
         rescheduleOnReboot: true,

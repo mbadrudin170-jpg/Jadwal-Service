@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/alarm/alarm_scheduler.dart';
-import 'package:wifi/fitur/alarm/alarm_scheduler_provider.dart';
+import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/background/boot_service.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 
 import 'boot_service_test.mocks.dart';
 
@@ -60,7 +60,7 @@ void main() {
       final verification = verify(mockAlarmScheduler.schedulePeriodic(
         const Duration(hours: 1),
         archiveExpiredId,
-        BackgroundService.checkAndArchiveExpiredCustomers,
+        BackgroundService.periksaDanArsipkanPelangganKedaluwarsa,
         startAt: anyNamed('startAt'),
         exact: true,
         wakeup: true,

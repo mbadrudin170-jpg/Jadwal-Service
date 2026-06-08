@@ -1,13 +1,9 @@
 // path: lib/shared/operasi/sqlite_operasi/active_customer_operation.dart
-// diubah: Mengubah nama tabel menggunakan TableNameValue sesuai migrasi skema v50.
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Mengganti nama class dari PelangganAktifOperasi menjadi ActiveCustomerOperation.
-// diubah: Menggunakan BaseOperation dan ActiveCustomerModel.
-// BARU: Menambahkan fungsi rescheduleAllNotifications untuk dipanggil oleh workmanager.
 
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -16,14 +12,10 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
-/// Konstanta untuk generate UUID.
 const uuid = Uuid();
 
-/// Kelas untuk operasi terkait data pelanggan aktif di database lokal.
 class ActiveCustomerOperation {
-  /// Instance dari DatabaseHelper untuk mengakses database.
   final DatabaseHelper dbHelper;
   final BaseOperation _baseOperation;
   final NotifikasiServis _notifikasiServis;
@@ -32,7 +24,6 @@ class ActiveCustomerOperation {
   final String _customerTableName = TableNameValue.get(TableName.customer);
   final String _packageTableName = TableNameValue.get(TableName.package);
 
-  /// Mengambil waktu UTC sekarang secara dinamis agar tidak basi (stale).
   DateTime get _nowUtc => DateTime.now().toUtc();
 
   ActiveCustomerOperation({
@@ -46,16 +37,9 @@ class ActiveCustomerOperation {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 
-  // ==========================================================================
-  // FUNGSI BARU UNTUK WORKMANAGER
-  // ==========================================================================
-
-  /// MENJADWAL ULANG SEMUA NOTIFIKASI UNTUK SEMUA PELANGGAN AKTIF.
-  /// Ini adalah fungsi "pemulihan" yang akan dipanggil oleh workmanager.
   Future<void> rescheduleAllNotifications() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      // 1. Dapatkan semua pelanggan yang statusnya masih aktif.
       final List<ActiveCustomerModel> allActiveCustomers =
           await getAllActiveCustomers();
 
@@ -67,9 +51,7 @@ class ActiveCustomerOperation {
       Log.info(
           'Ditemukan ${allActiveCustomers.length} pelanggan aktif. Menjadwalkan ulang satu per satu...');
 
-      // 2. Lakukan perulangan untuk setiap pelanggan aktif.
       for (final activeCustomer in allActiveCustomers) {
-        // 3. Panggil kembali fungsi penjadwalan yang sudah ada.
         await scheduleNotification(activeCustomer);
       }
 
@@ -80,12 +62,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  // ==========================================================================
-  // OPERASI CRUD
-  // ==========================================================================
-
-  /// Mengambil semua pelanggan aktif dengan detail nama pelanggan dan nama paket
-  /// yang masa aktifnya belum berakhir.
   Future<List<ActiveCustomerDetailModel>>
       getAllActiveCustomersWithDetails() async {
     final db = await dbHelper.database;
@@ -129,7 +105,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Membuat [ActiveCustomerModel] baru di database.
   Future<ActiveCustomerModel> createActiveCustomer(
     final ActiveCustomerModel activeCustomer, {
     final bool fromServer = false,
@@ -155,7 +130,6 @@ class ActiveCustomerOperation {
         fromServer: fromServer,
       );
 
-      // Panggil penjadwalan
       await scheduleNotification(customerToSave);
 
       Log.info('Active customer ID: $newId berhasil dibuat di $_tableName');
@@ -166,7 +140,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengambil semua pelanggan aktif (tidak diarsipkan).
   Future<List<ActiveCustomerModel>> getAllActiveCustomers() async {
     try {
       final db = await dbHelper.database;
@@ -189,7 +162,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengambil [ActiveCustomerModel] berdasarkan [id].
   Future<ActiveCustomerModel?> getActiveCustomerById(final String id) async {
     try {
       final db = await dbHelper.database;
@@ -215,7 +187,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Memperbarui [ActiveCustomerModel] yang ada di database.
   Future<ActiveCustomerModel> updateActiveCustomer(
     final ActiveCustomerModel activeCustomer, {
     final bool fromServer = false,
@@ -240,10 +211,9 @@ class ActiveCustomerOperation {
         fromServer: fromServer,
       );
 
-      // Panggil penjadwalan
       await scheduleNotification(customerToSave);
-
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
+
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error('Gagal memperbarui active customer ID: ${activeCustomer.id}',
@@ -252,8 +222,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Menjadwalkan notifikasi untuk [ActiveCustomerModel].
-  /// DIUBAH: Dibuat menjadi public agar bisa dipanggil oleh rescheduleAllNotifications.
   Future<void> scheduleNotification(
       final ActiveCustomerModel activeCustomer) async {
     try {
@@ -264,12 +232,12 @@ class ActiveCustomerOperation {
           await _customerOperation.getById(activeCustomer.customerId);
       final customerName = customer?.name ?? 'Tanpa Nama';
 
-      // Batalkan notifikasi lama untuk mencegah duplikat jika jadwal diperbarui
       await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
       await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
       await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
+      Log.info(
+          'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi');
 
-      // 1. NOTIFIKASI TEPAT SAAT BERAKHIR
       final exactTime = activeCustomer.endDate;
       if (exactTime.isAfter(DateTime.now())) {
         await _notifikasiServis.jadwalNotifikasi(
@@ -280,7 +248,6 @@ class ActiveCustomerOperation {
         );
       }
 
-      // 2. NOTIFIKASI H-1
       final h1Schedule =
           activeCustomer.endDate.subtract(const Duration(days: 1));
       if (h1Schedule.isAfter(DateTime.now())) {
@@ -292,7 +259,6 @@ class ActiveCustomerOperation {
         );
       }
 
-      // 3. NOTIFIKASI H-3
       final h3Schedule =
           activeCustomer.endDate.subtract(const Duration(days: 3));
       if (h3Schedule.isAfter(DateTime.now())) {
@@ -313,7 +279,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [ActiveCustomerModel] dalam satu batch.
   Future<void> insertOrUpdateBatch(
     final List<ActiveCustomerModel> items, {
     final bool fromServer = false,
@@ -342,7 +307,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengarsipkan [ActiveCustomerModel] berdasarkan [id].
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -371,10 +335,10 @@ class ActiveCustomerOperation {
             whereArgs: [id],
           );
 
-          // Batalkan notifikasi saat pelanggan diarsipkan
           await _notifikasiServis.batalNotifikasi(id.hashCode);
           await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
           await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
+          Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
         },
         fromServer: fromServer,
       );
@@ -386,9 +350,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  // ... (sisa fungsi lainnya tetap sama)
-
-  /// Menghapus permanen pelanggan yang sudah diarsipkan lebih dari 30 hari.
   Future<void> permanentlyDeleteArchivedCustomers({
     final bool fromServer = false,
   }) async {
@@ -432,7 +393,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengarsipkan pelanggan yang sudah kadaluarsa.
   Future<int> archiveExpiredCustomers({bool fromServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
@@ -485,7 +445,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengarsipkan semua pelanggan aktif.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA active customer');
@@ -529,7 +488,6 @@ class ActiveCustomerOperation {
     }
   }
 
-  /// Mengambil beberapa [ActiveCustomerModel] berdasarkan daftar [ids].
   Future<List<ActiveCustomerModel>> getActiveCustomersByIds(
     final List<String> ids,
   ) async {

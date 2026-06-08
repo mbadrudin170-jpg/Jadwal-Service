@@ -1,10 +1,13 @@
 // path: lib/shared/services/alarm/android_alarm_scheduler.dart
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/alarm/alarm_scheduler.dart';
 
-/// Implementasi dari [AlarmScheduler] menggunakan paket `android_alarm_manager_plus`.
+final alarmSchedulerProvider = Provider<AlarmScheduler>((ref) {
+  return AndroidAlarmScheduler();
+});
+
 class AndroidAlarmScheduler implements AlarmScheduler {
-  /// Inisialisasi AndroidAlarmManager.
   Future<void> initialize() async {
     await AndroidAlarmManager.initialize();
   }

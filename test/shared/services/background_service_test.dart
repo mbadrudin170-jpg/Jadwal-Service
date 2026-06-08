@@ -143,7 +143,7 @@ void main() {
     test(
       '2. registerPeriodicSync() berhasil mendaftarkan tugas sinkronisasi',
       () async {
-        await BackgroundService.registerPeriodicSync();
+        await BackgroundService.daftarSinkronisasiPeriodik();
 
         final registerCall =
             mockWorkmanagerPlatform.methodCalls['registerPeriodicTask']!.first;
@@ -152,17 +152,17 @@ void main() {
       },
     );
 
-    test('3. cancelAllTasks() berhasil membatalkan semua tugas', () async {
-      await BackgroundService.cancelAllTasks();
+    test('3. batalkanSemuaTugas() berhasil membatalkan semua tugas', () async {
+      await BackgroundService.batalkanSemuaTugas();
 
       expect(mockWorkmanagerPlatform.methodCalls['cancelAll']!.first.method,
           'cancelAll');
     });
 
     test(
-        '4. registerPeriodicReschedule() harus mendaftarkan tugas dengan benar',
+        '4. daftarPenjadwalanUlangPeriodik() harus mendaftarkan tugas dengan benar',
         () async {
-      await BackgroundService.registerPeriodicReschedule();
+      await BackgroundService.daftarPenjadwalanUlangPeriodik();
 
       final registerCalls =
           mockWorkmanagerPlatform.methodCalls['registerPeriodicTask'];
