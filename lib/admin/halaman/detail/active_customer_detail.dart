@@ -13,6 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
@@ -38,6 +39,7 @@ class _ActiveCustomerDetailPageState
   late ActiveCustomerModel _activeCustomer;
   CustomerModel? _customer;
   PackageModel? _package;
+  TransactionModel? _transaction;
   bool _isLoading = true;
 
   @override
@@ -90,7 +92,9 @@ class _ActiveCustomerDetailPageState
 
     final customerOperation = ref.read(customerOperationProvider);
     final packageOperation = ref.read(packageOperationProvider);
+    final transactionOperation = ref.read(transactionOperationProvider);
     final packageId = _activeCustomer.packageId;
+    final transactionId = _activeCustomer.transactionId;
 
     try {
       final results = await Future.wait<dynamic>([
@@ -99,16 +103,22 @@ class _ActiveCustomerDetailPageState
           packageOperation.getById(packageId)
         else
           Future<PackageModel?>.value(),
+        if (transactionId != null && transactionId.isNotEmpty)
+          transactionOperation.getTransactionById(transactionId)
+        else
+          Future<TransactionModel?>.value(),
       ]);
 
       if (mounted) {
         setState(() {
           _customer = results[0] as CustomerModel?;
           _package = results.length > 1 ? results[1] as PackageModel? : null;
+          _transaction =
+              results.length > 2 ? results[2] as TransactionModel? : null;
           _isLoading = false;
         });
         Log.info(
-            'Detail pelanggan berhasil dimuat. Customer: ${_customer?.name}, Paket: ${_package?.name}');
+            'Detail pelanggan berhasil dimuat. Customer: ${_customer?.name}, Paket: ${_package?.name}, Transaksi: ${_transaction?.id}');
       }
     } on Exception catch (e, s) {
       Log.error('Gagal memuat detail pelanggan aktif', e: e, st: s);
@@ -242,6 +252,12 @@ class _ActiveCustomerDetailPageState
                               _buildInfoRow(
                                 'Poin Diperoleh',
                                 '${_package!.rewardPoints} Poin',
+                              ),
+                            if (_transaction != null &&
+                                (_transaction!.durasiBonus ?? 0) > 0)
+                              _buildInfoRow(
+                                'Bonus',
+                                '${_transaction!.durasiBonus} ${_transaction!.durasiBonusType?.displayName ?? ""}',
                               ),
                             _buildInfoRow(
                               'Mulai',
