@@ -20,9 +20,6 @@ import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-// PENJELASAN: Kelas ini dibuat untuk menampung semua data yang dibutuhkan oleh halaman profil.
-// Tujuannya adalah memuat semua data ini dalam satu operasi asynchronous,
-// lalu membangun UI sekali jalan untuk menghindari render berulang.
 class _ProfileData {
   final CustomerModel customer;
   final int totalPoints;

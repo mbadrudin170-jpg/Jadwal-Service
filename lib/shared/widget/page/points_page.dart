@@ -132,9 +132,12 @@ class _PointsPageState extends ConsumerState<PointsPage> {
 
         final orderOperation = ref.read(orderOperationProvider);
         orderOperation.saveOrder(orderData);
+        Log.info(
+            'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
 
         final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
         notifikasiOp.add(notifikasiData);
+        Log.info('berhasil membuat notifikasi untuk paket');
 
         ref.invalidate(pointsPageDataProvider);
         ref.invalidate(pointsHistoryProvider);
@@ -144,6 +147,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         if (isConnected) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();
+          Log.info('internet ada jadi melakukan sinkronisasi');
         }
 
         if (!mounted) return;
