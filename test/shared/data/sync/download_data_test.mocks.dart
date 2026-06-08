@@ -13,12 +13,12 @@ import 'package:firebase_core/firebase_core.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i28;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
 import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
 import 'package:wifi/shared/model/category_model.dart' as _i3;
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/model/package_model.dart' as _i16;
 import 'package:wifi/shared/model/wallet_model.dart' as _i12;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'

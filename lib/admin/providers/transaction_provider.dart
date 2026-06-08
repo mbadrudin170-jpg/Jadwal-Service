@@ -157,7 +157,7 @@ class Transaction extends _$Transaction {
       await _operation.softDeleteAll();
       ref.invalidate(walletProvider);
       ref.invalidate(statistikProvider);
-      return _loadData(SortBy.newest); // Reset ke newest jika semua dihapus
+      return _loadData(SortBy.newest);
     });
   }
 

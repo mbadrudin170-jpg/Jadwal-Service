@@ -29,9 +29,7 @@ enum UrutanPelanggan {
 /// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(CustomerModel, int)>>>((ref) {
-  // Watch state data mentah tuple dari pelanggan_provider.dart
   final customerListAsync = ref.watch(customerListProvider);
-  // Watch state pencarian dan sorting modern
   final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
   final sortOption = ref.watch(urutanPelangganStateProvider);
 

@@ -1,10 +1,9 @@
 // path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-// Penting: Import enum UrutanPelanggan dari file UI agar provider mengenalnya
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 

@@ -106,12 +106,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
           icon: const Icon(TIcons.filter),
           tooltip: 'Urutkan',
         ),
-        // Tombol Refresh
-        IconButton(
-          onPressed: () => ref.read(transactionProvider.notifier).refresh(),
-          icon: const Icon(TIcons.refresh),
-          tooltip: 'Refresh Data',
-        ),
+
         // Tombol Hapus Semua
         IconButton(
           onPressed: () => _deleteAllTransactions(context, ref),
@@ -183,6 +178,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
   if ((confirmed ?? false) && context.mounted) {
     try {
       await ref.read(transactionProvider.notifier).softDeleteAll();
+      
       ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);

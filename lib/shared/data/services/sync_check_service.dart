@@ -47,7 +47,6 @@ class SyncCheckService {
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
       await _updateGlobalStatus();
     }
-
     Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
   }
 

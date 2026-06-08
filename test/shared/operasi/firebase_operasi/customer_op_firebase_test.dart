@@ -2,10 +2,10 @@
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 
@@ -18,7 +18,8 @@ void main() {
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
     baseOpFirebase = BaseOpFirebase(firestore: fakeFirestore);
-    customerOpFirebase = CustomerOpFirebase(firestore: fakeFirestore, baseOp: baseOpFirebase);
+    customerOpFirebase =
+        CustomerOpFirebase(firestore: fakeFirestore, baseOp: baseOpFirebase);
   });
 
   // Data model pelanggan untuk digunakan dalam tes
@@ -50,7 +51,8 @@ void main() {
     test('2.1. harus bisa membuat pelanggan baru', () async {
       await customerOpFirebase.createCustomer(c1);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
       expect(snapshot.data()![ColumnNames.name], c1.name);
     });
@@ -61,7 +63,8 @@ void main() {
 
       await customerOpFirebase.updateCustomer(updatedCustomer);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()![ColumnNames.name], 'Pelanggan Satu (Updated)');
     });
 
@@ -69,7 +72,8 @@ void main() {
       await customerOpFirebase.createCustomer(c1);
       await customerOpFirebase.softDeleteCustomer(c1.id);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
       expect(snapshot.data()![ColumnNames.isDeleted], isTrue);
     });
@@ -78,15 +82,18 @@ void main() {
       await customerOpFirebase.createCustomer(c1);
       await customerOpFirebase.deleteCustomer(c1.id);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isFalse);
     });
 
-    test('2.5. harus bisa memperbarui waktu terakhir aktif (last active)', () async {
+    test('2.5. harus bisa memperbarui waktu terakhir aktif (last active)',
+        () async {
       await customerOpFirebase.createCustomer(c1);
       await customerOpFirebase.updateLastActive(c1.id);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()![ColumnNames.lastActiveAt], isNotNull);
     });
 
@@ -95,30 +102,37 @@ void main() {
       await customerOpFirebase.createCustomer(c1);
       await customerOpFirebase.saveFcmToken(c1.id, newToken);
 
-      final snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()!['fcmToken'], newToken);
     });
 
-    test('2.7. tidak boleh menyimpan FCM token jika null atau kosong', () async {
+    test('2.7. tidak boleh menyimpan FCM token jika null atau kosong',
+        () async {
       const initialToken = 'token-awal';
       await customerOpFirebase.createCustomer(c1);
       // Simpan token awal terlebih dahulu
       await customerOpFirebase.saveFcmToken(c1.id, initialToken);
-      var snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      var snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()!['fcmToken'], initialToken);
 
       // Test dengan token null, seharusnya tidak berubah
       await customerOpFirebase.saveFcmToken(c1.id, null);
-      snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()!['fcmToken'], initialToken);
 
       // Test dengan token kosong, seharusnya tidak berubah
       await customerOpFirebase.saveFcmToken(c1.id, '');
-      snapshot = await fakeFirestore.collection(customerCollection).doc(c1.id).get();
+      snapshot =
+          await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.data()!['fcmToken'], initialToken);
     });
 
-    test('2.8. harus bisa mendapatkan semua pelanggan yang tidak di-soft-delete', () async {
+    test(
+        '2.8. harus bisa mendapatkan semua pelanggan yang tidak di-soft-delete',
+        () async {
       await customerOpFirebase.createCustomer(c1);
       await customerOpFirebase.createCustomer(c2); // isDeleted = true
       await customerOpFirebase.createCustomer(c3);
@@ -131,7 +145,8 @@ void main() {
       expect(customers.any((c) => c.id == c2.id), isFalse);
     });
 
-    test('2.9. harus bisa mendapatkan data pelanggan sekali (one-time fetch)', () async {
+    test('2.9. harus bisa mendapatkan data pelanggan sekali (one-time fetch)',
+        () async {
       await customerOpFirebase.createCustomer(c1);
 
       final customer = await customerOpFirebase.getCustomerOnce(c1.id);
@@ -141,7 +156,9 @@ void main() {
       expect(customer.name, c1.name);
     });
 
-    test('2.10. harus mengembalikan null jika pelanggan tidak ditemukan (one-time fetch)', () async {
+    test(
+        '2.10. harus mengembalikan null jika pelanggan tidak ditemukan (one-time fetch)',
+        () async {
       final customer = await customerOpFirebase.getCustomerOnce('id-tidak-ada');
       expect(customer, isNull);
     });

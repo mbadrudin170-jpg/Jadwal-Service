@@ -4,14 +4,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/poin/points_page_providers.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
@@ -103,53 +105,43 @@ class _PointsPageState extends ConsumerState<PointsPage> {
     if (confirmed ?? false) {
       Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
       try {
+        final customerOp = ref.read(customerOperationProvider);
+        final dataPelangan = await customerOp.getById(widget.customerId);
+
         final now = DateTime.now();
-        final endDate = CalculationUtil.hitungTanggalBerakhir(now, reward);
+        final idOrder = const Uuid().v4();
 
-        final transactionId = const Uuid().v4();
-        final activeCustomerId = const Uuid().v4();
+        final orderData = OrderModel(
+            id: idOrder,
+            customerId: widget.customerId,
+            packageId: reward.id,
+            date: now,
+            status: StatusOrderEnum.baru);
 
-        final activeCustomer = ActiveCustomerModel(
-          id: activeCustomerId,
-          customerId: widget.customerId,
-          packageId: reward.id,
-          startDate: now,
-          endDate: endDate,
-          status: PaymentStatus.paid,
-          transactionId: transactionId,
-        );
+        final notifikasiData = NotifikasiModel(
+            startDate: now,
+            endDate: now,
+            tanggalTampil: now,
+            title: 'Order Paket',
+            description: 'pelanggan ${dataPelangan?.name} melakukan order',
+            type: TipeNotifikasiEnum.order,
+            updatedAt: now,
+            idTujuan: idOrder,
+            userId: widget.customerId);
 
-        final transaction = TransactionModel(
-          id: transactionId,
-          description: 'Tukar Poin: ${reward.name}',
-          type: TransactionType.income,
-          date: now,
-          packageId: reward.id,
-          walletId: '',
-          categoryId: '',
-          amount: reward.price.toDouble(),
-          customerId: widget.customerId,
-          durationType: reward.type,
-          packageDuration: reward.duration,
-          startDate: now,
-          paymentStatus: PaymentStatus.paid,
-          subCategoryId: '',
-          usedPoints: reward.redemptionPoints,
-          endDate: endDate,
-        );
-
-        final transactionOp = ref.read(transactionOpFirebaseProvider);
-        final activeCustomerOp = ref.read(activeCustomerOpFirebaseProvider);
-
-        await activeCustomerOp.setActiveCustomer(activeCustomer);
-        Log.info('Menyimpan transaksi baru untuk tukar poin', transaction);
-        await transactionOp.addTransaction(transaction);
-        Log.info(
-            'Menyimpan active customer baru untuk tukar poin', activeCustomer);
+        final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
+        final orderOperation = ref.read(orderOperationProvider);
+        await orderOperation.saveOrder(orderData);
+        notifikasiOp.add(notifikasiData);
 
         ref.invalidate(pointsPageDataProvider);
         ref.invalidate(pointsHistoryProvider);
-
+        final cekKoneksi = ref.read(internetConnectionServiceProvider);
+        final isConnected = await cekKoneksi.checkLocalConnection();
+        if (isConnected) {
+          final syncCheckService = ref.read(syncCheckServiceProvider);
+          syncCheckService.runSyncCheck();
+        }
         if (!mounted) return;
         ToastUtil.success(context, '${reward.name} berhasil ditukar!');
       } on Exception catch (e, st) {
