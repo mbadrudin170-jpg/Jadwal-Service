@@ -494,6 +494,46 @@ final class NotifikasiOpFirebaseProvider extends $FunctionalProvider<
 String _$notifikasiOpFirebaseHash() =>
     r'489e388fa84e197606c8be3132176f01addc564c';
 
+@ProviderFor(orderOpFirebase)
+final orderOpFirebaseProvider = OrderOpFirebaseProvider._();
+
+final class OrderOpFirebaseProvider extends $FunctionalProvider<OrderOpFirebase,
+    OrderOpFirebase, OrderOpFirebase> with $Provider<OrderOpFirebase> {
+  OrderOpFirebaseProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'orderOpFirebaseProvider',
+          isAutoDispose: false,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$orderOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<OrderOpFirebase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  OrderOpFirebase create(Ref ref) {
+    return orderOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OrderOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OrderOpFirebase>(value),
+    );
+  }
+}
+
+String _$orderOpFirebaseHash() => r'91a84983dc0ee49d1317fca190b73daaf5369c6d';
+
 @ProviderFor(activeNotificationsStream)
 final activeNotificationsStreamProvider = ActiveNotificationsStreamProvider._();
 

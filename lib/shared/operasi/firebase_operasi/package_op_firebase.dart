@@ -55,6 +55,23 @@ class PackageOpFirebase {
     }
   }
 
+  /// Mengambil data paket secara real-time berdasarkan ID.
+  Stream<PackageModel?> getPackageStreamById(final String packageId) {
+    Log.info('Memulai stream untuk paket ID: $packageId');
+    return _collection.doc(packageId).snapshots().map((final snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data()! as Map<String, dynamic>;
+        Log.info('Data paket diperbarui dari stream: $packageId');
+        return PackageModel.fromFirebase(snapshot.id, data);
+      }
+      Log.warning('Paket ID $packageId tidak ditemukan di stream.');
+      return null;
+    }).handleError((final Object e, final StackTrace s) {
+      Log.error('Error pada stream paket ID: $packageId', e: e, st: s);
+      return null;
+    });
+  }
+
   Future<void> deletePackage(final String packageId) async {
     Log.warning('Memulai penghapusan permanen paket di Firestore: $packageId');
     try {

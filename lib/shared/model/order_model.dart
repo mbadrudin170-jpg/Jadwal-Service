@@ -1,5 +1,4 @@
 // path: lib/shared/model/order_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -7,35 +6,19 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
+import 'package:wifi/shared/utils/parser_util.dart';
 
-/// Model for order data.
 class OrderModel implements HasId {
   @override
   final String id;
-
-  /// The ID of the customer who placed the order.
   final String customerId;
-
-  /// The ID of the package ordered.
   final String packageId;
-
-  /// The date the order was created.
   final DateTime date;
-
-  /// The status of the order (e.g., "new", "processing", "completed").
   final StatusOrderEnum status;
-
-  /// The last time the data was updated.
   final DateTime? updatedAt;
-
-  /// The status of whether this order has been deleted (soft delete).
   final bool isDeleted;
-
-  /// The time this order was archived.
   final DateTime? archivedAt;
 
-  /// Constructor for `OrderModel`.
   OrderModel({
     final String? id,
     required this.customerId,
@@ -49,7 +32,6 @@ class OrderModel implements HasId {
     Log.info('OrderModel created: $id for customer $customerId');
   }
 
-  /// Creates a copy of `OrderModel` with some modified values.
   OrderModel copyWith({
     final String? id,
     final String? customerId,
@@ -72,7 +54,6 @@ class OrderModel implements HasId {
     );
   }
 
-  /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
     final dynamic name,
@@ -88,16 +69,13 @@ class OrderModel implements HasId {
     Log.warning('Failed to parse enum for type $T', name);
     return null;
   }
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
-  /// Creates an `OrderModel` instance from SQLite map data.
   factory OrderModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating OrderModel from SQLite: ${map[ColumnNames.id]}');
     return OrderModel(
       id: map[ColumnNames.id] as String? ?? '',
       customerId: map[ColumnNames.customerId] as String? ?? '',
       packageId: map[ColumnNames.packageId] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
       date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
       status: _safeParseEnum(StatusOrderEnum.values, map[ColumnNames.status]) ??
           StatusOrderEnum.baru,
@@ -107,7 +85,6 @@ class OrderModel implements HasId {
     );
   }
 
-  /// Converts `OrderModel` to a Map format for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       ColumnNames.id: id,
@@ -122,7 +99,6 @@ class OrderModel implements HasId {
     };
   }
 
-  /// Creates an `OrderModel` instance from Firebase map data.
   factory OrderModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating OrderModel from Firebase: $id');
@@ -140,7 +116,6 @@ class OrderModel implements HasId {
     );
   }
 
-  /// Converts `OrderModel` to a Map format for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       ColumnNames.id: id,

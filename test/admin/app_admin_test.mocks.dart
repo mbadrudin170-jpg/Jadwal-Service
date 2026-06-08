@@ -13,6 +13,8 @@ import 'package:mockito/src/dummies.dart' as _i21;
 import 'package:shared_preferences/shared_preferences.dart' as _i6;
 import 'package:sqflite/sqflite.dart' as _i5;
 import 'package:wifi/admin/data/sqlite.dart' as _i3;
+import 'package:wifi/fitur/background/background_service.dart' as _i16;
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i9;
 import 'package:wifi/shared/data/services/sync_check_service.dart' as _i20;
 import 'package:wifi/shared/data/sync/initial_download.dart' as _i11;
 import 'package:wifi/shared/data/sync/upload_data.dart' as _i19;
@@ -26,9 +28,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
     as _i15;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
     as _i14;
-import 'package:wifi/fitur/background/background_service.dart' as _i16;
 import 'package:wifi/shared/services/internet_connection_check.dart' as _i8;
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i9;
 import 'package:wifi/user/services/storage/local_storage_service.dart' as _i17;
 
 // ignore_for_file: type=lint

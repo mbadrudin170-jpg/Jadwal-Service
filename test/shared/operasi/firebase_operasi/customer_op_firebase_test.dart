@@ -49,7 +49,7 @@ void main() {
 
   group('2. Pengujian CustomerOpFirebase', () {
     test('2.1. harus bisa membuat pelanggan baru', () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
 
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('2.2. harus bisa memperbarui data pelanggan', () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       final updatedCustomer = c1.copyWith(name: 'Pelanggan Satu (Updated)');
 
       await customerOpFirebase.updateCustomer(updatedCustomer);
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('2.3. harus bisa melakukan soft delete pada pelanggan', () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       await customerOpFirebase.softDeleteCustomer(c1.id);
 
       final snapshot =
@@ -79,7 +79,7 @@ void main() {
     });
 
     test('2.4. harus bisa menghapus pelanggan secara permanen', () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       await customerOpFirebase.deleteCustomer(c1.id);
 
       final snapshot =
@@ -89,7 +89,7 @@ void main() {
 
     test('2.5. harus bisa memperbarui waktu terakhir aktif (last active)',
         () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       await customerOpFirebase.updateLastActive(c1.id);
 
       final snapshot =
@@ -99,7 +99,7 @@ void main() {
 
     test('2.6. harus bisa menyimpan FCM token', () async {
       const newToken = 'fcm-token-baru-123';
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       await customerOpFirebase.saveFcmToken(c1.id, newToken);
 
       final snapshot =
@@ -110,7 +110,7 @@ void main() {
     test('2.7. tidak boleh menyimpan FCM token jika null atau kosong',
         () async {
       const initialToken = 'token-awal';
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
       // Simpan token awal terlebih dahulu
       await customerOpFirebase.saveFcmToken(c1.id, initialToken);
       var snapshot =
@@ -133,9 +133,9 @@ void main() {
     test(
         '2.8. harus bisa mendapatkan semua pelanggan yang tidak di-soft-delete',
         () async {
-      await customerOpFirebase.createCustomer(c1);
-      await customerOpFirebase.createCustomer(c2); // isDeleted = true
-      await customerOpFirebase.createCustomer(c3);
+      await customerOpFirebase.addCustomer(c1);
+      await customerOpFirebase.addCustomer(c2); // isDeleted = true
+      await customerOpFirebase.addCustomer(c3);
 
       final customers = await customerOpFirebase.getAllCustomers();
 
@@ -147,7 +147,7 @@ void main() {
 
     test('2.9. harus bisa mendapatkan data pelanggan sekali (one-time fetch)',
         () async {
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
 
       final customer = await customerOpFirebase.getCustomerOnce(c1.id);
 
@@ -165,7 +165,7 @@ void main() {
 
     test('2.11. harus bisa mendapatkan stream data pelanggan', () async {
       // 1. Buat customer dulu
-      await customerOpFirebase.createCustomer(c1);
+      await customerOpFirebase.addCustomer(c1);
 
       // 2. Dapatkan stream-nya
       final stream = customerOpFirebase.getCustomerStream(c1.id);

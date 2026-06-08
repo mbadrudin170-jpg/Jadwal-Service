@@ -35,10 +35,10 @@ class MockCustomerOpFirebase extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> createCustomer(_i4.CustomerModel? customer) =>
+  _i3.Future<void> addCustomer(_i4.CustomerModel? customer) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createCustomer,
+          #addCustomer,
           [customer],
         ),
         returnValue: _i3.Future<void>.value(),

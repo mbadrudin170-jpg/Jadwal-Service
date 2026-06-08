@@ -22,7 +22,7 @@ class PackageNameWidget extends StatelessWidget {
   const PackageNameWidget({super.key, required this.packageFuture, this.style});
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return FutureBuilder<PackageModel?>(
       future: packageFuture,
       builder: (final context, final snapshot) {
@@ -43,14 +43,16 @@ class PackageNameWidget extends StatelessWidget {
           );
           return Text(
             'Error',
-            style: style?.copyWith(color: Colors.red, fontStyle: FontStyle.italic),
+            style:
+                style?.copyWith(color: Colors.red, fontStyle: FontStyle.italic),
           );
         }
 
         if (!snapshot.hasData || snapshot.data == null) {
           return Text(
             'Paket tidak tersedia',
-            style: style?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic),
+            style: style?.copyWith(
+                color: Colors.grey, fontStyle: FontStyle.italic),
           );
         }
 

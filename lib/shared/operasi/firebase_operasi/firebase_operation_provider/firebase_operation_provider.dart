@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
@@ -104,6 +105,15 @@ NotifikasiOpFirebase notifikasiOpFirebase(Ref ref) {
   );
 }
 
+@Riverpod(keepAlive: true)
+OrderOpFirebase orderOpFirebase(Ref ref) {
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return OrderOpFirebase(
+    firestore: firestoreInstance,
+    baseOp: baseOp,
+  );
+}
 @riverpod
 Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
   final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);

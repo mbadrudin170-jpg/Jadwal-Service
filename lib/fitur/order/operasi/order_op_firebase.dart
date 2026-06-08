@@ -12,12 +12,14 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 class OrderOpFirebase extends BaseOpFirebase {
   final BaseOpFirebase _baseOp;
+  final FirebaseFirestore _firestore;
   final String _collectionName = TableNameValue.get(TableName.customerOrder);
 
   OrderOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
-  }) : _baseOp = baseOp {
+  })  : _firestore = firestore,
+        _baseOp = baseOp {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 
@@ -42,7 +44,7 @@ class OrderOpFirebase extends BaseOpFirebase {
   /// 4. Mendapatkan stream semua pesanan
   Stream<List<OrderModel>> getAll() {
     Log.info('Mendapatkan stream semua pesanan');
-    return firestore
+    return _firestore
         .collection(_collectionName)
         .where(ColumnNames.isDeleted, isEqualTo: false)
         .orderBy(ColumnNames.updatedAt, descending: true)
@@ -65,7 +67,7 @@ class OrderOpFirebase extends BaseOpFirebase {
     Log.info('Mendapatkan pesanan by ID: $orderId');
     try {
       final doc =
-          await firestore.collection(_collectionName).doc(orderId).get();
+          await _firestore.collection(_collectionName).doc(orderId).get();
       if (doc.exists) {
         return OrderModel.fromFirebase(doc.id, doc.data()!);
       }
@@ -83,7 +85,8 @@ class OrderOpFirebase extends BaseOpFirebase {
 
   Future<OrderModel?> getByUserId(String userId) async {
     try {
-      final doc = await firestore.collection(_collectionName).doc(userId).get();
+      final doc =
+          await _firestore.collection(_collectionName).doc(userId).get();
       if (doc.exists) {
         return OrderModel.fromFirebase(doc.id, doc.data()!);
       }

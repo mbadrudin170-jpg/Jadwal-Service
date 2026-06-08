@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
+import 'package:wifi/fitur/order/ui/user/order_page_u.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/page/settings_page_user.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
@@ -51,6 +52,7 @@ class _MainPageState extends ConsumerState<MainPage> {
     _pages = [
       const ProfilePage(),
       const SubscriptionHistoryPage(),
+      const UserOrderPage(),
       const SettingsPageUser(),
     ];
     _appLifecycleReactor =
@@ -96,6 +98,10 @@ class _MainPageState extends ConsumerState<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(TIcons.history),
             label: 'Riwayat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(TIcons.personActive),
+            label: 'Pesanan',
           ),
           BottomNavigationBarItem(
             icon: Icon(TIcons.settings),
