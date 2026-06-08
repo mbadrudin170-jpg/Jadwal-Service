@@ -8,6 +8,7 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 
 abstract class IOrderOperation {
@@ -25,12 +26,139 @@ class OrderPage extends ConsumerStatefulWidget {
 class _UserOrderPageState extends ConsumerState<OrderPage> {
   String _filterAktif = StatusOrderEnum.selesai.name;
 
+  Future<bool?> _konfirmasiOpsi(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text('Apakah Anda yakin ingin melanjutkan?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Iya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _ubahStatus(
+    BuildContext context,
+    OrderModel order,
+    WidgetRef ref,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _tombolOpsiUbahStatus(
+                  dialogContext: dialogContext,
+                  label: StatusOrderEnum.selesai.displayName,
+                  order: order,
+                  status: StatusOrderEnum.selesai,
+                ),
+                _tombolOpsiUbahStatus(
+                  dialogContext: dialogContext,
+                  label: StatusOrderEnum.baru.displayName,
+                  order: order,
+                  status: StatusOrderEnum.baru,
+                ),
+                _tombolOpsiUbahStatus(
+                  dialogContext: dialogContext,
+                  label: StatusOrderEnum.diproses.displayName,
+                  order: order,
+                  status: StatusOrderEnum.diproses,
+                ),
+                _tombolOpsiUbahStatus(
+                  dialogContext: dialogContext,
+                  label: StatusOrderEnum.ditolak.displayName,
+                  order: order,
+                  status: StatusOrderEnum.ditolak,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool?> _showDialog(BuildContext context, OrderModel order) {
+    final appRole = ref.watch(appRoleProvider);
+
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (appRole == AppRole.admin)
+                  TextButton(
+                    onPressed: () => _ubahStatus,
+                    child: const Text('Ubah Status'),
+                  ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('Edit'),
+                ),
+                TextButton(
+                  child: const Text('Hapus'),
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+                    if (dikonfirmasi ?? false) {
+                      try {
+                        if (appRole == AppRole.admin) {
+                          await ref
+                              .read(orderOperationProvider)
+                              .softDelete(order.id);
+                        } else {
+                          await ref
+                              .read(orderOpFirebaseProvider)
+                              .softDeleteOrder(order.id);
+                        }
+                        if (context.mounted) {
+                          ToastUtil.success(context, 'Data berhasil dihapus');
+                          Navigator.of(context).pop();
+                        }
+                      } catch (e, st) {
+                        Log.error('Gagal menghapus pesanan', e: e, st: st);
+                        ToastUtil.error(context, 'Gagal menghapus pesanan');
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRole = ref.watch(appRoleProvider);
     final IOrderOperation orderOperation = appRole == AppRole.admin
-        ? ref.watch(orderOperationProvider)
-        : ref.watch(orderOpFirebaseProvider);
+        ? ref.watch(iOrderOperationProvider)
+        : ref.watch(iOrderOpFirebaseProvider);
 
     final dataStream = orderOperation.getAllOrdersStream();
 
@@ -54,9 +182,9 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
   // 2. Memperbarui _listTombolFilter untuk memanggil count dan meneruskannya ke tombol
   Widget _listTombolFilter() {
     final appRole = ref.watch(appRoleProvider);
-    final IOrderOperation orderOperation = appRole == AppRole.admin
-        ? ref.watch(orderOperationProvider)
-        : ref.watch(orderOpFirebaseProvider);
+    // final IOrderOperation orderOperation = appRole == AppRole.admin
+    //     ? ref.watch(iOrderOperationProvider)
+    //     : ref.watch(iOrderOpFirebaseProvider);
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -203,6 +331,9 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
             return ListTile(
+              onLongPress: () {
+                _showDialog(context, order);
+              },
               title: Row(
                 children: [
                   const Text('Paket: '),
@@ -217,6 +348,34 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
           },
         );
       },
+    );
+  }
+
+  Widget _tombolOpsiUbahStatus(
+      {required String label,
+      required OrderModel order,
+      required StatusOrderEnum status,
+      required BuildContext dialogContext}) {
+    return TextButton(
+      onPressed: () async {
+        Navigator.of(dialogContext).pop();
+        final bool? dikonfirmasi = await _konfirmasiOpsi(context);
+        if (dikonfirmasi ?? false) {
+          try {
+            await ref
+                .read(orderOperationProvider)
+                .updateOrderStatus(order.id, status);
+            if (context.mounted) {
+              ToastUtil.success(context, 'Data berhasil diperbarui');
+              Navigator.of(context).pop();
+            }
+          } catch (e, st) {
+            Log.error('Gagal memperbarui status pesanan', e: e, st: st);
+            ToastUtil.error(context, 'Gagal memperbarui status pesanan');
+          }
+        }
+      },
+      child: Text(label),
     );
   }
 }

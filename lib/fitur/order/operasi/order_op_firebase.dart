@@ -85,22 +85,25 @@ class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
     }
   }
 
-  Future<OrderModel?> getByUserId(String userId) async {
+  /// Mendapatkan stream pesanan berdasarkan ID pengguna.
+  Stream<List<OrderModel>> getAllByUserId(String userId) {
     try {
-      final doc =
-          await _firestore.collection(_collectionName).doc(userId).get();
-      if (doc.exists) {
-        return OrderModel.fromFirebase(doc.id, doc.data()!);
-      }
-      return null;
+      return _firestore
+          .collection(_collectionName)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .where(ColumnNames.customerId, isEqualTo: userId)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+              .toList());
     } catch (e, st) {
       Log.error(
-        'Error mendapatkan pesanan by ID',
+        'Error mendapatkan stream pesanan by User ID',
         e: e,
         st: st,
         data: {'userId': userId},
       );
-      return null;
+      return Stream.value([]);
     }
   }
 
