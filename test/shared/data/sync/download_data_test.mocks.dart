@@ -1650,6 +1650,25 @@ class MockOrderOperation extends _i1.Mock implements _i23.OrderOperation {
       ) as _i4.BaseOperation);
 
   @override
+  _i9.Stream<List<_i5.OrderModel>> getAllOrdersStream() => (super.noSuchMethod(
+        Invocation.method(
+          #getAllOrdersStream,
+          [],
+        ),
+        returnValue: _i9.Stream<List<_i5.OrderModel>>.empty(),
+      ) as _i9.Stream<List<_i5.OrderModel>>);
+
+  @override
+  _i9.Future<int> countOrdersByStatus(_i24.StatusOrderEnum? status) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #countOrdersByStatus,
+          [status],
+        ),
+        returnValue: _i9.Future<int>.value(0),
+      ) as _i9.Future<int>);
+
+  @override
   _i9.Future<void> saveOrder(
     _i5.OrderModel? order, {
     bool? fromServer = false,

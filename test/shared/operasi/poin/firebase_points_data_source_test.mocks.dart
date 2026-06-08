@@ -310,6 +310,16 @@ class MockPackageOpFirebase extends _i1.Mock implements _i6.PackageOpFirebase {
       ) as _i4.Future<_i7.PackageModel?>);
 
   @override
+  _i4.Stream<_i7.PackageModel?> getPackageStreamById(String? packageId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getPackageStreamById,
+          [packageId],
+        ),
+        returnValue: _i4.Stream<_i7.PackageModel?>.empty(),
+      ) as _i4.Stream<_i7.PackageModel?>);
+
+  @override
   _i4.Future<void> deletePackage(String? packageId) => (super.noSuchMethod(
         Invocation.method(
           #deletePackage,

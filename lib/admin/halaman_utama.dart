@@ -8,13 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
-import 'package:wifi/fitur/order/ui/user/order_page_a.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
+import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -154,7 +154,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     const WalletPage(),
     const TransactionPageA(),
     const StatistikPageA(),
-    const OrderPageA(),
+    const OrderPage(),
     const LainnyaPage(),
   ];
 

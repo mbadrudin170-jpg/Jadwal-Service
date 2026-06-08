@@ -2,6 +2,7 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
@@ -123,13 +124,23 @@ FeedbackOperation feedbackOperation(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [OrderOperation].
 @Riverpod(keepAlive: true)
 OrderOperation orderOperation(Ref ref) {
   Log.info('Membuat instance OrderOperation via @riverpod...');
   final dbHelper = ref.watch(databaseHelperProvider);
   final baseOperation = ref.watch(baseOperationProvider);
+  return OrderOperation(
+    dbHelper: dbHelper,
+    baseOperation: baseOperation,
+  );
+}
 
+/// Provider untuk menyediakan instance dari [OrderOperation].
+@Riverpod(keepAlive: true)
+IOrderOperation iOrderOperation(Ref ref) {
+  Log.info('Membuat instance OrderOperation via @riverpod...');
+  final dbHelper = ref.watch(databaseHelperProvider);
+  final baseOperation = ref.watch(baseOperationProvider);
   return OrderOperation(
     dbHelper: dbHelper,
     baseOperation: baseOperation,

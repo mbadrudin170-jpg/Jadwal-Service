@@ -3,6 +3,7 @@
 // diperbaiki: Menambahkan import table_name_value.dart dan enum
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -11,7 +12,7 @@ import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pesanan di database lokal.
-class OrderOperation {
+class OrderOperation implements IOrderOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
   final DatabaseHelper dbHelper;
 
@@ -26,6 +27,30 @@ class OrderOperation {
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
   String get _tableName => TableNameValue.get(TableName.customerOrder);
+
+  @override
+  Stream<List<OrderModel>> getAllOrdersStream() {
+    return Stream.fromFuture(getAllActiveOrders());
+  }
+
+  @override
+  Future<int> countOrdersByStatus(StatusOrderEnum status) async {
+    Log.info('Menghitung pesanan dengan status: ${status.name}');
+    try {
+      final db = await dbHelper.database;
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) FROM $_tableName WHERE ${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
+        [status.name],
+      );
+      final count = result.first.values.first as int? ?? 0;
+      Log.info(
+          'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.');
+      return count;
+    } on Exception catch (e, s) {
+      Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, st: s);
+      rethrow;
+    }
+  }
 
   /// Menyimpan [OrderModel] baru ke dalam database.
   Future<void> saveOrder(

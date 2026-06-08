@@ -3,14 +3,15 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/order_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class OrderOpFirebase extends BaseOpFirebase {
+class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
   final String _collectionName = TableNameValue.get(TableName.customerOrder);
@@ -42,7 +43,8 @@ class OrderOpFirebase extends BaseOpFirebase {
   }
 
   /// 4. Mendapatkan stream semua pesanan
-  Stream<List<OrderModel>> getAll() {
+  @override
+  Stream<List<OrderModel>> getAllOrdersStream() {
     Log.info('Mendapatkan stream semua pesanan');
     return _firestore
         .collection(_collectionName)
@@ -99,6 +101,75 @@ class OrderOpFirebase extends BaseOpFirebase {
         data: {'userId': userId},
       );
       return null;
+    }
+  }
+
+  /// 6. Mendapatkan stream pesanan berdasarkan status
+  Stream<List<OrderModel>> getStreamByStatus(StatusOrderEnum status) {
+    return _firestore
+        .collection(_collectionName)
+        .where(ColumnNames.status, isEqualTo: status.name)
+        .where(ColumnNames.isDeleted, isEqualTo: false)
+        .orderBy(ColumnNames.updatedAt, descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+            .toList())
+        .handleError((e, StackTrace st) {
+      Log.error(
+        'Error mendapatkan stream pesanan berdasarkan status',
+        e: e,
+        st: st,
+        data: {'status': status.name},
+      );
+      return [];
+    });
+  }
+
+  /// 7. Mendapatkan list pesanan berdasarkan status (satu kali panggil)
+  Future<List<OrderModel>> getOrdersByStatus(StatusOrderEnum status) async {
+    Log.info('Mendapatkan pesanan sekali panggil by status: ${status.name}');
+    try {
+      final snapshot = await _firestore
+          .collection(_collectionName)
+          .where(ColumnNames.status, isEqualTo: status.name)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .orderBy(ColumnNames.updatedAt, descending: true)
+          .get();
+      return snapshot.docs
+          .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
+          .toList();
+    } catch (e, st) {
+      Log.error(
+        'Error mendapatkan list pesanan by status',
+        e: e,
+        st: st,
+        data: {'status': status.name},
+      );
+      return [];
+    }
+  }
+
+  /// 8. Menghitung jumlah pesanan berdasarkan status
+  @override
+  Future<int> countOrdersByStatus(StatusOrderEnum status) async {
+    Log.info('Menghitung pesanan by status: ${status.name}');
+    try {
+      final snapshot = await _firestore
+          .collection(_collectionName)
+          .where(ColumnNames.status, isEqualTo: status.name)
+          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .count() // Menggunakan count() untuk efisiensi
+          .get();
+      return snapshot.count ?? 0;
+    } catch (e, st) {
+      Log.error(
+        'Error menghitung pesanan by status',
+        e: e,
+        st: st,
+        data: {'status': status.name},
+      );
+      return 0;
     }
   }
 }

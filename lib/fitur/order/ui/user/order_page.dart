@@ -1,4 +1,4 @@
-// path: lib/fitur/order/ui/user/order_page_u.dart
+// path: lib/fitur/order/ui/user/order_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,24 +6,34 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 
-class UserOrderPage extends ConsumerStatefulWidget {
-  const UserOrderPage({super.key});
-
-  @override
-  ConsumerState<UserOrderPage> createState() => _UserOrderPageState();
+abstract class IOrderOperation {
+  Stream<List<OrderModel>> getAllOrdersStream();
+  Future<int> countOrdersByStatus(StatusOrderEnum status);
 }
 
-class _UserOrderPageState extends ConsumerState<UserOrderPage> {
-  // 1. Mengubah state dari boolean menjadi String untuk menampung filter yang aktif
-  String _filterAktif =
-      StatusOrderEnum.selesai.name; // Filter default saat halaman dibuka
+class OrderPage extends ConsumerStatefulWidget {
+  const OrderPage({super.key});
+
+  @override
+  ConsumerState<OrderPage> createState() => _UserOrderPageState();
+}
+
+class _UserOrderPageState extends ConsumerState<OrderPage> {
+  String _filterAktif = StatusOrderEnum.selesai.name;
 
   @override
   Widget build(BuildContext context) {
-    final orderOpFirebase = ref.watch(orderOpFirebaseProvider);
-    final dataStream = orderOpFirebase.getAll();
+    final appRole = ref.watch(appRoleProvider);
+    final IOrderOperation orderOperation = appRole == AppRole.admin
+        ? ref.watch(orderOperationProvider)
+        : ref.watch(orderOpFirebaseProvider);
+
+    final dataStream = orderOperation.getAllOrdersStream();
+
     Log.info(
         '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
     return Scaffold(
@@ -41,23 +51,35 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
     );
   }
 
-  // 2. Memperbarui _listTombolFilter untuk mengontrol status aktif setiap tombol
+  // 2. Memperbarui _listTombolFilter untuk memanggil count dan meneruskannya ke tombol
   Widget _listTombolFilter() {
+    final appRole = ref.watch(appRoleProvider);
+    final IOrderOperation orderOperation = appRole == AppRole.admin
+        ? ref.watch(orderOperationProvider)
+        : ref.watch(orderOpFirebaseProvider);
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        // Menggunakan Wrap karena Row tidak punya properti 'spacing'
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe('99+', StatusOrderEnum.selesai,
-                isActive: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe('', StatusOrderEnum.diproses,
-                isActive: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe('10', StatusOrderEnum.baru,
+            _tombolTipe(
+                orderOperation.countOrdersByStatus(StatusOrderEnum.baru),
+                StatusOrderEnum.baru,
                 isActive: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe('10', StatusOrderEnum.ditolak,
+            _tombolTipe(
+                orderOperation.countOrdersByStatus(StatusOrderEnum.diproses),
+                StatusOrderEnum.diproses,
+                isActive: _filterAktif == StatusOrderEnum.diproses.name),
+            _tombolTipe(
+                orderOperation.countOrdersByStatus(StatusOrderEnum.selesai),
+                StatusOrderEnum.selesai,
+                isActive: _filterAktif == StatusOrderEnum.selesai.name),
+            _tombolTipe(
+                orderOperation.countOrdersByStatus(StatusOrderEnum.ditolak),
+                StatusOrderEnum.ditolak,
                 isActive: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
@@ -65,14 +87,13 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
     );
   }
 
-  // 3. Memperbarui _tombolTipe untuk menangani state, onTap, dan tampilan
-  Widget _tombolTipe(String info, StatusOrderEnum status,
+  // 3. Memperbarui _tombolTipe untuk menerima Future<int> dan menggunakan FutureBuilder
+  Widget _tombolTipe(Future<int> futureCount, StatusOrderEnum status,
       {required bool isActive}) {
     final label = status.displayName;
     return InkWell(
-      // 4. Memperbarui logika onTap untuk mengubah filter yang aktif
+      // 4. Logika onTap tetap sama
       onTap: () {
-        // Hanya update state jika tombol yang ditekan belum aktif
         if (!isActive) {
           setState(() {
             _filterAktif = status.name;
@@ -83,7 +104,6 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          // 5. Warna latar belakang dan border berubah berdasarkan status 'isActive'
           color: isActive ? Theme.of(context).primaryColor : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -92,27 +112,45 @@ class _UserOrderPageState extends ConsumerState<UserOrderPage> {
                 : Colors.grey.shade400,
           ),
         ),
-        // Menggunakan Wrap karena Row tidak punya properti 'spacing'
         child: Wrap(
           spacing: 6.0,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            if (info.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isActive ? Colors.white : Colors.blue,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  info,
-                  style: TextStyle(
-                    color: isActive ? Colors.blue : Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+            FutureBuilder<int>(
+              future: futureCount,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+                if (snapshot.hasError ||
+                    !snapshot.hasData ||
+                    snapshot.data == 0) {
+                  return const SizedBox
+                      .shrink(); // Tidak menampilkan badge jika 0 atau error
+                }
+                final count = snapshot.data!;
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isActive ? Colors.white : Colors.blue,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-              ),
+                  child: Text(
+                    count > 99 ? '99+' : count.toString(),
+                    style: TextStyle(
+                      color: isActive ? Colors.blue : Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                );
+              },
+            ),
             Text(
               label,
               style: TextStyle(
