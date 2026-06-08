@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.

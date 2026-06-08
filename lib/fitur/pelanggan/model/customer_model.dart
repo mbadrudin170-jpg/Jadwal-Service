@@ -1,6 +1,4 @@
-// path: lib/shared/model/customer_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
-// ditambahkan: Properti lastActiveAt untuk melacak aktivitas pengguna.
+// path: lib/fitur/pelanggan/model/customer_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';

@@ -11,7 +11,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
-import 'package:wifi/shared/model/customer_model.dart' as _i9;
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i9;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i11;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i6;

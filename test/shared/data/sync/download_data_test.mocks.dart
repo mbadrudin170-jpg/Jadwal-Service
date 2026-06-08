@@ -18,7 +18,7 @@ import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
 import 'package:wifi/shared/model/category_model.dart' as _i3;
-import 'package:wifi/shared/model/customer_model.dart' as _i18;
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/model/package_model.dart' as _i16;
 import 'package:wifi/shared/model/wallet_model.dart' as _i12;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'

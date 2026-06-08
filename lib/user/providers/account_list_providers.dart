@@ -1,7 +1,7 @@
 // path: lib/user/providers/account_list_providers.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/shared/model/customer_model.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'account_list_providers.g.dart';

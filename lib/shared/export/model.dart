@@ -4,7 +4,7 @@
 export '../model/active_customer_model.dart';
 export '../model/apk_version_model.dart';
 export '../model/category_model.dart';
-export '../model/customer_model.dart';
+export '../../fitur/pelanggan/model/customer_model.dart';
 export '../model/event_model.dart';
 export '../model/feedback_model.dart';
 export '../model/has_id.dart';

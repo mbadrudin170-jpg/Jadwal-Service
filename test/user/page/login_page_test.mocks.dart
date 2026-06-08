@@ -8,7 +8,7 @@ import 'dart:async' as _i4;
 import 'package:flutter/material.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:shared_preferences/shared_preferences.dart' as _i2;
-import 'package:wifi/shared/model/customer_model.dart' as _i7;
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i7;
 import 'package:wifi/shared/services/internet_connection_check.dart' as _i3;
 import 'package:wifi/shared/services/user_activity_service.dart' as _i8;
 import 'package:wifi/user/services/storage/local_storage_service.dart' as _i5;

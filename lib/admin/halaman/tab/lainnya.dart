@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/admin/halaman/lainnya/category.dart';
-import 'package:wifi/admin/halaman/lainnya/customer.dart';
+import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
 import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/feedback.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
