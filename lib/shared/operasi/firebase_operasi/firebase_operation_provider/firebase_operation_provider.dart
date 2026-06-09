@@ -116,15 +116,6 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
   );
 }
 
-@Riverpod(keepAlive: true)
-IOrderOperation iOrderOpFirebase(Ref ref) {
-  final firestoreInstance = ref.watch(firestoreProvider);
-  final baseOp = ref.watch(baseOpFirebaseProvider);
-  return OrderOpFirebase(
-    firestore: firestoreInstance,
-    baseOp: baseOp,
-  );
-}
 
 @riverpod
 Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {

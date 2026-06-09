@@ -10,11 +10,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/opera
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-
-abstract class IOrderOperation {
-  Stream<List<OrderModel>> getAllOrdersStream();
-  Future<int> countOrdersByStatus(StatusOrderEnum status);
-}
+import 'package:wifi/user/providers/user_providers.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});
@@ -140,7 +136,9 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
                         }
                       } catch (e, st) {
                         Log.error('Gagal menghapus pesanan', e: e, st: st);
-                        ToastUtil.error(context, 'Gagal menghapus pesanan');
+                        if (context.mounted) {
+                          ToastUtil.error(context, 'Gagal menghapus pesanan');
+                        }
                       }
                     }
                   },
@@ -156,11 +154,13 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
   @override
   Widget build(BuildContext context) {
     final appRole = ref.watch(appRoleProvider);
-    final IOrderOperation orderOperation = appRole == AppRole.admin
-        ? ref.watch(iOrderOperationProvider)
-        : ref.watch(iOrderOpFirebaseProvider);
+    final dataSqlite =
+        ref.watch(orderOperationProvider).getAllActiveOrdersStream();
+    final userIdAsync = ref.watch(userIdProvider);
+    final userId = userIdAsync.value ?? '';
 
-    final dataStream = orderOperation.getAllOrdersStream();
+    final dataFirebase =
+        ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
 
     Log.info(
         '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
@@ -172,20 +172,18 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _listTombolFilter(),
-            Expanded(child: _listPesanan(dataStream)),
+            Expanded(
+              child: appRole == AppRole.admin
+                  ? _listPesanan(dataSqlite)
+                  : _listPesanan(dataFirebase),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // 2. Memperbarui _listTombolFilter untuk memanggil count dan meneruskannya ke tombol
   Widget _listTombolFilter() {
-    final appRole = ref.watch(appRoleProvider);
-    final IOrderOperation orderOperation = appRole == AppRole.admin
-        ? ref.watch(iOrderOperationProvider)
-        : ref.watch(iOrderOpFirebaseProvider);
-
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
@@ -193,21 +191,13 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe(
-                orderOperation.countOrdersByStatus(StatusOrderEnum.baru),
-                StatusOrderEnum.baru,
+            _tombolTipe(StatusOrderEnum.baru,
                 isActive: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe(
-                orderOperation.countOrdersByStatus(StatusOrderEnum.diproses),
-                StatusOrderEnum.diproses,
+            _tombolTipe(StatusOrderEnum.diproses,
                 isActive: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe(
-                orderOperation.countOrdersByStatus(StatusOrderEnum.selesai),
-                StatusOrderEnum.selesai,
+            _tombolTipe(StatusOrderEnum.selesai,
                 isActive: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe(
-                orderOperation.countOrdersByStatus(StatusOrderEnum.ditolak),
-                StatusOrderEnum.ditolak,
+            _tombolTipe(StatusOrderEnum.ditolak,
                 isActive: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
@@ -215,12 +205,15 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  // 3. Memperbarui _tombolTipe untuk menerima Future<int> dan menggunakan FutureBuilder
-  Widget _tombolTipe(Future<int> futureCount, StatusOrderEnum status,
-      {required bool isActive}) {
+  Widget _tombolTipe(StatusOrderEnum status, {required bool isActive}) {
     final label = status.displayName;
+    final appRole = ref.watch(appRoleProvider);
+    final opSqlite = ref.watch(orderOperationProvider);
+    final opFirebase = ref.watch(orderOpFirebaseProvider);
+    final dataSqlite = opSqlite.getJumlahByStatus(status);
+    final dataFirebase = opFirebase.countOrdersByStatus(status);
+
     return InkWell(
-      // 4. Logika onTap tetap sama
       onTap: () {
         if (!isActive) {
           setState(() {
@@ -245,7 +238,7 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             FutureBuilder<int>(
-              future: futureCount,
+              future: appRole == AppRole.admin ? dataSqlite : dataFirebase,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
@@ -355,27 +348,4 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
       {required String label,
       required OrderModel order,
       required StatusOrderEnum status,
-      required BuildContext dialogContext}) {
-    return TextButton(
-      onPressed: () async {
-        Navigator.of(dialogContext).pop();
-        final bool? dikonfirmasi = await _konfirmasiOpsi(context);
-        if (dikonfirmasi ?? false) {
-          try {
-            await ref
-                .read(orderOperationProvider)
-                .updateOrderStatus(order.id, status);
-            if (context.mounted) {
-              ToastUtil.success(context, 'Data berhasil diperbarui');
-              Navigator.of(context).pop();
-            }
-          } catch (e, st) {
-            Log.error('Gagal memperbarui status pesanan', e: e, st: st);
-            ToastUtil.error(context, 'Gagal memperbarui status pesanan');
-          }
-        }
-      },
-      child: Text(label),
-    );
-  }
-}
+      required BuildC

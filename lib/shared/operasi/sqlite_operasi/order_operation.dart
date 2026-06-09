@@ -4,7 +4,6 @@
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,7 +11,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pesanan di database lokal.
-class OrderOperation implements IOrderOperation {
+class OrderOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
   final DatabaseHelper dbHelper;
 
@@ -28,13 +27,7 @@ class OrderOperation implements IOrderOperation {
   /// Mendapatkan nama tabel pesanan dari konstanta.
   String get _tableName => TableNameValue.get(TableName.customerOrder);
 
-  @override
-  Stream<List<OrderModel>> getAllOrdersStream() {
-    return Stream.fromFuture(getAllActiveOrders());
-  }
-
-  @override
-  Future<int> countOrdersByStatus(StatusOrderEnum status) async {
+  Future<int> getJumlahByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
       final db = await dbHelper.database;
@@ -91,9 +84,8 @@ class OrderOperation implements IOrderOperation {
     }
   }
 
-  /// Mengambil semua pesanan yang aktif (belum di-soft-delete).
-  Future<List<OrderModel>> getAllActiveOrders() async {
-    Log.info('Mengambil semua pesanan aktif dari database.');
+  Stream<List<OrderModel>> getAllActiveOrdersStream() async* {
+    Log.info('Mengambil semua pesanan aktif dari database (stream sekali).');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -102,7 +94,7 @@ class OrderOperation implements IOrderOperation {
         orderBy: '${ColumnNames.date} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
-      return maps.map(OrderModel.fromSqlite).toList();
+      yield maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil semua pesanan aktif.', e: e, st: s);
       rethrow;
@@ -110,7 +102,8 @@ class OrderOperation implements IOrderOperation {
   }
 
   /// Mengambil pesanan berdasarkan [status].
-  Future<List<OrderModel>> getOrdersByStatus(final StatusOrderEnum status) async {
+  Future<List<OrderModel>> getOrdersByStatus(
+      final StatusOrderEnum status) async {
     Log.info('Mengambil pesanan dengan status: ${status.name}');
     try {
       final db = await dbHelper.database;

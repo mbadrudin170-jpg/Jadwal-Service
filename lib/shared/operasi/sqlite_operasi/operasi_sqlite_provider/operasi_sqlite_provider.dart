@@ -135,17 +135,17 @@ OrderOperation orderOperation(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [OrderOperation].
-@Riverpod(keepAlive: true)
-IOrderOperation iOrderOperation(Ref ref) {
-  Log.info('Membuat instance OrderOperation via @riverpod...');
-  final dbHelper = ref.watch(databaseHelperProvider);
-  final baseOperation = ref.watch(baseOperationProvider);
-  return OrderOperation(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
-  );
-}
+// /// Provider untuk menyediakan instance dari [OrderOperation].
+// @Riverpod(keepAlive: true)
+// IOrderOperation iOrderOperation(Ref ref) {
+//   Log.info('Membuat instance OrderOperation via @riverpod...');
+//   final dbHelper = ref.watch(databaseHelperProvider);
+//   final baseOperation = ref.watch(baseOperationProvider);
+//   return OrderOperation(
+//     dbHelper: dbHelper,
+//     baseOperation: baseOperation,
+//   );
+// }
 
 /// Provider untuk menyediakan instance dari [SettingsOperation].
 @Riverpod(keepAlive: true)

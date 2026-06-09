@@ -11,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
+class OrderOpFirebase extends BaseOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
   final String _collectionName = TableNameValue.get(TableName.customerOrder);
@@ -43,7 +43,7 @@ class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
   }
 
   /// 4. Mendapatkan stream semua pesanan
-  @override
+
   Stream<List<OrderModel>> getAllOrdersStream() {
     Log.info('Mendapatkan stream semua pesanan');
     return _firestore
@@ -154,7 +154,7 @@ class OrderOpFirebase extends BaseOpFirebase implements IOrderOperation {
   }
 
   /// 8. Menghitung jumlah pesanan berdasarkan status
-  @override
+
   Future<int> countOrdersByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan by status: ${status.name}');
     try {
