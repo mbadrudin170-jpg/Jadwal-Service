@@ -687,6 +687,7 @@ class MockFirebaseFirestore extends _i1.Mock implements _i2.FirebaseFirestore {
 /// A class which mocks [CollectionReference].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: must_be_immutable
 class MockCollectionReference<T extends Object?> extends _i1.Mock
     implements _i2.CollectionReference<T> {
   MockCollectionReference() {
@@ -1962,14 +1963,14 @@ class MockAggregateQuerySnapshot extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 // ignore: must_be_immutable
 class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
+  MockQueryMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   _i2.FirebaseFirestore get firestore => (super.noSuchMethod(
         Invocation.getter(#firestore),
         returnValue: _FakeFirebaseFirestore_0(
-          this,
-          Invocation.getter(#firestore),
-        ),
-        returnValueForMissingStub: _FakeFirebaseFirestore_0(
           this,
           Invocation.getter(#firestore),
         ),
@@ -1979,7 +1980,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
   Map<String, dynamic> get parameters => (super.noSuchMethod(
         Invocation.getter(#parameters),
         returnValue: <String, dynamic>{},
-        returnValueForMissingStub: <String, dynamic>{},
       ) as Map<String, dynamic>);
 
   @override
@@ -1997,13 +1997,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endAtDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -2014,13 +2007,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endAt,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #endAt,
@@ -2044,13 +2030,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBeforeDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -2061,13 +2040,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBefore,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #endBefore,
@@ -2092,15 +2064,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             [options],
           ),
         )),
-        returnValueForMissingStub:
-            _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>.value(
-                _FakeQuerySnapshot_7<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #get,
-            [options],
-          ),
-        )),
       ) as _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
@@ -2110,13 +2073,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [limit],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limit,
-            [limit],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #limit,
@@ -2133,13 +2089,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [limit],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limitToLast,
-            [limit],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #limitToLast,
@@ -2164,8 +2113,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
         ),
         returnValue:
             _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>.empty(),
-        returnValueForMissingStub:
-            _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>.empty(),
       ) as _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
@@ -2180,14 +2127,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           {#descending: descending},
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #orderBy,
-            [field],
-            {#descending: descending},
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #orderBy,
@@ -2212,13 +2151,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfterDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -2229,13 +2161,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfter,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #startAfter,
@@ -2259,13 +2184,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAtDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -2276,13 +2194,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAt,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #startAt,
@@ -2325,26 +2236,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           },
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #where,
-            [field],
-            {
-              #isEqualTo: isEqualTo,
-              #isNotEqualTo: isNotEqualTo,
-              #isLessThan: isLessThan,
-              #isLessThanOrEqualTo: isLessThanOrEqualTo,
-              #isGreaterThan: isGreaterThan,
-              #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
-              #arrayContains: arrayContains,
-              #arrayContainsAny: arrayContainsAny,
-              #whereIn: whereIn,
-              #whereNotIn: whereNotIn,
-              #isNull: isNull,
-            },
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #where,
@@ -2391,17 +2282,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             },
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<R>(
-          this,
-          Invocation.method(
-            #withConverter,
-            [],
-            {
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        ),
       ) as _i2.Query<R>);
 
   @override
@@ -2411,13 +2291,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
           [],
         ),
         returnValue: _FakeAggregateQuery_11(
-          this,
-          Invocation.method(
-            #count,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeAggregateQuery_11(
           this,
           Invocation.method(
             #count,
@@ -2533,44 +2406,6 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
             ],
           ),
         ),
-        returnValueForMissingStub: _FakeAggregateQuery_11(
-          this,
-          Invocation.method(
-            #aggregate,
-            [
-              aggregateField1,
-              aggregateField2,
-              aggregateField3,
-              aggregateField4,
-              aggregateField5,
-              aggregateField6,
-              aggregateField7,
-              aggregateField8,
-              aggregateField9,
-              aggregateField10,
-              aggregateField11,
-              aggregateField12,
-              aggregateField13,
-              aggregateField14,
-              aggregateField15,
-              aggregateField16,
-              aggregateField17,
-              aggregateField18,
-              aggregateField19,
-              aggregateField20,
-              aggregateField21,
-              aggregateField22,
-              aggregateField23,
-              aggregateField24,
-              aggregateField25,
-              aggregateField26,
-              aggregateField27,
-              aggregateField28,
-              aggregateField29,
-              aggregateField30,
-            ],
-          ),
-        ),
       ) as _i2.AggregateQuery);
 }
 
@@ -2579,13 +2414,15 @@ class MockQueryMap extends _i1.Mock implements _i2.Query<Map<String, dynamic>> {
 /// See the documentation for Mockito's code generation for more information.
 class MockQuerySnapshotMap extends _i1.Mock
     implements _i2.QuerySnapshot<Map<String, dynamic>> {
+  MockQuerySnapshotMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   List<_i2.QueryDocumentSnapshot<Map<String, dynamic>>> get docs =>
       (super.noSuchMethod(
         Invocation.getter(#docs),
         returnValue: <_i2.QueryDocumentSnapshot<Map<String, dynamic>>>[],
-        returnValueForMissingStub: <_i2
-            .QueryDocumentSnapshot<Map<String, dynamic>>>[],
       ) as List<_i2.QueryDocumentSnapshot<Map<String, dynamic>>>);
 
   @override
@@ -2593,7 +2430,6 @@ class MockQuerySnapshotMap extends _i1.Mock
       (super.noSuchMethod(
         Invocation.getter(#docChanges),
         returnValue: <_i2.DocumentChange<Map<String, dynamic>>>[],
-        returnValueForMissingStub: <_i2.DocumentChange<Map<String, dynamic>>>[],
       ) as List<_i2.DocumentChange<Map<String, dynamic>>>);
 
   @override
@@ -2603,17 +2439,12 @@ class MockQuerySnapshotMap extends _i1.Mock
           this,
           Invocation.getter(#metadata),
         ),
-        returnValueForMissingStub: _FakeSnapshotMetadata_13(
-          this,
-          Invocation.getter(#metadata),
-        ),
       ) as _i2.SnapshotMetadata);
 
   @override
   int get size => (super.noSuchMethod(
         Invocation.getter(#size),
         returnValue: 0,
-        returnValueForMissingStub: 0,
       ) as int);
 }
 
@@ -2622,14 +2453,14 @@ class MockQuerySnapshotMap extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockDocumentSnapshotMap extends _i1.Mock
     implements _i2.DocumentSnapshot<Map<String, dynamic>> {
+  MockDocumentSnapshotMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
         returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -2643,11 +2474,6 @@ class MockDocumentSnapshotMap extends _i1.Mock
           this,
           Invocation.getter(#reference),
         ),
-        returnValueForMissingStub:
-            _FakeDocumentReference_1<Map<String, dynamic>>(
-          this,
-          Invocation.getter(#reference),
-        ),
       ) as _i2.DocumentReference<Map<String, dynamic>>);
 
   @override
@@ -2657,36 +2483,25 @@ class MockDocumentSnapshotMap extends _i1.Mock
           this,
           Invocation.getter(#metadata),
         ),
-        returnValueForMissingStub: _FakeSnapshotMetadata_13(
-          this,
-          Invocation.getter(#metadata),
-        ),
       ) as _i2.SnapshotMetadata);
 
   @override
   bool get exists => (super.noSuchMethod(
         Invocation.getter(#exists),
         returnValue: false,
-        returnValueForMissingStub: false,
       ) as bool);
 
   @override
-  dynamic get(Object? field) => super.noSuchMethod(
-        Invocation.method(
-          #get,
-          [field],
-        ),
-        returnValueForMissingStub: null,
-      );
+  dynamic get(Object? field) => super.noSuchMethod(Invocation.method(
+        #get,
+        [field],
+      ));
 
   @override
-  dynamic operator [](Object? field) => super.noSuchMethod(
-        Invocation.method(
-          #[],
-          [field],
-        ),
-        returnValueForMissingStub: null,
-      );
+  dynamic operator [](Object? field) => super.noSuchMethod(Invocation.method(
+        #[],
+        [field],
+      ));
 }
 
 /// A class which mocks [DocumentReference].
@@ -2695,14 +2510,14 @@ class MockDocumentSnapshotMap extends _i1.Mock
 // ignore: must_be_immutable
 class MockDocumentReferenceMap extends _i1.Mock
     implements _i2.DocumentReference<Map<String, dynamic>> {
+  MockDocumentReferenceMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   _i2.FirebaseFirestore get firestore => (super.noSuchMethod(
         Invocation.getter(#firestore),
         returnValue: _FakeFirebaseFirestore_0(
-          this,
-          Invocation.getter(#firestore),
-        ),
-        returnValueForMissingStub: _FakeFirebaseFirestore_0(
           this,
           Invocation.getter(#firestore),
         ),
@@ -2712,10 +2527,6 @@ class MockDocumentReferenceMap extends _i1.Mock
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
         returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -2729,21 +2540,12 @@ class MockDocumentReferenceMap extends _i1.Mock
           this,
           Invocation.getter(#parent),
         ),
-        returnValueForMissingStub:
-            _FakeCollectionReference_4<Map<String, dynamic>>(
-          this,
-          Invocation.getter(#parent),
-        ),
       ) as _i2.CollectionReference<Map<String, dynamic>>);
 
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
         returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#path),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
@@ -2758,14 +2560,6 @@ class MockDocumentReferenceMap extends _i1.Mock
           [collectionPath],
         ),
         returnValue: _FakeCollectionReference_4<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #collection,
-            [collectionPath],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeCollectionReference_4<Map<String, dynamic>>(
           this,
           Invocation.method(
             #collection,
@@ -2811,15 +2605,6 @@ class MockDocumentReferenceMap extends _i1.Mock
             [options],
           ),
         )),
-        returnValueForMissingStub:
-            _i4.Future<_i2.DocumentSnapshot<Map<String, dynamic>>>.value(
-                _FakeDocumentSnapshot_12<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #get,
-            [options],
-          ),
-        )),
       ) as _i4.Future<_i2.DocumentSnapshot<Map<String, dynamic>>>);
 
   @override
@@ -2837,8 +2622,6 @@ class MockDocumentReferenceMap extends _i1.Mock
           },
         ),
         returnValue:
-            _i4.Stream<_i2.DocumentSnapshot<Map<String, dynamic>>>.empty(),
-        returnValueForMissingStub:
             _i4.Stream<_i2.DocumentSnapshot<Map<String, dynamic>>>.empty(),
       ) as _i4.Stream<_i2.DocumentSnapshot<Map<String, dynamic>>>);
 
@@ -2884,17 +2667,6 @@ class MockDocumentReferenceMap extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeDocumentReference_1<R>(
-          this,
-          Invocation.method(
-            #withConverter,
-            [],
-            {
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        ),
       ) as _i2.DocumentReference<R>);
 }
 
@@ -2904,14 +2676,14 @@ class MockDocumentReferenceMap extends _i1.Mock
 // ignore: must_be_immutable
 class MockCollectionReferenceMap extends _i1.Mock
     implements _i2.CollectionReference<Map<String, dynamic>> {
+  MockCollectionReferenceMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
         returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -2924,10 +2696,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           this,
           Invocation.getter(#path),
         ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#path),
-        ),
       ) as String);
 
   @override
@@ -2937,17 +2705,12 @@ class MockCollectionReferenceMap extends _i1.Mock
           this,
           Invocation.getter(#firestore),
         ),
-        returnValueForMissingStub: _FakeFirebaseFirestore_0(
-          this,
-          Invocation.getter(#firestore),
-        ),
       ) as _i2.FirebaseFirestore);
 
   @override
   Map<String, dynamic> get parameters => (super.noSuchMethod(
         Invocation.getter(#parameters),
         returnValue: <String, dynamic>{},
-        returnValueForMissingStub: <String, dynamic>{},
       ) as Map<String, dynamic>);
 
   @override
@@ -2967,15 +2730,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [data],
           ),
         )),
-        returnValueForMissingStub:
-            _i4.Future<_i2.DocumentReference<Map<String, dynamic>>>.value(
-                _FakeDocumentReference_1<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #add,
-            [data],
-          ),
-        )),
       ) as _i4.Future<_i2.DocumentReference<Map<String, dynamic>>>);
 
   @override
@@ -2986,14 +2740,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [path],
         ),
         returnValue: _FakeDocumentReference_1<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #doc,
-            [path],
-          ),
-        ),
-        returnValueForMissingStub:
-            _FakeDocumentReference_1<Map<String, dynamic>>(
           this,
           Invocation.method(
             #doc,
@@ -3027,17 +2773,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeCollectionReference_4<R>(
-          this,
-          Invocation.method(
-            #withConverter,
-            [],
-            {
-              #fromFirestore: fromFirestore,
-              #toFirestore: toFirestore,
-            },
-          ),
-        ),
       ) as _i2.CollectionReference<R>);
 
   @override
@@ -3055,13 +2790,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endAtDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -3072,13 +2800,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endAt,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #endAt,
@@ -3102,13 +2823,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBeforeDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -3119,13 +2833,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #endBefore,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #endBefore,
@@ -3150,15 +2857,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [options],
           ),
         )),
-        returnValueForMissingStub:
-            _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>.value(
-                _FakeQuerySnapshot_7<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #get,
-            [options],
-          ),
-        )),
       ) as _i4.Future<_i2.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
@@ -3168,13 +2866,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [limit],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limit,
-            [limit],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #limit,
@@ -3191,13 +2882,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [limit],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #limitToLast,
-            [limit],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #limitToLast,
@@ -3222,8 +2906,6 @@ class MockCollectionReferenceMap extends _i1.Mock
         ),
         returnValue:
             _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>.empty(),
-        returnValueForMissingStub:
-            _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>.empty(),
       ) as _i4.Stream<_i2.QuerySnapshot<Map<String, dynamic>>>);
 
   @override
@@ -3238,14 +2920,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           {#descending: descending},
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #orderBy,
-            [field],
-            {#descending: descending},
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #orderBy,
@@ -3270,13 +2944,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfterDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -3287,13 +2954,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAfter,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #startAfter,
@@ -3317,13 +2977,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             [documentSnapshot],
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAtDocument,
-            [documentSnapshot],
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -3334,13 +2987,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [values],
         ),
         returnValue: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #startAt,
-            [values],
-          ),
-        ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
           this,
           Invocation.method(
             #startAt,
@@ -3402,26 +3048,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             },
           ),
         ),
-        returnValueForMissingStub: _FakeQuery_8<Map<String, dynamic>>(
-          this,
-          Invocation.method(
-            #where,
-            [field],
-            {
-              #isEqualTo: isEqualTo,
-              #isNotEqualTo: isNotEqualTo,
-              #isLessThan: isLessThan,
-              #isLessThanOrEqualTo: isLessThanOrEqualTo,
-              #isGreaterThan: isGreaterThan,
-              #isGreaterThanOrEqualTo: isGreaterThanOrEqualTo,
-              #arrayContains: arrayContains,
-              #arrayContainsAny: arrayContainsAny,
-              #whereIn: whereIn,
-              #whereNotIn: whereNotIn,
-              #isNull: isNull,
-            },
-          ),
-        ),
       ) as _i2.Query<Map<String, dynamic>>);
 
   @override
@@ -3431,13 +3057,6 @@ class MockCollectionReferenceMap extends _i1.Mock
           [],
         ),
         returnValue: _FakeAggregateQuery_11(
-          this,
-          Invocation.method(
-            #count,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _FakeAggregateQuery_11(
           this,
           Invocation.method(
             #count,
@@ -3553,44 +3172,6 @@ class MockCollectionReferenceMap extends _i1.Mock
             ],
           ),
         ),
-        returnValueForMissingStub: _FakeAggregateQuery_11(
-          this,
-          Invocation.method(
-            #aggregate,
-            [
-              aggregateField1,
-              aggregateField2,
-              aggregateField3,
-              aggregateField4,
-              aggregateField5,
-              aggregateField6,
-              aggregateField7,
-              aggregateField8,
-              aggregateField9,
-              aggregateField10,
-              aggregateField11,
-              aggregateField12,
-              aggregateField13,
-              aggregateField14,
-              aggregateField15,
-              aggregateField16,
-              aggregateField17,
-              aggregateField18,
-              aggregateField19,
-              aggregateField20,
-              aggregateField21,
-              aggregateField22,
-              aggregateField23,
-              aggregateField24,
-              aggregateField25,
-              aggregateField26,
-              aggregateField27,
-              aggregateField28,
-              aggregateField29,
-              aggregateField30,
-            ],
-          ),
-        ),
       ) as _i2.AggregateQuery);
 }
 
@@ -3599,14 +3180,14 @@ class MockCollectionReferenceMap extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockQueryDocumentSnapshotMap extends _i1.Mock
     implements _i2.QueryDocumentSnapshot<Map<String, dynamic>> {
+  MockQueryDocumentSnapshotMap() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   String get id => (super.noSuchMethod(
         Invocation.getter(#id),
         returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#id),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
           this,
           Invocation.getter(#id),
         ),
@@ -3620,11 +3201,6 @@ class MockQueryDocumentSnapshotMap extends _i1.Mock
           this,
           Invocation.getter(#reference),
         ),
-        returnValueForMissingStub:
-            _FakeDocumentReference_1<Map<String, dynamic>>(
-          this,
-          Invocation.getter(#reference),
-        ),
       ) as _i2.DocumentReference<Map<String, dynamic>>);
 
   @override
@@ -3634,17 +3210,12 @@ class MockQueryDocumentSnapshotMap extends _i1.Mock
           this,
           Invocation.getter(#metadata),
         ),
-        returnValueForMissingStub: _FakeSnapshotMetadata_13(
-          this,
-          Invocation.getter(#metadata),
-        ),
       ) as _i2.SnapshotMetadata);
 
   @override
   bool get exists => (super.noSuchMethod(
         Invocation.getter(#exists),
         returnValue: false,
-        returnValueForMissingStub: false,
       ) as bool);
 
   @override
@@ -3654,24 +3225,17 @@ class MockQueryDocumentSnapshotMap extends _i1.Mock
           [],
         ),
         returnValue: <String, dynamic>{},
-        returnValueForMissingStub: <String, dynamic>{},
       ) as Map<String, dynamic>);
 
   @override
-  dynamic get(Object? field) => super.noSuchMethod(
-        Invocation.method(
-          #get,
-          [field],
-        ),
-        returnValueForMissingStub: null,
-      );
+  dynamic get(Object? field) => super.noSuchMethod(Invocation.method(
+        #get,
+        [field],
+      ));
 
   @override
-  dynamic operator [](Object? field) => super.noSuchMethod(
-        Invocation.method(
-          #[],
-          [field],
-        ),
-        returnValueForMissingStub: null,
-      );
+  dynamic operator [](Object? field) => super.noSuchMethod(Invocation.method(
+        #[],
+        [field],
+      ));
 }

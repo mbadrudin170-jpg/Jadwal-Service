@@ -127,7 +127,7 @@ final class UserIdProvider
   }
 }
 
-String _$userIdHash() => r'ac6d20a85f85b5e7032fc6aeccbb9bb3f7a89d5b';
+String _$userIdHash() => r'99159f4d22bbc50c367bcbb1bf5f8ce4a1958fad';
 
 @ProviderFor(userActivityService)
 final userActivityServiceProvider = UserActivityServiceProvider._();
