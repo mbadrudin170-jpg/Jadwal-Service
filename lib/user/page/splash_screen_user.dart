@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/sinkronisasi/update_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -17,8 +19,6 @@ import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/fitur/sinkronisasi/update_check_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/maintenance_page.dart';
 import 'package:wifi/user/page/event_page_u.dart';
@@ -26,7 +26,7 @@ import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
@@ -40,7 +40,7 @@ typedef UpdateInfoRecord = ({
 /// Halaman splash screen yang ditampilkan saat aplikasi pengguna pertama kali dibuka.
 class SplashScreenUser extends ConsumerStatefulWidget {
   final SharedPreferences prefs;
-  final LocalStorageService localStorageService;
+  final LayananPenyimpananLokal localStorageService;
 
   const SplashScreenUser({
     super.key,

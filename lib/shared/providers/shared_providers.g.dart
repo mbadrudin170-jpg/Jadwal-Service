@@ -99,12 +99,12 @@ String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
 final localStorageServiceProvider = LocalStorageServiceProvider._();
 
 final class LocalStorageServiceProvider extends $FunctionalProvider<
-        AsyncValue<LocalStorageService>,
-        LocalStorageService,
-        FutureOr<LocalStorageService>>
+        AsyncValue<LayananPenyimpananLokal>,
+        LayananPenyimpananLokal,
+        FutureOr<LayananPenyimpananLokal>>
     with
-        $FutureModifier<LocalStorageService>,
-        $FutureProvider<LocalStorageService> {
+        $FutureModifier<LayananPenyimpananLokal>,
+        $FutureProvider<LayananPenyimpananLokal> {
   LocalStorageServiceProvider._()
       : super(
           from: null,
@@ -121,18 +121,18 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $FutureProviderElement<LocalStorageService> $createElement(
+  $FutureProviderElement<LayananPenyimpananLokal> $createElement(
           $ProviderPointer pointer) =>
       $FutureProviderElement(pointer);
 
   @override
-  FutureOr<LocalStorageService> create(Ref ref) {
+  FutureOr<LayananPenyimpananLokal> create(Ref ref) {
     return localStorageService(ref);
   }
 }
 
 String _$localStorageServiceHash() =>
-    r'682f08594d407537f17f21974997a6a4de059ac8';
+    r'6e698d7fd7eeb3f4ad55371b9475cdb188ed0d0a';
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 

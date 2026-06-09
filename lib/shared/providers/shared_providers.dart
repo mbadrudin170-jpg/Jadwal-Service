@@ -1,11 +1,11 @@
 // path: lib/shared/providers/shared_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 part 'shared_providers.g.dart';
 
@@ -23,9 +23,9 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<LocalStorageService> localStorageService(Ref ref) async {
+Future<LayananPenyimpananLokal> localStorageService(Ref ref) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
-  return LocalStorageService(prefs: prefs);
+  return LayananPenyimpananLokal(prefs: prefs);
 }
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.

@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -12,7 +12,7 @@ import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/account_list_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 class AccountListPage extends ConsumerWidget {
   const AccountListPage({super.key});
@@ -126,7 +126,8 @@ class AccountListPage extends ConsumerWidget {
     final navigator = Navigator.of(context);
     try {
       final storage = await ref.read(localStorageServiceProvider.future);
-      final activityService = await ref.read(userActivityServiceProvider.future);
+      final activityService =
+          await ref.read(userActivityServiceProvider.future);
 
       Log.info('Mulai memilih akun',
           {'customer_id': customer.id, 'nama': customer.name});
@@ -188,7 +189,7 @@ class AccountListPage extends ConsumerWidget {
   }
 
   Future<void> _handleDeleteActiveAccount(BuildContext context, WidgetRef ref,
-      CustomerModel customer, LocalStorageService storage) async {
+      CustomerModel customer, LayananPenyimpananLokal storage) async {
     final navigator = Navigator.of(context);
     Log.info('Menghapus akun aktif & keluar',
         {'customer_id': customer.id, 'nama': customer.name});

@@ -11,24 +11,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wifi/fitur/sinkronisasi/update_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
-import 'package:wifi/fitur/sinkronisasi/update_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
 
 class UpdateApkPage extends StatefulWidget {
   final ApkVersionModel apkInfo;
   final PackageInfoModel packageInfo;
   final ApkArchitectureEnum architecture;
   final SharedPreferences prefs;
-  final LocalStorageService localStorageService;
+  final LayananPenyimpananLokal localStorageService;
 
   const UpdateApkPage({
     super.key,

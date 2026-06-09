@@ -27,7 +27,7 @@ import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
 import 'package:workmanager/workmanager.dart';
 
 import 'app_admin_test.mocks.dart';

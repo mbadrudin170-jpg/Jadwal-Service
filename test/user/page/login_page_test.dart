@@ -14,7 +14,7 @@ import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
 
 import 'login_page_test.mocks.dart';
 

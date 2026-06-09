@@ -18,7 +18,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/local_storage_service.dart';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 /// Halaman login untuk pengguna.
 class LoginPage extends ConsumerWidget {
@@ -26,7 +26,7 @@ class LoginPage extends ConsumerWidget {
   final FirebaseFirestore? firestore;
 
   /// Layanan untuk penyimpanan data lokal.
-  final LocalStorageService? localStorageService;
+  final LayananPenyimpananLokal? localStorageService;
 
   /// Konstruktor untuk [LoginPage].
   const LoginPage({super.key, this.firestore, this.localStorageService});
@@ -42,7 +42,7 @@ class LoginPage extends ConsumerWidget {
 
 class _LoginView extends ConsumerStatefulWidget {
   final FirebaseFirestore? firestore;
-  final LocalStorageService? localStorageService;
+  final LayananPenyimpananLokal? localStorageService;
 
   const _LoginView({this.firestore, this.localStorageService});
 
@@ -52,7 +52,7 @@ class _LoginView extends ConsumerStatefulWidget {
 
 class _LoginViewState extends ConsumerState<_LoginView> {
   late FirebaseFirestore _firestore;
-  late LocalStorageService _localStorageService;
+  late LayananPenyimpananLokal _localStorageService;
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -77,7 +77,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {
         setState(() {
-          _localStorageService = LocalStorageService(prefs: prefs);
+          _localStorageService = LayananPenyimpananLokal(prefs: prefs);
           _isLocalStorageInitialized = true;
         });
       }
