@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class LocalStorageService {
   /// Instance dari [SharedPreferences] yang digunakan untuk penyimpanan.
@@ -111,7 +111,6 @@ class LocalStorageService {
       Log.warning('[Ambil Daftar Akun] Tidak ada daftar akun ditemukan.');
       return [];
     }
-
     final List<dynamic> accountList =
         jsonDecode(accountListJson) as List<dynamic>;
     final listAccount = accountList

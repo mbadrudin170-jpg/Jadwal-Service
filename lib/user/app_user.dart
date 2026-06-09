@@ -22,10 +22,8 @@ class AppUser extends ConsumerWidget {
     // 1. Gabungkan semua state provider ke dalam satu list.
     final allProviders = [themeAsync, prefsAsync, localStorageAsync];
 
-    // 2. Cek apakah ada provider yang sedang dalam status error.
     final firstError = allProviders.firstWhere(
       (provider) => provider.hasError && provider.error != null,
-      // Perbaikan 1: Gunakan nilai non-null untuk `orElse` agar sesuai tipe.
       orElse: () => const AsyncValue.data(true),
     );
 
