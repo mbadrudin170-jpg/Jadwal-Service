@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/fitur/order/ui/user/order_page.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -162,7 +161,7 @@ class OrderOpFirebase extends BaseOpFirebase {
           .collection(_collectionName)
           .where(ColumnNames.status, isEqualTo: status.name)
           .where(ColumnNames.isDeleted, isEqualTo: false)
-          .count() // Menggunakan count() untuk efisiensi
+          .count() 
           .get();
       return snapshot.count ?? 0;
     } catch (e, st) {
