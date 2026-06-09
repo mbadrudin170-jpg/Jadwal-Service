@@ -153,21 +153,26 @@ class OrderOpFirebase extends BaseOpFirebase {
     }
   }
 
-  /// 8. Menghitung jumlah pesanan berdasarkan status
-
-  Future<int> countOrdersByStatus(StatusOrderEnum status) async {
-    Log.info('Menghitung pesanan by status: ${status.name}');
+  /// 8. Menghitung jumlah pesanan berdasarkan status untuk pengguna tertentu
+  Future<int> countOrdersByStatus(StatusOrderEnum status, String userId) async {
+    Log.info(
+        'Menghitung pesanan by status: ${status.name} untuk user: $userId');
     try {
-      final snapshot = await _firestore
+      Query query = _firestore
           .collection(_collectionName)
           .where(ColumnNames.status, isEqualTo: status.name)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .count()
-          .get();
+          .where(ColumnNames.isDeleted, isEqualTo: false);
+
+      // Jika userId disediakan (bukan admin), filter berdasarkan customerId
+      if (userId.isNotEmpty) {
+        query = query.where(ColumnNames.customerId, isEqualTo: userId);
+      }
+
+      final snapshot = await query.count().get();
       final count = snapshot.count ?? 0;
       Log.info(
         'Berhasil menghitung $count pesanan dengan status ${status.name}',
-        {'status': status.name, 'jumlah': count},
+        {'status': status.name, 'userId': userId, 'jumlah': count},
       );
       return count;
     } catch (e, st) {
@@ -175,7 +180,7 @@ class OrderOpFirebase extends BaseOpFirebase {
         'Error menghitung pesanan by status',
         e: e,
         st: st,
-        data: {'status': status.name},
+        data: {'status': status.name, 'userId': userId},
       );
       return 0;
     }

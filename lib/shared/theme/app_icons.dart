@@ -291,4 +291,7 @@ class TIcons {
 
   /// Ikon untuk reward atau penghargaan pelanggan.
   static const IconData reward = Icons.workspace_premium;
+
+  /// Ikon untuk pesanan atau daftar belanja.
+  static const IconData pesanan = Icons.shopping_bag_rounded;
 }

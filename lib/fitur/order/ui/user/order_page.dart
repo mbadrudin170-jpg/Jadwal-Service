@@ -114,10 +114,10 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
                     onPressed: () => _ubahStatus,
                     child: const Text('Ubah Status'),
                   ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Edit'),
-                ),
+                // TextButton(
+                //   onPressed: () {},
+                //   child: const Text('Edit'),
+                // ),
                 TextButton(
                   child: const Text('Hapus'),
                   onPressed: () async {
@@ -157,36 +157,45 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
   @override
   Widget build(BuildContext context) {
     final appRole = ref.watch(appRoleProvider);
-    final dataSqlite =
-        ref.watch(orderOperationProvider).getAllActiveOrdersStream();
     final userIdAsync = ref.watch(userIdProvider);
-    final userId = userIdAsync.value ?? '';
 
-    final dataFirebase =
-        ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
-
-    Log.info(
-        '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pesanan Saya')),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _listTombolFilter(),
-            Expanded(
-              child: appRole == AppRole.admin
-                  ? _listPesanan(dataSqlite)
-                  : _listPesanan(dataFirebase),
-            ),
-          ],
-        ),
+    return userIdAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       ),
+      error: (err, stack) => Scaffold(
+        body: Center(child: Text('Error: $err')),
+      ),
+      data: (userId) {
+        final dataSqlite =
+            ref.watch(orderOperationProvider).getAllActiveOrdersStream();
+        final dataFirebase =
+            ref.watch(orderOpFirebaseProvider).getAllByUserId(userId!);
+
+        Log.info(
+            '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
+        return Scaffold(
+          appBar: AppBar(title: const Text('Pesanan Saya')),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _listTombolFilter(userId),
+                Expanded(
+                  child: appRole == AppRole.admin
+                      ? _listPesanan(dataSqlite)
+                      : _listPesanan(dataFirebase),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _listTombolFilter() {
+  Widget _listTombolFilter(String userId) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
@@ -194,13 +203,13 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe(StatusOrderEnum.baru,
+            _tombolTipe(StatusOrderEnum.baru, userId,
                 isActive: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe(StatusOrderEnum.diproses,
+            _tombolTipe(StatusOrderEnum.diproses, userId,
                 isActive: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe(StatusOrderEnum.selesai,
+            _tombolTipe(StatusOrderEnum.selesai, userId,
                 isActive: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe(StatusOrderEnum.ditolak,
+            _tombolTipe(StatusOrderEnum.ditolak, userId,
                 isActive: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
@@ -208,13 +217,15 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _tombolTipe(StatusOrderEnum status, {required bool isActive}) {
+  Widget _tombolTipe(StatusOrderEnum status, String userId,
+      {required bool isActive}) {
     final label = status.displayName;
     final appRole = ref.watch(appRoleProvider);
     final dataSqlite =
         ref.watch(orderOperationProvider).getJumlahByStatus(status);
-    final dataFirebase =
-        ref.watch(orderOpFirebaseProvider).countOrdersByStatus(status);
+    final dataFirebase = ref
+        .watch(orderOpFirebaseProvider)
+        .countOrdersByStatus(status, appRole == AppRole.admin ? '' : userId);
 
     return InkWell(
       onTap: () {

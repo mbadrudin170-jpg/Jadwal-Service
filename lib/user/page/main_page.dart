@@ -100,7 +100,7 @@ class _MainPageState extends ConsumerState<MainPage> {
             label: 'Riwayat',
           ),
           BottomNavigationBarItem(
-            icon: Icon(TIcons.personActive),
+            icon: Icon(TIcons.pesanan),
             label: 'Pesanan',
           ),
           BottomNavigationBarItem(
