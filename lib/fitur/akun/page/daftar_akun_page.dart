@@ -1,9 +1,9 @@
-// path: lib/user/page/account_list_page.dart
+// path: lib/fitur/akun/page/daftar_akun_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/akun/akun_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -12,8 +12,8 @@ import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-class AccountListPage extends ConsumerWidget {
-  const AccountListPage({super.key});
+class DaftarAkunPage extends ConsumerWidget {
+  const DaftarAkunPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

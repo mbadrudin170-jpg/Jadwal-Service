@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/akun/akun_provider.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -16,7 +16,7 @@ import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/account_list_page.dart';
+import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -143,7 +143,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await Navigator.push(
         context,
         MaterialPageRoute<void>(
-          builder: (context) => const AccountListPage(),
+          builder: (context) => const DaftarAkunPage(),
         ),
       );
     }
