@@ -35,8 +35,14 @@ void main() {
       id: '1',
       customerId: 'cust1',
       packageId: 'pkg1',
-      date: DateTime.now(),
+      orderDate: DateTime.now(),
       updatedAt: DateTime.now(),
+      customerName: 'test',
+      packageName: 'test',
+      price: 1,
+      duration: 1,
+      status: StatusOrderEnum.pending,
+      createdAt: DateTime.now()
     );
     final tOrderMap = tOrder.toSqlite();
     final tableName = TableNameValue.get(TableName.customerOrder);
@@ -116,6 +122,28 @@ void main() {
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });
-    test('getJumlahByStatus harus menghitung berapa total data berdasarkan status', )
+
+    test('getJumlahByStatus harus menghitung berapa total data berdasarkan status',
+        () async {
+      // Arrange
+      const status = StatusOrderEnum.pending;
+      // Pastikan `database` mengembalikan mock yang benar
+      when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
+      
+      // Saat rawQuery dipanggil, kembalikan hasil tiruan
+      when(mockDatabase.rawQuery(any, any)).thenAnswer((_) async => [
+            {'COUNT(*)': 5}
+          ]);
+
+      // Act
+      final result = await orderOperation.getJumlahByStatus(status);
+
+      // Assert
+      expect(result, 5);
+      verify(mockDatabase.rawQuery(
+        'SELECT COUNT(*) FROM customerOrder WHERE status = ? AND isDeleted = 0',
+        [status.name],
+      )).called(1);
+    });
   });
 }

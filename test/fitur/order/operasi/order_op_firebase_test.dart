@@ -8,7 +8,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 import 'order_op_firebase_test.mocks.dart';
@@ -83,14 +83,9 @@ void main() {
   final order = OrderModel(
     id: 'order1',
     customerId: 'cust1',
-    customerName: 'John Doe',
-    packageName: 'Paket 1',
     packageId: 'pkg1',
-    price: 100000,
-    duration: 30,
-    orderDate: DateTime(2023, 1, 1),
-    status: StatusOrderEnum.pending,
-    createdAt: DateTime(2023, 1, 1),
+    date: DateTime(2023, 1, 1),
+    status: StatusOrderEnum.baru,
     updatedAt: DateTime(2023, 1, 1),
   );
 
@@ -111,8 +106,13 @@ void main() {
 
     test('3. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
-      when(mockBaseOp.softDelete(any, any)).thenAnswer((_) async => {});
+      // Stubbing softDelete di BaseOpFirebase
+      when(mockBaseOp.softDelete(any, any))
+          .thenAnswer((_) async => Future.value());
+
       await orderOpFirebase.softDeleteOrder(orderId);
+
+      // Verifikasi bahwa softDelete dipanggil dengan argumen yang benar
       verify(mockBaseOp.softDelete(any, orderId)).called(1);
     });
 
@@ -186,14 +186,14 @@ void main() {
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final resultStream =
-          orderOpFirebase.getStreamByStatus(StatusOrderEnum.pending);
+          orderOpFirebase.getStreamByStatus(StatusOrderEnum.baru);
 
       expect(
           resultStream,
           emits(isA<List<OrderModel>>()
               .having((list) => list.length, 'panjang', 1)
               .having((list) => list.first.status, 'status',
-                  StatusOrderEnum.pending)));
+                  StatusOrderEnum.baru)));
 
       streamController.add(mockQuerySnapshot);
       streamController.close();
@@ -207,22 +207,21 @@ void main() {
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final result =
-          await orderOpFirebase.getOrdersByStatus(StatusOrderEnum.pending);
+          await orderOpFirebase.getOrdersByStatus(StatusOrderEnum.baru);
 
       expect(result, isA<List<OrderModel>>());
       expect(result.length, 1);
-      expect(result.first.status, StatusOrderEnum.pending);
+      expect(result.first.status, StatusOrderEnum.baru);
     });
 
     test('9. Uji menghitung pesanan berdasarkan status', () async {
       when(mockAggregateQuerySnapshot.count).thenReturn(5);
 
       final result =
-          await orderOpFirebase.countOrdersByStatus(StatusOrderEnum.pending);
+          await orderOpFirebase.countOrdersByStatus(StatusOrderEnum.baru);
 
       expect(result, 5);
       verify(mockQuery.count()).called(1);
     });
   });
 }
-
