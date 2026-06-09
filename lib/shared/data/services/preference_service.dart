@@ -27,7 +27,7 @@ class PreferenceService {
   }
 
   /// Menyimpan timestamp terakhir unduh.
-  static Future<void> setLastDownload(final DateTime time) async {
+  static Future<void> setLastDownload(DateTime time) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unduh: $time $_keyLastDownload',
     );
@@ -48,7 +48,7 @@ class PreferenceService {
   }
 
   /// Menyimpan timestamp terakhir unggah.
-  static Future<void> setLastUpload(final DateTime time) async {
+  static Future<void> setLastUpload(DateTime time) async {
     Log.info(
       'Menyiapkan penyimpanan timestamp terakhir unggah: $time $_keyLastUpload',
     );

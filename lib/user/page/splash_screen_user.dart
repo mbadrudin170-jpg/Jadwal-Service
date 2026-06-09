@@ -26,7 +26,7 @@ import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 
 /// Record yang berisi informasi tentang pembaruan aplikasi.
@@ -69,8 +69,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _initializeOfflineServices();
 
-      final internetService = InternetConnectionService();
-      final isConnected = await internetService.isInternetAvailable();
+      final isConnected = await ref
+          .watch(internetConnectionServiceProvider)
+          .checkLocalConnection();
 
       if (isConnected) {
         await _initializeOnlineServices();
@@ -194,8 +195,10 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     if (!mounted) return;
     final userId = widget.prefs.getString('userId');
     if (userId != null) {
-      final isConnected =
-          await InternetConnectionService().isInternetAvailable();
+      final isConnected = await ref
+          .watch(internetConnectionServiceProvider)
+          .checkLocalConnection();
+
       if (isConnected) {
         final userActivityService =
             await ref.read(userActivityServiceProvider.future);
@@ -204,7 +207,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => const MainPage(),
+          builder: (context) => const MainPage(),
         ),
       ));
     } else {

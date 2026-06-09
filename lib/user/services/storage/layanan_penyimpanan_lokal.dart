@@ -29,8 +29,8 @@ class LayananPenyimpananLokal {
   Future<ThemeMode> ambilModeTema(WidgetRef ref) async {
     try {
       Log.info('[Ambil Tema] Mengambil mode tema global dari penyimpanan.');
-      final prefs = ref.watch(sharedPreferencesProvider.future);
-      final modeString = await prefs.getString(_kunciAwalanModeTema);
+      final sharedPrefs = await ref.watch(sharedPreferencesProvider.future);
+      final modeString = sharedPrefs.getString(_kunciAwalanModeTema);
 
       final themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == modeString,

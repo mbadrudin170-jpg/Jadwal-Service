@@ -1,9 +1,9 @@
 // path: lib/user/providers/user_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'user_providers.g.dart';
 
@@ -24,7 +24,7 @@ NotifikasiServis notifikasiServis(Ref ref) {
 @Riverpod(keepAlive: true)
 Future<String?> userId(Ref ref) async {
   final storage = await ref.watch(localStorageServiceProvider.future);
-  final akun = await storage.getUserIdLogin();
+  final akun = await storage.ambilAkunLogin();
   return akun?.id;
 }
 

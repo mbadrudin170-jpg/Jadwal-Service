@@ -20,15 +20,11 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-/// Halaman login untuk pengguna.
 class LoginPage extends ConsumerWidget {
-  /// Instance Firestore untuk akses database.
   final FirebaseFirestore? firestore;
 
-  /// Layanan untuk penyimpanan data lokal.
   final LayananPenyimpananLokal? localStorageService;
 
-  /// Konstruktor untuk [LoginPage].
   const LoginPage({super.key, this.firestore, this.localStorageService});
 
   @override
@@ -58,7 +54,6 @@ class _LoginViewState extends ConsumerState<_LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLocalStorageInitialized = false;
 
-  // 1. TAMBAHKAN VARIABEL STATUS UNTUK PROSES LOGIN
   bool _isLoggingIn = false;
 
   @override
@@ -84,11 +79,11 @@ class _LoginViewState extends ConsumerState<_LoginView> {
     }
   }
 
-  Future<void> _showErrorAlert(final String message) async {
+  Future<void> _showErrorAlert(String message) async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
-      builder: (final ctx) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Gagal Masuk'),
         content: Text(message),
         actions: [
@@ -105,10 +100,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
     setState(() => _isPasswordVisible = !_isPasswordVisible);
   }
 
-  // 2. MODIFIKASI FUNGSI `_processLogin`
-  Future<void> _processLogin() async {
-    // 1. Validasi input dilakukan pertama kali tanpa menyalakan spinner.
-    // Ini mencegah timeout pada pengujian form kosong.
+  Future<void> _prosesLogin() async {
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -117,7 +109,6 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       return;
     }
 
-    // 2. Jika input valid, baru nyalakan spinner.
     if (_isLoggingIn) return;
     setState(() => _isLoggingIn = true);
 
@@ -154,39 +145,35 @@ class _LoginViewState extends ConsumerState<_LoginView> {
             await ref.read(userActivityServiceProvider.future);
         unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
-        await _localStorageService.saveCurrentAccount(customer);
-
+        await _localStorageService.simpanAkunSaatIni(customer);
+        await _localStorageService.simpanAkun(customer);
         if (!mounted) return;
         unawaited(Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (final context) => const MainPage(),
           ),
         ));
-        return; // Keluar dari fungsi agar blok finally segera dieksekusi
+        return;
       } else {
-        // Hentikan status loading jika kredensial salah sebelum menampilkan alert
         setState(() => _isLoggingIn = false);
         await _showErrorAlert(
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
     } on Exception catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
-      // Hentikan status loading jika terjadi error jaringan/server
       if (mounted) setState(() => _isLoggingIn = false);
       if (!mounted) return;
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
     } finally {
-      // Apapun hasilnya, setel kembali status "sedang login" menjadi false
       if (mounted) {
         setState(() => _isLoggingIn = false);
       }
     }
   }
 
-  // DITAMBAHKAN: Logika untuk menangani pemilihan akun yang ada.
-  Future<void> _handleChooseExistingAccount() async {
-    if (_isLoggingIn) return; // Jangan lakukan apa-apa jika sedang login
+  Future<void> _tanganiPilihAkunTersedia() async {
+    if (_isLoggingIn) return;
 
     if (!_isLocalStorageInitialized) {
       if (mounted) {
@@ -195,7 +182,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       return;
     }
 
-    final accounts = await _localStorageService.getAccountList();
+    final accounts = await _localStorageService.ambilDaftarAkun();
     if (!mounted) return;
 
     if (accounts.isEmpty) {
@@ -205,7 +192,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
       await Navigator.push(
         context,
         MaterialPageRoute<void>(
-          builder: (final context) => const AccountListPage(),
+          builder: (context) => const AccountListPage(),
         ),
       );
     }
@@ -219,7 +206,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -246,7 +233,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                 ),
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
-                enabled: !_isLoggingIn, // Nonaktifkan saat login
+                enabled: !_isLoggingIn,
               ),
               gapH16,
               TextFormField(
@@ -264,20 +251,18 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                   ),
                 ),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (final _) => _processLogin(),
-                enabled: !_isLoggingIn, // Nonaktifkan saat login
+                onFieldSubmitted: (_) => _prosesLogin(),
+                enabled: !_isLoggingIn,
               ),
               gapH24,
-              // 3. MODIFIKASI TOMBOL LOGIN
               ElevatedButton(
-                onPressed: _isLoggingIn ? null : _processLogin,
+                onPressed: _isLoggingIn ? null : _prosesLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
-                  // Menonaktifkan tombol secara visual
                   disabledBackgroundColor:
                       TColors.primaryColor.withValues(alpha: 0.5),
                 ),
@@ -311,7 +296,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
               OutlinedButton.icon(
                 icon: const Icon(Icons.people_alt_outlined),
                 label: const Text('Pilih dari Akun Tersimpan'),
-                onPressed: _isLoggingIn ? null : _handleChooseExistingAccount,
+                onPressed: _isLoggingIn ? null : _tanganiPilihAkunTersedia,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -327,7 +312,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
                       : () {
                           unawaited(showDialog<void>(
                             context: context,
-                            builder: (final ctx) => AlertDialog(
+                            builder: (ctx) => AlertDialog(
                               title: const Text('Fitur Dalam Pengembangan'),
                               content:
                                   const Text('Fitur ini sedang kami kerjakan.'),

@@ -21,7 +21,7 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 class UpdateApkPage extends StatefulWidget {
   final ApkVersionModel apkInfo;

@@ -37,7 +37,7 @@ NotifikasiServis notifikasiServis(Ref ref) {
 /// Controller utama untuk notifikasi.
 /// Tonton provider ini dari UI untuk menginisialisasi listener.
 @Riverpod(keepAlive: true)
-void notifikasiController(Ref ref) {
+void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);
   final servis = ref.watch(notifikasiServisProvider);
   final notifikasiOp = ref.watch(notifikasiOpFirebaseProvider);
@@ -54,7 +54,7 @@ void notifikasiController(Ref ref) {
     ref.listen(localStorageServiceProvider, (previous, next) {
       next.when(
         data: (localStorage) async {
-          final customer = await localStorage.getUserIdLogin();
+          final customer = await localStorage.ambilAkunLogin();
           if (customer != null) {
             Log.info(
                 'User login terdeteksi, memulai pemantauan untuk ${customer.id}');

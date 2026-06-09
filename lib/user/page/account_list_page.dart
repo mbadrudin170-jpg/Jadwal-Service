@@ -20,7 +20,6 @@ class AccountListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accountsAsync = ref.watch(accountListProvider);
-    // Tonton juga localStorageServiceProvider untuk menangani state loading awalnya
     final storageAsync = ref.watch(localStorageServiceProvider);
 
     return Scaffold(
@@ -61,9 +60,9 @@ class AccountListPage extends ConsumerWidget {
                               account.name.isNotEmpty ? account.name[0] : ''),
                         ),
                         title: Text(account.name),
-                        onTap: () => _selectAccount(context, ref, account),
+                        onTap: () => _pilihAkun(context, ref, account),
                         onLongPress: () =>
-                            _showDeleteDialog(context, ref, account),
+                            _tampilkanDialogHapus(context, ref, account),
                       ),
                     );
                   },
@@ -71,14 +70,13 @@ class AccountListPage extends ConsumerWidget {
               },
             ),
           ),
-          // Gunakan .when dari storage untuk mengaktifkan tombol hanya saat service siap
           storageAsync.when(
             data: (_) => Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _showExitDialog(context, ref),
+                  onPressed: () => _tampilkanDialogKeluar(context, ref),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: TColors.errorColor.withAlpha(200),
                     foregroundColor: Colors.white,
@@ -106,7 +104,6 @@ class AccountListPage extends ConsumerWidget {
                 ),
               ),
             ),
-            // Saat loading atau error, tampilkan tombol yang dinonaktifkan
             loading: () => const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: SizedBox(
@@ -121,7 +118,7 @@ class AccountListPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _selectAccount(
+  Future<void> _pilihAkun(
       BuildContext context, WidgetRef ref, CustomerModel customer) async {
     final navigator = Navigator.of(context);
     try {
@@ -131,7 +128,7 @@ class AccountListPage extends ConsumerWidget {
 
       Log.info('Mulai memilih akun',
           {'customer_id': customer.id, 'nama': customer.name});
-      await storage.saveCurrentAccount(customer);
+      await storage.simpanAkunSaatIni(customer);
       await activityService.pingActivity(customer.id, force: true);
 
       await navigator.pushAndRemoveUntil(
@@ -145,7 +142,7 @@ class AccountListPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _showDeleteDialog(
+  Future<void> _tampilkanDialogHapus(
       BuildContext context, WidgetRef ref, CustomerModel customer) async {
     await showDialog<void>(
       context: context,
@@ -159,19 +156,18 @@ class AccountListPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              Navigator.of(dialogContext).pop(); // Tutup dialog
+              Navigator.of(dialogContext).pop();
               try {
                 final storage =
                     await ref.read(localStorageServiceProvider.future);
-                final currentAccount = await storage.getUserIdLogin();
+                final currentAccount = await storage.ambilAkunLogin();
 
                 if (currentAccount?.id == customer.id) {
-                  await _handleDeleteActiveAccount(
-                      context, ref, customer, storage);
+                  await _tanganiHapusAkunAktif(context, ref, customer, storage);
                 } else {
                   Log.info('Menghapus akun tersimpan',
                       {'customer_id': customer.id, 'nama': customer.name});
-                  await storage.deleteAccount(customer.id);
+                  await storage.hapusAkun(customer.id);
                   ref.invalidate(accountListProvider);
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
@@ -188,13 +184,13 @@ class AccountListPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleDeleteActiveAccount(BuildContext context, WidgetRef ref,
+  Future<void> _tanganiHapusAkunAktif(BuildContext context, WidgetRef ref,
       CustomerModel customer, LayananPenyimpananLokal storage) async {
     final navigator = Navigator.of(context);
     Log.info('Menghapus akun aktif & keluar',
         {'customer_id': customer.id, 'nama': customer.name});
-    await storage.deleteAccount(customer.id);
-    await storage.deleteCurrentAccount();
+    await storage.hapusAkun(customer.id);
+    await storage.hapusAkunSaatIni();
 
     ToastUtil.success(
         navigator.context, 'Akun berhasil dihapus, silakan login ulang');
@@ -205,7 +201,8 @@ class AccountListPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _showExitDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _tampilkanDialogKeluar(
+      BuildContext context, WidgetRef ref) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -219,11 +216,11 @@ class AccountListPage extends ConsumerWidget {
                 final storage =
                     await ref.read(localStorageServiceProvider.future);
                 Log.info('Keluar & hapus akun yang sedang digunakan');
-                final account = await storage.getUserIdLogin();
+                final account = await storage.ambilAkunLogin();
                 if (account != null) {
-                  await storage.deleteAccount(account.id);
+                  await storage.hapusAkun(account.id);
                 }
-                await storage.deleteCurrentAccount();
+                await storage.hapusAkunSaatIni();
                 ref.invalidate(accountListProvider);
 
                 ToastUtil.success(
@@ -253,7 +250,7 @@ class AccountListPage extends ConsumerWidget {
                 final storage =
                     await ref.read(localStorageServiceProvider.future);
                 Log.info('Mulai proses logout (hapus token)');
-                await storage.deleteLoginToken();
+                await storage.hapusTokenLogin();
 
                 ToastUtil.success(context, 'Token berhasil dihapus');
                 await navigator.pushAndRemoveUntil(
