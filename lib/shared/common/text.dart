@@ -65,9 +65,11 @@ abstract class _TeksDasar extends StatelessWidget {
 // Ini adalah widget-widget yang akan Anda gunakan di seluruh aplikasi.
 // Masing-masing sudah terikat pada gaya tertentu dari Theme.
 
+//=-=-=-=-= HEADLINE (TAJUK) =-=-=-=-=
+
 /// Menampilkan teks dengan gaya `headlineLarge` dari tema.
-class TeksJudulBesar extends _TeksDasar {
-  const TeksJudulBesar(
+class TeksTajukBesar extends _TeksDasar {
+  const TeksTajukBesar(
     super.data, {
     super.key,
     super.warna,
@@ -85,8 +87,8 @@ class TeksJudulBesar extends _TeksDasar {
 }
 
 /// Menampilkan teks dengan gaya `headlineMedium` dari tema.
-class TeksJudulSedang extends _TeksDasar {
-  const TeksJudulSedang(
+class TeksTajukSedang extends _TeksDasar {
+  const TeksTajukSedang(
     super.data, {
     super.key,
     super.warna,
@@ -104,8 +106,8 @@ class TeksJudulSedang extends _TeksDasar {
 }
 
 /// Menampilkan teks dengan gaya `headlineSmall` dari tema.
-class TeksJudulKecil extends _TeksDasar {
-  const TeksJudulKecil(
+class TeksTajukKecil extends _TeksDasar {
+  const TeksTajukKecil(
     super.data, {
     super.key,
     super.warna,
@@ -122,9 +124,70 @@ class TeksJudulKecil extends _TeksDasar {
       Theme.of(context).textTheme.headlineSmall;
 }
 
+//=-=-=-=-= TITLE (JUDUL) =-=-=-=-=
+
+/// Menampilkan teks dengan gaya `titleLarge` dari tema.
+class TeksJudulBesar extends _TeksDasar {
+  const TeksJudulBesar(
+    super.data, {
+    super.key,
+    super.warna,
+    super.tebalFont,
+    super.rataTeks,
+    super.maksBaris,
+    super.luapan,
+    super.garisBawah,
+    super.tinggiBaris,
+  });
+
+  @override
+  TextStyle? dapatkanGayaDasar(BuildContext context) =>
+      Theme.of(context).textTheme.titleLarge;
+}
+
+/// Menampilkan teks dengan gaya `titleMedium` dari tema.
+class TeksJudulSedang extends _TeksDasar {
+  const TeksJudulSedang(
+    super.data, {
+    super.key,
+    super.warna,
+    super.tebalFont,
+    super.rataTeks,
+    super.maksBaris,
+    super.luapan,
+    super.garisBawah,
+    super.tinggiBaris,
+  });
+
+  @override
+  TextStyle? dapatkanGayaDasar(BuildContext context) =>
+      Theme.of(context).textTheme.titleMedium;
+}
+
+/// Menampilkan teks dengan gaya `titleSmall` dari tema.
+class TeksJudulKecil extends _TeksDasar {
+  const TeksJudulKecil(
+    super.data, {
+    super.key,
+    super.warna,
+    super.tebalFont,
+    super.rataTeks,
+    super.maksBaris,
+    super.luapan,
+    super.garisBawah,
+    super.tinggiBaris,
+  });
+
+  @override
+  TextStyle? dapatkanGayaDasar(BuildContext context) =>
+      Theme.of(context).textTheme.titleSmall;
+}
+
+//=-=-=-=-= BODY (ISI) =-=-=-=-=
+
 /// Menampilkan teks dengan gaya `bodyLarge` dari tema.
-class TeksBodyBesar extends _TeksDasar {
-  const TeksBodyBesar(
+class TeksIsiBesar extends _TeksDasar {
+  const TeksIsiBesar(
     super.data, {
     super.key,
     super.warna,
@@ -142,8 +205,8 @@ class TeksBodyBesar extends _TeksDasar {
 }
 
 /// Menampilkan teks dengan gaya `bodyMedium` dari tema.
-class TeksBodySedang extends _TeksDasar {
-  const TeksBodySedang(
+class TeksIsiSedang extends _TeksDasar {
+  const TeksIsiSedang(
     super.data, {
     super.key,
     super.warna,
@@ -161,8 +224,8 @@ class TeksBodySedang extends _TeksDasar {
 }
 
 /// Menampilkan teks dengan gaya `bodySmall` dari tema.
-class TeksBodyKecil extends _TeksDasar {
-  const TeksBodyKecil(
+class TeksIsiKecil extends _TeksDasar {
+  const TeksIsiKecil(
     super.data, {
     super.key,
     super.warna,
@@ -179,9 +242,11 @@ class TeksBodyKecil extends _TeksDasar {
       Theme.of(context).textTheme.bodySmall;
 }
 
+//=-=-=-=-= LABEL =-=-=-=-=
+
 /// Menampilkan teks dengan gaya `labelLarge` dari tema (cocok untuk tombol).
-class TeksTombol extends _TeksDasar {
-  const TeksTombol(
+class TeksLabelBesar extends _TeksDasar {
+  const TeksLabelBesar(
     super.data, {
     super.key,
     super.warna,
@@ -196,23 +261,4 @@ class TeksTombol extends _TeksDasar {
   @override
   TextStyle? dapatkanGayaDasar(BuildContext context) =>
       Theme.of(context).textTheme.labelLarge;
-}
-
-/// Menampilkan teks dengan gaya `bodySmall` (sebelumnya `caption`) dari tema.
-class TeksCaption extends _TeksDasar {
-  const TeksCaption(
-    super.data, {
-    super.key,
-    super.warna,
-    super.tebalFont,
-    super.rataTeks,
-    super.maksBaris,
-    super.luapan,
-    super.garisBawah,
-    super.tinggiBaris,
-  });
-
-  @override
-  TextStyle? dapatkanGayaDasar(BuildContext context) =>
-      Theme.of(context).textTheme.bodySmall; // DIGANTI dari .caption
 }

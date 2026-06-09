@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
 import 'package:wifi/admin/providers/wallet_provider.dart';
+import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
@@ -234,17 +235,12 @@ class WalletCard extends StatelessWidget {
           size: 40,
           color: TColors.primaryColor,
         ),
-        title: Text(
+        title: TeksJudulSedang(
           wallet.name,
-          style: context.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
         ),
-        subtitle: Text(
+        subtitle: TeksIsiSedang(
           'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.balance)}',
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: subtitleColor,
-          ),
+          warna: subtitleColor,
         ),
         onTap: onTap,
         onLongPress: onLongPress,

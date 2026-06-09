@@ -342,6 +342,767 @@ class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
     );
   }
 }
+// path: lib/fitur/akun/page/daftar_akun_page.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/user/page/login_page.dart';
+import 'package:wifi/user/page/main_page.dart';
+import 'package:wifi/user/providers/user_providers.dart';
+
+class DaftarAkunPage extends ConsumerWidget {
+  const DaftarAkunPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pengelolaAkun = ref.watch(pengelolaAkunProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pilih Akun Tersimpan'),
+      ),
+      body: Column(children: [
+        Expanded(
+          child: pengelolaAkun.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(
+              child: Text(
+                'Gagal memuat akun: $err',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+            data: (data) {
+              final accountList = data.daftarAkunTersimpan;
+              if (accountList.isEmpty) {
+                return const Center(
+                  child: Text('Belum ada riwayat login di perangkat ini.'),
+                );
+              }
+              return ListView.builder(
+                itemCount: accountList.length,
+                itemBuilder: (context, index) {
+                  final akun = accountList[index];
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(akun.name.isNotEmpty ? akun.name[0] : ''),
+                      ),
+                      title: Text(akun.name),
+                      onTap: () {
+                        _pilihAkun(context, ref, akun);
+                      },
+                      onLongPress: () =>
+                          _tampilkanDialogHapus(context, ref, akun),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _tampilkanDialogKeluar(context, ref),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: TColors.errorColor.withAlpha(200),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(TIcons.logout, size: 20, color: Colors.white),
+                  gapW8,
+                  Text(
+                    'Keluar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Future<void> _pilihAkun(
+    BuildContext context,
+    WidgetRef ref,
+    CustomerModel customer,
+  ) async {
+    final navigator = Navigator.of(context);
+    try {
+      await ref.read(pengelolaAkunProvider.notifier).login(customer);
+      final activityService =
+          await ref.read(userActivityServiceProvider.future);
+      Log.info('Mulai memilih akun',
+          {'customer_id': customer.id, 'nama': customer.name});
+
+      await activityService.pingActivity(customer.id, force: true);
+
+      await navigator.pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (context) => const MainPage()),
+        (route) => false,
+      );
+    } on Exception catch (e, st) {
+      Log.error('Gagal menyimpan akun yang dipilih',
+          e: e, st: st, data: {'customer_id': customer.id});
+      ToastUtil.error(context, 'Gagal memilih akun', logData: e.toString());
+    }
+  }
+
+  Future<void> _tampilkanDialogHapus(
+      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Akun'),
+        content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Batal')),
+          TextButton(
+            child: const Text('Hapus'),
+            onPressed: () async {
+              // Ambil navigator SEBELUM await
+              final navigator = Navigator.of(context);
+              Navigator.of(dialogContext).pop(); // Tutup dialog
+
+              try {
+                final akunLogin = await ref.read(userIdProvider.future);
+                if (akunLogin == customer.id) {
+                  await _tanganiHapusAkunAktif(
+                      context, navigator, ref, customer);
+                } else {
+                  Log.info('Menghapus akun tersimpan',
+                      {'customer_id': customer.id, 'nama': customer.name});
+                  await ref
+                      .read(pengelolaAkunProvider.notifier)
+                      .hapusAkun(customer.id);
+
+                  ToastUtil.success(context, 'Akun berhasil dihapus');
+                }
+              } catch (e, st) {
+                Log.error('Gagal menghapus akun',
+                    e: e, st: st, data: {'customer_id': customer.id});
+                ToastUtil.error(context, 'Gagal menghapus akun',
+                    logData: e.toString());
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _tanganiHapusAkunAktif(
+    BuildContext context,
+    NavigatorState navigator,
+    WidgetRef ref,
+    CustomerModel customer,
+  ) async {
+    Log.info(
+      'akun yang di hapus ternyata akun yang sedang login',
+      {'customer_id': customer.id, 'nama': customer.name},
+    );
+
+    await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
+
+    ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
+
+    await navigator.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (context) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
+  Future<void> _tampilkanDialogKeluar(
+      BuildContext context, WidgetRef ref) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Pilih metode keluar:'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              try {
+                final storage =
+                    await ref.read(localStorageServiceProvider.future);
+                Log.info('Keluar & hapus akun yang sedang digunakan');
+                final account = await storage.ambilAkunLogin();
+                if (account != null) {
+                  await ref
+                      .read(pengelolaAkunProvider.notifier)
+                      .hapusAkun(account.id);
+                }
+
+                ToastUtil.success(
+                    context, 'Anda telah keluar dan akun dihapus');
+                await navigator.pushAndRemoveUntil(
+                  MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              } on Exception catch (e, st) {
+                Log.error('Gagal keluar & hapus akun', e: e, st: st);
+                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
+              }
+            },
+            style: TextButton.styleFrom(
+                backgroundColor: TColors.errorColor,
+                foregroundColor: TColors.textOnDark),
+            child: const Text('Keluar & Hapus Akun'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+                backgroundColor: TColors.errorColor,
+                foregroundColor: TColors.textOnDark),
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              try {
+                await ref
+                    .read(pengelolaAkunProvider.notifier)
+                    .hapusTokenLogin();
+
+                ToastUtil.success(context, 'Token berhasil dihapus');
+                await navigator.pushAndRemoveUntil(
+                  MaterialPageRoute<void>(
+                      builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              } catch (e, st) {
+                Log.error('Gagal menghapus token login', e: e, st: st);
+                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
+              }
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'akun_provider.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(PengelolaAkun)
+final pengelolaAkunProvider = PengelolaAkunProvider._();
+
+final class PengelolaAkunProvider
+    extends $AsyncNotifierProvider<PengelolaAkun, AkunState> {
+  PengelolaAkunProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'pengelolaAkunProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$pengelolaAkunHash();
+
+  @$internal
+  @override
+  PengelolaAkun create() => PengelolaAkun();
+}
+
+String _$pengelolaAkunHash() => r'7f1a1e05c894d7ba5a950cb96a320bb82a9f5fc7';
+
+abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
+  FutureOr<AkunState> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<AkunState>, AkunState>;
+    final element = ref.element as $ClassProviderElement<
+        AnyNotifier<AsyncValue<AkunState>, AkunState>,
+        AsyncValue<AkunState>,
+        Object?,
+        Object?>;
+    element.handleCreate(ref, build);
+  }
+}
+// // path: lib/shared/akun/account_list_providers.dart
+
+
+// import 'package:riverpod_annotation/riverpod_annotation.dart';
+// import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+// import 'package:wifi/shared/providers/shared_providers.dart';
+
+// part 'account_list_providers.g.dart';
+
+// /// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
+// @riverpod
+// Future<List<CustomerModel>> accountList(Ref ref) async {
+//   final storage = await ref.watch(localStorageServiceProvider.future);
+//   return storage.ambilDaftarAkun();
+// }
+// path: lib/shared/akun/akun_provider.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
+
+part 'akun_provider.g.dart';
+part 'akun_provider.freezed.dart';
+
+@freezed
+abstract class AkunState with _$AkunState {
+  const factory AkunState({
+    CustomerModel? akunSaatIni,
+    @Default([]) List<CustomerModel> daftarAkunTersimpan,
+  }) = _AkunState;
+}
+
+@riverpod
+class PengelolaAkun extends _$PengelolaAkun {
+  @override
+  Future<AkunState> build() async {
+    final penyimpanan = await ref.watch(localStorageServiceProvider.future);
+    final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    return AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun);
+  }
+
+  // 1. Login / simpan akun
+  Future<void> login(CustomerModel akun) async {
+    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+
+    await penyimpanan.simpanAkunSaatIni(akun);
+    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    state = AsyncValue.data(AkunState(
+      akunSaatIni: akun,
+      daftarAkunTersimpan: daftarAkun,
+    ));
+  }
+
+  // 2. Logout (hapus akun saat ini)
+  Future<void> logout() async {
+    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+
+    await penyimpanan.hapusAkunSaatIni();
+    final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    state = AsyncValue.data(AkunState(
+      akunSaatIni: akunSaatIni,
+      daftarAkunTersimpan: daftarAkun,
+    ));
+  }
+
+  // 3. Hapus akun tertentu dari daftar
+  Future<void> hapusAkun(String idAkun) async {
+    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+
+    final keadaanSaatIni = state.value;
+    if (keadaanSaatIni == null) return;
+
+    await penyimpanan.hapusAkun(idAkun);
+    final daftarBaru = keadaanSaatIni.daftarAkunTersimpan
+        .where((a) => a.id != idAkun)
+        .toList();
+    final akunBaru = keadaanSaatIni.akunSaatIni?.id == idAkun
+        ? null
+        : keadaanSaatIni.akunSaatIni;
+    state = AsyncValue.data(AkunState(
+      akunSaatIni: akunBaru,
+      daftarAkunTersimpan: daftarBaru,
+    ));
+  }
+
+  Future<void> hapusTokenLogin() async {
+    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+    await penyimpanan.hapusTokenLogin();
+    final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    state = AsyncValue.data(AkunState(
+      akunSaatIni: akunSaatIni,
+    ));
+  }
+
+  // 4. Segarkan manual (jika diperlukan)
+  Future<void> refresh() async {
+    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+
+    final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+
+    state = AsyncValue.data(AkunState(
+      akunSaatIni: akunSaatIni,
+      daftarAkunTersimpan: daftarAkun,
+    ));
+  }
+}
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'akun_provider.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+
+/// @nodoc
+mixin _$AkunState {
+  CustomerModel? get akunSaatIni;
+  List<CustomerModel> get daftarAkunTersimpan;
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $AkunStateCopyWith<AkunState> get copyWith =>
+      _$AkunStateCopyWithImpl<AkunState>(this as AkunState, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is AkunState &&
+            (identical(other.akunSaatIni, akunSaatIni) ||
+                other.akunSaatIni == akunSaatIni) &&
+            const DeepCollectionEquality()
+                .equals(other.daftarAkunTersimpan, daftarAkunTersimpan));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, akunSaatIni,
+      const DeepCollectionEquality().hash(daftarAkunTersimpan));
+
+  @override
+  String toString() {
+    return 'AkunState(akunSaatIni: $akunSaatIni, daftarAkunTersimpan: $daftarAkunTersimpan)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $AkunStateCopyWith<$Res> {
+  factory $AkunStateCopyWith(AkunState value, $Res Function(AkunState) _then) =
+      _$AkunStateCopyWithImpl;
+  @useResult
+  $Res call(
+      {CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan});
+}
+
+/// @nodoc
+class _$AkunStateCopyWithImpl<$Res> implements $AkunStateCopyWith<$Res> {
+  _$AkunStateCopyWithImpl(this._self, this._then);
+
+  final AkunState _self;
+  final $Res Function(AkunState) _then;
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? akunSaatIni = freezed,
+    Object? daftarAkunTersimpan = null,
+  }) {
+    return _then(_self.copyWith(
+      akunSaatIni: freezed == akunSaatIni
+          ? _self.akunSaatIni
+          : akunSaatIni // ignore: cast_nullable_to_non_nullable
+              as CustomerModel?,
+      daftarAkunTersimpan: null == daftarAkunTersimpan
+          ? _self.daftarAkunTersimpan
+          : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
+              as List<CustomerModel>,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [AkunState].
+extension AkunStatePatterns on AkunState {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_AkunState value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_AkunState value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_AkunState value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(CustomerModel? akunSaatIni,
+            List<CustomerModel> daftarAkunTersimpan)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState() when $default != null:
+        return $default(_that.akunSaatIni, _that.daftarAkunTersimpan);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState():
+        return $default(_that.akunSaatIni, _that.daftarAkunTersimpan);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(CustomerModel? akunSaatIni,
+            List<CustomerModel> daftarAkunTersimpan)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AkunState() when $default != null:
+        return $default(_that.akunSaatIni, _that.daftarAkunTersimpan);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+
+class _AkunState implements AkunState {
+  const _AkunState(
+      {this.akunSaatIni,
+      final List<CustomerModel> daftarAkunTersimpan = const []})
+      : _daftarAkunTersimpan = daftarAkunTersimpan;
+
+  @override
+  final CustomerModel? akunSaatIni;
+  final List<CustomerModel> _daftarAkunTersimpan;
+  @override
+  @JsonKey()
+  List<CustomerModel> get daftarAkunTersimpan {
+    if (_daftarAkunTersimpan is EqualUnmodifiableListView)
+      return _daftarAkunTersimpan;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_daftarAkunTersimpan);
+  }
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$AkunStateCopyWith<_AkunState> get copyWith =>
+      __$AkunStateCopyWithImpl<_AkunState>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _AkunState &&
+            (identical(other.akunSaatIni, akunSaatIni) ||
+                other.akunSaatIni == akunSaatIni) &&
+            const DeepCollectionEquality()
+                .equals(other._daftarAkunTersimpan, _daftarAkunTersimpan));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, akunSaatIni,
+      const DeepCollectionEquality().hash(_daftarAkunTersimpan));
+
+  @override
+  String toString() {
+    return 'AkunState(akunSaatIni: $akunSaatIni, daftarAkunTersimpan: $daftarAkunTersimpan)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$AkunStateCopyWith<$Res>
+    implements $AkunStateCopyWith<$Res> {
+  factory _$AkunStateCopyWith(
+          _AkunState value, $Res Function(_AkunState) _then) =
+      __$AkunStateCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan});
+}
+
+/// @nodoc
+class __$AkunStateCopyWithImpl<$Res> implements _$AkunStateCopyWith<$Res> {
+  __$AkunStateCopyWithImpl(this._self, this._then);
+
+  final _AkunState _self;
+  final $Res Function(_AkunState) _then;
+
+  /// Create a copy of AkunState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? akunSaatIni = freezed,
+    Object? daftarAkunTersimpan = null,
+  }) {
+    return _then(_AkunState(
+      akunSaatIni: freezed == akunSaatIni
+          ? _self.akunSaatIni
+          : akunSaatIni // ignore: cast_nullable_to_non_nullable
+              as CustomerModel?,
+      daftarAkunTersimpan: null == daftarAkunTersimpan
+          ? _self._daftarAkunTersimpan
+          : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
+              as List<CustomerModel>,
+    ));
+  }
+}
+
+// dart format on
 // path: lib/shared/services/device_info_service.dart
 // diperbaiki: Mengubah nama file ke Bahasa Inggris sesuai aturan.
 
@@ -815,7 +1576,7 @@ class OrderOpFirebase extends BaseOpFirebase {
     }
   }
 }
-// path: lib/fitur/order/ui/user/order_page.dart
+// path: lib/fitur/order/ui/order_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -984,10 +1745,15 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
         body: Center(child: Text('Error: $err')),
       ),
       data: (userId) {
+        if (userId == null) {
+          Log.info('data untuk $userId null');
+          return const SizedBox.shrink();
+        }
+
         final dataSqlite =
             ref.watch(orderOperationProvider).getAllActiveOrdersStream();
         final dataFirebase =
-            ref.watch(orderOpFirebaseProvider).getAllByUserId(userId!);
+            ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
 
         Log.info(
             '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
@@ -1206,370 +1972,6 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
     );
   }
 }
-// // path: lib/fitur/order/ui/user/order_page_a.dart
-
-// import 'dart:async';
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:intl/intl.dart';
-// import 'package:wifi/shared/debug/log.dart';
-// import 'package:wifi/shared/export/enum.dart';
-// import 'package:wifi/shared/export/theme.dart';
-// import 'package:wifi/shared/model/order_model.dart';
-// import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
-// import 'package:wifi/shared/utils/toast_util.dart';
-
-// class OrderPageA extends ConsumerStatefulWidget {
-//   const OrderPageA({super.key});
-
-//   @override
-//   ConsumerState<OrderPageA> createState() => _OrderPageState();
-// }
-
-// class _OrderPageState extends ConsumerState<OrderPageA> {
-//   List<OrderModel> _orderList = [];
-//   bool _isLoading = true;
-//   StatusOrderEnum? _filterStatus;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     Log.info('Menginisialisasi halaman OrderPage');
-//     unawaited(_loadOrders());
-//   }
-
-//   Future<void> _loadOrders() async {
-//     final orderOperation = ref.read(orderOperationProvider);
-//     Log.info('Memuat pesanan dengan filter: ${_filterStatus?.name ?? 'semua'}');
-//     setState(() => _isLoading = true);
-
-//     try {
-//       final List<OrderModel> orders;
-//       if (_filterStatus == null) {
-//         orders = await orderOperation.getAllActiveOrders();
-//       } else {
-//         orders = await orderOperation.getOrdersByStatus(_filterStatus!);
-//       }
-//       setState(() {
-//         _orderList = orders;
-//         _isLoading = false;
-//       });
-//     } catch (e, s) {
-//       Log.error('Gagal memuat pesanan', e: e, st: s);
-//       setState(() => _isLoading = false);
-//       if (mounted) {
-//         ToastUtil.error(context, 'Gagal memuat pesanan: $e');
-//       }
-//     }
-//   }
-
-//   Future<void> _updateStatus(
-//       OrderModel order, StatusOrderEnum newStatus) async {
-//     Log.info('Mengubah status pesanan ID: ${order.id} ke "${newStatus.name}"');
-//     final orderOperation = ref.read(orderOperationProvider);
-
-//     try {
-//       await orderOperation.updateOrderStatus(order.id, newStatus);
-//       await _loadOrders();
-//       if (mounted) {
-//         ToastUtil.success(context, 'Status pesanan berhasil diubah');
-//       }
-//     } on Exception catch (e, s) {
-//       Log.error('Gagal mengubah status pesanan', e: e, st: s);
-//       if (mounted) {
-//         ToastUtil.error(context, 'Gagal mengubah status: $e');
-//       }
-//     }
-//   }
-
-//   Future<void> _softDeleteOrder(OrderModel order) async {
-//     Log.info('Memulai soft delete untuk pesanan ID: ${order.id}');
-//     final confirmed = await showDialog<bool>(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Arsipkan Pesanan'),
-//         content:
-//             Text('Yakin ingin mengarsipkan pesanan dari ${order.customerId}?'),
-//         actions: [
-//           TextButton(
-//               onPressed: () => Navigator.pop(context, false),
-//               child: const Text('Batal')),
-//           ElevatedButton(
-//             onPressed: () => Navigator.pop(context, true),
-//             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-//             child: const Text('Arsipkan'),
-//           ),
-//         ],
-//       ),
-//     );
-
-//     if (confirmed ?? false) {
-//       try {
-//         final orderOperation = ref.read(orderOperationProvider);
-//         await orderOperation.softDelete(order.id);
-//         await _loadOrders();
-//         if (mounted) {
-//           ToastUtil.success(context, 'Pesanan berhasil diarsipkan');
-//         }
-//       } on Exception catch (e, s) {
-//         Log.error('Gagal mengarsipkan pesanan', e: e, st: s);
-//         if (mounted) {
-//           ToastUtil.error(context, 'Gagal mengarsipkan pesanan: $e');
-//         }
-//       }
-//     }
-//   }
-
-//   Future<void> _softDeleteAllOrders() async {
-//     Log.info('Memulai soft delete untuk semua pesanan');
-//     final confirmed = await showDialog<bool>(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Arsipkan Semua Pesanan?'),
-//         content: const Text(
-//             'Anda yakin ingin mengarsipkan semua pesanan yang aktif?'),
-//         actions: [
-//           TextButton(
-//               onPressed: () => Navigator.pop(context, false),
-//               child: const Text('Batal')),
-//           ElevatedButton(
-//             onPressed: () => Navigator.pop(context, true),
-//             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-//             child: const Text('Arsipkan Semua'),
-//           ),
-//         ],
-//       ),
-//     );
-
-//     if (confirmed ?? false) {
-//       try {
-//         final orderOperation = ref.read(orderOperationProvider);
-//         final count = await orderOperation.softDeleteAll();
-//         await _loadOrders();
-//         if (mounted) {
-//           ToastUtil.success(context, 'Berhasil mengarsipkan $count pesanan.');
-//         }
-//       } on Exception catch (e, s) {
-//         Log.error('Gagal mengarsipkan semua pesanan', e: e, st: s);
-//         if (mounted) {
-//           ToastUtil.error(context, 'Gagal mengarsipkan semua pesanan: $e');
-//         }
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Daftar Pesanan'),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(TIcons.sort),
-//             onPressed: () {},
-//             tooltip: 'Hapus Semua',
-//           ),
-//           IconButton(
-//             icon: const Icon(TIcons.delete),
-//             onPressed: _softDeleteAllOrders,
-//             tooltip: 'Hapus Semua',
-//           ),
-//         ],
-//       ),
-//       body: Column(
-//         children: [
-//           _buildFilterChips(),
-//           Expanded(
-//             child: _isLoading
-//                 ? const Center(child: CircularProgressIndicator())
-//                 : _orderList.isEmpty
-//                     ? const Center(child: Text('Belum ada pesanan'))
-//                     : _buildOrderList(),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildFilterChips() {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//       child: SingleChildScrollView(
-//         scrollDirection: Axis.horizontal,
-//         child: Row(
-//           children: [
-//             _filterChip('Semua', null),
-//             _filterChip('Baru', StatusOrderEnum.baru),
-//             _filterChip('Diproses', StatusOrderEnum.diproses),
-//             _filterChip('Selesai', StatusOrderEnum.selesai),
-//             _filterChip('Ditolak', StatusOrderEnum.ditolak),
-//           ]
-//               .map((e) =>
-//                   Padding(padding: const EdgeInsets.only(right: 8), child: e))
-//               .toList(),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _filterChip(String label, StatusOrderEnum? value) {
-//     final isSelected = _filterStatus == value;
-//     return FilterChip(
-//       label: Text(label),
-//       selected: isSelected,
-//       onSelected: (selected) {
-//         setState(() => _filterStatus = value);
-//         unawaited(_loadOrders());
-//       },
-//       selectedColor: Theme.of(context).colorScheme.primaryContainer,
-//       checkmarkColor: Theme.of(context).colorScheme.primary,
-//     );
-//   }
-
-//   Widget _buildOrderList() {
-//     return ListView.builder(
-//       padding: const EdgeInsets.all(16),
-//       itemCount: _orderList.length,
-//       itemBuilder: (context, index) {
-//         final order = _orderList[index];
-//         return _buildOrderCard(order);
-//       },
-//     );
-//   }
-
-//   Widget _buildOrderCard(OrderModel order) {
-//     final Color statusColor = _getStatusColor(order);
-//     return Card(
-//       margin: const EdgeInsets.only(bottom: 12),
-//       elevation: 2,
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(12),
-//         side: BorderSide(color: statusColor.withAlpha(80)),
-//       ),
-//       child: InkWell(
-//         onTap: () => unawaited(_showOrderDetail(order)),
-//         borderRadius: BorderRadius.circular(12),
-//         child: Padding(
-//           padding: const EdgeInsets.all(16),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(order.customerId,
-//                       style: const TextStyle(fontWeight: FontWeight.bold)),
-//                   Container(
-//                     padding:
-//                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-//                     decoration: BoxDecoration(
-//                       color: statusColor.withAlpha(30),
-//                       borderRadius: BorderRadius.circular(20),
-//                     ),
-//                     child: Text(_getStatusText(order),
-//                         style: TextStyle(
-//                             color: statusColor, fontWeight: FontWeight.bold)),
-//                   ),
-//                 ],
-//               ),
-//               gapH24,
-//               Text(order.packageId),
-//               gapH8,
-//               Text(DateFormat('dd MMM yyyy HH:mm').format(order.date)),
-//               gapH12,
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.end,
-//                 children: [
-//                   _actionButton(
-//                       'Proses',
-//                       () => unawaited(
-//                           _updateStatus(order, StatusOrderEnum.diproses))),
-//                   _actionButton(
-//                       'Selesai',
-//                       () => unawaited(
-//                           _updateStatus(order, StatusOrderEnum.selesai))),
-//                   _actionButton(
-//                       'Tolak',
-//                       () => unawaited(
-//                           _updateStatus(order, StatusOrderEnum.ditolak))),
-//                   IconButton(
-//                     icon: const Icon(Icons.archive, color: Colors.grey),
-//                     onPressed: () => unawaited(_softDeleteOrder(order)),
-//                     tooltip: 'Arsipkan',
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _actionButton(String label, VoidCallback onPressed) {
-//     return TextButton(
-//       onPressed: onPressed,
-//       child: Text(label),
-//     );
-//   }
-
-//   Color _getStatusColor(OrderModel order) {
-//     switch (order.status) {
-//       case StatusOrderEnum.baru:
-//         return Colors.blue;
-//       case StatusOrderEnum.diproses:
-//         return Colors.orange;
-//       case StatusOrderEnum.selesai:
-//         return Colors.green;
-//       case StatusOrderEnum.ditolak:
-//         return Colors.red;
-//       case StatusOrderEnum.arsip:
-//         return Colors.grey;
-//     }
-//   }
-
-//   String _getStatusText(OrderModel order) {
-//     return order.status.displayName;
-//   }
-
-//   Future<void> _showOrderDetail(OrderModel order) async {
-//     await showModalBottomSheet<void>(
-//       context: context,
-//       builder: (context) => Padding(
-//         padding: const EdgeInsets.all(24),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text('Detail Pesanan #${order.id}',
-//                 style:
-//                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-//             gapH20,
-//             _detailRow('Nama Pelanggan', order.customerId),
-//             _detailRow('Paket', order.packageId),
-//             _detailRow(
-//                 'Tanggal', DateFormat('dd MMM yyyy HH:mm').format(order.date)),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _detailRow(String label, String value) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 8),
-//       child: Row(
-//         children: [
-//           SizedBox(
-//               width: 120,
-//               child: Text(label, style: const TextStyle(color: Colors.grey))),
-//           Text(value)
-//         ],
-//       ),
-//     );
-//   }
-// }
 // path: lib/fitur/order/model/order_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -4093,8 +4495,8 @@ class _InfoApkPageUserState extends State<InfoApkPageUser> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
@@ -4850,286 +5252,6 @@ class _UserCustomerDetailPageState
     );
   }
 }
-// path: lib/user/page/account_list_page.dart
-
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/login_page.dart';
-import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/providers/account_list_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
-
-class AccountListPage extends ConsumerWidget {
-  const AccountListPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final accountsAsync = ref.watch(accountListProvider);
-    final storageAsync = ref.watch(localStorageServiceProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pilih Akun Tersimpan'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: accountsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(
-                child: Text(
-                  'Gagal memuat akun: $err',
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
-              data: (accountList) {
-                if (accountList.isEmpty) {
-                  return const Center(
-                    child: Text('Belum ada riwayat login di perangkat ini.'),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: accountList.length,
-                  itemBuilder: (context, index) {
-                    final account = accountList[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(
-                              account.name.isNotEmpty ? account.name[0] : ''),
-                        ),
-                        title: Text(account.name),
-                        onTap: () => _pilihAkun(context, ref, account),
-                        onLongPress: () =>
-                            _tampilkanDialogHapus(context, ref, account),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          storageAsync.when(
-            data: (_) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _tampilkanDialogKeluar(context, ref),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.errorColor.withAlpha(200),
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.logout, size: 20, color: Colors.white),
-                      gapW8,
-                      Text(
-                        'Keluar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            loading: () => const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
-              child: SizedBox(
-                  width: double.infinity,
-                  child:
-                      ElevatedButton(onPressed: null, child: Text('Keluar'))),
-            ),
-            error: (e, st) => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _pilihAkun(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
-    final navigator = Navigator.of(context);
-    try {
-      final storage = await ref.read(localStorageServiceProvider.future);
-      final activityService =
-          await ref.read(userActivityServiceProvider.future);
-
-      Log.info('Mulai memilih akun',
-          {'customer_id': customer.id, 'nama': customer.name});
-      await storage.simpanAkunSaatIni(customer);
-      await activityService.pingActivity(customer.id, force: true);
-
-      await navigator.pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (context) => const MainPage()),
-        (route) => false,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal menyimpan akun yang dipilih',
-          e: e, st: st, data: {'customer_id': customer.id});
-      ToastUtil.error(context, 'Gagal memilih akun', logData: e.toString());
-    }
-  }
-
-  Future<void> _tampilkanDialogHapus(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Hapus Akun'),
-        content: Text('Anda yakin ingin menghapus akun ${customer.name}?'),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Batal')),
-          TextButton(
-            child: const Text('Hapus'),
-            onPressed: () async {
-              Navigator.of(dialogContext).pop();
-              try {
-                final storage =
-                    await ref.read(localStorageServiceProvider.future);
-                final currentAccount = await storage.ambilAkunLogin();
-
-                if (currentAccount?.id == customer.id) {
-                  await _tanganiHapusAkunAktif(context, ref, customer, storage);
-                } else {
-                  Log.info('Menghapus akun tersimpan',
-                      {'customer_id': customer.id, 'nama': customer.name});
-                  await storage.hapusAkun(customer.id);
-                  ref.invalidate(accountListProvider);
-                  ToastUtil.success(context, 'Akun berhasil dihapus');
-                }
-              } on Exception catch (e, st) {
-                Log.error('Gagal menghapus akun',
-                    e: e, st: st, data: {'customer_id': customer.id});
-                ToastUtil.error(context, 'Gagal menghapus akun',
-                    logData: e.toString());
-              }
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _tanganiHapusAkunAktif(BuildContext context, WidgetRef ref,
-      CustomerModel customer, LayananPenyimpananLokal storage) async {
-    final navigator = Navigator.of(context);
-    Log.info('Menghapus akun aktif & keluar',
-        {'customer_id': customer.id, 'nama': customer.name});
-
-    await storage.hapusAkun(customer.id);
-    await storage.hapusAkunSaatIni();
-
-    ref.invalidate(accountListProvider);
-    ref.invalidate(localStorageServiceProvider);
-    ref.invalidate(userIdProvider);
-
-    ToastUtil.success(
-        navigator.context, 'Akun berhasil dihapus, silakan login ulang');
-
-    await navigator.pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (context) => const LoginPage()),
-      (route) => false,
-    );
-  }
-
-  Future<void> _tampilkanDialogKeluar(
-      BuildContext context, WidgetRef ref) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Keluar'),
-        content: const Text('Pilih metode keluar:'),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              try {
-                final storage =
-                    await ref.read(localStorageServiceProvider.future);
-                Log.info('Keluar & hapus akun yang sedang digunakan');
-                final account = await storage.ambilAkunLogin();
-                if (account != null) {
-                  await storage.hapusAkun(account.id);
-                }
-                await storage.hapusAkunSaatIni();
-
-                ref.invalidate(accountListProvider);
-                ref.invalidate(localStorageServiceProvider);
-                ref.invalidate(userIdProvider);
-
-                ToastUtil.success(
-                    context, 'Anda telah keluar dan akun dihapus');
-                await navigator.pushAndRemoveUntil(
-                  MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              } on Exception catch (e, st) {
-                Log.error('Gagal keluar & hapus akun', e: e, st: st);
-                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
-              }
-            },
-            style: TextButton.styleFrom(
-                backgroundColor: TColors.errorColor,
-                foregroundColor: TColors.textOnDark),
-            child: const Text('Keluar/Hapus Akun'),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-                backgroundColor: TColors.errorColor,
-                foregroundColor: TColors.textOnDark),
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              try {
-                final storage =
-                    await ref.read(localStorageServiceProvider.future);
-                Log.info('Mulai proses logout (hapus token)');
-                await storage.hapusTokenLogin();
-
-                ref.invalidate(accountListProvider);
-                ref.invalidate(localStorageServiceProvider);
-                ref.invalidate(userIdProvider);
-
-                ToastUtil.success(context, 'Token berhasil dihapus');
-                await navigator.pushAndRemoveUntil(
-                  MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              } catch (e, st) {
-                Log.error('Gagal menghapus token login', e: e, st: st);
-                ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
-              }
-            },
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
-  }
-}
 // path: lib/user/page/splash_screen_user.dart
 
 import 'dart:async';
@@ -5143,6 +5265,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/sinkronisasi/update_check_service.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -5323,16 +5446,18 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<void> _navigateToNextPage() async {
     if (!mounted) return;
-    final userId = widget.prefs.getString('userId');
-    if (userId != null) {
+    final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
+    final akunAktif = pengelolaAkun.akunSaatIni;
+
+    if (akunAktif != null) {
       final isConnected = await ref
-          .watch(internetConnectionServiceProvider)
+          .read(internetConnectionServiceProvider)
           .checkLocalConnection();
 
       if (isConnected) {
         final userActivityService =
             await ref.read(userActivityServiceProvider.future);
-        unawaited(userActivityService.pingActivity(userId));
+        unawaited(userActivityService.pingActivity(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
@@ -5343,7 +5468,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     } else {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (final context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       ));
     }
   }
@@ -5829,7 +5954,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
-import 'package:wifi/fitur/order/ui/user/order_page.dart';
+import 'package:wifi/fitur/order/ui/order_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/profile_page.dart';
@@ -5946,6 +6071,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -5956,7 +6082,7 @@ import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/account_list_page.dart';
+import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -6022,9 +6148,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         return;
       }
       final firestore = ref.read(firestoreProvider);
-      final localStorageService =
-          await ref.read(localStorageServiceProvider.future);
-
       final querySnapshot = await firestore
           .collection(TableNameValue.get(TableName.customer))
           .where(ColumnNames.phone, isEqualTo: phone)
@@ -6039,16 +6162,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
+        await ref.read(pengelolaAkunProvider.notifier).login(customer);
+        Log.info('menyimpan token login pada saat login untuk ${customer.id}');
+
         final activityService =
             await ref.read(userActivityServiceProvider.future);
         unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
-
-        await localStorageService.simpanAkunSaatIni(customer);
-        await localStorageService.simpanAkun(customer);
-
-        ref.invalidate(localStorageServiceProvider);
-        ref.invalidate(userIdProvider);
 
         if (!mounted) return;
         unawaited(Navigator.of(context).pushReplacement(
@@ -6062,7 +6182,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         await _showErrorAlert(
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
       if (mounted) setState(() => _isLoggingIn = false);
       if (!mounted) return;
@@ -6089,7 +6209,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       await Navigator.push(
         context,
         MaterialPageRoute<void>(
-          builder: (context) => const AccountListPage(),
+          builder: (context) => const DaftarAkunPage(),
         ),
       );
     }
@@ -6880,7 +7000,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/user/page/account_list_page.dart';
+import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/user/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
@@ -6967,7 +7087,7 @@ class SettingsPageUser extends ConsumerWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => const AccountListPage(),
+                  builder: (context) => const DaftarAkunPage(),
                 ),
               );
             },
@@ -8374,17 +8494,26 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     try {
-      final Map<String, dynamic> akunJson = daftarAkun
-          .cast<Map<String, dynamic>>()
-          .firstWhere((p) => p['id'] == idPengguna);
+      final Map<String, dynamic> akunJson =
+          daftarAkun.cast<Map<String, dynamic>>().firstWhere(
+                (p) => p['id'] == idPengguna,
+                orElse: () => {},
+              );
+      if (akunJson.isEmpty) {
+        Log.warning(
+          '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ada di daftar riwayat lokal.',
+        );
+        return null;
+      }
       final pelanggan = CustomerModel.fromSqlite(akunJson);
       Log.info(
         '[Ambil Akun Saat Ini] Akun ${pelanggan.name} berhasil diambil.',
       );
       return pelanggan;
-    } on Exception {
+    } catch (e, st) {
       Log.warning(
         '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ditemukan dalam daftar.',
+        {e, st},
       );
       return null;
     }
@@ -8579,7 +8708,7 @@ final class UserIdProvider
   }
 }
 
-String _$userIdHash() => r'ac6d20a85f85b5e7032fc6aeccbb9bb3f7a89d5b';
+String _$userIdHash() => r'99159f4d22bbc50c367bcbb1bf5f8ce4a1958fad';
 
 @ProviderFor(userActivityService)
 final userActivityServiceProvider = UserActivityServiceProvider._();
@@ -8619,76 +8748,11 @@ final class UserActivityServiceProvider extends $FunctionalProvider<
 
 String _$userActivityServiceHash() =>
     r'7f5ad796551860f2e2cd3b41bfd77187555773d8';
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
-part of 'account_list_providers.dart';
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
-
-@ProviderFor(accountList)
-final accountListProvider = AccountListProvider._();
-
-/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
-
-final class AccountListProvider extends $FunctionalProvider<
-        AsyncValue<List<CustomerModel>>,
-        List<CustomerModel>,
-        FutureOr<List<CustomerModel>>>
-    with
-        $FutureModifier<List<CustomerModel>>,
-        $FutureProvider<List<CustomerModel>> {
-  /// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
-  AccountListProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'accountListProvider',
-          isAutoDispose: true,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
-
-  @override
-  String debugGetCreateSourceHash() => _$accountListHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<CustomerModel>> $createElement(
-          $ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<CustomerModel>> create(Ref ref) {
-    return accountList(ref);
-  }
-}
-
-String _$accountListHash() => r'b2d97085330fe8da0bd9b24b494e8e66625caf22';
-// path: lib/user/providers/account_list_providers.dart
-
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
-
-part 'account_list_providers.g.dart';
-
-/// DIUBAH: FutureProvider yang menunggu LocalStorageService siap sebelum memuat daftar akun.
-@riverpod
-Future<List<CustomerModel>> accountList(Ref ref) async {
-  final storage = await ref.watch(localStorageServiceProvider.future);
-  return storage.ambilDaftarAkun();
-}
 // path: lib/user/providers/user_providers.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
+import 'package:wifi/fitur/akun/akun_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
@@ -8710,9 +8774,8 @@ NotifikasiServis notifikasiServis(Ref ref) {
 
 @Riverpod(keepAlive: true)
 Future<String?> userId(Ref ref) async {
-  final storage = await ref.watch(localStorageServiceProvider.future);
-  final akun = await storage.ambilAkunLogin();
-  return akun?.id;
+  final akunState = await ref.watch(pengelolaAkunProvider.future);
+  return akunState.akunSaatIni?.id;
 }
 
 @riverpod
@@ -28247,13 +28310,13 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 
 class AppAdmin extends ConsumerWidget {
@@ -33125,8 +33188,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
@@ -36447,9 +36510,9 @@ class _WalletFormState extends ConsumerState<WalletForm> {
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
@@ -40189,7 +40252,7 @@ final class WalletProvider extends $AsyncNotifierProvider<Wallet, WalletState> {
   Wallet create() => Wallet();
 }
 
-String _$walletHash() => r'12c6e95efcebdb92bda4a5026de29df81207511f';
+String _$walletHash() => r'454becf63ef3e64784a4f53f5d1b82b2f7e7d621';
 
 abstract class _$Wallet extends $AsyncNotifier<WalletState> {
   FutureOr<WalletState> build();
@@ -40705,7 +40768,6 @@ class Wallet extends _$Wallet {
 
   // Method untuk refresh manual jika dibutuhkan oleh UI (misal: pull-to-refresh)
   Future<void> refresh() async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
   }
 }
@@ -41257,7 +41319,7 @@ import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/halaman/tab/wallet_page.dart';
 import 'package:wifi/fitur/background/background_service.dart';
-import 'package:wifi/fitur/order/ui/user/order_page.dart';
+import 'package:wifi/fitur/order/ui/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/expired_subscription_check_service.dart';
