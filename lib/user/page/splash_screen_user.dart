@@ -131,8 +131,6 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
             apkInfo: updateInfo.apkInfo!,
             packageInfo: updateInfo.packageInfo!,
             architecture: updateInfo.architecture!,
-            prefs: widget.prefs,
-            localStorageService: widget.localStorageService,
           ),
         ),
       ));

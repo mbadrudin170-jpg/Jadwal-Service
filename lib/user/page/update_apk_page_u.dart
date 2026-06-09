@@ -9,7 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/fitur/sinkronisasi/update_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -21,29 +21,25 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
-class UpdateApkPage extends StatefulWidget {
+class UpdateApkPage extends ConsumerStatefulWidget {
   final ApkVersionModel apkInfo;
   final PackageInfoModel packageInfo;
   final ApkArchitectureEnum architecture;
-  final SharedPreferences prefs;
-  final LayananPenyimpananLokal localStorageService;
 
   const UpdateApkPage({
     super.key,
     required this.apkInfo,
     required this.packageInfo,
     required this.architecture,
-    required this.prefs,
-    required this.localStorageService,
   });
 
   @override
-  State<UpdateApkPage> createState() => _UpdateApkPageState();
+  ConsumerState<UpdateApkPage> createState() => _UpdateApkPageState();
 }
 
-class _UpdateApkPageState extends State<UpdateApkPage>
+class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     with SingleTickerProviderStateMixin {
   late final List<String> _changelog;
   final UpdateService _updateService = UpdateService();
@@ -109,7 +105,7 @@ class _UpdateApkPageState extends State<UpdateApkPage>
       await _updateService.downloadAndInstallApk(
         url: downloadUrl,
         fileName: fileName,
-        onProgress: (final progress) {
+        onProgress: ( progress) {
           setState(() {
             _downloadProgress = progress;
           });
@@ -156,28 +152,26 @@ class _UpdateApkPageState extends State<UpdateApkPage>
     }
   }
 
-  void _skipUpdateAndNavigate() {
-    Log.info('Pengguna memilih untuk melewati pembaruan.');
-
-    final userId = widget.prefs.getString('userId');
-
+  Future<void> _skipUpdateAndNavigate() async {
+    final userId = await ref.watch(userIdProvider.future);
     if (userId != null) {
       Log.info('Pengguna sudah login. Mengalihkan ke MainPage.');
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => const MainPage(),
+          builder: (context) => const MainPage(),
         ),
       ));
     } else {
-      Log.info('Pengguna belum login. Mengalihkan ke LoginPage.');
-      unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (final context) => const LoginPage()),
-      ));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: ((context) => const LoginPage()),
+        ),
+      );
     }
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

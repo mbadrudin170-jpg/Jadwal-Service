@@ -130,13 +130,10 @@ class UpdateCheckService {
         unawaited(
           Navigator.of(context!).pushReplacement(
             MaterialPageRoute<void>(
-              builder: (final ctx) => UpdateApkPage(
+              builder: (ctx) => UpdateApkPage(
                 apkInfo: update.apkInfo!,
                 packageInfo: update.packageInfo!,
                 architecture: update.architecture!,
-                prefs: prefs, // Diteruskan ke UpdateApkPage
-                localStorageService:
-                    localStorageService, // Diteruskan ke UpdateApkPage
               ),
             ),
           ),

@@ -32,7 +32,7 @@ class UpdateService {
       await _dio.download(
         url,
         fullPath,
-        onReceiveProgress: (final received, final total) {
+        onReceiveProgress: (received, total) {
           if (total != -1 && onProgress != null) {
             final double progressValue = received / total;
             onProgress(progressValue);
@@ -57,12 +57,10 @@ class UpdateService {
       }
     } on DioException catch (e) {
       Log.error('Error saat mengunduh (Dio)', e: e, st: e.stackTrace);
-      // Melempar kembali error untuk ditangani oleh pemanggil
       throw Exception(
           'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.');
     } on Object catch (e, st) {
       Log.error('Error umum saat proses update', e: e, st: st);
-      // Melempar kembali error untuk ditangani oleh pemanggil
       throw Exception('Terjadi kesalahan saat proses pembaruan: $e');
     }
   }
