@@ -1076,6 +1076,23 @@ class MockStorageFileApi extends _i1.Mock implements _i2.StorageFileApi {
       ) as _i5.Future<List<_i2.SignedUrl>>);
 
   @override
+  _i5.Future<List<_i2.SignedUrlResult>> createSignedUrlsResult(
+    List<String>? paths,
+    int? expiresIn,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createSignedUrlsResult,
+          [
+            paths,
+            expiresIn,
+          ],
+        ),
+        returnValue: _i5.Future<List<_i2.SignedUrlResult>>.value(
+            <_i2.SignedUrlResult>[]),
+      ) as _i5.Future<List<_i2.SignedUrlResult>>);
+
+  @override
   _i5.Future<_i7.Uint8List> download(
     String? path, {
     _i2.TransformOptions? transform,

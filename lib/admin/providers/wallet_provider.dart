@@ -111,7 +111,6 @@ class Wallet extends _$Wallet {
 
   // Method untuk refresh manual jika dibutuhkan oleh UI (misal: pull-to-refresh)
   Future<void> refresh() async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(_loadData);
   }
 }

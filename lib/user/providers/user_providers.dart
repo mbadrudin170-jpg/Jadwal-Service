@@ -2,6 +2,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart';
+import 'package:wifi/shared/akun/akun_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
@@ -20,12 +21,10 @@ class AppReadiness extends _$AppReadiness {
 NotifikasiServis notifikasiServis(Ref ref) {
   return NotifikasiServis();
 }
-
 @Riverpod(keepAlive: true)
 Future<String?> userId(Ref ref) async {
-  final storage = await ref.watch(localStorageServiceProvider.future);
-  final akun = await storage.ambilAkunLogin();
-  return akun?.id;
+  final akunState = await ref.watch(pengelolaAkunProvider.future);
+  return akunState.akunSaatIni?.id;
 }
 
 @riverpod
