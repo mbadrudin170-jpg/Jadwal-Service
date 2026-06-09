@@ -7,11 +7,15 @@ class InputAngka extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
+  final IconData? icons;
+  final bool? validasi;
   const InputAngka({
     super.key,
     required this.controller,
     required this.label,
-    required this.wajib,
+    this.wajib = true,
+    this.icons,
+    this.validasi,
   });
 
   @override
@@ -30,9 +34,10 @@ class InputAngka extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        icon: icons != null ? Icon(icons) : null,
       ),
       validator: (value) {
-        if (wajib && (value == null || value.trim().isEmpty)) {
+        if (wajib && validasi! && (value == null || value.trim().isEmpty)) {
           return '$label wajib diisi';
         }
         final angka = int.tryParse(value ?? '');

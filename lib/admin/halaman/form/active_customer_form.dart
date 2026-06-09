@@ -23,6 +23,7 @@ import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
+import 'package:wifi/shared/widget/input/input_angka.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
   final ActiveCustomerModel? pelangganAktif;
@@ -690,7 +691,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const TeksBodySedang('Bonus'),
+        const TeksIsiBesar('Bonus'),
         Switch(
           value: _isBonus,
           onChanged: (value) {
@@ -715,21 +716,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           children: [
             Expanded(
               flex: 2,
-              child: TextFormField(
+              child: InputAngka(
                 controller: _bonusDurationController,
-                decoration: const InputDecoration(
-                  labelText: 'Durasi Bonus',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(TIcons.timerOutlined),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (v) {
-                  if (_isBonus && (v == null || v.isEmpty)) {
-                    return 'Wajib diisi';
-                  }
-                  return null;
-                },
+                label: 'Durasi Bonus ',
+                icons: TIcons.timerOutlined,
+                validasi: _isBonus,
               ),
             ),
             gapW8,
