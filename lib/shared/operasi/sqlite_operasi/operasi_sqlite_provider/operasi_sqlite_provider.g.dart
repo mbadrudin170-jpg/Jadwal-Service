@@ -436,51 +436,6 @@ final class OrderOperationProvider
 
 String _$orderOperationHash() => r'5b1230184032961008baa3350af4ce87c7a8af18';
 
-/// Provider untuk menyediakan instance dari [OrderOperation].
-
-@ProviderFor(iOrderOperation)
-final iOrderOperationProvider = IOrderOperationProvider._();
-
-/// Provider untuk menyediakan instance dari [OrderOperation].
-
-final class IOrderOperationProvider extends $FunctionalProvider<IOrderOperation,
-    IOrderOperation, IOrderOperation> with $Provider<IOrderOperation> {
-  /// Provider untuk menyediakan instance dari [OrderOperation].
-  IOrderOperationProvider._()
-      : super(
-          from: null,
-          argument: null,
-          retry: null,
-          name: r'iOrderOperationProvider',
-          isAutoDispose: false,
-          dependencies: null,
-          $allTransitiveDependencies: null,
-        );
-
-  @override
-  String debugGetCreateSourceHash() => _$iOrderOperationHash();
-
-  @$internal
-  @override
-  $ProviderElement<IOrderOperation> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  IOrderOperation create(Ref ref) {
-    return iOrderOperation(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(IOrderOperation value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<IOrderOperation>(value),
-    );
-  }
-}
-
-String _$iOrderOperationHash() => r'b94e9af46e3ab5ce0cf8ba26e34f99b6d4bb4507';
-
 /// Provider untuk menyediakan instance dari [SettingsOperation].
 
 @ProviderFor(settingsOperation)
