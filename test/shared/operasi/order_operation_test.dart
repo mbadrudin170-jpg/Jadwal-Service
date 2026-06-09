@@ -7,7 +7,6 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/order_model_ok.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 
@@ -117,5 +116,6 @@ void main() {
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });
+    test('getJumlahByStatus harus menghitung berapa total data berdasarkan status', )
   });
 }

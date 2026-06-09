@@ -19,7 +19,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOp,
   })  : _firestore = firestore,
-        _baseOp = baseOp {
+        _baseOp = baseOp,
+        super(firestore: firestore) {
     Log.info('OrderOpFirebase diinisialisasi.');
   }
 

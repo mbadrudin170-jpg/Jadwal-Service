@@ -27,6 +27,7 @@ class OrderOperation {
   /// Mendapatkan nama tabel pesanan dari konstanta.
   String get _tableName => TableNameValue.get(TableName.customerOrder);
 
+// TODO : menambahkan unit tes nya
   Future<int> getJumlahByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {
