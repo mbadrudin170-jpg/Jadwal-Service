@@ -127,13 +127,13 @@ class CustomerOpFirebase {
         );
       }
       return null;
-    }).handleError((final Object e, final StackTrace s) {
+    }).handleError((e, StackTrace s) {
       Log.error('Error pada stream pelanggan untuk: $userId', e: e, st: s);
     });
   }
 
   /// Mengambil data pelanggan sekali (one-time fetch).
-  Future<CustomerModel?> getCustomerOnce(final String userId) async {
+  Future<CustomerModel?> ambilBerdasarkanId(String userId) async {
     try {
       final doc = await _customerCollection.doc(userId).get();
       if (doc.exists) {

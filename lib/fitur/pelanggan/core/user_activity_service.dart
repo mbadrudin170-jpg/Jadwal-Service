@@ -45,16 +45,12 @@ class UserActivityService {
       Log.info(
           'pingActivity: Mengirim ping aktivitas untuk user: $customerId (Force: $force)');
 
-      // Panggil update di Firebase.
-      // Kita tidak 'await' agar tidak memblokir thread utama.
-      // Fungsi updateLastActive sudah punya error handling internal.
       unawaited(_customerOpFirebase.updateLastActive(customerId));
 
-      // Jika ping terkirim, perbarui timestamp lokal.
       await _prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info(
           'pingActivity: Timestamp ping terakhir diperbarui secara lokal.');
-    } on Object catch (e, st) {
+    } catch (e, st) {
       Log.error(
           'pingActivity: Terjadi error pada logika throttling atau SharedPreferences.',
           e: e,

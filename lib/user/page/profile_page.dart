@@ -71,14 +71,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.getCustomerOnce(userId);
+      final customer = await _customerOp.ambilBerdasarkanId(userId);
       if (customer == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }
       Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
 
-      // 2. Ambil total poin dan paket aktif secara bersamaan (paralel)
-      // Ini lebih efisien karena tidak perlu menunggu satu sama lain.
       final results = await Future.wait([
         _transactionOp.getTotalPoints(customer.id),
         _transactionOp.getPaketAktifCustomer(customer.id),
@@ -93,14 +91,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       PackageModel? packageModel;
 
       if (activeSubscriptions.isNotEmpty) {
-        // 3. Cari langganan yang paling baru berakhir
         lastSubscription = activeSubscriptions.reduce(
           (a, b) => a.endDate!.isAfter(b.endDate!) ? a : b,
         );
         Log.info(
             'Langganan terakhir berakhir pada: ${lastSubscription.endDate}.');
 
-        // 4. Jika ada langganan aktif, ambil detail paketnya
         if (lastSubscription.packageId != null) {
           packageModel =
               await _packageOp.getPackageById(lastSubscription.packageId!);
@@ -108,7 +104,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         }
       }
 
-      // 5. Kembalikan semua data dalam satu objek.
       return _ProfileData(
         customer: customer,
         totalPoints: totalPoints,
@@ -120,7 +115,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data profil.');
       }
-      // Lemparkan kembali error agar FutureBuilder bisa menanganinya di UI.
       rethrow;
     }
   }
