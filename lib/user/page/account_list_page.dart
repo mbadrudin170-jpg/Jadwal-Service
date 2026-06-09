@@ -185,8 +185,13 @@ class AccountListPage extends ConsumerWidget {
     final navigator = Navigator.of(context);
     Log.info('Menghapus akun aktif & keluar',
         {'customer_id': customer.id, 'nama': customer.name});
+
     await storage.hapusAkun(customer.id);
     await storage.hapusAkunSaatIni();
+
+    ref.invalidate(accountListProvider);
+    ref.invalidate(localStorageServiceProvider);
+    ref.invalidate(userIdProvider);
 
     ToastUtil.success(
         navigator.context, 'Akun berhasil dihapus, silakan login ulang');
@@ -217,7 +222,10 @@ class AccountListPage extends ConsumerWidget {
                   await storage.hapusAkun(account.id);
                 }
                 await storage.hapusAkunSaatIni();
+
                 ref.invalidate(accountListProvider);
+                ref.invalidate(localStorageServiceProvider);
+                ref.invalidate(userIdProvider);
 
                 ToastUtil.success(
                     context, 'Anda telah keluar dan akun dihapus');
@@ -247,6 +255,11 @@ class AccountListPage extends ConsumerWidget {
                     await ref.read(localStorageServiceProvider.future);
                 Log.info('Mulai proses logout (hapus token)');
                 await storage.hapusTokenLogin();
+
+                ref.invalidate(accountListProvider);
+                ref.invalidate(localStorageServiceProvider);
+                ref.invalidate(userIdProvider);
+
                 ToastUtil.success(context, 'Token berhasil dihapus');
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(

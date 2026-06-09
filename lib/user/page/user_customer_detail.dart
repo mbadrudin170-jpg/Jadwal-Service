@@ -1,8 +1,8 @@
 // path: lib/user/page/user_customer_detail.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/widget/page/points_page.dart';
@@ -47,7 +47,8 @@ class _UserCustomerDetailPageState
       Log.info('Mengambil data pelanggan dari Firestore...');
       final customerOpFirebase = ref.read(customerOpFirebaseProvider);
       final transactionOp = ref.read(transactionOpFirebaseProvider);
-      final customer = await customerOpFirebase.getCustomerOnce(widget.userId);
+      final customer =
+          await customerOpFirebase.ambilBerdasarkanId(widget.userId);
       if (customer == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',

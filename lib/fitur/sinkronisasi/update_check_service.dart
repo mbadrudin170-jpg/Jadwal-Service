@@ -8,32 +8,29 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wifi/fitur/info_perangkat/device_info_service.dart';
+import 'package:wifi/fitur/info_perangkat/package_info_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
-import 'package:wifi/fitur/info_perangkat/device_info_service.dart';
-import 'package:wifi/fitur/info_perangkat/package_info_service.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 /// Kelas layanan untuk memeriksa pembaruan aplikasi.
 class UpdateCheckService {
   /// Konteks build untuk navigasi.
   final BuildContext? context;
 
-  /// Instance SharedPreferences untuk mengakses penyimpanan lokal.
   final SharedPreferences prefs;
 
-  /// Layanan untuk mengakses penyimpanan lokal yang lebih kompleks.
-  final LocalStorageService localStorageService;
+  final LayananPenyimpananLokal localStorageService;
 
   final PackageInfoService _packageInfoService = PackageInfoService();
   final DeviceInfoService _deviceInfoService;
   final ApkVersionOpFirebase _apkVersionOp = ApkVersionOpFirebase();
 
-  /// Konstruktor untuk UpdateCheckService.
   UpdateCheckService({
     this.context,
     required this.prefs,
@@ -85,6 +82,7 @@ class UpdateCheckService {
           architecture: architecture
         );
       }
+
       final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
       final latestBuildNumber = latestApk.latestBuildNumber[architecture] ?? 0;
       Log.info('Perbandingan versi', {
@@ -92,6 +90,7 @@ class UpdateCheckService {
         'latestBuild': latestBuildNumber,
         'architecture': architecture.name,
       });
+
       final bool isRequired = latestBuildNumber > currentBuildNumber;
       return (
         isUpdateRequired: isRequired,

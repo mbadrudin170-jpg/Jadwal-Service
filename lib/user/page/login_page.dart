@@ -1,16 +1,16 @@
 // path: lib/user/page/login_page.dart
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/theme/app_colors.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -18,41 +18,17 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/account_list_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-class LoginPage extends ConsumerWidget {
-  final FirebaseFirestore? firestore;
-
-  final LayananPenyimpananLokal? localStorageService;
-
-  const LoginPage({super.key, this.firestore, this.localStorageService});
-
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
   @override
-  Widget build(final BuildContext context, WidgetRef ref) {
-    return _LoginView(
-      firestore: firestore,
-      localStorageService: localStorageService,
-    );
-  }
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginView extends ConsumerStatefulWidget {
-  final FirebaseFirestore? firestore;
-  final LayananPenyimpananLokal? localStorageService;
-
-  const _LoginView({this.firestore, this.localStorageService});
-
-  @override
-  ConsumerState<_LoginView> createState() => _LoginViewState();
-}
-
-class _LoginViewState extends ConsumerState<_LoginView> {
-  late FirebaseFirestore _firestore;
-  late LayananPenyimpananLokal _localStorageService;
+class _LoginPageState extends ConsumerState<LoginPage> {
   bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLocalStorageInitialized = false;
 
   bool _isLoggingIn = false;
 
@@ -60,23 +36,6 @@ class _LoginViewState extends ConsumerState<_LoginView> {
   void initState() {
     super.initState();
     FlutterNativeSplash.remove();
-    _firestore = widget.firestore ?? FirebaseFirestore.instance;
-    unawaited(_initializeLocalStorage());
-  }
-
-  Future<void> _initializeLocalStorage() async {
-    if (widget.localStorageService != null) {
-      _localStorageService = widget.localStorageService!;
-      if (mounted) setState(() => _isLocalStorageInitialized = true);
-    } else {
-      final prefs = await SharedPreferences.getInstance();
-      if (mounted) {
-        setState(() {
-          _localStorageService = LayananPenyimpananLokal(prefs: prefs);
-          _isLocalStorageInitialized = true;
-        });
-      }
-    }
   }
 
   Future<void> _showErrorAlert(String message) async {
@@ -84,7 +43,7 @@ class _LoginViewState extends ConsumerState<_LoginView> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Gagal Masuk'),
+        title: const Text('Akun tidak ditemukan'),
         content: Text(message),
         actions: [
           TextButton(
@@ -121,14 +80,11 @@ class _LoginViewState extends ConsumerState<_LoginView> {
             context, 'Tidak ada koneksi internet. Periksa jaringan Anda.');
         return;
       }
+      final firestore = ref.read(firestoreProvider);
+      final localStorageService =
+          await ref.read(localStorageServiceProvider.future);
 
-      if (!_isLocalStorageInitialized) {
-        await _showErrorAlert(
-            'Layanan penyimpanan lokal belum siap. Coba lagi.');
-        return;
-      }
-
-      final querySnapshot = await _firestore
+      final querySnapshot = await firestore
           .collection(TableNameValue.get(TableName.customer))
           .where(ColumnNames.phone, isEqualTo: phone)
           .where(ColumnNames.password, isEqualTo: password)
@@ -141,12 +97,18 @@ class _LoginViewState extends ConsumerState<_LoginView> {
         final userDoc = querySnapshot.docs.first;
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
+
         final activityService =
             await ref.read(userActivityServiceProvider.future);
         unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
-        await _localStorageService.simpanAkunSaatIni(customer);
-        await _localStorageService.simpanAkun(customer);
+
+        await localStorageService.simpanAkunSaatIni(customer);
+        await localStorageService.simpanAkun(customer);
+
+        ref.invalidate(localStorageServiceProvider);
+        ref.invalidate(userIdProvider);
+
         if (!mounted) return;
         unawaited(Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
@@ -174,18 +136,12 @@ class _LoginViewState extends ConsumerState<_LoginView> {
 
   Future<void> _tanganiPilihAkunTersedia() async {
     if (_isLoggingIn) return;
-
-    if (!_isLocalStorageInitialized) {
-      if (mounted) {
-        ToastUtil.warning(context, 'Penyimpanan data lokal belum siap.');
-      }
-      return;
-    }
-
-    final accounts = await _localStorageService.ambilDaftarAkun();
+    final layananPenyimpananLokal =
+        await ref.read(localStorageServiceProvider.future);
+    final akun = await layananPenyimpananLokal.ambilDaftarAkun();
     if (!mounted) return;
 
-    if (accounts.isEmpty) {
+    if (akun.isEmpty) {
       ToastUtil.info(
           context, 'Tidak ada akun yang tersimpan. Silakan login manual.');
     } else {

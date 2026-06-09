@@ -45,11 +45,11 @@ class _SubscriptionHistoryPageState
   }
 
   Future<List<TransactionModel>> _loadHistory() async {
-    final userIdValue = await ref.read(userIdProvider.future);
+    final userId = await ref.watch(userIdProvider.future);
 
-    if (userIdValue == null) return [];
+    if (userId == null) return [];
     final customerOpFirebase = ref.read(customerOpFirebaseProvider);
-    final customer = await customerOpFirebase.getCustomerOnce(userIdValue);
+    final customer = await customerOpFirebase.ambilBerdasarkanId(userId);
     if (customer == null) return [];
     return _transactionOpFirebase.getByCustomerId(customer.id);
   }

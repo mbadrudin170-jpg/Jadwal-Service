@@ -65,7 +65,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   // PENJELASAN: Ini adalah inti dari perbaikan. Method ini bertanggung jawab untuk
   // mengambil semua data yang diperlukan secara efisien.
   Future<_ProfileData> _loadProfileData() async {
-    final userId = await ref.read(userIdProvider.future);
+    final userId = await ref.watch(userIdProvider.future);
     if (userId == null) {
       throw Exception('ID Pengguna tidak ditemukan, mohon login kembali.');
     }

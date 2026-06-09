@@ -73,6 +73,7 @@ class LayananPenyimpananLokal {
   Future<void> simpanAkunSaatIni(CustomerModel pelanggan) async {
     Log.info(
         '[Simpan Akun Aktif] Mengatur ${pelanggan.name} sebagai akun aktif.');
+    await hapusTokenLogin();
     await prefs.setString(_kunciIdPengguna, pelanggan.id);
     await simpanAkun(pelanggan);
     Log.info(
