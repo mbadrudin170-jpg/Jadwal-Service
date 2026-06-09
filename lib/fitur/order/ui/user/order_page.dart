@@ -136,7 +136,6 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
                         }
                         if (context.mounted) {
                           ToastUtil.success(context, 'Data berhasil dihapus');
-                          Navigator.of(context).pop();
                         }
                       } catch (e, st) {
                         Log.error('Gagal menghapus pesanan', e: e, st: st);

@@ -162,9 +162,14 @@ class OrderOpFirebase extends BaseOpFirebase {
           .collection(_collectionName)
           .where(ColumnNames.status, isEqualTo: status.name)
           .where(ColumnNames.isDeleted, isEqualTo: false)
-          .count() 
+          .count()
           .get();
-      return snapshot.count ?? 0;
+      final count = snapshot.count ?? 0;
+      Log.info(
+        'Berhasil menghitung $count pesanan dengan status ${status.name}',
+        {'status': status.name, 'jumlah': count},
+      );
+      return count;
     } catch (e, st) {
       Log.error(
         'Error menghitung pesanan by status',

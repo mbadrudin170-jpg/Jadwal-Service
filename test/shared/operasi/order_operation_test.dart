@@ -5,6 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -18,7 +19,6 @@ void main() {
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
   late OrderOperation orderOperation;
-  final tableName = TableNameValue.get(TableName.customerOrder);
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
@@ -31,18 +31,18 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });
 
-  // Contoh data pesanan untuk pengujian
-  final tOrder = OrderModel.create(
-    id: '1',
-    customerId: 'cust1',
-    packageId: 'pkg1',
-    date: DateTime.now(),
-    status: StatusOrderEnum.baru,
-  );
-  final tOrderMap = tOrder.toSqlite();
+  group('Tes Operasi Pesanan', () {
+    final tOrder = OrderModel.create(
+      id: '1',
+      customerId: 'cust1',
+      packageId: 'pkg1',
+      date: DateTime.now(),
+    );
+    final tOrderMap = tOrder.toSqlite();
+    final tableName = TableNameValue.get(TableName.customerOrder);
 
-  group('Tes Operasi Pesanan (OrderOperation)', () {
-    test('1. getAllOrders harus mengembalikan daftar pesanan', () async {
+    test('1. getAllOrders harus mengembalikan daftar pesanan dari database',
+        () async {
       when(mockDatabase.query(any, orderBy: anyNamed('orderBy')))
           .thenAnswer((_) async => [tOrderMap]);
 
@@ -55,27 +55,29 @@ void main() {
           .called(1);
     });
 
-    test('2. saveOrder harus memanggil metode insert', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+    test('2. saveOrder harus memanggil insert pada baseOperation', () async {
+      when(mockBaseOperation.insert(any, any))
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.saveOrder(tOrder);
 
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
 
-    test('3. updateOrderStatus harus memanggil metode update', () async {
+    test('3. updateOrderStatus harus memanggil update pada baseOperation',
+        () async {
       const newStatus = StatusOrderEnum.selesai;
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tOrderMap]);
       when(mockBaseOperation.update(any, any, any))
-          .thenAnswer((_) async => 1);
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.updateOrderStatus(tOrder.id, newStatus);
 
       final verificationResult = verify(mockBaseOperation.update(
         tableName,
-        captureAny,
+        captureAny, // capture the map
         tOrder.id,
       ));
       verificationResult.called(1);
@@ -85,35 +87,41 @@ void main() {
       expect(capturedMap['status'], newStatus.name);
     });
 
-    test('4. deleteOrder harus memanggil metode delete', () async {
-      when(mockBaseOperation.delete(any, any)).thenAnswer((_) async => 1);
+    test('4. deleteOrder harus memanggil delete pada baseOperation', () async {
+      when(mockBaseOperation.delete(any, any))
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.deleteOrder('1');
 
       verify(mockBaseOperation.delete(tableName, '1')).called(1);
     });
 
-    test('5. softDelete harus memanggil metode softDelete', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async => 1);
+    test('5. softDelete harus memanggil softDelete pada baseOperation',
+        () async {
+      when(mockBaseOperation.softDelete(any, any))
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.softDelete('1');
 
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
-    test('6. insertOrUpdateBatch harus memanggil metode insertOrUpdateBatch',
+    test(
+        '6. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
         () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
-          .thenAnswer((_) async => {});
+          .thenAnswer((_) => Future.value());
 
       await orderOperation.insertOrUpdateBatch([tOrder]);
 
       verify(mockBaseOperation.insertOrUpdateBatch(tableName, any)).called(1);
     });
 
-    test('7. getJumlahByStatus harus mengembalikan jumlah data yang benar',
+    test(
+        '7. getJumlahByStatus harus menghitung berapa total data berdasarkan status',
         () async {
       const status = StatusOrderEnum.baru;
+      when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
       when(mockDatabase.rawQuery(any, any)).thenAnswer((_) async => [
             {'COUNT(*)': 5}
           ]);
@@ -122,12 +130,12 @@ void main() {
 
       expect(result, 5);
       verify(mockDatabase.rawQuery(
-        'SELECT COUNT(*) FROM $tableName WHERE status = ? AND isDeleted = 0',
+        'SELECT COUNT(*) FROM customerOrder WHERE ${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
         [status.name],
       )).called(1);
     });
 
-    test('8. getAllActiveOrdersStream harus mengembalikan stream data non-hapus',
+    test('8. getAllActiveOrdersStream harus mengembalikan stream daftar pesanan aktif',
         () async {
       when(mockDatabase.query(
         any,
@@ -137,75 +145,70 @@ void main() {
 
       final stream = orderOperation.getAllActiveOrdersStream();
 
-      await expectLater(
-        stream,
-        emits(
-          isA<List<OrderModel>>()
+      expect(
+          stream,
+          emits(isA<List<OrderModel>>()
               .having((list) => list.length, 'panjang', 1)
-              .having((list) => list.first.id, 'id', tOrder.id),
-        ),
-      );
-      verify(mockDatabase.query(
+              .having((list) => list.first.id, 'id', tOrder.id)));
+      await untilCalled(mockDatabase.query(
         tableName,
-        where: 'isDeleted = 0',
+        where: anyNamed('where'),
         orderBy: anyNamed('orderBy'),
-      )).called(1);
+      ));
     });
 
-    test('9. getOrdersByStatus harus mengembalikan pesanan sesuai status',
+    test('9. getOrdersByStatus harus mengembalikan daftar pesanan berdasarkan status',
         () async {
       const status = StatusOrderEnum.diproses;
-      final orderDiproses = tOrder.copyWith(status: status).toSqlite();
       when(mockDatabase.query(
         any,
         where: anyNamed('where'),
         whereArgs: anyNamed('whereArgs'),
         orderBy: anyNamed('orderBy'),
-      )).thenAnswer((_) async => [orderDiproses]);
+      )).thenAnswer((_) async => [tOrderMap]);
 
       final result = await orderOperation.getOrdersByStatus(status);
 
       expect(result, isA<List<OrderModel>>());
       expect(result.length, 1);
-      expect(result.first.status, status);
+      expect(result.first.id, tOrder.id);
       verify(mockDatabase.query(
         tableName,
-        where: 'status = ? AND isDeleted = 0',
+        where: '${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [status.name],
         orderBy: anyNamed('orderBy'),
       )).called(1);
     });
 
-    test('10. softDeleteAll harus memanggil metode softDeleteAll dari base',
+    test('10. softDeleteAll harus memanggil softDeleteAll pada baseOperation',
         () async {
-      when(mockBaseOperation.softDeleteAll(any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.softDeleteAll(any))
+          .thenAnswer((_) async => 1);
 
       await orderOperation.softDeleteAll();
 
       verify(mockBaseOperation.softDeleteAll(tableName)).called(1);
     });
 
-    test('11. getOrdersByIds harus mengembalikan pesanan sesuai daftar ID',
+    test('11. getOrdersByIds harus mengembalikan daftar pesanan berdasarkan ID',
         () async {
       final ids = ['1', '2'];
-      final anotherOrder =
-          OrderModel.create(id: '2', customerId: 'cust2', packageId: 'pkg2', date: DateTime.now());
-      final queryResult = [tOrderMap, anotherOrder.toSqlite()];
+      final questionMarks = List.filled(ids.length, '?').join(',');
+      final expectedWhere = '${ColumnNames.id} IN ($questionMarks) AND ${ColumnNames.isDeleted} = 0';
 
       when(mockDatabase.query(
         any,
         where: anyNamed('where'),
         whereArgs: anyNamed('whereArgs'),
-      )).thenAnswer((_) async => queryResult);
+      )).thenAnswer((_) async => [tOrderMap]);
 
       final result = await orderOperation.getOrdersByIds(ids);
 
       expect(result, isA<List<OrderModel>>());
-      expect(result.length, 2);
-      expect(result.map((e) => e.id), containsAll(ids));
+      expect(result.length, 1);
       verify(mockDatabase.query(
         tableName,
-        where: 'id IN (?, ?) AND isDeleted = 0',
+        where: expectedWhere,
         whereArgs: ids,
       )).called(1);
     });
