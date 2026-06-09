@@ -62,24 +62,28 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
             child: Column(
               children: [
                 _tombolOpsiUbahStatus(
+                  pageContext: context,
                   dialogContext: dialogContext,
                   label: StatusOrderEnum.selesai.displayName,
                   order: order,
                   status: StatusOrderEnum.selesai,
                 ),
                 _tombolOpsiUbahStatus(
+                  pageContext: context,
                   dialogContext: dialogContext,
                   label: StatusOrderEnum.baru.displayName,
                   order: order,
                   status: StatusOrderEnum.baru,
                 ),
                 _tombolOpsiUbahStatus(
+                  pageContext: context,
                   dialogContext: dialogContext,
                   label: StatusOrderEnum.diproses.displayName,
                   order: order,
                   status: StatusOrderEnum.diproses,
                 ),
                 _tombolOpsiUbahStatus(
+                  pageContext: context,
                   dialogContext: dialogContext,
                   label: StatusOrderEnum.ditolak.displayName,
                   order: order,
@@ -348,4 +352,30 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
       {required String label,
       required OrderModel order,
       required StatusOrderEnum status,
-      required BuildC
+      required BuildContext dialogContext,
+      required BuildContext pageContext}) {
+    return TextButton(
+      onPressed: () async {
+        Navigator.of(dialogContext).pop();
+        final bool? dikonfirmasi = await _konfirmasiOpsi(pageContext);
+        if (dikonfirmasi ?? false) {
+          try {
+            await ref
+                .read(orderOperationProvider)
+                .updateOrderStatus(order.id, status);
+            if (pageContext.mounted) {
+              ToastUtil.success(pageContext, 'Data berhasil diperbarui');
+              Navigator.of(pageContext).pop();
+            }
+          } catch (e, st) {
+            Log.error('Gagal memperbarui status pesanan', e: e, st: st);
+            if (pageContext.mounted) {
+              ToastUtil.error(pageContext, 'Gagal memperbarui status pesanan');
+            }
+          }
+        }
+      },
+      child: Text(label),
+    );
+  }
+}
