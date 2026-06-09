@@ -212,10 +212,10 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
   Widget _tombolTipe(StatusOrderEnum status, {required bool isActive}) {
     final label = status.displayName;
     final appRole = ref.watch(appRoleProvider);
-    final opSqlite = ref.watch(orderOperationProvider);
-    final opFirebase = ref.watch(orderOpFirebaseProvider);
-    final dataSqlite = opSqlite.getJumlahByStatus(status);
-    final dataFirebase = opFirebase.countOrdersByStatus(status);
+    final dataSqlite =
+        ref.watch(orderOperationProvider).getJumlahByStatus(status);
+    final dataFirebase =
+        ref.watch(orderOpFirebaseProvider).countOrdersByStatus(status);
 
     return InkWell(
       onTap: () {
