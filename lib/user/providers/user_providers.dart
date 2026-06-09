@@ -21,6 +21,7 @@ class AppReadiness extends _$AppReadiness {
 NotifikasiServis notifikasiServis(Ref ref) {
   return NotifikasiServis();
 }
+
 @Riverpod(keepAlive: true)
 Future<String?> userId(Ref ref) async {
   final akunState = await ref.watch(pengelolaAkunProvider.future);

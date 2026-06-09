@@ -5,14 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/akun/akun_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 class AccountListPage extends ConsumerWidget {
   const AccountListPage({super.key});
@@ -20,98 +18,86 @@ class AccountListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pengelolaAkun = ref.watch(pengelolaAkunProvider);
-    final storageAsync = ref.watch(localStorageServiceProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pilih Akun Tersimpan'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: pengelolaAkun.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(
-                child: Text(
-                  'Gagal memuat akun: $err',
-                  style: const TextStyle(color: Colors.red),
+      body: Column(children: [
+        Expanded(
+          child: pengelolaAkun.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(
+              child: Text(
+                'Gagal memuat akun: $err',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+            data: (data) {
+              final accountList = data.daftarAkunTersimpan;
+              if (accountList.isEmpty) {
+                return const Center(
+                  child: Text('Belum ada riwayat login di perangkat ini.'),
+                );
+              }
+              return ListView.builder(
+                itemCount: accountList.length,
+                itemBuilder: (context, index) {
+                  final akun = accountList[index];
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(akun.name.isNotEmpty ? akun.name[0] : ''),
+                      ),
+                      title: Text(akun.name),
+                      onTap: () {
+                        _pilihAkun(context, ref, akun);
+                      },
+                      onLongPress: () =>
+                          _tampilkanDialogHapus(context, ref, akun),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => _tampilkanDialogKeluar(context, ref),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: TColors.errorColor.withAlpha(200),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              data: (data) {
-                final accountList = data.daftarAkunTersimpan;
-                if (accountList.isEmpty) {
-                  return const Center(
-                    child: Text('Belum ada riwayat login di perangkat ini.'),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: accountList.length,
-                  itemBuilder: (context, index) {
-                    final akun = accountList[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(akun.name.isNotEmpty ? akun.name[0] : ''),
-                        ),
-                        title: Text(akun.name),
-                        onTap: () {
-                          _pilihAkun(context, ref, akun);
-                        },
-                        onLongPress: () =>
-                            _tampilkanDialogHapus(context, ref, akun),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          storageAsync.when(
-            data: (_) => Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _tampilkanDialogKeluar(context, ref),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.errorColor.withAlpha(200),
-                    foregroundColor: Colors.white,
-                    elevation: 2,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(TIcons.logout, size: 20, color: Colors.white),
+                  gapW8,
+                  Text(
+                    'Keluar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.logout, size: 20, color: Colors.white),
-                      gapW8,
-                      Text(
-                        'Keluar',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
             ),
-            loading: () => const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 32),
-              child: SizedBox(
-                  width: double.infinity,
-                  child:
-                      ElevatedButton(onPressed: null, child: Text('Keluar'))),
-            ),
-            error: (e, st) => const SizedBox.shrink(),
           ),
-        ],
-      ),
+        ),
+      ]),
     );
   }
 
@@ -162,7 +148,7 @@ class AccountListPage extends ConsumerWidget {
                 final currentAccount = await storage.ambilAkunLogin();
 
                 if (currentAccount?.id == customer.id) {
-                  await _tanganiHapusAkunAktif(context, ref, customer, storage);
+                  await _tanganiHapusAkunAktif(context, ref, customer);
                 } else {
                   Log.info('Menghapus akun tersimpan',
                       {'customer_id': customer.id, 'nama': customer.name});
@@ -184,8 +170,11 @@ class AccountListPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _tanganiHapusAkunAktif(BuildContext context, WidgetRef ref,
-      CustomerModel customer, LayananPenyimpananLokal storage) async {
+  Future<void> _tanganiHapusAkunAktif(
+    BuildContext context,
+    WidgetRef ref,
+    CustomerModel customer,
+  ) async {
     final navigator = Navigator.of(context);
     Log.info('Menghapus akun aktif & keluar',
         {'customer_id': customer.id, 'nama': customer.name});
@@ -201,7 +190,7 @@ class AccountListPage extends ConsumerWidget {
   }
 
   Future<void> _tampilkanDialogKeluar(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+      BuildContext context, WidgetRef ref) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -219,7 +208,7 @@ class AccountListPage extends ConsumerWidget {
                 if (account != null) {
                   await ref
                       .read(pengelolaAkunProvider.notifier)
-                      .hapusAkun(customer.id);
+                      .hapusAkun(account.id);
                 }
 
                 ToastUtil.success(
@@ -237,7 +226,7 @@ class AccountListPage extends ConsumerWidget {
             style: TextButton.styleFrom(
                 backgroundColor: TColors.errorColor,
                 foregroundColor: TColors.textOnDark),
-            child: const Text('Keluar/Hapus Akun'),
+            child: const Text('Keluar & Hapus Akun'),
           ),
           TextButton(
             style: TextButton.styleFrom(
