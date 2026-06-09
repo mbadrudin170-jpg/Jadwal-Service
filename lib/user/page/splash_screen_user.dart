@@ -11,6 +11,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/fitur/sinkronisasi/update_check_service.dart';
+import 'package:wifi/shared/akun/akun_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -191,16 +192,18 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
   Future<void> _navigateToNextPage() async {
     if (!mounted) return;
-    final userId = widget.prefs.getString('userId');
-    if (userId != null) {
+    final pengelolaAkun = await ref.read(pengelolaAkunProvider.future);
+    final akunAktif = pengelolaAkun.akunSaatIni;
+
+    if (akunAktif != null) {
       final isConnected = await ref
-          .watch(internetConnectionServiceProvider)
+          .read(internetConnectionServiceProvider)
           .checkLocalConnection();
 
       if (isConnected) {
         final userActivityService =
             await ref.read(userActivityServiceProvider.future);
-        unawaited(userActivityService.pingActivity(userId));
+        unawaited(userActivityService.pingActivity(akunAktif.id));
       }
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
@@ -211,7 +214,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     } else {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (final context) => const LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       ));
     }
   }

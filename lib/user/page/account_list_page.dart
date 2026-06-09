@@ -141,20 +141,22 @@ class AccountListPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              Navigator.of(dialogContext).pop();
-              try {
-                final storage =
-                    await ref.read(localStorageServiceProvider.future);
-                final currentAccount = await storage.ambilAkunLogin();
+              // Ambil navigator SEBELUM await
+              final navigator = Navigator.of(context);
+              Navigator.of(dialogContext).pop(); // Tutup dialog
 
-                if (currentAccount?.id == customer.id) {
-                  await _tanganiHapusAkunAktif(context, ref, customer);
+              try {
+                final akunLogin = await ref.read(userIdProvider.future);
+                if (akunLogin == customer.id) {
+                  await _tanganiHapusAkunAktif(
+                      context, navigator, ref, customer);
                 } else {
                   Log.info('Menghapus akun tersimpan',
                       {'customer_id': customer.id, 'nama': customer.name});
                   await ref
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
+
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
               } catch (e, st) {
@@ -172,16 +174,18 @@ class AccountListPage extends ConsumerWidget {
 
   Future<void> _tanganiHapusAkunAktif(
     BuildContext context,
+    NavigatorState navigator,
     WidgetRef ref,
     CustomerModel customer,
   ) async {
-    final navigator = Navigator.of(context);
-    Log.info('Menghapus akun aktif & keluar',
-        {'customer_id': customer.id, 'nama': customer.name});
+    Log.info(
+      'akun yang di hapus ternyata akun yang sedang login',
+      {'customer_id': customer.id, 'nama': customer.name},
+    );
+
     await ref.read(pengelolaAkunProvider.notifier).hapusAkun(customer.id);
 
-    ToastUtil.success(
-        navigator.context, 'Akun berhasil dihapus, silakan login ulang');
+    ToastUtil.success(context, 'Akun berhasil dihapus, silakan login ulang');
 
     await navigator.pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (context) => const LoginPage()),

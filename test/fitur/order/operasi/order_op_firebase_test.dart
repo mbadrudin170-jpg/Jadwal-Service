@@ -24,20 +24,14 @@ import 'order_op_firebase_test.mocks.dart';
   AggregateQuery,
   AggregateQuerySnapshot,
 ], customMocks: [
-  MockSpec<Query<Map<String, dynamic>>>(
-      as: #MockQueryMap, onMissingStub: OnMissingStub.returnDefault),
-  MockSpec<QuerySnapshot<Map<String, dynamic>>>(
-      as: #MockQuerySnapshotMap, onMissingStub: OnMissingStub.returnDefault),
-  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(
-      as: #MockDocumentSnapshotMap, onMissingStub: OnMissingStub.returnDefault),
-  MockSpec<DocumentReference<Map<String, dynamic>>>(
-      as: #MockDocumentReferenceMap, onMissingStub: OnMissingStub.returnDefault),
+  MockSpec<Query<Map<String, dynamic>>>(as: #MockQueryMap),
+  MockSpec<QuerySnapshot<Map<String, dynamic>>>(as: #MockQuerySnapshotMap),
+  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshotMap),
+  MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReferenceMap),
   MockSpec<CollectionReference<Map<String, dynamic>>>(
-      as: #MockCollectionReferenceMap,
-      onMissingStub: OnMissingStub.returnDefault),
+      as: #MockCollectionReferenceMap),
   MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(
     as: #MockQueryDocumentSnapshotMap,
-    onMissingStub: OnMissingStub.returnDefault,
   ),
 ])
 void main() {
@@ -93,13 +87,15 @@ void main() {
 
   group('Grup Pengujian OrderOpFirebase', () {
     test('1. Uji penambahan pesanan baru', () async {
-      when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async => {});
+      when(mockBaseOp.insert(any, any, any))
+          .thenAnswer((_) => Future.value(null));
       await orderOpFirebase.addOrder(order);
       verify(mockBaseOp.insert(any, order.id, orderMap)).called(1);
     });
 
     test('2. Uji pembaruan pesanan', () async {
-      when(mockBaseOp.update(any, any, any)).thenAnswer((_) async => {});
+      when(mockBaseOp.update(any, any, any))
+          .thenAnswer((_) => Future.value(null));
       await orderOpFirebase.updateOrder(order);
       verify(mockBaseOp.update(any, order.id, orderMap)).called(1);
     });
@@ -107,8 +103,7 @@ void main() {
     test('3. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
       // Stubbing softDelete di BaseOpFirebase
-      when(mockBaseOp.softDelete(any, any))
-          .thenAnswer((_) async => Future.value());
+      when(mockBaseOp.softDelete(any, any)).thenAnswer((_) => Future.value());
 
       await orderOpFirebase.softDeleteOrder(orderId);
 
@@ -121,7 +116,8 @@ void main() {
       when(mockQueryDocSnapshot.id).thenReturn(order.id);
       when(mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
-      final streamController = StreamController<QuerySnapshot<Map<String, dynamic>>>();
+      final streamController =
+          StreamController<QuerySnapshot<Map<String, dynamic>>>();
       when(mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
@@ -156,7 +152,8 @@ void main() {
       when(mockQueryDocSnapshot.id).thenReturn(order.id);
       when(mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
-      final streamController = StreamController<QuerySnapshot<Map<String, dynamic>>>();
+      final streamController =
+          StreamController<QuerySnapshot<Map<String, dynamic>>>();
       final mockCollection = MockCollectionReferenceMap();
       when(mockFirestore.collection(any)).thenReturn(mockCollection);
       when(mockCollection.where(any, isEqualTo: anyNamed('isEqualTo')))
@@ -181,7 +178,8 @@ void main() {
       when(mockQueryDocSnapshot.id).thenReturn(order.id);
       when(mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
-      final streamController = StreamController<QuerySnapshot<Map<String, dynamic>>>();
+      final streamController =
+          StreamController<QuerySnapshot<Map<String, dynamic>>>();
       when(mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
@@ -217,8 +215,8 @@ void main() {
     test('9. Uji menghitung pesanan berdasarkan status', () async {
       when(mockAggregateQuerySnapshot.count).thenReturn(5);
 
-      final result =
-          await orderOpFirebase.countOrdersByStatus(StatusOrderEnum.baru);
+      final result = await orderOpFirebase.countOrdersByStatus(
+          StatusOrderEnum.baru, 'cust1');
 
       expect(result, 5);
       verify(mockQuery.count()).called(1);

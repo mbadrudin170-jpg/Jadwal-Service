@@ -167,10 +167,15 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
         body: Center(child: Text('Error: $err')),
       ),
       data: (userId) {
+        if (userId == null) {
+          Log.info('data untuk $userId null');
+          return const SizedBox.shrink();
+        }
+
         final dataSqlite =
             ref.watch(orderOperationProvider).getAllActiveOrdersStream();
         final dataFirebase =
-            ref.watch(orderOpFirebaseProvider).getAllByUserId(userId!);
+            ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
 
         Log.info(
             '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');

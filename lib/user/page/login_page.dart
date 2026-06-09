@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/akun/akun_provider.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -81,9 +82,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         return;
       }
       final firestore = ref.read(firestoreProvider);
-      final localStorageService =
-          await ref.read(localStorageServiceProvider.future);
-
       final querySnapshot = await firestore
           .collection(TableNameValue.get(TableName.customer))
           .where(ColumnNames.phone, isEqualTo: phone)
@@ -98,16 +96,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
+        await ref.read(pengelolaAkunProvider.notifier).login(customer);
+        Log.info('menyimpan token login pada saat login untuk ${customer.id}');
+
         final activityService =
             await ref.read(userActivityServiceProvider.future);
         unawaited(activityService.pingActivity(customer.id, force: true));
         Log.info('memperbarui last aktif user ', {customer.id});
-
-        await localStorageService.simpanAkunSaatIni(customer);
-        await localStorageService.simpanAkun(customer);
-
-        ref.invalidate(localStorageServiceProvider);
-        ref.invalidate(userIdProvider);
 
         if (!mounted) return;
         unawaited(Navigator.of(context).pushReplacement(
@@ -121,7 +116,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         await _showErrorAlert(
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
       if (mounted) setState(() => _isLoggingIn = false);
       if (!mounted) return;

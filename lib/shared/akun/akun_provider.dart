@@ -43,8 +43,10 @@ class PengelolaAkun extends _$PengelolaAkun {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
 
     await penyimpanan.hapusAkunSaatIni();
+    final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
+      akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
     ));
   }
@@ -73,10 +75,8 @@ class PengelolaAkun extends _$PengelolaAkun {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
     await penyimpanan.hapusTokenLogin();
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
-    final daftarAkun = await penyimpanan.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
-      daftarAkunTersimpan: daftarAkun,
     ));
   }
 

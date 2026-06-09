@@ -125,7 +125,7 @@ void main() {
   late MockDataCleaningOperation mockDataCleaningOperation;
   late MockNotificationAppLaunchDetails mockLaunchDetails;
   late MockNotificationResponse mockNotificationResponse;
-  late MockLocalStorageService mockLocalStorage;
+  late MockLayananPenyimpananLokal mockLocalStorage;
   late MockUploadDataService mockUploadDataService;
   late MockSyncCheckService mockSyncCheckService;
   late MockDatabaseHelper mockDatabaseHelper;
@@ -142,7 +142,7 @@ void main() {
     mockDataCleaningOperation = MockDataCleaningOperation();
     mockLaunchDetails = MockNotificationAppLaunchDetails();
     mockNotificationResponse = MockNotificationResponse();
-    mockLocalStorage = MockLocalStorageService();
+    mockLocalStorage = MockLayananPenyimpananLokal();
     mockUploadDataService = MockUploadDataService();
     mockSyncCheckService = MockSyncCheckService();
     mockDatabaseHelper = MockDatabaseHelper();
@@ -154,12 +154,11 @@ void main() {
 
 // Stub method yang mungkin dipanggil (contoh umum)
     when(mockUploadDataService.uploadAllData()).thenAnswer((_) async => true);
-    when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async => {});
+    when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
 // Sesuaikan dengan API sebenarnya dari kelas-kelas tersebut
-    when(mockLocalStorage.getThemeMode())
+    when(mockLocalStorage.ambilModeTema())
         .thenAnswer((_) async => ThemeMode.light);
-    when(mockLocalStorage.saveThemeMode(any)).thenAnswer((_) async {});
-    when(mockLocalStorage.saveThemeMode(any)).thenAnswer((_) async {});
+    when(mockLocalStorage.simpanModeTema(any)).thenAnswer((_) async => true);
     when(mockPrefs.getString(any)).thenReturn('ThemeMode.light');
     when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
     when(mockPrefs.remove(any)).thenAnswer((_) async => true);

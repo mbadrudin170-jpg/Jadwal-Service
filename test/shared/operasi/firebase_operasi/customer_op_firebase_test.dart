@@ -1,5 +1,6 @@
 // path: test/shared/operasi/firebase_operasi/customer_op_firebase_test.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
@@ -94,7 +95,7 @@ void main() {
 
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
-      expect(snapshot.data()![ColumnNames.lastActiveAt], isNotNull);
+      expect(snapshot.data()![ColumnNames.lastActiveAt], isA<Timestamp>());
     });
 
     test('2.6. harus bisa menyimpan FCM token', () async {
@@ -149,7 +150,7 @@ void main() {
         () async {
       await customerOpFirebase.addCustomer(c1);
 
-      final customer = await customerOpFirebase.getCustomerOnce(c1.id);
+      final customer = await customerOpFirebase.ambilBerdasarkanId(c1.id);
 
       expect(customer, isNotNull);
       expect(customer!.id, c1.id);
@@ -159,7 +160,7 @@ void main() {
     test(
         '2.10. harus mengembalikan null jika pelanggan tidak ditemukan (one-time fetch)',
         () async {
-      final customer = await customerOpFirebase.getCustomerOnce('id-tidak-ada');
+      final customer = await customerOpFirebase.ambilBerdasarkanId('id-tidak-ada');
       expect(customer, isNull);
     });
 

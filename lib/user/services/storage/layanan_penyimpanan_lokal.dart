@@ -160,17 +160,26 @@ class LayananPenyimpananLokal {
     final List<dynamic> daftarAkun =
         jsonDecode(daftarAkunJson) as List<dynamic>;
     try {
-      final Map<String, dynamic> akunJson = daftarAkun
-          .cast<Map<String, dynamic>>()
-          .firstWhere((p) => p['id'] == idPengguna);
+      final Map<String, dynamic> akunJson =
+          daftarAkun.cast<Map<String, dynamic>>().firstWhere(
+                (p) => p['id'] == idPengguna,
+                orElse: () => {},
+              );
+      if (akunJson.isEmpty) {
+        Log.warning(
+          '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ada di daftar riwayat lokal.',
+        );
+        return null;
+      }
       final pelanggan = CustomerModel.fromSqlite(akunJson);
       Log.info(
         '[Ambil Akun Saat Ini] Akun ${pelanggan.name} berhasil diambil.',
       );
       return pelanggan;
-    } on Exception {
+    } catch (e, st) {
       Log.warning(
         '[Ambil Akun Saat Ini] Akun dengan ID $idPengguna tidak ditemukan dalam daftar.',
+        {e, st},
       );
       return null;
     }

@@ -138,7 +138,8 @@ void main() {
       // Arrange
       // 1. Ensure the initial build is successful.
       await container.read(activeCustomerProvider.future);
-      expect(container.read(activeCustomerProvider), isA<AsyncData>());
+      expect(container.read(activeCustomerProvider),
+          isA<AsyncData<ActiveCustomerState>>());
 
       // 2. Now, set up the mock to throw an error for the next call.
       when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
