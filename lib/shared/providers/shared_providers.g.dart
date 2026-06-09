@@ -184,29 +184,29 @@ String _$notifikasiServisHash() => r'1a5abc571c94904cfc22a487d7725efdd85923a1';
 /// Controller utama untuk notifikasi.
 /// Tonton provider ini dari UI untuk menginisialisasi listener.
 
-@ProviderFor(notifikasiController)
-final notifikasiControllerProvider = NotifikasiControllerProvider._();
+@ProviderFor(pengontrolNotifikasi)
+final pengontrolNotifikasiProvider = PengontrolNotifikasiProvider._();
 
 /// Controller utama untuk notifikasi.
 /// Tonton provider ini dari UI untuk menginisialisasi listener.
 
-final class NotifikasiControllerProvider
+final class PengontrolNotifikasiProvider
     extends $FunctionalProvider<void, void, void> with $Provider<void> {
   /// Controller utama untuk notifikasi.
   /// Tonton provider ini dari UI untuk menginisialisasi listener.
-  NotifikasiControllerProvider._()
+  PengontrolNotifikasiProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'notifikasiControllerProvider',
+          name: r'pengontrolNotifikasiProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$notifikasiControllerHash();
+  String debugGetCreateSourceHash() => _$pengontrolNotifikasiHash();
 
   @$internal
   @override
@@ -215,7 +215,7 @@ final class NotifikasiControllerProvider
 
   @override
   void create(Ref ref) {
-    return notifikasiController(ref);
+    return pengontrolNotifikasi(ref);
   }
 
   /// {@macro riverpod.override_with_value}
@@ -227,5 +227,5 @@ final class NotifikasiControllerProvider
   }
 }
 
-String _$notifikasiControllerHash() =>
-    r'6109697d2b74ed1cecc93c227ec47398373c9665';
+String _$pengontrolNotifikasiHash() =>
+    r'0f5bfc425b637ef6dc76371552f1a27886c188e5';

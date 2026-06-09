@@ -3,11 +3,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/providers/shared_providers.dart';
 
 class LayananPenyimpananLokal {
   final SharedPreferences prefs;
@@ -26,11 +24,10 @@ class LayananPenyimpananLokal {
     Log.info('[Simpan Tema] Mode tema berhasil disimpan secara global.');
   }
 
-  Future<ThemeMode> ambilModeTema(WidgetRef ref) async {
+  Future<ThemeMode> ambilModeTema() async {
     try {
       Log.info('[Ambil Tema] Mengambil mode tema global dari penyimpanan.');
-      final sharedPrefs = await ref.watch(sharedPreferencesProvider.future);
-      final modeString = sharedPrefs.getString(_kunciAwalanModeTema);
+      final modeString = prefs.getString(_kunciAwalanModeTema);
 
       final themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == modeString,

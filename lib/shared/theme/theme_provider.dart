@@ -3,21 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 /// Provider tema menggunakan AsyncNotifier (modern Riverpod)
 final themeProvider =
     AsyncNotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
 
 class ThemeNotifier extends AsyncNotifier<ThemeMode> {
-  late LocalStorageService _storage;
+  late LayananPenyimpananLokal _storage;
 
   @override
   Future<ThemeMode> build() async {
-    // Ambil instance LocalStorageService dari provider (async)
-    _storage = await ref.watch(localStorageServiceProvider.future);
-    // Muat tema yang tersimpan
-    final savedTheme = await _storage.getThemeMode();
+    _storage = await ref.read(localStorageServiceProvider.future);
+    final savedTheme = await _storage.ambilModeTema();
     Log.info('[ThemeNotifier] Tema awal dimuat: $savedTheme');
     return savedTheme;
   }
@@ -29,7 +27,7 @@ class ThemeNotifier extends AsyncNotifier<ThemeMode> {
 
     Log.info('[ThemeNotifier] Mengatur tema: $mode');
     state = AsyncData(mode); // update state
-    await _storage.saveThemeMode(mode);
+    await _storage.simpanModeTema(mode);
   }
 
   /// Helper untuk mengecek apakah mode gelap aktif (opsional)

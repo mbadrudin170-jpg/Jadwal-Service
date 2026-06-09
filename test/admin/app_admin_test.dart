@@ -14,6 +14,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
+import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
@@ -23,11 +25,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
-import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal';
+import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'app_admin_test.mocks.dart';
@@ -110,7 +110,7 @@ class MockWorkmanagerPlatform extends Mock
   BackgroundService,
   NotificationAppLaunchDetails,
   NotificationResponse,
-  LocalStorageService,
+  LayananPenyimpananLokal,
   UploadDataService,
   SyncCheckService,
   Database,

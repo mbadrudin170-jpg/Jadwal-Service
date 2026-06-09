@@ -24,10 +24,6 @@ class AccountListPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: const Text('Pilih Akun Tersimpan'),
       ),
       body: Column(
@@ -251,14 +247,13 @@ class AccountListPage extends ConsumerWidget {
                     await ref.read(localStorageServiceProvider.future);
                 Log.info('Mulai proses logout (hapus token)');
                 await storage.hapusTokenLogin();
-
                 ToastUtil.success(context, 'Token berhasil dihapus');
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
                       builder: (context) => const LoginPage()),
                   (route) => false,
                 );
-              } on Exception catch (e, st) {
+              } catch (e, st) {
                 Log.error('Gagal menghapus token login', e: e, st: st);
                 ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
               }

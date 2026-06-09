@@ -10,5 +10,5 @@ part 'account_list_providers.g.dart';
 @riverpod
 Future<List<CustomerModel>> accountList(Ref ref) async {
   final storage = await ref.watch(localStorageServiceProvider.future);
-  return storage.getAccountList();
+  return storage.ambilDaftarAkun();
 }

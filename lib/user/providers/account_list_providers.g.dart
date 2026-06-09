@@ -49,4 +49,4 @@ final class AccountListProvider extends $FunctionalProvider<
   }
 }
 
-String _$accountListHash() => r'bd2eb351403f2bd12885e68ef68fbbec3668979f';
+String _$accountListHash() => r'b2d97085330fe8da0bd9b24b494e8e66625caf22';
