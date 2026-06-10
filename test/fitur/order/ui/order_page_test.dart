@@ -134,9 +134,8 @@ void main() {
         (tester) async {
       when(() => mockOrderOpFirebase.getAllByUserId(any()))
           .thenAnswer((_) => Stream.value([orderUser]));
-      when(() =>
-              mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.diproses, any()))
-          .thenAnswer((_) async => 1);
+      when(() => mockOrderOpFirebase.countOrdersByStatus(
+          StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById('pkg2'))
           .thenAnswer((_) async => package2);
 
@@ -159,11 +158,10 @@ void main() {
         (tester) async {
       when(() => mockOrderOpFirebase.getAllByUserId(any()))
           .thenAnswer((_) => Stream.value([orderUser, orderAdmin]));
-      when(() => mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.baru, any()))
-          .thenAnswer((_) async => 1);
-      when(() =>
-              mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.diproses, any()))
-          .thenAnswer((_) async => 1);
+      when(() => mockOrderOpFirebase.countOrdersByStatus(
+          StatusOrderEnum.baru, any())).thenAnswer((_) async => 1);
+      when(() => mockOrderOpFirebase.countOrdersByStatus(
+          StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById('pkg1'))
           .thenAnswer((_) async => package1);
       when(() => mockPackageOpFirebase.getPackageById('pkg2'))
@@ -234,7 +232,7 @@ void main() {
         userId: 'admin1',
       ));
       await tester.pumpAndSettle();
-      
+
       await tester.tap(find.text('Baru'));
       await tester.pumpAndSettle();
 
@@ -260,11 +258,11 @@ void main() {
       expect(find.text('Apakah Anda yakin ingin melanjutkan?'), findsOneWidget);
 
       await tester.tap(find.text('Iya'));
-      await tester.pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
+      await tester
+          .pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
 
       verify(() => mockOrderOperation.updateOrderStatus(
-          orderAdmin.id, StatusOrderEnum.selesai))
-          .called(1);
+          orderAdmin.id, StatusOrderEnum.selesai)).called(1);
     });
 
     testWidgets('6. User: Alur hapus pesanan berhasil', (tester) async {
@@ -298,7 +296,8 @@ void main() {
       expect(find.text('Apakah Anda yakin ingin melanjutkan?'), findsOneWidget);
 
       await tester.tap(find.text('Iya'));
-      await tester.pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
+      await tester
+          .pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
 
       verify(() => mockOrderOpFirebase.softDeleteOrder(orderUser.id)).called(1);
     });
