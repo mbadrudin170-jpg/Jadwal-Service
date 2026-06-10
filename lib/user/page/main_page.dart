@@ -29,7 +29,7 @@ class _MainPageState extends ConsumerState<MainPage> {
   int _selectedIndex = 0;
   late final List<Widget> _pages;
   late final AppLifecycleReactor _appLifecycleReactor;
-  final AppOpenAdService _appOpenAdService = AppOpenAdService();
+  final LayananIklanBukaAplikasi _appOpenAdService = LayananIklanBukaAplikasi();
 
   @override
   void initState() {

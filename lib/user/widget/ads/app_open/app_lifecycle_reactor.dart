@@ -9,7 +9,7 @@ import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 /// untuk menampilkan App Open Ad.
 class AppLifecycleReactor {
   /// Layanan untuk mengelola iklan App Open.
-  final AppOpenAdService appOpenAdService;
+  final LayananIklanBukaAplikasi appOpenAdService;
 
   /// Konstruktor untuk [AppLifecycleReactor].
   AppLifecycleReactor({required this.appOpenAdService});
@@ -17,7 +17,7 @@ class AppLifecycleReactor {
   /// Mulai mendengarkan perubahan status aplikasi.
   void listenToAppStateChanges() {
     // Panggil loadAd() secara langsung karena ini adalah fungsi void.
-    appOpenAdService.loadAd();
+    appOpenAdService.muatIklan();
 
     // unawaited() diperlukan karena startListening() adalah Future.
     unawaited(AppStateEventNotifier.startListening());
@@ -26,7 +26,7 @@ class AppLifecycleReactor {
     AppStateEventNotifier.appStateStream.listen(_onAppStateChanged);
   }
 
-  void _onAppStateChanged(final AppState appState) {
+  void _onAppStateChanged(AppState appState) {
     Log.info('[AppLifecycle] Status aplikasi berubah menjadi: \$appState');
     // Coba tampilkan iklan saat aplikasi kembali ke foreground.
     if (appState == AppState.foreground) {
@@ -36,7 +36,7 @@ class AppLifecycleReactor {
         Log.info(
             '[AppLifecycle] Jeda selesai, mencoba menampilkan iklan sekarang.');
         // showAdIfAvailable mengembalikan Future, jadi gunakan unawaited.
-        unawaited(appOpenAdService.show());
+        unawaited(appOpenAdService.tampilkanIklan());
       });
     }
   }
