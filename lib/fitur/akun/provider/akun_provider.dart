@@ -16,7 +16,7 @@ abstract class AkunState with _$AkunState {
   }) = _AkunState;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class PengelolaAkun extends _$PengelolaAkun {
   @override
   Future<AkunState> build() async {
@@ -32,6 +32,7 @@ class PengelolaAkun extends _$PengelolaAkun {
 
     await penyimpanan.simpanAkunSaatIni(akun);
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akun,
       daftarAkunTersimpan: daftarAkun,
@@ -45,6 +46,7 @@ class PengelolaAkun extends _$PengelolaAkun {
     await penyimpanan.hapusAkunSaatIni();
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
@@ -65,6 +67,7 @@ class PengelolaAkun extends _$PengelolaAkun {
     final akunBaru = keadaanSaatIni.akunSaatIni?.id == idAkun
         ? null
         : keadaanSaatIni.akunSaatIni;
+    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunBaru,
       daftarAkunTersimpan: daftarBaru,
@@ -74,6 +77,7 @@ class PengelolaAkun extends _$PengelolaAkun {
   Future<void> hapusTokenLogin() async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
     await penyimpanan.hapusTokenLogin();
+    if (!ref.mounted) return;
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
@@ -86,7 +90,7 @@ class PengelolaAkun extends _$PengelolaAkun {
 
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
-
+    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,

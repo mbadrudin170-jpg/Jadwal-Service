@@ -20,7 +20,7 @@ final class PengelolaAkunProvider
           argument: null,
           retry: null,
           name: r'pengelolaAkunProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -33,7 +33,7 @@ final class PengelolaAkunProvider
   PengelolaAkun create() => PengelolaAkun();
 }
 
-String _$pengelolaAkunHash() => r'7f1a1e05c894d7ba5a950cb96a320bb82a9f5fc7';
+String _$pengelolaAkunHash() => r'f01a076429aebb7e02dc6be97449c603b8059615';
 
 abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();
