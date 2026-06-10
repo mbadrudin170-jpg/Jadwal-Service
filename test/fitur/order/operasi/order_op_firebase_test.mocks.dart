@@ -12,6 +12,8 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart'
     as _i5;
+import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart'
+    as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -1956,6 +1958,25 @@ class MockAggregateQuerySnapshot extends _i1.Mock
         #getAverage,
         [field],
       )) as double?);
+}
+
+/// A class which mocks [StatusOpFirebase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockStatusOpFirebase extends _i1.Mock implements _i8.StatusOpFirebase {
+  MockStatusOpFirebase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<void> updateGlobalStatus() => (super.noSuchMethod(
+        Invocation.method(
+          #updateGlobalStatus,
+          [],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
 }
 
 /// A class which mocks [Query].

@@ -10,6 +10,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
 import 'order_op_firebase_test.mocks.dart';
 
@@ -23,37 +24,45 @@ import 'order_op_firebase_test.mocks.dart';
   DocumentSnapshot,
   AggregateQuery,
   AggregateQuerySnapshot,
+  StatusOpFirebase,
 ], customMocks: [
   MockSpec<Query<Map<String, dynamic>>>(as: #MockQueryMap),
   MockSpec<QuerySnapshot<Map<String, dynamic>>>(as: #MockQuerySnapshotMap),
   MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshotMap),
-  MockSpec<DocumentReference<Map<String, dynamic>>>(as: #MockDocumentReferenceMap),
+  MockSpec<DocumentReference<Map<String, dynamic>>>(
+      as: #MockDocumentReferenceMap),
   MockSpec<CollectionReference<Map<String, dynamic>>>(
       as: #MockCollectionReferenceMap),
   MockSpec<QueryDocumentSnapshot<Map<String, dynamic>>>(
     as: #MockQueryDocumentSnapshotMap,
   ),
 ])
+
 void main() {
   late MockBaseOpFirebase mockBaseOp;
   late MockFirebaseFirestore mockFirestore;
   late OrderOpFirebase orderOpFirebase;
   late MockCollectionReferenceMap mockCollectionReference;
+  late MockCollectionReferenceMap mockStatusCollectionReference;
   late MockDocumentReferenceMap mockDocumentReference;
   late MockQueryMap mockQuery;
   late MockDocumentSnapshotMap mockDocumentSnapshot;
   late MockQuerySnapshotMap mockQuerySnapshot;
   late MockAggregateQuery mockAggregateQuery;
   late MockAggregateQuerySnapshot mockAggregateQuerySnapshot;
+  late MockStatusOpFirebase mockStatusOpFirebase;
 
   setUp(() {
     mockBaseOp = MockBaseOpFirebase();
     mockFirestore = MockFirebaseFirestore();
+    mockStatusOpFirebase = MockStatusOpFirebase();
+
     orderOpFirebase = OrderOpFirebase(
       firestore: mockFirestore,
       baseOp: mockBaseOp,
     );
     mockCollectionReference = MockCollectionReferenceMap();
+    mockStatusCollectionReference = MockCollectionReferenceMap();
     mockDocumentReference = MockDocumentReferenceMap();
     mockQuery = MockQueryMap();
     mockDocumentSnapshot = MockDocumentSnapshotMap();
@@ -61,7 +70,17 @@ void main() {
     mockAggregateQuery = MockAggregateQuery();
     mockAggregateQuerySnapshot = MockAggregateQuerySnapshot();
 
-    when(mockFirestore.collection(any)).thenReturn(mockCollectionReference);
+    // Stubbing untuk koleksi 'orders'
+    when(mockFirestore.collection('orders'))
+        .thenReturn(mockCollectionReference);
+
+    // Stubbing untuk koleksi 'status_global'
+    when(mockFirestore.collection('status_global'))
+        .thenReturn(mockStatusCollectionReference);
+    when(mockStatusCollectionReference.doc(any))
+        .thenReturn(mockDocumentReference);
+
+    // Stubbing umum
     when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
     when(mockCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')))
         .thenReturn(mockQuery);
@@ -72,6 +91,10 @@ void main() {
     when(mockQuery.count()).thenReturn(mockAggregateQuery);
     when(mockAggregateQuery.get())
         .thenAnswer((_) async => mockAggregateQuerySnapshot);
+
+    // Stubbing untuk mockStatusOpFirebase
+    when(mockStatusOpFirebase.updateGlobalStatus())
+        .thenAnswer((_) async => {});
   });
 
   final order = OrderModel(
@@ -86,15 +109,13 @@ void main() {
 
   group('Grup Pengujian OrderOpFirebase', () {
     test('1. Uji penambahan pesanan baru', () async {
-      when(mockBaseOp.insert(any, any, any))
-          .thenAnswer((_) => Future.value());
+      when(mockBaseOp.insert(any, any, any)).thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
       verify(mockBaseOp.insert(any, order.id, orderMap)).called(1);
     });
 
     test('2. Uji pembaruan pesanan', () async {
-      when(mockBaseOp.update(any, any, any))
-          .thenAnswer((_) => Future.value());
+      when(mockBaseOp.update(any, any, any)).thenAnswer((_) => Future.value());
       await orderOpFirebase.updateOrder(order);
       verify(mockBaseOp.update(any, order.id, orderMap)).called(1);
     });
@@ -166,7 +187,8 @@ void main() {
           resultStream,
           emits(isA<List<OrderModel>>()
               .having((list) => list.length, 'panjang', 1)
-              .having((list) => list.first.customerId, 'customerId', 'cust1')));
+              .having(
+                  (list) => list.first.customerId, 'customerId', 'cust1')));
 
       streamController.add(mockQuerySnapshot);
       streamController.close();
