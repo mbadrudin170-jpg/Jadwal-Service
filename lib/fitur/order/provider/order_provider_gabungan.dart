@@ -7,6 +7,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/opera
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
+part 'order_provider_gabungan.g.dart';
+
 @riverpod
 Future<void> listOrder(Ref ref) async {
   final appRole = ref.watch(appRoleProvider);

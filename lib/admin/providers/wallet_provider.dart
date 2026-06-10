@@ -10,7 +10,7 @@ part 'wallet_provider.g.dart';
 part 'wallet_provider.freezed.dart';
 
 @freezed
-class WalletState with _$WalletState {
+abstract class WalletState with _$WalletState {
   const factory WalletState({
     @Default([]) List<WalletModel> wallets,
     @Default(0.0) double totalPositiveBalance,
@@ -44,7 +44,6 @@ class Wallet extends _$Wallet {
   }
 
   Future<void> addWallet(final WalletModel wallet) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.createWallet(wallet);
@@ -53,7 +52,6 @@ class Wallet extends _$Wallet {
   }
 
   Future<void> updateWallet(final WalletModel wallet) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.updateWallet(wallet);
@@ -62,7 +60,6 @@ class Wallet extends _$Wallet {
   }
 
   Future<void> softDelete(final String id) async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.softDelete(id);
@@ -71,7 +68,6 @@ class Wallet extends _$Wallet {
   }
 
   Future<void> deleteAllWallets() async {
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.deleteAllWallets();
