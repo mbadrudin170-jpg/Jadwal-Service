@@ -26,7 +26,7 @@ Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditul
 - Tujuan: menjaga konsistensi ikon di seluruh aplikasi dan memudahkan penggantian ikon secara terpusat.
 
 **5. Komentar Path di Awal Setiap File**
-- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart`.
+- Setiap file kode Dart **wajib** diawali dengan komentar yang menyebutkan path file relatif terhadap root proyek, contoh: `// path: lib/screens/home_screen.dart` dan harus sesuai dengan path aslinya jangan sampai komentar path nya ini tidak sesuai dengan tempat file nya berada.
 - Komentar path diletakkan pada baris pertama file, sebelum `import` atau deklarasi lainnya.
 - Tujuan: memudahkan identifikasi lokasi file, terutama saat salin-tempel atau diskusi kode.
 
@@ -36,7 +36,7 @@ Seluruh nama **fungsi, variabel, props, parameter, file, dan class** wajib ditul
 - Tujuan: menjaga kualitas kode, mencegah akumulasi masalah, dan mendeteksi kesalahan sejak dini.
 
 **7. Komentar Fungsi**
-Tambahkan sebuah komentar di setiap fungsi di dalam sebuah file, contoh: `// 1. Menginisialisasi konfigurasi zona waktu`.
+Tambahkan sebuah komentar di setiap fungsi di dalam sebuah file, contoh: `/// Menginisialisasi konfigurasi zona waktu`.
 
 **8. Aturan `withOpacity`**
 Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk menjaga konsistensi proyek.
@@ -45,3 +45,7 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 - Semua state management harus menggunakan `flutter_riverpod` dengan `riverpod_annotation` untuk menjaga konsistensi.
 - Setiap UI yang membutuhkan data akan memanggil provider yang sesuai.
 - Untuk provider yang datanya perlu dijaga selama aplikasi berjalan, gunakan anotasi `@Riverpod(keepAlive: true)`.
+
+## Nama Variabel, fungsi dan parameter
+1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
+2. kalau ada yang masih dalam bahasa inggris tandai dengan komentar // TODO : nama masih dalam bahasa inggris.
