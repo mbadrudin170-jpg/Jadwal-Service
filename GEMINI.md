@@ -22,7 +22,11 @@ hapus kata final pada sebuah parameter dan ubah nama fungsi menjadi bahasa indon
     1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
     2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
     3. kode di setiap file harus konsisten.
-8. semua file harus dibuatkan file test nya jangan ada yang tidak dibuatkan.
+8. semua file harus dibuatkan file test nya jangan ada yang tidak dibuatkan.Tolong pahami dan selalu ingat aturan ini
+
+1. jika kode yang sedang dikerjakan ternyata diimport dari file lain AI wajib melihat file file yang diimport itu,jika file yang di import juga menggunakan kode yang dimpoert dari file lain maka AI wajib membaca nya juga. agar tidak salah file AI harus menajalankan ls -R lib atau ls -R test jika itu file test.
+2. penulisan kode, AI wajib menuliskan kode yang sesuai dengan versi paket saya di pubspec.yaml, kalau bisa lihat dokumentasinya dengan menjalankan read_package_uris dan pub_dev_search,
+3. kode di setiap file harus konsisten.
 # Aturan untuk melakukan build apk dengan Alias
 
 ## Alur Kerja Build (WAJIB DIIKUTI)
@@ -287,7 +291,10 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 ## Nama Variabel, fungsi dan parameter
 1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
 2. kalau ada yang masih dalam bahasa inggris tandai dengan komentar // TODO : nama masih dalam bahasa inggris.
-# // path: prompt/aturan_kepatuhan_ai.md
+
+
+## Text
+1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.# // path: prompt/aturan_kepatuhan_ai.md
 
 ---
 

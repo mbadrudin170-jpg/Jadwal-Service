@@ -49,3 +49,7 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 ## Nama Variabel, fungsi dan parameter
 1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
 2. kalau ada yang masih dalam bahasa inggris tandai dengan komentar // TODO : nama masih dalam bahasa inggris.
+
+
+## Text
+1. harus menggunakan text custom dari lib/shared/common/text.dart dan pilih yang sesuai kalau semisal ui membutuhkan parameter dari text maka tambahkan parameter nya itu ke textcustom jadi ui tinggal menggunakan text custom saja.
