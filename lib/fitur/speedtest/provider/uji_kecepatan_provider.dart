@@ -48,7 +48,7 @@ class UjiKecepatan extends _$UjiKecepatan {
   }
 
   // 1. Fungsi untuk memulai pengujian kecepatan internet
-  Future<void> mulaiPengujian(BuildContext konteks) async {
+  Future<void> mulaiPengujian(BuildContext context) async {
     Log.info('Memulai uji kecepatan internet');
 
     state = state.copyWith(
@@ -79,16 +79,16 @@ class UjiKecepatan extends _$UjiKecepatan {
         statusPesan: 'Pengujian selesai',
       );
 
-      if (konteks.mounted) {
-        ToastUtil.success(konteks, 'Uji kecepatan berhasil diselesaikan');
+      if (context.mounted) {
+        ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
       }
     } on Object catch (e, st) {
       state = state.copyWith(
           sedangMenguji: false, statusPesan: 'Gagal melakukan pengujian');
       Log.error('Gagal saat melakukan uji kecepatan', e: e, st: st);
-      if (konteks.mounted) {
+      if (context.mounted) {
         ToastUtil.error(
-            konteks, 'Gagal melakukan uji kecepatan. Silakan coba lagi.');
+            context, 'Gagal melakukan uji kecepatan. Silakan coba lagi.');
       }
     }
   }

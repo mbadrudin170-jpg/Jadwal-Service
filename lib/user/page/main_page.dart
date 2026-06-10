@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/notfikasi/penjadwal_notifikasi.dart';
 import 'package:wifi/fitur/order/ui/order_page.dart';
+import 'package:wifi/fitur/speedtest/page/uji_kecepatan_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/page/profile_page.dart';
@@ -53,6 +54,7 @@ class _MainPageState extends ConsumerState<MainPage> {
       const ProfilePage(),
       const SubscriptionHistoryPage(),
       const OrderPage(),
+      const HalamanUjiKecepatan(),
       const SettingsPageUser(),
     ];
     _appLifecycleReactor =
@@ -61,7 +63,7 @@ class _MainPageState extends ConsumerState<MainPage> {
     FlutterNativeSplash.remove();
   }
 
-  void _onItemTapped(final int index) {
+  void _onItemTapped(int index) {
     Log.info('Item navigasi diketuk: index $index');
     if (_selectedIndex == index) {
       return;
@@ -102,6 +104,10 @@ class _MainPageState extends ConsumerState<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(TIcons.pesanan),
             label: 'Pesanan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(TIcons.speed),
+            label: 'Uji Speed',
           ),
           BottomNavigationBarItem(
             icon: Icon(TIcons.settings),

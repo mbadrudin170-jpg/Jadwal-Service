@@ -49,6 +49,12 @@ Dilarang menggunakan `withOpacity`. Gunakan `withValues` atau `withAlpha` untuk 
 ## Nama Variabel, fungsi dan parameter
 1. nama nya harus dalam bahasa indonesia, dan jangan lupa harus pendek tapi jelas agar hanya dengan membaca nama nya saja kita bisa tahu tujuan kode ini dibuat.
 2. kalau ada yang masih dalam bahasa inggris tandai dengan komentar // TODO : nama masih dalam bahasa inggris.
+3. terkecuali untuk kata yang sudah lumrah di indonesia boleh menggunakan bahasa inggris.
+4. dan untuk kata dibawah ini tidak boleh dirubah ke indonesia
+ - context
+ - icon
+ - icons
+ - 
 
 
 ## Text
