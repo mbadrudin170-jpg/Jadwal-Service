@@ -234,7 +234,7 @@ void main() {
         userId: 'admin1',
       ));
       await tester.pumpAndSettle();
-
+      
       await tester.tap(find.text('Baru'));
       await tester.pumpAndSettle();
 
@@ -260,7 +260,7 @@ void main() {
       expect(find.text('Apakah Anda yakin ingin melanjutkan?'), findsOneWidget);
 
       await tester.tap(find.text('Iya'));
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
 
       verify(() => mockOrderOperation.updateOrderStatus(
           orderAdmin.id, StatusOrderEnum.selesai))
