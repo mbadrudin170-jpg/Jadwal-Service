@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart
+// path: lib/fitur/database/provider/operasi_sqlite_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -18,7 +18,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
-part 'operasi_sqlite_provider.g.dart';
+part 'order_sqlite_provider.g.dart';
 
 /// Provider untuk menyediakan instance dari [PackageOperation].
 @Riverpod(keepAlive: true)
@@ -133,18 +133,6 @@ OrderOperation orderOperation(Ref ref) {
     baseOperation: baseOperation,
   );
 }
-
-// /// Provider untuk menyediakan instance dari [OrderOperation].
-// @Riverpod(keepAlive: true)
-// IOrderOperation iOrderOperation(Ref ref) {
-//   Log.info('Membuat instance OrderOperation via @riverpod...');
-//   final dbHelper = ref.watch(databaseHelperProvider);
-//   final baseOperation = ref.watch(baseOperationProvider);
-//   return OrderOperation(
-//     dbHelper: dbHelper,
-//     baseOperation: baseOperation,
-//   );
-// }
 
 /// Provider untuk menyediakan instance dari [SettingsOperation].
 @Riverpod(keepAlive: true)

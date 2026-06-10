@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 part 'wallet_provider.g.dart';
 part 'wallet_provider.freezed.dart';

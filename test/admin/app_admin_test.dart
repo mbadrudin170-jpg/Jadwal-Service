@@ -22,7 +22,7 @@ import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';

@@ -65,7 +65,7 @@ void main() {
     return ProviderScope(
       overrides: [
         appRoleProvider.overrideWith((ref) => appRole),
-        userIdProvider.overrideWith((ref) => AsyncValue.data(userId)),
+        userIdProvider.overrideWithValue(AsyncValue.data(userId)),
         orderOperationProvider.overrideWith((ref) => mockOrderOperation),
         orderOpFirebaseProvider.overrideWith((ref) => mockOrderOpFirebase),
         packageOpFirebaseProvider.overrideWith((ref) => mockPackageOpFirebase),

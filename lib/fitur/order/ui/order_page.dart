@@ -7,7 +7,7 @@ import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
@@ -382,10 +382,19 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
             if (pageContext.mounted) {
               ToastUtil.success(pageContext, 'Data berhasil diperbarui');
             }
-          } catch (e, st) {
-            Log.error('Gagal memperbarui status pesanan', e: e, st: st);
+          } on Exception catch (e, st) {
+            // 1. Catat log error secara detail untuk developer.
+            Log.error('Gagal memperbarui status pesanan', e: e, st: st, data: {
+              'orderId': order.id,
+              'newStatus': status,
+            });
+
+            // 2. Tampilkan pesan error yang ramah kepada pengguna.
             if (pageContext.mounted) {
-              ToastUtil.error(pageContext, 'Gagal memperbarui status pesanan');
+              ToastUtil.error(
+                pageContext,
+                'Terjadi kesalahan saat memperbarui status pesanan.',
+              );
             }
           }
         }

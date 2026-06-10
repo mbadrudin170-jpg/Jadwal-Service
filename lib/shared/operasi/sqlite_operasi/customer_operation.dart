@@ -5,11 +5,11 @@
 // diubah: Mengganti string literal 'pelanggan' dengan TableNameValue.get(TableName.customer) sesuai v50.
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pelanggan di database lokal.
@@ -29,7 +29,7 @@ class CustomerOperation {
   CustomerOperation({
     required this.dbHelper,
     required final BaseOperation baseOperation,
-  })  : _baseOperation = baseOperation {
+  }) : _baseOperation = baseOperation {
     Log.info('CustomerOperation diinisialisasi');
   }
 

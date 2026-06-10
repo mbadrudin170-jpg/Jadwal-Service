@@ -6,7 +6,7 @@ import 'package:wifi/admin/providers/active_customer_provider.dart';
 
 import 'package:wifi/data_dummy/data_dummy.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class HalamanDataDummy extends ConsumerWidget {

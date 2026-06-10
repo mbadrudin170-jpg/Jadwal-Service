@@ -9,7 +9,7 @@ import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/background/boot_service.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 import 'boot_service_test.mocks.dart';
 

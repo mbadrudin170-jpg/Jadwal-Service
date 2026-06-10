@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 const int archiveExpiredId = 999; // ID unik untuk alarm periodik
 const int oneShotArchivedId = 998; // ID unik untuk alarm sekali jalan

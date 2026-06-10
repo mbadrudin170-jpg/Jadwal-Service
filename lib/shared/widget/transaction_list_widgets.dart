@@ -9,7 +9,7 @@ import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 

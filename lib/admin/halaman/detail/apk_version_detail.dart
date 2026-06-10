@@ -8,7 +8,7 @@ import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';

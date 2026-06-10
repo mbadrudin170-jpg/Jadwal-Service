@@ -5,7 +5,7 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 part 'pelanggan_provider.g.dart';
 
