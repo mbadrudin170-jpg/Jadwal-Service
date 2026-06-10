@@ -25,7 +25,7 @@ class CustomFutureBuilder<T> extends StatelessWidget {
   /// Jika null, akan menampilkan Text 'Error' berwarna merah secara default.
   final Widget Function(BuildContext context, Object error, StackTrace? stack)?
       errorBuilder;
-  
+
   /// Builder opsional yang dipanggil saat [future] selesai tetapi tidak memiliki data.
   /// Jika null, akan menampilkan Text '-' secara default.
   final WidgetBuilder? noDataBuilder;
@@ -62,7 +62,8 @@ class CustomFutureBuilder<T> extends StatelessWidget {
             e: snapshot.error,
             st: snapshot.stackTrace,
           );
-          return errorBuilder?.call(context, snapshot.error!, snapshot.stackTrace) ??
+          return errorBuilder?.call(
+                  context, snapshot.error!, snapshot.stackTrace) ??
               const Text(
                 'Error',
                 style: TextStyle(
@@ -77,10 +78,10 @@ class CustomFutureBuilder<T> extends StatelessWidget {
           final data = snapshot.data;
           // Periksa jika data adalah list dan kosong
           if (data is List && data.isEmpty) {
-             return noDataBuilder?.call(context) ?? const Text('-');
+            return noDataBuilder?.call(context) ?? const Text('-');
           }
           // Periksa jika data adalah null
-          if (data == null){
+          if (data == null) {
             return noDataBuilder?.call(context) ?? const Text('-');
           }
           return dataBuilder(context, data);
