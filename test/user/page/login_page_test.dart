@@ -51,6 +51,8 @@ void main() {
         .thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
         .thenAnswer((_) async => []);
+    when(() => mockPengelolaAkun.build()).thenAnswer((_) async => const AkunState());
+
   });
 
   Widget createTestableWidget(Widget child) {
@@ -58,7 +60,7 @@ void main() {
       overrides: [
         internetConnectionServiceProvider
             .overrideWithValue(mockInternetConnectionService),
-        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
             .overrideWithValue(AsyncValue.data(mockUserActivityService)),
