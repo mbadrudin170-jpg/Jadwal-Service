@@ -78,9 +78,8 @@ void main() {
     id: 'order1',
     customerId: 'cust1',
     packageId: 'pkg1',
-    date: DateTime(2023, 1, 1),
-    status: StatusOrderEnum.baru,
-    updatedAt: DateTime(2023, 1, 1),
+    date: DateTime(2023, 1),
+    updatedAt: DateTime(2023, 1),
   );
 
   final orderMap = order.toFirebase();
@@ -88,14 +87,14 @@ void main() {
   group('Grup Pengujian OrderOpFirebase', () {
     test('1. Uji penambahan pesanan baru', () async {
       when(mockBaseOp.insert(any, any, any))
-          .thenAnswer((_) => Future.value(null));
+          .thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
       verify(mockBaseOp.insert(any, order.id, orderMap)).called(1);
     });
 
     test('2. Uji pembaruan pesanan', () async {
       when(mockBaseOp.update(any, any, any))
-          .thenAnswer((_) => Future.value(null));
+          .thenAnswer((_) => Future.value());
       await orderOpFirebase.updateOrder(order);
       verify(mockBaseOp.update(any, order.id, orderMap)).called(1);
     });
