@@ -1,4 +1,4 @@
-// path: lib/shared/akun/akun_provider.dart
+// path: lib/fitur/akun/provider/akun_provider.dart
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
