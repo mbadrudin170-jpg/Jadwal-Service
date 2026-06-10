@@ -294,4 +294,10 @@ class TIcons {
 
   /// Ikon untuk pesanan atau daftar belanja.
   static const IconData pesanan = Icons.shopping_bag_rounded;
+
+  /// Ikon untuk aksi mulai (play).
+  static const IconData play = Icons.play_arrow_rounded;
+
+  /// Ikon untuk waktu atau pengukur waktu (timer).
+  static const IconData timer = Icons.timer_outlined;
 }
