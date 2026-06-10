@@ -5,8 +5,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/order/ui/order_page.dart';
@@ -14,15 +14,17 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
-import 'order_page_test.mocks.dart';
+// 1. Membuat mock class dengan Mocktail
+class MockOrderOperation extends Mock implements OrderOperation {}
 
-// 1. Membuat mock class
-@GenerateMocks([OrderOperation, OrderOpFirebase, PackageOpFirebase])
+class MockOrderOpFirebase extends Mock implements OrderOpFirebase {}
+
+class MockPackageOpFirebase extends Mock implements PackageOpFirebase {}
+
 void main() {
   // 2. Deklarasi mock dan data
   late MockOrderOperation mockOrderOperation;
@@ -34,6 +36,7 @@ void main() {
     customerId: 'custAdmin',
     packageId: 'pkg1',
     date: DateTime.now(),
+    status: StatusOrderEnum.baru,
     updatedAt: DateTime.now(),
   );
 
@@ -64,9 +67,25 @@ void main() {
     mockOrderOperation = MockOrderOperation();
     mockOrderOpFirebase = MockOrderOpFirebase();
     mockPackageOpFirebase = MockPackageOpFirebase();
+
+    registerFallbackValue(StatusOrderEnum.baru);
+
+    // Stubs default
+    when(() => mockPackageOpFirebase.getPackageById(any()))
+        .thenAnswer((_) async => package1);
+    when(() => mockOrderOpFirebase.getAllByUserId(any()))
+        .thenAnswer((_) => Stream.value([]));
+    when(() => mockOrderOperation.getAllActiveOrdersStream())
+        .thenAnswer((_) => Stream.value([]));
+    when(() => mockOrderOperation.getJumlahByStatus(any()))
+        .thenAnswer((_) async => 0);
+    when(() => mockOrderOpFirebase.countOrdersByStatus(any(), any()))
+        .thenAnswer((_) async => 0);
+    // Stub for softDelete to prevent timer leaks
+    when(() => mockOrderOperation.softDelete(any())).thenAnswer((_) async => 1);
   });
 
-  // 4. Widget tester wrapper untuk menyediakan ProviderScope
+  // 4. Widget tester wrapper
   Widget createTestableWidget({
     required Widget child,
     required AppRole appRole,
@@ -89,99 +108,95 @@ void main() {
   group('Pengujian Halaman Pesanan', () {
     testWidgets('1. Peran Admin: Menampilkan pesanan dari SQLite',
         (tester) async {
-      // Atur stub untuk admin
-      when(mockOrderOperation.getAllActiveOrdersStream())
+      when(() => mockOrderOperation.getAllActiveOrdersStream())
           .thenAnswer((_) => Stream.value([orderAdmin]));
-      when(mockOrderOperation.getJumlahByStatus(any))
+      when(() => mockOrderOperation.getJumlahByStatus(StatusOrderEnum.baru))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById('pkg1'))
+      when(() => mockPackageOpFirebase.getPackageById('pkg1'))
           .thenAnswer((_) async => package1);
 
-      // Pump widget
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.admin,
         userId: 'admin1',
       ));
-
-      // Tunggu stream dan future builder selesai
       await tester.pumpAndSettle();
 
-      // Verifikasi
+      // Ubah filter untuk menampilkan pesanan 'Baru'
+      await tester.tap(find.text('Baru'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Paket Admin'), findsOneWidget);
       expect(find.text('Status: baru'), findsOneWidget);
     });
 
     testWidgets('2. Peran User: Menampilkan pesanan dari Firebase',
         (tester) async {
-      // Atur stub untuk user
-      when(mockOrderOpFirebase.getAllByUserId(any))
+      when(() => mockOrderOpFirebase.getAllByUserId(any()))
           .thenAnswer((_) => Stream.value([orderUser]));
-      when(mockOrderOpFirebase.countOrdersByStatus(any, any))
+      when(() =>
+              mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.diproses, any()))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById('pkg2'))
+      when(() => mockPackageOpFirebase.getPackageById('pkg2'))
           .thenAnswer((_) async => package2);
 
-      // Pump widget
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.user,
         userId: 'custUser',
       ));
-
-      // Tunggu stream dan future builder selesai
       await tester.pumpAndSettle();
 
-      // Verifikasi
+      // Ubah filter untuk menampilkan pesanan 'Diproses'
+      await tester.tap(find.text('Diproses'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Paket User'), findsOneWidget);
       expect(find.text('Status: diproses'), findsOneWidget);
     });
 
     testWidgets('3. Interaksi Tombol Filter: Mengubah daftar yang ditampilkan',
         (tester) async {
-      // Atur stub dengan dua pesanan berbeda status
-      when(mockOrderOpFirebase.getAllByUserId(any))
+      when(() => mockOrderOpFirebase.getAllByUserId(any()))
           .thenAnswer((_) => Stream.value([orderUser, orderAdmin]));
-      when(mockOrderOpFirebase.countOrdersByStatus(any, any))
+      when(() => mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.baru, any()))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById(any))
+      when(() =>
+              mockOrderOpFirebase.countOrdersByStatus(StatusOrderEnum.diproses, any()))
+          .thenAnswer((_) async => 1);
+      when(() => mockPackageOpFirebase.getPackageById('pkg1'))
           .thenAnswer((_) async => package1);
+      when(() => mockPackageOpFirebase.getPackageById('pkg2'))
+          .thenAnswer((_) async => package2);
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.user,
         userId: 'custUser',
       ));
-
       await tester.pumpAndSettle();
 
-      // Awalnya, filter 'Selesai' aktif, jadi tidak ada yang tampil
       expect(find.text('Belum ada pesanan ditemukan.'), findsOneWidget);
 
-      // Tekan filter 'Baru'
       await tester.tap(find.text('Baru'));
       await tester.pumpAndSettle();
 
-      // Verifikasi hanya pesanan 'Baru' yang tampil
       expect(find.text('Paket Admin'), findsOneWidget);
       expect(find.text('Paket User'), findsNothing);
 
-      // Tekan filter 'Diproses'
       await tester.tap(find.text('Diproses'));
       await tester.pumpAndSettle();
 
-      // Verifikasi hanya pesanan 'Diproses' yang tampil
       expect(find.text('Paket Admin'), findsNothing);
       expect(find.text('Paket User'), findsOneWidget);
     });
 
     testWidgets('4. Admin: Long-press memunculkan dialog opsi', (tester) async {
-      // Atur stub
-      when(mockOrderOperation.getAllActiveOrdersStream())
+      when(() => mockOrderOperation.getAllActiveOrdersStream())
           .thenAnswer((_) => Stream.value([orderAdmin]));
-      when(mockOrderOperation.getJumlahByStatus(any))
+      when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById(any))
+      when(() => mockPackageOpFirebase.getPackageById(any()))
           .thenAnswer((_) async => package1);
 
       await tester.pumpWidget(createTestableWidget(
@@ -191,28 +206,27 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // Lakukan long-press
+      await tester.tap(find.text('Baru'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ListTile), findsOneWidget);
       await tester.longPress(find.byType(ListTile));
       await tester.pumpAndSettle();
 
-      // Verifikasi dialog muncul
       expect(find.byType(Dialog), findsOneWidget);
       expect(find.text('Ubah Status'), findsOneWidget);
       expect(find.text('Hapus'), findsOneWidget);
     });
 
     testWidgets('5. Admin: Alur ubah status pesanan berhasil', (tester) async {
-      // Atur stub
-      when(mockOrderOperation.getAllActiveOrdersStream())
+      when(() => mockOrderOperation.getAllActiveOrdersStream())
           .thenAnswer((_) => Stream.value([orderAdmin]));
-      when(mockOrderOperation.getJumlahByStatus(any))
+      when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById(any))
+      when(() => mockPackageOpFirebase.getPackageById(any()))
           .thenAnswer((_) async => package1);
-      when(mockOrderOperation.updateOrderStatus(any, any))
-          .thenAnswer((_) async {
-        return;
-      });
+      when(() => mockOrderOperation.updateOrderStatus(any(), any()))
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
@@ -221,45 +235,47 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // 1. Buka dialog opsi
+      await tester.tap(find.text('Baru'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ListTile), findsOneWidget);
+
       await tester.longPress(find.byType(ListTile));
       await tester.pumpAndSettle();
 
-      // 2. Tekan 'Ubah Status'
       await tester.tap(find.text('Ubah Status'));
       await tester.pumpAndSettle();
 
-      // Verifikasi dialog ubah status muncul
-      expect(find.text(StatusOrderEnum.selesai.displayName), findsOneWidget);
+      // Finder lebih spesifik untuk text di dalam dialog
+      final dialogSelesaiButton = find.descendant(
+        of: find.byType(Dialog),
+        matching: find.text(StatusOrderEnum.selesai.displayName),
+      );
 
-      // 3. Tekan status 'Selesai'
-      await tester.tap(find.text(StatusOrderEnum.selesai.displayName));
+      expect(dialogSelesaiButton, findsOneWidget);
+
+      await tester.tap(dialogSelesaiButton);
       await tester.pumpAndSettle();
 
-      // Verifikasi dialog konfirmasi muncul
       expect(find.text('Apakah Anda yakin ingin melanjutkan?'), findsOneWidget);
 
-      // 4. Tekan 'Iya'
       await tester.tap(find.text('Iya'));
       await tester.pumpAndSettle();
 
-      // 5. Verifikasi pemanggilan method
-      verify(mockOrderOperation.updateOrderStatus(
-              orderAdmin.id, StatusOrderEnum.selesai))
+      verify(() => mockOrderOperation.updateOrderStatus(
+          orderAdmin.id, StatusOrderEnum.selesai))
           .called(1);
     });
 
     testWidgets('6. User: Alur hapus pesanan berhasil', (tester) async {
-      // Atur stub
-      when(mockOrderOpFirebase.getAllByUserId(any))
+      when(() => mockOrderOpFirebase.getAllByUserId(any()))
           .thenAnswer((_) => Stream.value([orderUser]));
-      when(mockOrderOpFirebase.countOrdersByStatus(any, any))
+      when(() => mockOrderOpFirebase.countOrdersByStatus(any(), any()))
           .thenAnswer((_) async => 1);
-      when(mockPackageOpFirebase.getPackageById(any))
+      when(() => mockPackageOpFirebase.getPackageById(any()))
           .thenAnswer((_) async => package2);
-      when(mockOrderOpFirebase.softDeleteOrder(any)).thenAnswer((_) async {
-        return;
-      });
+      when(() => mockOrderOpFirebase.softDeleteOrder(any()))
+          .thenAnswer((_) async {});
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
@@ -268,23 +284,23 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      // 1. Buka dialog opsi
+      await tester.tap(find.text('Diproses'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ListTile), findsOneWidget);
+
       await tester.longPress(find.byType(ListTile));
       await tester.pumpAndSettle();
 
-      // 2. Tekan 'Hapus'
       await tester.tap(find.text('Hapus'));
       await tester.pumpAndSettle();
 
-      // Verifikasi dialog konfirmasi muncul
       expect(find.text('Apakah Anda yakin ingin melanjutkan?'), findsOneWidget);
 
-      // 3. Tekan 'Iya'
       await tester.tap(find.text('Iya'));
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5)); // Allow time for toast
 
-      // 4. Verifikasi pemanggilan method
-      verify(mockOrderOpFirebase.softDeleteOrder(orderUser.id)).called(1);
+      verify(() => mockOrderOpFirebase.softDeleteOrder(orderUser.id)).called(1);
     });
   });
 }

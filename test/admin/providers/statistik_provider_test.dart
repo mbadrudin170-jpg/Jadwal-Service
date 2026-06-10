@@ -43,15 +43,13 @@ void main() {
     container.dispose();
   });
 
-  test('1. statistikProvider harus memuat StatistikState dengan benar',
-      () async {
+  test('1. statistikProvider harus memuat StatistikState dengan benar', () async {
     when(() => mockRepository.getPendapatanBulanIni())
         .thenAnswer((_) async => 1000.0);
     when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
     when(() => mockRepository.getJumlahLanggananAktif())
         .thenAnswer((_) async => 5);
-    when(() => mockRepository.getJumlahFeedbackBaru())
-        .thenAnswer((_) async => 2);
+    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
     when(() => mockRepository.getBestSellingPackages())
         .thenAnswer((_) async => [tBestSellingPackage]);
 
@@ -73,33 +71,32 @@ void main() {
   test('2. statistikProvider harus menangani error dengan benar', () async {
     // Arrange
     final exception = Exception('Gagal mengambil data');
-    when(() => mockRepository.getPendapatanBulanIni()).thenThrow(exception);
+    when(() => mockRepository.getPendapatanBulanIni())
+        .thenAnswer((_) async => throw exception);
     when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
     when(() => mockRepository.getJumlahLanggananAktif())
         .thenAnswer((_) async => 5);
-    when(() => mockRepository.getJumlahFeedbackBaru())
-        .thenAnswer((_) async => 2);
-    when(() => mockRepository.getBestSellingPackages())
-        .thenAnswer((_) async => []);
+    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
+    when(() => mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
 
     final completer = Completer<void>();
 
-    // Act
     container.listen<AsyncValue<StatistikState>>(
       statistikProvider,
       (previous, next) {
         if (next is AsyncError) {
-          // Assert
           expect(next.error, isA<Exception>());
           if (!completer.isCompleted) {
             completer.complete();
           }
         }
       },
-      fireImmediately: true,
     );
 
-    // Tunggu hingga listener menangkap error
+    // Act: Memicu eksekusi provider agar mulai memuat data.
+    container.read(statistikProvider);
+
+    // Assert: Tunggu hingga listener di atas menangkap AsyncError.
     await completer.future;
   });
 
@@ -109,8 +106,7 @@ void main() {
     when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
     when(() => mockRepository.getJumlahLanggananAktif())
         .thenAnswer((_) async => 5);
-    when(() => mockRepository.getJumlahFeedbackBaru())
-        .thenAnswer((_) async => 2);
+    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
     when(() => mockRepository.getBestSellingPackages())
         .thenAnswer((_) async => [tBestSellingPackage]);
 
@@ -121,8 +117,7 @@ void main() {
     when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 20);
     when(() => mockRepository.getJumlahLanggananAktif())
         .thenAnswer((_) async => 8);
-    when(() => mockRepository.getJumlahFeedbackBaru())
-        .thenAnswer((_) async => 1);
+    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 1);
     when(() => mockRepository.getBestSellingPackages())
         .thenAnswer((_) async => []);
 
