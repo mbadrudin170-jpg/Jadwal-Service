@@ -10,7 +10,8 @@ import 'package:wifi/shared/utils/toast_util.dart';
 part 'uji_kecepatan_provider.g.dart';
 
 /// State untuk menampung hasil uji kecepatan.
-class UjiKecepatanState {
+@freezed
+abstract class UjiKecepatanState  with {
   final double kecepatanUnduh;
   final double kecepatanUnggah;
   final int ping;
