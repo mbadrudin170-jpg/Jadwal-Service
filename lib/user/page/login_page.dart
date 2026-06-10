@@ -96,21 +96,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
+        // 1. Simpan sesi (kritis)
         await ref.read(pengelolaAkunProvider.notifier).login(customer);
         Log.info('menyimpan token login pada saat login untuk ${customer.id}');
 
-        final activityService =
-            await ref.read(userActivityServiceProvider.future);
-        unawaited(activityService.pingActivity(customer.id, force: true));
-        Log.info('memperbarui last aktif user ', {customer.id});
-
+        // 2. Langsung navigasi (kritis untuk UX)
         if (!mounted) return;
         unawaited(Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
             builder: (final context) => const MainPage(),
           ),
         ));
-        return;
+
+        // 3. Lakukan tugas sekunder setelah navigasi berhasil
+        // Kesalahan di sini tidak akan mengganggu pengguna
+        try {
+          final activityService =
+              await ref.read(userActivityServiceProvider.future);
+          activityService.pingActivity(customer.id, force: true);
+          Log.info(
+              'memperbarui last aktif user setelah login berhasil ${customer.id}');
+        } catch (e, s) {
+          // Hanya catat error ini untuk debug, jangan tampilkan ke pengguna
+          Log.error('Gagal ping activity setelah login', e: e, st: s);
+        }
+
+        return; // Selesai
       } else {
         setState(() => _isLoggingIn = false);
         await _showErrorAlert(

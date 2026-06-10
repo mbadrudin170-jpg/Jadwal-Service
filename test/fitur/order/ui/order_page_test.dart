@@ -14,7 +14,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
