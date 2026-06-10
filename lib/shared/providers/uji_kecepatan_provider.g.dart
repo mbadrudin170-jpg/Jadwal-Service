@@ -47,13 +47,13 @@ abstract class _$UjiKecepatan extends $Notifier<UjiKecepatanState> {
   UjiKecepatanState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UjiKecepatanState, UjiKecepatanState>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<UjiKecepatanState, UjiKecepatanState>,
         UjiKecepatanState,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -39,13 +39,13 @@ abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<AkunState>, AkunState>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<AsyncValue<AkunState>, AkunState>,
         AsyncValue<AkunState>,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

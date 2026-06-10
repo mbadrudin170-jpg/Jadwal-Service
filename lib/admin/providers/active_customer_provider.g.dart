@@ -39,7 +39,7 @@ abstract class _$ActiveCustomer extends $AsyncNotifier<ActiveCustomerState> {
   FutureOr<ActiveCustomerState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<ActiveCustomerState>, ActiveCustomerState>;
     final element = ref.element as $ClassProviderElement<
@@ -47,6 +47,6 @@ abstract class _$ActiveCustomer extends $AsyncNotifier<ActiveCustomerState> {
         AsyncValue<ActiveCustomerState>,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

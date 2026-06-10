@@ -98,10 +98,10 @@ abstract class _$UrutanPaketState extends $Notifier<UrutanPaket> {
   UrutanPaket build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UrutanPaket, UrutanPaket>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<UrutanPaket, UrutanPaket>, UrutanPaket, Object?, Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -39,13 +39,13 @@ abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<StatistikState>, StatistikState>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<AsyncValue<StatistikState>, StatistikState>,
         AsyncValue<StatistikState>,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

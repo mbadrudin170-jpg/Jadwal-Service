@@ -38,13 +38,13 @@ abstract class _$Wallet extends $AsyncNotifier<WalletState> {
   FutureOr<WalletState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<WalletState>, WalletState>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<AsyncValue<WalletState>, WalletState>,
         AsyncValue<WalletState>,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

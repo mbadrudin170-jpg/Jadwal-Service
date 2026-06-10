@@ -129,14 +129,14 @@ abstract class _$UrutanPelangganState extends $Notifier<UrutanPelanggan> {
   UrutanPelanggan build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<UrutanPelanggan, UrutanPelanggan>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<UrutanPelanggan, UrutanPelanggan>,
         UrutanPelanggan,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -197,11 +197,11 @@ abstract class _$IsSearchingPelanggan extends $Notifier<bool> {
   bool build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<bool, bool>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<bool, bool>, bool, Object?, Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -250,11 +250,11 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
   String build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<String, String>;
     final element = ref.element as $ClassProviderElement<
         AnyNotifier<String, String>, String, Object?, Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 

@@ -41,7 +41,7 @@ abstract class _$PackageActivationHistory
   FutureOr<PackageActivationHistoryState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<PackageActivationHistoryState>,
         PackageActivationHistoryState>;
     final element = ref.element as $ClassProviderElement<
@@ -50,6 +50,6 @@ abstract class _$PackageActivationHistory
         AsyncValue<PackageActivationHistoryState>,
         Object?,
         Object?>;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
