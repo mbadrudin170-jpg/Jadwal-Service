@@ -8,7 +8,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/enum/status_order_enum.dart';
+import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
@@ -28,7 +30,8 @@ import 'order_op_firebase_test.mocks.dart';
 ], customMocks: [
   MockSpec<Query<Map<String, dynamic>>>(as: #MockQueryMap),
   MockSpec<QuerySnapshot<Map<String, dynamic>>>(as: #MockQuerySnapshotMap),
-  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(as: #MockDocumentSnapshotMap),
+  MockSpec<DocumentSnapshot<Map<String, dynamic>>>(
+      as: #MockDocumentSnapshotMap),
   MockSpec<DocumentReference<Map<String, dynamic>>>(
       as: #MockDocumentReferenceMap),
   MockSpec<CollectionReference<Map<String, dynamic>>>(
@@ -37,12 +40,11 @@ import 'order_op_firebase_test.mocks.dart';
     as: #MockQueryDocumentSnapshotMap,
   ),
 ])
-
 void main() {
   late MockBaseOpFirebase mockBaseOp;
   late MockFirebaseFirestore mockFirestore;
   late OrderOpFirebase orderOpFirebase;
-  late MockCollectionReferenceMap mockCollectionReference;
+  late MockCollectionReferenceMap mockOrderCollectionReference;
   late MockCollectionReferenceMap mockStatusCollectionReference;
   late MockDocumentReferenceMap mockDocumentReference;
   late MockQueryMap mockQuery;
@@ -50,18 +52,12 @@ void main() {
   late MockQuerySnapshotMap mockQuerySnapshot;
   late MockAggregateQuery mockAggregateQuery;
   late MockAggregateQuerySnapshot mockAggregateQuerySnapshot;
-  late MockStatusOpFirebase mockStatusOpFirebase;
 
   setUp(() {
+    // 1. Inisialisasi semua mocks
     mockBaseOp = MockBaseOpFirebase();
     mockFirestore = MockFirebaseFirestore();
-    mockStatusOpFirebase = MockStatusOpFirebase();
-
-    orderOpFirebase = OrderOpFirebase(
-      firestore: mockFirestore,
-      baseOp: mockBaseOp,
-    );
-    mockCollectionReference = MockCollectionReferenceMap();
+    mockOrderCollectionReference = MockCollectionReferenceMap();
     mockStatusCollectionReference = MockCollectionReferenceMap();
     mockDocumentReference = MockDocumentReferenceMap();
     mockQuery = MockQueryMap();
@@ -70,19 +66,29 @@ void main() {
     mockAggregateQuery = MockAggregateQuery();
     mockAggregateQuerySnapshot = MockAggregateQuerySnapshot();
 
-    // Stubbing untuk koleksi 'orders'
-    when(mockFirestore.collection('orders'))
-        .thenReturn(mockCollectionReference);
-
-    // Stubbing untuk koleksi 'status_global'
-    when(mockFirestore.collection('status_global'))
+    // 2. Stub panggilan yang terjadi di dalam konstruktor SEBELUM instansiasi
+    // Stub untuk koleksi 'status_global' yang menyebabkan error
+    when(mockFirestore.collection(TableNameValue.get(TableName.statusGlobal)))
         .thenReturn(mockStatusCollectionReference);
     when(mockStatusCollectionReference.doc(any))
         .thenReturn(mockDocumentReference);
 
-    // Stubbing umum
-    when(mockCollectionReference.doc(any)).thenReturn(mockDocumentReference);
-    when(mockCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')))
+    // Stub untuk koleksi utama 'customer_order'
+    when(mockFirestore.collection(TableNameValue.get(TableName.customerOrder)))
+        .thenReturn(mockOrderCollectionReference);
+    
+    // Stub untuk method `set` yang dipanggil oleh StatusOpFirebase
+    when(mockDocumentReference.set(any, any)).thenAnswer((_) async {});
+
+    // 3. Instansiasi kelas yang diuji setelah stubbing konstruktor selesai
+    orderOpFirebase = OrderOpFirebase(
+      firestore: mockFirestore,
+      baseOp: mockBaseOp,
+    );
+
+    // 4. Stub sisa method yang dibutuhkan untuk tes
+    when(mockOrderCollectionReference.doc(any)).thenReturn(mockDocumentReference);
+    when(mockOrderCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')))
         .thenReturn(mockQuery);
     when(mockQuery.orderBy(any, descending: anyNamed('descending')))
         .thenReturn(mockQuery);
@@ -91,10 +97,6 @@ void main() {
     when(mockQuery.count()).thenReturn(mockAggregateQuery);
     when(mockAggregateQuery.get())
         .thenAnswer((_) async => mockAggregateQuerySnapshot);
-
-    // Stubbing untuk mockStatusOpFirebase
-    when(mockStatusOpFirebase.updateGlobalStatus())
-        .thenAnswer((_) async => {});
   });
 
   final order = OrderModel(
@@ -111,24 +113,28 @@ void main() {
     test('1. Uji penambahan pesanan baru', () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
-      verify(mockBaseOp.insert(any, order.id, orderMap)).called(1);
+      verify(mockBaseOp.insert(
+              TableNameValue.get(TableName.customerOrder), order.id, orderMap))
+          .called(1);
     });
 
     test('2. Uji pembaruan pesanan', () async {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) => Future.value());
       await orderOpFirebase.updateOrder(order);
-      verify(mockBaseOp.update(any, order.id, orderMap)).called(1);
+      verify(mockBaseOp.update(
+              TableNameValue.get(TableName.customerOrder), order.id, orderMap))
+          .called(1);
     });
 
     test('3. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
-      // Stubbing softDelete di BaseOpFirebase
       when(mockBaseOp.softDelete(any, any)).thenAnswer((_) => Future.value());
 
       await orderOpFirebase.softDeleteOrder(orderId);
 
-      // Verifikasi bahwa softDelete dipanggil dengan argumen yang benar
-      verify(mockBaseOp.softDelete(any, orderId)).called(1);
+      verify(mockBaseOp.softDelete(
+              TableNameValue.get(TableName.customerOrder), orderId))
+          .called(1);
     });
 
     test('4. Uji mendapatkan stream semua pesanan', () {
@@ -164,7 +170,7 @@ void main() {
 
       expect(result, isA<OrderModel>());
       expect(result?.id, order.id);
-      verify(mockCollectionReference.doc(order.id)).called(1);
+      verify(mockOrderCollectionReference.doc(order.id)).called(1);
     });
 
     test('6. Uji mendapatkan stream pesanan berdasarkan ID pengguna', () {
@@ -174,10 +180,6 @@ void main() {
 
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
-      final mockCollection = MockCollectionReferenceMap();
-      when(mockFirestore.collection(any)).thenReturn(mockCollection);
-      when(mockCollection.where(any, isEqualTo: anyNamed('isEqualTo')))
-          .thenReturn(mockQuery);
       when(mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
       when(mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
@@ -187,8 +189,7 @@ void main() {
           resultStream,
           emits(isA<List<OrderModel>>()
               .having((list) => list.length, 'panjang', 1)
-              .having(
-                  (list) => list.first.customerId, 'customerId', 'cust1')));
+              .having((list) => list.first.customerId, 'customerId', 'cust1')));
 
       streamController.add(mockQuerySnapshot);
       streamController.close();

@@ -54,6 +54,7 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
     OrderModel order,
     WidgetRef ref,
   ) {
+    Log.info('Dialog $_ubahStatus muncul');
     return showDialog<void>(
       context: context,
       builder: (dialogContext) {
@@ -61,6 +62,7 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
           child: Container(
             padding: const EdgeInsets.all(16),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 _tombolOpsiUbahStatus(
                   pageContext: context,
@@ -112,13 +114,12 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
               children: [
                 if (appRole == AppRole.admin)
                   TextButton(
-                    onPressed: () => _ubahStatus,
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                      _ubahStatus(context, order, ref);
+                    },
                     child: const Text('Ubah Status'),
                   ),
-                // TextButton(
-                //   onPressed: () {},
-                //   child: const Text('Edit'),
-                // ),
                 TextButton(
                   child: const Text('Hapus'),
                   onPressed: () async {
@@ -380,7 +381,6 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
                 .updateOrderStatus(order.id, status);
             if (pageContext.mounted) {
               ToastUtil.success(pageContext, 'Data berhasil diperbarui');
-              Navigator.of(pageContext).pop();
             }
           } catch (e, st) {
             Log.error('Gagal memperbarui status pesanan', e: e, st: st);
