@@ -100,7 +100,8 @@ void main() {
       when(mockPenyimpanan.ambilDaftarAkun()).thenAnswer((_) async => [tAkun1]);
       await container.read(pengelolaAkunProvider.future);
 
-      when(mockPenyimpanan.hapusTokenLogin()).thenAnswer((_) => Future.value());
+      when(mockPenyimpanan.hapusAkunSaatIni())
+          .thenAnswer((_) => Future.value());
       when(mockPenyimpanan.ambilAkunLogin()).thenAnswer((_) async => null);
       when(mockPenyimpanan.ambilDaftarAkun()).thenAnswer((_) async => [tAkun1]);
 
@@ -110,7 +111,7 @@ void main() {
 
       // Assert
       expect(state?.akunSaatIni, isNull);
-      verify(mockPenyimpanan.hapusTokenLogin()).called(1);
+      verify(mockPenyimpanan.hapusAkunSaatIni()).called(1);
     });
 
     test('4. hapusAkun harus menghapus akun tertentu dari daftar', () async {
