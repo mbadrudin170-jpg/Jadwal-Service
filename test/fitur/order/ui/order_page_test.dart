@@ -46,8 +46,18 @@ void main() {
     updatedAt: DateTime.now(),
   );
 
-  final package1 = PackageModel(id: 'pkg1', name: 'Paket Admin', price: 5, duration: 4, type: DurationType.days);
-  final package2 = PackageModel(id: 'pkg2', name: 'Paket User', price: 6, duration: 4, type: DurationType.minutes);
+  final package1 = PackageModel(
+      id: 'pkg1',
+      name: 'Paket Admin',
+      price: 5,
+      duration: 4,
+      type: DurationType.days);
+  final package2 = PackageModel(
+      id: 'pkg2',
+      name: 'Paket User',
+      price: 6,
+      duration: 4,
+      type: DurationType.minutes);
 
   // 3. Fungsi setUp untuk inisialisasi mock sebelum setiap tes
   setUp(() {
