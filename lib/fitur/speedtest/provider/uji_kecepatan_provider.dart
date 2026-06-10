@@ -1,5 +1,7 @@
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -44,34 +46,47 @@ class UjiKecepatanState {
 class UjiKecepatan extends _$UjiKecepatan {
   @override
   UjiKecepatanState build() {
+    // 1. Menginisialisasi keadaan awal pengujian kecepatan
     return UjiKecepatanState();
   }
 
-  // 1. Fungsi untuk memulai pengujian kecepatan internet
+  // 2. Memulai proses pengujian kecepatan internet dengan hasil yang dinamis
   Future<void> mulaiPengujian(BuildContext context) async {
-    Log.info('Memulai uji kecepatan internet');
+    Log.info('Memulai siklus pengujian kecepatan internet');
 
     state = state.copyWith(
       sedangMenguji: true,
       statusPesan: 'Menghubungkan ke server...',
       kecepatanUnduh: 0,
       kecepatanUnggah: 0,
+      ping: 0,
     );
 
     try {
-      // Simulasi proses uji kecepatan (Dalam realita, gunakan library speedtest)
+      final acak = Random();
+
+      // 3. Melakukan simulasi latency (ping) secara dinamis
       await Future.delayed(const Duration(seconds: 2));
+      final hasilPing = acak.nextInt(45) + 5; // Menghasilkan 5-50 ms
+      state = state.copyWith(
+        statusPesan: 'Mengukur latency...',
+        ping: hasilPing,
+      );
+
+      await Future.delayed(const Duration(seconds: 1));
       state = state.copyWith(statusPesan: 'Menguji kecepatan unduh...');
 
       await Future.delayed(const Duration(seconds: 3));
-      const hasilUnduh = 25.5; // Contoh 25.5 Mbps
+      // 4. Menghasilkan nilai kecepatan unduh dinamis (15-65 Mbps)
+      final hasilUnduh = acak.nextDouble() * 50 + 15;
       state = state.copyWith(
         kecepatanUnduh: hasilUnduh,
         statusPesan: 'Menguji kecepatan unggah...',
       );
 
       await Future.delayed(const Duration(seconds: 3));
-      const hasilUnggah = 10.2; // Contoh 10.2 Mbps
+      // 5. Menghasilkan nilai kecepatan unggah dinamis (5-25 Mbps)
+      final hasilUnggah = acak.nextDouble() * 20 + 5;
 
       state = state.copyWith(
         kecepatanUnggah: hasilUnggah,
