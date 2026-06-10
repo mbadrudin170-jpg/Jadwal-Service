@@ -7,15 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
 
-/// Mocking untuk BuildContext.
-class KonteksMock extends Mock implements BuildContext {}
-
 /// Mocking untuk FlutterInternetSpeedTest.
 class AlatUjiMock extends Mock implements FlutterInternetSpeedTest {}
 
 void main() {
+  // Memastikan binding Flutter diinisialisasi untuk testWidgets
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late ProviderContainer wadah;
-  late KonteksMock mockKonteks;
   late AlatUjiMock mockAlatUji;
 
   setUpAll(() {
@@ -26,11 +25,7 @@ void main() {
 
   setUp(() {
     wadah = ProviderContainer();
-    mockKonteks = KonteksMock();
     mockAlatUji = AlatUjiMock();
-
-    // Mengatur agar context.mounted selalu mengembalikan true.
-    when(() => mockKonteks.mounted).thenReturn(true);
   });
 
   tearDown(() {
@@ -48,9 +43,9 @@ void main() {
       expect(keadaan.statusPesan, 'Siap melakukan pengujian');
     });
 
-    test(
+    testWidgets(
         '2. Memulai pengujian harus mengubah status menjadi sedang menguji dan mereset nilai',
-        () {
+        (tester) async {
       when(() => mockAlatUji.startTesting(
             onStarted: any(named: 'onStarted'),
             onCompleted: any(named: 'onCompleted'),
@@ -62,20 +57,37 @@ void main() {
                 any(named: 'onDefaultServerSelectionInProgress'),
           )).thenAnswer((_) async {});
 
-      // Jalankan fungsi tanpa menunggu (karena kita cek state awal transisi).
-      wadah.read(ujiKecepatanProvider.notifier).mulaiPengujian(
-            mockKonteks,
+      final sub = wadah.listen(ujiKecepatanProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: wadah,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              testContext = context;
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+
+      await wadah.read(ujiKecepatanProvider.notifier).mulaiPengujian(
+            testContext,
             alatUjiManual: mockAlatUji,
           );
+      await tester.pump();
 
-      final keadaan = wadah.read(ujiKecepatanProvider);
+      final keadaan = sub.read(); // Baca dari subscription
       expect(keadaan.sedangMenguji, true);
       expect(keadaan.statusPesan, 'Menghubungkan ke server...');
     });
 
-    test(
+    testWidgets(
         '3. Callback onProgress harus memperbarui kecepatan unduh secara real-time',
-        () async {
+        (tester) async {
       when(() => mockAlatUji.startTesting(
             onStarted: any(named: 'onStarted'),
             onCompleted: any(named: 'onCompleted'),
@@ -86,26 +98,43 @@ void main() {
             onDefaultServerSelectionInProgress:
                 any(named: 'onDefaultServerSelectionInProgress'),
           )).thenAnswer((panggilan) async {
-        final onProgress = panggilan.namedArguments[#onProgress] as void
-            Function(double, TestResult);
+        final onProgress = panggilan.namedArguments[#onProgress]
+            as void Function(double, TestResult);
 
-        // Simulasikan progress download 75% dengan kecepatan 25.5 Mbps.
         onProgress(75.0, TestResult(TestType.download, 25.5, SpeedUnit.mbps));
       });
 
+      final sub = wadah.listen(ujiKecepatanProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: wadah,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              testContext = context;
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+
       await wadah.read(ujiKecepatanProvider.notifier).mulaiPengujian(
-            mockKonteks,
+            testContext,
             alatUjiManual: mockAlatUji,
           );
+      await tester.pump();
 
-      final keadaan = wadah.read(ujiKecepatanProvider);
+      final keadaan = sub.read(); // Baca dari subscription
       expect(keadaan.kecepatanUnduh, 25.5);
       expect(keadaan.statusPesan, 'Menguji unduh: 75%');
     });
 
-    test(
+    testWidgets(
         '4. Callback onCompleted harus menghentikan status menguji dan menyimpan hasil akhir Mbps',
-        () async {
+        (tester) async {
       when(() => mockAlatUji.startTesting(
             onStarted: any(named: 'onStarted'),
             onCompleted: any(named: 'onCompleted'),
@@ -116,8 +145,8 @@ void main() {
             onDefaultServerSelectionInProgress:
                 any(named: 'onDefaultServerSelectionInProgress'),
           )).thenAnswer((panggilan) async {
-        final onCompleted = panggilan.namedArguments[#onCompleted] as void
-            Function(TestResult, TestResult);
+        final onCompleted = panggilan.namedArguments[#onCompleted]
+            as void Function(TestResult, TestResult);
 
         onCompleted(
           TestResult(TestType.download, 120.0, SpeedUnit.mbps),
@@ -125,21 +154,42 @@ void main() {
         );
       });
 
+      final sub = wadah.listen(ujiKecepatanProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: wadah,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              testContext = context;
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+
       await wadah.read(ujiKecepatanProvider.notifier).mulaiPengujian(
-            mockKonteks,
+            testContext,
             alatUjiManual: mockAlatUji,
           );
+      await tester.pumpAndSettle();
 
-      final keadaan = wadah.read(ujiKecepatanProvider);
+      // Selesaikan timer dari Toast
+      await tester.pump(const Duration(seconds: 3));
+
+      final keadaan = sub.read(); // Baca dari subscription
       expect(keadaan.kecepatanUnduh, 120.0);
       expect(keadaan.kecepatanUnggah, 60.0);
       expect(keadaan.sedangMenguji, false);
       expect(keadaan.statusPesan, 'Pengujian selesai');
     });
 
-    test(
+    testWidgets(
         '5. Callback onError harus menghentikan pengujian dan mengubah pesan status menjadi gagal',
-        () async {
+        (tester) async {
       when(() => mockAlatUji.startTesting(
             onStarted: any(named: 'onStarted'),
             onCompleted: any(named: 'onCompleted'),
@@ -155,12 +205,33 @@ void main() {
         onError('Koneksi Terputus', 'CONN_LOST');
       });
 
+      final sub = wadah.listen(ujiKecepatanProvider, (_, __) {});
+      addTearDown(sub.close);
+
+      late BuildContext testContext;
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: wadah,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              testContext = context;
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+
       await wadah.read(ujiKecepatanProvider.notifier).mulaiPengujian(
-            mockKonteks,
+            testContext,
             alatUjiManual: mockAlatUji,
           );
+      await tester.pumpAndSettle();
 
-      final keadaan = wadah.read(ujiKecepatanProvider);
+      // Selesaikan timer dari Toast
+      await tester.pump(const Duration(seconds: 3));
+
+      final keadaan = sub.read(); // Baca dari subscription
       expect(keadaan.sedangMenguji, false);
       expect(keadaan.statusPesan, 'Gagal melakukan pengujian');
     });
