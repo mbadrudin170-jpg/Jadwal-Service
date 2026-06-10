@@ -28,6 +28,10 @@ Fitur-fitur ini bertujuan membuat pengguna lebih sering kembali dan lebih lama m
     *   **Konfirmasi Pembayaran:** Beri notifikasi saat pembayaran berhasil.
     *   **Promosi & Paket Baru:** Informasikan pengguna tentang penawaran spesial atau paket baru.
 
+*   **Pusat Bantuan & Panduan Mandiri:**
+    *   Tambahkan menu FAQ atau tutorial video singkat mengenai cara *restart* router atau langkah awal saat koneksi terasa lambat.
+    *   Fitur ini mengurangi beban admin dalam menjawab pertanyaan berulang.
+
 ---
 
 ### 2. Untuk Aplikasi Admin (Meningkatkan Kontrol & Wawasan)
@@ -49,6 +53,14 @@ Fitur ini membantu admin mengelola bisnis dengan lebih efisien dan mengambil kep
 
 *   **Ekspor Data ke CSV/Excel:**
     *   Tambahkan tombol di halaman-halaman relevan (pelanggan, transaksi) untuk mengekspor data ke format CSV untuk analisis lebih lanjut.
+
+*   **Sistem Tiket Gangguan:**
+    *   Izinkan pengguna mengirim laporan gangguan melalui aplikasi.
+    *   Admin dapat mengelola status laporan (Misal: "Dilaporkan", "Teknisi Menuju Lokasi", "Selesai") secara terstruktur.
+
+*   **Manajemen Inventaris Perangkat:**
+    *   Fitur untuk mencatat perangkat (modem/router) yang dipinjamkan ke setiap pelanggan.
+    *   Admin dapat melacak stok perangkat yang tersedia di gudang.
 
 ---
 

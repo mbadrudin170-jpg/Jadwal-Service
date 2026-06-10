@@ -1,4 +1,4 @@
-// path: lib/shared/providers/uji_kecepatan_provider.dart
+// path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
