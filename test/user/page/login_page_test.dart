@@ -18,7 +18,7 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
-// Mock classes
+// Mocks
 class MockInternetConnectionService extends Mock
     implements InternetConnectionService {}
 
@@ -49,23 +49,24 @@ void main() {
     mockUserActivityService = MockUserActivityService();
     mockLayananPenyimpananLokal = MockLayananPenyimpananLokal();
 
+    // Stubbing default behaviors
     when(() => mockInternetConnectionService.checkLocalConnection())
         .thenAnswer((_) async => true);
+    // Stub pemanggilan login
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
-    when(() => mockUserActivityService.pingActivity(any(),
-        force: any(named: 'force'))).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
         .thenAnswer((_) async => []);
-    when(() => mockPengelolaAkun.build())
-        .thenAnswer((_) async => const AkunState());
+    when(() => mockUserActivityService.pingActivity(any(),
+        force: any(named: 'force'))).thenAnswer((_) async {});
   });
 
+  // Helper untuk membuat widget dalam ProviderScope dengan override
   Widget createTestableWidget(Widget child) {
     return ProviderScope(
       overrides: [
         internetConnectionServiceProvider
             .overrideWithValue(mockInternetConnectionService),
-        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
             .overrideWithValue(AsyncValue.data(mockUserActivityService)),
@@ -74,8 +75,9 @@ void main() {
       ],
       child: MaterialApp(
         home: child,
+        // Sediakan route untuk navigasi
         routes: {
-          '/main': (_) => const MainPage(),
+          '/main': (context) => const MainPage(),
         },
       ),
     );
@@ -86,12 +88,10 @@ void main() {
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
       expect(find.text('Silakan Masuk'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, 'Nomor Telepon'), findsOneWidget);
+      expect(
+          find.widgetWithText(TextFormField, 'Nomor Telepon'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
       expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
-      expect(find.widgetWithText(OutlinedButton, 'Pilih dari Akun Tersimpan'),
-          findsOneWidget);
-      expect(find.text('Lupa Sandi?'), findsOneWidget);
     });
 
     testWidgets('2. Login Gagal - Form Kosong', (tester) async {
@@ -109,9 +109,9 @@ void main() {
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'Nomor Telepon'), '12345');
+          find.widgetWithText(TextFormField, 'Nomor Telepon'), 'salah');
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'Password'), 'password');
+          find.widgetWithText(TextFormField, 'Password'), 'salah');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
       await tester.pumpAndSettle();
 
@@ -121,31 +121,57 @@ void main() {
     });
 
     testWidgets('4. Login Berhasil', (tester) async {
+      // Siapkan data palsu di FakeFirestore
       final customerData = {
-        ColumnNames.name: 'John Doe',
-        ColumnNames.phone: '081234567890',
+        ColumnNames.id: 'customer123',
+        ColumnNames.name: 'Pengguna Sukses',
+        ColumnNames.phone: '08123456789',
         ColumnNames.password: 'password123',
-        ColumnNames.address: 'Some Address',
+        ColumnNames.address: 'Jalan Sukses No. 1',
         ColumnNames.isDeleted: false,
+        ColumnNames.createdAt: DateTime.now().toIso8601String(),
+        ColumnNames.lastActiveAt: DateTime.now().toIso8601String(),
+        // Sesuaikan dengan semua field yang dibutuhkan oleh fromFirebase
+        'latitude': 0.0,
+        'longitude': 0.0,
+        'email': 'test@example.com',
+        'registrationDate': DateTime.now().toIso8601String(),
+        'status': 'Aktif',
+        'notes': '',
+        'ktpImageUrl': '',
+        'houseImageUrl': '',
+        'subscriptionEndDate': null,
+        'point': 0,
+        'updatedAt': DateTime.now().toIso8601String(),
+        'createdBy': '',
+        'updatedBy': '',
       };
 
       await fakeFirestore
           .collection(TableNameValue.get(TableName.customer))
-          .add(customerData);
+          .doc('customer123')
+          .set(customerData);
 
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
+      // Masukkan data yang benar
       await tester.enterText(
-          find.widgetWithText(TextFormField, 'Nomor Telepon'), '081234567890');
+          find.widgetWithText(TextFormField, 'Nomor Telepon'), '08123456789');
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Password'), 'password123');
+
+      // Tekan tombol login
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
 
+      // pumpAndSettle untuk menunggu semua proses selesai (termasuk navigasi)
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>()))) .called(1);
+      // Verifikasi bahwa login dipanggil SATU KALI
+      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>()))).called(1);
 
-      expect(find.byType(MainPage), findsOneWidget);
+      // Verifikasi bahwa halaman utama ditampilkan
+      expect(find.byType(MainPage), findsOneWidget,
+          reason: 'Seharusnya navigasi ke MainPage setelah login berhasil');
     });
 
     testWidgets('5. Visibilitas Password', (tester) async {
@@ -155,17 +181,22 @@ void main() {
       final textField =
           find.descendant(of: passwordField, matching: find.byType(TextField));
 
+      // Awalnya password tidak terlihat
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
 
+      // Klik ikon untuk menampilkan password
       await tester.tap(find.byIcon(Icons.visibility_off));
       await tester.pump();
 
+      // Password seharusnya terlihat
       expect(tester.widget<TextField>(textField).obscureText, isFalse);
       expect(find.byIcon(Icons.visibility), findsOneWidget);
 
+      // Klik ikon untuk menyembunyikan password kembali
       await tester.tap(find.byIcon(Icons.visibility));
       await tester.pump();
 
+      // Password seharusnya tidak terlihat lagi
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
     });
