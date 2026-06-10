@@ -280,23 +280,27 @@ class _UserOrderPageState extends ConsumerState<OrderPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: isActive ? Colors.white : Colors.blue,
+                    color: isActive
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text(
+                  child: TeksIsiKecil(
                     count > 99 ? '99+' : count.toString(),
-                    style: TextStyle(
-                      color: isActive ? Colors.blue : Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                    warna: isActive
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onPrimary,
                   ),
                 );
               },
             ),
             TeksIsiBesar(
               label,
-              warna: isActive ? Colors.white : Colors.black,
+              warna: isActive
+                  ? Colors.white
+                  : (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black),
               tebalFont: FontWeight.bold,
             ),
           ],

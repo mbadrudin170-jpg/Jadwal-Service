@@ -10,7 +10,6 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class WalletOperation {
-  /// Instance dari DatabaseHelper dan BaseOperation untuk mengakses database.
   final DatabaseHelper dbHelper;
   final BaseOperation _baseOperation;
   final String _tableName = TableNameValue.get(TableName.wallet);

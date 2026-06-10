@@ -1,13 +1,14 @@
 // path: lib/admin/providers/wallet_provider.dart
 
 import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
 
-part 'wallet_provider.g.dart';
 part 'wallet_provider.freezed.dart';
+part 'wallet_provider.g.dart';
 
 @freezed
 abstract class WalletState with _$WalletState {
@@ -42,7 +43,6 @@ class Wallet extends _$Wallet {
       totalBalance: results[3] as double,
     );
   }
-
   /// fungsi untuk menambah data dompet baru
   Future<void> addWallet(WalletModel wallet) async {
     state = await AsyncValue.guard(() async {
