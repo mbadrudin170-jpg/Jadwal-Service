@@ -1,8 +1,7 @@
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -31,9 +30,10 @@ class UjiKecepatan extends _$UjiKecepatan {
     return const UjiKecepatanState();
   }
 
-  /// Memulai proses pengujian kecepatan internet dengan hasil yang dinamis.
+  /// Memulai proses pengujian kecepatan internet menggunakan data server yang sebenarnya.
   Future<void> mulaiPengujian(BuildContext context) async {
     Log.info('Memulai siklus pengujian kecepatan internet');
+    final penguji = FlutterInternetSpeedTest();
 
     if (!context.mounted) return;
 
@@ -47,44 +47,67 @@ class UjiKecepatan extends _$UjiKecepatan {
     );
 
     try {
-      final acak = Random();
+      await penguji.startTesting(
+        onStarted: () {
+          state = state.copyWith(statusPesan: 'Memulai pengujian...');
+        },
+        onDefaultServerSelectionInProgress: () {
+          state = state.copyWith(statusPesan: 'Mencari server terbaik...');
+        },
+        onDefaultServerSelectionDone: (client) {
+          state = state.copyWith(
+            statusPesan: 'Server terhubung: ${client?.isp ?? "Otomatis"}',
+          );
+        },
+        onProgress: (persentase, data) {
+          // Konversi kecepatan ke Mbps.
+          double kecepatanMbps = data.transferRate;
+          if (data.unit == SpeedUnit.kbps) kecepatanMbps /= 1000;
+          if (data.unit == SpeedUnit.mbps) kecepatanMbps /= 1000000;
 
-      /// Melakukan simulasi latency (ping) secara dinamis.
-      await Future.delayed(const Duration(seconds: 2));
-      final hasilPing = acak.nextInt(45) + 5; // Menghasilkan 5-50 ms
-      state = state.copyWith(
-        statusPesan: 'Mengukur latency...',
-        ping: hasilPing,
+          if (data.type == TestType.download) {
+            state = state.copyWith(
+              kecepatanUnduh: kecepatanMbps,
+              statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
+            );
+          } else {
+            state = state.copyWith(
+              kecepatanUnggah: kecepatanMbps,
+              statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
+            );
+          }
+        },
+        onCompleted: (unduh, unggah) {
+          double hasilUnduhMbps = unduh.transferRate;
+          if (unduh.unit == SpeedUnit.kbps) hasilUnduhMbps /= 1000;
+          if (unduh.unit == SpeedUnit.mbps) hasilUnduhMbps /= 1000000;
+
+          double hasilUnggahMbps = unggah.transferRate;
+          if (unggah.unit == SpeedUnit.kbps) hasilUnggahMbps /= 1000;
+          if (unggah.unit == SpeedUnit.mbps) hasilUnggahMbps /= 1000000;
+
+          state = state.copyWith(
+            kecepatanUnduh: hasilUnduhMbps,
+            kecepatanUnggah: hasilUnggahMbps,
+            sedangMenguji: false,
+            statusPesan: 'Pengujian selesai',
+          );
+
+          if (context.mounted) {
+            ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
+          }
+        },
+        onError: (pesanError, kodeError) {
+          state = state.copyWith(
+            sedangMenguji: false,
+            statusPesan: 'Gagal melakukan pengujian',
+          );
+          Log.error('Gagal saat melakukan uji kecepatan: $pesanError');
+          if (context.mounted) {
+            ToastUtil.error(context, 'Gagal melakukan uji kecepatan.');
+          }
+        },
       );
-
-      // Simulasi jeda sebelum unduh
-      await Future.delayed(const Duration(seconds: 1));
-      state = state.copyWith(statusPesan: 'Menguji kecepatan unduh...');
-
-      // Simulasi proses unduh
-      await Future.delayed(const Duration(seconds: 3));
-
-      /// Menghasilkan nilai kecepatan unduh dinamis (15-65 Mbps).
-      final hasilUnduh = acak.nextDouble() * 50 + 15;
-      state = state.copyWith(
-        kecepatanUnduh: hasilUnduh,
-        statusPesan: 'Menguji kecepatan unggah...',
-      );
-
-      // Simulasi proses unggah
-      await Future.delayed(const Duration(seconds: 3));
-
-      /// Menghasilkan nilai kecepatan unggah dinamis (5-25 Mbps).
-      final hasilUnggah = acak.nextDouble() * 20 + 5;
-      state = state.copyWith(
-        kecepatanUnggah: hasilUnggah,
-        sedangMenguji: false,
-        statusPesan: 'Pengujian selesai',
-      );
-
-      if (context.mounted) {
-        ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
-      }
     } on Exception catch (e, st) {
       // Menangani kegagalan dalam proses pengujian
       state = state.copyWith(

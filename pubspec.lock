@@ -309,10 +309,10 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "62ffa266d9a23b79fb3fcbc206afc00bb979417ba57b1324c546b5aab95ba057"
+      sha256: b5e72753cf63becce2c61fd04dfe0f1c430cc5278b53a1342dc5ad839eab29ec
       url: "https://pub.dev"
     source: hosted
-    version: "7.1.1"
+    version: "6.1.5"
   connectivity_plus_platform_interface:
     dependency: "direct dev"
     description:
@@ -654,6 +654,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.2"
+  flutter_speed_test_plus:
+    dependency: "direct main"
+    description:
+      name: flutter_speed_test_plus
+      sha256: f33aed054665b67f5676567f922fe6fa0397e3a8818a4350306212ac95704404
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.10"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -1717,6 +1725,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  tuple_dart:
+    dependency: transitive
+    description:
+      name: tuple_dart
+      sha256: "0db473430e680e43111ae7d0cf4e1c222f0dc20350378c845b70c4daa4195708"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.2"
   typed_data:
     dependency: transitive
     description:
