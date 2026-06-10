@@ -29,12 +29,18 @@ class MockUserActivityService extends Mock implements UserActivityService {}
 class MockLayananPenyimpananLokal extends Mock
     implements LayananPenyimpananLokal {}
 
+class FakeCustomerModel extends Fake implements CustomerModel {}
+
 void main() {
   late MockInternetConnectionService mockInternetConnectionService;
   late MockPengelolaAkun mockPengelolaAkun;
   late FakeFirebaseFirestore fakeFirestore;
   late MockUserActivityService mockUserActivityService;
   late MockLayananPenyimpananLokal mockLayananPenyimpananLokal;
+
+  setUpAll(() {
+    registerFallbackValue(FakeCustomerModel());
+  });
 
   setUp(() {
     mockInternetConnectionService = MockInternetConnectionService();
@@ -46,13 +52,12 @@ void main() {
     when(() => mockInternetConnectionService.checkLocalConnection())
         .thenAnswer((_) async => true);
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
-    when(() =>
-            mockUserActivityService.pingActivity(any(), force: any(named: 'force')))
-        .thenAnswer((_) async {});
+    when(() => mockUserActivityService.pingActivity(any(),
+        force: any(named: 'force'))).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
         .thenAnswer((_) async => []);
-    when(() => mockPengelolaAkun.build()).thenAnswer((_) async => const AkunState());
-
+    when(() => mockPengelolaAkun.build())
+        .thenAnswer((_) async => const AkunState());
   });
 
   Widget createTestableWidget(Widget child) {
@@ -60,7 +65,7 @@ void main() {
       overrides: [
         internetConnectionServiceProvider
             .overrideWithValue(mockInternetConnectionService),
-        pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
+        pengelolaAkunProvider.overrideWith((ref) => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
             .overrideWithValue(AsyncValue.data(mockUserActivityService)),
@@ -69,6 +74,9 @@ void main() {
       ],
       child: MaterialApp(
         home: child,
+        routes: {
+          '/main': (_) => const MainPage(),
+        },
       ),
     );
   }
@@ -117,8 +125,10 @@ void main() {
         ColumnNames.name: 'John Doe',
         ColumnNames.phone: '081234567890',
         ColumnNames.password: 'password123',
+        ColumnNames.address: 'Some Address',
         ColumnNames.isDeleted: false,
       };
+
       await fakeFirestore
           .collection(TableNameValue.get(TableName.customer))
           .add(customerData);
@@ -130,34 +140,32 @@ void main() {
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Password'), 'password123');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+
       await tester.pumpAndSettle();
 
-      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>())));
+      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>()))) .called(1);
 
       expect(find.byType(MainPage), findsOneWidget);
     });
+
     testWidgets('5. Visibilitas Password', (tester) async {
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
-       final passwordField = find.widgetWithText(TextFormField, 'Password');
-      final textField = find.descendant(of: passwordField, matching: find.byType(TextField));
+      final passwordField = find.widgetWithText(TextFormField, 'Password');
+      final textField =
+          find.descendant(of: passwordField, matching: find.byType(TextField));
 
-      // Initial state: password not visible
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
 
-      // Tap to show password
       await tester.tap(find.byIcon(Icons.visibility_off));
       await tester.pump();
 
-      // Password should be visible
       expect(tester.widget<TextField>(textField).obscureText, isFalse);
       expect(find.byIcon(Icons.visibility), findsOneWidget);
 
-      // Tap to hide password again
       await tester.tap(find.byIcon(Icons.visibility));
       await tester.pump();
 
-      // Password should be not visible
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
     });
