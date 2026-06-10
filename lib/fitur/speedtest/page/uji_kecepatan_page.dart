@@ -31,47 +31,47 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
 
   @override
   Widget build(BuildContext context) {
-    final keadaanUji = ref.watch(ujiKecepatanProvider);
+    final statusUji = ref.watch(ujiKecepatanProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const TeksJudulSedang('Uji Kecepatan Internet'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(TSizes.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _KartuHasilUji(
               label: 'Kecepatan Unduh',
-              nilai: keadaanUji.kecepatanUnduh.toStringAsFixed(1),
+              nilai: statusUji.kecepatanUnduh.toStringAsFixed(1),
               satuan: 'Mbps',
               ikon: TIcons.download, // TODO : nama masih dalam bahasa inggris
             ),
             gapH16,
             _KartuHasilUji(
               label: 'Kecepatan Unggah',
-              nilai: keadaanUji.kecepatanUnggah.toStringAsFixed(1),
+              nilai: statusUji.kecepatanUnggah.toStringAsFixed(1),
               satuan: 'Mbps',
               ikon: TIcons.upload, // TODO : nama masih dalam bahasa inggris
             ),
             gapH16,
             _KartuHasilUji(
               label: 'Ping',
-              nilai: keadaanUji.ping.toString(),
+              nilai: statusUji.ping.toString(),
               satuan: 'ms',
               ikon: TIcons.timer, // TODO : nama masih dalam bahasa inggris
             ),
             const Spacer(),
             Center(
               child: Text(
-                keadaanUji
+                statusUji
                     .statusPesan, // Menggunakan Text biasa karena style sudah diatur di sini
                 textAlign: TextAlign.center,
               ),
             ),
             gapH24,
-            if (keadaanUji.sedangMenguji)
+            if (statusUji.sedangMenguji)
               const Center(
                 child: CircularProgressIndicator(),
               )
@@ -96,17 +96,20 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
 
 /// Widget kartu kecil untuk menampilkan hasil pengujian.
 class _KartuHasilUji extends StatelessWidget {
-  final String label;
-  final String nilai;
-  final String satuan;
-  final IconData ikon;
-
   const _KartuHasilUji({
-    required this.label,
-    required this.nilai,
-    required this.satuan,
-    required this.ikon,
-  });
+    required String label,
+    required String nilai,
+    required String satuan,
+    required IconData ikon,
+  })  : _label = label,
+        _nilai = nilai,
+        _satuan = satuan,
+        _ikon = ikon;
+
+  final String _label;
+  final String _nilai;
+  final String _satuan;
+  final IconData _ikon;
 
   @override
   Widget build(BuildContext context) {
@@ -117,14 +120,14 @@ class _KartuHasilUji extends StatelessWidget {
         padding: const EdgeInsets.all(20.0),
         child: Row(
           children: [
-            Icon(ikon, size: 40, color: Theme.of(context).primaryColor),
+            Icon(_ikon, size: 40, color: Theme.of(context).primaryColor),
             gapW20,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TeksIsiKecil(label, warna: Colors.grey),
+                TeksIsiKecil(_label, warna: Colors.grey),
                 TeksJudulKecil(
-                  '$nilai $satuan',
+                  '$_nilai $_satuan',
                   tebalFont: FontWeight.bold,
                 ), // Menggunakan TeksJudulKecil untuk ukuran 24
               ],

@@ -31,9 +31,12 @@ class UjiKecepatan extends _$UjiKecepatan {
   }
 
   /// Memulai proses pengujian kecepatan internet menggunakan data server yang sebenarnya.
-  Future<void> mulaiPengujian(BuildContext context) async {
+  Future<void> mulaiPengujian(
+    BuildContext context, {
+    FlutterInternetSpeedTest? alatUjiManual,
+  }) async {
     Log.info('Memulai siklus pengujian kecepatan internet');
-    final penguji = FlutterInternetSpeedTest();
+    final alatUji = alatUjiManual ?? FlutterInternetSpeedTest();
 
     if (!context.mounted) return;
 
@@ -47,48 +50,46 @@ class UjiKecepatan extends _$UjiKecepatan {
     );
 
     try {
-      await penguji.startTesting(
+      await alatUji.startTesting(
         onStarted: () {
           state = state.copyWith(statusPesan: 'Memulai pengujian...');
         },
         onDefaultServerSelectionInProgress: () {
           state = state.copyWith(statusPesan: 'Mencari server terbaik...');
         },
-        onDefaultServerSelectionDone: (client) {
+        onDefaultServerSelectionDone: (klien) {
           state = state.copyWith(
-            statusPesan: 'Server terhubung: ${client?.isp ?? "Otomatis"}',
+            statusPesan: 'Server terhubung: ${klien?.isp ?? "Otomatis"}',
           );
         },
-        onProgress: (persentase, data) {
-          // Konversi kecepatan ke Mbps.
-          double kecepatanMbps = data.transferRate;
-          if (data.unit == SpeedUnit.kbps) kecepatanMbps /= 1000;
-          if (data.unit == SpeedUnit.mbps) kecepatanMbps /= 1000000;
+        onProgress: (persentase, dataUji) {
+          /// Konversi kecepatan ke Mbps.
+          double kecepatanDalamMbps = dataUji.transferRate;
+          if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
 
-          if (data.type == TestType.download) {
+          if (dataUji.type == TestType.download) {
             state = state.copyWith(
-              kecepatanUnduh: kecepatanMbps,
+              kecepatanUnduh: kecepatanDalamMbps,
               statusPesan: 'Menguji unduh: ${persentase.toStringAsFixed(0)}%',
             );
           } else {
             state = state.copyWith(
-              kecepatanUnggah: kecepatanMbps,
+              kecepatanUnggah: kecepatanDalamMbps,
               statusPesan: 'Menguji unggah: ${persentase.toStringAsFixed(0)}%',
             );
           }
         },
         onCompleted: (unduh, unggah) {
-          double hasilUnduhMbps = unduh.transferRate;
-          if (unduh.unit == SpeedUnit.kbps) hasilUnduhMbps /= 1000;
-          if (unduh.unit == SpeedUnit.mbps) hasilUnduhMbps /= 1000000;
+          /// Menghitung hasil akhir dalam Mbps.
+          double hasilUnduhDalamMbps = unduh.transferRate;
+          if (unduh.unit == SpeedUnit.kbps) hasilUnduhDalamMbps /= 1000;
 
-          double hasilUnggahMbps = unggah.transferRate;
-          if (unggah.unit == SpeedUnit.kbps) hasilUnggahMbps /= 1000;
-          if (unggah.unit == SpeedUnit.mbps) hasilUnggahMbps /= 1000000;
+          double hasilUnggahDalamMbps = unggah.transferRate;
+          if (unggah.unit == SpeedUnit.kbps) hasilUnggahDalamMbps /= 1000;
 
           state = state.copyWith(
-            kecepatanUnduh: hasilUnduhMbps,
-            kecepatanUnggah: hasilUnggahMbps,
+            kecepatanUnduh: hasilUnduhDalamMbps,
+            kecepatanUnggah: hasilUnggahDalamMbps,
             sedangMenguji: false,
             statusPesan: 'Pengujian selesai',
           );
@@ -97,24 +98,27 @@ class UjiKecepatan extends _$UjiKecepatan {
             ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
           }
         },
-        onError: (pesanError, kodeError) {
+        onError: (pesanError, kodeKesalahan) {
           state = state.copyWith(
             sedangMenguji: false,
             statusPesan: 'Gagal melakukan pengujian',
           );
-          Log.error('Gagal saat melakukan uji kecepatan: $pesanError');
+          Log.error(
+              'Gagal saat melakukan uji kecepatan: $pesanError (Kode: $kodeKesalahan)');
           if (context.mounted) {
-            ToastUtil.error(context, 'Gagal melakukan uji kecepatan.');
+            ToastUtil.error(
+                context, 'Gagal melakukan uji kecepatan: $pesanError');
           }
         },
       );
-    } on Exception catch (e, st) {
+    } on Exception catch (kesalahan, jejakTumpukan) {
       // Menangani kegagalan dalam proses pengujian
       state = state.copyWith(
         sedangMenguji: false,
         statusPesan: 'Gagal melakukan pengujian',
       );
-      Log.error('Gagal saat melakukan uji kecepatan', e: e, st: st);
+      Log.error('Gagal saat melakukan uji kecepatan',
+          e: kesalahan, st: jejakTumpukan);
 
       if (context.mounted) {
         ToastUtil.error(

@@ -77,8 +77,8 @@ class PengelolaAkun extends _$PengelolaAkun {
   Future<void> hapusTokenLogin() async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
     await penyimpanan.hapusTokenLogin();
-    if (!ref.mounted) return;
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    if (!ref.mounted) return; // Pindah ke sini, setelah await terakhir
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
     ));
