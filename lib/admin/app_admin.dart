@@ -1,6 +1,4 @@
 // path: lib/admin/app_admin.dart
-// REFAKTOR: Menyesuaikan dengan AsyncNotifier untuk tema.
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,11 +8,11 @@ import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 
@@ -59,7 +57,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     final connectionService = ref.read(internetConnectionServiceProvider);
     final dbHelper = ref.read(databaseHelperProvider);
     try {
-      // Inisialisasi Workmanager untuk tugas latar belakang.
       await BackgroundService.init();
 
       await notifikasiServis.inisialisasi(iconName: 'ic_notification');
@@ -81,18 +78,15 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       await initializeDateFormatting('id_ID');
 
-      // Inisialisasi Database
       await dbHelper.database;
 
-      // Pembersihan: Arsipkan pelanggan yang masa aktifnya sudah habis (Soft Delete)
       final activeCustomerOp = ref.read(activeCustomerOperationProvider);
       await activeCustomerOp.archiveExpiredCustomers();
 
-      // DIUBAH: Menggunakan metode pengecekan internet yang lebih andal.
       final isOnline = await connectionService.isInternetAvailable();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
-        // Jalankan unduhan awal hanya jika perangkat online
+
         final initialDownloadService = ref.read(initialDownloadServiceProvider);
         try {
           await initialDownloadService.runInitialDownload().timeout(
@@ -129,7 +123,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       future: _initialization,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          // DIUBAH: Logika lebih sederhana untuk menangani status offline.
           final bool isOffline = !(snapshot.data ?? false);
           if (snapshot.hasError) {
             Log.error('Error pada FutureBuilder inisialisasi',
@@ -153,14 +146,10 @@ class AppMaterial extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Aktifkan dan pantau NotifikasiServisProvider di sini.
-    // Ini memastikan listener notifikasi Firebase aktif selama aplikasi berjalan.
     ref.watch(notifikasiServisProvider);
 
-    // Tonton AsyncNotifier tema.
     final themeAsync = ref.watch(themeProvider);
 
-    // Gunakan .when untuk menangani state loading/error/data dari tema
     return themeAsync.when(
       data: (themeMode) => ToastificationWrapper(
         child: MaterialApp(

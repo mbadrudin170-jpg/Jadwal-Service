@@ -23,37 +23,37 @@ import 'package_activation_history_test.mocks.dart';
 @GenerateMocks([TransactionOperation, PackageOperation, CustomerOperation])
 void main() {
   group('Pengujian Widget PackageActivationHistoryPage', () {
-    // Deklarasi variabel mock
     late MockTransactionOperation mockTransactionOperation;
     late MockPackageOperation mockPackageOperation;
     late MockCustomerOperation mockCustomerOperation;
 
-    // Data tiruan untuk pengujian
     final t1 = TransactionModel(
       id: 't1',
       customerId: 'c1',
       packageId: 'p1',
       date: DateTime(2023, 1, 10),
-      endDate: DateTime(2023, 2, 10), // Berakhir lebih lambat
+      endDate: DateTime(2023, 2, 10), // Berakhir lebih baru
       description: 'Aktivasi Paket A',
       amount: 100000,
       type: TransactionType.income,
       walletId: 'w1',
       paymentStatus: PaymentStatus.paid,
       categoryId: 'cat1',
+      updatedAt: DateTime(2023, 1, 10),
     );
     final t2 = TransactionModel(
       id: 't2',
       customerId: 'c2',
       packageId: 'p2',
       date: DateTime(2023, 1, 5),
-      endDate: DateTime(2023, 2, 5), // Berakhir lebih cepat
+      endDate: DateTime(2023, 2, 5), // Berakhir lebih dulu
       description: 'Aktivasi Paket B',
       amount: 200000,
       type: TransactionType.income,
       walletId: 'w2',
       paymentStatus: PaymentStatus.paid,
       categoryId: 'cat2',
+      updatedAt: DateTime(2023, 1, 5),
     );
 
     final customer1 = CustomerModel(
@@ -82,14 +82,12 @@ void main() {
         duration: 30,
         type: DurationType.days);
 
-// Inisialisasi mock sebelum setiap pengujian
     setUp(() {
       mockTransactionOperation = MockTransactionOperation();
       mockPackageOperation = MockPackageOperation();
       mockCustomerOperation = MockCustomerOperation();
     });
 
-    // Helper function untuk membuat widget yang diuji
     Widget createTestWidget() {
       return ProviderScope(
         overrides: [
@@ -104,92 +102,68 @@ void main() {
       );
     }
 
-    // Pengujian untuk state loading
-    testWidgets('harus menampilkan CircularProgressIndicator saat data sedang dimuat',
+    testWidgets('1. harus menampilkan CircularProgressIndicator saat data sedang dimuat',
         (tester) async {
-      // Arrange
       when(mockTransactionOperation.getTransactionsByPackageActivation())
           .thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 100));
         return [];
       });
-      when(mockPackageOperation.getById(any)).thenAnswer((_) async => null);
-      when(mockCustomerOperation.getById(any)).thenAnswer((_) async => null);
+      when(mockCustomerOperation.getAll()).thenAnswer((_) async => []);
 
-      // Act
       await tester.pumpWidget(createTestWidget());
-
-      // Assert
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Selesaikan future
       await tester.pumpAndSettle();
     });
 
-    group('ketika data berhasil dimuat', () {
+    group('2. ketika data berhasil dimuat', () {
       setUp(() {
-        // Stub untuk operasi transaksi
         when(mockTransactionOperation.getTransactionsByPackageActivation())
-            .thenAnswer((_) async => [t1, t2]);
+            .thenAnswer((_) async => [t2, t1]); // Urutan acak
+        when(mockCustomerOperation.getAll())
+            .thenAnswer((_) async => [customer1, customer2]);
 
-        // Stub untuk operasi paket
         when(mockPackageOperation.getById('p1'))
             .thenAnswer((_) async => package1);
         when(mockPackageOperation.getById('p2'))
             .thenAnswer((_) async => package2);
-        when(mockPackageOperation.getById(argThat(isNot(isIn(['p1', 'p2'])))))
-            .thenAnswer((_) async => null);
-
-        // Stub untuk operasi pelanggan
-        when(mockCustomerOperation.getById('c1'))
-            .thenAnswer((_) async => customer1);
-        when(mockCustomerOperation.getById('c2'))
-            .thenAnswer((_) async => customer2);
-        when(mockCustomerOperation.getById(argThat(isNot(isIn(['c1', 'c2'])))))
-            .thenAnswer((_) async => null);
       });
 
       testWidgets(
           'harus menampilkan daftar riwayat langganan yang diurutkan berdasarkan tanggal akhir terbaru',
           (tester) async {
-        // Act
         await tester.pumpWidget(createTestWidget());
-        await tester.pumpAndSettle(); // Tunggu semua Future (termasuk di FutureBuilder) selesai
+        await tester.pumpAndSettle();
 
-        // Assert
-        // Pastikan nama-nama pelanggan muncul di layar
         expect(find.text('Pelanggan Satu'), findsOneWidget);
         expect(find.text('Pelanggan Dua'), findsOneWidget);
 
-        // Verifikasi urutan dengan membandingkan posisi vertikal (koordinat Y)
         final customerOneFinder = find.text('Pelanggan Satu');
         final customerTwoFinder = find.text('Pelanggan Dua');
 
         final firstWidgetY = tester.getTopLeft(customerOneFinder).dy;
         final secondWidgetY = tester.getTopLeft(customerTwoFinder).dy;
 
-        // 'Pelanggan Satu' (t1) memiliki endDate lebih baru, jadi harus
-        // muncul di atas (koordinat Y lebih kecil).
         expect(
           firstWidgetY < secondWidgetY,
           isTrue,
-          reason: 'Pelanggan Satu harus muncul di atas Pelanggan Dua',
+          reason:
+              'Pelanggan Satu (t1) harus di atas Pelanggan Dua (t2) karena endDate lebih baru',
         );
       });
     });
 
-    group('ketika terjadi kondisi khusus', () {
+    group('3. ketika terjadi kondisi khusus', () {
       testWidgets('harus menampilkan pesan saat tidak ada riwayat ditemukan',
           (tester) async {
-        // Arrange
         when(mockTransactionOperation.getTransactionsByPackageActivation())
-            .thenAnswer((_) async => []); // Kembalikan list kosong
+            .thenAnswer((_) async => []); // List kosong
+        when(mockCustomerOperation.getAll()).thenAnswer((_) async => []);
 
-        // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pumpAndSettle();
 
-        // Assert
         expect(
             find.text('Tidak ada riwayat langganan ditemukan.'), findsOneWidget);
         expect(find.byType(ListView), findsNothing);
@@ -197,17 +171,16 @@ void main() {
 
       testWidgets('harus menampilkan pesan error saat pengambilan data gagal',
           (tester) async {
-        // Arrange
         const errorMessage = 'Gagal memuat data transaksi';
         when(mockTransactionOperation.getTransactionsByPackageActivation())
-            .thenAnswer((_) async => throw Exception(errorMessage));
+            .thenThrow(Exception(errorMessage));
+        when(mockCustomerOperation.getAll()).thenAnswer((_) async => []);
 
-        // Act
         await tester.pumpWidget(createTestWidget());
         await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.textContaining(errorMessage), findsOneWidget);
+        expect(find.textContaining('Error: Exception: $errorMessage'),
+            findsOneWidget);
         expect(find.byType(ListView), findsNothing);
       });
     });

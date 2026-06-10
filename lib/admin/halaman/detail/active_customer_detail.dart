@@ -2,7 +2,7 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart'; // Import untuk firstWhereOrNull
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,14 +10,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart'; // Import activeCustomerProvider
+import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -310,19 +310,18 @@ class _ActiveCustomerDetailPageState
                           ),
                         ),
                       ),
-                    ], // 33. Label tombol
-                  ), // 34. Fungsi onPressed
-                ), // 35. Logika untuk mengirim info paket via WhatsApp
-              ), // 36. Menggunakan pesanInfoPaketProvider
-            ], // 37. Logika untuk tombol
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
-  } // 38. Style tombol
+  }
 
   Widget _buildInfoRow(
-      // 39. Padding tombol
       BuildContext context,
       final String label,
       final String value) {
@@ -347,7 +346,6 @@ class _ActiveCustomerDetailPageState
     );
   }
 
-  // 40. Warna tombol
   Widget _buildWhatsAppInfoRow(
       BuildContext context, final String label, final String value) {
     return Padding(
@@ -388,4 +386,4 @@ class _ActiveCustomerDetailPageState
       ),
     );
   }
-} // 41. Warna teks tombol
+}
