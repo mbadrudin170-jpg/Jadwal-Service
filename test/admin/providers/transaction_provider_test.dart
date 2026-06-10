@@ -43,26 +43,7 @@ void main() {
     walletId: 'wallet1',
   );
 
-  // 3. Fungsi setup untuk menginisialisasi mock dan container
-  void setupContainer() {
-    container = ProviderContainer(
-      overrides: [
-        transactionOperationProvider.overrideWithValue(mockOperation),
-      ],
-    );
-  }
-
-  // 4. Pengaturan awal untuk semua test
-  setUp(() {
-    mockOperation = MockTransactionOperation();
-  });
-
-  // 5. Pastikan container di-dispose setelah setiap test
-  tearDown(() {
-    container.dispose();
-  });
-
-  // 6. Fungsi pembantu untuk stubbing pemanggilan data awal
+  // 3. Fungsi pembantu untuk stubbing pemanggilan data awal
   void stubInitialData() {
     when(mockOperation.getAllTransactions())
         .thenAnswer((_) async => [tTransaction1, tTransaction2]);
@@ -71,13 +52,30 @@ void main() {
     when(mockOperation.getNetTotal()).thenAnswer((_) async => 150000);
   }
 
+  // 4. Fungsi setup untuk menginisialisasi mock dan container
+  void setupContainer() {
+    container = ProviderContainer(
+      overrides: [
+        transactionOperationProvider.overrideWithValue(mockOperation),
+      ],
+    );
+  }
+
+  // 5. Pengaturan awal untuk semua test
+  setUp(() {
+    mockOperation = MockTransactionOperation();
+    stubInitialData();
+    setupContainer();
+  });
+
+  // 6. Pastikan container di-dispose setelah setiap test
+  tearDown(() {
+    container.dispose();
+  });
+
   group('Pengujian Transaction Provider', () {
     test('1. build harus memuat data awal dengan benar', () async {
-      // Arrange
-      stubInitialData();
-      setupContainer();
-
-      // Act
+      // Arrange & Act
       final state = await container.read(transactionProvider.future);
 
       // Assert
@@ -85,8 +83,7 @@ void main() {
       expect(state.totalIncome, 200000);
       expect(state.totalExpense, 50000);
       expect(state.netTotal, 150000);
-      expect(state.sortBy, SortBy.newest); // Default sort
-      // Cek urutan default (terbaru dulu)
+      expect(state.sortBy, SortBy.newest);
       expect(state.transactions.first.id, '2');
       verify(mockOperation.getAllTransactions()).called(1);
       verify(mockOperation.getTotalIncome()).called(1);
@@ -94,50 +91,50 @@ void main() {
       verify(mockOperation.getNetTotal()).called(1);
     });
 
-    test('2. sortTransactions harus mengurutkan ulang list tanpa memuat ulang',
+    test('2. sortTransactions harus mengurutkan list tanpa memuat ulang',
         () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
-      await container.read(transactionProvider.future); // Memastikan build selesai
-      verify(mockOperation.getAllTransactions()).called(1); // Verifikasi panggilan awal
+      // Memastikan build selesai dan state adalah AsyncData
+      await container.read(transactionProvider.future);
+      expect(container.read(transactionProvider), isA<AsyncData>());
 
       // Act: urutkan berdasarkan terlama
-      container.read(transactionProvider.notifier).sortTransactions(SortBy.oldest);
-      final stateOldest = container.read(transactionProvider).value!;
+      container
+          .read(transactionProvider.notifier)
+          .sortTransactions(SortBy.oldest);
 
       // Assert
+      // Pastikan state tetap AsyncData dan tidak menjadi AsyncLoading
+      expect(container.read(transactionProvider), isA<AsyncData>());
+      final stateOldest = container.read(transactionProvider).value!;
       expect(stateOldest.sortBy, SortBy.oldest);
       expect(stateOldest.transactions.first.id, '1');
-      // Pastikan tidak ada panggilan baru ke DB
-      verify(mockOperation.getAllTransactions()).called(1);
 
       // Act: urutkan berdasarkan nominal terendah
       container
           .read(transactionProvider.notifier)
           .sortTransactions(SortBy.lowestAmount);
-      final stateLowest = container.read(transactionProvider).value!;
 
       // Assert
+      expect(container.read(transactionProvider), isA<AsyncData>());
+      final stateLowest = container.read(transactionProvider).value!;
       expect(stateLowest.sortBy, SortBy.lowestAmount);
       expect(stateLowest.transactions.first.amount, 50000);
-      // Pastikan tetap tidak ada panggilan baru ke DB
+
+      // Verifikasi bahwa tidak ada pemanggilan baru ke database
       verify(mockOperation.getAllTransactions()).called(1);
     });
 
     test('3. addTransaction harus menambahkan data dan memuat ulang', () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
       await container.read(transactionProvider.future);
       when(mockOperation.addTransaction(any)).thenAnswer((_) async => 0);
-
-      // Untuk pemanggilan data ulang setelah add
-      when(mockOperation.getAllTransactions())
-          .thenAnswer((_) async => [tTransaction1, tTransaction2]);
-      when(mockOperation.getTotalIncome()).thenAnswer((_) async => 200000);
+      // Stub untuk pemanggilan _loadData kedua kalinya
+      when(mockOperation.getAllTransactions()).thenAnswer(
+          (_) async => [tTransaction1, tTransaction2, tTransaction1]);
+      when(mockOperation.getTotalIncome()).thenAnswer((_) async => 250000);
       when(mockOperation.getTotalExpense()).thenAnswer((_) async => 50000);
-      when(mockOperation.getNetTotal()).thenAnswer((_) async => 150000);
+      when(mockOperation.getNetTotal()).thenAnswer((_) async => 200000);
 
       // Act
       await container
@@ -146,19 +143,15 @@ void main() {
 
       // Assert
       verify(mockOperation.addTransaction(tTransaction1)).called(1);
-      // Dipanggil 1x di awal, 1x setelah add
       verify(mockOperation.getAllTransactions()).called(2);
     });
 
     test('4. updateTransaction harus memperbarui data dan memuat ulang',
         () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
       await container.read(transactionProvider.future);
-      when(mockOperation.updateTransaction(any, any)).thenAnswer((_) async => 0);
-      when(mockOperation.getAllTransactions())
-          .thenAnswer((_) async => [tTransaction1, tTransaction2]);
+      when(mockOperation.updateTransaction(any, any))
+          .thenAnswer((_) async => 0);
 
       // Act
       await container
@@ -173,11 +166,10 @@ void main() {
 
     test('5. softDelete harus menghapus data dan memuat ulang', () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
       await container.read(transactionProvider.future);
       when(mockOperation.softDelete(any)).thenAnswer((_) async => 0);
-      when(mockOperation.getAllTransactions()).thenAnswer((_) async => [tTransaction2]);
+      when(mockOperation.getAllTransactions())
+          .thenAnswer((_) async => [tTransaction2]);
 
       // Act
       await container.read(transactionProvider.notifier).softDelete('1');
@@ -190,12 +182,9 @@ void main() {
     test('6. softDeleteAll harus menghapus semua data dan memuat ulang',
         () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
       await container.read(transactionProvider.future);
       when(mockOperation.softDeleteAll()).thenAnswer((_) async => 0);
-      when(mockOperation.getAllTransactions())
-          .thenAnswer((_) async => []); // Semua hilang
+      when(mockOperation.getAllTransactions()).thenAnswer((_) async => []);
 
       // Act
       await container.read(transactionProvider.notifier).softDeleteAll();
@@ -207,15 +196,12 @@ void main() {
 
     test('7. refresh harus memuat ulang data', () async {
       // Arrange
-      stubInitialData();
-      setupContainer();
       await container.read(transactionProvider.future);
 
       // Act
       await container.read(transactionProvider.notifier).refresh();
 
       // Assert
-      // Dipanggil 1x di awal, 1x saat refresh
       verify(mockOperation.getAllTransactions()).called(2);
       verify(mockOperation.getTotalIncome()).called(2);
       verify(mockOperation.getTotalExpense()).called(2);
