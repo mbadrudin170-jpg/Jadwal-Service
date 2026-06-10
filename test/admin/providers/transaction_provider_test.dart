@@ -100,6 +100,7 @@ void main() {
       stubInitialData();
       setupContainer();
       await container.read(transactionProvider.future); // Memastikan build selesai
+      verify(mockOperation.getAllTransactions()).called(1); // Verifikasi panggilan awal
 
       // Act: urutkan berdasarkan terlama
       container.read(transactionProvider.notifier).sortTransactions(SortBy.oldest);
@@ -108,7 +109,8 @@ void main() {
       // Assert
       expect(stateOldest.sortBy, SortBy.oldest);
       expect(stateOldest.transactions.first.id, '1');
-      verifyNever(mockOperation.getAllTransactions()); // Tidak boleh dipanggil lagi
+      // Pastikan tidak ada panggilan baru ke DB
+      verify(mockOperation.getAllTransactions()).called(1);
 
       // Act: urutkan berdasarkan nominal terendah
       container
@@ -119,7 +121,8 @@ void main() {
       // Assert
       expect(stateLowest.sortBy, SortBy.lowestAmount);
       expect(stateLowest.transactions.first.amount, 50000);
-      verifyNever(mockOperation.getAllTransactions());
+      // Pastikan tetap tidak ada panggilan baru ke DB
+      verify(mockOperation.getAllTransactions()).called(1);
     });
 
     test('3. addTransaction harus menambahkan data dan memuat ulang', () async {
