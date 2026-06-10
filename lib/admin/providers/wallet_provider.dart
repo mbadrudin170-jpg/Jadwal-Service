@@ -43,7 +43,8 @@ class Wallet extends _$Wallet {
     );
   }
 
-  Future<void> addWallet(final WalletModel wallet) async {
+  /// fungsi untuk menambah data dompet baru
+  Future<void> addWallet(WalletModel wallet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.createWallet(wallet);
@@ -51,7 +52,8 @@ class Wallet extends _$Wallet {
     });
   }
 
-  Future<void> updateWallet(final WalletModel wallet) async {
+  /// fungsi untuk update satu data dompet
+  Future<void> updateWallet(WalletModel wallet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.updateWallet(wallet);
@@ -59,7 +61,8 @@ class Wallet extends _$Wallet {
     });
   }
 
-  Future<void> softDelete(final String id) async {
+  /// fungsi untuk menghapus data dompet secara soft delete
+  Future<void> softDelete(String id) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.softDelete(id);
@@ -67,6 +70,7 @@ class Wallet extends _$Wallet {
     });
   }
 
+  /// fungsi untuk menghapus semua data dompet
   Future<void> deleteAllWallets() async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
@@ -75,6 +79,7 @@ class Wallet extends _$Wallet {
     });
   }
 
+  /// fungsi untuk menyegarkan data dompet
   Future<void> refresh() async {
     state = await AsyncValue.guard(_loadData);
   }

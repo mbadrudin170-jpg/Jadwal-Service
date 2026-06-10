@@ -1,6 +1,8 @@
 // path: test/admin/providers/statistik_provider_test.dart
 // 1. Tambahkan anotasi GenerateMocks untuk StatistikRepository
 @GenerateMocks([StatistikRepository])
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -23,10 +25,7 @@ void main() {
   final tBestSellingPackage = BestSellingPackage(
       totalSold: 10,
       package: PackageModel(
-          name: 'Paket A',
-          price: 50000,
-          duration: 30,
-          type: DurationType.days));
+          name: 'Paket A', price: 50000, duration: 30, type: DurationType.days));
   final tStatistikState = StatistikState(
     pendapatanBulanIni: 1000.0,
     totalPelanggan: 10,
@@ -87,19 +86,39 @@ void main() {
   test('2. statistikProvider harus menangani error dengan benar', () async {
     // Arrange
     final exception = Exception('Gagal mengambil data');
-    // 12. Atur agar mock melempar exception
-    when(mockRepository.getPendapatanBulanIni()).thenThrow(exception);
+    // Atur satu Future untuk gagal, dan yang lain berhasil.
+    // Ini meniru perilaku `Future.wait` yang gagal cepat.
+    when(mockRepository.getPendapatanBulanIni())
+        .thenAnswer((_) async => throw exception);
     when(mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
     when(mockRepository.getJumlahLanggananAktif()).thenAnswer((_) async => 5);
     when(mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
     when(mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
 
+    // Gunakan Completer untuk menahan test agar tidak selesai sebelum waktunya.
+    final completer = Completer<void>();
+
     // Act & Assert
-    // 13. Harapkan error ketika membaca provider, gunakan expectLater untuk Future
-    await expectLater(
-      container.read(statistikProvider.future),
-      throwsA(isA<Exception>()),
+    // Gunakan `listen` untuk secara eksplisit menunggu state AsyncError.
+    container.listen<AsyncValue<StatistikState>>(
+      statistikProvider,
+      (previous, next) {
+        if (next is AsyncError) {
+          // Verifikasi bahwa errornya sesuai dengan yang diharapkan.
+          expect(next.error, isA<Exception>());
+          // Selesaikan completer untuk menandakan bahwa pengujian telah berhasil menangkap error.
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+        }
+      },
+      // `fireImmediately` memastikan listener dipanggil dengan state saat ini (AsyncLoading).
+      fireImmediately: true,
     );
+
+    // Tunggu hingga completer diselesaikan oleh listener.
+    // Ini memastikan pengujian tidak berakhir sebelum error ditangani.
+    await completer.future;
   });
 
   test('3. refresh harus memuat ulang data', () async {
@@ -110,15 +129,20 @@ void main() {
     when(mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
     when(mockRepository.getJumlahLanggananAktif()).thenAnswer((_) async => 5);
     when(mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
-    when(mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
+    when(mockRepository.getBestSellingPackages())
+        .thenAnswer((_) async => [tBestSellingPackage]);
 
     // 15. Baca awal untuk memastikan data ada
     await container.read(statistikProvider.future);
 
     // Arrange (untuk refresh)
-    // 16. Atur data baru untuk panggilan setelah refresh
+    // 16. Atur data baru untuk panggilan setelah refresh. Penting untuk me-mock semua panggilan lagi.
     when(mockRepository.getPendapatanBulanIni())
         .thenAnswer((_) async => 2000.0);
+    when(mockRepository.getTotalPelanggan()).thenAnswer((_) async => 20);
+    when(mockRepository.getJumlahLanggananAktif()).thenAnswer((_) async => 8);
+    when(mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 1);
+    when(mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
 
     // Act
     // 17. Panggil method refresh
@@ -128,7 +152,9 @@ void main() {
     // Assert
     // 18. Verifikasi bahwa data baru yang dimuat
     expect(result.pendapatanBulanIni, 2000.0);
+    expect(result.totalPelanggan, 20);
     // 19. Verifikasi method dipanggil dua kali (awal + refresh)
     verify(mockRepository.getPendapatanBulanIni()).called(2);
+    verify(mockRepository.getTotalPelanggan()).called(2);
   });
 }
