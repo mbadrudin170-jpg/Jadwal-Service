@@ -98,8 +98,8 @@ void main() {
             onDefaultServerSelectionInProgress:
                 any(named: 'onDefaultServerSelectionInProgress'),
           )).thenAnswer((panggilan) async {
-        final onProgress = panggilan.namedArguments[#onProgress]
-            as void Function(double, TestResult);
+        final onProgress = panggilan.namedArguments[#onProgress] as void
+            Function(double, TestResult);
 
         onProgress(75.0, TestResult(TestType.download, 25.5, SpeedUnit.mbps));
       });
@@ -145,8 +145,8 @@ void main() {
             onDefaultServerSelectionInProgress:
                 any(named: 'onDefaultServerSelectionInProgress'),
           )).thenAnswer((panggilan) async {
-        final onCompleted = panggilan.namedArguments[#onCompleted]
-            as void Function(TestResult, TestResult);
+        final onCompleted = panggilan.namedArguments[#onCompleted] as void
+            Function(TestResult, TestResult);
 
         onCompleted(
           TestResult(TestType.download, 120.0, SpeedUnit.mbps),
