@@ -12,7 +12,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
-import 'package:wifi/user/providers/user_providers.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});
@@ -159,8 +158,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final userId = ref.watch(userIdProvider).value ?? '';
-
     Log.info(
         '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
 
@@ -173,7 +170,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _listTombolFilter(userId),
+              _listTombolFilter(),
               Expanded(
                 child: _listPesanan(),
               ),
@@ -182,7 +179,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         ));
   }
 
-  Widget _listTombolFilter(String userId) {
+  Widget _listTombolFilter() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Padding(
@@ -190,13 +187,13 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         child: Wrap(
           spacing: 12.0, // Memberi spasi antar tombol
           children: [
-            _tombolTipe(StatusOrderEnum.baru, userId,
+            _tombolTipe(StatusOrderEnum.baru,
                 isActive: _filterAktif == StatusOrderEnum.baru.name),
-            _tombolTipe(StatusOrderEnum.diproses, userId,
+            _tombolTipe(StatusOrderEnum.diproses,
                 isActive: _filterAktif == StatusOrderEnum.diproses.name),
-            _tombolTipe(StatusOrderEnum.selesai, userId,
+            _tombolTipe(StatusOrderEnum.selesai,
                 isActive: _filterAktif == StatusOrderEnum.selesai.name),
-            _tombolTipe(StatusOrderEnum.ditolak, userId,
+            _tombolTipe(StatusOrderEnum.ditolak,
                 isActive: _filterAktif == StatusOrderEnum.ditolak.name),
           ],
         ),
@@ -204,8 +201,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _tombolTipe(StatusOrderEnum status, String userId,
-      {required bool isActive}) {
+  Widget _tombolTipe(StatusOrderEnum status, {required bool isActive}) {
     final orderAsync = ref.watch(orderProvider);
     final label = status.displayName;
 
@@ -234,6 +230,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             orderAsync.when(
+              skipLoadingOnReload: true,
               loading: () => const CircularProgressIndicator(),
               error: (e, s) => Text('Error: $e $s'),
               data: (orderState) {

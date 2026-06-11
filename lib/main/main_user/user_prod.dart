@@ -1,6 +1,7 @@
 // path: lib/main/main_user/user_prod.dart
 // PERUBAHAN: Menambahkan inisialisasi NotifikasiServis agar APK user bisa menampilkan notifikasi.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -31,6 +32,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Log.info('Inisialisasi Firebase selesai.');
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true, // Memastikan cache aktif
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;

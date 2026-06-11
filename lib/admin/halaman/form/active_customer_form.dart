@@ -416,7 +416,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info('data notifikasi untuk masa aktif paket telah dibuat,');
 
       for (final notif in daftarNotifikasi) {
-        notifikasiOpFirebase.add(notif);
+        notifikasiOpFirebase.addNotifikasi(notif);
       }
 
       final isOnline =
@@ -424,8 +424,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        final syncCheckService = ref.read(syncCheckServiceProvider);
-        unawaited(syncCheckService.runSyncCheck());
+        
+        ref.read(syncCheckServiceProvider).runSyncCheck();
         successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');

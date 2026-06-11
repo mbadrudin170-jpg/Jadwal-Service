@@ -62,7 +62,7 @@ FeedbackOpFirebase feedbackOpFirebase(Ref ref) {
 
 @riverpod
 Stream<List<FeedbackModel>> feedbackStream(Ref ref, String userId) {
-  final feedbackOp = ref.read(feedbackOpFirebaseProvider);
+  final feedbackOp = ref.watch(feedbackOpFirebaseProvider);
   return feedbackOp.getByUser(userId);
 }
 

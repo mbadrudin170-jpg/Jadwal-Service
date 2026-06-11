@@ -1,11 +1,6 @@
 // path: lib/main/main_user/user_dev.dart
-// PERBAIKAN:
-// - Menambahkan ProviderScope untuk mengaktifkan Riverpod di seluruh aplikasi.
-// - Menambahkan `flutter_native_splash` untuk menahan splash screen
-//   hingga inisialisasi di Flutter selesai.
-// - Memperbaiki pemanggilan `setGDPRConsent`.
-// - Menambahkan pemanggilan `setCCPAConsent`.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,11 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gma_mediation_unity/gma_mediation_unity.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/shared/constant/app_constants.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/user/app_user.dart';
 import 'package:wifi/user/firebase_option/firebase_option_user_dev.dart';
 
@@ -36,6 +31,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Log.info('Inisialisasi Firebase selesai.');
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true, // Memastikan cache aktif
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;

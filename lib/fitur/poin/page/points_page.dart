@@ -142,7 +142,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
               idTujuan: idOrder,
               userId: widget.customerId);
 
-          ref.read(notifikasiOpFirebaseProvider).add(notifikasiData);
+          ref.read(notifikasiOpFirebaseProvider).addNotifikasi(notifikasiData);
           Log.info(
               'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
 

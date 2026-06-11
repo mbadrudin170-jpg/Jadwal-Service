@@ -58,7 +58,7 @@ void main() {
       tanggalTampil: now,
       updatedAt: now,
     );
-    
+
     final notifikasi3 = NotifikasiModel(
       id: 'notif3',
       title: 'Judul 3',
@@ -157,11 +157,14 @@ void main() {
       // Menambahkan data uji
       await firestore.collection(collection).doc(notifikasi1.id).set(notifikasi1
           .toFirebase()); // userId = user1, isRead=false, isDeleted=false
-      await firestore.collection(collection).doc(notifikasi3.id).set(notifikasi3
-          .toFirebase()); // userId = user2
+      await firestore
+          .collection(collection)
+          .doc(notifikasi3.id)
+          .set(notifikasi3.toFirebase()); // userId = user2
 
       // Notifikasi dengan userId = user1 tapi sudah dibaca
-      final notifikasiUser1Terbaca = notifikasi1.copyWith(id: 'notif_user1_read', isRead: true);
+      final notifikasiUser1Terbaca =
+          notifikasi1.copyWith(id: 'notif_user1_read', isRead: true);
       await firestore
           .collection(collection)
           .doc(notifikasiUser1Terbaca.id)
@@ -215,14 +218,15 @@ void main() {
       // Harusnya mengembalikan list kosong
       expect(
         stream,
-        emits(isA<List<NotifikasiModel>>().having((l) => l.isEmpty, 'is empty', true)),
+        emits(isA<List<NotifikasiModel>>()
+            .having((l) => l.isEmpty, 'is empty', true)),
       );
     });
 
     test('Test 5: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
       when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
-      await notifikasiOp.add(notifikasi1);
+      await notifikasiOp.addNotifikasi(notifikasi1);
       verify(mockBaseOp.insert(
         collection,
         notifikasi1.id,
@@ -233,7 +237,7 @@ void main() {
     test('Test 6: update harus memanggil baseOp.update dengan data yang benar',
         () async {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
-      await notifikasiOp.update(notifikasi1);
+      await notifikasiOp.updateNotifikasi(notifikasi1);
       verify(mockBaseOp.update(
         collection,
         notifikasi1.id,
@@ -245,7 +249,7 @@ void main() {
         () async {
       const idToDelete = 'notif1';
       when(mockBaseOp.delete(any, any)).thenAnswer((_) async {});
-      await notifikasiOp.delete(idToDelete);
+      await notifikasiOp.deleteNotif(idToDelete);
       verify(mockBaseOp.delete(collection, idToDelete)).called(1);
     });
 
@@ -259,7 +263,7 @@ void main() {
         ColumnNames.isRead: true,
       })).called(1);
     });
-    
+
     test(
         'Test 9: deleteByTransactionId harus menghapus semua notifikasi dengan idTujuan yang cocok',
         () async {
@@ -282,7 +286,7 @@ void main() {
 
       // Verifikasi: Periksa isi firestore setelah penghapusan
       final snapshot = await firestore.collection(collection).get();
-      
+
       // Harusnya hanya notifikasi3 (dengan idTujuan 'trx2') yang tersisa
       expect(snapshot.docs.length, 1);
       expect(snapshot.docs.first.id, notifikasi3.id);
@@ -292,18 +296,65 @@ void main() {
       'Test 10: getKhususAdmin harus mengembalikan notifikasi order dan transaksi yang valid',
       () async {
         // Data Uji
-        final notifOrder = NotifikasiModel(id: 'order1', title: 'Order Baru', description: '', type: TipeNotifikasiEnum.order, idTujuan: 't1', userId: 'u1', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
-        final notifTransaksi = NotifikasiModel(id: 'transaksi1', title: 'Transaksi Baru', description: '', type: TipeNotifikasiEnum.transaksi, idTujuan: 't2', userId: 'u2', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
-        final notifEvent = NotifikasiModel(id: 'event1', title: 'Event Baru', description: '', type: TipeNotifikasiEnum.events, idTujuan: 't3', userId: 'u3', startDate: now, endDate: now.add(const Duration(days: 1)), tanggalTampil: now, updatedAt: now);
-        final notifOrderDibaca = notifOrder.copyWith(id: 'order2', isRead: true);
-        final notifTransaksiDihapus = notifTransaksi.copyWith(id: 'transaksi2', isDeleted: true);
+        final notifOrder = NotifikasiModel(
+            id: 'order1',
+            title: 'Order Baru',
+            description: '',
+            type: TipeNotifikasiEnum.order,
+            idTujuan: 't1',
+            userId: 'u1',
+            startDate: now,
+            endDate: now.add(const Duration(days: 1)),
+            tanggalTampil: now,
+            updatedAt: now);
+        final notifTransaksi = NotifikasiModel(
+            id: 'transaksi1',
+            title: 'Transaksi Baru',
+            description: '',
+            type: TipeNotifikasiEnum.transaksi,
+            idTujuan: 't2',
+            userId: 'u2',
+            startDate: now,
+            endDate: now.add(const Duration(days: 1)),
+            tanggalTampil: now,
+            updatedAt: now);
+        final notifEvent = NotifikasiModel(
+            id: 'event1',
+            title: 'Event Baru',
+            description: '',
+            type: TipeNotifikasiEnum.events,
+            idTujuan: 't3',
+            userId: 'u3',
+            startDate: now,
+            endDate: now.add(const Duration(days: 1)),
+            tanggalTampil: now,
+            updatedAt: now);
+        final notifOrderDibaca =
+            notifOrder.copyWith(id: 'order2', isRead: true);
+        final notifTransaksiDihapus =
+            notifTransaksi.copyWith(id: 'transaksi2', isDeleted: true);
 
         // Menambahkan data ke firestore palsu
-        await firestore.collection(collection).doc(notifOrder.id).set(notifOrder.toFirebase());
-        await firestore.collection(collection).doc(notifTransaksi.id).set(notifTransaksi.toFirebase());
-        await firestore.collection(collection).doc(notifEvent.id).set(notifEvent.toFirebase());
-        await firestore.collection(collection).doc(notifOrderDibaca.id).set(notifOrderDibaca.toFirebase());
-        await firestore.collection(collection).doc(notifTransaksiDihapus.id).set(notifTransaksiDihapus.toFirebase());
+        await firestore
+            .collection(collection)
+            .doc(notifOrder.id)
+            .set(notifOrder.toFirebase());
+        await firestore
+            .collection(collection)
+            .doc(notifTransaksi.id)
+            .set(notifTransaksi.toFirebase());
+        await firestore
+            .collection(collection)
+            .doc(notifEvent.id)
+            .set(notifEvent.toFirebase());
+        await firestore
+            .collection(collection)
+            .doc(notifOrderDibaca.id)
+            .set(notifOrderDibaca.toFirebase());
+        await firestore
+            .collection(collection)
+            .doc(notifTransaksiDihapus.id)
+            .set(notifTransaksiDihapus.toFirebase());
 
         // Mendengarkan stream
         final stream = notifikasiOp.getKhususAdmin();
@@ -312,13 +363,14 @@ void main() {
         expect(
           stream,
           emits(
-            isA<List<NotifikasiModel>>()
-                .having(
-                  (list) => list.map((e) => e.id).toSet(),
-                  'ID set',
-                  {notifOrder.id, notifTransaksi.id}, // Harusnya hanya notifikasi order dan transaksi yg valid
-                )
-                .having((list) => list.length, 'length', 2),
+            isA<List<NotifikasiModel>>().having(
+              (list) => list.map((e) => e.id).toSet(),
+              'ID set',
+              {
+                notifOrder.id,
+                notifTransaksi.id
+              }, // Harusnya hanya notifikasi order dan transaksi yg valid
+            ).having((list) => list.length, 'length', 2),
           ),
         );
       },

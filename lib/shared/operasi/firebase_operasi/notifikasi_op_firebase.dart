@@ -81,7 +81,7 @@ class NotifikasiOpFirebase {
             .toList());
   }
 
-  Future<void> add(NotifikasiModel notifikasi) async {
+  Future<void> addNotifikasi(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
       await _baseOp.insert(
@@ -95,7 +95,7 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> update(NotifikasiModel notifikasi) async {
+  Future<void> updateNotifikasi(NotifikasiModel notifikasi) async {
     try {
       Log.info(
           'Updating notification in Firebase via BaseOp: ${notifikasi.id}');
@@ -110,7 +110,7 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> delete(String id) async {
+  Future<void> deleteNotif(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');
       await _baseOp.delete(_collection, id);
