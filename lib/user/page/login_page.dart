@@ -11,12 +11,13 @@ import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
+import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
-import 'package:wifi/shared/theme/app_colors.dart';
-import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/shared/widget/input/input_angka.dart';
+import 'package:wifi/shared/widget/input/input_password.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
@@ -27,11 +28,10 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  bool _isPasswordVisible = false;
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool _isLoggingIn = false;
+  bool _sedangLogin = false;
 
   @override
   void initState() {
@@ -56,10 +56,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _togglePasswordVisibility() {
-    setState(() => _isPasswordVisible = !_isPasswordVisible);
-  }
-
   Future<void> _prosesLogin() async {
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
@@ -69,8 +65,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    if (_isLoggingIn) return;
-    setState(() => _isLoggingIn = true);
+    if (_sedangLogin) return;
+    setState(() => _sedangLogin = true);
 
     try {
       final internetService = ref.read(internetConnectionServiceProvider);
@@ -123,25 +119,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         return; // Selesai
       } else {
-        setState(() => _isLoggingIn = false);
+        setState(() => _sedangLogin = false);
         await _showErrorAlert(
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
     } catch (e, s) {
       Log.error('Terjadi kesalahan saat login.', e: e, st: s);
-      if (mounted) setState(() => _isLoggingIn = false);
+      if (mounted) setState(() => _sedangLogin = false);
       if (!mounted) return;
       await _showErrorAlert(
           'Terjadi kesalahan koneksi ke server. Silakan coba lagi.');
     } finally {
       if (mounted) {
-        setState(() => _isLoggingIn = false);
+        setState(() => _sedangLogin = false);
       }
     }
   }
 
   Future<void> _tanganiPilihAkunTersedia() async {
-    if (_isLoggingIn) return;
+    if (_sedangLogin) return;
     final layananPenyimpananLokal =
         await ref.read(localStorageServiceProvider.future);
     final akun = await layananPenyimpananLokal.ambilDaftarAkun();
@@ -186,39 +182,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 textAlign: TextAlign.center,
               ),
               gapH32,
-              TextFormField(
+              InputAngka(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Nomor Telepon',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone),
-                ),
-                keyboardType: TextInputType.phone,
-                textInputAction: TextInputAction.next,
-                enabled: !_isLoggingIn,
+                label: 'Nomor Telepon',
+                enabled: !_sedangLogin,
               ),
               gapH16,
-              TextFormField(
+              InputPassword(
                 controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(_isPasswordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off),
-                    onPressed: _togglePasswordVisibility,
-                  ),
-                ),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Password tidak boleh kosong'
+                    : null,
+                onFieldSubmitted: (p0) => _prosesLogin(),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _prosesLogin(),
-                enabled: !_isLoggingIn,
+                enabled: !_sedangLogin,
               ),
               gapH24,
               ElevatedButton(
-                onPressed: _isLoggingIn ? null : _prosesLogin,
+                onPressed: _sedangLogin ? null : _prosesLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.primaryColor,
                   foregroundColor: Colors.white,
@@ -228,7 +209,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   disabledBackgroundColor:
                       TColors.primaryColor.withValues(alpha: 0.5),
                 ),
-                child: _isLoggingIn
+                child: _sedangLogin
                     ? const SizedBox(
                         height: 20,
                         width: 20,
@@ -258,7 +239,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               OutlinedButton.icon(
                 icon: const Icon(Icons.people_alt_outlined),
                 label: const Text('Pilih dari Akun Tersimpan'),
-                onPressed: _isLoggingIn ? null : _tanganiPilihAkunTersedia,
+                onPressed: _sedangLogin ? null : _tanganiPilihAkunTersedia,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -269,7 +250,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               gapH8,
               Align(
                 child: TextButton(
-                  onPressed: _isLoggingIn
+                  onPressed: _sedangLogin
                       ? null
                       : () {
                           unawaited(showDialog<void>(
