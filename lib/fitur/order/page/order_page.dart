@@ -159,8 +159,6 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final orderOp = ref.watch(orderProvider);
-    final appRole = ref.watch(appRoleProvider);
     final userId = ref.watch(userIdProvider).value ?? '';
 
     Log.info(
@@ -177,7 +175,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             children: [
               _listTombolFilter(userId),
               Expanded(
-                child: _listPesanan(orderOp),
+                child: _listPesanan(),
               ),
             ],
           ),
@@ -208,14 +206,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _tombolTipe(StatusOrderEnum status, String userId,
       {required bool isActive}) {
-        final orderOp = ref.watch(orderProvider);
+    final orderAsync = ref.watch(orderProvider);
     final label = status.displayName;
-    final appRole = ref.watch(appRoleProvider);
-    final dataSqlite =
-        ref.watch(orderOperationProvider).getJumlahByStatus(status);
-    final dataFirebase = ref
-        .watch(orderOpFirebaseProvider)
-        .countOrdersByStatus(status, appRole == AppRole.admin ? '' : userId);
 
     return InkWell(
       onTap: () {
@@ -241,23 +233,11 @@ class _OrderPageState extends ConsumerState<OrderPage> {
           spacing: 6.0,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            FutureBuilder<int>(
-              future: appRole == AppRole.admin ? dataSqlite : dataFirebase,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  );
-                }
-                if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data == 0) {
-                  return const SizedBox
-                      .shrink(); // Tidak menampilkan badge jika 0 atau error
-                }
-                final count = snapshot.data!;
+            orderAsync.when(
+              loading: () => const CircularProgressIndicator(),
+              error: (e, s) => Text('Error: $e $s'),
+              data: (orderState) {
+                final total = orderState.totalDaftar; // int
                 return Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -268,7 +248,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TeksIsiKecil(
-                    count > 99 ? '99+' : count.toString(),
+                    total > 99 ? '99+' : total.toString(),
                     warna: isActive
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
@@ -291,19 +271,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
     );
   }
 
-  Widget _listPesanan(Stream<List<OrderModel>> dataStream) {
-    return StreamBuilder<List<OrderModel>>(
-      stream: dataStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          Log.error('Error memuat pesanan', e: snapshot.error);
-          return Center(child: Text('Terjadi kesalahan: ${snapshot.error}'));
-        }
+  Widget _listPesanan() {
+    final orderAsync = ref.watch(orderProvider);
 
-        final allOrders = snapshot.data ?? [];
+    return orderAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Terjadi kesalahan: $err')),
+      data: (orderState) {
+        final allOrders = orderState.orders;
 
         final filteredOrders = allOrders.where((order) {
           if (_filterAktif == StatusOrderEnum.selesai.name) {
@@ -324,15 +299,14 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         if (filteredOrders.isEmpty) {
           return const Center(child: Text('Belum ada pesanan ditemukan.'));
         }
+
         final paketOpFirebase = ref.watch(packageOpFirebaseProvider);
         return ListView.builder(
           itemCount: filteredOrders.length,
           itemBuilder: (context, index) {
             final order = filteredOrders[index];
             return ListTile(
-              onLongPress: () {
-                _showDialog(context, order);
-              },
+              onLongPress: () => _showDialog(context, order),
               title: Row(
                 children: [
                   const Text('Paket: '),

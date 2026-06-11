@@ -1,10 +1,4 @@
 // path: lib/admin/halaman/detail/feedback_detail.dart
-// Fitur: Detail Kritik dan Saran
-// Tujuan: Menampilkan detail dari satu item kritik dan saran, dan menyediakan opsi untuk menghapusnya.
-//
-// Daftar Fungsi:
-// - _loadData(): Memuat data kritik dan saran berdasarkan ID dari operasi.
-// - _deleteFeedback(): Menangani logika untuk menghapus item kritik dan saran dengan konfirmasi.
 
 import 'dart:async';
 
@@ -14,6 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
+import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -46,7 +41,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
   @override
   void initState() {
     super.initState();
-    _feedbackOperation = ref.read(feedbackOperationProvider);
+    _feedbackOperation = ref.watch(feedbackOperationProvider);
     Log.info(
         'Membuka halaman detail kritik dan saran dengan ID: ${widget.id}.');
     _loadData();
@@ -57,19 +52,17 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
       'Memulai proses pengambilan data kritik dan saran dari database.',
     );
 
-    _feedbackFuture = _feedbackOperation.getById(widget.id).then((final value) {
+    _feedbackFuture = _feedbackOperation.getById(widget.id).then((value) {
       Log.info(
         'Data kritik dan saran berhasil dimuat dari database.',
       );
 
       return value;
-      // diubah: Menambahkan tipe eksplisit Object dan StackTrace pada error handling.
-      // Alasan: Untuk memenuhi aturan analisis statis yang ketat dan menghindari error 'inference_failure' dan 'argument_type_not_assignable'.
-    }).catchError((final Object e, final StackTrace st) {
+    }).catchError((e, StackTrace s) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
         e: e,
-        st: st,
+        st: s,
       );
       // diubah: Melempar error dengan tipe yang benar.
       // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
@@ -101,7 +94,6 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                 Log.warning(
                   'Pengguna membatalkan proses penghapusan kritik dan saran.',
                 );
-
                 Navigator.of(context).pop(false);
               },
               child: const Text('Batal'),
@@ -141,7 +133,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         unawaited(showDialog<void>(
           context: context,
           barrierDismissible: false,
-          builder: (final context) {
+          builder: (context) {
             Log.info(
               'Loading dialog berhasil ditampilkan.',
             );
@@ -186,12 +178,9 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
 
           Navigator.of(context).pop(true);
         }
-      } on Exception catch (e, st) {
-        Log.error(
-          'Terjadi kesalahan saat menghapus kritik dan saran.',
-          e: e,
-          st: st,
-        );
+      } catch (e, st) {
+        Log.error('Terjadi kesalahan saat menghapus kritik dan saran.',
+            e: e, st: st);
 
         if (mounted) {
           Log.warning(
@@ -228,6 +217,11 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         ),
         actions: [
           IconButton(
+            onPressed: () {},
+            icon: const Icon(TIcons.edit),
+            tooltip: 'Edit',
+          ),
+          IconButton(
             icon: const Icon(Icons.delete),
             onPressed: _deleteFeedback,
             tooltip: 'Hapus Kritik & Saran',
@@ -236,7 +230,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
       ),
       body: FutureBuilder<FeedbackModel>(
         future: _feedbackFuture,
-        builder: (final context, final snapshot) {
+        builder: (context, snapshot) {
           Log.info(
             'FutureBuilder dijalankan dengan connection state: ${snapshot.connectionState}.',
           );
