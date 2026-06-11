@@ -113,7 +113,7 @@ void main() {
             anyNamed('onDidReceiveBackgroundNotificationResponse'),
       )).thenAnswer((_) async => true);
 
-      await notifikasiServis.inisialisasi(iconName: 'app_icon');
+      await notifikasiServis.initNotif(iconName: 'app_icon');
 
       // Verifikasi
       verify(mockPlugin.initialize(
@@ -254,7 +254,7 @@ void main() {
       )).thenAnswer((_) async => {});
 
       // 2. Action
-      notifikasiServis.pantauNotifikasiUser(mockNotifikasiOp, 'user-1');
+      notifikasiServis.pantauNotifUser(mockNotifikasiOp, 'user-1');
 
       // 3. Menambahkan data ke stream
       streamController.add([notif1, notif2]);
@@ -368,7 +368,7 @@ void main() {
       )).thenAnswer((_) async => {});
 
       // 2. Action
-      notifikasiServis.pantauNotifikasiUmum(mockNotifikasiOp);
+      notifikasiServis.pantauNotifUmum(mockNotifikasiOp);
 
       // 3. Menambahkan data ke stream
       streamController.add([notif1, notif2]);

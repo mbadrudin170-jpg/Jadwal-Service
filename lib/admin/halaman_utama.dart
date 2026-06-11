@@ -10,8 +10,8 @@ import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
-import 'package:wifi/fitur/dompet/page/wallet_page.dart';
 import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/dompet/page/wallet_page.dart';
 import 'package:wifi/fitur/order/ui/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -31,9 +31,9 @@ class HalamanUtama extends ConsumerStatefulWidget {
 
 class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin<HalamanUtama> {
-  late StreamSubscription<List<ConnectivityResult>> _koneksiSubscription;
+  late StreamSubscription<List<ConnectivityResult>> _langgananKoneksi;
   late final SyncCheckService _syncService;
-  bool _sedangSinkronisasi = false;
+  bool _sedangSync = false;
   int _selectedIndex = 0;
 
   @override
@@ -44,7 +44,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       Log.info('Aplikasi kembali ke foreground, memicu sinkronisasi.');
-      unawaited(_sinkronisasiDataSaatOnline());
+      unawaited(_syncJikaOnline());
     }
   }
 
@@ -57,32 +57,32 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     _syncService = ref.read(syncCheckServiceProvider);
     WidgetsBinding.instance.addObserver(this);
 
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
-      _initAsync();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initAwal();
     });
 
-    _koneksiSubscription = Connectivity().onConnectivityChanged.listen(
-          _onKoneksiBerubah,
+    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(
+          _koneksiBerubah,
         );
   }
 
-  Future<void> _initAsync() async {
-    await _handleInitialNotification();
-    await _scheduleSync();
+  Future<void> _initAwal() async {
+    await _prosesNotifAwal();
+    await _jadwalkanSinkron();
     if (!mounted) return;
     _cekDanTampilkanPesanOffline();
     Log.info('Menjalankan pengecekan langganan kadaluarsa.');
 
     final expiredService = ref.read(expiredSubscriptionCheckServiceProvider);
     await expiredService.processExpiredSubscriptions();
-    await _sinkronisasiDataSaatOnline().timeout(const Duration(seconds: 5));
+    await _syncJikaOnline().timeout(const Duration(seconds: 5));
   }
 
   @override
   void dispose() {
     Log.info('Menutup HalamanUtama');
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(_koneksiSubscription.cancel());
+    unawaited(_langgananKoneksi.cancel());
     super.dispose();
   }
 
@@ -92,7 +92,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     });
   }
 
-  Future<void> _scheduleSync() async {
+  Future<void> _jadwalkanSinkron() async {
     await Workmanager().registerPeriodicTask(
       '1',
       syncTaskName,
@@ -102,28 +102,28 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
-  Future<void> _onKoneksiBerubah(final List<ConnectivityResult> hasil) async {
+  Future<void> _koneksiBerubah(List<ConnectivityResult> hasil) async {
     final terkoneksi = hasil.contains(ConnectivityResult.mobile) ||
         hasil.contains(ConnectivityResult.wifi);
     if (terkoneksi) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
-      await _sinkronisasiDataSaatOnline();
+      await _syncJikaOnline();
     } else {
       Log.warning('Koneksi terputus.');
     }
   }
 
-  Future<void> _sinkronisasiDataSaatOnline() async {
-    if (_sedangSinkronisasi) return;
+  Future<void> _syncJikaOnline() async {
+    if (_sedangSync) return;
     Log.info('Memulai sinkronisasi data.');
-    if (mounted) setState(() => _sedangSinkronisasi = true);
+    if (mounted) setState(() => _sedangSync = true);
     try {
       await _syncService.runSyncCheck();
       Log.info('Sinkronisasi data selesai.');
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, st: s);
     } finally {
-      if (mounted) setState(() => _sedangSinkronisasi = false);
+      if (mounted) setState(() => _sedangSync = false);
     }
   }
 
@@ -137,7 +137,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     }
   }
 
-  Future<void> _handleInitialNotification() async {
+  Future<void> _prosesNotifAwal() async {
     final prefs = await SharedPreferences.getInstance();
     final payload = prefs.getString('initial_notification_payload');
     if (payload != null && payload.isNotEmpty) {
@@ -149,7 +149,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     }
   }
 
-  final _widgetOptions = <Widget>[
+  final _halamanTab = <Widget>[
     const ActiveCustomerPage(),
     const WalletPage(),
     const TransactionPageA(),
@@ -159,10 +159,10 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   ];
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
+      body: IndexedStack(index: _selectedIndex, children: _halamanTab),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[

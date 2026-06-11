@@ -124,7 +124,7 @@ class NotifikasiServis {
   /// Wajib dipanggil sebelum menggunakan fitur notifikasi lainnya.
   ///
   /// [iconName] adalah nama resource drawable untuk ikon notifikasi Android.
-  Future<void> inisialisasi({required final String iconName}) async {
+  Future<void> initNotif({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
 
     await _inisialisasiZonaWaktu();
@@ -192,7 +192,7 @@ class NotifikasiServis {
     }
   }
 
-  void pantauNotifikasiUmum(NotifikasiOpFirebase notifikasiOp) {
+  void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
     _langgananNotifikasiFirebase?.cancel();
     _langgananNotifikasiFirebase =
@@ -212,7 +212,7 @@ class NotifikasiServis {
     });
   }
 
-  void pantauNotifikasiUser(NotifikasiOpFirebase notifikasiOp, String userId) {
+  void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
 
     _langgananNotifikasiFirebase?.cancel();
@@ -454,7 +454,7 @@ class NotifikasiServis {
 
   // 9. Membatalkan notifikasi tertentu
   /// Membatalkan notifikasi yang terjadwal atau yang sedang ditampilkan.
-  Future<void> batalNotifikasi(final int id) async {
+  Future<void> batalNotifikasi(int id) async {
     Log.info('Membatalkan notifikasi aktif/terjadwal dengan ID: $id');
     try {
       await plugin.cancel(id: id);

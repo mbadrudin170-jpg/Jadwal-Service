@@ -163,7 +163,7 @@ void main() {
     when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
     when(mockPrefs.remove(any)).thenAnswer((_) async => true);
 
-    when(mockNotifikasiServis.inisialisasi(iconName: anyNamed('iconName')))
+    when(mockNotifikasiServis.initNotif(iconName: anyNamed('iconName')))
         .thenAnswer((_) async {});
     when(mockNotifikasiServis.requestPermissions()).thenAnswer((_) async {});
     when(mockNotifikasiServis.getDetailPeluncuranNotifikasi())

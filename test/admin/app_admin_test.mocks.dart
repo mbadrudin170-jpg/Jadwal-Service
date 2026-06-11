@@ -378,10 +378,10 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
       );
 
   @override
-  _i7.Future<void> inisialisasi({required String? iconName}) =>
+  _i7.Future<void> initNotif({required String? iconName}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #inisialisasi,
+          #initNotif,
           [],
           {#iconName: iconName},
         ),
@@ -390,23 +390,23 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
       ) as _i7.Future<void>);
 
   @override
-  void pantauNotifikasiUmum(_i10.NotifikasiOpFirebase? notifikasiOp) =>
+  void pantauNotifUmum(_i10.NotifikasiOpFirebase? notifikasiOp) =>
       super.noSuchMethod(
         Invocation.method(
-          #pantauNotifikasiUmum,
+          #pantauNotifUmum,
           [notifikasiOp],
         ),
         returnValueForMissingStub: null,
       );
 
   @override
-  void pantauNotifikasiUser(
+  void pantauNotifUser(
     _i10.NotifikasiOpFirebase? notifikasiOp,
     String? userId,
   ) =>
       super.noSuchMethod(
         Invocation.method(
-          #pantauNotifikasiUser,
+          #pantauNotifUser,
           [
             notifikasiOp,
             userId,

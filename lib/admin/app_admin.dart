@@ -59,7 +59,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     try {
       await BackgroundService.init();
 
-      await notifikasiServis.inisialisasi(iconName: 'ic_notification');
+      await notifikasiServis.initNotif(iconName: 'ic_notification');
       await notifikasiServis.requestPermissions();
 
       final launchDetails =

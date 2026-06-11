@@ -47,7 +47,7 @@ void pengontrolNotifikasi(Ref ref) {
   if (role == AppRole.admin) {
     // LOGIKA UNTUK ADMIN
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
-    servis.pantauNotifikasiUmum(notifikasiOp);
+    servis.pantauNotifUmum(notifikasiOp);
   } else {
     // LOGIKA UNTUK USER
     Log.info('Mode User: Menyiapkan listener untuk status login.');
@@ -58,7 +58,7 @@ void pengontrolNotifikasi(Ref ref) {
           if (customer != null) {
             Log.info(
                 'User login terdeteksi, memulai pemantauan untuk ${customer.id}');
-            servis.pantauNotifikasiUser(notifikasiOp, customer.id);
+            servis.pantauNotifUser(notifikasiOp, customer.id);
           } else {
             Log.info(
                 'User logout terdeteksi, menghentikan pemantauan notifikasi.');
