@@ -420,7 +420,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
 
       final internetService = ref.read(internetConnectionServiceProvider);
-      final isOnline = await internetService.checkLocalConnection();
+      final isOnline = await internetService.cekKoneksiLokal();
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');

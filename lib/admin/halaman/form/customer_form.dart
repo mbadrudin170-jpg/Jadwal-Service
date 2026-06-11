@@ -115,7 +115,7 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
         if (!mounted) return;
 
         final cekKoneksi = ref.read(internetConnectionServiceProvider);
-        final hasConnection = await cekKoneksi.checkLocalConnection();
+        final hasConnection = await cekKoneksi.cekKoneksiLokal();
         if (hasConnection) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
           final syncCheckService = ref.read(syncCheckServiceProvider);

@@ -70,9 +70,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       Log.info('Memulai inisialisasi dari Splash Screen...');
       await _initializeOfflineServices();
 
-      final isConnected = await ref
-          .watch(internetConnectionServiceProvider)
-          .checkLocalConnection();
+      final isConnected =
+          await ref.watch(internetConnectionServiceProvider).cekKoneksiLokal();
 
       if (isConnected) {
         await _initializeOnlineServices();
@@ -196,9 +195,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
     final akunAktif = pengelolaAkun.akunSaatIni;
 
     if (akunAktif != null) {
-      final isConnected = await ref
-          .read(internetConnectionServiceProvider)
-          .checkLocalConnection();
+      final isConnected =
+          await ref.read(internetConnectionServiceProvider).cekKoneksiLokal();
 
       if (isConnected) {
         final userActivityService =

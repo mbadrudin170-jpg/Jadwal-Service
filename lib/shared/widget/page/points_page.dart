@@ -143,7 +143,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         ref.invalidate(pointsHistoryProvider);
 
         final cekKoneksi = ref.read(internetConnectionServiceProvider);
-        final isConnected = await cekKoneksi.checkLocalConnection();
+        final isConnected = await cekKoneksi.cekKoneksiLokal();
         if (isConnected) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

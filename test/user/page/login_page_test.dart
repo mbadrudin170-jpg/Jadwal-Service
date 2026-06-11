@@ -51,7 +51,7 @@ void main() {
     mockLayananPenyimpananLokal = MockLayananPenyimpananLokal();
 
     // Stubbing default behaviors
-    when(() => mockInternetConnectionService.checkLocalConnection())
+    when(() => mockInternetConnectionService.cekKoneksiLokal())
         .thenAnswer((_) async => true);
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())

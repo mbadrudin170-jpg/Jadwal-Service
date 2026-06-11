@@ -322,19 +322,19 @@ class MockSharedPreferences extends _i1.Mock implements _i6.SharedPreferences {
       ) as _i7.Future<void>);
 }
 
-/// A class which mocks [InternetKoneksiService].
+/// A class which mocks [KoneksiInternetService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInternetKoneksiService extends _i1.Mock
+class MockKoneksiInternetService extends _i1.Mock
     implements _i8.KoneksiInternetService {
-  MockInternetKoneksiService() {
+  MockKoneksiInternetService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i7.Future<bool> checkLocalConnection() => (super.noSuchMethod(
+  _i7.Future<bool> cekKoneksiLokal() => (super.noSuchMethod(
         Invocation.method(
-          #checkLocalConnection,
+          #cekKoneksiLokal,
           [],
         ),
         returnValue: _i7.Future<bool>.value(false),

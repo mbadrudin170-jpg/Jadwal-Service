@@ -37,7 +37,7 @@ class KoneksiInternetService {
   }
 
   /// mengecek apakah perangkat terhubung ke wifi ataupun data
-  Future<bool> checkLocalConnection() async {
+  Future<bool> cekKoneksiLokal() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {
       final connectivityResult = await _connectivity.checkConnectivity();
@@ -68,7 +68,7 @@ class KoneksiInternetService {
     Log.info('[Internet] Memulai pemeriksaan konektivitas internet penuh...');
 
     // Langkah 1: Cek koneksi lokal terlebih dahulu.
-    final hasLocalConnection = await checkLocalConnection();
+    final hasLocalConnection = await cekKoneksiLokal();
     if (!hasLocalConnection) {
       Log.warning(
           '[Internet] ❌ Gagal: Pemeriksaan dihentikan karena tidak ada koneksi lokal.');

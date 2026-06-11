@@ -110,19 +110,19 @@ void main() {
     test('1. harus mengembalikan true untuk wifi', () async {
       when(mockConnectivity.checkConnectivity())
           .thenAnswer((_) async => [ConnectivityResult.wifi]);
-      expect(await internetService.checkLocalConnection(), isTrue);
+      expect(await internetService.cekKoneksiLokal(), isTrue);
     });
 
     test('2. harus mengembalikan true untuk mobile', () async {
       when(mockConnectivity.checkConnectivity())
           .thenAnswer((_) async => [ConnectivityResult.mobile]);
-      expect(await internetService.checkLocalConnection(), isTrue);
+      expect(await internetService.cekKoneksiLokal(), isTrue);
     });
 
     test('3. harus mengembalikan false untuk none', () async {
       when(mockConnectivity.checkConnectivity())
           .thenAnswer((_) async => [ConnectivityResult.none]);
-      expect(await internetService.checkLocalConnection(), isFalse);
+      expect(await internetService.cekKoneksiLokal(), isFalse);
     });
   });
 }

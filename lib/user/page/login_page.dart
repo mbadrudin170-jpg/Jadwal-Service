@@ -70,7 +70,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     try {
       final internetService = ref.read(internetConnectionServiceProvider);
-      final isConnected = await internetService.checkLocalConnection();
+      final isConnected = await internetService.cekKoneksiLokal();
       if (!mounted) return;
       if (!isConnected) {
         ToastUtil.error(

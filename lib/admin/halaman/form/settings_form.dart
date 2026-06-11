@@ -79,8 +79,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
         Log.info('Pengaturan berhasil diperbarui di database.');
         final internetConnectionService =
             ref.read(internetConnectionServiceProvider);
-        final hasConnection =
-            await internetConnectionService.checkLocalConnection();
+        final hasConnection = await internetConnectionService.cekKoneksiLokal();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();
