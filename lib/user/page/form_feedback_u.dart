@@ -2,24 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
+import 'package:wifi/user/providers/user_providers.dart';
 
 /// Halaman formulir untuk mengirim atau mengedit kritik dan saran.
 class FormKritikDanSaran extends ConsumerStatefulWidget {
-  final String userId;
-
   final String? kritikId;
 
-  final String? initialValue;
+  final String? content;
   const FormKritikDanSaran({
     super.key,
-    required this.userId,
     this.kritikId,
-    this.initialValue,
+    this.content,
   });
 
   @override
@@ -30,30 +29,33 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
   final _formKey = GlobalKey<FormState>();
   final _feedbackController = TextEditingController();
   bool _isLoading = false;
+  bool get _isModeEdit => widget.kritikId != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialValue != null) {
-      _feedbackController.text = widget.initialValue!;
+    if (widget.content != null) {
+      _feedbackController.text = widget.content!;
     }
   }
 
   Future<void> _saveForm() async {
+    final userId = ref.watch(userIdProvider).value ?? '';
     final feedbackOpFirebase = ref.read(feedbackOpFirebaseProvider);
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
-        if (widget.kritikId != null) {
+        if (_isModeEdit) {
           await feedbackOpFirebase.update(
               widget.kritikId!, _feedbackController.text);
         } else {
-          final newFeedback = FeedbackModel(
+          final dataBaru = FeedbackModel(
+            id: const Uuid().v4(),
             content: _feedbackController.text,
-            userId: widget.userId,
+            userId: userId,
           );
-          await feedbackOpFirebase.create(newFeedback);
+          await feedbackOpFirebase.create(dataBaru);
         }
 
         if (mounted) {
@@ -79,10 +81,10 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.kritikId != null ? 'Edit Masukan' : 'Beri Masukan'),
+        title: Text(_isModeEdit ? 'Edit Masukan' : 'Beri Masukan'),
         centerTitle: true,
       ),
       body: Padding(
@@ -100,7 +102,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
                   alignLabelWithHint: true,
                 ),
                 maxLines: 5,
-                validator: (final value) {
+                validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Mohon jangan biarkan kolom ini kosong.';
                   }

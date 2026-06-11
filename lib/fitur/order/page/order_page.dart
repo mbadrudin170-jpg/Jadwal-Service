@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
+import 'package:wifi/fitur/order/provider/order_provider_gabungan.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -158,12 +159,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
+    final orderOp = ref.watch(orderProvider);
     final appRole = ref.watch(appRoleProvider);
     final userId = ref.watch(userIdProvider).value ?? '';
-    final dataSqlite =
-        ref.watch(orderOperationProvider).getAllActiveOrdersStream();
-    final dataFirebase =
-        ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
 
     Log.info(
         '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
@@ -179,9 +177,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             children: [
               _listTombolFilter(userId),
               Expanded(
-                child: appRole == AppRole.admin
-                    ? _listPesanan(dataSqlite)
-                    : _listPesanan(dataFirebase),
+                child: _listPesanan(orderOp),
               ),
             ],
           ),
@@ -212,6 +208,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
   Widget _tombolTipe(StatusOrderEnum status, String userId,
       {required bool isActive}) {
+        final orderOp = ref.watch(orderProvider);
     final label = status.displayName;
     final appRole = ref.watch(appRoleProvider);
     final dataSqlite =

@@ -17,82 +17,58 @@ class FeedbackHistoryUser extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userIdAsync = ref.watch(userIdProvider);
+    final userId = ref.watch(userIdProvider).value ?? '';
+    final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Masukan'),
       ),
-      body: userIdAsync.when(
+      body: feedbackAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) =>
-            Center(child: Text('Gagal memuat ID Pengguna: $err')),
-        data: (userId) {
-          if (userId == null) {
+        error: (e, st) => Center(child: Text('Gagal memuat masukan: $e')),
+        data: (feedbacks) {
+          if (feedbacks.isEmpty) {
             return const Center(
-              child: Text('Silakan login untuk melihat riwayat masukan.'),
+              child: Text('Anda belum pernah mengirim masukan.'),
             );
           }
-
-          // Menggunakan StreamProvider baru untuk data feedback
-          final feedbackAsync = ref.watch(feedbackStreamProvider(userId));
-
-          return feedbackAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) =>
-                Center(child: Text('Gagal memuat masukan: $err')),
-            data: (feedbacks) {
-              if (feedbacks.isEmpty) {
-                return const Center(
-                  child: Text('Anda belum pernah mengirim masukan.'),
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: feedbacks.length,
-                itemBuilder: (context, index) {
-                  final feedback = feedbacks[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      onTap: () =>
-                          _showOptionsDialog(context, ref, feedback, userId),
-                      title: Text(feedback.content),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          feedback.date != null
-                              ? FormatDateTime.formatDateAndTimeCompact(
-                                  feedback.date!)
-                              : '',
-                          style:
-                              const TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ),
+          return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: feedbacks.length,
+            itemBuilder: (context, index) {
+              final feedback = feedbacks[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ListTile(
+                  onTap: () =>
+                      _showOptionsDialog(context, ref, feedback, userId),
+                  title: Text(feedback.content),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      feedback.date != null
+                          ? FormatDateTime.formatDateAndTimeCompact(
+                              feedback.date!)
+                          : '',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                  );
-                },
+                  ),
+                ),
               );
             },
           );
         },
       ),
-      floatingActionButton: userIdAsync.when(
-        data: (userId) {
-          if (userId == null) return null;
-          return FloatingActionButton.extended(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                builder: (context) => FormKritikDanSaran(userId: userId),
-              ),
-            ),
-            label: const Text('Beri Masukan'),
-            icon: const Icon(TIcons.add),
-          );
-        },
-        loading: () => const SizedBox.shrink(),
-        error: (_, __) => const SizedBox.shrink(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => const FormKritikDanSaran(),
+          ),
+        ),
+        label: const Text('Beri Masukan'),
+        icon: const Icon(TIcons.add),
       ),
     );
   }
@@ -109,8 +85,7 @@ class FeedbackHistoryUser extends ConsumerWidget {
               child: const Text('Hapus', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await _showDeleteConfirmationAndExecute(
-                    context, ref, feedback.id, userId);
+                await _dialogHapus(context, ref, feedback.id, userId);
               },
             ),
             TextButton(
@@ -121,9 +96,8 @@ class FeedbackHistoryUser extends ConsumerWidget {
                   context,
                   MaterialPageRoute<void>(
                     builder: (_) => FormKritikDanSaran(
-                      userId: userId,
                       kritikId: feedback.id,
-                      initialValue: feedback.content,
+                      content: feedback.content,
                     ),
                   ),
                 );
@@ -139,9 +113,9 @@ class FeedbackHistoryUser extends ConsumerWidget {
     );
   }
 
-  Future<void> _showDeleteConfirmationAndExecute(
+  Future<void> _dialogHapus(
       BuildContext context, WidgetRef ref, String docId, String userId) async {
-    final bool? shouldDelete = await showDialog<bool>(
+    final bool? konfirmasi = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
@@ -162,11 +136,10 @@ class FeedbackHistoryUser extends ConsumerWidget {
       },
     );
 
-    if (shouldDelete ?? false) {
+    if (konfirmasi ?? false) {
       try {
         final feedbackOp = ref.read(feedbackOpFirebaseProvider);
         await feedbackOp.softDeleteFeedback(docId);
-        // Invalidate stream provider agar UI memuat ulang data terbaru
         ref.invalidate(feedbackStreamProvider(userId));
         ToastUtil.success(context, 'Masukan berhasil dihapus.');
       } on Exception catch (e) {

@@ -33,15 +33,12 @@ class FeedbackOpFirebase {
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
     data[ColumnNames.date] = FieldValue.serverTimestamp();
-    // 3. Kirim data yang sudah diperkaya ke operasi dasar.
     await _baseOp.add(_collectionName, data);
   }
 
   /// Memperbarui isi feedback.
   Future<void> update(String docId, String newContent) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
-    // Di sini kita tidak menambahkan `date` karena ini adalah pembaruan,
-    // tanggal pembuatan asli harus dipertahankan.
     await _baseOp.update(_collectionName, docId, {
       ColumnNames.content: newContent,
     });
@@ -64,23 +61,22 @@ class FeedbackOpFirebase {
   // =======================================================================
 
   /// Membaca semua feedback oleh pengguna tertentu.
-  Stream<List<FeedbackModel>> getByUser(final String userId) {
+  Stream<List<FeedbackModel>> getByUser(String userId) {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(ColumnNames.userId, isEqualTo: userId)
         .where(ColumnNames.isDeleted, isEqualTo: false)
-        .orderBy(ColumnNames.updatedAt, descending: true)
+        .orderBy(ColumnNames.date, descending: true)
         .snapshots()
-        .map((final snapshot) {
-      return snapshot.docs.map((final doc) {
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
         return FeedbackModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,
         );
       }).toList();
-    }).handleError((final Object e, final StackTrace s) {
+    }).handleError((e, StackTrace s) {
       Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
     });
   }
 }
-
