@@ -25,22 +25,18 @@ abstract class PoinState with _$PoinState {
 @riverpod
 class Poin extends _$Poin {
   @override
-  FutureOr<PoinState> build(String customerId) {
-    return _initAwal(ref, customerId);
+  FutureOr<PoinState> build(Ref ref, String customerId) async {
+    final dataSource = ref.watch(pointsDataSourceProvider);
+
+    final rewards = await dataSource.getPublicPackages();
+    final transaksi = await dataSource.getPointsTransactions(customerId);
+    final totalPoin = await dataSource.getTotalPoints(customerId);
+    return PoinState(
+      rewards: rewards,
+      transaksi: transaksi,
+      totalPoin: totalPoin,
+    );
   }
-}
-
-Future<PoinState> _initAwal(Ref ref, String customerId) async {
-  final dataSource = ref.watch(pointsDataSourceProvider);
-
-  final rewards = await dataSource.getPublicPackages();
-  final transaksi = await dataSource.getPointsTransactions(customerId);
-  final totalPoin = await dataSource.getTotalPoints(customerId);
-  return PoinState(
-    rewards: rewards,
-    transaksi: transaksi,
-    totalPoin: totalPoin,
-  );
 }
 
 @riverpod

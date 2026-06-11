@@ -14,7 +14,12 @@ final poinProvider = PoinFamily._();
 
 final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   PoinProvider._(
-      {required PoinFamily super.from, required String super.argument})
+      {required PoinFamily super.from,
+      required (
+        Ref,
+        String,
+      )
+          super.argument})
       : super(
           retry: null,
           name: r'poinProvider',
@@ -30,7 +35,7 @@ final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   String toString() {
     return r'poinProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -48,12 +53,19 @@ final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   }
 }
 
-String _$poinHash() => r'd5e0d3fd8fee54d55dabb78a309e380fceff62b2';
+String _$poinHash() => r'8c210f01cd53f9e4c3270deb721f136a1de90988';
 
 final class PoinFamily extends $Family
     with
-        $ClassFamilyOverride<Poin, AsyncValue<PoinState>, PoinState,
-            FutureOr<PoinState>, String> {
+        $ClassFamilyOverride<
+            Poin,
+            AsyncValue<PoinState>,
+            PoinState,
+            FutureOr<PoinState>,
+            (
+              Ref,
+              String,
+            )> {
   PoinFamily._()
       : super(
           retry: null,
@@ -64,19 +76,28 @@ final class PoinFamily extends $Family
         );
 
   PoinProvider call(
+    Ref ref,
     String customerId,
   ) =>
-      PoinProvider._(argument: customerId, from: this);
+      PoinProvider._(argument: (
+        ref,
+        customerId,
+      ), from: this);
 
   @override
   String toString() => r'poinProvider';
 }
 
 abstract class _$Poin extends $AsyncNotifier<PoinState> {
-  late final _$args = ref.$arg as String;
-  String get customerId => _$args;
+  late final _$args = ref.$arg as (
+    Ref,
+    String,
+  );
+  Ref get ref => _$args.$1;
+  String get customerId => _$args.$2;
 
   FutureOr<PoinState> build(
+    Ref ref,
     String customerId,
   );
   @$mustCallSuper
@@ -91,7 +112,8 @@ abstract class _$Poin extends $AsyncNotifier<PoinState> {
     return element.handleCreate(
         ref,
         () => build(
-              _$args,
+              _$args.$1,
+              _$args.$2,
             ));
   }
 }
