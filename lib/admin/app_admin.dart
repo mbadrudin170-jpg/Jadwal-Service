@@ -89,7 +89,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
         final initialDownloadService = ref.read(initialDownloadServiceProvider);
         try {
-          await initialDownloadService.runInitialDownload().timeout(
+          await initialDownloadService.jalankanUnduhanAwal().timeout(
                 const Duration(seconds: 30),
               );
           Log.info('Initial download berhasil diselesaikan.');

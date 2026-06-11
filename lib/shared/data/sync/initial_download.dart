@@ -8,131 +8,131 @@ import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
-class InitialDownloadService {
+class LayananUnduhAwal {
   final DatabaseHelper _dbHelper;
-  final DownloadDataService _downloadService;
+  final DownloadDataService _layananUnduh;
 
-  InitialDownloadService({
+  LayananUnduhAwal({
     required DatabaseHelper dbHelper,
-    required DownloadDataService downloadService,
+    required DownloadDataService layananUnduh,
   })  : _dbHelper = dbHelper,
-        _downloadService = downloadService {
+        _layananUnduh = layananUnduh {
     Log.info(
         'InitialDownloadService diinisialisasi dengan dependency injection.');
   }
 
-  Future<void> runInitialDownload() async {
+  Future<void> jalankanUnduhanAwal() async {
     Log.info('Memulai sinkronisasi awal: Mengecek tabel lokal yang kosong...');
-    final stopwatch = Stopwatch()..start();
+    final pengukurWaktu = Stopwatch()..start();
 
-    await _downloadPackageDataIfEmpty();
-    await _downloadCategoryDataIfEmpty();
-    await _downloadSubCategoryDataIfEmpty();
-    await _downloadWalletDataIfEmpty();
-    await _downloadCustomerDataIfEmpty();
-    await _downloadApkVersionDataIfEmpty();
-    await _downloadSettingsDataIfEmpty();
-    await _downloadActiveCustomerDataIfEmpty();
-    await _downloadTransactionDataIfEmpty();
-    await _downloadFeedbackDataIfEmpty();
-    await _downloadOrderDataIfEmpty();
+    await _unduhDataPaketJikaKosong();
+    await _unduhDataKategoriJikaKosong();
+    await _unduhDataSubKategoriJikaKosong();
+    await _unduhDataDompetJikaKosong();
+    await _unduhDataPelangganJikaKosong();
+    await _unduhDataVersiApkJikaKosong();
+    await _unduhDataPengaturanJikaKosong();
+    await _unduhDataPelangganAktifJikaKosong();
+    await _unduhDataTransaksiJikaKosong();
+    await _unduhDataUmpanBalikJikaKosong();
+    await _unduhDataPesananJikaKosong();
 
-    stopwatch.stop();
+    pengukurWaktu.stop();
     Log.info(
-        'Proses unduhan awal selesai dalam ${stopwatch.elapsed.inSeconds} detik.');
+        'Proses unduhan awal selesai dalam ${pengukurWaktu.elapsed.inSeconds} detik.');
   }
 
-  Future<bool> _isTableEmpty(String tableName) async {
+  Future<bool> _apakahTabelKosong(String namaTabel) async {
     try {
       final db = await _dbHelper.database;
       final result =
-          await db.rawQuery('SELECT COUNT(*) as count FROM $tableName');
-      final count = Sqflite.firstIntValue(result) ?? 0;
-      Log.info("Tabel '$tableName': $count baris.");
-      return count == 0;
+          await db.rawQuery('SELECT COUNT(*) as count FROM $namaTabel');
+      final jumlah = Sqflite.firstIntValue(result) ?? 0;
+      Log.info("Tabel '$namaTabel': $jumlah baris.");
+      return jumlah == 0;
     } on Exception catch (e, st) {
-      Log.error("Gagal mengecek tabel '$tableName'.", e: e, st: st);
+      Log.error("Gagal mengecek tabel '$namaTabel'.", e: e, st: st);
       return false;
     }
   }
 
-  Future<void> _downloadIfEmpty({
-    required String tableName,
-    required Future<void> Function() downloadFunction,
+  Future<void> _unduhJikaKosong({
+    required String namaTabel,
+    required Future<void> Function() fungsiUnduh,
   }) async {
     try {
-      if (await _isTableEmpty(tableName)) {
-        Log.info("Memulai unduh data untuk '$tableName'...");
-        await downloadFunction();
-        Log.info("Data '$tableName' berhasil disimpan ke lokal.");
+      if (await _apakahTabelKosong(namaTabel)) {
+        Log.info("Memulai unduh data untuk '$namaTabel'...");
+        await fungsiUnduh();
+        Log.info("Data '$namaTabel' berhasil disimpan ke lokal.");
       } else {
-        Log.info("Skip '$tableName' (Sudah ada data).");
+        Log.info("Lewati '$namaTabel' (Sudah ada data).");
       }
     } on Exception catch (e, s) {
-      Log.error("ERROR saat mengunduh '$tableName'", e: e, st: s);
+      Log.error("ERROR saat mengunduh '$namaTabel'", e: e, st: s);
     }
   }
 
-  Future<void> _downloadPackageDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.package),
-        downloadFunction: _downloadService.downloadPackageData,
+  Future<void> _unduhDataPaketJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.package),
+        fungsiUnduh: _layananUnduh.downloadPackageData,
       );
 
-  Future<void> _downloadCategoryDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.category),
-        downloadFunction: _downloadService.downloadCategoryData,
+  Future<void> _unduhDataKategoriJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.category),
+        fungsiUnduh: _layananUnduh.downloadCategoryData,
       );
 
-  Future<void> _downloadSubCategoryDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.subCategory),
-        downloadFunction: _downloadService.downloadSubCategoryData,
+  Future<void> _unduhDataSubKategoriJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.subCategory),
+        fungsiUnduh: _layananUnduh.downloadSubCategoryData,
       );
 
-  Future<void> _downloadWalletDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.wallet),
-        downloadFunction: _downloadService.downloadWalletData,
+  Future<void> _unduhDataDompetJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.wallet),
+        fungsiUnduh: _layananUnduh.downloadWalletData,
       );
 
-  Future<void> _downloadCustomerDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.customer),
-        downloadFunction: _downloadService.downloadCustomerData,
+  Future<void> _unduhDataPelangganJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.customer),
+        fungsiUnduh: _layananUnduh.downloadCustomerData,
       );
 
-  Future<void> _downloadApkVersionDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.userApkVersion),
-        downloadFunction: _downloadService.downloadApkVersionData,
+  Future<void> _unduhDataVersiApkJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.userApkVersion),
+        fungsiUnduh: _layananUnduh.downloadApkVersionData,
       );
 
-  Future<void> _downloadSettingsDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.settings),
-        downloadFunction: _downloadService.downloadSettingsData,
+  Future<void> _unduhDataPengaturanJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.settings),
+        fungsiUnduh: _layananUnduh.downloadSettingsData,
       );
 
-  Future<void> _downloadActiveCustomerDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.activeCustomer),
-        downloadFunction: _downloadService.downloadActiveCustomerData,
+  Future<void> _unduhDataPelangganAktifJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.activeCustomer),
+        fungsiUnduh: _layananUnduh.downloadActiveCustomerData,
       );
 
-  Future<void> _downloadTransactionDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.transactions),
-        downloadFunction: _downloadService.downloadTransactionData,
+  Future<void> _unduhDataTransaksiJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.transactions),
+        fungsiUnduh: _layananUnduh.downloadTransactionData,
       );
 
-  Future<void> _downloadFeedbackDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.feedback),
-        downloadFunction: _downloadService.downloadFeedbackData,
+  Future<void> _unduhDataUmpanBalikJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.feedback),
+        fungsiUnduh: _layananUnduh.downloadFeedbackData,
       );
 
-  Future<void> _downloadOrderDataIfEmpty() => _downloadIfEmpty(
-        tableName: TableNameValue.get(TableName.customerOrder),
-        downloadFunction: _downloadService.downloadOrderData,
+  Future<void> _unduhDataPesananJikaKosong() => _unduhJikaKosong(
+        namaTabel: TableNameValue.get(TableName.customerOrder),
+        fungsiUnduh: _layananUnduh.downloadOrderData,
       );
 }
 
 // ✅ HANYA SATU PROVIDER - gunakan Provider biasa
-final initialDownloadServiceProvider = Provider<InitialDownloadService>((ref) {
-  return InitialDownloadService(
+final initialDownloadServiceProvider = Provider<LayananUnduhAwal>((ref) {
+  return LayananUnduhAwal(
     dbHelper: ref.read(databaseHelperProvider),
-    downloadService: ref.read(downloadDataServiceProvider),
+    layananUnduh: ref.read(downloadDataServiceProvider),
   );
 });

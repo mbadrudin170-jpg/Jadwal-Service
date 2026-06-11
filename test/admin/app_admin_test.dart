@@ -102,7 +102,7 @@ class MockWorkmanagerPlatform extends Mock
   SharedPreferences,
   InternetConnectionService,
   NotifikasiServis,
-  InitialDownloadService,
+  LayananUnduhAwal,
   ActiveCustomerOperation,
   SettingsOperation,
   DataCleaningOperation,

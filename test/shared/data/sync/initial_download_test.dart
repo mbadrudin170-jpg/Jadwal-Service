@@ -11,7 +11,7 @@ import 'initial_download_test.mocks.dart';
 
 @GenerateMocks([DownloadDataService, DatabaseHelper, Database])
 void main() {
-  late InitialDownloadService initialDownloadService;
+  late LayananUnduhAwal initialDownloadService;
   late MockDownloadDataService mockDownloadDataService;
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDb;
@@ -24,7 +24,7 @@ void main() {
     // Mock DatabaseHelper agar mengembalikan mock database
     when(mockDbHelper.database).thenAnswer((_) async => mockDb);
 
-    initialDownloadService = InitialDownloadService(
+    initialDownloadService = LayananUnduhAwal(
       downloadService: mockDownloadDataService,
       dbHelper: mockDbHelper,
     );
@@ -62,7 +62,7 @@ void main() {
       when(mockDownloadDataService.downloadOrderData())
           .thenAnswer((_) async {});
 
-      await initialDownloadService.runInitialDownload();
+      await initialDownloadService.jalankanUnduhanAwal();
 
       // Verifikasi bahwa orchestration memanggil fungsi download
       verify(mockDownloadDataService.downloadPackageData()).called(1);
@@ -70,14 +70,15 @@ void main() {
       verify(mockDownloadDataService.downloadWalletData()).called(1);
     });
 
-    test('2. runInitialDownload harus melewati unduh jika tabel sudah memiliki data',
+    test(
+        '2. runInitialDownload harus melewati unduh jika tabel sudah memiliki data',
         () async {
       // Mock query count mengembalikan nilai > 0 (tabel tidak kosong)
       when(mockDb.rawQuery(any)).thenAnswer((_) async => [
             {'count': 10}
           ]);
 
-      await initialDownloadService.runInitialDownload();
+      await initialDownloadService.jalankanUnduhanAwal();
 
       // Verifikasi bahwa fungsi download tidak pernah dipanggil
       verifyNever(mockDownloadDataService.downloadPackageData());

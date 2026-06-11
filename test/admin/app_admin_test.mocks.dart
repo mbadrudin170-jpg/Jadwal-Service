@@ -542,19 +542,18 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
       ) as _i7.Future<bool>);
 }
 
-/// A class which mocks [InitialDownloadService].
+/// A class which mocks [LayananUnduhAwal].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInitialDownloadService extends _i1.Mock
-    implements _i11.InitialDownloadService {
-  MockInitialDownloadService() {
+class MockLayananUnduhAwal extends _i1.Mock implements _i11.LayananUnduhAwal {
+  MockLayananUnduhAwal() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i7.Future<void> runInitialDownload() => (super.noSuchMethod(
+  _i7.Future<void> jalankanUnduhanAwal() => (super.noSuchMethod(
         Invocation.method(
-          #runInitialDownload,
+          #jalankanUnduhanAwal,
           [],
         ),
         returnValue: _i7.Future<void>.value(),
