@@ -6,7 +6,7 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/fitur/poin/poin/points_page_data_source.dart' as _i2;
+import 'package:wifi/fitur/poin/provider/points_page_data_source.dart' as _i2;
 import 'package:wifi/shared/model/package_model.dart' as _i4;
 import 'package:wifi/shared/model/transaction_model.dart' as _i5;
 

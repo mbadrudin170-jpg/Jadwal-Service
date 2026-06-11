@@ -49,6 +49,7 @@ class Wallet extends _$Wallet {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.tambahDompet(wallet);
+      
       return _loadData();
     });
   }

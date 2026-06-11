@@ -89,7 +89,7 @@ void main() {
     });
 
     test(
-        '5. deleteAllWallets harus menjalankan operasi kompleks untuk menghapus semua',
+        '5. softDeleteAll harus menjalankan operasi kompleks untuk menghapus semua',
         () async {
       // Pindahkan stub untuk mockTransaction ke luar dari thenAnswer
       when(mockTransaction.delete(any)).thenAnswer((_) async => 1);
@@ -105,12 +105,10 @@ void main() {
       });
 
       // Panggil metode yang diuji
-      await walletOperation.deleteAllWallets();
+      await walletOperation.softDeleteAll();
 
       // Verifikasi bahwa runComplexOperation dipanggil
-      verify(mockBaseOperation.runComplexOperation<void>(any)).called(1);
-      // Verifikasi juga bahwa delete pada transaction dipanggil di dalam action
-      verify(mockTransaction.delete(tableName)).called(1);
+      verify(mockBaseOperation.softDeleteAll(tableName)).called(1);
     });
 
     test(

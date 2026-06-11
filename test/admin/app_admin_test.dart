@@ -1,4 +1,4 @@
-'''// path: test/admin/app_admin_test.dart
+// path: test/admin/app_admin_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/app_admin.dart';
@@ -51,24 +52,24 @@ class MockWorkmanagerPlatform extends Mock
     implements WorkmanagerPlatform {
   @override
   Future<void> initialize(
-    final Function callbackDispatcher, {
-    final bool isInDebugMode = false,
+    Function callbackDispatcher, {
+    bool isInDebugMode = false,
   }) async {}
 
   @override
   Future<void> registerPeriodicTask(
-    final String uniqueName,
-    final String taskName, {
-    final Duration? frequency,
-    final Duration? flexInterval,
-    final String? tag,
-    final ExistingPeriodicWorkPolicy? existingWorkPolicy,
-    final Duration? initialDelay,
-    final Constraints? constraints,
-    final BackoffPolicy? backoffPolicy,
-    final Duration? backoffPolicyDelay,
-    final OutOfQuotaPolicy? outOfQuotaPolicy,
-    final Map<String, dynamic>? inputData,
+    String uniqueName,
+    String taskName, {
+    Duration? frequency,
+    Duration? flexInterval,
+    String? tag,
+    ExistingPeriodicWorkPolicy? existingWorkPolicy,
+    Duration? initialDelay,
+    Constraints? constraints,
+    BackoffPolicy? backoffPolicy,
+    Duration? backoffPolicyDelay,
+    OutOfQuotaPolicy? outOfQuotaPolicy,
+    Map<String, dynamic>? inputData,
   }) async {}
 
   @override
@@ -155,9 +156,6 @@ void main() {
     when(mockPrefs.setString(any, any)).thenReturn(Future.value(true));
     when(mockPrefs.remove(any)).thenReturn(Future.value(true));
 
-    when(mockNotifikasiServis.initNotif(iconName: anyNamed('iconName')))
-        .thenAnswer((_) async {});
-    when(mockNotifikasiServis.requestPermissions()).thenAnswer((_) async {});
     when(mockNotifikasiServis.getDetailPeluncuranNotifikasi())
         .thenReturn(Future.value(mockLaunchDetails));
     when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
@@ -303,4 +301,3 @@ void main() {
     });
   });
 }
-''

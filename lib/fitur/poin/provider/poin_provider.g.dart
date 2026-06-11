@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'points_page_providers.dart';
+part of 'poin_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -8,6 +8,46 @@ part of 'points_page_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+
+@ProviderFor(Poin)
+final poinProvider = PoinProvider._();
+
+final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
+  PoinProvider._()
+      : super(
+          from: null,
+          argument: null,
+          retry: null,
+          name: r'poinProvider',
+          isAutoDispose: true,
+          dependencies: null,
+          $allTransitiveDependencies: null,
+        );
+
+  @override
+  String debugGetCreateSourceHash() => _$poinHash();
+
+  @$internal
+  @override
+  Poin create() => Poin();
+}
+
+String _$poinHash() => r'8c11435040872e52c5b7c142129f5c4a6b854ce7';
+
+abstract class _$Poin extends $AsyncNotifier<PoinState> {
+  FutureOr<PoinState> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<PoinState>, PoinState>;
+    final element = ref.element as $ClassProviderElement<
+        AnyNotifier<AsyncValue<PoinState>, PoinState>,
+        AsyncValue<PoinState>,
+        Object?,
+        Object?>;
+    return element.handleCreate(ref, build);
+  }
+}
 
 @ProviderFor(pointsDataSource)
 final pointsDataSourceProvider = PointsDataSourceProvider._();

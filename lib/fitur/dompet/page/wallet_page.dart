@@ -27,15 +27,6 @@ class WalletPage extends ConsumerWidget {
         title: const Text('Dompet'),
         actions: [
           IconButton(
-            icon: const Icon(TIcons.refresh),
-            onPressed: () {
-              Log.info('[Aksi Pengguna] Tombol refresh ditekan.');
-              unawaited(ref.read(walletProvider.notifier).refresh());
-              ToastUtil.info(context, 'Menyegarkan data dompet...');
-            },
-            tooltip: 'Segarkan Data',
-          ),
-          IconButton(
             icon: const Icon(TIcons.delete),
             onPressed: () => _showDeleteAllDialog(context, ref),
             tooltip: 'Hapus Semua Dompet',
@@ -156,9 +147,8 @@ class WalletPage extends ConsumerWidget {
                 Navigator.of(dialogContext).pop();
                 ref.read(walletProvider.notifier).softDeleteAll().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
-                }).catchError((e,StackTrace s) {
-                  Log.error('Gagal menghapus semua dompet.',
-                      e: e, st: s);
+                }).catchError((e, StackTrace s) {
+                  Log.error('Gagal menghapus semua dompet.', e: e, st: s);
                   ToastUtil.error(context, 'Gagal menghapus dompet: $e');
                 });
               },

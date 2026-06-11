@@ -5,13 +5,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
 
 class CustomerDetailPage extends ConsumerWidget {
   final String customerId;

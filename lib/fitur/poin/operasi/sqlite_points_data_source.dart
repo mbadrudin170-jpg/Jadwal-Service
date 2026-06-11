@@ -1,8 +1,8 @@
-// path: lib/fitur/poin/poin/sqlite_points_data_source.dart
+// path: lib/fitur/poin/operasi/sqlite_points_data_source.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/poin/poin/points_page_data_source.dart';
+import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';

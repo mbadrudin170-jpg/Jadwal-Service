@@ -19,7 +19,11 @@ abstract class AkunState with _$AkunState {
 @Riverpod(keepAlive: true)
 class PengelolaAkun extends _$PengelolaAkun {
   @override
-  Future<AkunState> build() async {
+  Future<AkunState> build() {
+    return _initAwal(ref);
+  }
+
+  Future<AkunState> _initAwal(Ref ref) async {
     final penyimpanan = await ref.watch(localStorageServiceProvider.future);
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
@@ -77,17 +81,21 @@ class PengelolaAkun extends _$PengelolaAkun {
   Future<void> hapusTokenLogin() async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
     await penyimpanan.hapusTokenLogin();
+
+    final keadaanSaatIni = state.value;
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
-    if (!ref.mounted) return; // Pindah ke sini, setelah await terakhir
+    final daftarAkun = keadaanSaatIni?.daftarAkunTersimpan ??
+        await penyimpanan.ambilDaftarAkun();
+    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
+      daftarAkunTersimpan: daftarAkun,
     ));
   }
 
   // 4. Segarkan manual (jika diperlukan)
   Future<void> refresh() async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
-
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
     if (!ref.mounted) return;

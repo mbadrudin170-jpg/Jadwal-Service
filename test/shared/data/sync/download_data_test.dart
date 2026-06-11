@@ -47,7 +47,7 @@ void main() {
   late DownloadDataService downloadDataService;
   late MockFirebaseFirestore mockFirestore;
   late MockSyncManager mockSyncManager;
-  late MockWalletOperation mockWalletOperation;
+  late MockDompetOpSqlite mockDompetOpSqlite;
   late MockCategoryOperation mockCategoryOperation;
   late MockPackageOperation mockPackageOperation;
   late MockCustomerOperation mockCustomerOperation;
@@ -68,7 +68,7 @@ void main() {
   setUp(() {
     mockFirestore = MockFirebaseFirestore();
     mockSyncManager = MockSyncManager();
-    mockWalletOperation = MockWalletOperation();
+    mockDompetOpSqlite = MockDompetOpSqlite();
     mockCategoryOperation = MockCategoryOperation();
     mockPackageOperation = MockPackageOperation();
     mockCustomerOperation = MockCustomerOperation();
@@ -89,7 +89,7 @@ void main() {
     downloadDataService = DownloadDataService.test(
       firestore: mockFirestore,
       syncManager: mockSyncManager,
-      walletOperation: mockWalletOperation,
+      walletOperation: mockDompetOpSqlite,
       categoryOperation: mockCategoryOperation,
       packageOperation: mockPackageOperation,
       customerOperation: mockCustomerOperation,

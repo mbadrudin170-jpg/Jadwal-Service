@@ -25,7 +25,7 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDb);
 
     initialDownloadService = LayananUnduhAwal(
-      downloadService: mockDownloadDataService,
+      layananUnduh: mockDownloadDataService,
       dbHelper: mockDbHelper,
     );
   });

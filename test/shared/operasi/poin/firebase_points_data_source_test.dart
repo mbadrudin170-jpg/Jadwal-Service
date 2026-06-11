@@ -9,7 +9,7 @@ import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/fitur/poin/poin/firebase_points_data_source.dart';
+import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 
 import 'firebase_points_data_source_test.mocks.dart';
 

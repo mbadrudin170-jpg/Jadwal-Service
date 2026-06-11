@@ -82,14 +82,16 @@ class WalletModel implements HasId {
       ColumnNames.name: name,
       ColumnNames.balance: balance,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      ColumnNames.updatedAt:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       ColumnNames.isDeleted: isDeleted ? 1 : 0,
       ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
   /// Creates a [WalletModel] instance from a Firestore document.
-  factory WalletModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory WalletModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     return WalletModel(
       id: id,
       name: (data[ColumnNames.name] as String?) ?? '',
