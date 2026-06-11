@@ -51,7 +51,7 @@ void main() {
     mockLayananPenyimpananLokal = MockLayananPenyimpananLokal();
 
     // Stubbing default behaviors
-    when(() => mockInternetConnectionService.cekKoneksiLokal())
+    when(() => mockInternetConnectionService.cekInternet(any()))
         .thenAnswer((_) async => true);
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
@@ -66,7 +66,6 @@ void main() {
       overrides: [
         koneksiInternetServiceProvider
             .overrideWithValue(mockInternetConnectionService),
-        // PERBAIKAN: gunakan overrideWith, bukan overrideWithValue
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
@@ -76,9 +75,7 @@ void main() {
       ],
       child: MaterialApp(
         home: child,
-        routes: {
-          '/main': (context) => const MainPage(),
-        },
+        // Hapus `routes` untuk menyederhanakan penanganan navigator dalam tes
       ),
     );
   }
@@ -100,6 +97,7 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
       await tester.pumpAndSettle();
 
+      expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.text('Akun tidak ditemukan'), findsOneWidget);
       expect(find.text('Nomor telepon dan password tidak boleh kosong.'),
           findsOneWidget);
@@ -115,6 +113,7 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
       await tester.pumpAndSettle();
 
+      expect(find.byType(AlertDialog), findsOneWidget);
       expect(find.text('Akun tidak ditemukan'), findsOneWidget);
       expect(find.text('Nomor telepon atau password yang Anda masukkan salah.'),
           findsOneWidget);
@@ -149,8 +148,7 @@ void main() {
 
       await fakeFirestore
           .collection(TableNameValue.get(TableName.customer))
-          .doc(customerId)
-          .set(customerData);
+          .add(customerData); // Menggunakan add agar doc ID otomatis atau bisa juga .doc().set()
 
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
@@ -163,15 +161,21 @@ void main() {
       // Tekan tombol login
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
 
-      // Tunggu semua animasi dan navigasi selesai
+      // Pump untuk memulai CircularProgressIndicator
+      await tester.pump();
+      
+      // Selesaikan semua frame, termasuk Future dari firestore dan navigasi
       await tester.pumpAndSettle();
 
       // Verifikasi bahwa login dipanggil tepat satu kali
-      verify(() => mockPengelolaAkun.login(any())).called(1);
+      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>())))
+          .called(1);
 
       // Verifikasi bahwa halaman utama (MainPage) muncul
       expect(find.byType(MainPage), findsOneWidget,
           reason: 'Seharusnya navigasi ke MainPage setelah login berhasil');
+      expect(find.byType(LoginPage), findsNothing,
+          reason: 'LoginPage seharusnya sudah tidak ada di tree');
     });
 
     testWidgets('5. Visibilitas Password', (tester) async {

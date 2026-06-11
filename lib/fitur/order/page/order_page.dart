@@ -159,47 +159,32 @@ class _OrderPageState extends ConsumerState<OrderPage> {
   @override
   Widget build(BuildContext context) {
     final appRole = ref.watch(appRoleProvider);
-    final userIdAsync = ref.watch(userIdProvider);
+    final userId = ref.watch(userIdProvider).value ?? '';
+    final dataSqlite =
+        ref.watch(orderOperationProvider).getAllActiveOrdersStream();
+    final dataFirebase =
+        ref.watch(orderOpFirebaseProvider).getAllByUserId(userId);
+
+    Log.info(
+        '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
 
     return Scaffold(
         appBar: AppBar(
           title: const Text('Pesanan Saya'),
         ),
-        body: userIdAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Error: $err')),
-          data: (userId) {
-            if (userId == null && appRole != AppRole.admin) {
-              return const Scaffold(
-                  body: Center(
-                      child: Text('Sesi berakhir, silakan login kembali.')));
-            }
-
-            final String effectiveUserId = userId ?? '';
-            final dataSqlite =
-                ref.watch(orderOperationProvider).getAllActiveOrdersStream();
-            final dataFirebase = ref
-                .watch(orderOpFirebaseProvider)
-                .getAllByUserId(effectiveUserId);
-
-            Log.info(
-                '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _listTombolFilter(effectiveUserId),
-                  Expanded(
-                    child: appRole == AppRole.admin
-                        ? _listPesanan(dataSqlite)
-                        : _listPesanan(dataFirebase),
-                  ),
-                ],
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _listTombolFilter(userId),
+              Expanded(
+                child: appRole == AppRole.admin
+                    ? _listPesanan(dataSqlite)
+                    : _listPesanan(dataFirebase),
               ),
-            );
-          },
+            ],
+          ),
         ));
   }
 
