@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:wifi/shared/export/theme.dart';
 
 class InputPassword extends StatefulWidget {
-  
   final TextEditingController controller;
   final String label;
   final String? Function(String?)? validator;

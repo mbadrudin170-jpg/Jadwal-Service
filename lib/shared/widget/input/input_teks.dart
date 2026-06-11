@@ -6,28 +6,42 @@ class InputTeks extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
+  final IconData? icons;
+  final String? Function(String?)? validator;
+  final AutovalidateMode autovalidateMode;
+  final TextInputAction textInputAction;
+  final IconData? prefixIcon;
+
   const InputTeks({
     super.key,
     required this.controller,
     required this.label,
-    required this.wajib,
+    this.wajib = true,
+    this.icons,
+    this.validator,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
+    this.textInputAction = TextInputAction.next,
+    this.prefixIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: autovalidateMode,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        icon: icons != null ? Icon(icons) : null,
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
-      validator: (value) {
-        if (wajib && (value == null || value.trim().isEmpty)) {
-          return '$label wajib diisi';
-        }
-        return null;
-      },
+      validator: validator ??
+          (value) {
+            if (wajib && (value == null || value.trim().isEmpty)) {
+              return '$label wajib diisi';
+            }
+            return null;
+          },
     );
   }
 }
