@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -56,11 +57,34 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
               ikon: TIcons.upload, // TODO : nama masih dalam bahasa inggris
             ),
             gapH16,
-            _KartuHasilUji(
-              label: 'Ping',
-              nilai: statusUji.ping.toString(),
-              satuan: 'ms',
-              ikon: TIcons.timer, // TODO : nama masih dalam bahasa inggris
+            Consumer(
+              builder: (context, ref, child) {
+                final pingValue = ref.watch(pingProvider);
+                return pingValue.when(
+                  data: (data) => _KartuHasilUji(
+                    label: 'Ping',
+                    nilai:
+                        data.response?.time?.inMilliseconds.toString() ?? '-',
+                    satuan: 'ms',
+                    ikon:
+                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
+                  ),
+                  loading: () => const _KartuHasilUji(
+                    label: 'Ping',
+                    nilai: '...',
+                    satuan: 'ms',
+                    ikon:
+                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
+                  ),
+                  error: (e, st) => const _KartuHasilUji(
+                    label: 'Ping',
+                    nilai: 'Error',
+                    satuan: '',
+                    ikon:
+                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
+                  ),
+                );
+              },
             ),
             const Spacer(),
             Center(
@@ -77,9 +101,12 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
               )
             else
               ElevatedButton.icon(
-                onPressed: () => ref
-                    .read(ujiKecepatanProvider.notifier)
-                    .mulaiPengujian(context),
+                onPressed: () {
+                  ref.invalidate(pingProvider);
+                  ref
+                      .read(ujiKecepatanProvider.notifier)
+                      .mulaiPengujian(context);
+                },
                 icon: const Icon(TIcons.play),
                 label: const Text('Mulai Uji Kecepatan'),
                 style: ElevatedButton.styleFrom(

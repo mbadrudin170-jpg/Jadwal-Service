@@ -1,5 +1,6 @@
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
+import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -48,6 +49,20 @@ class UjiKecepatan extends _$UjiKecepatan {
       kecepatanUnggah: 0.0,
       ping: 0,
     );
+
+    // Get Ping
+    try {
+      state = state.copyWith(statusPesan: 'Mengukur ping...');
+      final ping = Ping('google.com', count: 1);
+      final pingData = await ping.stream.first;
+      final pingTime = pingData.response?.time?.inMilliseconds;
+      if (pingTime != null) {
+        state = state.copyWith(ping: pingTime);
+      }
+    } catch (e) {
+      Log.warning('Gagal mendapatkan ping: $e');
+      state = state.copyWith(ping: -1); // Indicate error
+    }
 
     try {
       await alatUji.startTesting(
