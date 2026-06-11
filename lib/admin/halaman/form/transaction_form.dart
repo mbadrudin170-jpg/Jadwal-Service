@@ -14,7 +14,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
@@ -282,7 +282,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
         );
 
         final hasConnection =
-            await InternetKoneksiService().isInternetAvailable();
+            await KoneksiInternetService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

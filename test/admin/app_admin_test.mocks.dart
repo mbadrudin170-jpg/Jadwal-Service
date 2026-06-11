@@ -28,7 +28,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
     as _i15;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
     as _i14;
-import 'package:wifi/shared/services/internet_connection_check.dart' as _i8;
+import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i8;
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart'
     as _i17;
 
@@ -326,7 +326,7 @@ class MockSharedPreferences extends _i1.Mock implements _i6.SharedPreferences {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockInternetKoneksiService extends _i1.Mock
-    implements _i8.InternetKoneksiService {
+    implements _i8.KoneksiInternetService {
   MockInternetKoneksiService() {
     _i1.throwOnMissingStub(this);
   }

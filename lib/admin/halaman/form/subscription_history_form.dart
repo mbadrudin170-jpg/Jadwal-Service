@@ -10,7 +10,7 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -127,7 +127,7 @@ class _SubscriptionHistoryFormState
       if (!mounted) return;
 
       final hasConnection =
-          await InternetKoneksiService().isInternetAvailable();
+          await KoneksiInternetService().isInternetAvailable();
       if (hasConnection) {
         final syncCheckService = ref.read(syncCheckServiceProvider);
         syncCheckService.runSyncCheck();

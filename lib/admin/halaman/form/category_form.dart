@@ -9,7 +9,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -411,7 +411,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         }
 
         final hasConnection =
-            await InternetKoneksiService().isInternetAvailable();
+            await KoneksiInternetService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

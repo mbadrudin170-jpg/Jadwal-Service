@@ -25,7 +25,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
@@ -100,7 +100,7 @@ class MockWorkmanagerPlatform extends Mock
 
 @GenerateMocks([
   SharedPreferences,
-  InternetKoneksiService,
+  KoneksiInternetService,
   NotifikasiServis,
   LayananUnduhAwal,
   ActiveCustomerOperation,

@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
 import 'internet_connection_check_test.mocks.dart';
 
@@ -16,12 +16,12 @@ import 'internet_connection_check_test.mocks.dart';
 void main() {
   late MockConnectivity mockConnectivity;
   late MockClient mockHttpClient;
-  late InternetKoneksiService internetService;
+  late KoneksiInternetService internetService;
 
   setUp(() {
     mockConnectivity = MockConnectivity();
     mockHttpClient = MockClient();
-    internetService = InternetKoneksiService(
+    internetService = KoneksiInternetService(
       connectivity: mockConnectivity,
       httpClient: mockHttpClient,
       lookupUrl:

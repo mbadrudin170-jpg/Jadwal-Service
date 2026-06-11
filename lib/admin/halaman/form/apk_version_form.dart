@@ -11,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
@@ -254,7 +254,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         }
 
         final hasConnection =
-            await InternetKoneksiService().isInternetAvailable();
+            await KoneksiInternetService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           unawaited(syncCheckService.runSyncCheck());

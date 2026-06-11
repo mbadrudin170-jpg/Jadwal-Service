@@ -12,7 +12,7 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/services/internet_connection_check.dart';
+import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/user/page/login_page.dart';
 import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
@@ -20,7 +20,7 @@ import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 // Mocks
 class MockInternetConnectionService extends Mock
-    implements InternetKoneksiService {}
+    implements KoneksiInternetService {}
 
 class MockPengelolaAkun extends Mock implements PengelolaAkun {}
 

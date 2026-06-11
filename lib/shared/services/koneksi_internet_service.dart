@@ -1,4 +1,4 @@
-// path: lib/shared/services/internet_connection_check.dart
+// path: lib/shared/services/koneksi_internet_service.dart
 
 import 'dart:async';
 import 'dart:io';
@@ -9,12 +9,12 @@ import 'package:http/http.dart' as http;
 import 'package:wifi/shared/debug/log.dart';
 
 final internetConnectionServiceProvider =
-    Provider<InternetKoneksiService>((ref) {
-  return InternetKoneksiService();
+    Provider<KoneksiInternetService>((ref) {
+  return KoneksiInternetService();
 });
 
 /// Kelas layanan untuk memeriksa status koneksi internet.
-class InternetKoneksiService {
+class KoneksiInternetService {
   final Connectivity _connectivity;
   final http.Client _httpClient;
 
@@ -24,7 +24,7 @@ class InternetKoneksiService {
   /// Durasi timeout untuk permintaan lookup.
   final Duration _timeoutDuration;
 
-  InternetKoneksiService({
+  KoneksiInternetService({
     Connectivity? connectivity,
     http.Client? httpClient,
     String? lookupUrl,
