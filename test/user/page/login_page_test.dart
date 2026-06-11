@@ -122,7 +122,7 @@ void main() {
 
     testWidgets('4. Login Berhasil', (tester) async {
       // Siapkan data pelanggan di FakeFirestore
-      final customerId = 'customer123';
+      const customerId = 'customer123';
       final customerData = {
         ColumnNames.id: customerId,
         ColumnNames.name: 'Pengguna Sukses',
