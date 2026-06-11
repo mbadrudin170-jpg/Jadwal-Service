@@ -237,7 +237,9 @@ class _OrderPageState extends ConsumerState<OrderPage> {
               loading: () => const CircularProgressIndicator(),
               error: (e, s) => Text('Error: $e $s'),
               data: (orderState) {
-                final total = orderState.totalDaftar; // int
+                final count =
+                    orderState.orders.where((o) => o.status == status).length;
+                if (count == 0) return const SizedBox.shrink();
                 return Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -248,7 +250,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TeksIsiKecil(
-                    total > 99 ? '99+' : total.toString(),
+                    count > 99 ? '99+' : count.toString(),
                     warna: isActive
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
