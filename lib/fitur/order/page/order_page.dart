@@ -341,6 +341,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             await ref
                 .read(orderOperationProvider)
                 .updateOrderStatus(order.id, status);
+            ref.invalidate(orderProvider);
+
             if (pageContext.mounted) {
               ToastUtil.success(pageContext, 'Data berhasil diperbarui');
             }
