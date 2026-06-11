@@ -64,7 +64,7 @@ void main() {
   Widget createTestableWidget(Widget child) {
     return ProviderScope(
       overrides: [
-        internetConnectionServiceProvider
+        koneksiInternetServiceProvider
             .overrideWithValue(mockInternetConnectionService),
         // PERBAIKAN: gunakan overrideWith, bukan overrideWithValue
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),

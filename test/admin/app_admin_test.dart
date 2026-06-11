@@ -191,7 +191,7 @@ void main() {
     return ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(AsyncValue.data(mockPrefs)),
-        internetConnectionServiceProvider
+        koneksiInternetServiceProvider
             .overrideWithValue(mockInternetConnectionService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
         initialDownloadServiceProvider.overrideWithValue(mockInitialDownload),

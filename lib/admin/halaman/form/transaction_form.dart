@@ -5,15 +5,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -281,9 +281,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
           'Penyimpanan berhasil. Menutup form dan kembali dengan hasil true.',
         );
 
-        final hasConnection =
-            await KoneksiInternetService().isInternetAvailable();
-        if (hasConnection) {
+        final isOnline =
+            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        if (isOnline) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();
           if (mounted) {

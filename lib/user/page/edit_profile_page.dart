@@ -53,15 +53,15 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       final navigator = Navigator.of(context);
 
       try {
-        final isConnected =
-            await _internetConnectionService.isInternetAvailable();
-        if (!isConnected) {
+        final isOnline = await _internetConnectionService.cekInternet(ref);
+        if (!isOnline) {
           if (mounted) {
             ToastUtil.info(
               context,
-              'Anda sedang offline, data akan disinkronkan saat online.',
+              'Cek koneksi internet Anda.',
             );
           }
+          return;
         }
 
         final updatedCustomer = widget.customer.copyWith(

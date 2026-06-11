@@ -5,10 +5,10 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 
-final internetConnectionServiceProvider =
-    Provider<KoneksiInternetService>((ref) {
+final koneksiInternetServiceProvider = Provider<KoneksiInternetService>((ref) {
   return KoneksiInternetService();
 });
 
@@ -47,6 +47,24 @@ class KoneksiInternetService {
         e: e,
         st: st,
       );
+      return false;
+    }
+  }
+
+  Future<bool> cekInternet(WidgetRef ref) async {
+    Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
+    final lokal = await cekKoneksiLokal();
+    if (!lokal) {
+      Log.warning('[Internet] Gagal: Tidak ada koneksi lokal.');
+      return false;
+    }
+    try {
+      final pingData = await ref.read(pingProvider.future);
+      final berhasil = pingData.response?.time != null;
+      Log.info(berhasil ? 'Ping berhasil' : 'Ping gagal (timeout)');
+      return berhasil;
+    } catch (e) {
+      Log.error('Ping error: $e');
       return false;
     }
   }

@@ -114,7 +114,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     }
   }
 
-  void _populateControllers(final ApkVersionModel data) {
+  void _populateControllers(ApkVersionModel data) {
     Log.info('Memasukkan data model ke dalam form controller (ID: ${data.id})');
     _releaseNotesController.text = data.releaseNotes;
     _latestVersionController.text = data.latestVersion;
@@ -253,9 +253,8 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
           await apkVersionOperasi.addApkVersion(dataToSave);
         }
 
-        final hasConnection =
-            await KoneksiInternetService().isInternetAvailable();
-        if (hasConnection) {
+        final isonline = await KoneksiInternetService().cekKoneksiLokal();
+        if (isonline) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           unawaited(syncCheckService.runSyncCheck());
         } else {

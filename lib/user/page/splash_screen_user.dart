@@ -71,7 +71,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       await _initializeOfflineServices();
 
       final isConnected =
-          await ref.watch(internetConnectionServiceProvider).cekKoneksiLokal();
+          await ref.watch(koneksiInternetServiceProvider).cekKoneksiLokal();
 
       if (isConnected) {
         await _initializeOnlineServices();
@@ -196,7 +196,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
 
     if (akunAktif != null) {
       final isConnected =
-          await ref.read(internetConnectionServiceProvider).cekKoneksiLokal();
+          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
 
       if (isConnected) {
         final userActivityService =

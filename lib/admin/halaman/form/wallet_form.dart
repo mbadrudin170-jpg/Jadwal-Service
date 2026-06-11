@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -114,11 +114,11 @@ class _WalletFormState extends ConsumerState<WalletForm> {
 
         if (!mounted) return;
 
-        final hasConnection =
-            await KoneksiInternetService().isInternetAvailable();
-        if (hasConnection) {
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          syncCheckService.runSyncCheck();
+        final cekKoneksiLokal =
+            await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
+        if (cekKoneksiLokal) {
+          ref.read(syncCheckServiceProvider).runSyncCheck();
+
           if (mounted) {
             ToastUtil.success(
                 context, 'Dompet berhasil disimpan dan disinkronkan.');

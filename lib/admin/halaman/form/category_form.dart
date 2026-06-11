@@ -410,8 +410,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           return;
         }
 
-        final hasConnection =
-            await KoneksiInternetService().isInternetAvailable();
+        final hasConnection = await KoneksiInternetService().cekKoneksiLokal();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

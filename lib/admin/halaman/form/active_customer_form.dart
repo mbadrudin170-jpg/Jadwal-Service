@@ -419,8 +419,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         notifikasiOpFirebase.add(notif);
       }
 
-      final internetService = ref.read(internetConnectionServiceProvider);
-      final isOnline = await internetService.cekKoneksiLokal();
+      final isOnline =
+          await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');

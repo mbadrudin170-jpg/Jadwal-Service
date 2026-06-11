@@ -54,7 +54,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(notifikasiServisProvider);
-    final connectionService = ref.read(internetConnectionServiceProvider);
+    final connectionService = ref.read(koneksiInternetServiceProvider);
     final dbHelper = ref.read(databaseHelperProvider);
     try {
       await BackgroundService.init();

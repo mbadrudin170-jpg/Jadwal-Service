@@ -5,32 +5,33 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
 
-import 'package:flutter/material.dart' as _i18;
+import 'package:flutter/material.dart' as _i19;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as _i2;
+import 'package:flutter_riverpod/flutter_riverpod.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i21;
+import 'package:mockito/src/dummies.dart' as _i22;
 import 'package:shared_preferences/shared_preferences.dart' as _i6;
 import 'package:sqflite/sqflite.dart' as _i5;
 import 'package:wifi/admin/data/sqlite.dart' as _i3;
-import 'package:wifi/fitur/background/background_service.dart' as _i16;
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i9;
-import 'package:wifi/shared/data/services/sync_check_service.dart' as _i20;
-import 'package:wifi/shared/data/sync/initial_download.dart' as _i11;
-import 'package:wifi/shared/data/sync/upload_data.dart' as _i19;
+import 'package:wifi/fitur/background/background_service.dart' as _i17;
+import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i10;
+import 'package:wifi/shared/data/services/sync_check_service.dart' as _i21;
+import 'package:wifi/shared/data/sync/initial_download.dart' as _i12;
+import 'package:wifi/shared/data/sync/upload_data.dart' as _i20;
 import 'package:wifi/shared/export/model.dart' as _i4;
-import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i13;
+import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i14;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
-    as _i10;
+    as _i11;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
-    as _i12;
+    as _i13;
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
-    as _i15;
+    as _i16;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
-    as _i14;
+    as _i15;
 import 'package:wifi/shared/services/koneksi_internet_service.dart' as _i8;
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart'
-    as _i17;
+    as _i18;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -339,12 +340,21 @@ class MockKoneksiInternetService extends _i1.Mock
         ),
         returnValue: _i7.Future<bool>.value(false),
       ) as _i7.Future<bool>);
+
+  @override
+  _i7.Future<bool> cekInternet(_i9.WidgetRef? ref) => (super.noSuchMethod(
+        Invocation.method(
+          #cekInternet,
+          [ref],
+        ),
+        returnValue: _i7.Future<bool>.value(false),
+      ) as _i7.Future<bool>);
 }
 
 /// A class which mocks [NotifikasiServis].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
+class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
   MockNotifikasiServis() {
     _i1.throwOnMissingStub(this);
   }
@@ -381,7 +391,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
       ) as _i7.Future<void>);
 
   @override
-  void pantauNotifUmum(_i10.NotifikasiOpFirebase? notifikasiOp) =>
+  void pantauNotifUmum(_i11.NotifikasiOpFirebase? notifikasiOp) =>
       super.noSuchMethod(
         Invocation.method(
           #pantauNotifUmum,
@@ -392,7 +402,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
 
   @override
   void pantauNotifUser(
-    _i10.NotifikasiOpFirebase? notifikasiOp,
+    _i11.NotifikasiOpFirebase? notifikasiOp,
     String? userId,
   ) =>
       super.noSuchMethod(
@@ -536,7 +546,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i9.NotifikasiServis {
 /// A class which mocks [LayananUnduhAwal].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLayananUnduhAwal extends _i1.Mock implements _i11.LayananUnduhAwal {
+class MockLayananUnduhAwal extends _i1.Mock implements _i12.LayananUnduhAwal {
   MockLayananUnduhAwal() {
     _i1.throwOnMissingStub(this);
   }
@@ -556,7 +566,7 @@ class MockLayananUnduhAwal extends _i1.Mock implements _i11.LayananUnduhAwal {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockActiveCustomerOperation extends _i1.Mock
-    implements _i12.ActiveCustomerOperation {
+    implements _i13.ActiveCustomerOperation {
   MockActiveCustomerOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -581,15 +591,15 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<List<_i13.ActiveCustomerDetailModel>>
+  _i7.Future<List<_i14.ActiveCustomerDetailModel>>
       getAllActiveCustomersWithDetails() => (super.noSuchMethod(
             Invocation.method(
               #getAllActiveCustomersWithDetails,
               [],
             ),
-            returnValue: _i7.Future<List<_i13.ActiveCustomerDetailModel>>.value(
-                <_i13.ActiveCustomerDetailModel>[]),
-          ) as _i7.Future<List<_i13.ActiveCustomerDetailModel>>);
+            returnValue: _i7.Future<List<_i14.ActiveCustomerDetailModel>>.value(
+                <_i14.ActiveCustomerDetailModel>[]),
+          ) as _i7.Future<List<_i14.ActiveCustomerDetailModel>>);
 
   @override
   _i7.Future<_i4.ActiveCustomerModel> createActiveCustomer(
@@ -749,7 +759,7 @@ class MockActiveCustomerOperation extends _i1.Mock
 /// A class which mocks [SettingsOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOperation extends _i1.Mock implements _i14.SettingsOperation {
+class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOperation {
   MockSettingsOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -819,7 +829,7 @@ class MockSettingsOperation extends _i1.Mock implements _i14.SettingsOperation {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockDataCleaningOperation extends _i1.Mock
-    implements _i15.DataCleaningOperation {
+    implements _i16.DataCleaningOperation {
   MockDataCleaningOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -883,7 +893,7 @@ class MockDatabaseHelper extends _i1.Mock implements _i3.DatabaseHelper {
 /// A class which mocks [BackgroundService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBackgroundService extends _i1.Mock implements _i16.BackgroundService {
+class MockBackgroundService extends _i1.Mock implements _i17.BackgroundService {
   MockBackgroundService() {
     _i1.throwOnMissingStub(this);
   }
@@ -932,7 +942,7 @@ class MockNotificationResponse extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLayananPenyimpananLokal extends _i1.Mock
-    implements _i17.LayananPenyimpananLokal {
+    implements _i18.LayananPenyimpananLokal {
   MockLayananPenyimpananLokal() {
     _i1.throwOnMissingStub(this);
   }
@@ -947,7 +957,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i6.SharedPreferences);
 
   @override
-  _i7.Future<void> simpanModeTema(_i18.ThemeMode? mode) => (super.noSuchMethod(
+  _i7.Future<void> simpanModeTema(_i19.ThemeMode? mode) => (super.noSuchMethod(
         Invocation.method(
           #simpanModeTema,
           [mode],
@@ -957,13 +967,13 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i18.ThemeMode> ambilModeTema() => (super.noSuchMethod(
+  _i7.Future<_i19.ThemeMode> ambilModeTema() => (super.noSuchMethod(
         Invocation.method(
           #ambilModeTema,
           [],
         ),
-        returnValue: _i7.Future<_i18.ThemeMode>.value(_i18.ThemeMode.system),
-      ) as _i7.Future<_i18.ThemeMode>);
+        returnValue: _i7.Future<_i19.ThemeMode>.value(_i19.ThemeMode.system),
+      ) as _i7.Future<_i19.ThemeMode>);
 
   @override
   _i7.Future<void> simpanAkun(_i4.CustomerModel? pelanggan) =>
@@ -1050,7 +1060,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
 /// A class which mocks [UploadDataService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUploadDataService extends _i1.Mock implements _i19.UploadDataService {
+class MockUploadDataService extends _i1.Mock implements _i20.UploadDataService {
   MockUploadDataService() {
     _i1.throwOnMissingStub(this);
   }
@@ -1202,7 +1212,7 @@ class MockUploadDataService extends _i1.Mock implements _i19.UploadDataService {
 /// A class which mocks [SyncCheckService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSyncCheckService extends _i1.Mock implements _i20.SyncCheckService {
+class MockSyncCheckService extends _i1.Mock implements _i21.SyncCheckService {
   MockSyncCheckService() {
     _i1.throwOnMissingStub(this);
   }
@@ -1229,7 +1239,7 @@ class MockDatabase extends _i1.Mock implements _i5.Database {
   @override
   String get path => (super.noSuchMethod(
         Invocation.getter(#path),
-        returnValue: _i21.dummyValue<String>(
+        returnValue: _i22.dummyValue<String>(
           this,
           Invocation.getter(#path),
         ),
@@ -1271,8 +1281,8 @@ class MockDatabase extends _i1.Mock implements _i5.Database {
           [action],
           {#exclusive: exclusive},
         ),
-        returnValue: _i21.ifNotNull(
-              _i21.dummyValueOrNull<T>(
+        returnValue: _i22.ifNotNull(
+              _i22.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #transaction,
@@ -1300,8 +1310,8 @@ class MockDatabase extends _i1.Mock implements _i5.Database {
           #readTransaction,
           [action],
         ),
-        returnValue: _i21.ifNotNull(
-              _i21.dummyValueOrNull<T>(
+        returnValue: _i22.ifNotNull(
+              _i22.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #readTransaction,
@@ -1332,8 +1342,8 @@ class MockDatabase extends _i1.Mock implements _i5.Database {
             arguments,
           ],
         ),
-        returnValue: _i21.ifNotNull(
-              _i21.dummyValueOrNull<T>(
+        returnValue: _i22.ifNotNull(
+              _i22.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #devInvokeMethod,
@@ -1372,8 +1382,8 @@ class MockDatabase extends _i1.Mock implements _i5.Database {
             arguments,
           ],
         ),
-        returnValue: _i21.ifNotNull(
-              _i21.dummyValueOrNull<T>(
+        returnValue: _i22.ifNotNull(
+              _i22.dummyValueOrNull<T>(
                 this,
                 Invocation.method(
                   #devInvokeSqlMethod,
