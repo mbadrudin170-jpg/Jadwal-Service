@@ -1,5 +1,4 @@
-// path: lib/shared/model/feedback_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
+// path: lib/fitur/feedback/model/feedback_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';

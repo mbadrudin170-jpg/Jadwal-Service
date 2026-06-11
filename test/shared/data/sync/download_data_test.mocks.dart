@@ -14,6 +14,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i29;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i11;
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart' as _i22;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
@@ -32,8 +33,6 @@ import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart'
     as _i13;
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
     as _i17;
-import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart'
-    as _i22;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart'
     as _i23;
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart'

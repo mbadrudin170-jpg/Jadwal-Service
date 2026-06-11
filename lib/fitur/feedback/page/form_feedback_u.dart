@@ -1,11 +1,11 @@
-// path: lib/user/page/form_feedback_u.dart
+// path: lib/fitur/feedback/page/form_feedback_u.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/providers/user_providers.dart';

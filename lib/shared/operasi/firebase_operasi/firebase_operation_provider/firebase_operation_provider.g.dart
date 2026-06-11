@@ -297,7 +297,7 @@ final class FeedbackStreamProvider extends $FunctionalProvider<
   }
 }
 
-String _$feedbackStreamHash() => r'37aa40ee5f44034dbf909d0c085d96cda07c7989';
+String _$feedbackStreamHash() => r'191d6b4412ddf719315c7d1895f7fe57e42f125d';
 
 final class FeedbackStreamFamily extends $Family
     with $FunctionalFamilyOverride<Stream<List<FeedbackModel>>, String> {

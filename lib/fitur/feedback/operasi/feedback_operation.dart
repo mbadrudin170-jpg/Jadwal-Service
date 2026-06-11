@@ -1,12 +1,12 @@
-// path: lib/shared/operasi/feedback_operation.dart
+// path: lib/fitur/feedback/operasi/feedback_operation.dart
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.

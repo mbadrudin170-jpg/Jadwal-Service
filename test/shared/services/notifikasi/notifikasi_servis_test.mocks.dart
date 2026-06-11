@@ -705,20 +705,10 @@ class MockNotifikasiOpFirebase extends _i1.Mock
       ) as _i3.Stream<List<_i18.NotifikasiModel>>);
 
   @override
-  _i3.Future<void> add(_i18.NotifikasiModel? notifikasi) => (super.noSuchMethod(
-        Invocation.method(
-          #add,
-          [notifikasi],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
-  _i3.Future<void> update(_i18.NotifikasiModel? notifikasi) =>
+  _i3.Future<void> addNotifikasi(_i18.NotifikasiModel? notifikasi) =>
       (super.noSuchMethod(
         Invocation.method(
-          #update,
+          #addNotifikasi,
           [notifikasi],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -726,9 +716,20 @@ class MockNotifikasiOpFirebase extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> delete(String? id) => (super.noSuchMethod(
+  _i3.Future<void> updateNotifikasi(_i18.NotifikasiModel? notifikasi) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #delete,
+          #updateNotifikasi,
+          [notifikasi],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> deleteNotif(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteNotif,
           [id],
         ),
         returnValue: _i3.Future<void>.value(),

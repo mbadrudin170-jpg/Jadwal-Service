@@ -1,15 +1,15 @@
-// path: lib/user/page/feedback_history_user.dart
+// path: lib/fitur/feedback/page/feedback_history_user.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/user/page/form_feedback_u.dart';
+import 'package:wifi/fitur/feedback/page/form_feedback_u.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 class FeedbackHistoryUser extends ConsumerWidget {

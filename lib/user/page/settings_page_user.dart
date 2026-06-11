@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/user/page/feedback_history_user.dart';
+import 'package:wifi/fitur/feedback/page/feedback_history_user.dart';
 import 'package:wifi/user/page/info_apk_page_user.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 

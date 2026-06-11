@@ -14,7 +14,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';

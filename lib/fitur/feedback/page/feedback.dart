@@ -1,12 +1,15 @@
+// path: lib/fitur/feedback/page/feedback.dart
+
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/feedback_detail.dart';
+import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/feedback_provider.dart'; // Import provider baru Anda
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
@@ -29,7 +32,6 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     super.initState();
     Log.info('Menginisialisasi halaman Kritik & Saran');
     _searchController.addListener(_syncFilterOnly);
-    // Memuat data pelanggan di awal untuk map nama
     unawaited(_loadPelangganMapping());
   }
 
@@ -116,9 +118,10 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: RefreshIndicator(
-        // Pull to refresh sekarang sangat mudah, tinggal gunakan ref.refresh
         onRefresh: () => ref.refresh(activeFeedbackListProvider.future),
         child: feedbackAsync.when(
+          skipLoadingOnReload: true,
+          skipLoadingOnRefresh: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, st) {
             Log.error('Gagal memuat data kritik dan saran', e: e, st: st);

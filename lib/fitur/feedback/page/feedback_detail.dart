@@ -1,13 +1,13 @@
-// path: lib/admin/halaman/detail/feedback_detail.dart
+// path: lib/fitur/feedback/page/feedback_detail.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/feedback_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';

@@ -6,7 +6,7 @@ export '../model/apk_version_model.dart';
 export '../model/category_model.dart';
 export '../../fitur/pelanggan/model/customer_model.dart';
 export '../model/event_model.dart';
-export '../model/feedback_model.dart';
+export '../../fitur/feedback/model/feedback_model.dart';
 export '../model/has_id.dart';
 export '../model/notifikasi_model.dart';
 export '../model/order_model_ok.dart';

@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/feedback_operation.dart';
+import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
