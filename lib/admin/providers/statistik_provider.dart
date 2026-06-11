@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-// 1. Ubah import ke riverpod_annotation agar seragam dengan file lainnya
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/repository/statistik_repository.dart';
@@ -43,19 +42,17 @@ class StatistikState {
 }
 
 // 3. Pasang anotasi @riverpod. Variabel 'statistikProvider' otomatis tercipta.
-@riverpod
+@Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
-  StatistikRepository get _repository {
-    return ref.read(statistikRepositoryProvider);
-  }
+  StatistikRepository get _repository => ref.watch(statistikRepositoryProvider);
 
   @override
   Future<StatistikState> build() {
     Log.info('[StatistikNotifier] Build dipanggil, memuat data awal.');
-    return _loadData();
+    return _muatData();
   }
 
-  Future<StatistikState> _loadData() async {
+  Future<StatistikState> _muatData() async {
     final results = await Future.wait([
       _repository.getPendapatanBulanIni(),
       _repository.getTotalPelanggan(),
@@ -76,7 +73,7 @@ class Statistik extends _$Statistik {
   Future<void> refresh() async {
     Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_loadData);
+    state = await AsyncValue.guard(_muatData);
     Log.info('[StatistikNotifier] Refresh selesai.');
   }
 }

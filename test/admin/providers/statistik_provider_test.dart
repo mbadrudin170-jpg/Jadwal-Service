@@ -43,7 +43,8 @@ void main() {
     container.dispose();
   });
 
-  test('1. statistikProvider harus memuat StatistikState dengan benar', () async {
+  test('1. statistikProvider harus memuat data statistik dengan benar',
+      () async {
     when(() => mockRepository.getPendapatanBulanIni())
         .thenAnswer((_) async => 1000.0);
     when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
@@ -68,7 +69,7 @@ void main() {
     verify(() => mockRepository.getBestSellingPackages()).called(1);
   });
 
-  test('2. statistikProvider harus menangani error dengan benar', () async {
+  test('2. statistikProvider harus menangani error saat memuat data', () async {
     // Arrange
     final exception = Exception('Gagal mengambil data');
     when(() => mockRepository.getPendapatanBulanIni())
@@ -79,25 +80,17 @@ void main() {
     when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
     when(() => mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
 
-    final completer = Completer<void>();
-
-    container.listen<AsyncValue<StatistikState>>(
-      statistikProvider,
-      (previous, next) {
-        if (next is AsyncError) {
-          expect(next.error, isA<Exception>());
-          if (!completer.isCompleted) {
-            completer.complete();
-          }
-        }
-      },
+    // Act & Assert
+    // Verifikasi bahwa pemanggilan awal akan melempar exception.
+    await expectLater(
+      container.read(statistikProvider.future),
+      throwsA(isA<Exception>()),
     );
 
-    // Act: Memicu eksekusi provider agar mulai memuat data.
-    container.read(statistikProvider);
-
-    // Assert: Tunggu hingga listener di atas menangkap AsyncError.
-    await completer.future;
+    // Setelah exception ditangkap, state dari provider harus AsyncError.
+    final errorState = container.read(statistikProvider);
+    expect(errorState, isA<AsyncError>());
+    expect(errorState.error, isA<Exception>());
   });
 
   test('3. refresh harus memuat ulang data', () async {

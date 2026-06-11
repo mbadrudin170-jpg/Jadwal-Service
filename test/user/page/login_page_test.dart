@@ -1,4 +1,4 @@
-// test/user/page/login_page_test.dart
+// path: test/user/page/login_page_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,8 +19,20 @@ import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 // Mocks
-class MockInternetConnectionService extends Mock
-    implements KoneksiInternetService {}
+class FakeKoneksiInternetService implements KoneksiInternetService {
+  final bool terhubung;
+  FakeKoneksiInternetService({this.terhubung = true});
+
+  @override
+  Future<bool> cekInternet(WidgetRef ref) async {
+    return terhubung;
+  }
+
+  @override
+  Future<bool> cekKoneksiLokal() async {
+    return terhubung;
+  }
+}
 
 class MockPengelolaAkun extends Mock implements PengelolaAkun {}
 
@@ -33,7 +45,6 @@ class MockLayananPenyimpananLokal extends Mock
 class FakeCustomerModel extends Fake implements CustomerModel {}
 
 void main() {
-  late MockInternetConnectionService mockInternetConnectionService;
   late MockPengelolaAkun mockPengelolaAkun;
   late FakeFirebaseFirestore fakeFirestore;
   late MockUserActivityService mockUserActivityService;
@@ -44,15 +55,12 @@ void main() {
   });
 
   setUp(() {
-    mockInternetConnectionService = MockInternetConnectionService();
     mockPengelolaAkun = MockPengelolaAkun();
     fakeFirestore = FakeFirebaseFirestore();
     mockUserActivityService = MockUserActivityService();
     mockLayananPenyimpananLokal = MockLayananPenyimpananLokal();
 
     // Stubbing default behaviors
-    when(() => mockInternetConnectionService.cekInternet(any()))
-        .thenAnswer((_) async => true);
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
         .thenAnswer((_) async => []);
@@ -65,7 +73,7 @@ void main() {
     return ProviderScope(
       overrides: [
         koneksiInternetServiceProvider
-            .overrideWithValue(mockInternetConnectionService),
+            .overrideWithValue(FakeKoneksiInternetService()),
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
@@ -75,7 +83,9 @@ void main() {
       ],
       child: MaterialApp(
         home: child,
-        // Hapus `routes` untuk menyederhanakan penanganan navigator dalam tes
+        routes: {
+          '/main': (context) => const MainPage(),
+        },
       ),
     );
   }
@@ -148,7 +158,7 @@ void main() {
 
       await fakeFirestore
           .collection(TableNameValue.get(TableName.customer))
-          .add(customerData); // Menggunakan add agar doc ID otomatis atau bisa juga .doc().set()
+          .add(customerData);
 
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
@@ -158,18 +168,13 @@ void main() {
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Password'), 'password123');
 
-      // Tekan tombol login
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
 
-      // Pump untuk memulai CircularProgressIndicator
-      await tester.pump();
-      
-      // Selesaikan semua frame, termasuk Future dari firestore dan navigasi
+      // Pump and settle to allow futures and navigation to complete
       await tester.pumpAndSettle();
 
       // Verifikasi bahwa login dipanggil tepat satu kali
-      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>())))
-          .called(1);
+      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>()))) .called(1);
 
       // Verifikasi bahwa halaman utama (MainPage) muncul
       expect(find.byType(MainPage), findsOneWidget,
@@ -198,6 +203,39 @@ void main() {
 
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+    });
+
+    testWidgets('6. Login Gagal - Kesalahan Server', (tester) async {
+      // Arrange: Lemparkan exception saat login dipanggil
+      when(() => mockPengelolaAkun.login(any()))
+          .thenThrow(Exception('Server Error'));
+
+      // Siapkan data pelanggan di FakeFirestore
+      final customerData = {
+        ColumnNames.phone: '08123',
+        ColumnNames.password: 'pass123',
+        ColumnNames.isDeleted: false,
+        // ...tambahkan field lain jika perlu
+      };
+
+      await fakeFirestore
+          .collection(TableNameValue.get(TableName.customer))
+          .add(customerData);
+
+      await tester.pumpWidget(createTestableWidget(const LoginPage()));
+
+      // Act: Masukkan kredensial dan coba login
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Nomor Telepon'), '08123');
+      await tester.enterText(
+          find.widgetWithText(TextFormField, 'Password'), 'pass123');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+      await tester.pumpAndSettle();
+
+      // Assert: Pastikan dialog kesalahan server ditampilkan
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Terjadi kesalahan koneksi ke server. Silakan coba lagi.'),
+          findsOneWidget);
     });
   });
 }
