@@ -107,7 +107,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   Future<String> _getWalletName() async {
     try {
-      final wallet = await _walletOperation.getWalletById(
+      final wallet = await _walletOperation.getById(
         widget.transaction.walletId,
       );
       return wallet?.name ?? 'Dompet Dihapus';

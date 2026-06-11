@@ -149,7 +149,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
             _buildFutureDetailRow(
               'Dompet',
               _getName(
-                _walletOperation.getWalletById,
+                _walletOperation.getById,
                 transaction.walletId,
                 'Dompet',
               ),
@@ -159,7 +159,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getName(
-                  _walletOperation.getWalletById,
+                  _walletOperation.getById,
                   transaction.destinationWalletId!,
                   'Dompet Tujuan',
                 ),

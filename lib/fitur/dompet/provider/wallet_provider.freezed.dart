@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$WalletState {
-  List<WalletModel> get daftarDompet;
+  List<WalletModel> get wallets;
   double get totalSaldoPositif;
   double get totalSaldoNegatif;
   double get totalSaldo;
@@ -31,8 +31,7 @@ mixin _$WalletState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is WalletState &&
-            const DeepCollectionEquality()
-                .equals(other.daftarDompet, daftarDompet) &&
+            const DeepCollectionEquality().equals(other.wallets, wallets) &&
             (identical(other.totalSaldoPositif, totalSaldoPositif) ||
                 other.totalSaldoPositif == totalSaldoPositif) &&
             (identical(other.totalSaldoNegatif, totalSaldoNegatif) ||
@@ -44,14 +43,14 @@ mixin _$WalletState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(daftarDompet),
+      const DeepCollectionEquality().hash(wallets),
       totalSaldoPositif,
       totalSaldoNegatif,
       totalSaldo);
 
   @override
   String toString() {
-    return 'WalletState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+    return 'WalletState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
@@ -62,7 +61,7 @@ abstract mixin class $WalletStateCopyWith<$Res> {
       _$WalletStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<WalletModel> daftarDompet,
+      {List<WalletModel> wallets,
       double totalSaldoPositif,
       double totalSaldoNegatif,
       double totalSaldo});
@@ -80,15 +79,15 @@ class _$WalletStateCopyWithImpl<$Res> implements $WalletStateCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? daftarDompet = null,
+    Object? wallets = null,
     Object? totalSaldoPositif = null,
     Object? totalSaldoNegatif = null,
     Object? totalSaldo = null,
   }) {
     return _then(_self.copyWith(
-      daftarDompet: null == daftarDompet
-          ? _self.daftarDompet
-          : daftarDompet // ignore: cast_nullable_to_non_nullable
+      wallets: null == wallets
+          ? _self.wallets
+          : wallets // ignore: cast_nullable_to_non_nullable
               as List<WalletModel>,
       totalSaldoPositif: null == totalSaldoPositif
           ? _self.totalSaldoPositif
@@ -199,7 +198,7 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+    TResult Function(List<WalletModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)?
         $default, {
     required TResult orElse(),
@@ -207,7 +206,7 @@ extension WalletStatePatterns on WalletState {
     final _that = this;
     switch (_that) {
       case _WalletState() when $default != null:
-        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+        return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         return orElse();
@@ -229,14 +228,14 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+    TResult Function(List<WalletModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WalletState():
-        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+        return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         throw StateError('Unexpected subclass');
@@ -257,14 +256,14 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+    TResult? Function(List<WalletModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WalletState() when $default != null:
-        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+        return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         return null;
@@ -276,19 +275,19 @@ extension WalletStatePatterns on WalletState {
 
 class _WalletState implements WalletState {
   const _WalletState(
-      {final List<WalletModel> daftarDompet = const [],
+      {final List<WalletModel> wallets = const [],
       this.totalSaldoPositif = 0.0,
       this.totalSaldoNegatif = 0.0,
       this.totalSaldo = 0.0})
-      : _daftarDompet = daftarDompet;
+      : _wallets = wallets;
 
-  final List<WalletModel> _daftarDompet;
+  final List<WalletModel> _wallets;
   @override
   @JsonKey()
-  List<WalletModel> get daftarDompet {
-    if (_daftarDompet is EqualUnmodifiableListView) return _daftarDompet;
+  List<WalletModel> get wallets {
+    if (_wallets is EqualUnmodifiableListView) return _wallets;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_daftarDompet);
+    return EqualUnmodifiableListView(_wallets);
   }
 
   @override
@@ -314,8 +313,7 @@ class _WalletState implements WalletState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _WalletState &&
-            const DeepCollectionEquality()
-                .equals(other._daftarDompet, _daftarDompet) &&
+            const DeepCollectionEquality().equals(other._wallets, _wallets) &&
             (identical(other.totalSaldoPositif, totalSaldoPositif) ||
                 other.totalSaldoPositif == totalSaldoPositif) &&
             (identical(other.totalSaldoNegatif, totalSaldoNegatif) ||
@@ -327,14 +325,14 @@ class _WalletState implements WalletState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_daftarDompet),
+      const DeepCollectionEquality().hash(_wallets),
       totalSaldoPositif,
       totalSaldoNegatif,
       totalSaldo);
 
   @override
   String toString() {
-    return 'WalletState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+    return 'WalletState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
@@ -347,7 +345,7 @@ abstract mixin class _$WalletStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<WalletModel> daftarDompet,
+      {List<WalletModel> wallets,
       double totalSaldoPositif,
       double totalSaldoNegatif,
       double totalSaldo});
@@ -365,15 +363,15 @@ class __$WalletStateCopyWithImpl<$Res> implements _$WalletStateCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? daftarDompet = null,
+    Object? wallets = null,
     Object? totalSaldoPositif = null,
     Object? totalSaldoNegatif = null,
     Object? totalSaldo = null,
   }) {
     return _then(_WalletState(
-      daftarDompet: null == daftarDompet
-          ? _self._daftarDompet
-          : daftarDompet // ignore: cast_nullable_to_non_nullable
+      wallets: null == wallets
+          ? _self._wallets
+          : wallets // ignore: cast_nullable_to_non_nullable
               as List<WalletModel>,
       totalSaldoPositif: null == totalSaldoPositif
           ? _self.totalSaldoPositif

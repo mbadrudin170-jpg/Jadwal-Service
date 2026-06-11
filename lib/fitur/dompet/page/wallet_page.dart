@@ -58,9 +58,9 @@ class WalletPage extends ConsumerWidget {
         },
         data: (walletState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
+            'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
           );
-          final wallets = walletState.daftarDompet;
+          final wallets = walletState.wallets;
           if (wallets.isEmpty) {
             return Center(
               child: Text('Tidak ada dompet ditemukan.',
@@ -130,7 +130,7 @@ class WalletPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(walletProvider).value?.daftarDompet ?? [];
+    final wallets = ref.read(walletProvider).value?.wallets ?? [];
 
     if (wallets.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
@@ -156,9 +156,9 @@ class WalletPage extends ConsumerWidget {
                 Navigator.of(dialogContext).pop();
                 ref.read(walletProvider.notifier).softDeleteAll().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
-                }).catchError((e, st) {
+                }).catchError((e,StackTrace s) {
                   Log.error('Gagal menghapus semua dompet.',
-                      e: e, st: st as StackTrace?);
+                      e: e, st: s);
                   ToastUtil.error(context, 'Gagal menghapus dompet: $e');
                 });
               },

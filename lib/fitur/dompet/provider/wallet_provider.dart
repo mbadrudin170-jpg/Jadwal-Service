@@ -13,7 +13,7 @@ part 'wallet_provider.g.dart';
 @freezed
 abstract class WalletState with _$WalletState {
   const factory WalletState({
-    @Default([]) List<WalletModel> daftarDompet,
+    @Default([]) List<WalletModel> wallets,
     @Default(0.0) double totalSaldoPositif,
     @Default(0.0) double totalSaldoNegatif,
     @Default(0.0) double totalSaldo,
@@ -37,7 +37,7 @@ class Wallet extends _$Wallet {
     ]);
 
     return WalletState(
-      daftarDompet: results[0] as List<WalletModel>,
+      wallets: results[0] as List<WalletModel>,
       totalSaldoPositif: results[1] as double,
       totalSaldoNegatif: (results[2] as double).abs(),
       totalSaldo: results[3] as double,

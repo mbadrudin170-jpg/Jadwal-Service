@@ -70,7 +70,7 @@ class DompetOpSqlite {
   }
 
   /// Mengambil [WalletModel] berdasarkan [id].
-  Future<WalletModel?> getWalletById(final String id) async {
+  Future<WalletModel?> getById(final String id) async {
     Log.info('Memulai getWalletById untuk ID: $id');
     try {
       final db = await dbHelper.database;

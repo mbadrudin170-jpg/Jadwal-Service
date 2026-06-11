@@ -81,7 +81,7 @@ class _WalletDetailState extends ConsumerState<WalletDetail> {
 
     try {
       final results = await Future.wait([
-        walletOperation.getWalletById(widget.wallet.id),
+        walletOperation.getById(widget.wallet.id),
         transactionOperation.getTransactionsByWalletId(widget.wallet.id),
       ]);
 

@@ -397,10 +397,9 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<List<_i12.WalletModel>>);
 
   @override
-  _i9.Future<_i12.WalletModel?> getWalletById(String? id) =>
-      (super.noSuchMethod(
+  _i9.Future<_i12.WalletModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
-          #getWalletById,
+          #getById,
           [id],
         ),
         returnValue: _i9.Future<_i12.WalletModel?>.value(),
