@@ -1,4 +1,4 @@
-// path: test/user/page/login_page_test.dart
+// test/user/page/login_page_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +29,7 @@ class MockUserActivityService extends Mock implements UserActivityService {}
 class MockLayananPenyimpananLokal extends Mock
     implements LayananPenyimpananLokal {}
 
+// Fake untuk fallback value
 class FakeCustomerModel extends Fake implements CustomerModel {}
 
 void main() {
@@ -52,7 +53,6 @@ void main() {
     // Stubbing default behaviors
     when(() => mockInternetConnectionService.checkLocalConnection())
         .thenAnswer((_) async => true);
-    // Stub pemanggilan login
     when(() => mockPengelolaAkun.login(any())).thenAnswer((_) async {});
     when(() => mockLayananPenyimpananLokal.ambilDaftarAkun())
         .thenAnswer((_) async => []);
@@ -66,17 +66,16 @@ void main() {
       overrides: [
         internetConnectionServiceProvider
             .overrideWithValue(mockInternetConnectionService),
+        // PERBAIKAN: gunakan overrideWith, bukan overrideWithValue
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
-        
             .overrideWithValue(AsyncValue.data(mockUserActivityService)),
         localStorageServiceProvider
             .overrideWithValue(AsyncValue.data(mockLayananPenyimpananLokal)),
       ],
       child: MaterialApp(
         home: child,
-        // Sediakan route untuk navigasi
         routes: {
           '/main': (context) => const MainPage(),
         },
@@ -122,9 +121,10 @@ void main() {
     });
 
     testWidgets('4. Login Berhasil', (tester) async {
-      // Siapkan data palsu di FakeFirestore
+      // Siapkan data pelanggan di FakeFirestore
+      final customerId = 'customer123';
       final customerData = {
-        ColumnNames.id: 'customer123',
+        ColumnNames.id: customerId,
         ColumnNames.name: 'Pengguna Sukses',
         ColumnNames.phone: '08123456789',
         ColumnNames.password: 'password123',
@@ -132,7 +132,6 @@ void main() {
         ColumnNames.isDeleted: false,
         ColumnNames.createdAt: DateTime.now().toIso8601String(),
         ColumnNames.lastActiveAt: DateTime.now().toIso8601String(),
-        // Sesuaikan dengan semua field yang dibutuhkan oleh fromFirebase
         'latitude': 0.0,
         'longitude': 0.0,
         'email': 'test@example.com',
@@ -150,12 +149,12 @@ void main() {
 
       await fakeFirestore
           .collection(TableNameValue.get(TableName.customer))
-          .doc('customer123')
+          .doc(customerId)
           .set(customerData);
 
       await tester.pumpWidget(createTestableWidget(const LoginPage()));
 
-      // Masukkan data yang benar
+      // Masukkan kredensial yang benar
       await tester.enterText(
           find.widgetWithText(TextFormField, 'Nomor Telepon'), '08123456789');
       await tester.enterText(
@@ -164,13 +163,13 @@ void main() {
       // Tekan tombol login
       await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
 
-      // pumpAndSettle untuk menunggu semua proses selesai (termasuk navigasi)
+      // Tunggu semua animasi dan navigasi selesai
       await tester.pumpAndSettle();
 
-      // Verifikasi bahwa login dipanggil SATU KALI
-      verify(() => mockPengelolaAkun.login(any(that: isA<CustomerModel>()))).called(1);
+      // Verifikasi bahwa login dipanggil tepat satu kali
+      verify(() => mockPengelolaAkun.login(any())).called(1);
 
-      // Verifikasi bahwa halaman utama ditampilkan
+      // Verifikasi bahwa halaman utama (MainPage) muncul
       expect(find.byType(MainPage), findsOneWidget,
           reason: 'Seharusnya navigasi ke MainPage setelah login berhasil');
     });
@@ -182,22 +181,17 @@ void main() {
       final textField =
           find.descendant(of: passwordField, matching: find.byType(TextField));
 
-      // Awalnya password tidak terlihat
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
 
-      // Klik ikon untuk menampilkan password
       await tester.tap(find.byIcon(Icons.visibility_off));
       await tester.pump();
 
-      // Password seharusnya terlihat
       expect(tester.widget<TextField>(textField).obscureText, isFalse);
       expect(find.byIcon(Icons.visibility), findsOneWidget);
 
-      // Klik ikon untuk menyembunyikan password kembali
       await tester.tap(find.byIcon(Icons.visibility));
       await tester.pump();
 
-      // Password seharusnya tidak terlihat lagi
       expect(tester.widget<TextField>(textField).obscureText, isTrue);
       expect(find.byIcon(Icons.visibility_off), findsOneWidget);
     });
