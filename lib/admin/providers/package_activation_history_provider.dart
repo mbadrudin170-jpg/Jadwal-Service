@@ -3,21 +3,19 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
 
 part 'package_activation_history_provider.g.dart';
 
-// 1. Buat class untuk menggabungkan data
 class TransactionWithCustomer {
   final TransactionModel transaction;
   final CustomerModel? customer;
 
   TransactionWithCustomer({required this.transaction, this.customer});
 
-  // Helper untuk akses mudah
   String get customerName => customer?.name ?? 'Tidak diketahui';
 }
 
@@ -26,13 +24,12 @@ enum SortOption {
   nameAZ,
   nameZA,
   endingToday,
-  updatedAtAZ, // Harusnya: Terbaru ke Terlama (Descending)
-  updatedAtZA, // Harusnya: Terlama ke Terbaru (Ascending)
+  updatedAtAZ,
+  updatedAtZA,
   paid,
   unpaid
 }
 
-// 2. Ubah State untuk menggunakan class gabungan
 class PackageActivationHistoryState {
   final List<TransactionWithCustomer> items;
   final SortOption sortBy;
@@ -98,19 +95,16 @@ class PackageActivationHistory extends _$PackageActivationHistory {
     final currentState = state.value!;
     if (currentState.sortBy == newSort) return;
 
-    // Buat salinan list untuk diurutkan
     final List<TransactionWithCustomer> sortedList =
         List.from(currentState.items);
     _performSort(sortedList, newSort);
 
-    // Update state dengan list yang sudah diurutkan
     state = AsyncValue.data(currentState.copyWith(
       items: sortedList,
       sortBy: newSort,
     ));
   }
 
-  // 5. Perbaiki fungsi sort untuk bekerja dengan `TransactionWithCustomer`
   void _performSort(List<TransactionWithCustomer> list, SortOption option) {
     switch (option) {
       case SortOption.endDate:
@@ -125,38 +119,33 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           if (dateCompare != 0) return dateCompare;
           return a.transaction.id.compareTo(b.transaction.id);
         });
-        break;
-      case SortOption.updatedAtAZ: // Sesuai instruksi: Terbaru ke Terlama (Descending)
+      case SortOption.updatedAtAZ:
         list.sort((a, b) {
           final updateAtA = a.transaction.updatedAt;
           final updateAtB = b.transaction.updatedAt;
           if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return 1; // null di akhir
-          if (updateAtB == null) return -1; // null di akhir
-          return updateAtB.compareTo(updateAtA); // b vs a untuk descending
+          if (updateAtA == null) return 1;
+          if (updateAtB == null) return -1;
+          return updateAtB.compareTo(updateAtA);
         });
         break;
-      case SortOption.updatedAtZA: // Sesuai instruksi: Terlama ke Terbaru (Ascending)
+      case SortOption.updatedAtZA:
         list.sort((a, b) {
           final updateAtA = a.transaction.updatedAt;
           final updateAtB = b.transaction.updatedAt;
           if (updateAtA == null && updateAtB == null) return 0;
-          if (updateAtA == null) return -1; // null di awal
-          if (updateAtB == null) return 1; // null di awal
-          return updateAtA.compareTo(updateAtB); // a vs b untuk ascending
+          if (updateAtA == null) return -1;
+          if (updateAtB == null) return 1;
+          return updateAtA.compareTo(updateAtB);
         });
-        break;
       case SortOption.nameAZ:
-        // Sekarang kita bisa sort berdasarkan `customerName`
         list.sort((a, b) => a.customerName
             .toLowerCase()
             .compareTo(b.customerName.toLowerCase()));
-        break;
       case SortOption.nameZA:
         list.sort((a, b) => b.customerName
             .toLowerCase()
             .compareTo(a.customerName.toLowerCase()));
-        break;
       case SortOption.endingToday:
         final now = DateTime.now();
         list.sort((a, b) {
@@ -179,10 +168,8 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           if (b.transaction.endDate == null) return -1;
           return a.transaction.endDate!.compareTo(b.transaction.endDate!);
         });
-        break;
       case SortOption.paid:
         list.sort((a, b) {
-          // 6. Perbaiki ENUM
           final isPaidA = a.transaction.paymentStatus == PaymentStatus.paid;
           final isPaidB = b.transaction.paymentStatus == PaymentStatus.paid;
           if (isPaidA && !isPaidB) return -1;
@@ -190,7 +177,6 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           return (b.transaction.updatedAt ?? b.transaction.date)
               .compareTo(a.transaction.updatedAt ?? a.transaction.date);
         });
-        break;
       case SortOption.unpaid:
         list.sort((a, b) {
           final isUnpaidA = a.transaction.paymentStatus == PaymentStatus.unpaid;
@@ -200,7 +186,6 @@ class PackageActivationHistory extends _$PackageActivationHistory {
           return (b.transaction.updatedAt ?? b.transaction.date)
               .compareTo(a.transaction.updatedAt ?? a.transaction.date);
         });
-        break;
     }
   }
 }

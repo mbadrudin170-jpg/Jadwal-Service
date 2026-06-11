@@ -62,16 +62,24 @@ class ActiveCustomer extends _$ActiveCustomer {
       List<ActiveCustomerDetailModel> data, SortOption sortBy) {
     final sorted = List<ActiveCustomerDetailModel>.from(data);
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
 
     sorted.sort((a, b) {
       switch (sortBy) {
         case SortOption.berakhirHariIni:
-          final sisaHariA = a.activeCustomer.endDate.difference(today).inDays;
-          final sisaHariB = b.activeCustomer.endDate.difference(today).inDays;
-          final comparison = sisaHariA.abs().compareTo(sisaHariB.abs());
-          if (comparison != 0) return comparison;
-          return sisaHariA.compareTo(sisaHariB);
+          final sisaHariA =
+              a.activeCustomer.endDate.difference(now).inMilliseconds;
+          final sisaHariB =
+              b.activeCustomer.endDate.difference(now).inMilliseconds;
+
+          final lewatA = sisaHariA < 0;
+          final lewatB = sisaHariB < 0;
+
+          if (!lewatA && lewatB) return -1;
+          if (lewatA && !lewatB) return 1;
+          if (!lewatA) {
+            return sisaHariA.compareTo(sisaHariB);
+          }
+          return sisaHariB.compareTo(sisaHariA);
 
         case SortOption.terbaru:
           return _compareNullableDates(
