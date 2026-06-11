@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/admin/halaman/lainnya/category.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
 import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
-import 'package:wifi/fitur/feedback/page/feedback.dart';
+import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
 import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
 import 'package:wifi/admin/halaman/lainnya/settings_page_a.dart';

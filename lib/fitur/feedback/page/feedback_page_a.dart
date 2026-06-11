@@ -1,10 +1,10 @@
-// path: lib/fitur/feedback/page/feedback.dart
+// path: lib/fitur/feedback/page/feedback_page_a.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
+import 'package:wifi/fitur/feedback/page/feedback_detail_page_a.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
