@@ -40,4 +40,4 @@ final class PingProvider extends $FunctionalProvider<AsyncValue<PingData>,
   }
 }
 
-String _$pingHash() => r'13e137089ec09543fdfc9991fc222e1ce13a44cb';
+String _$pingHash() => r'de3619f38b8d1ec1fa0cd4d1698c18096a086f6c';

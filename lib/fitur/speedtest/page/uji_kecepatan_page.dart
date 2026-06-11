@@ -57,34 +57,11 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
               ikon: TIcons.upload, // TODO : nama masih dalam bahasa inggris
             ),
             gapH16,
-            Consumer(
-              builder: (context, ref, child) {
-                final pingValue = ref.watch(pingProvider);
-                return pingValue.when(
-                  data: (data) => _KartuHasilUji(
-                    label: 'Ping',
-                    nilai:
-                        data.response?.time?.inMilliseconds.toString() ?? '-',
-                    satuan: 'ms',
-                    ikon:
-                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
-                  ),
-                  loading: () => const _KartuHasilUji(
-                    label: 'Ping',
-                    nilai: '...',
-                    satuan: 'ms',
-                    ikon:
-                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
-                  ),
-                  error: (e, st) => const _KartuHasilUji(
-                    label: 'Ping',
-                    nilai: 'Error',
-                    satuan: '',
-                    ikon:
-                        TIcons.timer, // TODO : nama masih dalam bahasa inggris
-                  ),
-                );
-              },
+            _KartuHasilUji(
+              label: 'Ping',
+              nilai: statusUji.ping == 0 ? '' : statusUji.ping.toString(),
+              satuan: 'ms',
+              ikon: TIcons.timer,
             ),
             const Spacer(),
             Center(
@@ -123,20 +100,17 @@ class _HalamanUjiKecepatanState extends ConsumerState<HalamanUjiKecepatan> {
 
 /// Widget kartu kecil untuk menampilkan hasil pengujian.
 class _KartuHasilUji extends StatelessWidget {
-  const _KartuHasilUji({
-    required String label,
-    required String nilai,
-    required String satuan,
-    required IconData ikon,
-  })  : _label = label,
-        _nilai = nilai,
-        _satuan = satuan,
-        _ikon = ikon;
+  final String label;
+  final String nilai;
+  final String satuan;
+  final IconData ikon;
 
-  final String _label;
-  final String _nilai;
-  final String _satuan;
-  final IconData _ikon;
+  const _KartuHasilUji({
+    required this.label,
+    required this.nilai,
+    required this.satuan,
+    required this.ikon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,14 +121,14 @@ class _KartuHasilUji extends StatelessWidget {
         padding: const EdgeInsets.all(20.0),
         child: Row(
           children: [
-            Icon(_ikon, size: 40, color: Theme.of(context).primaryColor),
+            Icon(ikon, size: 40, color: Theme.of(context).primaryColor),
             gapW20,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TeksIsiKecil(_label, warna: Colors.grey),
+                TeksIsiKecil(label, warna: Colors.grey),
                 TeksJudulKecil(
-                  '$_nilai $_satuan',
+                  '$nilai $satuan',
                   tebalFont: FontWeight.bold,
                 ), // Menggunakan TeksJudulKecil untuk ukuran 24
               ],

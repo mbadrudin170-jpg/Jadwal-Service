@@ -1,17 +1,16 @@
 // path: lib/fitur/speedtest/provider/uji_kecepatan_provider.dart
 
-import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 part 'uji_kecepatan_provider.freezed.dart';
 part 'uji_kecepatan_provider.g.dart';
 
-/// State untuk menampung hasil uji kecepatan.
 @freezed
 abstract class UjiKecepatanState with _$UjiKecepatanState {
   const factory UjiKecepatanState({
@@ -27,7 +26,6 @@ abstract class UjiKecepatanState with _$UjiKecepatanState {
 class UjiKecepatan extends _$UjiKecepatan {
   @override
   UjiKecepatanState build() {
-    /// Menginisialisasi keadaan awal pengujian kecepatan.
     return const UjiKecepatanState();
   }
 
@@ -53,9 +51,8 @@ class UjiKecepatan extends _$UjiKecepatan {
     // Get Ping
     try {
       state = state.copyWith(statusPesan: 'Mengukur ping...');
-      final ping = Ping('google.com', count: 1);
-      final pingData = await ping.stream.first;
-      final pingTime = pingData.response?.time?.inMilliseconds;
+      final pingAsync = await ref.read(pingProvider.future);
+      final pingTime = pingAsync.response?.time?.inMilliseconds;
       if (pingTime != null) {
         state = state.copyWith(ping: pingTime);
       }
@@ -78,7 +75,6 @@ class UjiKecepatan extends _$UjiKecepatan {
           );
         },
         onProgress: (persentase, dataUji) {
-          /// Konversi kecepatan ke Mbps.
           double kecepatanDalamMbps = dataUji.transferRate;
           if (dataUji.unit == SpeedUnit.kbps) kecepatanDalamMbps /= 1000;
 
@@ -125,7 +121,6 @@ class UjiKecepatan extends _$UjiKecepatan {
         },
       );
     } catch (e, st) {
-      // Menangani kegagalan dalam proses pengujian
       state = state.copyWith(
         sedangMenguji: false,
         statusPesan: 'Gagal melakukan pengujian',
