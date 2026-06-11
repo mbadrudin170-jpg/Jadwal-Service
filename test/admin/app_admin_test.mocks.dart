@@ -322,12 +322,12 @@ class MockSharedPreferences extends _i1.Mock implements _i6.SharedPreferences {
       ) as _i7.Future<void>);
 }
 
-/// A class which mocks [InternetConnectionService].
+/// A class which mocks [InternetKoneksiService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInternetConnectionService extends _i1.Mock
-    implements _i8.InternetConnectionService {
-  MockInternetConnectionService() {
+class MockInternetKoneksiService extends _i1.Mock
+    implements _i8.InternetKoneksiService {
+  MockInternetKoneksiService() {
     _i1.throwOnMissingStub(this);
   }
 

@@ -15,6 +15,7 @@ import 'package:wifi/admin/app_admin.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/data/sync/initial_download.dart';
@@ -22,7 +23,6 @@ import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
@@ -100,7 +100,7 @@ class MockWorkmanagerPlatform extends Mock
 
 @GenerateMocks([
   SharedPreferences,
-  InternetConnectionService,
+  InternetKoneksiService,
   NotifikasiServis,
   LayananUnduhAwal,
   ActiveCustomerOperation,
@@ -119,7 +119,7 @@ void main() {
   late MockSharedPreferences mockPrefs;
   late MockInternetConnectionService mockInternetConnectionService;
   late MockNotifikasiServis mockNotifikasiServis;
-  late MockInitialDownloadService mockInitialDownload;
+  late MockLayananUnduhAwal mockInitialDownload;
   late MockActiveCustomerOperation mockActiveCustomerOperation;
   late MockSettingsOperation mockSettingsOperation;
   late MockDataCleaningOperation mockDataCleaningOperation;
@@ -136,7 +136,7 @@ void main() {
     mockPrefs = MockSharedPreferences();
     mockInternetConnectionService = MockInternetConnectionService();
     mockNotifikasiServis = MockNotifikasiServis();
-    mockInitialDownload = MockInitialDownloadService();
+    mockInitialDownload = MockLayananUnduhAwal();
     mockActiveCustomerOperation = MockActiveCustomerOperation();
     mockSettingsOperation = MockSettingsOperation();
     mockDataCleaningOperation = MockDataCleaningOperation();
@@ -153,37 +153,37 @@ void main() {
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
 
 // Stub method yang mungkin dipanggil (contoh umum)
-    when(mockUploadDataService.uploadAllData()).thenAnswer((_) async => true);
-    when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
+    when(mockUploadDataService.uploadAllData()).thenReturn(Future.value(true));
+    when(mockSyncCheckService.runSyncCheck()).thenReturn(Future.value());
 // Sesuaikan dengan API sebenarnya dari kelas-kelas tersebut
     when(mockLocalStorage.ambilModeTema())
-        .thenAnswer((_) async => ThemeMode.light);
-    when(mockLocalStorage.simpanModeTema(any)).thenAnswer((_) async => true);
+        .thenReturn(Future.value(ThemeMode.light));
+    when(mockLocalStorage.simpanModeTema(any)).thenReturn(Future.value(true));
     when(mockPrefs.getString(any)).thenReturn('ThemeMode.light');
-    when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
-    when(mockPrefs.remove(any)).thenAnswer((_) async => true);
+    when(mockPrefs.setString(any, any)).thenReturn(Future.value(true));
+    when(mockPrefs.remove(any)).thenReturn(Future.value(true));
 
     when(mockNotifikasiServis.initNotif(iconName: anyNamed('iconName')))
-        .thenAnswer((_) async {});
-    when(mockNotifikasiServis.requestPermissions()).thenAnswer((_) async {});
+        .thenReturn(Future.value());
+    when(mockNotifikasiServis.requestPermissions()).thenReturn(Future.value());
     when(mockNotifikasiServis.getDetailPeluncuranNotifikasi())
-        .thenAnswer((_) async => mockLaunchDetails);
+        .thenReturn(Future.value(mockLaunchDetails));
     when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
     when(mockLaunchDetails.notificationResponse)
         .thenReturn(mockNotificationResponse);
     when(mockNotificationResponse.payload).thenReturn(null);
 
     when(mockActiveCustomerOperation.archiveExpiredCustomers())
-        .thenAnswer((_) async => 0);
+        .thenReturn(Future.value(0));
     when(mockSettingsOperation.getSettings())
-        .thenAnswer((_) async => SettingsModel());
+        .thenReturn(Future.value(SettingsModel()));
     when(mockDataCleaningOperation.deleteAllExpiredArchivedData(
             retentionDays: anyNamed('retentionDays')))
-        .thenAnswer((_) async => 0); // Mengembalikan Future<int>
-    when(mockInitialDownload.runInitialDownload()).thenAnswer((_) async {});
-    when(mockDatabaseHelper.database).thenAnswer((_) async => mockDatabase);
+        .thenReturn(Future.value(0)); // Mengembalikan Future<int>
+    when(mockInitialDownload.runInitialDownload()).thenReturn(Future.value());
+    when(mockDatabaseHelper.database).thenReturn(Future.value(mockDatabase));
     when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
-        .thenAnswer((_) async => []);
+        .thenReturn(Future.value([]));
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
@@ -259,7 +259,7 @@ void main() {
     testWidgets('4. Menampilkan HalamanUtama dengan status ONLINE',
         (tester) async {
       when(mockInternetConnectionService.isInternetAvailable())
-          .thenAnswer((_) async => true);
+          .thenReturn(Future.value(true));
 
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -275,7 +275,7 @@ void main() {
     testWidgets('5. Menampilkan HalamanUtama dengan status OFFLINE',
         (tester) async {
       when(mockInternetConnectionService.isInternetAvailable())
-          .thenAnswer((_) async => false);
+          .thenReturn(Future.value(false));
 
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();

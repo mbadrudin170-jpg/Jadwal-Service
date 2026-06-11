@@ -9,12 +9,12 @@ import 'package:http/http.dart' as http;
 import 'package:wifi/shared/debug/log.dart';
 
 final internetConnectionServiceProvider =
-    Provider<InternetConnectionService>((ref) {
-  return InternetConnectionService();
+    Provider<InternetKoneksiService>((ref) {
+  return InternetKoneksiService();
 });
 
 /// Kelas layanan untuk memeriksa status koneksi internet.
-class InternetConnectionService {
+class InternetKoneksiService {
   final Connectivity _connectivity;
   final http.Client _httpClient;
 
@@ -24,7 +24,7 @@ class InternetConnectionService {
   /// Durasi timeout untuk permintaan lookup.
   final Duration _timeoutDuration;
 
-  InternetConnectionService({
+  InternetKoneksiService({
     Connectivity? connectivity,
     http.Client? httpClient,
     String? lookupUrl,
@@ -36,7 +36,7 @@ class InternetConnectionService {
     Log.info('InternetConnectionService diinisialisasi.');
   }
 
-/// mengecek apakah perangkat terhubung ke wifi ataupun data
+  /// mengecek apakah perangkat terhubung ke wifi ataupun data
   Future<bool> checkLocalConnection() async {
     Log.info('[Lokal] Memulai pemeriksaan status koneksi perangkat...');
     try {

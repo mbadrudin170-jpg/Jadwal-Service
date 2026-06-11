@@ -16,19 +16,22 @@ import 'internet_connection_check_test.mocks.dart';
 void main() {
   late MockConnectivity mockConnectivity;
   late MockClient mockHttpClient;
-  late InternetConnectionService internetService;
+  late InternetKoneksiService internetService;
 
   setUp(() {
     mockConnectivity = MockConnectivity();
     mockHttpClient = MockClient();
-    internetService = InternetConnectionService(
+    internetService = InternetKoneksiService(
       connectivity: mockConnectivity,
       httpClient: mockHttpClient,
-      lookupUrl: 'example.com', // Gunakan URL yang tidak akan benar-benar di-resolve
+      lookupUrl:
+          'example.com', // Gunakan URL yang tidak akan benar-benar di-resolve
     );
   });
 
-  group('InternetConnectionService - isInternetAvailable (Ketersediaan Internet)', () {
+  group(
+      'InternetConnectionService - isInternetAvailable (Ketersediaan Internet)',
+      () {
     test(
         '1. harus mengembalikan true saat ada koneksi lokal dan akses internet',
         () async {
@@ -36,7 +39,7 @@ void main() {
       // Simulasikan ada koneksi (WiFi)
       when(mockConnectivity.checkConnectivity())
           .thenAnswer((_) async => [ConnectivityResult.wifi]);
-      
+
       // Simulasikan lookup ke internet berhasil
       when(mockHttpClient.get(any))
           .thenAnswer((_) async => http.Response('OK', 200));
@@ -50,9 +53,7 @@ void main() {
       verify(mockHttpClient.get(Uri.https('example.com'))).called(1);
     });
 
-    test(
-        '2. harus mengembalikan false saat tidak ada koneksi lokal',
-        () async {
+    test('2. harus mengembalikan false saat tidak ada koneksi lokal', () async {
       // Arrange
       // Simulasikan tidak ada koneksi sama sekali
       when(mockConnectivity.checkConnectivity())
@@ -75,7 +76,7 @@ void main() {
       // Simulasikan ada koneksi (Mobile)
       when(mockConnectivity.checkConnectivity())
           .thenAnswer((_) async => [ConnectivityResult.mobile]);
-      
+
       // Simulasikan lookup ke internet gagal (misal, timeout)
       when(mockHttpClient.get(any)).thenThrow(TimeoutException('Timeout'));
 
@@ -106,19 +107,22 @@ void main() {
   });
 
   group('InternetConnectionService - checkLocalConnection (Koneksi Lokal)', () {
-      test('1. harus mengembalikan true untuk wifi', () async {
-        when(mockConnectivity.checkConnectivity()).thenAnswer((_) async => [ConnectivityResult.wifi]);
-        expect(await internetService.checkLocalConnection(), isTrue);
-      });
-      
-      test('2. harus mengembalikan true untuk mobile', () async {
-        when(mockConnectivity.checkConnectivity()).thenAnswer((_) async => [ConnectivityResult.mobile]);
-        expect(await internetService.checkLocalConnection(), isTrue);
-      });
+    test('1. harus mengembalikan true untuk wifi', () async {
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.wifi]);
+      expect(await internetService.checkLocalConnection(), isTrue);
+    });
 
-      test('3. harus mengembalikan false untuk none', () async {
-        when(mockConnectivity.checkConnectivity()).thenAnswer((_) async => [ConnectivityResult.none]);
-        expect(await internetService.checkLocalConnection(), isFalse);
-      });
+    test('2. harus mengembalikan true untuk mobile', () async {
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.mobile]);
+      expect(await internetService.checkLocalConnection(), isTrue);
+    });
+
+    test('3. harus mengembalikan false untuk none', () async {
+      when(mockConnectivity.checkConnectivity())
+          .thenAnswer((_) async => [ConnectivityResult.none]);
+      expect(await internetService.checkLocalConnection(), isFalse);
+    });
   });
 }

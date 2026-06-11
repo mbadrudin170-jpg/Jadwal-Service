@@ -34,7 +34,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   late StreamSubscription<List<ConnectivityResult>> _langgananKoneksi;
   late final SyncCheckService _syncService;
   bool _sedangSync = false;
-  int _selectedIndex = 0;
+  int _tabDipilih = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -88,7 +88,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
   void _onItemTapped(final int index) {
     setState(() {
-      _selectedIndex = index;
+      _tabDipilih = index;
     });
   }
 
@@ -162,7 +162,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _halamanTab),
+      body: IndexedStack(index: _tabDipilih, children: _halamanTab),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
@@ -182,7 +182,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
           BottomNavigationBarItem(icon: Icon(TIcons.listAlt), label: 'Pesanan'),
           BottomNavigationBarItem(icon: Icon(TIcons.apps), label: 'Lainnya'),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: _tabDipilih,
         onTap: _onItemTapped,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(

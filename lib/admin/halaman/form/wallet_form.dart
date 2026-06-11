@@ -115,7 +115,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         if (!mounted) return;
 
         final hasConnection =
-            await InternetConnectionService().isInternetAvailable();
+            await InternetKoneksiService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

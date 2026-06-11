@@ -282,7 +282,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
         );
 
         final hasConnection =
-            await InternetConnectionService().isInternetAvailable();
+            await InternetKoneksiService().isInternetAvailable();
         if (hasConnection) {
           final syncCheckService = ref.read(syncCheckServiceProvider);
           syncCheckService.runSyncCheck();

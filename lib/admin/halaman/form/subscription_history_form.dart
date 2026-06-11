@@ -101,7 +101,7 @@ class _SubscriptionHistoryFormState
 
     // Mengakses dependency melalui Riverpod's ref
     final transactionOperation = ref.read(transactionOperationProvider);
-    final notifikasiServis =  ref.read(notifikasiServisProvider);
+    final notifikasiServis = ref.read(notifikasiServisProvider);
 
     try {
       final updatedTransaction = widget.transaction.copyWith(
@@ -127,7 +127,7 @@ class _SubscriptionHistoryFormState
       if (!mounted) return;
 
       final hasConnection =
-          await InternetConnectionService().isInternetAvailable();
+          await InternetKoneksiService().isInternetAvailable();
       if (hasConnection) {
         final syncCheckService = ref.read(syncCheckServiceProvider);
         syncCheckService.runSyncCheck();
@@ -199,7 +199,7 @@ class _SubscriptionHistoryFormState
                 date: _startDate,
                 onPressed: () => _selectDateTime(true),
               ),
-                          gapH16,
+              gapH16,
               _buildDateTimePickerTile(
                 label: 'Tanggal & Waktu Berakhir',
                 date: _endDate,

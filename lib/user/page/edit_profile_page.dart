@@ -36,7 +36,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _passwordController;
-  final _internetConnectionService = InternetConnectionService();
+  final _internetConnectionService = InternetKoneksiService();
 
   bool _isPasswordVisible = false;
 

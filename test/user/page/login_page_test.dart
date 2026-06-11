@@ -20,7 +20,7 @@ import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 
 // Mocks
 class MockInternetConnectionService extends Mock
-    implements InternetConnectionService {}
+    implements InternetKoneksiService {}
 
 class MockPengelolaAkun extends Mock implements PengelolaAkun {}
 
