@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/user/page/user_customer_detail.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';

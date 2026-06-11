@@ -1,4 +1,4 @@
-// path: test/admin/app_admin_test.dart
+'''// path: test/admin/app_admin_test.dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/app_admin.dart';
@@ -46,11 +45,6 @@ class ErrorThemeNotifier extends ThemeNotifier {
     return Future.error('Gagal memuat tema');
   }
 }
-
-// final internetConnectionServiceProvider = Provider<InternetConnectionService>(
-//     (ref) => MockInternetConnectionService());
-// final initialDownloadServiceProvider =
-//     Provider<InitialDownloadService>((ref) => MockInitialDownloadService());
 
 class MockWorkmanagerPlatform extends Mock
     with MockPlatformInterfaceMixin
@@ -117,9 +111,9 @@ class MockWorkmanagerPlatform extends Mock
 ])
 void main() {
   late MockSharedPreferences mockPrefs;
-  late MockInternetConnectionService mockInternetConnectionService;
+  late MockKoneksiInternetService mockKoneksiInternetService;
   late MockNotifikasiServis mockNotifikasiServis;
-  late MockLayananUnduhAwal mockInitialDownload;
+  late MockLayananUnduhAwal mockLayananUnduhAwal;
   late MockActiveCustomerOperation mockActiveCustomerOperation;
   late MockSettingsOperation mockSettingsOperation;
   late MockDataCleaningOperation mockDataCleaningOperation;
@@ -134,9 +128,9 @@ void main() {
 
   setUp(() {
     mockPrefs = MockSharedPreferences();
-    mockInternetConnectionService = MockInternetConnectionService();
+    mockKoneksiInternetService = MockKoneksiInternetService();
     mockNotifikasiServis = MockNotifikasiServis();
-    mockInitialDownload = MockLayananUnduhAwal();
+    mockLayananUnduhAwal = MockLayananUnduhAwal();
     mockActiveCustomerOperation = MockActiveCustomerOperation();
     mockSettingsOperation = MockSettingsOperation();
     mockDataCleaningOperation = MockDataCleaningOperation();
@@ -152,10 +146,8 @@ void main() {
     mockWorkmanagerPlatform = MockWorkmanagerPlatform();
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
 
-// Stub method yang mungkin dipanggil (contoh umum)
     when(mockUploadDataService.uploadAllData()).thenReturn(Future.value(true));
-    when(mockSyncCheckService.runSyncCheck()).thenReturn(Future.value());
-// Sesuaikan dengan API sebenarnya dari kelas-kelas tersebut
+    when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
     when(mockLocalStorage.ambilModeTema())
         .thenReturn(Future.value(ThemeMode.light));
     when(mockLocalStorage.simpanModeTema(any)).thenReturn(Future.value(true));
@@ -164,8 +156,8 @@ void main() {
     when(mockPrefs.remove(any)).thenReturn(Future.value(true));
 
     when(mockNotifikasiServis.initNotif(iconName: anyNamed('iconName')))
-        .thenReturn(Future.value());
-    when(mockNotifikasiServis.requestPermissions()).thenReturn(Future.value());
+        .thenAnswer((_) async {});
+    when(mockNotifikasiServis.requestPermissions()).thenAnswer((_) async {});
     when(mockNotifikasiServis.getDetailPeluncuranNotifikasi())
         .thenReturn(Future.value(mockLaunchDetails));
     when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
@@ -179,8 +171,8 @@ void main() {
         .thenReturn(Future.value(SettingsModel()));
     when(mockDataCleaningOperation.deleteAllExpiredArchivedData(
             retentionDays: anyNamed('retentionDays')))
-        .thenReturn(Future.value(0)); // Mengembalikan Future<int>
-    when(mockInitialDownload.runInitialDownload()).thenReturn(Future.value());
+        .thenReturn(Future.value(0));
+    when(mockLayananUnduhAwal.jalankanUnduhanAwal()).thenAnswer((_) async {});
     when(mockDatabaseHelper.database).thenReturn(Future.value(mockDatabase));
     when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
         .thenReturn(Future.value([]));
@@ -192,9 +184,9 @@ void main() {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(AsyncValue.data(mockPrefs)),
         koneksiInternetServiceProvider
-            .overrideWithValue(mockInternetConnectionService),
+            .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
-        initialDownloadServiceProvider.overrideWithValue(mockInitialDownload),
+        initialDownloadServiceProvider.overrideWithValue(mockLayananUnduhAwal),
         activeCustomerOperationProvider
             .overrideWithValue(mockActiveCustomerOperation),
         settingsOperationProvider.overrideWithValue(mockSettingsOperation),
@@ -203,7 +195,6 @@ void main() {
         databaseHelperProvider.overrideWithValue(mockDatabaseHelper),
         localStorageServiceProvider
             .overrideWithValue(AsyncValue.data(mockLocalStorage)),
-        // ⬇️ TAMBAHKAN DUA BARIS INI ⬇️
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
         syncCheckServiceProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,
@@ -258,14 +249,13 @@ void main() {
   group('Pengujian Inisialisasi Aplikasi (AppInitializer)', () {
     testWidgets('4. Menampilkan HalamanUtama dengan status ONLINE',
         (tester) async {
-      when(mockInternetConnectionService.isInternetAvailable())
+      when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenReturn(Future.value(true));
 
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Verifikasi mock dipanggil
-      verify(mockInternetConnectionService.isInternetAvailable()).called(1);
+      verify(mockKoneksiInternetService.cekKoneksiLokal()).called(1);
 
       expect(find.byType(HalamanUtama), findsOneWidget);
       final halamanUtama =
@@ -274,7 +264,7 @@ void main() {
     });
     testWidgets('5. Menampilkan HalamanUtama dengan status OFFLINE',
         (tester) async {
-      when(mockInternetConnectionService.isInternetAvailable())
+      when(mockKoneksiInternetService.cekKoneksiLokal())
           .thenReturn(Future.value(false));
 
       await tester.pumpWidget(createTestWidget());
@@ -285,7 +275,7 @@ void main() {
           tester.widget<HalamanUtama>(find.byType(HalamanUtama));
       expect(halamanUtama.isOffline, isTrue);
 
-      verifyNever(mockInitialDownload.runInitialDownload());
+      verifyNever(mockLayananUnduhAwal.jalankanUnduhanAwal());
       verifyNever(mockDataCleaningOperation.deleteAllExpiredArchivedData(
           retentionDays: anyNamed('retentionDays')));
     });
@@ -313,3 +303,4 @@ void main() {
     });
   });
 }
+''

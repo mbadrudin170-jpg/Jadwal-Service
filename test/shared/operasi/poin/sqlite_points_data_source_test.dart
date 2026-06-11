@@ -6,7 +6,7 @@ import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/poin/sqlite_points_data_source.dart';
+import 'package:wifi/fitur/poin/poin/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 

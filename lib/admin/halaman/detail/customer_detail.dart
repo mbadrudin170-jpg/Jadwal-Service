@@ -11,7 +11,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
-import 'package:wifi/shared/widget/page/points_page.dart';
+import 'package:wifi/fitur/poin/page/points_page.dart';
 
 class CustomerDetailPage extends ConsumerWidget {
   final String customerId;

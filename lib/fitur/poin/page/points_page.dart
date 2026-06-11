@@ -1,4 +1,5 @@
-// path: lib/shared/widget/page/points_page.dart
+// path: lib/fitur/poin/page/points_page.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,19 +7,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/fitur/poin/widget/poin_page_ui.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/poin/points_page_providers.dart';
+import 'package:wifi/fitur/poin/poin/points_page_providers.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/customer_name.dart';
-import 'package:wifi/shared/widget/page/poin_page_ui.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
@@ -117,8 +117,9 @@ class _PointsPageState extends ConsumerState<PointsPage> {
       if (confirmed ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
         try {
-          final customerOp = ref.read(customerOperationProvider);
-          final dataPelangan = await customerOp.getById(widget.customerId);
+          final dataPelanggan = await ref
+              .read(customerOperationProvider)
+              .getById(widget.customerId);
 
           final now = DateTime.now();
           final idOrder = const Uuid().v4();
@@ -135,34 +136,25 @@ class _PointsPageState extends ConsumerState<PointsPage> {
               endDate: now,
               tanggalTampil: now,
               title: 'Order Paket',
-              description: 'pelanggan ${dataPelangan?.name} melakukan order',
+              description: 'pelanggan ${dataPelanggan?.name} melakukan order',
               type: TipeNotifikasiEnum.order,
               updatedAt: now,
               idTujuan: idOrder,
               userId: widget.customerId);
 
-          final orderOperation = ref.read(orderOperationProvider);
-          orderOperation.saveOrder(orderData);
+          ref.read(notifikasiOpFirebaseProvider).add(notifikasiData);
           Log.info(
               'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
 
-          final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
-          notifikasiOp.add(notifikasiData);
+          await ref.read(orderOpFirebaseProvider).addOrder(orderData);
           Log.info('berhasil membuat notifikasi untuk paket');
 
           ref.invalidate(pointsPageDataProvider);
           ref.invalidate(pointsHistoryProvider);
 
-          final cekKoneksi = ref.read(koneksiInternetServiceProvider);
-          final isConnected = await cekKoneksi.cekKoneksiLokal();
-          if (isConnected) {
-            final syncCheckService = ref.read(syncCheckServiceProvider);
-            syncCheckService.runSyncCheck();
-            Log.info('internet ada jadi melakukan sinkronisasi');
-          }
-
           if (!mounted) return;
-          ToastUtil.success(context, '${reward.name} berhasil ditukar!');
+          ToastUtil.success(
+              context, 'Order sudah terkirim menunggu konfirmasi Admin');
         } on Exception catch (e, st) {
           Log.error('Gagal menukar poin: $e', e: e, st: st);
           if (!mounted) return;

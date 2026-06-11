@@ -1,5 +1,4 @@
-// path: lib/shared/widget/page/poin_page_ui.dart
-// DIUBAH: Memindahkan bottomWidget ke properti bottomNavigationBar pada Scaffold untuk memastikan iklan selalu terlihat dan tidak tertimpa oleh konten yang di-scroll.
+// path: lib/fitur/poin/widget/poin_page_ui.dart
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
