@@ -6,7 +6,6 @@ class InputTeks extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
-  final IconData? icons;
   final String? Function(String?)? validator;
   final AutovalidateMode autovalidateMode;
   final TextInputAction textInputAction;
@@ -17,7 +16,6 @@ class InputTeks extends StatelessWidget {
     required this.controller,
     required this.label,
     this.wajib = true,
-    this.icons,
     this.validator,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.textInputAction = TextInputAction.next,
@@ -32,7 +30,6 @@ class InputTeks extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
-        icon: icons != null ? Icon(icons) : null,
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: validator ??

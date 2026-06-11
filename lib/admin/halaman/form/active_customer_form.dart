@@ -718,8 +718,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               child: InputAngka(
                 controller: _bonusDurationController,
                 label: 'Durasi Bonus ',
-                icons: TIcons.timerOutlined,
                 validasi: _isBonus,
+                prefixIcon: TIcons.timer,
               ),
             ),
             gapW8,

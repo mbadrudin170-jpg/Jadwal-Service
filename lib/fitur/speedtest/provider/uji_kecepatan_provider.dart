@@ -98,27 +98,24 @@ class UjiKecepatan extends _$UjiKecepatan {
             ToastUtil.success(context, 'Uji kecepatan berhasil diselesaikan');
           }
         },
-        onError: (pesanError, kodeKesalahan) {
+        onError: (e, s) {
           state = state.copyWith(
             sedangMenguji: false,
             statusPesan: 'Gagal melakukan pengujian',
           );
-          Log.error(
-              'Gagal saat melakukan uji kecepatan: $pesanError (Kode: $kodeKesalahan)');
+          Log.error('Gagal saat melakukan uji kecepatan: $e (Kode: $s)');
           if (context.mounted) {
-            ToastUtil.error(
-                context, 'Gagal melakukan uji kecepatan: $pesanError');
+            ToastUtil.error(context, 'Gagal melakukan uji kecepatan: $e');
           }
         },
       );
-    } on Exception catch (kesalahan, jejakTumpukan) {
+    } catch (e, st) {
       // Menangani kegagalan dalam proses pengujian
       state = state.copyWith(
         sedangMenguji: false,
         statusPesan: 'Gagal melakukan pengujian',
       );
-      Log.error('Gagal saat melakukan uji kecepatan',
-          e: kesalahan, st: jejakTumpukan);
+      Log.error('Gagal saat melakukan uji kecepatan', e: e, st: st);
 
       if (context.mounted) {
         ToastUtil.error(

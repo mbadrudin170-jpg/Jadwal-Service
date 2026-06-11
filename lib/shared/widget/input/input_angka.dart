@@ -2,13 +2,12 @@
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:wifi/shared/export/theme.dart';
 
 class InputAngka extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool wajib;
-  final IconData icons;
+  final IconData? prefixIcon;
   final bool? validasi;
   final TextInputAction textInputAction;
   final bool enabled;
@@ -18,8 +17,8 @@ class InputAngka extends StatelessWidget {
     required this.controller,
     required this.label,
     this.wajib = true,
-    this.icons = TIcons.phoneAndroid,
-    this.validasi,
+    this.prefixIcon,
+    this.validasi = false,
     this.textInputAction = TextInputAction.next,
     this.enabled = true,
   });
@@ -42,7 +41,7 @@ class InputAngka extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
-        icon: Icon(icons),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
       ),
       validator: (value) {
         if (wajib && validasi! && (value == null || value.trim().isEmpty)) {

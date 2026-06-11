@@ -185,6 +185,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               InputAngka(
                 controller: _phoneController,
                 label: 'Nomor Telepon',
+                prefixIcon: TIcons.phoneAndroid,
                 enabled: !_sedangLogin,
               ),
               gapH16,
