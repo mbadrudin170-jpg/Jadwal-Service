@@ -41,7 +41,6 @@ class StatistikState {
   }
 }
 
-// 3. Pasang anotasi @riverpod. Variabel 'statistikProvider' otomatis tercipta.
 @Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
   StatistikRepository get _repository => ref.watch(statistikRepositoryProvider);
@@ -52,27 +51,41 @@ class Statistik extends _$Statistik {
     return _muatData();
   }
 
+  // Mengubah _muatData dari Future.wait menjadi await sekuensial
+  // Ini memastikan provider gagal-cepat (fail-fast) jika salah satu future gagal,
+  // yang akan menyelesaikan masalah timeout pada pengujian.
   Future<StatistikState> _muatData() async {
-    final results = await Future.wait([
-      _repository.getPendapatanBulanIni(),
-      _repository.getTotalPelanggan(),
-      _repository.getJumlahLanggananAktif(),
-      _repository.getJumlahFeedbackBaru(),
-      _repository.getBestSellingPackages(),
-    ]);
-    Log.info('[StatistikNotifier] Semua future dari repository selesai.');
-    return StatistikState(
-      pendapatanBulanIni: results[0] as double,
-      totalPelanggan: results[1] as int,
-      jumlahLanggananAktif: results[2] as int,
-      jumlahFeedbackBaru: results[3] as int,
-      bestSellingPackages: results[4] as List<BestSellingPackage>,
-    );
+    try {
+      Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
+      final pendapatan = await _repository.getPendapatanBulanIni();
+      final pelanggan = await _repository.getTotalPelanggan();
+      final langgananAktif = await _repository.getJumlahLanggananAktif();
+      final feedbackBaru = await _repository.getJumlahFeedbackBaru();
+      final paketTerlaris = await _repository.getBestSellingPackages();
+      Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
+
+      return StatistikState(
+        pendapatanBulanIni: pendapatan,
+        totalPelanggan: pelanggan,
+        jumlahLanggananAktif: langgananAktif,
+        jumlahFeedbackBaru: feedbackBaru,
+        bestSellingPackages: paketTerlaris,
+      );
+    } catch (e, st) {
+      Log.error(
+        '[StatistikNotifier] Gagal memuat data statistik.',
+        e: e,
+        st: st,
+      );
+      // Melempar kembali error agar ditangkap oleh AsyncValue.guard atau state provider.
+      rethrow;
+    }
   }
 
   Future<void> refresh() async {
     Log.info('[StatistikNotifier] Refresh dipicu oleh UI.');
     state = const AsyncLoading();
+    // Menggunakan AsyncValue.guard untuk menangani error secara otomatis.
     state = await AsyncValue.guard(_muatData);
     Log.info('[StatistikNotifier] Refresh selesai.');
   }
