@@ -339,15 +339,6 @@ class MockKoneksiInternetService extends _i1.Mock
         ),
         returnValue: _i7.Future<bool>.value(false),
       ) as _i7.Future<bool>);
-
-  @override
-  _i7.Future<bool> isInternetAvailable() => (super.noSuchMethod(
-        Invocation.method(
-          #isInternetAvailable,
-          [],
-        ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
 }
 
 /// A class which mocks [NotifikasiServis].

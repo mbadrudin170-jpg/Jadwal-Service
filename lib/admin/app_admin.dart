@@ -83,7 +83,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       final activeCustomerOp = ref.read(activeCustomerOperationProvider);
       await activeCustomerOp.archiveExpiredCustomers();
 
-      final isOnline = await connectionService.isInternetAvailable();
+      final isOnline = await connectionService.cekKoneksiLokal();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 
