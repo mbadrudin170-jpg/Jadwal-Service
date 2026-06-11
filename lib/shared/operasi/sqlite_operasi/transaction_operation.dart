@@ -223,7 +223,7 @@ class TransactionOperation {
       );
       Log.info(
           'Ditemukan ${maps.length} transaksi untuk Customer ID: $customerId');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, ( i) {
         return TransactionModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {

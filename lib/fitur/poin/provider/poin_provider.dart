@@ -8,7 +8,6 @@ import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/shared/enum/app_role_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/user/providers/user_providers.dart';
 
 part 'poin_provider.g.dart';
 part 'poin_provider.freezed.dart';
