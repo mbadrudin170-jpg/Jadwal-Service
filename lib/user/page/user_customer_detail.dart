@@ -102,7 +102,7 @@ class _UserCustomerDetailPageState
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => PointsPage(
+        builder: (final context) => PoinPage(
           customerId: customerId,
           showAd: true, // Tampilkan iklan di halaman poin untuk pengguna
         ),

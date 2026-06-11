@@ -302,7 +302,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       final hasChanged = await Navigator.push<bool>(
         context,
         MaterialPageRoute<bool>(
-          builder: (context) => PointsPage(
+          builder: (context) => PoinPage(
             customerId: customerId,
             showAd: true,
           ),

@@ -57,7 +57,7 @@ MAC : ${customer.macAddress}
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => PointsPage(
+        builder: (context) => PoinPage(
           customerId: customer.id,
         ),
       ),

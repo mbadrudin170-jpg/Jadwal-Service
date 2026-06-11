@@ -23,21 +23,21 @@ import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
 
-class PointsPage extends ConsumerStatefulWidget {
+class PoinPage extends ConsumerStatefulWidget {
   final String customerId;
   final bool showAd;
 
-  const PointsPage({
+  const PoinPage({
     super.key,
     required this.customerId,
     this.showAd = false,
   });
 
   @override
-  ConsumerState<PointsPage> createState() => _PointsPageState();
+  ConsumerState<PoinPage> createState() => _PointsPageState();
 }
 
-class _PointsPageState extends ConsumerState<PointsPage> {
+class _PointsPageState extends ConsumerState<PoinPage> {
   final _interstitialAdService = InterstitialAdService();
   MenuPoin _selectedMenu = MenuPoin.penukaran;
   late final Widget _appBarTitle;
@@ -96,7 +96,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         return;
       }
 
-      final bool? confirmed = await showDialog<bool>(
+      final bool? dikonfirmasi = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
@@ -114,7 +114,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
         ),
       );
 
-      if (confirmed ?? false) {
+      if (dikonfirmasi ?? false) {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
         try {
           final dataPelanggan = await ref
@@ -294,7 +294,6 @@ class _PointsPageState extends ConsumerState<PointsPage> {
 
   Widget _buildPointsHistory() {
     Log.info('Building points history.');
-    // Tonton provider riwayat.
     final asyncHistory = ref.watch(pointsHistoryProvider(widget.customerId));
 
     return asyncHistory.when(

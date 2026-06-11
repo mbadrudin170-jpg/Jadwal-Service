@@ -10,13 +10,12 @@ part of 'poin_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(Poin)
-final poinProvider = PoinProvider._();
+final poinProvider = PoinFamily._();
 
 final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
-  PoinProvider._()
+  PoinProvider._(
+      {required PoinFamily super.from, required String super.argument})
       : super(
-          from: null,
-          argument: null,
           retry: null,
           name: r'poinProvider',
           isAutoDispose: true,
@@ -27,15 +26,59 @@ final class PoinProvider extends $AsyncNotifierProvider<Poin, PoinState> {
   @override
   String debugGetCreateSourceHash() => _$poinHash();
 
+  @override
+  String toString() {
+    return r'poinProvider'
+        ''
+        '($argument)';
+  }
+
   @$internal
   @override
   Poin create() => Poin();
+
+  @override
+  bool operator ==(Object other) {
+    return other is PoinProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-String _$poinHash() => r'8c11435040872e52c5b7c142129f5c4a6b854ce7';
+String _$poinHash() => r'd5e0d3fd8fee54d55dabb78a309e380fceff62b2';
+
+final class PoinFamily extends $Family
+    with
+        $ClassFamilyOverride<Poin, AsyncValue<PoinState>, PoinState,
+            FutureOr<PoinState>, String> {
+  PoinFamily._()
+      : super(
+          retry: null,
+          name: r'poinProvider',
+          dependencies: null,
+          $allTransitiveDependencies: null,
+          isAutoDispose: true,
+        );
+
+  PoinProvider call(
+    String customerId,
+  ) =>
+      PoinProvider._(argument: customerId, from: this);
+
+  @override
+  String toString() => r'poinProvider';
+}
 
 abstract class _$Poin extends $AsyncNotifier<PoinState> {
-  FutureOr<PoinState> build();
+  late final _$args = ref.$arg as String;
+  String get customerId => _$args;
+
+  FutureOr<PoinState> build(
+    String customerId,
+  );
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -45,7 +88,11 @@ abstract class _$Poin extends $AsyncNotifier<PoinState> {
         AsyncValue<PoinState>,
         Object?,
         Object?>;
-    return element.handleCreate(ref, build);
+    return element.handleCreate(
+        ref,
+        () => build(
+              _$args,
+            ));
   }
 }
 
