@@ -25,7 +25,7 @@ class DompetOpSqlite {
     final WalletModel wallet, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memulai createWallet untuk wallet: ${wallet.id}');
+    Log.info('Memulai tambahDompet untuk wallet: ${wallet.id}');
     try {
       final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.insert(
@@ -35,7 +35,7 @@ class DompetOpSqlite {
       );
       Log.info('Berhasil membuat wallet dengan ID: ${wallet.id}');
     } on Exception catch (e, st) {
-      Log.error('Gagal saat createWallet', e: e, st: st);
+      Log.error('Gagal saat tambahDompet', e: e, st: st);
       rethrow;
     }
   }
@@ -71,7 +71,7 @@ class DompetOpSqlite {
 
   /// Mengambil [WalletModel] berdasarkan [id].
   Future<WalletModel?> getById(final String id) async {
-    Log.info('Memulai getWalletById untuk ID: $id');
+    Log.info('Memulai getById untuk ID: $id');
     try {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
@@ -90,7 +90,7 @@ class DompetOpSqlite {
       return null;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal saat getWalletById untuk ID: $id',
+        'Gagal saat getById untuk ID: $id',
         e: e,
         st: st,
       );
@@ -103,7 +103,7 @@ class DompetOpSqlite {
     final WalletModel wallet, {
     final bool fromServer = false,
   }) async {
-    Log.info('Memulai updateWallet untuk wallet ID: ${wallet.id}');
+    Log.info('Memulai updateDompet untuk wallet ID: ${wallet.id}');
     try {
       final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
       await _baseOperation.update(
@@ -112,10 +112,10 @@ class DompetOpSqlite {
         wallet.id,
         fromServer: fromServer,
       );
-      Log.info('Berhasil updateWallet untuk ID: ${wallet.id}.');
+      Log.info('Berhasil updateDompet untuk ID: ${wallet.id}.');
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal saat updateWallet untuk ID: ${wallet.id}',
+        'Gagal saat updateDompet untuk ID: ${wallet.id}',
         e: e,
         st: st,
       );
@@ -169,7 +169,7 @@ class DompetOpSqlite {
   /// Menghitung total saldo dari semua dompet aktif.
   Future<double> ambilTotalsaldo() async {
     Log.info(
-        'Memulai getTotalBalance (menghitung total saldo dari semua wallet aktif).');
+        'Memulai ambilTotalsaldo (menghitung total saldo dari semua wallet aktif).');
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
@@ -184,7 +184,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getTotalBalance', e: e, st: st);
+      Log.error('Gagal saat ambilTotalsaldo', e: e, st: st);
       rethrow;
     }
   }
@@ -192,7 +192,7 @@ class DompetOpSqlite {
   /// Menghitung total saldo positif dari semua dompet aktif.
   Future<double> ambilSaldoPositif() async {
     Log.info(
-        'Memulai getPositiveBalance (menghitung total saldo > 0 dari wallet aktif).');
+        'Memulai ambilSaldoPositif (menghitung total saldo > 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
@@ -207,7 +207,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo positif: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getPositiveBalance', e: e, st: st);
+      Log.error('Gagal saat ambilSaldoPositif', e: e, st: st);
       rethrow;
     }
   }
@@ -215,7 +215,7 @@ class DompetOpSqlite {
   /// Menghitung total saldo negatif dari semua dompet aktif.
   Future<double> ambilSaldoNegatif() async {
     Log.info(
-        'Memulai getNegativeBalance (menghitung total saldo < 0 dari wallet aktif).');
+        'Memulai ambilSaldoNegatif (menghitung total saldo < 0 dari wallet aktif).');
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
@@ -230,7 +230,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo negatif: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getNegativeBalance', e: e, st: st);
+      Log.error('Gagal saat ambilSaldoNegatif', e: e, st: st);
       rethrow;
     }
   }

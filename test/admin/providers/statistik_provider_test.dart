@@ -17,7 +17,11 @@ void main() {
   final tBestSellingPackage = BestSellingPackage(
     totalSold: 10,
     package: PackageModel(
-        name: 'Paket A', price: 50000, duration: 30, type: DurationType.days),
+      name: 'Paket A',
+      price: 50000,
+      duration: 30,
+      type: DurationType.days,
+    ),
   );
 
   test('1. statistikProvider harus memuat data dengan benar', () async {
@@ -29,11 +33,12 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    when(() => mockRepository.getPendapatanBulanIni()).thenAnswer((_) async => 1000.0);
-    when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
-    when(() => mockRepository.getJumlahLanggananAktif()).thenAnswer((_) async => 5);
-    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
-    when(() => mockRepository.getBestSellingPackages()).thenAnswer((_) async => [tBestSellingPackage]);
+    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 1000.0);
+    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
+    when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
+    when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
+    when(mockRepository.getBestSellingPackages)
+        .thenAnswer((_) async => [tBestSellingPackage]);
 
     await expectLater(container.read(statistikProvider.future), completes);
 
@@ -41,7 +46,8 @@ void main() {
     expect(state.pendapatanBulanIni, 1000.0);
   });
 
-  test('2. statistikProvider harus mengeluarkan AsyncError saat repository gagal', () async {
+  test('2. statistikProvider harus mengeluarkan AsyncError saat repository gagal',
+      () async {
     final mockRepository = MockStatistikRepository();
     final container = ProviderContainer(
       overrides: [
@@ -53,9 +59,8 @@ void main() {
     final exception = Exception('Gagal memuat');
     final completer = Completer<void>();
 
-    // Atur mock agar gagal pada pemanggilan pertama dalam urutan sekuensial.
-    when(() => mockRepository.getPendapatanBulanIni()).thenAnswer((_) => Future.error(exception));
-    // Metode lain tidak perlu di-mock karena provider akan gagal-cepat.
+    when(mockRepository.getPendapatanBulanIni)
+        .thenAnswer((_) => Future.error(exception));
 
     container.listen<AsyncValue<StatistikState>>(
       statistikProvider,
@@ -67,10 +72,9 @@ void main() {
           }
         }
       },
-      fireImmediately: true, // PENTING: untuk memulai build provider.
+      fireImmediately: true,
     );
 
-    // Tunggu hingga listener mengonfirmasi status error.
     await expectLater(completer.future, completes);
   });
 
@@ -83,17 +87,15 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    // Data awal
-    when(() => mockRepository.getPendapatanBulanIni()).thenAnswer((_) async => 1000.0);
-    when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 10);
-    when(() => mockRepository.getJumlahLanggananAktif()).thenAnswer((_) async => 5);
-    when(() => mockRepository.getJumlahFeedbackBaru()).thenAnswer((_) async => 2);
-    when(() => mockRepository.getBestSellingPackages()).thenAnswer((_) async => []);
+    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 1000.0);
+    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
+    when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
+    when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
+    when(mockRepository.getBestSellingPackages).thenAnswer((_) async => []);
     await container.read(statistikProvider.future);
 
-    // Data baru untuk refresh
-    when(() => mockRepository.getPendapatanBulanIni()).thenAnswer((_) async => 2000.0);
-    when(() => mockRepository.getTotalPelanggan()).thenAnswer((_) async => 20);
+    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 2000.0);
+    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 20);
 
     final future = container.refresh(statistikProvider.future);
 
@@ -101,6 +103,6 @@ void main() {
     expect(newState.pendapatanBulanIni, 2000.0);
     expect(newState.totalPelanggan, 20);
 
-    verify(() => mockRepository.getPendapatanBulanIni()).called(2);
+    verify(mockRepository.getPendapatanBulanIni).called(2);
   });
 }

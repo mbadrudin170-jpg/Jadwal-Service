@@ -162,21 +162,22 @@ class _OrderPageState extends ConsumerState<OrderPage> {
         '[Pembangunan UI] ✅ Membangun UI untuk UserOrderPage, menampilkan daftar pesanan realtime.');
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Pesanan Saya'),
-        ),
-        body: Padding(
+      appBar: AppBar(
+        title: const Text('Pesanan Saya'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _listTombolFilter(),
-              Expanded(
-                child: _listPesanan(),
-              ),
+              _listPesanan(),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _listTombolFilter() {
@@ -301,6 +302,8 @@ class _OrderPageState extends ConsumerState<OrderPage> {
 
         final paketOpFirebase = ref.watch(packageOpFirebaseProvider);
         return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: filteredOrders.length,
           itemBuilder: (context, index) {
             final order = filteredOrders[index];

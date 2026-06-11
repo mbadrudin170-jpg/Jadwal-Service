@@ -7,8 +7,8 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/model/model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'transaction_provider_test.mocks.dart';
@@ -94,9 +94,9 @@ void main() {
     test('2. sortTransactions harus mengurutkan list tanpa memuat ulang',
         () async {
       // Arrange
-      // Memastikan build selesai dan state adalah AsyncData
       await container.read(transactionProvider.future);
-      expect(container.read(transactionProvider), isA<AsyncData>());
+      expect(container.read(transactionProvider),
+          isA<AsyncData<TransactionState>>());
 
       // Act: urutkan berdasarkan terlama
       container
@@ -104,8 +104,8 @@ void main() {
           .sortTransactions(SortBy.oldest);
 
       // Assert
-      // Pastikan state tetap AsyncData dan tidak menjadi AsyncLoading
-      expect(container.read(transactionProvider), isA<AsyncData>());
+      expect(container.read(transactionProvider),
+          isA<AsyncData<TransactionState>>());
       final stateOldest = container.read(transactionProvider).value!;
       expect(stateOldest.sortBy, SortBy.oldest);
       expect(stateOldest.transactions.first.id, '1');
@@ -116,7 +116,8 @@ void main() {
           .sortTransactions(SortBy.lowestAmount);
 
       // Assert
-      expect(container.read(transactionProvider), isA<AsyncData>());
+      expect(container.read(transactionProvider),
+          isA<AsyncData<TransactionState>>());
       final stateLowest = container.read(transactionProvider).value!;
       expect(stateLowest.sortBy, SortBy.lowestAmount);
       expect(stateLowest.transactions.first.amount, 50000);

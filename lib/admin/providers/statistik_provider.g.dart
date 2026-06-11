@@ -20,7 +20,7 @@ final class StatistikProvider
           argument: null,
           retry: null,
           name: r'statistikProvider',
-          isAutoDispose: true,
+          isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
@@ -33,7 +33,7 @@ final class StatistikProvider
   Statistik create() => Statistik();
 }
 
-String _$statistikHash() => r'38249cad692b68b1926a054c7ec3015174df3163';
+String _$statistikHash() => r'1dc277eb1f82b32fb5919b5ce16892db20ff7563';
 
 abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();

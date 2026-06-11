@@ -16,6 +16,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
+import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 // 1. Membuat mock class dengan Mocktail
@@ -72,7 +73,7 @@ void main() {
 
     // Stubs default
     when(() => mockPackageOpFirebase.getPackageById(any()))
-        .thenAnswer((_) async => package1);
+        .thenAnswer((_) => Future.value(package1));
     when(() => mockOrderOpFirebase.getAllByUserId(any()))
         .thenAnswer((_) => Stream.value([]));
     when(() => mockOrderOperation.getAllActiveOrdersStream())
@@ -100,7 +101,7 @@ void main() {
         packageOpFirebaseProvider.overrideWith((ref) => mockPackageOpFirebase),
       ],
       child: MaterialApp(
-        home: child,
+        home: Material(child: child),
       ),
     );
   }
@@ -113,19 +114,24 @@ void main() {
       when(() => mockOrderOperation.getJumlahByStatus(StatusOrderEnum.baru))
           .thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById('pkg1'))
-          .thenAnswer((_) async => package1);
+          .thenAnswer((_) => Future.value(package1));
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.admin,
         userId: 'admin1',
       ));
+
       await tester.pumpAndSettle();
 
       // Ubah filter untuk menampilkan pesanan 'Baru'
-      await tester.tap(find.text('Baru'));
+      final baruButton = find.text('Baru');
+      await tester.ensureVisible(baruButton);
+      await tester.pumpAndSettle();
+      await tester.tap(baruButton);
       await tester.pumpAndSettle();
 
+      // Verify that the package name is eventually displayed
       expect(find.text('Paket Admin'), findsOneWidget);
       expect(find.text('Status: baru'), findsOneWidget);
     });
@@ -137,17 +143,21 @@ void main() {
       when(() => mockOrderOpFirebase.countOrdersByStatus(
           StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById('pkg2'))
-          .thenAnswer((_) async => package2);
+          .thenAnswer((_) => Future.value(package2));
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.user,
         userId: 'custUser',
       ));
+
       await tester.pumpAndSettle();
 
       // Ubah filter untuk menampilkan pesanan 'Diproses'
-      await tester.tap(find.text('Diproses'));
+      final prosesButton = find.text('Diproses');
+      await tester.ensureVisible(prosesButton);
+      await tester.pumpAndSettle();
+      await tester.tap(prosesButton);
       await tester.pumpAndSettle();
 
       expect(find.text('Paket User'), findsOneWidget);
@@ -163,9 +173,9 @@ void main() {
       when(() => mockOrderOpFirebase.countOrdersByStatus(
           StatusOrderEnum.diproses, any())).thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById('pkg1'))
-          .thenAnswer((_) async => package1);
+          .thenAnswer((_) => Future.value(package1));
       when(() => mockPackageOpFirebase.getPackageById('pkg2'))
-          .thenAnswer((_) async => package2);
+          .thenAnswer((_) => Future.value(package2));
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
@@ -176,13 +186,19 @@ void main() {
 
       expect(find.text('Belum ada pesanan ditemukan.'), findsOneWidget);
 
-      await tester.tap(find.text('Baru'));
+      final baruButton = find.text('Baru');
+      await tester.ensureVisible(baruButton);
+      await tester.pumpAndSettle();
+      await tester.tap(baruButton);
       await tester.pumpAndSettle();
 
       expect(find.text('Paket Admin'), findsOneWidget);
       expect(find.text('Paket User'), findsNothing);
 
-      await tester.tap(find.text('Diproses'));
+      final prosesButton = find.text('Diproses');
+      await tester.ensureVisible(prosesButton);
+      await tester.pumpAndSettle();
+      await tester.tap(prosesButton);
       await tester.pumpAndSettle();
 
       expect(find.text('Paket Admin'), findsNothing);
@@ -195,20 +211,28 @@ void main() {
       when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById(any()))
-          .thenAnswer((_) async => package1);
+          .thenAnswer((_) => Future.value(package1));
 
       await tester.pumpWidget(createTestableWidget(
         child: const OrderPage(),
         appRole: AppRole.admin,
         userId: 'admin1',
       ));
+
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Baru'));
+      final baruButton = find.text('Baru');
+      await tester.ensureVisible(baruButton);
+      await tester.pumpAndSettle();
+      await tester.tap(baruButton);
       await tester.pumpAndSettle();
 
-      expect(find.byType(ListTile), findsOneWidget);
-      await tester.longPress(find.byType(ListTile));
+      final listTile = find.byType(ListTile);
+      await tester.ensureVisible(listTile);
+      await tester.pumpAndSettle();
+
+      expect(listTile, findsOneWidget);
+      await tester.longPress(listTile);
       await tester.pumpAndSettle();
 
       expect(find.byType(Dialog), findsOneWidget);
@@ -222,7 +246,7 @@ void main() {
       when(() => mockOrderOperation.getJumlahByStatus(any()))
           .thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById(any()))
-          .thenAnswer((_) async => package1);
+          .thenAnswer((_) => Future.value(package1));
       when(() => mockOrderOperation.updateOrderStatus(any(), any()))
           .thenAnswer((_) async {});
 
@@ -231,14 +255,21 @@ void main() {
         appRole: AppRole.admin,
         userId: 'admin1',
       ));
+
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Baru'));
+      final baruButton = find.text('Baru');
+      await tester.ensureVisible(baruButton);
+      await tester.pumpAndSettle();
+      await tester.tap(baruButton);
       await tester.pumpAndSettle();
 
-      expect(find.byType(ListTile), findsOneWidget);
+      final listTile = find.byType(ListTile);
+      await tester.ensureVisible(listTile);
+      await tester.pumpAndSettle();
+      expect(listTile, findsOneWidget);
 
-      await tester.longPress(find.byType(ListTile));
+      await tester.longPress(listTile);
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Ubah Status'));
@@ -271,7 +302,7 @@ void main() {
       when(() => mockOrderOpFirebase.countOrdersByStatus(any(), any()))
           .thenAnswer((_) async => 1);
       when(() => mockPackageOpFirebase.getPackageById(any()))
-          .thenAnswer((_) async => package2);
+          .thenAnswer((_) => Future.value(package2));
       when(() => mockOrderOpFirebase.softDeleteOrder(any()))
           .thenAnswer((_) async {});
 
@@ -280,14 +311,21 @@ void main() {
         appRole: AppRole.user,
         userId: 'custUser',
       ));
+
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Diproses'));
+      final prosesButton = find.text('Diproses');
+      await tester.ensureVisible(prosesButton);
+      await tester.pumpAndSettle();
+      await tester.tap(prosesButton);
       await tester.pumpAndSettle();
 
-      expect(find.byType(ListTile), findsOneWidget);
+      final listTile = find.byType(ListTile);
+      await tester.ensureVisible(listTile);
+      await tester.pumpAndSettle();
+      expect(listTile, findsOneWidget);
 
-      await tester.longPress(find.byType(ListTile));
+      await tester.longPress(listTile);
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Hapus'));
