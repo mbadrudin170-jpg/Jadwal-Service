@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,7 +13,6 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/poin/points_page_providers.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -41,6 +41,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
   final _interstitialAdService = InterstitialAdService();
   MenuPoin _selectedMenu = MenuPoin.penukaran;
   late final Widget _appBarTitle;
+  bool _isTukarPoin = false;
 
   @override
   void initState() {
@@ -68,99 +69,112 @@ class _PointsPageState extends ConsumerState<PointsPage> {
     }
   }
 
-  Future<void> _redeemReward(BuildContext context, WidgetRef ref,
+  Future<void> _tukarPoin(BuildContext context, WidgetRef ref,
       PackageModel reward, int currentPoints) async {
-    final role = ref.read(appRoleProvider);
-    if (role == AppRole.admin) {
-      Log.warning('Admin mencoba menukar poin, operasi diblokir.');
-      ToastUtil.error(
-          context, 'Admin tidak dapat menukar poin dari antarmuka ini.');
-      return;
-    }
-
-    final bool enoughPoints = currentPoints >= reward.redemptionPoints;
-    if (!enoughPoints) {
-      ToastUtil.warning(
-          context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
-      return;
-    }
-
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Konfirmasi Penukaran'),
-        content: Text('Anda yakin ingin menukar poin dengan ${reward.name}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Ya, Tukar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed ?? false) {
-      Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
-      try {
-        final customerOp = ref.read(customerOperationProvider);
-        final dataPelangan = await customerOp.getById(widget.customerId);
-
-        final now = DateTime.now();
-        final idOrder = const Uuid().v4();
-
-        final orderData = OrderModel(
-            id: idOrder,
-            customerId: widget.customerId,
-            packageId: reward.id,
-            date: now);
-
-        final notifikasiData = NotifikasiModel(
-            id: const Uuid().v4(),
-            startDate: now,
-            endDate: now,
-            tanggalTampil: now,
-            title: 'Order Paket',
-            description: 'pelanggan ${dataPelangan?.name} melakukan order',
-            type: TipeNotifikasiEnum.order,
-            updatedAt: now,
-            idTujuan: idOrder,
-            userId: widget.customerId);
-
-        final orderOperation = ref.read(orderOperationProvider);
-        orderOperation.saveOrder(orderData);
-        Log.info(
-            'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
-
-        final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
-        notifikasiOp.add(notifikasiData);
-        Log.info('berhasil membuat notifikasi untuk paket');
-
-        ref.invalidate(pointsPageDataProvider);
-        ref.invalidate(pointsHistoryProvider);
-
-        final cekKoneksi = ref.read(koneksiInternetServiceProvider);
-        final isConnected = await cekKoneksi.cekKoneksiLokal();
-        if (isConnected) {
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          syncCheckService.runSyncCheck();
-          Log.info('internet ada jadi melakukan sinkronisasi');
-        }
-
-        if (!mounted) return;
-        ToastUtil.success(context, '${reward.name} berhasil ditukar!');
-      } on Exception catch (e, st) {
-        Log.error('Gagal menukar poin: $e', e: e, st: st);
-        if (!mounted) return;
-        ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
+    if (_isTukarPoin) return;
+    setState(() => _isTukarPoin = true);
+    try {
+      final role = ref.read(appRoleProvider);
+      if (role == AppRole.admin) {
+        Log.warning('Admin mencoba menukar poin, operasi diblokir.');
+        ToastUtil.error(
+            context, 'Admin tidak dapat menukar poin dari antarmuka ini.');
+        return;
       }
+
+      final isOnline =
+          await ref.read(koneksiInternetServiceProvider).cekInternet(ref);
+      if (!isOnline) {
+        ToastUtil.warning(context, 'Cek koneksi internet Anda');
+        return;
+      }
+
+      final bool enoughPoints = currentPoints >= reward.redemptionPoints;
+      if (!enoughPoints) {
+        ToastUtil.warning(
+            context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
+        return;
+      }
+
+      final bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Konfirmasi Penukaran'),
+          content: Text('Anda yakin ingin menukar poin dengan ${reward.name}?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Ya, Tukar'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed ?? false) {
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
+        try {
+          final customerOp = ref.read(customerOperationProvider);
+          final dataPelangan = await customerOp.getById(widget.customerId);
+
+          final now = DateTime.now();
+          final idOrder = const Uuid().v4();
+
+          final orderData = OrderModel(
+              id: idOrder,
+              customerId: widget.customerId,
+              packageId: reward.id,
+              date: now);
+
+          final notifikasiData = NotifikasiModel(
+              id: const Uuid().v4(),
+              startDate: now,
+              endDate: now,
+              tanggalTampil: now,
+              title: 'Order Paket',
+              description: 'pelanggan ${dataPelangan?.name} melakukan order',
+              type: TipeNotifikasiEnum.order,
+              updatedAt: now,
+              idTujuan: idOrder,
+              userId: widget.customerId);
+
+          final orderOperation = ref.read(orderOperationProvider);
+          orderOperation.saveOrder(orderData);
+          Log.info(
+              'berhasil membuat order baru untuk id pelanggan: ${widget.customerId}');
+
+          final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
+          notifikasiOp.add(notifikasiData);
+          Log.info('berhasil membuat notifikasi untuk paket');
+
+          ref.invalidate(pointsPageDataProvider);
+          ref.invalidate(pointsHistoryProvider);
+
+          final cekKoneksi = ref.read(koneksiInternetServiceProvider);
+          final isConnected = await cekKoneksi.cekKoneksiLokal();
+          if (isConnected) {
+            final syncCheckService = ref.read(syncCheckServiceProvider);
+            syncCheckService.runSyncCheck();
+            Log.info('internet ada jadi melakukan sinkronisasi');
+          }
+
+          if (!mounted) return;
+          ToastUtil.success(context, '${reward.name} berhasil ditukar!');
+        } on Exception catch (e, st) {
+          Log.error('Gagal menukar poin: $e', e: e, st: st);
+          if (!mounted) return;
+          ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
+        }
+      }
+    } finally {
+      setState(() => _isTukarPoin = false);
     }
   }
 
-  Future<void> _navigateToDetailTransaksi(TransactionModel transaction) async {
+  Future<void> _navigasiKeDetailtransaksi(TransactionModel transaction) async {
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaction.id}');
     PackageModel? package;
@@ -251,9 +265,12 @@ class _PointsPageState extends ConsumerState<PointsPage> {
                   children: [
                     Text('${reward.redemptionPoints} Poin'),
                     ElevatedButton(
-                      onPressed: () =>
-                          _redeemReward(context, ref, reward, totalPoints),
-                      child: const Text('Tukar'),
+                      onPressed: _isTukarPoin
+                          ? null
+                          : () => _tukarPoin(context, ref, reward, totalPoints),
+                      child: _isTukarPoin
+                          ? const CircularProgressIndicator()
+                          : const Text('Tukar'),
                     ),
                   ],
                 ),
@@ -310,7 +327,7 @@ class _PointsPageState extends ConsumerState<PointsPage> {
                     ? Colors.green
                     : Colors.red;
             return InkWell(
-              onTap: () => _navigateToDetailTransaksi(tx),
+              onTap: () => _navigasiKeDetailtransaksi(tx),
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: ListTile(
