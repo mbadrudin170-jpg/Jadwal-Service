@@ -69,6 +69,7 @@ void main() {
         pengelolaAkunProvider.overrideWith(() => mockPengelolaAkun),
         firestoreProvider.overrideWithValue(fakeFirestore),
         userActivityServiceProvider
+        
             .overrideWithValue(AsyncValue.data(mockUserActivityService)),
         localStorageServiceProvider
             .overrideWithValue(AsyncValue.data(mockLayananPenyimpananLokal)),
