@@ -2,46 +2,27 @@
 
 import 'dart:async';
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart'; // Impor enum SortBy
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/admin/providers/wallet_provider.dart';
+import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 part 'transaction_provider.g.dart';
+part 'transaction_provider.freezed.dart';
 
-class TransactionState {
-  final List<TransactionModel> transactions;
-  final double totalIncome;
-  final double totalExpense;
-  final double netTotal;
-  final SortBy sortBy;
-
-  TransactionState({
-    this.transactions = const [],
-    this.totalIncome = 0.0,
-    this.totalExpense = 0.0,
-    this.netTotal = 0.0,
-    this.sortBy = SortBy.newest,
-  });
-
-  TransactionState copyWith({
-    List<TransactionModel>? transactions,
-    double? totalIncome,
-    double? totalExpense,
-    double? netTotal,
-    SortBy? sortBy,
-  }) {
-    return TransactionState(
-      transactions: transactions ?? this.transactions,
-      totalIncome: totalIncome ?? this.totalIncome,
-      totalExpense: totalExpense ?? this.totalExpense,
-      netTotal: netTotal ?? this.netTotal,
-      sortBy: sortBy ?? this.sortBy,
-    );
-  }
+@freezed
+abstract class TransactionState with _$TransactionState {
+  const factory TransactionState({
+    @Default([]) List<TransactionModel> transactions,
+    @Default(0.0) double totalIncome,
+    @Default(0.0) double totalExpense,
+    @Default(0.0) double netTotal,
+    @Default(SortBy.newest) SortBy sortBy,
+  }) = _TransactionState;
 }
 
 @riverpod

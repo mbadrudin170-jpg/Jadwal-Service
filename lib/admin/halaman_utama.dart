@@ -10,7 +10,7 @@ import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
-import 'package:wifi/admin/halaman/tab/wallet_page.dart';
+import 'package:wifi/fitur/dompet/page/wallet_page.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/order/ui/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';

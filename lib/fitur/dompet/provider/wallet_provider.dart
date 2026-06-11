@@ -1,4 +1,4 @@
-// path: lib/admin/providers/wallet_provider.dart
+// path: lib/fitur/dompet/provider/wallet_provider.dart
 
 import 'dart:async';
 
@@ -13,10 +13,10 @@ part 'wallet_provider.g.dart';
 @freezed
 abstract class WalletState with _$WalletState {
   const factory WalletState({
-    @Default([]) List<WalletModel> wallets,
-    @Default(0.0) double totalPositiveBalance,
-    @Default(0.0) double totalNegativeBalance,
-    @Default(0.0) double totalBalance,
+    @Default([]) List<WalletModel> daftarDompet,
+    @Default(0.0) double totalSaldoPositif,
+    @Default(0.0) double totalSaldoNegatif,
+    @Default(0.0) double totalSaldo,
   }) = _WalletState;
 }
 
@@ -31,32 +31,33 @@ class Wallet extends _$Wallet {
     final operation = ref.watch(walletOperationProvider);
     final results = await Future.wait([
       operation.getWallets(),
-      operation.getPositiveBalance(),
-      operation.getNegativeBalance(),
-      operation.getTotalBalance(),
+      operation.ambilSaldoPositif(),
+      operation.ambilSaldoNegatif(),
+      operation.ambilTotalsaldo(),
     ]);
 
     return WalletState(
-      wallets: results[0] as List<WalletModel>,
-      totalPositiveBalance: results[1] as double,
-      totalNegativeBalance: (results[2] as double).abs(),
-      totalBalance: results[3] as double,
+      daftarDompet: results[0] as List<WalletModel>,
+      totalSaldoPositif: results[1] as double,
+      totalSaldoNegatif: (results[2] as double).abs(),
+      totalSaldo: results[3] as double,
     );
   }
+
   /// fungsi untuk menambah data dompet baru
-  Future<void> addWallet(WalletModel wallet) async {
+  Future<void> tambahDompet(WalletModel wallet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
-      await operation.createWallet(wallet);
+      await operation.tambahDompet(wallet);
       return _loadData();
     });
   }
 
   /// fungsi untuk update satu data dompet
-  Future<void> updateWallet(WalletModel wallet) async {
+  Future<void> updateDompet(WalletModel wallet) async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
-      await operation.updateWallet(wallet);
+      await operation.updateDompet(wallet);
       return _loadData();
     });
   }
@@ -71,10 +72,10 @@ class Wallet extends _$Wallet {
   }
 
   /// fungsi untuk menghapus semua data dompet
-  Future<void> deleteAllWallets() async {
+  Future<void> softDeleteAll() async {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
-      await operation.deleteAllWallets();
+      await operation.softDeleteAll();
       return _loadData();
     });
   }

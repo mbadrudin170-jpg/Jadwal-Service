@@ -14,10 +14,10 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$WalletState {
-  List<WalletModel> get wallets;
-  double get totalPositiveBalance;
-  double get totalNegativeBalance;
-  double get totalBalance;
+  List<WalletModel> get daftarDompet;
+  double get totalSaldoPositif;
+  double get totalSaldoNegatif;
+  double get totalSaldo;
 
   /// Create a copy of WalletState
   /// with the given fields replaced by the non-null parameter values.
@@ -31,26 +31,27 @@ mixin _$WalletState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is WalletState &&
-            const DeepCollectionEquality().equals(other.wallets, wallets) &&
-            (identical(other.totalPositiveBalance, totalPositiveBalance) ||
-                other.totalPositiveBalance == totalPositiveBalance) &&
-            (identical(other.totalNegativeBalance, totalNegativeBalance) ||
-                other.totalNegativeBalance == totalNegativeBalance) &&
-            (identical(other.totalBalance, totalBalance) ||
-                other.totalBalance == totalBalance));
+            const DeepCollectionEquality()
+                .equals(other.daftarDompet, daftarDompet) &&
+            (identical(other.totalSaldoPositif, totalSaldoPositif) ||
+                other.totalSaldoPositif == totalSaldoPositif) &&
+            (identical(other.totalSaldoNegatif, totalSaldoNegatif) ||
+                other.totalSaldoNegatif == totalSaldoNegatif) &&
+            (identical(other.totalSaldo, totalSaldo) ||
+                other.totalSaldo == totalSaldo));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(wallets),
-      totalPositiveBalance,
-      totalNegativeBalance,
-      totalBalance);
+      const DeepCollectionEquality().hash(daftarDompet),
+      totalSaldoPositif,
+      totalSaldoNegatif,
+      totalSaldo);
 
   @override
   String toString() {
-    return 'WalletState(wallets: $wallets, totalPositiveBalance: $totalPositiveBalance, totalNegativeBalance: $totalNegativeBalance, totalBalance: $totalBalance)';
+    return 'WalletState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
@@ -61,10 +62,10 @@ abstract mixin class $WalletStateCopyWith<$Res> {
       _$WalletStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<WalletModel> wallets,
-      double totalPositiveBalance,
-      double totalNegativeBalance,
-      double totalBalance});
+      {List<WalletModel> daftarDompet,
+      double totalSaldoPositif,
+      double totalSaldoNegatif,
+      double totalSaldo});
 }
 
 /// @nodoc
@@ -79,27 +80,27 @@ class _$WalletStateCopyWithImpl<$Res> implements $WalletStateCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? wallets = null,
-    Object? totalPositiveBalance = null,
-    Object? totalNegativeBalance = null,
-    Object? totalBalance = null,
+    Object? daftarDompet = null,
+    Object? totalSaldoPositif = null,
+    Object? totalSaldoNegatif = null,
+    Object? totalSaldo = null,
   }) {
     return _then(_self.copyWith(
-      wallets: null == wallets
-          ? _self.wallets
-          : wallets // ignore: cast_nullable_to_non_nullable
+      daftarDompet: null == daftarDompet
+          ? _self.daftarDompet
+          : daftarDompet // ignore: cast_nullable_to_non_nullable
               as List<WalletModel>,
-      totalPositiveBalance: null == totalPositiveBalance
-          ? _self.totalPositiveBalance
-          : totalPositiveBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldoPositif: null == totalSaldoPositif
+          ? _self.totalSaldoPositif
+          : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
               as double,
-      totalNegativeBalance: null == totalNegativeBalance
-          ? _self.totalNegativeBalance
-          : totalNegativeBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldoNegatif: null == totalSaldoNegatif
+          ? _self.totalSaldoNegatif
+          : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
               as double,
-      totalBalance: null == totalBalance
-          ? _self.totalBalance
-          : totalBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldo: null == totalSaldo
+          ? _self.totalSaldo
+          : totalSaldo // ignore: cast_nullable_to_non_nullable
               as double,
     ));
   }
@@ -198,16 +199,16 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<WalletModel> wallets, double totalPositiveBalance,
-            double totalNegativeBalance, double totalBalance)?
+    TResult Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+            double totalSaldoNegatif, double totalSaldo)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _WalletState() when $default != null:
-        return $default(_that.wallets, _that.totalPositiveBalance,
-            _that.totalNegativeBalance, _that.totalBalance);
+        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+            _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         return orElse();
     }
@@ -228,15 +229,15 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<WalletModel> wallets, double totalPositiveBalance,
-            double totalNegativeBalance, double totalBalance)
+    TResult Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+            double totalSaldoNegatif, double totalSaldo)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WalletState():
-        return $default(_that.wallets, _that.totalPositiveBalance,
-            _that.totalNegativeBalance, _that.totalBalance);
+        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+            _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -256,15 +257,15 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<WalletModel> wallets, double totalPositiveBalance,
-            double totalNegativeBalance, double totalBalance)?
+    TResult? Function(List<WalletModel> daftarDompet, double totalSaldoPositif,
+            double totalSaldoNegatif, double totalSaldo)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _WalletState() when $default != null:
-        return $default(_that.wallets, _that.totalPositiveBalance,
-            _that.totalNegativeBalance, _that.totalBalance);
+        return $default(_that.daftarDompet, _that.totalSaldoPositif,
+            _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
         return null;
     }
@@ -275,30 +276,30 @@ extension WalletStatePatterns on WalletState {
 
 class _WalletState implements WalletState {
   const _WalletState(
-      {final List<WalletModel> wallets = const [],
-      this.totalPositiveBalance = 0.0,
-      this.totalNegativeBalance = 0.0,
-      this.totalBalance = 0.0})
-      : _wallets = wallets;
+      {final List<WalletModel> daftarDompet = const [],
+      this.totalSaldoPositif = 0.0,
+      this.totalSaldoNegatif = 0.0,
+      this.totalSaldo = 0.0})
+      : _daftarDompet = daftarDompet;
 
-  final List<WalletModel> _wallets;
+  final List<WalletModel> _daftarDompet;
   @override
   @JsonKey()
-  List<WalletModel> get wallets {
-    if (_wallets is EqualUnmodifiableListView) return _wallets;
+  List<WalletModel> get daftarDompet {
+    if (_daftarDompet is EqualUnmodifiableListView) return _daftarDompet;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_wallets);
+    return EqualUnmodifiableListView(_daftarDompet);
   }
 
   @override
   @JsonKey()
-  final double totalPositiveBalance;
+  final double totalSaldoPositif;
   @override
   @JsonKey()
-  final double totalNegativeBalance;
+  final double totalSaldoNegatif;
   @override
   @JsonKey()
-  final double totalBalance;
+  final double totalSaldo;
 
   /// Create a copy of WalletState
   /// with the given fields replaced by the non-null parameter values.
@@ -313,26 +314,27 @@ class _WalletState implements WalletState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _WalletState &&
-            const DeepCollectionEquality().equals(other._wallets, _wallets) &&
-            (identical(other.totalPositiveBalance, totalPositiveBalance) ||
-                other.totalPositiveBalance == totalPositiveBalance) &&
-            (identical(other.totalNegativeBalance, totalNegativeBalance) ||
-                other.totalNegativeBalance == totalNegativeBalance) &&
-            (identical(other.totalBalance, totalBalance) ||
-                other.totalBalance == totalBalance));
+            const DeepCollectionEquality()
+                .equals(other._daftarDompet, _daftarDompet) &&
+            (identical(other.totalSaldoPositif, totalSaldoPositif) ||
+                other.totalSaldoPositif == totalSaldoPositif) &&
+            (identical(other.totalSaldoNegatif, totalSaldoNegatif) ||
+                other.totalSaldoNegatif == totalSaldoNegatif) &&
+            (identical(other.totalSaldo, totalSaldo) ||
+                other.totalSaldo == totalSaldo));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_wallets),
-      totalPositiveBalance,
-      totalNegativeBalance,
-      totalBalance);
+      const DeepCollectionEquality().hash(_daftarDompet),
+      totalSaldoPositif,
+      totalSaldoNegatif,
+      totalSaldo);
 
   @override
   String toString() {
-    return 'WalletState(wallets: $wallets, totalPositiveBalance: $totalPositiveBalance, totalNegativeBalance: $totalNegativeBalance, totalBalance: $totalBalance)';
+    return 'WalletState(daftarDompet: $daftarDompet, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
@@ -345,10 +347,10 @@ abstract mixin class _$WalletStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<WalletModel> wallets,
-      double totalPositiveBalance,
-      double totalNegativeBalance,
-      double totalBalance});
+      {List<WalletModel> daftarDompet,
+      double totalSaldoPositif,
+      double totalSaldoNegatif,
+      double totalSaldo});
 }
 
 /// @nodoc
@@ -363,27 +365,27 @@ class __$WalletStateCopyWithImpl<$Res> implements _$WalletStateCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? wallets = null,
-    Object? totalPositiveBalance = null,
-    Object? totalNegativeBalance = null,
-    Object? totalBalance = null,
+    Object? daftarDompet = null,
+    Object? totalSaldoPositif = null,
+    Object? totalSaldoNegatif = null,
+    Object? totalSaldo = null,
   }) {
     return _then(_WalletState(
-      wallets: null == wallets
-          ? _self._wallets
-          : wallets // ignore: cast_nullable_to_non_nullable
+      daftarDompet: null == daftarDompet
+          ? _self._daftarDompet
+          : daftarDompet // ignore: cast_nullable_to_non_nullable
               as List<WalletModel>,
-      totalPositiveBalance: null == totalPositiveBalance
-          ? _self.totalPositiveBalance
-          : totalPositiveBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldoPositif: null == totalSaldoPositif
+          ? _self.totalSaldoPositif
+          : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
               as double,
-      totalNegativeBalance: null == totalNegativeBalance
-          ? _self.totalNegativeBalance
-          : totalNegativeBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldoNegatif: null == totalSaldoNegatif
+          ? _self.totalSaldoNegatif
+          : totalSaldoNegatif // ignore: cast_nullable_to_non_nullable
               as double,
-      totalBalance: null == totalBalance
-          ? _self.totalBalance
-          : totalBalance // ignore: cast_nullable_to_non_nullable
+      totalSaldo: null == totalSaldo
+          ? _self.totalSaldo
+          : totalSaldo // ignore: cast_nullable_to_non_nullable
               as double,
     ));
   }

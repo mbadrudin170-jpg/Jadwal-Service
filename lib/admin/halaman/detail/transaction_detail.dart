@@ -25,7 +25,7 @@ class TransactionDetailPage extends ConsumerStatefulWidget {
 }
 
 class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
-  late final WalletOperation _walletOperation =
+  late final DompetOpSqlite _walletOperation =
       ref.watch(walletOperationProvider);
   late final CategoryOperation _categoryOperation =
       ref.watch(categoryOperationProvider);

@@ -10,7 +10,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
@@ -73,7 +73,7 @@ class TransactionTile extends ConsumerStatefulWidget {
 
 class _TransactionTileState extends ConsumerState<TransactionTile> {
   late final CategoryOperation _categoryOperation;
-  late final WalletOperation _walletOperation;
+  late final DompetOpSqlite _walletOperation;
 
   @override
   void initState() {

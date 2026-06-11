@@ -38,30 +38,30 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   List<CustomerModel> _pelangganList = [];
   List<PackageModel> _paketList = [];
-  List<WalletModel> _daftarDompet = [];
+  List<WalletModel> _dompetList = [];
   List<CategoryModel> _kategoriPemasukanList = [];
   List<CategoryModel> _kategoriPengeluaranList = [];
   List<CategoryModel> get _kategoriList =>
       _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
-  CustomerModel? _selectedPelanggan;
-  PackageModel? _selectedPaket;
-  WalletModel? _selectedDompet;
-  CategoryModel? _selectedKategori;
+  CustomerModel? _pelangganDipilih;
+  PackageModel? _paketDipilih;
+  WalletModel? _dompetDipilih;
+  CategoryModel? _kategoriDipilih;
   bool _isLoading = true;
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
   DurationType _bonusDurationType = DurationType.minutes;
   bool _isBonus = false;
   int _saldoPoinPelanggan = 0;
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  DateTime? _pilihTanggal;
+  TimeOfDay? _pilihJam;
   PaymentStatus _statusPembayaran = PaymentStatus.paid;
-  bool get _isEditMode => widget.pelangganAktif != null;
+  bool get _modeEdit => widget.pelangganAktif != null;
   int hitungPoinEfektif() {
-    if (_selectedPaket == null) {
+    if (_paketDipilih == null) {
       return 0;
     }
-    return _gunakanPoin ? _selectedPaket!.redemptionPoints : 0;
+    return _gunakanPoin ? _paketDipilih!.redemptionPoints : 0;
   }
 
   int hitungSisaPoin() {
@@ -86,7 +86,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   void initState() {
     super.initState();
     _bonusDurationController = TextEditingController();
-    Log.info('FormPelangganAktif initState, isEditMode=$_isEditMode');
+    Log.info('FormPelangganAktif initState, isEditMode=$_modeEdit');
     unawaited(_loadAllData());
   }
 
@@ -142,11 +142,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       setState(() {
         _pelangganList = pelangganList;
         _paketList = paketList;
-        _daftarDompet = daftarDompet;
+        _dompetList = daftarDompet;
         _kategoriPemasukanList = kategoriPemasukanList;
         _kategoriPengeluaranList = kategoriPengeluaranList;
 
-        if (_isEditMode) {
+        if (_modeEdit) {
           _mapEditData(transaksiTerkait);
         } else {
           _mapNewData();
@@ -169,19 +169,19 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
 
-    _selectedPelanggan =
+    _pelangganDipilih =
         _pelangganList.firstWhereOrNull((p) => p.id == pa.customerId);
-    _selectedPaket = _paketList.firstWhereOrNull((p) => p.id == pa.packageId);
+    _paketDipilih = _paketList.firstWhereOrNull((p) => p.id == pa.packageId);
 
     if (transaksi != null) {
       Log.info(
           'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.');
-      _selectedDompet =
-          _daftarDompet.firstWhereOrNull((d) => d.id == transaksi.walletId);
+      _dompetDipilih =
+          _dompetList.firstWhereOrNull((d) => d.id == transaksi.walletId);
       final kategoriSumber = transaksi.type == TransactionType.income
           ? _kategoriPemasukanList
           : _kategoriPengeluaranList;
-      _selectedKategori =
+      _kategoriDipilih =
           kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.categoryId);
 
       if (transaksi.durasiBonus != null && transaksi.durasiBonus! > 0) {
@@ -198,12 +198,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       }
     }
 
-    _selectedDate = pa.startDate;
-    _selectedTime = TimeOfDay.fromDateTime(pa.startDate);
+    _pilihTanggal = pa.startDate;
+    _pilihJam = TimeOfDay.fromDateTime(pa.startDate);
     _statusPembayaran = pa.status;
 
-    if (_selectedPelanggan != null) {
-      transaksiOperasi.getTotalPoints(_selectedPelanggan!.id).then((poin) {
+    if (_pelangganDipilih != null) {
+      transaksiOperasi.getTotalPoints(_pelangganDipilih!.id).then((poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
         }
@@ -216,50 +216,50 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   void _mapNewData() {
     Log.info('Menginisialisasi form untuk entri baru.');
     final now = DateTime.now();
-    _selectedDate = now;
-    _selectedTime = TimeOfDay.fromDateTime(now);
-    if (_daftarDompet.isNotEmpty) {
-      _selectedDompet = _daftarDompet.first;
+    _pilihTanggal = now;
+    _pilihJam = TimeOfDay.fromDateTime(now);
+    if (_dompetList.isNotEmpty) {
+      _dompetDipilih = _dompetList.first;
     }
     if (_kategoriPemasukanList.isNotEmpty) {
-      _selectedKategori = _kategoriPemasukanList.firstWhereOrNull(
+      _kategoriDipilih = _kategoriPemasukanList.firstWhereOrNull(
               (k) => k.name.toLowerCase() == 'aktivasi paket') ??
           _kategoriPemasukanList.first;
     }
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    Log.info('Memilih tanggal, saat ini: $_selectedDate');
-    final picked = await showDatePicker(
+    Log.info('Memilih tanggal, saat ini: $_pilihTanggal');
+    final terpilih = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _pilihTanggal ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() => _selectedDate = picked);
-      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(picked)}');
+    if (terpilih != null && terpilih != _pilihTanggal) {
+      setState(() => _pilihTanggal = terpilih);
+      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(terpilih)}');
     }
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    Log.info('Memilih waktu, saat ini: $_selectedTime');
-    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
-    final picked = await showTimePicker(
+    Log.info('Memilih waktu, saat ini: $_pilihJam');
+    final initial = _pilihJam ?? TimeOfDay.fromDateTime(DateTime.now());
+    final terpilih = await showTimePicker(
       context: context,
       initialTime: initial,
       builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
     );
-    if (picked != null && picked != _selectedTime) {
-      setState(() => _selectedTime = picked);
-      Log.info('Waktu dipilih: ${picked.hour}:${picked.minute}');
+    if (terpilih != null && terpilih != _pilihJam) {
+      setState(() => _pilihJam = terpilih);
+      Log.info('Waktu dipilih: ${terpilih.hour}:${terpilih.minute}');
     }
   }
 
   Future<SaveResultModel<ActiveCustomerModel>> _simpanData() async {
-    Log.info('Mulai menyimpan form, isEditMode=$_isEditMode');
+    Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
     final pelangganAktifOperasi = ref.read(activeCustomerOperationProvider);
     if (!(_formKey.currentState?.validate() ?? false)) {
@@ -270,12 +270,12 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       return SaveResultModel(success: false, message: 'Data belum lengkap');
     }
 
-    if (_selectedPelanggan == null ||
-        _selectedPaket == null ||
-        _selectedDate == null ||
-        _selectedTime == null ||
-        _selectedDompet == null ||
-        _selectedKategori == null) {
+    if (_pelangganDipilih == null ||
+        _paketDipilih == null ||
+        _pilihTanggal == null ||
+        _pilihJam == null ||
+        _dompetDipilih == null ||
+        _kategoriDipilih == null) {
       Log.warning('Data form belum lengkap');
       if (mounted) {
         ToastUtil.error(context, 'Harap lengkapi semua data');
@@ -285,26 +285,26 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
 
     try {
-      final tanggalMulai = DateTime(_selectedDate!.year, _selectedDate!.month,
-          _selectedDate!.day, _selectedTime!.hour, _selectedTime!.minute);
+      final tanggalMulai = DateTime(_pilihTanggal!.year, _pilihTanggal!.month,
+          _pilihTanggal!.day, _pilihJam!.hour, _pilihJam!.minute);
       final int nilaiBonus =
           _isBonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
       final DateTime tanggalBerakhir = CalculationUtil.hitungTanggalBerakhir(
         tanggalMulai,
-        _selectedPaket!,
+        _paketDipilih!,
         durasiBonus: nilaiBonus,
         durasiBonusType: _isBonus ? _bonusDurationType : null,
       );
 
       final transaksiId =
-          (_isEditMode && widget.pelangganAktif?.transactionId != null)
+          (_modeEdit && widget.pelangganAktif?.transactionId != null)
               ? widget.pelangganAktif!.transactionId!
               : const Uuid().v4();
 
       final pelangganAktifData = ActiveCustomerModel(
-          id: _isEditMode ? widget.pelangganAktif!.id : '',
-          customerId: _selectedPelanggan!.id,
-          packageId: _selectedPaket!.id,
+          id: _modeEdit ? widget.pelangganAktif!.id : '',
+          customerId: _pelangganDipilih!.id,
+          packageId: _paketDipilih!.id,
           startDate: tanggalMulai,
           endDate: tanggalBerakhir,
           status: _statusPembayaran,
@@ -313,18 +313,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiData = TransactionModel(
         id: transaksiId,
         date: tanggalMulai,
-        description: 'Aktivasi Paket: ${_selectedPaket!.name}',
-        amount: _gunakanPoin ? 0 : _selectedPaket!.price.toDouble(),
+        description: 'Aktivasi Paket: ${_paketDipilih!.name}',
+        amount: _gunakanPoin ? 0 : _paketDipilih!.price.toDouble(),
         type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
-        walletId: _selectedDompet!.id,
-        categoryId: _selectedKategori!.id,
-        customerId: _selectedPelanggan!.id,
-        packageId: _selectedPaket!.id,
+        walletId: _dompetDipilih!.id,
+        categoryId: _kategoriDipilih!.id,
+        customerId: _pelangganDipilih!.id,
+        packageId: _paketDipilih!.id,
         paymentStatus: _statusPembayaran,
-        earnedPoints: _gunakanPoin ? 0 : _selectedPaket!.rewardPoints,
-        usedPoints: _gunakanPoin ? _selectedPaket!.redemptionPoints : 0,
-        packageDuration: _selectedPaket!.duration,
-        durationType: _selectedPaket!.type,
+        earnedPoints: _gunakanPoin ? 0 : _paketDipilih!.rewardPoints,
+        usedPoints: _gunakanPoin ? _paketDipilih!.redemptionPoints : 0,
+        packageDuration: _paketDipilih!.duration,
+        durationType: _paketDipilih!.type,
         durasiBonus: nilaiBonus,
         durasiBonusType: _isBonus ? _bonusDurationType : null,
         startDate: tanggalMulai,
@@ -332,10 +332,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         isActivated: true,
       );
       Log.info(
-          'Menyimpan data: customerId=${_selectedPelanggan!.id}, packageId=${_selectedPaket!.id}, transaksiId=$transaksiId');
+          'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$transaksiId');
 
       ActiveCustomerModel pelangganAktifHasil;
-      if (_isEditMode) {
+      if (_modeEdit) {
         pelangganAktifHasil = await pelangganAktifOperasi
             .updateActiveCustomer(pelangganAktifData);
         await ref
@@ -364,11 +364,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           id: const Uuid().v4(),
           startDate: tanggalMulai,
           endDate: tanggalBerakhir,
-          userId: _selectedPelanggan!.id,
+          userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalNotifikasiSetengahJalan,
           title: 'Info: Setengah Perjalanan Paket',
           description:
-              'Anda telah menggunakan 50% dari masa aktif paket ${_selectedPaket!.name}.',
+              'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.name}.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -377,11 +377,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           id: const Uuid().v4(),
           startDate: tanggalMulai,
           endDate: tanggalBerakhir,
-          userId: _selectedPelanggan!.id,
+          userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
           title: 'Pengingat: Masa Aktif Segera Habis',
           description:
-              'Masa aktif paket ${_selectedPaket!.name} Anda akan berakhir besok.',
+              'Masa aktif paket ${_paketDipilih!.name} Anda akan berakhir besok.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -390,11 +390,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           id: const Uuid().v4(),
           startDate: tanggalMulai,
           endDate: tanggalBerakhir,
-          userId: _selectedPelanggan!.id,
+          userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir,
           title: 'Masa Aktif Paket Habis',
           description:
-              'Masa aktif untuk paket ${_selectedPaket!.name} telah berakhir hari ini.',
+              'Masa aktif untuk paket ${_paketDipilih!.name} telah berakhir hari ini.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -403,11 +403,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           id: const Uuid().v4(),
           startDate: tanggalMulai,
           endDate: tanggalBerakhir,
-          userId: _selectedPelanggan!.id,
+          userId: _pelangganDipilih!.id,
           tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
           title: 'Masa Aktif Telah Berakhir',
           description:
-              'Masa aktif untuk paket ${_selectedPaket!.name} telah berakhir kemarin. Silakan perpanjang.',
+              'Masa aktif untuk paket ${_paketDipilih!.name} telah berakhir kemarin. Silakan perpanjang.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -448,7 +448,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return Scaffold(
       appBar: AppBar(
           title: Text(
-              _isEditMode ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif')),
+              _modeEdit ? 'Edit Pelanggan Aktif' : 'Form Pelanggan Aktif')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -473,8 +473,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                       _buildKategoriDropdown(),
                       gapH24,
                       DateTimePickerWidget(
-                        selectedDate: _selectedDate,
-                        selectedTime: _selectedTime,
+                        selectedDate: _pilihTanggal,
+                        selectedTime: _pilihJam,
                         onSelectDate: () => _selectDate(context),
                         onSelectTime: () => _selectTime(context),
                       ),
@@ -516,8 +516,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
                 _gunakanPoin = value;
                 Log.info(
                     'Penggunaan poin diubah: $_gunakanPoin, poin efektif=${hitungPoinEfektif()}');
-                if (!_kategoriList.contains(_selectedKategori)) {
-                  _selectedKategori =
+                if (!_kategoriList.contains(_kategoriDipilih)) {
+                  _kategoriDipilih =
                       _kategoriList.isNotEmpty ? _kategoriList.first : null;
                 }
               });
@@ -532,7 +532,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
-      initialValue: _selectedPelanggan,
+      initialValue: _pelangganDipilih,
       items: _pelangganList
           .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
@@ -545,7 +545,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           setState(() {
             Log.info(
                 'Pelanggan dipilih: id=${newValue.id} nama=${newValue.name}, saldoPoin=$saldoPoin');
-            _selectedPelanggan = newValue;
+            _pelangganDipilih = newValue;
             _saldoPoinPelanggan = saldoPoin;
           });
         }
@@ -559,13 +559,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Paket', border: OutlineInputBorder()),
-      initialValue: _selectedPaket,
+      initialValue: _paketDipilih,
       items: _paketList
           .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
       onChanged: (newValue) {
         Log.info('Paket dipilih: id=${newValue?.id} nama=${newValue?.name}');
-        setState(() => _selectedPaket = newValue);
+        setState(() => _paketDipilih = newValue);
       },
       validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,
     );
@@ -576,13 +576,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       key: const Key('dompet_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
-      initialValue: _selectedDompet,
-      items: _daftarDompet
+      initialValue: _dompetDipilih,
+      items: _dompetList
           .map((d) => DropdownMenuItem(value: d, child: Text(d.name)))
           .toList(),
       onChanged: (newValue) {
         Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.name}');
-        setState(() => _selectedDompet = newValue);
+        setState(() => _dompetDipilih = newValue);
       },
       validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,
     );
@@ -593,13 +593,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),
-      initialValue: _selectedKategori,
+      initialValue: _kategoriDipilih,
       items: _kategoriList
           .map((k) => DropdownMenuItem(value: k, child: Text(k.name)))
           .toList(),
       onChanged: (newValue) {
         Log.info('Kategori dipilih: id=${newValue?.id} nama=${newValue?.name}');
-        setState(() => _selectedKategori = newValue);
+        setState(() => _kategoriDipilih = newValue);
       },
       validator: (v) => v == null ? 'Kategori tidak boleh kosong' : null,
     );
@@ -644,35 +644,35 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Tanggal Mulai:',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        Text((_selectedDate == null || _selectedTime == null)
+        Text((_pilihTanggal == null || _pilihJam == null)
             ? 'Pilih Tanggal & Jam'
             : FormatDateTime.formatDateAndTimeCompact(DateTime(
-                _selectedDate!.year,
-                _selectedDate!.month,
-                _selectedDate!.day,
-                _selectedTime!.hour,
-                _selectedTime!.minute)))
+                _pilihTanggal!.year,
+                _pilihTanggal!.month,
+                _pilihTanggal!.day,
+                _pilihJam!.hour,
+                _pilihJam!.minute)))
       ]),
       gapH8,
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         const Text('Tanggal Berakhir:',
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text((() {
-          if (_selectedDate != null &&
-              _selectedTime != null &&
-              _selectedPaket != null) {
+          if (_pilihTanggal != null &&
+              _pilihJam != null &&
+              _paketDipilih != null) {
             final startDate = DateTime(
-                _selectedDate!.year,
-                _selectedDate!.month,
-                _selectedDate!.day,
-                _selectedTime!.hour,
-                _selectedTime!.minute);
+                _pilihTanggal!.year,
+                _pilihTanggal!.month,
+                _pilihTanggal!.day,
+                _pilihJam!.hour,
+                _pilihJam!.minute);
             final int nilaiBonus = _isBonus
                 ? (int.tryParse(_bonusDurationController.text) ?? 0)
                 : 0;
             final DateTime endDate = CalculationUtil.hitungTanggalBerakhir(
               startDate,
-              _selectedPaket!,
+              _paketDipilih!,
               durasiBonus: nilaiBonus,
               durasiBonusType: _isBonus ? _bonusDurationType : null,
             );

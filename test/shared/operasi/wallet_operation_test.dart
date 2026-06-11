@@ -8,7 +8,7 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 
 import 'wallet_operation_test.mocks.dart';
 
@@ -17,7 +17,7 @@ void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late WalletOperation walletOperation;
+  late DompetOpSqlite walletOperation;
   late MockTransaction mockTransaction;
 
   setUp(() {
@@ -25,7 +25,7 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
-    walletOperation = WalletOperation(
+    walletOperation = DompetOpSqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );
@@ -64,7 +64,7 @@ void main() {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
 
-      await walletOperation.createWallet(tWallet);
+      await walletOperation.tambahDompet(tWallet);
 
       verify(mockBaseOperation.insert(tableName, any)).called(1);
     });
@@ -73,12 +73,13 @@ void main() {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      await walletOperation.updateWallet(tWallet);
+      await walletOperation.updateDompet(tWallet);
 
       verify(mockBaseOperation.update(tableName, any, tWallet.id)).called(1);
     });
 
-    test('4. softDelete harus memanggil softDelete pada baseOperation', () async {
+    test('4. softDelete harus memanggil softDelete pada baseOperation',
+        () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
 
@@ -87,8 +88,9 @@ void main() {
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
-    test('5. deleteAllWallets harus menjalankan operasi kompleks untuk menghapus semua',
-         () async {
+    test(
+        '5. deleteAllWallets harus menjalankan operasi kompleks untuk menghapus semua',
+        () async {
       // Pindahkan stub untuk mockTransaction ke luar dari thenAnswer
       when(mockTransaction.delete(any)).thenAnswer((_) async => 1);
 
@@ -96,8 +98,8 @@ void main() {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
         // Ambil fungsi 'action' yang dilewatkan sebagai argumen
-        final action = invocation.positionalArguments[0]
-            as Future<void> Function(Transaction);
+        final action = invocation.positionalArguments[0] as Future<void>
+            Function(Transaction);
         // Jalankan 'action' dengan mockTransaction
         await action(mockTransaction);
       });
@@ -113,7 +115,7 @@ void main() {
 
     test(
         '6. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
-         () async {
+        () async {
       // Gunakan thenAnswer untuk Future<void>
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
           .thenAnswer((_) async {});

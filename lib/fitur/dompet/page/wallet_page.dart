@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/tab/wallet_page.dart
+// path: lib/fitur/dompet/page/wallet_page.dart
 
 import 'dart:async';
 
@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
-import 'package:wifi/admin/providers/wallet_provider.dart';
+import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -58,9 +58,9 @@ class WalletPage extends ConsumerWidget {
         },
         data: (walletState) {
           Log.info(
-            'WalletProvider berhasil memuat ${walletState.wallets.length} dompet.',
+            'WalletProvider berhasil memuat ${walletState.daftarDompet.length} dompet.',
           );
-          final wallets = walletState.wallets;
+          final wallets = walletState.daftarDompet;
           if (wallets.isEmpty) {
             return Center(
               child: Text('Tidak ada dompet ditemukan.',
@@ -71,9 +71,9 @@ class WalletPage extends ConsumerWidget {
           return Column(
             children: [
               FinancialSummaryWidget(
-                income: walletState.totalPositiveBalance,
-                expense: walletState.totalNegativeBalance,
-                total: walletState.totalBalance,
+                income: walletState.totalSaldoPositif,
+                expense: walletState.totalSaldoNegatif,
+                total: walletState.totalSaldo,
               ),
               Expanded(
                 child: ListView.builder(
@@ -130,7 +130,7 @@ class WalletPage extends ConsumerWidget {
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(walletProvider).value?.wallets ?? [];
+    final wallets = ref.read(walletProvider).value?.daftarDompet ?? [];
 
     if (wallets.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
@@ -154,7 +154,7 @@ class WalletPage extends ConsumerWidget {
               child: const Text('Hapus'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                ref.read(walletProvider.notifier).deleteAllWallets().then((_) {
+                ref.read(walletProvider.notifier).softDeleteAll().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
                 }).catchError((e, st) {
                   Log.error('Gagal menghapus semua dompet.',

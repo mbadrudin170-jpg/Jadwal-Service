@@ -7,9 +7,8 @@ import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i3;
 import 'package:wifi/shared/model/wallet_model.dart' as _i5;
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart'
-    as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -37,10 +36,10 @@ class _FakeDatabaseHelper_0 extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [WalletOperation].
+/// A class which mocks [DompetOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
+class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
   @override
   _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
@@ -55,13 +54,13 @@ class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
       ) as _i2.DatabaseHelper);
 
   @override
-  _i4.Future<void> createWallet(
+  _i4.Future<void> tambahDompet(
     _i5.WalletModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createWallet,
+          #tambahDompet,
           [wallet],
           {#fromServer: fromServer},
         ),
@@ -94,26 +93,14 @@ class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
       ) as _i4.Future<_i5.WalletModel?>);
 
   @override
-  _i4.Future<void> updateWallet(
+  _i4.Future<void> updateDompet(
     _i5.WalletModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateWallet,
+          #updateDompet,
           [wallet],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i4.Future<void>.value(),
-        returnValueForMissingStub: _i4.Future<void>.value(),
-      ) as _i4.Future<void>);
-
-  @override
-  _i4.Future<void> deleteAllWallets({bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #deleteAllWallets,
-          [],
           {#fromServer: fromServer},
         ),
         returnValue: _i4.Future<void>.value(),
@@ -148,9 +135,9 @@ class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
       ) as _i4.Future<int>);
 
   @override
-  _i4.Future<double> getTotalBalance() => (super.noSuchMethod(
+  _i4.Future<double> ambilTotalsaldo() => (super.noSuchMethod(
         Invocation.method(
-          #getTotalBalance,
+          #ambilTotalsaldo,
           [],
         ),
         returnValue: _i4.Future<double>.value(0.0),
@@ -158,9 +145,9 @@ class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
       ) as _i4.Future<double>);
 
   @override
-  _i4.Future<double> getPositiveBalance() => (super.noSuchMethod(
+  _i4.Future<double> ambilSaldoPositif() => (super.noSuchMethod(
         Invocation.method(
-          #getPositiveBalance,
+          #ambilSaldoPositif,
           [],
         ),
         returnValue: _i4.Future<double>.value(0.0),
@@ -168,9 +155,9 @@ class MockWalletOperation extends _i1.Mock implements _i3.WalletOperation {
       ) as _i4.Future<double>);
 
   @override
-  _i4.Future<double> getNegativeBalance() => (super.noSuchMethod(
+  _i4.Future<double> ambilSaldoNegatif() => (super.noSuchMethod(
         Invocation.method(
-          #getNegativeBalance,
+          #ambilSaldoNegatif,
           [],
         ),
         returnValue: _i4.Future<double>.value(0.0),

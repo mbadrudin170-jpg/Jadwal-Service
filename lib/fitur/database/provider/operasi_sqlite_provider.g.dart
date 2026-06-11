@@ -533,16 +533,17 @@ final class SubCategoryOperationProvider extends $FunctionalProvider<
 String _$subCategoryOperationHash() =>
     r'34ed47c602f1b5dd6be378d74f6d7941302046cd';
 
-/// Provider untuk menyediakan instance dari [WalletOperation].
+/// Provider untuk menyediakan instance dari [DompetOpSqlite].
 
 @ProviderFor(walletOperation)
 final walletOperationProvider = WalletOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [WalletOperation].
+/// Provider untuk menyediakan instance dari [DompetOpSqlite].
 
-final class WalletOperationProvider extends $FunctionalProvider<WalletOperation,
-    WalletOperation, WalletOperation> with $Provider<WalletOperation> {
-  /// Provider untuk menyediakan instance dari [WalletOperation].
+final class WalletOperationProvider
+    extends $FunctionalProvider<DompetOpSqlite, DompetOpSqlite, DompetOpSqlite>
+    with $Provider<DompetOpSqlite> {
+  /// Provider untuk menyediakan instance dari [DompetOpSqlite].
   WalletOperationProvider._()
       : super(
           from: null,
@@ -559,21 +560,21 @@ final class WalletOperationProvider extends $FunctionalProvider<WalletOperation,
 
   @$internal
   @override
-  $ProviderElement<WalletOperation> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<DompetOpSqlite> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  WalletOperation create(Ref ref) {
+  DompetOpSqlite create(Ref ref) {
     return walletOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(WalletOperation value) {
+  Override overrideWithValue(DompetOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<WalletOperation>(value),
+      providerOverride: $SyncValueProvider<DompetOpSqlite>(value),
     );
   }
 }
 
-String _$walletOperationHash() => r'21a9dd79824e4c3f4dec5558d5a363162cccf1b5';
+String _$walletOperationHash() => r'7c2977f2cb16b87139d8ba7fadb38dbf231f48f2';

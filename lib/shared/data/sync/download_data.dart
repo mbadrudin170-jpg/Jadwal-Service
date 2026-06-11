@@ -21,7 +21,7 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 class DownloadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-  final WalletOperation _walletOperation;
+  final DompetOpSqlite _walletOperation;
   final CategoryOperation _categoryOperation;
   final PackageOperation _packageOperation;
   final CustomerOperation _customerOperation;
@@ -37,7 +37,7 @@ class DownloadDataService {
   DownloadDataService({
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
-    required WalletOperation walletOperation,
+    required DompetOpSqlite walletOperation,
     required CategoryOperation categoryOperation,
     required PackageOperation packageOperation,
     required CustomerOperation customerOperation,
@@ -68,7 +68,7 @@ class DownloadDataService {
   DownloadDataService.test({
     required final FirebaseFirestore firestore,
     required final SyncManager syncManager,
-    required final WalletOperation walletOperation,
+    required final DompetOpSqlite walletOperation,
     required final CategoryOperation categoryOperation,
     required final PackageOperation packageOperation,
     required final CustomerOperation customerOperation,

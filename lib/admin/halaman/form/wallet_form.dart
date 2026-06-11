@@ -8,7 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -27,7 +27,7 @@ class WalletForm extends ConsumerStatefulWidget {
 class _WalletFormState extends ConsumerState<WalletForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  late final WalletOperation _walletOperation;
+  late final DompetOpSqlite _walletOperation;
 
   late FocusNode _namaFocusNode;
 
@@ -92,7 +92,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
             balance: widget.wallet!.balance,
           );
 
-          await _walletOperation.updateWallet(updatedWallet);
+          await _walletOperation.updateDompet(updatedWallet);
           Log.info('Update dompet berhasil.');
         } else {
           Log.info('Proses TAMBAH dompet baru');
@@ -108,7 +108,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
             updatedAt: DateTime.now(),
           );
 
-          await _walletOperation.createWallet(newWallet);
+          await _walletOperation.tambahDompet(newWallet);
           Log.info('Dompet baru berhasil disimpan. ID: $newId');
         }
 

@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 
 part 'operasi_sqlite_provider.g.dart';
@@ -160,14 +160,14 @@ SubCategoryOperation subCategoryOperation(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [WalletOperation].
+/// Provider untuk menyediakan instance dari [DompetOpSqlite].
 @Riverpod(keepAlive: true)
-WalletOperation walletOperation(Ref ref) {
+DompetOpSqlite walletOperation(Ref ref) {
   Log.info('Membuat instance WalletOperation via @riverpod...');
   final dbHelper = ref.watch(databaseHelperProvider);
   final baseOperation = ref.watch(baseOperationProvider);
 
-  return WalletOperation(
+  return DompetOpSqlite(
     dbHelper: dbHelper,
     baseOperation: baseOperation,
   );

@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/wallet_operation.dart
+// path: lib/fitur/dompet/operasi/dompet_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -9,19 +9,19 @@ import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
-class WalletOperation {
+class DompetOpSqlite {
   final DatabaseHelper dbHelper;
   final BaseOperation _baseOperation;
   final String _tableName = TableNameValue.get(TableName.wallet);
   final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
-  WalletOperation({
+  DompetOpSqlite({
     required this.dbHelper,
     required final BaseOperation baseOperation,
   }) : _baseOperation = baseOperation;
 
-  Future<void> createWallet(
+  Future<void> tambahDompet(
     final WalletModel wallet, {
     final bool fromServer = false,
   }) async {
@@ -99,7 +99,7 @@ class WalletOperation {
   }
 
   /// Memperbarui [WalletModel] yang ada di database.
-  Future<void> updateWallet(
+  Future<void> updateDompet(
     final WalletModel wallet, {
     final bool fromServer = false,
   }) async {
@@ -119,26 +119,6 @@ class WalletOperation {
         e: e,
         st: st,
       );
-      rethrow;
-    }
-  }
-
-  /// Menghapus semua dompet dari database secara permanen.
-  Future<void> deleteAllWallets({final bool fromServer = false}) async {
-    Log.warning(
-        'PERINGATAN: Memulai deleteAllWallets. Ini adalah operasi destruktif.');
-    try {
-      await dbHelper.database;
-      await _baseOperation.runComplexOperation<void>(
-        (final txn) async {
-          final count = await txn.delete(_tableName);
-          Log.info(
-              'Berhasil deleteAllWallets. Total baris yang dihapus: $count');
-        },
-        fromServer: fromServer,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal saat deleteAllWallets', e: e, st: st);
       rethrow;
     }
   }
@@ -187,7 +167,7 @@ class WalletOperation {
   }
 
   /// Menghitung total saldo dari semua dompet aktif.
-  Future<double> getTotalBalance() async {
+  Future<double> ambilTotalsaldo() async {
     Log.info(
         'Memulai getTotalBalance (menghitung total saldo dari semua wallet aktif).');
     try {
@@ -210,7 +190,7 @@ class WalletOperation {
   }
 
   /// Menghitung total saldo positif dari semua dompet aktif.
-  Future<double> getPositiveBalance() async {
+  Future<double> ambilSaldoPositif() async {
     Log.info(
         'Memulai getPositiveBalance (menghitung total saldo > 0 dari wallet aktif).');
     try {
@@ -233,7 +213,7 @@ class WalletOperation {
   }
 
   /// Menghitung total saldo negatif dari semua dompet aktif.
-  Future<double> getNegativeBalance() async {
+  Future<double> ambilSaldoNegatif() async {
     Log.info(
         'Memulai getNegativeBalance (menghitung total saldo < 0 dari wallet aktif).');
     try {

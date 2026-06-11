@@ -17,14 +17,14 @@ import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'download_data_test.mocks.dart';
 
 @GenerateMocks([
   SyncManager,
-  WalletOperation,
+  DompetOpSqlite,
   CategoryOperation,
   PackageOperation,
   CustomerOperation,

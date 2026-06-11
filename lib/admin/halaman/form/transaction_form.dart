@@ -13,7 +13,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/services/internet_connection_check.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -48,7 +48,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
   WalletModel? _selectedDompet;
   WalletModel? _selectedDompetTujuan;
 
-  late final WalletOperation _dompetOperasi;
+  late final DompetOpSqlite _dompetOperasi;
   late final CategoryOperation _kategoriOperasi;
   late final TransactionOperation _transaksiOperasi;
 

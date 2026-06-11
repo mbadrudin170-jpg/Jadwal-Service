@@ -13,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i29;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i11;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
 import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
@@ -43,8 +44,6 @@ import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart'
     as _i26;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i21;
-import 'package:wifi/shared/operasi/sqlite_operasi/wallet_operation.dart'
-    as _i11;
 import 'package:wifi/shared/utils/sync_manager.dart' as _i10;
 
 // ignore_for_file: type=lint
@@ -353,11 +352,11 @@ class MockSyncManager extends _i1.Mock implements _i10.SyncManager {
       ) as _i9.Future<void>);
 }
 
-/// A class which mocks [WalletOperation].
+/// A class which mocks [DompetOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockWalletOperation extends _i1.Mock implements _i11.WalletOperation {
-  MockWalletOperation() {
+class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
+  MockDompetOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -371,13 +370,13 @@ class MockWalletOperation extends _i1.Mock implements _i11.WalletOperation {
       ) as _i2.DatabaseHelper);
 
   @override
-  _i9.Future<void> createWallet(
+  _i9.Future<void> tambahDompet(
     _i12.WalletModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createWallet,
+          #tambahDompet,
           [wallet],
           {#fromServer: fromServer},
         ),
@@ -408,26 +407,14 @@ class MockWalletOperation extends _i1.Mock implements _i11.WalletOperation {
       ) as _i9.Future<_i12.WalletModel?>);
 
   @override
-  _i9.Future<void> updateWallet(
+  _i9.Future<void> updateDompet(
     _i12.WalletModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateWallet,
+          #updateDompet,
           [wallet],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
-
-  @override
-  _i9.Future<void> deleteAllWallets({bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #deleteAllWallets,
-          [],
           {#fromServer: fromServer},
         ),
         returnValue: _i9.Future<void>.value(),
@@ -461,27 +448,27 @@ class MockWalletOperation extends _i1.Mock implements _i11.WalletOperation {
       ) as _i9.Future<int>);
 
   @override
-  _i9.Future<double> getTotalBalance() => (super.noSuchMethod(
+  _i9.Future<double> ambilTotalsaldo() => (super.noSuchMethod(
         Invocation.method(
-          #getTotalBalance,
+          #ambilTotalsaldo,
           [],
         ),
         returnValue: _i9.Future<double>.value(0.0),
       ) as _i9.Future<double>);
 
   @override
-  _i9.Future<double> getPositiveBalance() => (super.noSuchMethod(
+  _i9.Future<double> ambilSaldoPositif() => (super.noSuchMethod(
         Invocation.method(
-          #getPositiveBalance,
+          #ambilSaldoPositif,
           [],
         ),
         returnValue: _i9.Future<double>.value(0.0),
       ) as _i9.Future<double>);
 
   @override
-  _i9.Future<double> getNegativeBalance() => (super.noSuchMethod(
+  _i9.Future<double> ambilSaldoNegatif() => (super.noSuchMethod(
         Invocation.method(
-          #getNegativeBalance,
+          #ambilSaldoNegatif,
           [],
         ),
         returnValue: _i9.Future<double>.value(0.0),
