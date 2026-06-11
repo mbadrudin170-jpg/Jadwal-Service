@@ -1,16 +1,17 @@
 // path: lib/admin/halaman/tab/active_customer_tab.dart
 import 'dart:async';
+
 // TODO : buatkan file test nya
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
@@ -120,7 +121,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
-              'Arsipkan',
+              'hapus',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -160,7 +161,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
 
     await showDialog<SortOption>(
       context: context,
-      builder: (final ctx) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Urutkan Berdasarkan'),
         contentPadding:
             const EdgeInsets.only(top: TSizes.p12, bottom: TSizes.p12),
@@ -227,7 +228,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     Log.info('Membuka opsi lanjutan');
     final AdvancedOption? selected = await showDialog<AdvancedOption>(
       context: context,
-      builder: (final ctx) => SimpleDialog(
+      builder: (ctx) => SimpleDialog(
         title: const Text('Opsi Lanjutan'),
         children: [
           SimpleDialogOption(
