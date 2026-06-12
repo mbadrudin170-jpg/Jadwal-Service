@@ -16,7 +16,6 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
-import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 // 1. Membuat mock class dengan Mocktail
@@ -37,7 +36,6 @@ void main() {
     customerId: 'custAdmin',
     packageId: 'pkg1',
     date: DateTime.now(),
-    status: StatusOrderEnum.baru,
     updatedAt: DateTime.now(),
   );
 

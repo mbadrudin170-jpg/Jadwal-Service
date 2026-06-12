@@ -71,28 +71,28 @@ void main() {
             onCompleted: any(named: 'onCompleted'),
             onError: any(named: 'onError'),
           )).thenAnswer((invocation) async {
-        (invocation.namedArguments[const Symbol('onStarted')] as Function())();
+        (invocation.namedArguments[const Symbol('onStarted')] as void Function())();
         await tester.pump();
         (invocation.namedArguments[const Symbol('onDefaultServerSelectionInProgress')]
-            as Function())();
+            as void Function())();
         await tester.pump();
         (invocation.namedArguments[const Symbol('onDefaultServerSelectionDone')]
-            as Function(Client))(Client(isp: 'MyTelkom'));
+            as void Function(Client))(Client(isp: 'MyTelkom'));
         await tester.pump();
         (invocation.namedArguments[const Symbol('onProgress')]
-            as Function(double, TestResult))(
+            as void Function(double, TestResult))(
           50.0,
           TestResult(TestType.download, 12000.0, SpeedUnit.kbps),
         );
         await tester.pump();
         (invocation.namedArguments[const Symbol('onProgress')]
-            as Function(double, TestResult))(
+            as void Function(double, TestResult))(
           50.0,
           TestResult(TestType.upload, 8000.0, SpeedUnit.kbps),
         );
         await tester.pump();
         (invocation.namedArguments[const Symbol('onCompleted')]
-            as Function(TestResult, TestResult))(
+            as void Function(TestResult, TestResult))(
           TestResult(TestType.download, 15000.0, SpeedUnit.kbps),
           TestResult(TestType.upload, 10000.0, SpeedUnit.kbps),
         );
@@ -104,9 +104,9 @@ void main() {
           container: container,
           child: MaterialApp(
             home: Builder(builder: (context) {
-              container
+              unawaited(container
                   .read(ujiKecepatanProvider.notifier)
-                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji));
               return const SizedBox.shrink();
             }),
           ),
@@ -136,7 +136,7 @@ void main() {
             onCompleted: any(named: 'onCompleted'),
             onError: any(named: 'onError'),
       )).thenAnswer((invocation) async {
-        (invocation.namedArguments[const Symbol('onError')] as Function(String, String))(
+        (invocation.namedArguments[const Symbol('onError')] as void Function(String, String))(
           'Kesalahan Jaringan',
           'Detail Stack Trace',
         );
@@ -148,9 +148,9 @@ void main() {
           container: container,
           child: MaterialApp(
             home: Builder(builder: (context) {
-              container
+              unawaited(container
                   .read(ujiKecepatanProvider.notifier)
-                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji));
               return const SizedBox.shrink();
             }),
           ),
@@ -182,7 +182,7 @@ void main() {
             onCompleted: any(named: 'onCompleted'),
             onError: any(named: 'onError'),
       )).thenAnswer((invocation) async {
-        (invocation.namedArguments[const Symbol('onCompleted')] as Function(TestResult, TestResult))(
+        (invocation.namedArguments[const Symbol('onCompleted')] as void Function(TestResult, TestResult))(
           TestResult(TestType.download, 1.0, SpeedUnit.mbps),
           TestResult(TestType.upload, 1.0, SpeedUnit.mbps),
         );
@@ -194,9 +194,9 @@ void main() {
           container: container,
           child: MaterialApp(
             home: Builder(builder: (context) {
-              container
+              unawaited(container
                   .read(ujiKecepatanProvider.notifier)
-                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji));
               return const SizedBox.shrink();
             }),
           ),
@@ -228,9 +228,9 @@ void main() {
           container: container,
           child: MaterialApp(
             home: Builder(builder: (context) {
-               container
+               unawaited(container
                   .read(ujiKecepatanProvider.notifier)
-                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji));
               return const SizedBox.shrink();
             }),
           ),
