@@ -149,7 +149,6 @@ class DaftarAkunPage extends ConsumerWidget {
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
                 if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
                   Navigator.of(dialogContext).pop(); // Tutup dialog
                 }
 
@@ -163,9 +162,6 @@ class DaftarAkunPage extends ConsumerWidget {
                       .read(pengelolaAkunProvider.notifier)
                       .hapusAkun(customer.id);
 
-                  if (context.mounted) {
-                    ToastUtil.success(context, 'Akun berhasil dihapus');
-                  }
                   if (!context.mounted) return;
                   ToastUtil.success(context, 'Akun berhasil dihapus');
                 }
@@ -217,13 +213,11 @@ class DaftarAkunPage extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () async {
-              final navigator = Navigator.of(dialogContext);
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
               try {
                 final storage =
                     await ref.read(localStorageServiceProvider.future);
-                final storage = await ref.read(localStorageServiceProvider.future);
                 Log.info('Keluar & hapus akun yang sedang digunakan');
                 final account = await storage.ambilAkunLogin();
                 if (account != null) {
@@ -232,15 +226,13 @@ class DaftarAkunPage extends ConsumerWidget {
                       .hapusAkun(account.id);
                 }
 
-                if (context.mounted) {
-                  ToastUtil.success(
-                      context, 'Anda telah keluar dan akun dihapus');
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
 
                 if (!context.mounted) return;
-                ToastUtil.success(context, 'Anda telah keluar dan akun dihapus');
+                ToastUtil.success(
+                    context, 'Anda telah keluar dan akun dihapus');
 
                 await navigator.pushAndRemoveUntil(
                   MaterialPageRoute<void>(
@@ -249,11 +241,9 @@ class DaftarAkunPage extends ConsumerWidget {
                 );
               } on Exception catch (e, st) {
                 Log.error('Gagal keluar & hapus akun', e: e, st: st);
-                if (dialogContext.mounted) {
-                  ToastUtil.error(dialogContext, 'Gagal keluar',
-                      logData: e.toString());
                 if (context.mounted) {
-                  ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
+                  ToastUtil.error(context, 'Gagal keluar',
+                      logData: e.toString());
                 }
               }
             },
@@ -273,10 +263,7 @@ class DaftarAkunPage extends ConsumerWidget {
                 await ref
                     .read(pengelolaAkunProvider.notifier)
                     .hapusTokenLogin();
-                await ref.read(pengelolaAkunProvider.notifier).hapusTokenLogin();
 
-                if (context.mounted) {
-                  ToastUtil.success(context, 'Token berhasil dihapus');
                 if (dialogNavigator.context.mounted) {
                   dialogNavigator.pop();
                 }
@@ -294,7 +281,6 @@ class DaftarAkunPage extends ConsumerWidget {
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal keluar',
                       logData: e.toString());
-                  ToastUtil.error(context, 'Gagal keluar', logData: e.toString());
                 }
               }
             },
