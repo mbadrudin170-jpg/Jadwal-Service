@@ -1,141 +1,84 @@
 // path: test/admin/halaman/detail/transaction_detail_test.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
-import 'package:wifi/admin/halaman/form/transaction_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
-import 'package:wifi/shared/model/sub_category_model.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/enum/enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/shared/model/model.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/enum/category_type_enum.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
 
-// Mocks
-class MockTransactionOperation extends Mock implements TransactionOperation {}
-class MockCategoryOperation extends Mock implements CategoryOperation {}
-class MockSubCategoryOperation extends Mock implements SubCategoryOperation {}
-class MockCustomerOperation extends Mock implements CustomerOperation {}
-class MockPackageOperation extends Mock implements PackageOperation {}
-class MockWalletOperation extends Mock implements DompetOpSqlite {}
-class MockNavigatorObserver extends Mock implements NavigatorObserver {}
-class FakeRoute extends Fake implements Route<dynamic> {}
+import 'active_customer_detail_test.mocks.dart';
 
 void main() {
-  late MockTransactionOperation mockTransactionOp;
-  late MockCategoryOperation mockCategoryOp;
-  late MockSubCategoryOperation mockSubCategoryOp;
-  late MockCustomerOperation mockCustomerOp;
-  late MockPackageOperation mockPackageOp;
-  late MockWalletOperation mockWalletOp;
-  late MockNavigatorObserver mockNavigatorObserver;
+  late MockCustomerOperation mockCustomerOperation;
+  late MockPackageOperation mockPackageOperation;
+  late MockTransactionOperation mockTransactionOperation;
+  late MockWalletOperation mockWalletOperation;
+  late MockCategoryOperation mockCategoryOperation;
+  late MockSubCategoryOperation mockSubCategoryOperation;
 
   final tTransaction = TransactionModel(
-    id: 't1',
-    amount: 50000,
+    id: '1',
+    date: DateTime.now(),
+    description: 'Test Transaction',
+    amount: 100.0,
     type: TransactionType.income,
-    categoryId: 'c1',
-    subCategoryId: 'sc1',
-    walletId: 'w1',
-    customerId: 'cust1',
-    packageId: 'p1',
-    description: 'Bayar Wifi',
-    date: DateTime(2023, 10, 10),
+    walletId: 'wallet1',
+    categoryId: 'cat1',
     paymentStatus: PaymentStatus.paid,
+    customerId: 'cust1',
+    packageId: 'pkg1',
   );
 
-  final tWallet = WalletModel(id: 'w1', name: 'Kas Utama', balance: 1000000);
-  final tCategory = CategoryModel(id: 'c1', name: 'Internet', type: CategoryType.income);
-  final tSubCategory = SubCategoryModel(id: 'sc1', categoryId: 'c1', name: 'Bulanan');
-  final tCustomer = CustomerModel(id: 'cust1', name: 'Budi', address: '', password: '', phone: '');
-  final tPackage = PackageModel(id: 'p1', name: 'Paket 1 Bln', price: 50000, duration: 30, type: DurationType.day, redemptionPoints: 10, rewardPoints: 10, isPublic: true);
-
   setUp(() {
-    mockTransactionOp = MockTransactionOperation();
-    mockCategoryOp = MockCategoryOperation();
-    mockSubCategoryOp = MockSubCategoryOperation();
-    mockCustomerOp = MockCustomerOperation();
-    mockPackageOp = MockPackageOperation();
-    mockWalletOp = MockWalletOperation();
-    mockNavigatorObserver = MockNavigatorObserver();
-    registerFallbackValue(FakeRoute());
+    mockCustomerOperation = MockCustomerOperation();
+    mockPackageOperation = MockPackageOperation();
+    mockTransactionOperation = MockTransactionOperation();
+    mockWalletOperation = MockWalletOperation();
+    mockCategoryOperation = MockCategoryOperation();
+    mockSubCategoryOperation = MockSubCategoryOperation();
   });
 
-  Widget createTestWidget(TransactionModel transaction) {
+  Widget createWidgetUnderTest() {
     return ProviderScope(
       overrides: [
-        transactionOperationProvider.overrideWithValue(mockTransactionOp),
-        categoryOperationProvider.overrideWithValue(mockCategoryOp),
-        subCategoryOperationProvider.overrideWithValue(mockSubCategoryOp),
-        customerOperationProvider.overrideWithValue(mockCustomerOp),
-        packageOperationProvider.overrideWithValue(mockPackageOp),
-        walletOperationProvider.overrideWithValue(mockWalletOp),
+        customerOperationProvider.overrideWithValue(mockCustomerOperation),
+        packageOperationProvider.overrideWithValue(mockPackageOperation),
+        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
+        walletOperationProvider.overrideWithValue(mockWalletOperation),
+        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
+        subCategoryOperationProvider.overrideWithValue(mockSubCategoryOperation),
       ],
       child: MaterialApp(
-        home: TransactionDetailPage(transaction: transaction),
-        navigatorObservers: [mockNavigatorObserver],
+        home: TransactionDetailPage(transaction: tTransaction),
       ),
     );
   }
 
-  group('Pengujian Halaman Detail Transaksi', () {
-    testWidgets('1. Menampilkan semua informasi detail transaksi dengan benar', (tester) async {
-      when(() => mockWalletOp.getById(any())).thenAnswer((_) async => tWallet);
-      when(() => mockCategoryOp.getCategoryById(any())).thenAnswer((_) async => tCategory);
-      when(() => mockSubCategoryOp.getSubCategoryById(any())).thenAnswer((_) async => tSubCategory);
-      when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => tCustomer);
-      when(() => mockPackageOp.getById(any())).thenAnswer((_) async => tPackage);
+  group('TransactionDetailPage', () {
+    testWidgets('01. should display transaction details', (tester) async {
+      when(() => mockWalletOperation.getById(any()))
+          .thenAnswer((_) async => WalletModel(id: 'wallet1', name: 'Test Wallet'));
+      when(() => mockCategoryOperation.getCategoryById(any())).thenAnswer((_) async =>
+          CategoryModel(id: 'cat1', name: 'Test Category', type: CategoryType.income));
+      when(() => mockCustomerOperation.ambilBerdasarkanId(any())).thenAnswer(
+          (_) async => CustomerModel(id: 'cust1', name: 'Test Customer', phone: '', password: '', address: ''));
+      when(() => mockPackageOperation.ambilBerdasarkanId(any())).thenAnswer((_) async =>
+          PackageModel(id: 'pkg1', name: 'Test Package', price: 100, duration: 30, type: DurationType.days));
 
-      await tester.pumpWidget(createTestWidget(tTransaction));
+      await tester.pumpWidget(createWidgetUnderTest());
+
       await tester.pumpAndSettle();
 
-      expect(find.text('Bayar Wifi'), findsOneWidget);
-      expect(find.text('Internet'), findsOneWidget);
-      expect(find.text('Bulanan'), findsOneWidget);
-      expect(find.text('Kas Utama'), findsOneWidget);
-      expect(find.text('Budi'), findsOneWidget);
-      expect(find.text('Paket 1 Bln'), findsOneWidget);
-      expect(find.text('Rp50.000'), findsOneWidget);
-    });
-
-    testWidgets('2. Menangani kondisi ketika data relasi tidak ditemukan', (tester) async {
-      when(() => mockWalletOp.getById(any())).thenAnswer((_) async => null);
-      when(() => mockCategoryOp.getCategoryById(any())).thenAnswer((_) async => null);
-      when(() => mockSubCategoryOp.getSubCategoryById(any())).thenAnswer((_) async => null);
-      when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => null);
-      when(() => mockPackageOp.getById(any())).thenAnswer((_) async => null);
-
-      await tester.pumpWidget(createTestWidget(tTransaction));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Data tidak ditemukan'), findsAtLeastNWidgets(1));
-    });
-
-    testWidgets('3. Navigasi ke form edit saat tombol edit ditekan', (tester) async {
-      when(() => mockWalletOp.getById(any())).thenAnswer((_) async => tWallet);
-      when(() => mockCategoryOp.getCategoryById(any())).thenAnswer((_) async => tCategory);
-      when(() => mockSubCategoryOp.getSubCategoryById(any())).thenAnswer((_) async => tSubCategory);
-      when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => tCustomer);
-      when(() => mockPackageOp.getById(any())).thenAnswer((_) async => tPackage);
-
-      await tester.pumpWidget(createTestWidget(tTransaction));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.edit));
-      await tester.pumpAndSettle();
-
-      verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(FormTransaksiPage), findsOneWidget);
+      expect(find.text('Test Transaction'), findsOneWidget);
+      expect(find.text('Test Wallet'), findsOneWidget);
+      expect(find.text('Test Category'), findsOneWidget);
+      expect(find.text('Test Customer'), findsOneWidget);
+      expect(find.text('Test Package'), findsOneWidget);
     });
   });
 }

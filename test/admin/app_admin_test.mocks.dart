@@ -60,7 +60,7 @@ class _FakeFlutterLocalNotificationsPlugin_0 extends _i1.SmartFake
 }
 
 class _FakeDatabaseHelper_1 extends _i1.SmartFake
-    implements _i3.DatabaseHelper {
+    implements _i3.SqliteDatabase {
   _FakeDatabaseHelper_1(
     Object parent,
     Invocation parentInvocation,
@@ -572,13 +572,13 @@ class MockActiveCustomerOperation extends _i1.Mock
   }
 
   @override
-  _i3.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i3.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_1(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i3.DatabaseHelper);
+      ) as _i3.SqliteDatabase);
 
   @override
   _i7.Future<void> rescheduleAllNotifications() => (super.noSuchMethod(
@@ -849,7 +849,7 @@ class MockDataCleaningOperation extends _i1.Mock
 /// A class which mocks [DatabaseHelper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i3.DatabaseHelper {
+class MockDatabaseHelper extends _i1.Mock implements _i3.SqliteDatabase {
   MockDatabaseHelper() {
     _i1.throwOnMissingStub(this);
   }

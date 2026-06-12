@@ -16,7 +16,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 const uuid = Uuid();
 
 class ActiveCustomerOperation {
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
   final BaseOperation _baseOperation;
   final NotifikasiServis _notifikasiServis;
   final CustomerOperation _customerOperation;

@@ -9,14 +9,14 @@ import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 class SettingsOperation {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
   final BaseOperation _baseOperation;
 
   /// Konstruktor untuk [SettingsOperation].
   ///
   /// Memungkinkan injeksi dependensi untuk [_dbHelper] dan [_baseOperation] guna memfasilitasi pengujian.
   SettingsOperation({
-    required final DatabaseHelper dbHelper,
+    required final SqliteDatabase dbHelper,
     required final BaseOperation baseOperation,
   })  : _dbHelper = dbHelper,
         _baseOperation = baseOperation;

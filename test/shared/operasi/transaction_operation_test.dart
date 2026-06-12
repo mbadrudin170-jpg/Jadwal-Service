@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'transaction_operation_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
@@ -73,8 +73,8 @@ void main() {
         () async {
       when(mockBaseOperation.runComplexOperation<int>(any))
           .thenAnswer((invocation) async {
-        final action = invocation.positionalArguments[0]
-            as Future<int> Function(Transaction);
+        final action = invocation.positionalArguments[0] as Future<int>
+            Function(Transaction);
         // Mock the inner transaction logic
         when(mockTransaction.insert(any, any,
                 conflictAlgorithm: anyNamed('conflictAlgorithm')))
@@ -99,8 +99,8 @@ void main() {
         () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
-        final action = invocation.positionalArguments[0]
-            as Future<void> Function(Transaction);
+        final action = invocation.positionalArguments[0] as Future<void>
+            Function(Transaction);
 
         when(mockTransaction.query(any,
                 where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
@@ -124,8 +124,8 @@ void main() {
         () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
-        final action = invocation.positionalArguments[0]
-            as Future<void> Function(Transaction);
+        final action = invocation.positionalArguments[0] as Future<void>
+            Function(Transaction);
 
         when(mockTransaction.query(any,
                 where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))

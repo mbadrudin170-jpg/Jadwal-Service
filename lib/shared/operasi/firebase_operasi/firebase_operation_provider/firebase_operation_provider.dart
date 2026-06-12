@@ -10,7 +10,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 
@@ -78,10 +78,10 @@ CustomerOpFirebase customerOpFirebase(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-PackageOpFirebase packageOpFirebase(Ref ref) {
+PaketOpFirebase packageOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
 
-  return PackageOpFirebase(
+  return PaketOpFirebase(
     firestore: firestoreInstance,
   );
 }
@@ -118,5 +118,5 @@ OrderOpFirebase orderOpFirebase(Ref ref) {
 @riverpod
 Stream<List<NotifikasiModel>> activeNotificationsStream(Ref ref) {
   final notifikasiOp = ref.read(notifikasiOpFirebaseProvider);
-  return notifikasiOp.getActiveNotifications();
+  return notifikasiOp.getNotifAktif();
 }

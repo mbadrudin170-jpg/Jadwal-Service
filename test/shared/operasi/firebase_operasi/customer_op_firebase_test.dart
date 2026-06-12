@@ -150,7 +150,7 @@ void main() {
         () async {
       await customerOpFirebase.addCustomer(c1);
 
-      final customer = await customerOpFirebase.ambilBerdasarkanId(c1.id);
+      final customer = await customerOpFirebase.getById(c1.id);
 
       expect(customer, isNotNull);
       expect(customer!.id, c1.id);
@@ -160,7 +160,7 @@ void main() {
     test(
         '2.10. harus mengembalikan null jika pelanggan tidak ditemukan (one-time fetch)',
         () async {
-      final customer = await customerOpFirebase.ambilBerdasarkanId('id-tidak-ada');
+      final customer = await customerOpFirebase.getById('id-tidak-ada');
       expect(customer, isNull);
     });
 

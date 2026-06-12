@@ -10,7 +10,7 @@ export 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 export 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 export "package:wifi/shared/operasi/sqlite_operasi/order_operation.dart";
-export 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+export 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';

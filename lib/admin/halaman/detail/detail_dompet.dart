@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
-import 'package:wifi/admin/halaman/form/transaction_form.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -17,7 +17,7 @@ import 'package:wifi/shared/widget/summary_info_widget.dart';
 import 'package:wifi/shared/widget/transaction_list_widgets.dart';
 
 /// Kelas data untuk detail dompet.
-class WalletDetailData {
+class DetailDompetData {
   /// Model dompet yang sedang ditampilkan.
   final WalletModel wallet;
 
@@ -30,8 +30,8 @@ class WalletDetailData {
   /// Total pengeluaran dari transaksi.
   final double totalExpense;
 
-  /// Membuat instance [WalletDetailData].
-  WalletDetailData({
+  /// Membuat instance [DetailDompetData].
+  DetailDompetData({
     required this.wallet,
     required this.transactions,
     required this.totalIncome,
@@ -41,9 +41,9 @@ class WalletDetailData {
 
 /// Halaman yang menampilkan detail dari sebuah dompet,
 /// termasuk ringkasan saldo dan daftar transaksinya.
-class WalletDetail extends ConsumerStatefulWidget {
+class DetailDompet extends ConsumerStatefulWidget {
   /// Model dompet yang akan ditampilkan.
-  final WalletModel wallet;
+  final WalletModel dompet;
 
   /// Operasi untuk mengelola data dompet.
   final DompetOpSqlite? walletOperation;
@@ -51,38 +51,38 @@ class WalletDetail extends ConsumerStatefulWidget {
   /// Operasi untuk mengelola data transaksi.
   final TransactionOperation? transactionOperation;
 
-  /// Membuat instance [WalletDetail].
-  const WalletDetail({
+  /// Membuat instance [DetailDompet].
+  const DetailDompet({
     super.key,
-    required this.wallet,
+    required this.dompet,
     this.walletOperation,
     this.transactionOperation,
   });
 
   @override
-  ConsumerState<WalletDetail> createState() => _WalletDetailState();
+  ConsumerState<DetailDompet> createState() => _WalletDetailState();
 }
 
-class _WalletDetailState extends ConsumerState<WalletDetail> {
-  late Future<WalletDetailData> _futureDetailData;
+class _WalletDetailState extends ConsumerState<DetailDompet> {
+  late Future<DetailDompetData> _futureDetailData;
   String? _latestWalletName;
 
   @override
   void initState() {
     super.initState();
-    Log.info('Membuat state untuk WalletDetail. ID: ${widget.wallet.id}');
+    Log.info('Membuat state untuk WalletDetail. ID: ${widget.dompet.id}');
     _futureDetailData = _loadData();
   }
 
-  Future<WalletDetailData> _loadData() async {
-    Log.info('Memuat data detail dompet ID: ${widget.wallet.id}');
+  Future<DetailDompetData> _loadData() async {
+    Log.info('Memuat data detail dompet ID: ${widget.dompet.id}');
     final walletOperation = ref.read(walletOperationProvider);
     final transactionOperation = ref.read(transactionOperationProvider);
 
     try {
       final results = await Future.wait([
-        walletOperation.getById(widget.wallet.id),
-        transactionOperation.getTransactionsByWalletId(widget.wallet.id),
+        walletOperation.getById(widget.dompet.id),
+        transactionOperation.getTransactionsByWalletId(widget.dompet.id),
       ]);
 
       final latestWallet = results[0] as WalletModel?;
@@ -109,7 +109,7 @@ class _WalletDetailState extends ConsumerState<WalletDetail> {
         }
       }
 
-      return WalletDetailData(
+      return DetailDompetData(
         wallet: latestWallet,
         transactions: transactionList,
         totalIncome: income,
@@ -159,7 +159,7 @@ class _WalletDetailState extends ConsumerState<WalletDetail> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) => FormTransaksiPage(transaction: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaction),
       ),
     );
 
@@ -177,13 +177,13 @@ class _WalletDetailState extends ConsumerState<WalletDetail> {
   Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_latestWalletName ?? widget.wallet.name),
+        title: Text(_latestWalletName ?? widget.dompet.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, true),
         ),
       ),
-      body: FutureBuilder<WalletDetailData>(
+      body: FutureBuilder<DetailDompetData>(
         future: _futureDetailData,
         builder: (final context, final snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

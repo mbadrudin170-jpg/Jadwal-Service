@@ -7,13 +7,13 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 
 import 'firebase_points_data_source_test.mocks.dart';
 
-@GenerateMocks([TransactionOpFirebase, PackageOpFirebase])
+@GenerateMocks([TransactionOpFirebase, PaketOpFirebase])
 void main() {
   // 2. Deklarasi Mocks dan SUT (System Under Test)
   late MockTransactionOpFirebase mockTransactionOpFirebase;
@@ -141,8 +141,7 @@ void main() {
           reason: 'Transaksi dengan usedPoints > 0 harus ada');
       expect(result.any((t) => t.id == '2'), isFalse,
           reason: 'Transaksi tanpa poin harus diabaikan');
-      verify(mockTransactionOpFirebase.getByCustomerId(customerId))
-          .called(1);
+      verify(mockTransactionOpFirebase.getByCustomerId(customerId)).called(1);
       verifyNoMoreInteractions(mockTransactionOpFirebase);
       verifyZeroInteractions(mockPackageOpFirebase);
     });
@@ -163,7 +162,7 @@ void main() {
           .thenAnswer((_) async => mockPackage);
 
       // Act
-      final result = await dataSource.getPackageById(packageId);
+      final result = await dataSource.getPaketByid(packageId);
 
       // Assert
       expect(result, equals(mockPackage));

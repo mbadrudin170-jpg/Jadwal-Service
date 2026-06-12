@@ -19,7 +19,7 @@ class DownloadDataService {
   final SyncManager _syncManager;
   final DompetOpSqlite _walletOperation;
   final CategoryOperation _categoryOperation;
-  final PackageOperation _packageOperation;
+  final PaketOpSqlite _packageOperation;
   final CustomerOperation _customerOperation;
   final ActiveCustomerOperation _activeCustomerOperation;
   final TransactionOperation _transactionOperation;
@@ -35,7 +35,7 @@ class DownloadDataService {
     required SyncManager syncManager,
     required DompetOpSqlite walletOperation,
     required CategoryOperation categoryOperation,
-    required PackageOperation packageOperation,
+    required PaketOpSqlite packageOperation,
     required CustomerOperation customerOperation,
     required ActiveCustomerOperation activeCustomerOperation,
     required TransactionOperation transactionOperation,
@@ -66,7 +66,7 @@ class DownloadDataService {
     required final SyncManager syncManager,
     required final DompetOpSqlite walletOperation,
     required final CategoryOperation categoryOperation,
-    required final PackageOperation packageOperation,
+    required final PaketOpSqlite packageOperation,
     required final CustomerOperation customerOperation,
     required final ActiveCustomerOperation activeCustomerOperation,
     required final TransactionOperation transactionOperation,

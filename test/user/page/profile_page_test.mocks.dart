@@ -13,7 +13,7 @@ import 'package:wifi/shared/model/package_model.dart' as _i7;
 import 'package:wifi/shared/model/transaction_model.dart' as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart'
     as _i3;
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart'
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart'
     as _i9;
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
     as _i8;
@@ -71,8 +71,7 @@ class MockCustomerOpFirebase extends _i1.Mock
   }
 
   @override
-  _i4.Future<_i5.CustomerModel?> ambilBerdasarkanId(String? id) =>
-      (super.noSuchMethod(
+  _i4.Future<_i5.CustomerModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
@@ -121,7 +120,7 @@ class MockTransactionOpFirebase extends _i1.Mock
 /// A class which mocks [PackageOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPackageOpFirebase extends _i1.Mock implements _i9.PackageOpFirebase {
+class MockPackageOpFirebase extends _i1.Mock implements _i9.PaketOpFirebase {
   MockPackageOpFirebase() {
     _i1.throwOnMissingStub(this);
   }

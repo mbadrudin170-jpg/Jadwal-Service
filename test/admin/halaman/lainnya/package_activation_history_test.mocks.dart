@@ -13,8 +13,7 @@ import 'package:wifi/shared/model/transaction_model.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
     as _i9;
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart'
-    as _i7;
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart' as _i7;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i4;
 
@@ -34,7 +33,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeDatabaseHelper_0 extends _i1.SmartFake
-    implements _i2.DatabaseHelper {
+    implements _i2.SqliteDatabase {
   _FakeDatabaseHelper_0(
     Object parent,
     Invocation parentInvocation,
@@ -64,13 +63,13 @@ class MockTransactionOperation extends _i1.Mock
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i3.BaseOperation get baseOperation => (super.noSuchMethod(
@@ -128,8 +127,7 @@ class MockTransactionOperation extends _i1.Mock
       ) as _i5.Future<_i6.TransactionModel?>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getTransactionsByCustomerId(
-          String? customerId) =>
+  _i5.Future<List<_i6.TransactionModel>> getByIdPelanggan(String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByCustomerId,
@@ -292,19 +290,19 @@ class MockTransactionOperation extends _i1.Mock
 /// A class which mocks [PackageOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPackageOperation extends _i1.Mock implements _i7.PackageOperation {
+class MockPackageOperation extends _i1.Mock implements _i7.PaketOpSqlite {
   MockPackageOperation() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i3.BaseOperation get baseOperation => (super.noSuchMethod(
@@ -483,13 +481,13 @@ class MockCustomerOperation extends _i1.Mock implements _i9.CustomerOperation {
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i5.Future<void> add(

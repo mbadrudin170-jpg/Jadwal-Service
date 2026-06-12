@@ -14,7 +14,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransactionOperation {
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
   final BaseOperation baseOperation;
   final String _tableName = TableNameValue.get(TableName.transactions);
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
@@ -209,7 +209,7 @@ class TransactionOperation {
   }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransactionModel>> getTransactionsByCustomerId(
+  Future<List<TransactionModel>> getByIdPelanggan(
     final String customerId,
   ) async {
     try {
@@ -223,7 +223,7 @@ class TransactionOperation {
       );
       Log.info(
           'Ditemukan ${maps.length} transaksi untuk Customer ID: $customerId');
-      return List.generate(maps.length, ( i) {
+      return List.generate(maps.length, (i) {
         return TransactionModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {

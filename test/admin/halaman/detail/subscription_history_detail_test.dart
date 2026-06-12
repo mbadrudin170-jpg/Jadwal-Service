@@ -3,157 +3,111 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/enum/payment_status_enum.dart';
+import 'package:wifi/shared/enum/transaction_type_enum.dart';
 
-import 'subscription_history_detail_test.mocks.dart';
+import 'active_customer_detail_test.mocks.dart';
 
-@GenerateMocks([])
 void main() {
-  late ProviderContainer kontainer;
-  final idTransaksi = 'trans-123';
+  late MockCustomerOperation mockCustomerOperation;
+  late MockPackageOperation mockPackageOperation;
+  late MockTransactionOperation mockTransactionOperation;
 
-  final mockCustomer = CustomerModel(
-    id: 'cust-1',
-    name: 'Budi Utomo',
-    phone: '08123456789',
-    address: 'Alamat Budi',
-    password: 'password123',
+  final tCustomer = CustomerModel(
+    id: 'cust1',
+    name: 'Test Customer',
+    phone: '123456789',
+    address: 'Test Address',
+    password: 'password',
   );
 
-  final mockPackage = PackageModel(
-    id: 'pack-1',
-    name: 'Paket Bulanan',
+  final tPackage = PackageModel(
+    id: 'pkg1',
+    name: 'Test Package',
     price: 100000,
     duration: 30,
-    type: DurationType.day,
-    rewardPoints: 10,
-    redemptionPoints: 100,
+    type: DurationType.days,
   );
 
-  final mockTransaction = TransactionModel(
-    id: idTransaksi,
-    customerId: 'cust-1',
-    packageId: 'pack-1',
+  final tTransaction = TransactionModel(
+    id: 'trans1',
+    customerId: 'cust1',
+    packageId: 'pkg1',
+    date: DateTime.now(),
     amount: 100000,
-    transactionDate: DateTime(2023, 10, 1),
-    status: StatusOrder.completed,
+    type: TransactionType.income,
     paymentStatus: PaymentStatus.paid,
-    transactionType: TransactionType.subscription,
+    description: 'Test Description',
+    walletId: 'wallet1',
+    categoryId: 'cat1',
   );
 
   setUp(() {
-    kontainer = ProviderContainer();
+    mockCustomerOperation = MockCustomerOperation();
+    mockPackageOperation = MockPackageOperation();
+    mockTransactionOperation = MockTransactionOperation();
   });
 
-  tearDown(() {
-    kontainer.dispose();
-  });
-
-  testWidgets('1. Menampilkan indikator pemuatan saat status loading', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ambilDetailLanggananProvider(idTransaksi).overrideWith(
-            (ref) => const AsyncValue.loading(),
-          ),
-        ],
-        child: MaterialApp(
-          home: SubscriptionHistoryDetailPage(transactionId: idTransaksi),
-        ),
+  Widget createWidgetUnderTest() {
+    return ProviderScope(
+      overrides: [
+        customerOperationProvider.overrideWithValue(mockCustomerOperation),
+        packageOperationProvider.overrideWithValue(mockPackageOperation),
+        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
+      ],
+      child: MaterialApp(
+        home: DetailLangganan(idTransaksi: tTransaction.id),
       ),
     );
+  }
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
+  group('DetailLangganan Widget Test', () {
+    testWidgets('01. should show loading indicator when fetching data',
+        (tester) async {
+      when(() => mockTransactionOperation.getTransactionById(any()))
+          .thenAnswer((_) async => tTransaction);
+      when(() => mockCustomerOperation.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tCustomer);
+      when(() => mockPackageOperation.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tPackage);
 
-  testWidgets('2. Menampilkan pesan error saat status error', (tester) async {
-    final pesanError = 'Gagal memuat data';
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ambilDetailLanggananProvider(idTransaksi).overrideWith(
-            (ref) => AsyncValue.error(pesanError, StackTrace.current),
-          ),
-        ],
-        child: MaterialApp(
-          home: SubscriptionHistoryDetailPage(transactionId: idTransaksi),
-        ),
-      ),
-    );
+      await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.textContaining('Terjadi kesalahan'), findsOneWidget);
-    expect(find.textContaining(pesanError), findsOneWidget);
-  });
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
 
-  testWidgets('3. Menampilkan detail langganan dengan lengkap saat data berhasil dimuat', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ambilDetailLanggananProvider(idTransaksi).overrideWith(
-            (ref) => AsyncValue.data((
-              transaction: mockTransaction,
-              customer: mockCustomer,
-              package: mockPackage,
-              poinDidapat: 10,
-            )),
-          ),
-        ],
-        child: MaterialApp(
-          home: SubscriptionHistoryDetailPage(transactionId: idTransaksi),
-        ),
-      ),
-    );
+    testWidgets('02. should show data when fetch is successful', (tester) async {
+      when(() => mockTransactionOperation.getTransactionById(any()))
+          .thenAnswer((_) async => tTransaction);
+      when(() => mockCustomerOperation.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tCustomer);
+      when(() => mockPackageOperation.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tPackage);
 
-    // Periksa AppBar
-    expect(find.text('Detail Riwayat'), findsOneWidget);
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
 
-    // Periksa informasi pelanggan
-    expect(find.text('Budi Utomo'), findsOneWidget);
-    expect(find.text('cust-1'), findsOneWidget);
+      expect(find.text('Test Customer'), findsOneWidget);
+      expect(find.text('Test Package'), findsOneWidget);
+    });
 
-    // Periksa informasi paket
-    expect(find.text('Paket Bulanan'), findsOneWidget);
-    expect(find.textContaining('100.000'), findsOneWidget);
+    testWidgets('03. should show error message when transaction is not found',
+        (tester) async {
+      when(() => mockTransactionOperation.getTransactionById(any()))
+          .thenAnswer((_) async => null);
 
-    // Periksa informasi poin
-    expect(find.text('10 Poin'), findsOneWidget);
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
 
-    // Periksa status
-    expect(find.text(StatusOrder.completed.displayName), findsOneWidget);
-    expect(find.text(PaymentStatus.paid.displayName), findsOneWidget);
-  });
-
-  testWidgets('4. Memastikan tombol interaksi tersedia di halaman detail', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          ambilDetailLanggananProvider(idTransaksi).overrideWith(
-            (ref) => AsyncValue.data((
-              transaction: mockTransaction,
-              customer: mockCustomer,
-              package: mockPackage,
-              poinDidapat: 10,
-            )),
-          ),
-        ],
-        child: MaterialApp(
-          home: SubscriptionHistoryDetailPage(transactionId: idTransaksi),
-        ),
-      ),
-    );
-
-    // Tombol Edit di AppBar
-    expect(find.byIcon(Icons.edit), findsOneWidget);
-
-    // Deteksi InkWell atau tombol navigasi ke detail pelanggan/paket
-    expect(find.text('Budi Utomo'), findsOneWidget);
-    expect(find.text('Paket Bulanan'), findsOneWidget);
+      expect(find.text('Transaksi tidak ditemukan'), findsOneWidget);
+    });
   });
 }

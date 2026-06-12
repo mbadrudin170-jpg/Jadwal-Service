@@ -15,7 +15,7 @@ import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'feedback_operation_test.mocks.dart';
 
 // 1. Definisikan kelas yang akan di-mock
-@GenerateMocks([DatabaseHelper, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
 void main() {
   // 2. Deklarasikan variabel untuk mock dan kelas yang diuji
   late MockDatabaseHelper mockDbHelper;

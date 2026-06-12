@@ -13,7 +13,7 @@ import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
@@ -23,7 +23,7 @@ class MockOrderOperation extends Mock implements OrderOperation {}
 
 class MockOrderOpFirebase extends Mock implements OrderOpFirebase {}
 
-class MockPackageOpFirebase extends Mock implements PackageOpFirebase {}
+class MockPackageOpFirebase extends Mock implements PaketOpFirebase {}
 
 void main() {
   // 2. Deklarasi mock dan data

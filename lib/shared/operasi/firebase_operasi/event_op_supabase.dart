@@ -105,7 +105,7 @@ class EventOpSupabase {
   }
 
   /// Menambahkan data pengumuman baru ke Supabase.
-  Future<void> create(final EventModel event) async {
+  Future<void> addEvent(final EventModel event) async {
     Log.info('EventOpSupabase: Membuat pengumuman baru ${event.id}');
     try {
       final Map<String, dynamic> dataPayload = event.toSupabase();
@@ -132,7 +132,7 @@ class EventOpSupabase {
   }
 
   /// Menghapus pengumuman secara permanen berdasarkan ID.
-  Future<void> deleteEvent(final String id) async {
+  Future<void> deleteEvent( String id) async {
     Log.warning('EventOpSupabase: Menghapus pengumuman $id');
     try {
       await _supabase.from(_tableName).delete().eq(ColumnNames.id, id);

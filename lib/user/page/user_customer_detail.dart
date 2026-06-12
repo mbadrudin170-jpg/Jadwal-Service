@@ -47,8 +47,7 @@ class _UserCustomerDetailPageState
       Log.info('Mengambil data pelanggan dari Firestore...');
       final customerOpFirebase = ref.read(customerOpFirebaseProvider);
       final transactionOp = ref.read(transactionOpFirebaseProvider);
-      final customer =
-          await customerOpFirebase.ambilBerdasarkanId(widget.userId);
+      final customer = await customerOpFirebase.getById(widget.userId);
       if (customer == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',

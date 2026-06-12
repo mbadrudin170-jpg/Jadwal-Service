@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
-import 'package:wifi/admin/halaman/form/transaction_form.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -83,7 +83,7 @@ class TransactionPageA extends ConsumerWidget {
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksiPage(transaction: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaction),
       ),
     );
   }
@@ -286,7 +286,7 @@ class _TransactionListView extends ConsumerWidget {
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormTransaksiPage(transaction: transaction),
+        builder: (context) => FormTransaksi(transaksi: transaction),
       ),
     );
   }

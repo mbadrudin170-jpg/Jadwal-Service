@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data kategori di database lokal.
 class CategoryOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
 
   /// Instance dari BaseOperation untuk operasi database umum.
   final BaseOperation _baseOperation;

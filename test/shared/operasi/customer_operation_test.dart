@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'customer_operation_test.mocks.dart';
 
 @GenerateMocks([
-  DatabaseHelper,
+  SqliteDatabase,
   Database,
   BaseOperation,
 ])

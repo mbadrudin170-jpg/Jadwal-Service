@@ -9,22 +9,22 @@ import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 
 import 'package_operation_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper, BaseOperation, Database])
+@GenerateMocks([SqliteDatabase, BaseOperation, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late PackageOperation packageOperation;
+  late PaketOpSqlite packageOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
-    packageOperation = PackageOperation(
+    packageOperation = PaketOpSqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );

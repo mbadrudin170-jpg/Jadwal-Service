@@ -8,7 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
@@ -21,11 +21,11 @@ final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
   final CustomerOperation _customerOperation;
-  final PackageOperation _packageOperation;
+  final PaketOpSqlite _packageOperation;
 
   PesanInfoPaket({
     required CustomerOperation customerOperation,
-    required PackageOperation packageOperation,
+    required PaketOpSqlite packageOperation,
   })  : _customerOperation = customerOperation,
         _packageOperation = packageOperation;
 
@@ -39,7 +39,8 @@ class PesanInfoPaket {
     try {
       Log.info(
           'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}');
-      final CustomerModel? customer = await _customerOperation.ambilBerdasarkanId(
+      final CustomerModel? customer =
+          await _customerOperation.ambilBerdasarkanId(
         activeCustomer.customerId,
       );
       Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');

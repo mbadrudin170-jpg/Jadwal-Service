@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/package_activation_history_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -63,7 +63,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SubscriptionHistoryDetailPage(
+                        builder: (context) => DetailRiwayatAktivasiPage(
                           transactionId: transaction.id,
                         ),
                       ),

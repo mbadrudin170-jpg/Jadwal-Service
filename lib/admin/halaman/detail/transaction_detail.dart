@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/transaction_form.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -31,7 +31,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
       ref.watch(categoryOperationProvider);
   late final CustomerOperation _customerOperation =
       ref.watch(customerOperationProvider);
-  late final PackageOperation _packageOperation =
+  late final PaketOpSqlite _packageOperation =
       ref.watch(packageOperationProvider);
   late final SubCategoryOperation _subCategoryOperation =
       ref.watch(subCategoryOperationProvider);
@@ -78,7 +78,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
       context,
       MaterialPageRoute(
         builder: (final context) =>
-            FormTransaksiPage(transaction: _currentTransaction),
+            FormTransaksi(transaksi: _currentTransaction),
       ),
     );
 

@@ -5,16 +5,16 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class SQLitePointsDataSource implements PointsPageDataSource {
   final TransactionOperation _transactionOperation;
-  final PackageOperation _packageOperation;
+  final PaketOpSqlite _packageOperation;
 
   SQLitePointsDataSource({
     required TransactionOperation transactionOperation,
-    required PackageOperation packageOperation,
+    required PaketOpSqlite packageOperation,
   })  : _transactionOperation = transactionOperation,
         _packageOperation = packageOperation;
 
@@ -25,21 +25,20 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<PackageModel>> getPublicPackages() {
-    return _packageOperation.ambilBerdasarkanPublik();
+    return _packageOperation.getPaketPublic();
   }
 
   @override
   Future<List<TransactionModel>> getPointsTransactions(
       final String customerId) async {
-    final history =
-        await _transactionOperation.getTransactionsByCustomerId(customerId);
+    final history = await _transactionOperation.getByIdPelanggan(customerId);
     return history
         .where((t) => t.earnedPoints > 0 || t.usedPoints > 0)
         .toList();
   }
 
   @override
-  Future<PackageModel?> getPackageById(String packageId) {
+  Future<PackageModel?> getPaketByid(String packageId) {
     return _packageOperation.ambilBerdasarkanId(packageId);
   }
 

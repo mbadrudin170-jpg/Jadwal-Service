@@ -125,8 +125,7 @@ class MockCustomerOpFirebase extends _i1.Mock
       ) as _i3.Stream<_i4.CustomerModel?>);
 
   @override
-  _i3.Future<_i4.CustomerModel?> ambilBerdasarkanId(String? userId) =>
-      (super.noSuchMethod(
+  _i3.Future<_i4.CustomerModel?> getById(String? userId) => (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [userId],

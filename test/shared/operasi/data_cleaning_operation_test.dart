@@ -19,7 +19,7 @@ void sqfliteTestInit() {
   databaseFactory = databaseFactoryFfi;
 }
 
-@GenerateMocks([DatabaseHelper])
+@GenerateMocks([SqliteDatabase])
 void main() {
   sqfliteTestInit();
   late Database mockDatabase;
@@ -102,14 +102,18 @@ void main() {
     });
 
     // Verifikasi Awal
-    final initialSqliteOld = await mockDatabase.query(testTable, where: 'id = ?', whereArgs: [oldDataIdSqlite]);
-    expect(initialSqliteOld, isNotEmpty, reason: 'Initial SQLite old data should exist');
-    final initialFirestoreOld = await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).get();
-    expect(initialFirestoreOld.exists, isTrue, reason: 'Initial Firestore old data should exist');
+    final initialSqliteOld = await mockDatabase
+        .query(testTable, where: 'id = ?', whereArgs: [oldDataIdSqlite]);
+    expect(initialSqliteOld, isNotEmpty,
+        reason: 'Initial SQLite old data should exist');
+    final initialFirestoreOld =
+        await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).get();
+    expect(initialFirestoreOld.exists, isTrue,
+        reason: 'Initial Firestore old data should exist');
 
-
-    // --- Eksekusi --- 
-    final totalDeleted = await dataCleaningOperation.deleteAllExpiredArchivedData(
+    // --- Eksekusi ---
+    final totalDeleted =
+        await dataCleaningOperation.deleteAllExpiredArchivedData(
       retentionDays: retentionDays,
     );
 
@@ -118,17 +122,23 @@ void main() {
         .query(testTable, where: 'id = ?', whereArgs: [oldDataIdSqlite]);
     final sqliteNewResult = await mockDatabase
         .query(testTable, where: 'id = ?', whereArgs: [newDataIdSqlite]);
-    expect(sqliteOldResult, isEmpty, reason: 'SQLite old data should be deleted');
-    expect(sqliteNewResult, isNotEmpty, reason: 'SQLite new data should be preserved');
+    expect(sqliteOldResult, isEmpty,
+        reason: 'SQLite old data should be deleted');
+    expect(sqliteNewResult, isNotEmpty,
+        reason: 'SQLite new data should be preserved');
 
     // Verifikasi Firestore: data lama hilang, data baru ada
-    final firestoreOldDoc = await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).get();
-    final firestoreNewDoc = await fakeFirestore.collection(testTable).doc(newDataIdFirestore).get();
-    expect(firestoreOldDoc.exists, isFalse, reason: 'Firestore old data should be deleted');
-    expect(firestoreNewDoc.exists, isTrue, reason: 'Firestore new data should be preserved');
+    final firestoreOldDoc =
+        await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).get();
+    final firestoreNewDoc =
+        await fakeFirestore.collection(testTable).doc(newDataIdFirestore).get();
+    expect(firestoreOldDoc.exists, isFalse,
+        reason: 'Firestore old data should be deleted');
+    expect(firestoreNewDoc.exists, isTrue,
+        reason: 'Firestore new data should be preserved');
 
     // --- Verifikasi Akhir ---
-    expect(totalDeleted, 2, reason: 'Total deleted count should be 2 (1 SQLite + 1 Firestore)');
-
+    expect(totalDeleted, 2,
+        reason: 'Total deleted count should be 2 (1 SQLite + 1 Firestore)');
   });
 }

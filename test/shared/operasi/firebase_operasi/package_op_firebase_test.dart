@@ -7,16 +7,16 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
-  late PackageOpFirebase packageOpFirebase;
+  late PaketOpFirebase packageOpFirebase;
   final packageCollection = TableNameValue.get(TableName.package);
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
-    packageOpFirebase = PackageOpFirebase(firestore: fakeFirestore);
+    packageOpFirebase = PaketOpFirebase(firestore: fakeFirestore);
   });
 
   // Data model paket untuk digunakan dalam tes
@@ -65,7 +65,8 @@ void main() {
   }
 
   group('3. Pengujian PackageOpFirebase', () {
-    test('3.1. harus bisa mendapatkan paket publik yang bisa ditukar poin', () async {
+    test('3.1. harus bisa mendapatkan paket publik yang bisa ditukar poin',
+        () async {
       await addPackageToFirestore(p1);
       await addPackageToFirestore(p2);
       await addPackageToFirestore(p3);
@@ -77,7 +78,8 @@ void main() {
       expect(publicPackages.first.id, p1.id);
     });
 
-    test('3.2. harus mengembalikan list kosong jika tidak ada paket publik', () async {
+    test('3.2. harus mengembalikan list kosong jika tidak ada paket publik',
+        () async {
       await addPackageToFirestore(p2);
       await addPackageToFirestore(p3);
       await addPackageToFirestore(p4);
@@ -97,7 +99,8 @@ void main() {
       expect(package.name, p1.name);
     });
 
-    test('3.4. harus mengembalikan null jika ID paket tidak ditemukan', () async {
+    test('3.4. harus mengembalikan null jika ID paket tidak ditemukan',
+        () async {
       final package = await packageOpFirebase.getPackageById('id-tidak-ada');
       expect(package, isNull);
     });
@@ -106,7 +109,8 @@ void main() {
       await addPackageToFirestore(p1);
       await packageOpFirebase.deletePackage(p1.id);
 
-      final snapshot = await fakeFirestore.collection(packageCollection).doc(p1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(packageCollection).doc(p1.id).get();
       expect(snapshot.exists, isFalse);
     });
 
@@ -114,7 +118,8 @@ void main() {
       await addPackageToFirestore(p1);
       await packageOpFirebase.softDeletePackage(p1.id);
 
-      final snapshot = await fakeFirestore.collection(packageCollection).doc(p1.id).get();
+      final snapshot =
+          await fakeFirestore.collection(packageCollection).doc(p1.id).get();
       expect(snapshot.exists, isTrue);
       expect(snapshot.data()![ColumnNames.isDeleted], isTrue);
       expect(snapshot.data()![ColumnNames.archivedAt], isNotNull);

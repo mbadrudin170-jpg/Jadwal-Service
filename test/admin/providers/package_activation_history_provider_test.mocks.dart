@@ -31,7 +31,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeDatabaseHelper_0 extends _i1.SmartFake
-    implements _i2.DatabaseHelper {
+    implements _i2.SqliteDatabase {
   _FakeDatabaseHelper_0(
     Object parent,
     Invocation parentInvocation,
@@ -61,13 +61,13 @@ class MockTransactionOperation extends _i1.Mock
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i3.BaseOperation get baseOperation => (super.noSuchMethod(
@@ -125,8 +125,7 @@ class MockTransactionOperation extends _i1.Mock
       ) as _i5.Future<_i6.TransactionModel?>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getTransactionsByCustomerId(
-          String? customerId) =>
+  _i5.Future<List<_i6.TransactionModel>> getByIdPelanggan(String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByCustomerId,
@@ -295,13 +294,13 @@ class MockCustomerOperation extends _i1.Mock implements _i7.CustomerOperation {
   }
 
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i5.Future<void> add(

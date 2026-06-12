@@ -72,7 +72,7 @@ class MockPointsPageDataSource extends _i1.Mock
       ) as _i3.Future<List<_i5.TransactionModel>>);
 
   @override
-  _i3.Future<_i4.PackageModel?> getPackageById(String? packageId) =>
+  _i3.Future<_i4.PackageModel?> getPaketByid(String? packageId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPackageById,

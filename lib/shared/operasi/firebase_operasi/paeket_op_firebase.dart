@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/firebase_operasi/package_op_firebase.dart
+// path: lib/shared/operasi/firebase_operasi/paeket_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/column_names.dart';
@@ -7,10 +7,10 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 
-class PackageOpFirebase {
+class PaketOpFirebase {
   final FirebaseFirestore db;
 
-  PackageOpFirebase({required FirebaseFirestore firestore}) : db = firestore {
+  PaketOpFirebase({required FirebaseFirestore firestore}) : db = firestore {
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
@@ -37,17 +37,17 @@ class PackageOpFirebase {
     }
   }
 
-  Future<PackageModel?> ambilBerdasarkanId(String idPaket) async {
+  Future<PackageModel?> ambilBerdasarkanId(String id) async {
     try {
-      Log.info('Mengambil model paket untuk ID: $idPaket');
-      final doc = await _collection.doc(idPaket).get();
+      Log.info('Mengambil model paket untuk ID: $id');
+      final doc = await _collection.doc(id).get();
       if (doc.exists) {
         final data = doc.data()! as Map<String, dynamic>;
         final package = PackageModel.fromFirebase(doc.id, data);
         Log.info('Model paket ditemukan');
         return package;
       }
-      Log.warning('Paket dengan ID $idPaket tidak ditemukan.');
+      Log.warning('Paket dengan ID $id tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
       Log.error('Error mengambil model paket: $e', e: e, st: s);
@@ -56,44 +56,44 @@ class PackageOpFirebase {
   }
 
   /// Mengambil data paket secara real-time berdasarkan ID.
-  Stream<PackageModel?> ambilStreamBerdasarkanId(String idPaket) {
-    Log.info('Memulai stream untuk paket ID: $idPaket');
-    return _collection.doc(idPaket).snapshots().map((snapshot) {
+  Stream<PackageModel?> ambilStreamBerdasarkanId(String id) {
+    Log.info('Memulai stream untuk paket ID: $id');
+    return _collection.doc(id).snapshots().map((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data()! as Map<String, dynamic>;
-        Log.info('Data paket diperbarui dari stream: $idPaket');
+        Log.info('Data paket diperbarui dari stream: $id');
         return PackageModel.fromFirebase(snapshot.id, data);
       }
-      Log.warning('Paket ID $idPaket tidak ditemukan di stream.');
+      Log.warning('Paket ID $id tidak ditemukan di stream.');
       return null;
     }).handleError((Object e, StackTrace s) {
-      Log.error('Error pada stream paket ID: $idPaket', e: e, st: s);
+      Log.error('Error pada stream paket ID: $id', e: e, st: s);
       return null;
     });
   }
 
-  Future<void> hapusPaket(String idPaket) async {
-    Log.warning('Memulai penghapusan permanen paket di Firestore: $idPaket');
+  Future<void> delete(String id) async {
+    Log.warning('Memulai penghapusan permanen paket di Firestore: $id');
     try {
-      await _collection.doc(idPaket).delete();
-      Log.info('Penghapusan permanen paket berhasil: $idPaket');
+      await _collection.doc(id).delete();
+      Log.info('Penghapusan permanen paket berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $idPaket', e: e, st: s);
+      Log.error('Gagal menghapus paket secara permanen: $id', e: e, st: s);
       rethrow;
     }
   }
 
-  Future<void> hapusSementaraPaket(String idPaket) async {
-    Log.info('Memulai soft delete paket di Firestore: $idPaket');
+  Future<void> softDelete(String id) async {
+    Log.info('Memulai soft delete paket di Firestore: $id');
     try {
-      await _collection.doc(idPaket).update({
+      await _collection.doc(id).update({
         ColumnNames.isDeleted: true,
         ColumnNames.archivedAt: FieldValue.serverTimestamp(),
         ColumnNames.updatedAt: FieldValue.serverTimestamp(),
       });
-      Log.info('Soft delete paket berhasil: $idPaket');
+      Log.info('Soft delete paket berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete paket: $idPaket', e: e, st: s);
+      Log.error('Gagal melakukan soft delete paket: $id', e: e, st: s);
       rethrow;
     }
   }

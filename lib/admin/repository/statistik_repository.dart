@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
@@ -30,13 +30,13 @@ final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
 class StatistikRepository {
   final ActiveCustomerOperation _activeCustomerOperation;
   final FeedbackOperation _feedbackOperation;
-  final PackageOperation _packageOperation;
+  final PaketOpSqlite _packageOperation;
   final TransactionOperation _transactionOperation;
 
   StatistikRepository({
     required ActiveCustomerOperation activeCustomerOperation,
     required FeedbackOperation feedbackOperation,
-    required PackageOperation packageOperation,
+    required PaketOpSqlite packageOperation,
     required TransactionOperation transactionOperation,
   })  : _activeCustomerOperation = activeCustomerOperation,
         _feedbackOperation = feedbackOperation,
@@ -89,7 +89,7 @@ class StatistikRepository {
     Log.info(
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
-      final db = await DatabaseHelper.instance.database;
+      final db = await SqliteDatabase.instance.database;
       final String tableName =
           '"${TableNameValue.get(TableName.transactions)}"';
       final String paidStatus = PaymentStatus.paid.name;
@@ -134,7 +134,7 @@ class StatistikRepository {
   Future<int> getTotalPelanggan() async {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
-      final db = await DatabaseHelper.instance.database;
+      final db = await SqliteDatabase.instance.database;
       final String tableName = '"${TableNameValue.get(TableName.customer)}"';
 
       final result = await db.rawQuery(

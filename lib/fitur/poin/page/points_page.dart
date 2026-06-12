@@ -173,7 +173,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
       final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        package = await dataSource.getPackageById(transaction.packageId!);
+        package = await dataSource.getPaketByid(transaction.packageId!);
       } on Exception catch (e, st) {
         Log.error('Failed to get package ${transaction.packageId}: $e',
             e: e, st: st);

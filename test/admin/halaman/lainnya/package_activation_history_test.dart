@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
@@ -16,12 +16,12 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'package_activation_history_test.mocks.dart';
 
-@GenerateMocks([TransactionOperation, PackageOperation, CustomerOperation])
+@GenerateMocks([TransactionOperation, PaketOpSqlite, CustomerOperation])
 void main() {
   late MockTransactionOperation mockTransactionOp;
   late MockPackageOperation mockPackageOp;
@@ -152,7 +152,7 @@ void main() {
     await tester.tap(find.byType(ListTile));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SubscriptionHistoryDetailPage), findsOneWidget);
+    expect(find.byType(DetailRiwayatAktivasiPage), findsOneWidget);
   });
 
   testWidgets('6. harus menampilkan dialog urutan saat tombol filter ditekan',

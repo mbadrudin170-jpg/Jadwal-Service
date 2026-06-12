@@ -301,7 +301,7 @@ class _ManageAnnouncementPageState
       if (_selectedAnnouncement != null) {
         await operator.update(announcementToSave);
       } else {
-        await operator.create(announcementToSave);
+        await operator.addEvent(announcementToSave);
       }
       final _ = ref.refresh(eventOpSupabaseProvider);
       if (!mounted) return;

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:wifi/admin/halaman/detail/wallet_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
 import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
@@ -112,7 +112,7 @@ class WalletPage extends ConsumerWidget {
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => WalletDetail(wallet: wallet),
+        builder: (context) => DetailDompet(dompet: wallet),
       ),
     );
     Log.info('Kembali dari detail dompet, memicu refresh.');

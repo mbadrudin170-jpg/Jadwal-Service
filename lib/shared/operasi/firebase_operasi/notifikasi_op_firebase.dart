@@ -19,7 +19,7 @@ class NotifikasiOpFirebase {
   })  : _firestore = firestore,
         _baseOp = baseOp;
 
-  Stream<List<NotifikasiModel>> getActiveNotifications() {
+  Stream<List<NotifikasiModel>> getNotifAktif() {
     final now = DateTime.now();
     return _firestore
         .collection(_collection)
@@ -95,7 +95,7 @@ class NotifikasiOpFirebase {
     }
   }
 
-  Future<void> updateNotifikasi(NotifikasiModel notifikasi) async {
+  Future<void> updateNotif(NotifikasiModel notifikasi) async {
     try {
       Log.info(
           'Updating notification in Firebase via BaseOp: ${notifikasi.id}');

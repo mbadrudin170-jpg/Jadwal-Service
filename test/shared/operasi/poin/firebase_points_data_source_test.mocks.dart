@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/shared/model/package_model.dart' as _i7;
 import 'package:wifi/shared/model/transaction_model.dart' as _i5;
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart'
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart'
     as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
     as _i3;
@@ -276,7 +276,7 @@ class MockTransactionOpFirebase extends _i1.Mock
 /// A class which mocks [PackageOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPackageOpFirebase extends _i1.Mock implements _i6.PackageOpFirebase {
+class MockPackageOpFirebase extends _i1.Mock implements _i6.PaketOpFirebase {
   MockPackageOpFirebase() {
     _i1.throwOnMissingStub(this);
   }

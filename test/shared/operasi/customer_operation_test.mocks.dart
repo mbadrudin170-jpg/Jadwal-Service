@@ -79,7 +79,7 @@ class _FakeDateTime_4 extends _i1.SmartFake implements DateTime {
 /// A class which mocks [DatabaseHelper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.DatabaseHelper {
+class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
   MockDatabaseHelper() {
     _i1.throwOnMissingStub(this);
   }

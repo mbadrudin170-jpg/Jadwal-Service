@@ -12,7 +12,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 
 import 'dompet_op_sqlite_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;

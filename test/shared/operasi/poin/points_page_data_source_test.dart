@@ -41,10 +41,9 @@ void main() {
 
     test('getPackageById returns a Future<PackageModel?>', () {
       const packageId = 'test_id';
-      when(dataSource.getPackageById(packageId)).thenAnswer((_) async => null);
+      when(dataSource.getPaketByid(packageId)).thenAnswer((_) async => null);
 
-      expect(
-          dataSource.getPackageById(packageId), isA<Future<PackageModel?>>());
+      expect(dataSource.getPaketByid(packageId), isA<Future<PackageModel?>>());
     });
 
     test('isFirebase returns a bool', () {

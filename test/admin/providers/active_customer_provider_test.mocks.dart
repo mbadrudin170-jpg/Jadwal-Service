@@ -28,7 +28,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeDatabaseHelper_0 extends _i1.SmartFake
-    implements _i2.DatabaseHelper {
+    implements _i2.SqliteDatabase {
   _FakeDatabaseHelper_0(
     Object parent,
     Invocation parentInvocation,
@@ -55,7 +55,7 @@ class _FakeActiveCustomerModel_1 extends _i1.SmartFake
 class MockActiveCustomerOperation extends _i1.Mock
     implements _i4.ActiveCustomerOperation {
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
@@ -65,7 +65,7 @@ class MockActiveCustomerOperation extends _i1.Mock
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i5.Future<void> rescheduleAllNotifications() => (super.noSuchMethod(

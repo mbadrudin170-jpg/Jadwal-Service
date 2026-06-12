@@ -10,7 +10,7 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -47,7 +47,7 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final CustomerOpFirebase _customerOp;
   late final TransactionOpFirebase _transactionOp;
-  late final PackageOpFirebase _packageOp;
+  late final PaketOpFirebase _packageOp;
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.
   Future<_ProfileData>? _futureProfileData;
@@ -71,7 +71,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
     Log.info('Memulai pengambilan data profil lengkap untuk userId: $userId.');
     try {
-      final customer = await _customerOp.ambilBerdasarkanId(userId);
+      final customer = await _customerOp.getById(userId);
       if (customer == null) {
         throw Exception('Pelanggan dengan ID  tidak ditemukan.');
       }

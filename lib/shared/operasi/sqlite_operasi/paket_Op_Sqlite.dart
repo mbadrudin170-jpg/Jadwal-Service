@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/package_operation.dart
+// path: lib/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart
 
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
@@ -11,17 +11,17 @@ import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data paket di database lokal.
-class PackageOperation {
+class PaketOpSqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
   @visibleForTesting
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
 
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
   final BaseOperation baseOperation;
   final String _tableName = TableNameValue.get(TableName.package);
   final _nowUtc = DateTime.now().toUtc();
 
-  PackageOperation({
+  PaketOpSqlite({
     required this.dbHelper,
     required this.baseOperation,
   }) {
@@ -101,7 +101,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket yang bersifat publik.
-  Future<List<PackageModel>> ambilBerdasarkanPublik() async {
+  Future<List<PackageModel>> getPaketPublic() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await dbHelper.database;

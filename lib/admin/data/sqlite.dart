@@ -11,25 +11,25 @@ import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
-final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
-  return DatabaseHelper.instance;
+final sqliteDatabaseProvider = Provider<SqliteDatabase>((ref) {
+  return SqliteDatabase.instance;
 });
-final databaseProvider = FutureProvider((ref) async {
-  final dbHelper = ref.read(databaseHelperProvider);
+final sqliteProvider = FutureProvider((ref) async {
+  final dbHelper = ref.read(sqliteDatabaseProvider);
   final db = await dbHelper.database;
   return db;
 });
 
 /// Kelas pembantu untuk mengelola database SQLite.
-class DatabaseHelper {
+class SqliteDatabase {
   /// Instance tunggal dari DatabaseHelper.
-  static final DatabaseHelper instance = DatabaseHelper._internal();
+  static final SqliteDatabase instance = SqliteDatabase._internal();
   static Database? _database;
 
   // diubah: Versi dinaikkan ke 53 untuk menambah kolom durasi bonus di transaksi.
   static const int _databaseVersion = 53;
 
-  DatabaseHelper._internal() {
+  SqliteDatabase._internal() {
     Log.info('DatabaseHelper instance dibuat (singleton _internal).');
   }
 

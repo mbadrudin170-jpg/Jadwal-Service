@@ -7,12 +7,12 @@ import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'sqlite_points_data_source_test.mocks.dart';
 
-@GenerateMocks([TransactionOperation, PackageOperation])
+@GenerateMocks([TransactionOperation, PaketOpSqlite])
 void main() {
   late MockTransactionOperation mockTransactionOperation;
   late MockPackageOperation mockPackageOperation;
@@ -30,7 +30,9 @@ void main() {
   group('SQLitePointsDataSource', () {
     const customerId = 'test_customer_id';
 
-    test('1. getTotalPoints harus mengembalikan total poin dari operasi transaksi', () async {
+    test(
+        '1. getTotalPoints harus mengembalikan total poin dari operasi transaksi',
+        () async {
       when(mockTransactionOperation.getTotalPoints(customerId))
           .thenAnswer((_) async => 100);
 
@@ -41,7 +43,9 @@ void main() {
       verifyNoMoreInteractions(mockTransactionOperation);
     });
 
-    test('2. getPublicPackages harus mengembalikan paket publik dari operasi paket', () async {
+    test(
+        '2. getPublicPackages harus mengembalikan paket publik dari operasi paket',
+        () async {
       final packages = [
         PackageModel(
           id: '1',
@@ -61,7 +65,9 @@ void main() {
       verifyNoMoreInteractions(mockPackageOperation);
     });
 
-    test('3. getPointsTransactions harus mengembalikan transaksi dengan poin dari operasi transaksi', () async {
+    test(
+        '3. getPointsTransactions harus mengembalikan transaksi dengan poin dari operasi transaksi',
+        () async {
       final transactions = [
         TransactionModel(
           id: '1',
@@ -93,7 +99,7 @@ void main() {
           categoryId: '',
         ),
       ];
-      when(mockTransactionOperation.getTransactionsByCustomerId(customerId))
+      when(mockTransactionOperation.getByIdPelanggan(customerId))
           .thenAnswer((_) async => transactions);
 
       final result = await dataSource.getPointsTransactions(customerId);
@@ -101,11 +107,12 @@ void main() {
       expect(result, hasLength(2));
       expect(result.any((t) => t.id == '1'), isTrue);
       expect(result.any((t) => t.id == '2'), isTrue);
-      verify(mockTransactionOperation.getTransactionsByCustomerId(customerId));
+      verify(mockTransactionOperation.getByIdPelanggan(customerId));
       verifyNoMoreInteractions(mockTransactionOperation);
     });
 
-    test('4. getPackageById harus mengembalikan paket dari operasi paket', () async {
+    test('4. getPackageById harus mengembalikan paket dari operasi paket',
+        () async {
       const packageId = 'test_package_id';
       final package = PackageModel(
         id: packageId,
@@ -117,7 +124,7 @@ void main() {
       when(mockPackageOperation.getById(packageId))
           .thenAnswer((_) async => package);
 
-      final result = await dataSource.getPackageById(packageId);
+      final result = await dataSource.getPaketByid(packageId);
 
       expect(result, package);
       verify(mockPackageOperation.getById(packageId));

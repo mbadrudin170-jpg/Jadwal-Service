@@ -9,7 +9,7 @@ import 'package:wifi/shared/data/sync/initial_download.dart';
 
 import 'initial_download_test.mocks.dart';
 
-@GenerateMocks([DownloadDataService, DatabaseHelper, Database])
+@GenerateMocks([DownloadDataService, SqliteDatabase, Database])
 void main() {
   late LayananUnduhAwal initialDownloadService;
   late MockDownloadDataService mockDownloadDataService;

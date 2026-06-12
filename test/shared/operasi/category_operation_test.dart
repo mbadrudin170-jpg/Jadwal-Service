@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'category_operation_test.mocks.dart';
 
 @GenerateMocks([
-  DatabaseHelper,
+  SqliteDatabase,
   Database,
   BaseOperation,
 ])

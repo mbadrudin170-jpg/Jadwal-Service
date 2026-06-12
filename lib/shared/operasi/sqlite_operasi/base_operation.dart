@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
 final baseOperationProvider = Provider<BaseOperation>((ref) {
   Log.info('Membuat instance BaseOperation...');
 
-  final dbHelper = ref.read(databaseHelperProvider);
+  final dbHelper = ref.read(sqliteDatabaseProvider);
 
   final uploadStatusOperasi = ref.read(uploadStatusOperationProvider);
 
@@ -25,7 +25,7 @@ final baseOperationProvider = Provider<BaseOperation>((ref) {
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
 class BaseOperation {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
   final UploadStatusOperation _uploadStatusOperasi;
   final now = DateTime.now().toUtc();
 
@@ -34,7 +34,7 @@ class BaseOperation {
   /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperation`
   /// untuk memfasilitasi pengujian.
   BaseOperation({
-    required final DatabaseHelper dbHelper,
+    required final SqliteDatabase dbHelper,
     required final UploadStatusOperation uploadStatusOperasi,
   })  : _dbHelper = dbHelper,
         _uploadStatusOperasi = uploadStatusOperasi {

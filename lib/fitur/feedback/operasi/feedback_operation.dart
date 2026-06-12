@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOperation {
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
   final BaseOperation baseOperation;
   final String _tableName = TableNameValue.get(TableName.feedback);
 

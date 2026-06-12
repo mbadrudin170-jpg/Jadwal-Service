@@ -13,12 +13,12 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk mengunggah data dari database lokal (SQLite) ke Firestore.
 class UploadDataService {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
 
   UploadDataService({
-    required DatabaseHelper dbHelper,
+    required SqliteDatabase dbHelper,
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
   })  : _dbHelper = dbHelper,
@@ -595,7 +595,7 @@ class UploadDataService {
 
 final uploadDataServiceProvider = Provider<UploadDataService>((ref) {
   return UploadDataService(
-    dbHelper: ref.read(databaseHelperProvider),
+    dbHelper: ref.read(sqliteDatabaseProvider),
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
   );

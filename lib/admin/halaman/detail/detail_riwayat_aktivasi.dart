@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
+import 'package:wifi/admin/halaman/form/form_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
-class SubscriptionHistoryDetailPage extends ConsumerWidget {
+class DetailRiwayatAktivasiPage extends ConsumerWidget {
   final String transactionId;
-  const SubscriptionHistoryDetailPage({super.key, required this.transactionId});
+  const DetailRiwayatAktivasiPage({super.key, required this.transactionId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +49,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          SubscriptionHistoryForm(transaction: transaction!),
+                          FromRiwayatAktivasi(transaksi: transaction!),
                     ),
                   );
                 },
@@ -90,7 +90,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                             context,
                             MaterialPageRoute<void>(
                               builder: (context) =>
-                                  PackageDetailPage(package: package),
+                                  PackageDetailPage(paket: package),
                             ),
                           ),
                   children: [

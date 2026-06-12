@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/package_form.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -11,12 +11,12 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 /// Halaman untuk menampilkan detail dari sebuah paket.
 class PackageDetailPage extends ConsumerStatefulWidget {
   /// Model paket yang akan ditampilkan.
-  final PackageModel package;
+  final PackageModel paket;
 
   /// Konstruktor untuk PackageDetailPage.
   const PackageDetailPage({
     super.key,
-    required this.package,
+    required this.paket,
   });
 
   @override
@@ -30,7 +30,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   void initState() {
     super.initState();
     Log.info('Membuka halaman detail paket.');
-    _package = widget.package;
+    _package = widget.paket;
     Log.info(
         'Data paket berhasil dimuat: ${_package.name}, ID: ${_package.id}.');
   }
@@ -40,7 +40,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => PackageForm(package: _package),
+        builder: (final context) => FormPaket(package: _package),
       ),
     );
 

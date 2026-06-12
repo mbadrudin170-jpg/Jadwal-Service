@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
 
 import 'upload_status_operation_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper, Database])
+@GenerateMocks([SqliteDatabase, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;

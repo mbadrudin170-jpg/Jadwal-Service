@@ -101,7 +101,7 @@ class MockWorkmanagerPlatform extends Mock
   ActiveCustomerOperation,
   SettingsOperation,
   DataCleaningOperation,
-  DatabaseHelper,
+  SqliteDatabase,
   BackgroundService,
   NotificationAppLaunchDetails,
   NotificationResponse,
@@ -190,7 +190,7 @@ void main() {
         settingsOperationProvider.overrideWithValue(mockSettingsOperation),
         dataCleaningOperationProvider
             .overrideWithValue(mockDataCleaningOperation),
-        databaseHelperProvider.overrideWithValue(mockDatabaseHelper),
+        sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
         localStorageServiceProvider
             .overrideWithValue(AsyncValue.data(mockLocalStorage)),
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),

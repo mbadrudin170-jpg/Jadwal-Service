@@ -17,7 +17,7 @@ import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'active_customer_operation_test.mocks.dart';
 
 @GenerateMocks([
-  DatabaseHelper,
+  SqliteDatabase,
   BaseOperation,
   CustomerOperation,
   NotifikasiServis,

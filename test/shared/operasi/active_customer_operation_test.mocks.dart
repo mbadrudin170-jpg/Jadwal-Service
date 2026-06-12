@@ -65,7 +65,7 @@ class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
 }
 
 class _FakeDatabaseHelper_3 extends _i1.SmartFake
-    implements _i4.DatabaseHelper {
+    implements _i4.SqliteDatabase {
   _FakeDatabaseHelper_3(
     Object parent,
     Invocation parentInvocation,
@@ -109,7 +109,7 @@ class _FakeBatch_6 extends _i1.SmartFake implements _i2.Batch {
 /// A class which mocks [DatabaseHelper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.DatabaseHelper {
+class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
   MockDatabaseHelper() {
     _i1.throwOnMissingStub(this);
   }
@@ -320,13 +320,13 @@ class MockCustomerOperation extends _i1.Mock implements _i8.CustomerOperation {
   }
 
   @override
-  _i4.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i4.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_3(
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i4.DatabaseHelper);
+      ) as _i4.SqliteDatabase);
 
   @override
   _i3.Future<void> add(

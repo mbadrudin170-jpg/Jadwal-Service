@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 
 import 'order_operation_test.mocks.dart';
 
-@GenerateMocks([DatabaseHelper, BaseOperation, Database])
+@GenerateMocks([SqliteDatabase, BaseOperation, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;

@@ -231,7 +231,7 @@ class _ActiveCustomerDetailPageState
                               context,
                               MaterialPageRoute<void>(
                                 builder: (final context) =>
-                                    PackageDetailPage(package: package),
+                                    PackageDetailPage(paket: package),
                               ),
                             ));
                           }

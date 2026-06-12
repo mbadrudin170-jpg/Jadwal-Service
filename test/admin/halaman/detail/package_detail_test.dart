@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/package_form.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
 class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
@@ -22,11 +23,10 @@ void main() {
       name: 'Paket Super Cepat',
       price: 100000,
       duration: 30,
-      type: DurationType.day,
+      type: DurationType.days,
       rewardPoints: 50,
       redemptionPoints: 500,
       isPublic: true,
-      description: 'Deskripsi paket internet super cepat',
     );
     mockNavigatorObserver = MockNavigatorObserver();
     registerFallbackValue(FakeRoute());
@@ -35,25 +35,25 @@ void main() {
   Widget createTestWidget() {
     return ProviderScope(
       child: MaterialApp(
-        home: PackageDetailPage(package: testPackage),
+        home: PackageDetailPage(paket: testPackage),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );
   }
 
-  testWidgets('1. Menampilkan informasi detail paket dengan benar',
+  testWidgets('01. Menampilkan informasi detail paket dengan benar',
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.text('Paket Super Cepat'), findsOneWidget);
     expect(find.text('Rp 100000'), findsOneWidget);
-    expect(find.text('30 Day'), findsOneWidget);
+    expect(find.text('30 Days'), findsOneWidget);
     expect(find.text('50 Poin'), findsOneWidget);
     expect(find.text('500 Poin'), findsOneWidget);
     expect(find.text('Tersedia di Aplikasi'), findsOneWidget);
   });
 
-  testWidgets('2. Menavigasi ke PackageForm saat tombol edit ditekan',
+  testWidgets('02. Menavigasi ke PackageForm saat tombol edit ditekan',
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget());
 
@@ -64,6 +64,6 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => mockNavigatorObserver.didPush(any(), any()));
-    expect(find.byType(PackageForm), findsOneWidget);
+    expect(find.byType(FormPaket), findsOneWidget);
   });
 }

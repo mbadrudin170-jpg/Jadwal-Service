@@ -19,13 +19,13 @@ import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 // Mocks
 class MockCustomerOperation extends Mock implements CustomerOperation {}
 
-class MockPackageOperation extends Mock implements PackageOperation {}
+class MockPackageOperation extends Mock implements PaketOpSqlite {}
 
 class MockTransactionOperation extends Mock implements TransactionOperation {}
 
@@ -76,7 +76,8 @@ void main() {
     transactionId: 'trans1',
     startDate: DateTime.now().subtract(const Duration(days: 10)),
     endDate: DateTime.now().add(const Duration(days: 20)),
-    status: PaymentStatus.paid, customerId: '',
+    status: PaymentStatus.paid,
+    customerId: '',
   );
 
   final tActiveCustomerDetailModel = ActiveCustomerDetailModel(
@@ -147,8 +148,8 @@ void main() {
         () async {
       final container = ProviderContainer(
         overrides: [
-          activeCustomerProvider.overrideWith((ref) =>
-              Future.value(ActiveCustomerState(activeCustomers: []))),
+          activeCustomerProvider.overrideWith(
+              (ref) => Future.value(ActiveCustomerState(activeCustomers: []))),
         ],
       );
 
@@ -162,8 +163,7 @@ void main() {
 
   group('ActiveCustomerDetailPage Widget Tests', () {
     final overrides = [
-      activeCustomerProvider
-          .overrideWith((ref) async => tActiveCustomerState),
+      activeCustomerProvider.overrideWith((ref) async => tActiveCustomerState),
       customerOperationProvider.overrideWithValue(mockCustomerOp),
       packageOperationProvider.overrideWithValue(mockPackageOp),
       transactionOperationProvider.overrideWithValue(mockTransactionOp),

@@ -10,14 +10,14 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class DataCleaningOperation {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor untuk `DataCleaningOperation`.
   DataCleaningOperation({
-    @visibleForTesting final DatabaseHelper? dbHelper,
+    @visibleForTesting final SqliteDatabase? dbHelper,
     @visibleForTesting final FirebaseFirestore? firestore,
-  })  : _dbHelper = dbHelper ?? DatabaseHelper.instance,
+  })  : _dbHelper = dbHelper ?? SqliteDatabase.instance,
         _firestore = firestore ?? FirebaseFirestore.instance;
 
   Future<int> deleteAllExpiredArchivedData({

@@ -23,18 +23,18 @@ import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 ///
 /// Form ini mendukung tiga jenis transaksi: pemasukan, pengeluaran, dan transfer.
 /// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
-class FormTransaksiPage extends ConsumerStatefulWidget {
+class FormTransaksi extends ConsumerStatefulWidget {
   /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
-  final TransactionModel? transaction;
+  final TransactionModel? transaksi;
 
-  /// Membuat instance dari [FormTransaksiPage].
-  const FormTransaksiPage({super.key, this.transaction});
+  /// Membuat instance dari [FormTransaksi].
+  const FormTransaksi({super.key, this.transaksi});
 
   @override
-  ConsumerState<FormTransaksiPage> createState() => _FormTransaksiPageState();
+  ConsumerState<FormTransaksi> createState() => _FormTransaksiPageState();
 }
 
-class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
+class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   final _formKey = GlobalKey<FormState>();
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
@@ -56,7 +56,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
   List<WalletModel> _dompetList = [];
   List<CategoryModel> _kategoriFiltered = [];
 
-  bool get _isEditMode => widget.transaction != null;
+  bool get _isEditMode => widget.transaksi != null;
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -91,9 +91,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
 
       if (_isEditMode) {
         Log.info(
-          'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaction!.id}',
+          'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaksi!.id}',
         );
-        final trx = widget.transaction!;
+        final trx = widget.transaksi!;
         _tipe = trx.type;
         _keteranganController.text = trx.description;
         _jumlahController.text = trx.amount.abs().toString();
@@ -247,7 +247,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
       );
       final double jumlah = double.parse(_jumlahController.text).abs();
       final transaksi = TransactionModel(
-        id: _isEditMode ? widget.transaction!.id : const Uuid().v4(),
+        id: _isEditMode ? widget.transaksi!.id : const Uuid().v4(),
         description: _keteranganController.text,
         amount: jumlah,
         date: combinedDateTime,
@@ -268,7 +268,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksiPage> {
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
           await _transaksiOperasi.updateTransaction(
-            widget.transaction!.id,
+            widget.transaksi!.id,
             transaksi,
           );
         } else {

@@ -16,18 +16,17 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-class SubscriptionHistoryForm extends ConsumerStatefulWidget {
-  final TransactionModel transaction;
+class FromRiwayatAktivasi extends ConsumerStatefulWidget {
+  final TransactionModel transaksi;
 
-  const SubscriptionHistoryForm({super.key, required this.transaction});
+  const FromRiwayatAktivasi({super.key, required this.transaksi});
 
   @override
-  ConsumerState<SubscriptionHistoryForm> createState() =>
+  ConsumerState<FromRiwayatAktivasi> createState() =>
       _SubscriptionHistoryFormState();
 }
 
-class _SubscriptionHistoryFormState
-    extends ConsumerState<SubscriptionHistoryForm> {
+class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   final _formKey = GlobalKey<FormState>();
 
   late DateTime _startDate;
@@ -37,11 +36,11 @@ class _SubscriptionHistoryFormState
   @override
   void initState() {
     super.initState();
-    _startDate = widget.transaction.startDate ?? DateTime.now();
-    _endDate = widget.transaction.endDate ?? DateTime.now();
-    _paymentStatus = widget.transaction.paymentStatus;
+    _startDate = widget.transaksi.startDate ?? DateTime.now();
+    _endDate = widget.transaksi.endDate ?? DateTime.now();
+    _paymentStatus = widget.transaksi.paymentStatus;
     Log.info(
-        'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaction.id}');
+        'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
   }
 
   Future<void> _selectDateTime(bool isStartDate) async {
@@ -96,15 +95,14 @@ class _SubscriptionHistoryFormState
     }
     if (!mounted) return;
 
-    Log.info(
-        'Menyimpan perubahan untuk transaksi ID: ${widget.transaction.id}');
+    Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
 
     // Mengakses dependency melalui Riverpod's ref
     final transactionOperation = ref.read(transactionOperationProvider);
     final notifikasiServis = ref.read(notifikasiServisProvider);
 
     try {
-      final updatedTransaction = widget.transaction.copyWith(
+      final updatedTransaction = widget.transaksi.copyWith(
         startDate: _startDate,
         endDate: _endDate,
         paymentStatus: _paymentStatus,
@@ -112,14 +110,14 @@ class _SubscriptionHistoryFormState
       );
 
       await transactionOperation.updateTransaction(
-        widget.transaction.id,
+        widget.transaksi.id,
         updatedTransaction,
       );
       Log.info('Transaksi berhasil diperbarui di database.');
       ref.invalidate(transactionOperationProvider);
       await _handleExpiryNotification(
         notifikasiServis: notifikasiServis,
-        statusSebelumnya: widget.transaction.paymentStatus,
+        statusSebelumnya: widget.transaksi.paymentStatus,
         statusSekarang: _paymentStatus,
         endDate: _endDate,
       );
@@ -158,7 +156,7 @@ class _SubscriptionHistoryFormState
     required PaymentStatus statusSekarang,
     required DateTime endDate,
   }) async {
-    final idNotifikasi = widget.transaction.id.hashCode;
+    final idNotifikasi = widget.transaksi.id.hashCode;
     final wasPaid = statusSebelumnya == PaymentStatus.paid;
     final isNowPaid = statusSekarang == PaymentStatus.paid;
 

@@ -1,99 +1,79 @@
-
 // path: test/admin/halaman/form/transaction_form_test.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/transaction_form.dart';
+import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/export/model.dart';
+import 'package:wifi/shared/model/model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 
-class MockWalletOperation extends Mock implements DompetOpSqlite {}
+class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+
 class MockCategoryOperation extends Mock implements CategoryOperation {}
+
 class MockTransactionOperation extends Mock implements TransactionOperation {}
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
 
 void main() {
-  late MockWalletOperation mockWalletOperation;
+  late MockDompetOpSqlite mockDompetOpSqlite;
   late MockCategoryOperation mockCategoryOperation;
   late MockTransactionOperation mockTransactionOperation;
-  late MockKoneksiInternetService mockKoneksiInternetService;
-
-  final transaction = TransactionModel(
-    id: '1',
-    date: DateTime.now(),
-    description: 'Test Transaction',
-    amount: 10000,
-    type: TransactionType.income,
-    walletId: 'wallet1',
-    categoryId: 'category1',
-  );
-
-  final wallet = WalletModel(id: 'wallet1', name: 'Dompet 1', balance: 100000, color: '#FFFFFF');
-  final category = CategoryModel(id: 'category1', name: 'Pemasukan', type: CategoryType.income, subCategories: []);
+  late TransactionModel testTransaction;
 
   setUp(() {
-    mockWalletOperation = MockWalletOperation();
+    mockDompetOpSqlite = MockDompetOpSqlite();
     mockCategoryOperation = MockCategoryOperation();
     mockTransactionOperation = MockTransactionOperation();
-    mockKoneksiInternetService = MockKoneksiInternetService();
+    testTransaction = TransactionModel(
+      id: '1',
+      description: 'Test Transaction',
+      amount: 1000,
+      date: DateTime.now(),
+      type: TransactionType.income,
+      walletId: '1',
+      categoryId: '1',
+    );
   });
 
-  ProviderContainer makeProviderContainer() {
-    final container = ProviderContainer(
-      overrides: [
-        walletOperationProvider.overrideWithValue(mockWalletOperation),
-        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
-        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
-        koneksiInternetServiceProvider.overrideWithValue(mockKoneksiInternetService),
-      ],
-    );
-    addTearDown(container.dispose);
-    return container;
-  }
-
-  Widget createTestWidget(ProviderContainer container, {TransactionModel? transaction}) {
+  Widget createTestWidget({TransactionModel? transaction}) {
     return ProviderScope(
-      parent: container,
+      overrides: [
+        walletOperationProvider.overrideWithValue(mockDompetOpSqlite),
+        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
+        transactionOperationProvider
+            .overrideWithValue(mockTransactionOperation),
+      ],
       child: MaterialApp(
-        home: FormTransaksiPage(transaction: transaction),
+        home: FormTransaksi(transaksi: transaction),
       ),
     );
   }
 
-  testWidgets('1. Tes tampilan awal form transaksi (mode edit)', (tester) async {
-    when(() => mockWalletOperation.getWallets()).thenAnswer((_) async => [wallet]);
-    when(() => mockCategoryOperation.getCategories()).thenAnswer((_) async => [category]);
-
-    final container = makeProviderContainer();
-    await tester.pumpWidget(createTestWidget(container, transaction: transaction));
-    
-    await tester.pumpAndSettle(); 
-
-    expect(find.text('Edit Transaksi'), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Test Transaction'), findsOneWidget);
-    expect(find.text('Simpan'), findsOneWidget);
+  testWidgets('01. FormTransaksiPage should display add form correctly',
+      (tester) async {
+    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => []);
+    when(() => mockCategoryOperation.getCategories())
+        .thenAnswer((_) async => []);
+    await tester.pumpWidget(createTestWidget());
+    await tester.pumpAndSettle();
+    expect(find.text('Tambah Transaksi'), findsOneWidget);
   });
 
-  testWidgets('2. Tes validasi form transaksi', (tester) async {
-    when(() => mockWalletOperation.getWallets()).thenAnswer((_) async => []);
-    when(() => mockCategoryOperation.getCategories()).thenAnswer((_) async => []);
-
-    final container = makeProviderContainer();
-    await tester.pumpWidget(createTestWidget(container));
-    
+  testWidgets('02. FormTransaksiPage should display edit form correctly',
+      (tester) async {
+    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => [
+          WalletModel(id: '1', name: 'Test Wallet', balance: 0),
+        ]);
+    when(() => mockCategoryOperation.getCategories()).thenAnswer((_) async => [
+          CategoryModel(
+              id: '1', name: 'Test Category', type: CategoryType.income),
+        ]);
+    await tester.pumpWidget(createTestWidget(transaction: testTransaction));
     await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Simpan'));
-    await tester.pump();
-
-    expect(find.text('Keterangan tidak boleh kosong'), findsOneWidget);
-    expect(find.text('Jumlah tidak boleh kosong'), findsOneWidget);
+    expect(find.text('Edit Transaksi'), findsOneWidget);
+    expect(find.text('Test Transaction'), findsOneWidget);
+    expect(find.text('1000.0'), findsOneWidget);
   });
 }

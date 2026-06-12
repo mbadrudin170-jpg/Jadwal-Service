@@ -10,7 +10,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class DompetOpSqlite {
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
   final BaseOperation _baseOperation;
   final String _tableName = TableNameValue.get(TableName.wallet);
   final _nowUtc = DateTime.now().toUtc();

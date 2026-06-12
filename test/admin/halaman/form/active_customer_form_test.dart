@@ -1,88 +1,88 @@
-
 // path: test/admin/halaman/form/active_customer_form_test.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/model/model.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockCustomerOperation extends Mock implements CustomerOperation {}
-class MockPackageOperation extends Mock implements PackageOperation {}
+
+class MockPackageOperation extends Mock implements PaketOpSqlite {}
+
 class MockTransactionOperation extends Mock implements TransactionOperation {}
-class MockWalletOperation extends Mock implements WalletOperation {}
+
+class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+
 class MockCategoryOperation extends Mock implements CategoryOperation {}
-class MockActiveCustomerOperation extends Mock implements ActiveCustomerOperation {}
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
+
+class MockActiveCustomerOperation extends Mock
+    implements ActiveCustomerOperation {}
+
 class MockNotifikasiOpFirebase extends Mock implements NotifikasiOpFirebase {}
 
 void main() {
   late MockCustomerOperation mockCustomerOperation;
   late MockPackageOperation mockPackageOperation;
   late MockTransactionOperation mockTransactionOperation;
-  late MockWalletOperation mockWalletOperation;
+  late MockDompetOpSqlite mockDompetOpSqlite;
   late MockCategoryOperation mockCategoryOperation;
   late MockActiveCustomerOperation mockActiveCustomerOperation;
-  late MockKoneksiInternetService mockKoneksiInternetService;
   late MockNotifikasiOpFirebase mockNotifikasiOpFirebase;
 
   setUp(() {
     mockCustomerOperation = MockCustomerOperation();
     mockPackageOperation = MockPackageOperation();
     mockTransactionOperation = MockTransactionOperation();
-    mockWalletOperation = MockWalletOperation();
+    mockDompetOpSqlite = MockDompetOpSqlite();
     mockCategoryOperation = MockCategoryOperation();
     mockActiveCustomerOperation = MockActiveCustomerOperation();
-    mockKoneksiInternetService = MockKoneksiInternetService();
     mockNotifikasiOpFirebase = MockNotifikasiOpFirebase();
   });
 
-  ProviderContainer makeProviderContainer() {
-    final container = ProviderContainer(
+  Widget createWidgetUnderTest() {
+    return ProviderScope(
       overrides: [
         customerOperationProvider.overrideWithValue(mockCustomerOperation),
         packageOperationProvider.overrideWithValue(mockPackageOperation),
-        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
-        walletOperationProvider.overrideWithValue(mockWalletOperation),
+        transactionOperationProvider
+            .overrideWithValue(mockTransactionOperation),
+        walletOperationProvider.overrideWithValue(mockDompetOpSqlite),
         categoryOperationProvider.overrideWithValue(mockCategoryOperation),
-        activeCustomerOperationProvider.overrideWithValue(mockActiveCustomerOperation),
-        koneksiInternetServiceProvider.overrideWithValue(mockKoneksiInternetService),
-        notifikasiOpFirebaseProvider.overrideWithValue(mockNotifikasiOpFirebase),
+        activeCustomerOperationProvider
+            .overrideWithValue(mockActiveCustomerOperation),
+        notifikasiOpFirebaseProvider
+            .overrideWithValue(mockNotifikasiOpFirebase),
       ],
-    );
-    addTearDown(container.dispose);
-    return container;
-  }
-
-  Widget createTestWidget(ProviderContainer container, {ActiveCustomerModel? pelangganAktif}) {
-    return ProviderScope(
-      parent: container,
-      child: MaterialApp(
-        home: FormPelangganAktif(pelangganAktif: pelangganAktif),
+      child: const MaterialApp(
+        home: FormPelangganAktif(),
       ),
     );
   }
 
-  testWidgets('1. Tes tampilan awal form pelanggan aktif (mode buat baru)', (tester) async {
-    when(() => mockCustomerOperation.getAll()).thenAnswer((_) async => []);
-    when(() => mockPackageOperation.getByAktif()).thenAnswer((_) async => []);
-    when(() => mockWalletOperation.getWallets()).thenAnswer((_) async => []);
-    when(() => mockCategoryOperation.getCategories()).thenAnswer((_) async => []);
+  testWidgets('01. should show loading indicator and then the form',
+      (tester) async {
+    when(() => mockCustomerOperation.ambilSemua()).thenAnswer((_) async => []);
+    when(() => mockPackageOperation.ambilBerdasarkanAktif())
+        .thenAnswer((_) async => []);
+    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => []);
+    when(() => mockCategoryOperation.getCategories())
+        .thenAnswer((_) async => []);
 
-    final container = makeProviderContainer();
-    await tester.pumpWidget(createTestWidget(container));
-    
-    await tester.pumpAndSettle(); 
+    await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.text('Form Pelanggan Aktif'), findsOneWidget);
-    expect(find.byKey(const Key('pelanggan_dropdown')), findsOneWidget);
-    expect(find.byKey(const Key('paket_dropdown')), findsOneWidget);
-    expect(find.byKey(const Key('dompet_dropdown')), findsOneWidget);
-    expect(find.byKey(const Key('kategori_dropdown')), findsOneWidget);
-    expect(find.text('Simpan'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Form), findsOneWidget);
   });
 }

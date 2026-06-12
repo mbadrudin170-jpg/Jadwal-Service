@@ -26,7 +26,7 @@ import 'package:wifi/shared/model/wallet_model.dart' as _i5;
 // ignore_for_file: invalid_use_of_internal_member
 
 class _FakeDatabaseHelper_0 extends _i1.SmartFake
-    implements _i2.DatabaseHelper {
+    implements _i2.SqliteDatabase {
   _FakeDatabaseHelper_0(
     Object parent,
     Invocation parentInvocation,
@@ -41,7 +41,7 @@ class _FakeDatabaseHelper_0 extends _i1.SmartFake
 /// See the documentation for Mockito's code generation for more information.
 class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
   @override
-  _i2.DatabaseHelper get dbHelper => (super.noSuchMethod(
+  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
         returnValue: _FakeDatabaseHelper_0(
           this,
@@ -51,7 +51,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
           this,
           Invocation.getter(#dbHelper),
         ),
-      ) as _i2.DatabaseHelper);
+      ) as _i2.SqliteDatabase);
 
   @override
   _i4.Future<void> tambahDompet(

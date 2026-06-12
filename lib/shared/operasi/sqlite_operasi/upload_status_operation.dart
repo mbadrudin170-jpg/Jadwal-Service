@@ -12,7 +12,7 @@ import 'package:wifi/shared/model/upload_status_model.dart';
 final uploadStatusOperationProvider = Provider<UploadStatusOperation>((ref) {
   Log.info('Membuat instance UploadStatusOperation...');
   // Dapatkan instance DatabaseHelper dari provider-nya
-  final dbHelper = ref.read(databaseHelperProvider);
+  final dbHelper = ref.read(sqliteDatabaseProvider);
   // Buat instance UploadStatusOperation dengan dependensi yang di-inject
   return UploadStatusOperation(dbHelper: dbHelper);
 });
@@ -20,11 +20,11 @@ final uploadStatusOperationProvider = Provider<UploadStatusOperation>((ref) {
 /// Kelas ini mengelola satu flag tunggal di database: apakah ada
 /// data yang perlu diunggah ke server atau tidak.
 class UploadStatusOperation {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
 
   /// Konstruktor untuk `UploadStatusOperation`.
-  UploadStatusOperation({@visibleForTesting final DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance {
+  UploadStatusOperation({@visibleForTesting final SqliteDatabase? dbHelper})
+      : _dbHelper = dbHelper ?? SqliteDatabase.instance {
     Log.info('UploadStatusOperation instance dibuat.');
   }
 

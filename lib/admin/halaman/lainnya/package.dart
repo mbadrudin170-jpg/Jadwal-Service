@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/package_form.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
@@ -73,7 +73,7 @@ class PackagePage extends ConsumerWidget {
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => PackageDetailPage(package: paket),
+                      builder: (context) => PackageDetailPage(paket: paket),
                     ),
                   );
                 },
@@ -102,7 +102,7 @@ class PackagePage extends ConsumerWidget {
           await Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (context) => const PackageForm(),
+              builder: (context) => const FormPaket(),
             ),
           );
         },
@@ -223,7 +223,7 @@ Future<void> _showEditDeleteDialog(
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => PackageForm(package: paket),
+                  builder: (context) => FormPaket(package: paket),
                 ),
               );
             },

@@ -9,11 +9,11 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
 class LayananUnduhAwal {
-  final DatabaseHelper _dbHelper;
+  final SqliteDatabase _dbHelper;
   final DownloadDataService _layananUnduh;
 
   LayananUnduhAwal({
-    required DatabaseHelper dbHelper,
+    required SqliteDatabase dbHelper,
     required DownloadDataService layananUnduh,
   })  : _dbHelper = dbHelper,
         _layananUnduh = layananUnduh {
@@ -132,7 +132,7 @@ class LayananUnduhAwal {
 // ✅ HANYA SATU PROVIDER - gunakan Provider biasa
 final initialDownloadServiceProvider = Provider<LayananUnduhAwal>((ref) {
   return LayananUnduhAwal(
-    dbHelper: ref.read(databaseHelperProvider),
+    dbHelper: ref.read(sqliteDatabaseProvider),
     layananUnduh: ref.read(downloadDataServiceProvider),
   );
 });

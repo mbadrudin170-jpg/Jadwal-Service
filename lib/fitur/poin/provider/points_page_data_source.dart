@@ -10,7 +10,7 @@ abstract class PointsPageDataSource {
 
   Future<List<TransactionModel>> getPointsTransactions(String customerId);
 
-  Future<PackageModel?> getPackageById(String packageId);
+  Future<PackageModel?> getPaketByid(String packageId);
 
   bool get isFirebase;
 }

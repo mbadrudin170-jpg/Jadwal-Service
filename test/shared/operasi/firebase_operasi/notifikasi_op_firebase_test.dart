@@ -139,7 +139,7 @@ void main() {
           .set(notifikasiMasaDepan.toFirebase());
 
       // Mendengarkan stream
-      final stream = notifikasiOp.getActiveNotifications();
+      final stream = notifikasiOp.getNotifAktif();
 
       expect(
         stream,
@@ -237,7 +237,7 @@ void main() {
     test('Test 6: update harus memanggil baseOp.update dengan data yang benar',
         () async {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
-      await notifikasiOp.updateNotifikasi(notifikasi1);
+      await notifikasiOp.updateNotif(notifikasi1);
       verify(mockBaseOp.update(
         collection,
         notifikasi1.id,

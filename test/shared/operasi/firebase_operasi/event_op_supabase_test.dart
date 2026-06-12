@@ -68,8 +68,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([event1Map]);
         });
 
@@ -95,8 +95,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -117,8 +117,8 @@ void main() {
         when(mockFilterBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer(
           (invocation) async {
-            final onValue = invocation.positionalArguments[0]
-                as Function(List<Map<String, dynamic>>);
+            final onValue = invocation.positionalArguments[0] as Function(
+                List<Map<String, dynamic>>);
             return onValue(
                 [event1Map, event2Map]); // 🟢 Panggil callback dengan data
           },
@@ -143,8 +143,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([event1Map]);
         });
         final result = await eventOpSupabase.getActive();
@@ -165,8 +165,8 @@ void main() {
 
         when(mockTransformBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -190,12 +190,12 @@ void main() {
 
         when(mockInsertBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
-        await eventOpSupabase.create(eventModel);
+        await eventOpSupabase.addEvent(eventModel);
 
         verify(mockQueryBuilder.insert(dataPayload)).called(1);
       });
@@ -218,8 +218,8 @@ void main() {
 
         when(mockUpdateBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 
@@ -242,8 +242,8 @@ void main() {
 
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
             .thenAnswer((invocation) async {
-          final callback = invocation.positionalArguments.first
-              as Function(List<Map<String, dynamic>>);
+          final callback = invocation.positionalArguments.first as Function(
+              List<Map<String, dynamic>>);
           return callback([]);
         });
 

@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
 class ApkVersionOperation {
-  final DatabaseHelper dbHelper;
+  final SqliteDatabase dbHelper;
   final String _tableName = TableNameValue.get(TableName.userApkVersion);
   final BaseOperation _baseOperation;
 
