@@ -1,4 +1,3 @@
-
 // path: test/shared/operasi/firebase_operasi/apk_version_op_firebase_test.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -43,7 +42,7 @@ void main() {
     await collectionRef.doc(apkVersion.id).set(apkVersion.toFirebase());
 
     // Act
-    final result = await apkVersionOp.getLatestApkVersion();
+    final result = await apkVersionOp.ambilVersiTerbaru();
 
     // Assert
     expect(result, isA<ApkVersionModel>());

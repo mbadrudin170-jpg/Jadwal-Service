@@ -72,7 +72,7 @@ class UpdateCheckService {
         );
       }
 
-      final latestApk = await _apkVersionOp.getLatestApkVersion();
+      final latestApk = await _apkVersionOp.ambilVersiTerbaru();
       if (latestApk == null) {
         Log.info('Tidak ada data versi APK di Firebase.');
         return (

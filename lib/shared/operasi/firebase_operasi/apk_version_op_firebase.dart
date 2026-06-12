@@ -27,7 +27,7 @@ class ApkVersionOpFirebase {
   /// Mengambil versi APK terbaru yang aktif (tidak dihapus, tidak diarsipkan) satu kali.
   ///
   /// Mengembalikan `Future` yang berisi `ApkVersionModel` terbaru atau `null`.
-  Future<ApkVersionModel?> getLatestApkVersion() async {
+  Future<ApkVersionModel?> ambilVersiTerbaru() async {
     Log.info('Memulai mengambil versi APK terbaru');
     try {
       final querySnapshot = await _apkVersionCollection
