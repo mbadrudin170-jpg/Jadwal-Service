@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:toastification/toastification.dart';
 import 'package:wifi/admin/halaman/lainnya/manage_announcement_page.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
@@ -30,7 +31,7 @@ void main() {
 
   setUpAll(() async {
     registerFallbackValue(FakeFile());
-    await initializeDateFormatting('id_ID', null);
+    await initializeDateFormatting('id_ID');
   });
 
   setUp(() {
@@ -46,8 +47,10 @@ void main() {
         eventOpSupabaseProvider.overrideWithValue(mockEventOp),
         imageStorageServiceProvider.overrideWithValue(mockStorageService),
       ],
-      child: MaterialApp(
-        home: ManageAnnouncementPage(event: event),
+      child: ToastificationWrapper(
+        child: MaterialApp(
+          home: ManageAnnouncementPage(event: event),
+        ),
       ),
     );
   }
@@ -90,14 +93,13 @@ void main() {
 
       final saveButton = find.text('Simpan Pengumuman');
       await tester.tap(saveButton);
-      await tester.pump(); // Pump untuk memunculkan toast (jika menggunakan overlay/snackbar)
-      // Karena ToastUtil biasanya menggunakan ScaffoldMessenger atau Overlay, 
-      // pastikan pesan error tercari di tree.
+      // Pump and settle dengan durasi cukup lama untuk membersihkan timer toastification
+      await tester.pumpAndSettle(const Duration(seconds: 5)); 
+
       expect(find.text('Harap pilih tanggal mulai dan selesai'), findsOneWidget);
     });
 
     testWidgets('4. Menampilkan error jika gambar belum dipilih', (tester) async {
-       // Test ini bisa dikembangkan lebih lanjut jika diperlukan.
        expect(true, true); 
     });
   });
