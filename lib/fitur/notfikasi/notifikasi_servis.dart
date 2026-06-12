@@ -1,5 +1,5 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-
+mintaIzinNotifikasi()
 import 'dart:async';
 import 'dart:io'; // untuk Platform
 import 'dart:math';
