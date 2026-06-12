@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
@@ -68,30 +68,29 @@ class FeedbackModel implements HasId {
 
   /// Creates a [FeedbackModel] instance from SQLite data.
   factory FeedbackModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating FeedbackModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating FeedbackModel from SQLite: ${map[NamaKolom.id]}');
     return FeedbackModel(
-      id: map[ColumnNames.id] as String?,
-      content: map[ColumnNames.content] as String? ?? '',
-      userId: map[ColumnNames.userId] as String? ?? '',
+      id: map[NamaKolom.id] as String?,
+      content: map[NamaKolom.content] as String? ?? '',
+      userId: map[NamaKolom.userId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      date: ParserUtil.parseDateTime(map[ColumnNames.date]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      date: ParserUtil.parseDateTime(map[NamaKolom.date]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts [FeedbackModel] to a Map format for SQLite.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.content: content,
-      ColumnNames.userId: userId,
-      ColumnNames.date: (date ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.content: content,
+      NamaKolom.userId: userId,
+      NamaKolom.date: (date ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -101,29 +100,29 @@ class FeedbackModel implements HasId {
     Log.info('Creating FeedbackModel from Firebase: $id');
     return FeedbackModel(
       id: id,
-      content: data[ColumnNames.content] as String? ?? '',
-      userId: data[ColumnNames.userId] as String? ?? '',
+      content: data[NamaKolom.content] as String? ?? '',
+      userId: data[NamaKolom.userId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      date: ParserUtil.parseDateTime(data[ColumnNames.date]),
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      date: ParserUtil.parseDateTime(data[NamaKolom.date]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts [FeedbackModel] to a Map format for Firebase.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.content: content,
-      ColumnNames.userId: userId,
-      ColumnNames.date: date != null
+      NamaKolom.id: id,
+      NamaKolom.content: content,
+      NamaKolom.userId: userId,
+      NamaKolom.date: date != null
           ? Timestamp.fromDate(date!.toUtc())
           : DateTime.now().toUtc(),
-      ColumnNames.isDeleted: isDeleted,
-      ColumnNames.updatedAt:
+      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

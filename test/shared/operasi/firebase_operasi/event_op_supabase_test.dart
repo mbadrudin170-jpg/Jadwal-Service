@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 
@@ -35,23 +35,23 @@ void main() {
   });
 
   final event1Map = <String, dynamic>{
-    ColumnNames.id: 'event-1',
-    ColumnNames.imageUrl: 'http://example.com/image1.png',
-    ColumnNames.isActive: true,
-    ColumnNames.createdAt: DateTime(2023, 8, 17).toIso8601String(),
-    ColumnNames.startDate: DateTime(2023, 8).toIso8601String(),
-    ColumnNames.endDate: DateTime(2023, 8, 31).toIso8601String(),
-    ColumnNames.updatedAt: DateTime(2023, 8, 18).toIso8601String(),
+    NamaKolom.id: 'event-1',
+    NamaKolom.imageUrl: 'http://example.com/image1.png',
+    NamaKolom.isActive: true,
+    NamaKolom.createdAt: DateTime(2023, 8, 17).toIso8601String(),
+    NamaKolom.startDate: DateTime(2023, 8).toIso8601String(),
+    NamaKolom.endDate: DateTime(2023, 8, 31).toIso8601String(),
+    NamaKolom.updatedAt: DateTime(2023, 8, 18).toIso8601String(),
   };
 
   final event2Map = <String, dynamic>{
-    ColumnNames.id: 'event-2',
-    ColumnNames.imageUrl: 'http://example.com/image2.png',
-    ColumnNames.isActive: false,
-    ColumnNames.createdAt: DateTime(2024).toIso8601String(),
-    ColumnNames.startDate: DateTime(2024).toIso8601String(),
-    ColumnNames.endDate: DateTime(2024, 1, 31).toIso8601String(),
-    ColumnNames.updatedAt: null,
+    NamaKolom.id: 'event-2',
+    NamaKolom.imageUrl: 'http://example.com/image2.png',
+    NamaKolom.isActive: false,
+    NamaKolom.createdAt: DateTime(2024).toIso8601String(),
+    NamaKolom.startDate: DateTime(2024).toIso8601String(),
+    NamaKolom.endDate: DateTime(2024, 1, 31).toIso8601String(),
+    NamaKolom.updatedAt: null,
   };
 
   group('EventOpSupabase Final Tests', () {
@@ -59,7 +59,7 @@ void main() {
       test('1.1 harus mengambil data berdasarkan id nya', () async {
         // Arrange
         const eventId = 'event-1';
-        when(mockFilterBuilder.eq(ColumnNames.id, eventId))
+        when(mockFilterBuilder.eq(NamaKolom.id, eventId))
             .thenAnswer((_) => mockFilterBuilder);
         final mockTransformBuilder =
             MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
@@ -79,14 +79,14 @@ void main() {
         // Assert
         expect(result, isA<EventModel>());
         expect(result?.id, eventId);
-        verify(mockFilterBuilder.eq(ColumnNames.id, eventId)).called(1);
+        verify(mockFilterBuilder.eq(NamaKolom.id, eventId)).called(1);
         verify(mockFilterBuilder.limit(1)).called(1);
       });
 
       test('1.2 harus mengembalikan null jika id tidak ditemukan', () async {
         // Arrange
         const eventId = 'event-x';
-        when(mockFilterBuilder.eq(ColumnNames.id, eventId))
+        when(mockFilterBuilder.eq(NamaKolom.id, eventId))
             .thenAnswer((_) => mockFilterBuilder);
         final mockTransformBuilder =
             MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
@@ -105,7 +105,7 @@ void main() {
 
         // Assert
         expect(result, isNull);
-        verify(mockFilterBuilder.eq(ColumnNames.id, eventId)).called(1);
+        verify(mockFilterBuilder.eq(NamaKolom.id, eventId)).called(1);
         verify(mockFilterBuilder.limit(1)).called(1);
       });
     });
@@ -134,7 +134,7 @@ void main() {
     group('getActive', () {
       test('harus mengembalikan EventModel jika ada pengumuman aktif',
           () async {
-        when(mockFilterBuilder.eq(ColumnNames.isActive, true))
+        when(mockFilterBuilder.eq(NamaKolom.isActive, true))
             .thenAnswer((_) => mockFilterBuilder);
         final mockTransformBuilder =
             MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
@@ -155,7 +155,7 @@ void main() {
 
       test('harus mengembalikan null jika pengumuman aktif tidak ditemukan',
           () async {
-        when(mockFilterBuilder.eq(ColumnNames.isActive, true))
+        when(mockFilterBuilder.eq(NamaKolom.isActive, true))
             .thenAnswer((_) => mockFilterBuilder);
 
         final mockTransformBuilder =
@@ -178,7 +178,7 @@ void main() {
     group('create', () {
       test('harus memanggil insert di Supabase dengan data yang benar',
           () async {
-        final String eventId = event1Map[ColumnNames.id]?.toString() ?? '';
+        final String eventId = event1Map[NamaKolom.id]?.toString() ?? '';
         final eventModel = EventModel.fromSupabase(eventId, event1Map);
         final dataPayload = eventModel.toSupabase();
 
@@ -204,7 +204,7 @@ void main() {
     group('update', () {
       test('harus memanggil update dan eq di Supabase dengan data yang benar',
           () async {
-        final String eventId = event1Map[ColumnNames.id]?.toString() ?? '';
+        final String eventId = event1Map[NamaKolom.id]?.toString() ?? '';
         final eventModel = EventModel.fromSupabase(eventId, event1Map);
         final dataPayload = eventModel.toSupabase();
 
@@ -213,7 +213,7 @@ void main() {
 
         when(mockQueryBuilder.update(dataPayload))
             .thenAnswer((_) => mockUpdateBuilder);
-        when(mockUpdateBuilder.eq(ColumnNames.id, eventModel.id))
+        when(mockUpdateBuilder.eq(NamaKolom.id, eventModel.id))
             .thenAnswer((_) => mockUpdateBuilder);
 
         when(mockUpdateBuilder.then(any, onError: anyNamed('onError')))
@@ -226,7 +226,7 @@ void main() {
         await eventOpSupabase.update(eventModel);
 
         verify(mockQueryBuilder.update(dataPayload)).called(1);
-        verify(mockUpdateBuilder.eq(ColumnNames.id, eventModel.id)).called(1);
+        verify(mockUpdateBuilder.eq(NamaKolom.id, eventModel.id)).called(1);
       });
     });
 
@@ -237,7 +237,7 @@ void main() {
         final mockDeleteBuilder =
             MockPostgrestFilterBuilder<List<Map<String, dynamic>>>();
         when(mockQueryBuilder.delete()).thenAnswer((_) => mockDeleteBuilder);
-        when(mockDeleteBuilder.eq(ColumnNames.id, eventId))
+        when(mockDeleteBuilder.eq(NamaKolom.id, eventId))
             .thenAnswer((_) => mockDeleteBuilder);
 
         when(mockDeleteBuilder.then(any, onError: anyNamed('onError')))
@@ -250,7 +250,7 @@ void main() {
         await eventOpSupabase.deleteEvent(eventId);
 
         verify(mockQueryBuilder.delete()).called(1);
-        verify(mockDeleteBuilder.eq(ColumnNames.id, eventId)).called(1);
+        verify(mockDeleteBuilder.eq(NamaKolom.id, eventId)).called(1);
       });
     });
   });

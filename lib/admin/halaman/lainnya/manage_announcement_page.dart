@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/event_model.dart';
@@ -40,11 +40,12 @@ class _ManageAnnouncementPageState
   File? _selectedImage;
   bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
+  bool get _isEditMode => widget.event != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.event != null) {
+    if (_isEditMode) {
       _selectedAnnouncement = widget.event;
       _imageUrlController.text = widget.event!.imageUrl;
       _isSwitched = widget.event!.isActive;
@@ -78,15 +79,13 @@ class _ManageAnnouncementPageState
         },
       );
 
-      if (activeAnnouncement != null) {
-        setState(() {
-          _selectedAnnouncement = activeAnnouncement;
-          _imageUrlController.text = activeAnnouncement.imageUrl;
-          _isSwitched = activeAnnouncement.isActive;
-          _selectedStartDate = activeAnnouncement.startDate;
-          _selectedEndDate = activeAnnouncement.endDate;
-        });
-      }
+      setState(() {
+        _selectedAnnouncement = activeAnnouncement;
+        _imageUrlController.text = activeAnnouncement?.imageUrl ?? '';
+        _isSwitched = activeAnnouncement?.isActive ?? false;
+        _selectedStartDate = activeAnnouncement?.startDate;
+        _selectedEndDate = activeAnnouncement?.endDate;
+      });
     } on Exception catch (e, st) {
       Log.error('Gagal memuat pengumuman', e: e, st: st);
       if (!mounted) return;
@@ -204,7 +203,7 @@ class _ManageAnnouncementPageState
     }
   }
 
-  Future<void> _saveData() async {
+  Future<void> _simpanForm() async {
     // 1. Validasi manual tanggal dan gambar karena tidak memakai TextFormField bawaan
     if (_selectedStartDate == null || _selectedEndDate == null) {
       ToastUtil.error(context, 'Harap pilih tanggal mulai dan selesai');
@@ -234,7 +233,7 @@ class _ManageAnnouncementPageState
       final storageService = ref.read(imageStorageServiceProvider);
       try {
         final String uploadUrl = await storageService.uploadImage(
-            _selectedImage!, TableNameValue.get(TableName.events));
+            _selectedImage!, NamaTabel.get(TableName.events));
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');
@@ -250,13 +249,13 @@ class _ManageAnnouncementPageState
       }
     }
 
-    final operator = ref.read(eventOpSupabaseProvider);
+    final eventOpSupabase = ref.read(eventOpSupabaseProvider);
     final bool isActive = _isSwitched;
     final DateTime now = DateTime.now();
 
     // 3. REFAKTORISASI STRUKTUR OBJEK: Dipisahkan tegas antara Edit data vs Buat baru
     // Menjamin kolom 'not null' di Supabase selalu terisi dengan data terbaru dari UI
-    final EventModel announcementToSave = _selectedAnnouncement != null
+    final EventModel announcementToSave = _isEditMode
         ? _selectedAnnouncement!.copyWith(
             imageUrl: imageUrl,
             isActive: isActive,
@@ -277,12 +276,12 @@ class _ManageAnnouncementPageState
     // 4. Manajemen status aktif (Hanya izinkan satu pengumuman yang aktif secara simultan)
     if (isActive) {
       try {
-        final currentActive = await operator.getActive();
+        final currentActive = await eventOpSupabase.getActive();
         if (currentActive != null &&
             currentActive.id != announcementToSave.id) {
           final oldActive =
               currentActive.copyWith(isActive: false, updatedAt: now);
-          await operator.update(oldActive);
+          await eventOpSupabase.update(oldActive);
         }
       } catch (e, st) {
         Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
@@ -298,10 +297,10 @@ class _ManageAnnouncementPageState
 
     // 5. Eksekusi penyimpanan ke Supabase via Provider
     try {
-      if (_selectedAnnouncement != null) {
-        await operator.update(announcementToSave);
+      if (_isEditMode) {
+        await eventOpSupabase.update(announcementToSave);
       } else {
-        await operator.addEvent(announcementToSave);
+        await eventOpSupabase.addEvent(announcementToSave);
       }
       final _ = ref.refresh(eventOpSupabaseProvider);
       if (!mounted) return;
@@ -464,11 +463,11 @@ class _ManageAnnouncementPageState
           child: _isUploading
               ? const Center(child: CircularProgressIndicator())
               : ElevatedButton.icon(
-                  icon: const Icon(TIcons.save),
-                  label: Text(_selectedAnnouncement == null
+                  icon: Icon(_isEditMode ? TIcons.edit : TIcons.save),
+                  label: Text(!_isEditMode
                       ? 'Simpan Pengumuman'
                       : 'Perbarui Pengumuman'),
-                  onPressed: _isUploading ? null : _saveData,
+                  onPressed: _isUploading ? null : _simpanForm,
                 ),
         ),
       ),

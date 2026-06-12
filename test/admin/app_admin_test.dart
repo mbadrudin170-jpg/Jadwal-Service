@@ -18,7 +18,7 @@ import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
-import 'package:wifi/shared/data/sync/initial_download.dart';
+import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
@@ -97,9 +97,9 @@ class MockWorkmanagerPlatform extends Mock
   SharedPreferences,
   KoneksiInternetService,
   NotifikasiServis,
-  LayananUnduhAwal,
+  UnduhanAwalService,
   ActiveCustomerOperation,
-  SettingsOperation,
+  SettingsOpSqlite,
   DataCleaningOperation,
   SqliteDatabase,
   BackgroundService,

@@ -4,11 +4,11 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/upload_status_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
 import 'upload_status_operation_test.mocks.dart';
 
@@ -16,12 +16,12 @@ import 'upload_status_operation_test.mocks.dart';
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
-  late UploadStatusOperation uploadStatusOperation;
+  late StatusUploadOpSqlite uploadStatusOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
-    uploadStatusOperation = UploadStatusOperation(dbHelper: mockDbHelper);
+    uploadStatusOperation = StatusUploadOpSqlite(sqliteDb: mockDbHelper);
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });
 
@@ -32,7 +32,7 @@ void main() {
       updatedAt: DateTime.now(),
     );
     final tUploadStatusMap = tUploadStatus.toSqlite();
-    final tableName = TableNameValue.get(TableName.uploadStatus);
+    final tableName = NamaTabel.get(TableName.uploadStatus);
 
     test('setNeedUpload should insert or replace the upload status', () async {
       when(mockDatabase.insert(
@@ -41,7 +41,7 @@ void main() {
         conflictAlgorithm: anyNamed('conflictAlgorithm'),
       )).thenAnswer((_) async => 1);
 
-      await uploadStatusOperation.setNeedUpload(true);
+      await uploadStatusOperation.tandaiButuhUpload(true);
 
       verify(mockDatabase.insert(
         tableName,
@@ -88,7 +88,7 @@ void main() {
         conflictAlgorithm: anyNamed('conflictAlgorithm'),
       )).thenAnswer((_) async => 1);
 
-      await uploadStatusOperation.resetNeedUpload();
+      await uploadStatusOperation.resetStatusUpload();
 
       final verification = verify(mockDatabase.insert(
         tableName,
@@ -100,7 +100,7 @@ void main() {
       final captured = verification.captured.single as Map<String, dynamic>;
       // PERBAIKAN: Sesuaikan ekspektasi dengan implementasi model
       // Model menggunakan `ColumnNames.value` sebagai kunci dan String '0' untuk false.
-      expect(captured[ColumnNames.value], '0');
+      expect(captured[NamaKolom.value], '0');
     });
 
     test('getUploadStatusModel should return a model when data exists',

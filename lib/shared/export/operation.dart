@@ -13,5 +13,5 @@ export "package:wifi/shared/operasi/sqlite_operasi/order_operation.dart";
 export 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-export 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+export 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 export 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';

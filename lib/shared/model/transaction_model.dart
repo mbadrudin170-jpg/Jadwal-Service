@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -135,71 +135,70 @@ class TransactionModel implements HasId {
   }
 
   factory TransactionModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating TransactionModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating TransactionModel from SQLite: ${map[NamaKolom.id]}');
     return TransactionModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
-      description: map[ColumnNames.description] as String? ?? '',
-      amount: (map[ColumnNames.amount] as num? ?? 0).toDouble(),
-      type: _safeParseEnum(TransactionType.values, map[ColumnNames.type]) ??
+      id: map[NamaKolom.id] as String? ?? '',
+      date: ParserUtil.parseDateTime(map[NamaKolom.date]) ?? DateTime.now(),
+      description: map[NamaKolom.description] as String? ?? '',
+      amount: (map[NamaKolom.amount] as num? ?? 0).toDouble(),
+      type: _safeParseEnum(TransactionType.values, map[NamaKolom.type]) ??
           TransactionType.expense,
-      walletId: map[ColumnNames.walletId] as String? ?? '',
-      categoryId: map[ColumnNames.categoryId] as String? ?? '',
-      destinationWalletId: map[ColumnNames.destinationWalletId] as String?,
-      customerId: map[ColumnNames.customerId] as String?,
-      packageId: map[ColumnNames.packageId] as String?,
-      subCategoryId: map[ColumnNames.subCategoryId] as String?,
+      walletId: map[NamaKolom.walletId] as String? ?? '',
+      categoryId: map[NamaKolom.categoryId] as String? ?? '',
+      destinationWalletId: map[NamaKolom.destinationWalletId] as String?,
+      customerId: map[NamaKolom.customerId] as String?,
+      packageId: map[NamaKolom.packageId] as String?,
+      subCategoryId: map[NamaKolom.subCategoryId] as String?,
       paymentStatus: _safeParseEnum(
             PaymentStatus.values,
-            map[ColumnNames.paymentStatus],
+            map[NamaKolom.paymentStatus],
           ) ??
           PaymentStatus.unpaid,
-      earnedPoints: (map[ColumnNames.earnedPoints] as num? ?? 0).toInt(),
-      usedPoints: (map[ColumnNames.usedPoints] as num? ?? 0).toInt(),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      packageDuration: (map[ColumnNames.packageDuration] as num?)?.toInt(),
+      earnedPoints: (map[NamaKolom.earnedPoints] as num? ?? 0).toInt(),
+      usedPoints: (map[NamaKolom.usedPoints] as num? ?? 0).toInt(),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      packageDuration: (map[NamaKolom.packageDuration] as num?)?.toInt(),
       durationType:
-          _safeParseEnum(DurationType.values, map[ColumnNames.durationType]),
-      durasiBonus: (map[ColumnNames.durasiBonus] as num? ?? 0).toInt(),
+          _safeParseEnum(DurationType.values, map[NamaKolom.durationType]),
+      durasiBonus: (map[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
       durasiBonusType: _safeParseEnum(
         DurationType.values,
-        map[ColumnNames.durasiBonusType],
+        map[NamaKolom.durasiBonusType],
       ),
-      startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]),
-      endDate: ParserUtil.parseDateTime(map[ColumnNames.endDate]),
-      isActivated: ParserUtil.parseBool(map[ColumnNames.isActivated]),
+      startDate: ParserUtil.parseDateTime(map[NamaKolom.startDate]),
+      endDate: ParserUtil.parseDateTime(map[NamaKolom.endDate]),
+      isActivated: ParserUtil.parseBool(map[NamaKolom.isActivated]),
     );
   }
 
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.date: date.millisecondsSinceEpoch,
-      ColumnNames.description: description,
-      ColumnNames.amount: amount,
-      ColumnNames.type: type.name,
-      ColumnNames.walletId: walletId,
-      ColumnNames.categoryId: categoryId,
-      ColumnNames.destinationWalletId: destinationWalletId,
-      ColumnNames.customerId: customerId,
-      ColumnNames.packageId: packageId,
-      ColumnNames.subCategoryId: subCategoryId,
-      ColumnNames.paymentStatus: paymentStatus.name,
-      ColumnNames.earnedPoints: earnedPoints,
-      ColumnNames.usedPoints: usedPoints,
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.packageDuration: packageDuration,
-      ColumnNames.durationType: durationType?.name,
-      ColumnNames.durasiBonus: durasiBonus,
-      ColumnNames.durasiBonusType: durasiBonusType?.name,
-      ColumnNames.startDate: startDate?.millisecondsSinceEpoch,
-      ColumnNames.endDate: endDate?.millisecondsSinceEpoch,
-      ColumnNames.isActivated: isActivated ? 1 : 0,
+      NamaKolom.id: id,
+      NamaKolom.date: date.millisecondsSinceEpoch,
+      NamaKolom.description: description,
+      NamaKolom.amount: amount,
+      NamaKolom.type: type.name,
+      NamaKolom.walletId: walletId,
+      NamaKolom.categoryId: categoryId,
+      NamaKolom.destinationWalletId: destinationWalletId,
+      NamaKolom.customerId: customerId,
+      NamaKolom.packageId: packageId,
+      NamaKolom.subCategoryId: subCategoryId,
+      NamaKolom.paymentStatus: paymentStatus.name,
+      NamaKolom.earnedPoints: earnedPoints,
+      NamaKolom.usedPoints: usedPoints,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.packageDuration: packageDuration,
+      NamaKolom.durationType: durationType?.name,
+      NamaKolom.durasiBonus: durasiBonus,
+      NamaKolom.durasiBonusType: durasiBonusType?.name,
+      NamaKolom.startDate: startDate?.millisecondsSinceEpoch,
+      NamaKolom.endDate: endDate?.millisecondsSinceEpoch,
+      NamaKolom.isActivated: isActivated ? 1 : 0,
     };
   }
 
@@ -208,71 +207,71 @@ class TransactionModel implements HasId {
     Log.info('Creating TransactionModel from Firebase: $id');
     return TransactionModel(
       id: id,
-      date: ParserUtil.parseDateTime(data[ColumnNames.date]) ?? DateTime.now(),
-      description: data[ColumnNames.description] as String? ?? '',
-      amount: (data[ColumnNames.amount] as num? ?? 0).toDouble(),
-      type: _safeParseEnum(TransactionType.values, data[ColumnNames.type]) ??
+      date: ParserUtil.parseDateTime(data[NamaKolom.date]) ?? DateTime.now(),
+      description: data[NamaKolom.description] as String? ?? '',
+      amount: (data[NamaKolom.amount] as num? ?? 0).toDouble(),
+      type: _safeParseEnum(TransactionType.values, data[NamaKolom.type]) ??
           TransactionType.expense,
-      walletId: data[ColumnNames.walletId] as String? ?? '',
-      categoryId: data[ColumnNames.categoryId] as String? ?? '',
-      destinationWalletId: data[ColumnNames.destinationWalletId] as String?,
-      customerId: data[ColumnNames.customerId] as String?,
-      packageId: data[ColumnNames.packageId] as String?,
-      subCategoryId: data[ColumnNames.subCategoryId] as String?,
+      walletId: data[NamaKolom.walletId] as String? ?? '',
+      categoryId: data[NamaKolom.categoryId] as String? ?? '',
+      destinationWalletId: data[NamaKolom.destinationWalletId] as String?,
+      customerId: data[NamaKolom.customerId] as String?,
+      packageId: data[NamaKolom.packageId] as String?,
+      subCategoryId: data[NamaKolom.subCategoryId] as String?,
       paymentStatus: _safeParseEnum(
             PaymentStatus.values,
-            data[ColumnNames.paymentStatus],
+            data[NamaKolom.paymentStatus],
           ) ??
           PaymentStatus.unpaid,
-      earnedPoints: (data[ColumnNames.earnedPoints] as num? ?? 0).toInt(),
-      usedPoints: (data[ColumnNames.usedPoints] as num? ?? 0).toInt(),
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      packageDuration: (data[ColumnNames.packageDuration] as num?)?.toInt(),
+      earnedPoints: (data[NamaKolom.earnedPoints] as num? ?? 0).toInt(),
+      usedPoints: (data[NamaKolom.usedPoints] as num? ?? 0).toInt(),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      packageDuration: (data[NamaKolom.packageDuration] as num?)?.toInt(),
       durationType:
-          _safeParseEnum(DurationType.values, data[ColumnNames.durationType]),
-      durasiBonus: (data[ColumnNames.durasiBonus] as num? ?? 0).toInt(),
+          _safeParseEnum(DurationType.values, data[NamaKolom.durationType]),
+      durasiBonus: (data[NamaKolom.durasiBonus] as num? ?? 0).toInt(),
       durasiBonusType: _safeParseEnum(
         DurationType.values,
-        data[ColumnNames.durasiBonusType],
+        data[NamaKolom.durasiBonusType],
       ),
-      startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]),
-      endDate: ParserUtil.parseDateTime(data[ColumnNames.endDate]),
-      isActivated: ParserUtil.parseBool(data[ColumnNames.isActivated]),
+      startDate: ParserUtil.parseDateTime(data[NamaKolom.startDate]),
+      endDate: ParserUtil.parseDateTime(data[NamaKolom.endDate]),
+      isActivated: ParserUtil.parseBool(data[NamaKolom.isActivated]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.date: Timestamp.fromDate(date.toUtc()),
-      ColumnNames.description: description,
-      ColumnNames.amount: amount,
-      ColumnNames.type: type.name,
-      ColumnNames.walletId: walletId,
-      ColumnNames.categoryId: categoryId,
-      ColumnNames.destinationWalletId: destinationWalletId,
-      ColumnNames.customerId: customerId,
-      ColumnNames.packageId: packageId,
-      ColumnNames.subCategoryId: subCategoryId,
-      ColumnNames.paymentStatus: paymentStatus.name,
-      ColumnNames.earnedPoints: earnedPoints,
-      ColumnNames.usedPoints: usedPoints,
-      ColumnNames.updatedAt:
+      NamaKolom.id: id,
+      NamaKolom.date: Timestamp.fromDate(date.toUtc()),
+      NamaKolom.description: description,
+      NamaKolom.amount: amount,
+      NamaKolom.type: type.name,
+      NamaKolom.walletId: walletId,
+      NamaKolom.categoryId: categoryId,
+      NamaKolom.destinationWalletId: destinationWalletId,
+      NamaKolom.customerId: customerId,
+      NamaKolom.packageId: packageId,
+      NamaKolom.subCategoryId: subCategoryId,
+      NamaKolom.paymentStatus: paymentStatus.name,
+      NamaKolom.earnedPoints: earnedPoints,
+      NamaKolom.usedPoints: usedPoints,
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      ColumnNames.isDeleted: isDeleted,
-      ColumnNames.packageDuration: packageDuration,
-      ColumnNames.durationType: durationType?.name,
-      ColumnNames.durasiBonus: durasiBonus,
-      ColumnNames.durasiBonusType: durasiBonusType?.name,
-      ColumnNames.startDate:
+      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.packageDuration: packageDuration,
+      NamaKolom.durationType: durationType?.name,
+      NamaKolom.durasiBonus: durasiBonus,
+      NamaKolom.durasiBonusType: durasiBonusType?.name,
+      NamaKolom.startDate:
           startDate != null ? Timestamp.fromDate(startDate!.toUtc()) : null,
-      ColumnNames.endDate:
+      NamaKolom.endDate:
           endDate != null ? Timestamp.fromDate(endDate!.toUtc()) : null,
-      ColumnNames.isActivated: isActivated,
+      NamaKolom.isActivated: isActivated,
     };
   }
 }

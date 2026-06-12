@@ -13,20 +13,20 @@ import 'customer_operation_test.mocks.dart';
 @GenerateMocks([
   SqliteDatabase,
   Database,
-  BaseOperation,
+  BaseOpSqlite,
 ])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
   late MockBaseOperation mockBaseOperation;
-  late CustomerOperation customerOperation;
+  late PelangganOpSqlite customerOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockDatabase = MockDatabase();
     mockBaseOperation = MockBaseOperation();
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
-    customerOperation = CustomerOperation(
+    customerOperation = PelangganOpSqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );

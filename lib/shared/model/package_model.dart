@@ -3,7 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -102,39 +102,39 @@ class PackageModel implements HasId {
 
   /// Creates a `PackageModel` instance from SQLite map data.
   factory PackageModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating PackageModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating PackageModel from SQLite: ${map[NamaKolom.id]}');
     return PackageModel(
-      id: map[ColumnNames.id] as String?,
-      name: map[ColumnNames.name] as String? ?? '',
-      price: map[ColumnNames.price] as int? ?? 0,
-      duration: map[ColumnNames.duration] as int? ?? 0,
-      type: _parseType(map[ColumnNames.type]),
-      rewardPoints: map[ColumnNames.rewardPoints] as int? ?? 0,
-      redemptionPoints: map[ColumnNames.redemptionPoints] as int? ?? 0,
+      id: map[NamaKolom.id] as String?,
+      name: map[NamaKolom.name] as String? ?? '',
+      price: map[NamaKolom.price] as int? ?? 0,
+      duration: map[NamaKolom.duration] as int? ?? 0,
+      type: _parseType(map[NamaKolom.type]),
+      rewardPoints: map[NamaKolom.rewardPoints] as int? ?? 0,
+      redemptionPoints: map[NamaKolom.redemptionPoints] as int? ?? 0,
       // DIUBAH: Menggunakan ParserUtil
-      isPublic: ParserUtil.parseBool(map[ColumnNames.isPublic]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      isPublic: ParserUtil.parseBool(map[NamaKolom.isPublic]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts `PackageModel` to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.price: price,
-      ColumnNames.duration: duration,
-      ColumnNames.type: type.name,
-      ColumnNames.rewardPoints: rewardPoints,
-      ColumnNames.redemptionPoints: redemptionPoints,
-      ColumnNames.isPublic: isPublic ? 1 : 0,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.price: price,
+      NamaKolom.duration: duration,
+      NamaKolom.type: type.name,
+      NamaKolom.rewardPoints: rewardPoints,
+      NamaKolom.redemptionPoints: redemptionPoints,
+      NamaKolom.isPublic: isPublic ? 1 : 0,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           (updatedAt ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
-      ColumnNames.archivedAt: archivedAt?.toUtc().millisecondsSinceEpoch,
+      NamaKolom.archivedAt: archivedAt?.toUtc().millisecondsSinceEpoch,
     };
   }
 
@@ -144,37 +144,37 @@ class PackageModel implements HasId {
     Log.info('Creating PackageModel from Firebase: $id');
     return PackageModel(
       id: id,
-      name: data[ColumnNames.name] as String? ?? '',
-      price: data[ColumnNames.price] as int? ?? 0,
-      duration: data[ColumnNames.duration] as int? ?? 0,
-      type: _parseType(data[ColumnNames.type]),
-      rewardPoints: data[ColumnNames.rewardPoints] as int? ?? 0,
-      redemptionPoints: data[ColumnNames.redemptionPoints] as int? ?? 0,
+      name: data[NamaKolom.name] as String? ?? '',
+      price: data[NamaKolom.price] as int? ?? 0,
+      duration: data[NamaKolom.duration] as int? ?? 0,
+      type: _parseType(data[NamaKolom.type]),
+      rewardPoints: data[NamaKolom.rewardPoints] as int? ?? 0,
+      redemptionPoints: data[NamaKolom.redemptionPoints] as int? ?? 0,
       // DIUBAH: Menggunakan ParserUtil
-      isPublic: ParserUtil.parseBool(data[ColumnNames.isPublic]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      isPublic: ParserUtil.parseBool(data[NamaKolom.isPublic]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts `PackageModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.price: price,
-      ColumnNames.duration: duration,
-      ColumnNames.type: type.name,
-      ColumnNames.rewardPoints: rewardPoints,
-      ColumnNames.redemptionPoints: redemptionPoints,
-      ColumnNames.isPublic: isPublic,
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.price: price,
+      NamaKolom.duration: duration,
+      NamaKolom.type: type.name,
+      NamaKolom.rewardPoints: rewardPoints,
+      NamaKolom.redemptionPoints: redemptionPoints,
+      NamaKolom.isPublic: isPublic,
+      NamaKolom.isDeleted: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

@@ -5,26 +5,26 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 
 import 'order_operation_test.mocks.dart';
 
-@GenerateMocks([SqliteDatabase, BaseOperation, Database])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late OrderOperation orderOperation;
+  late OrderOpsqlite orderOperation;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
-    orderOperation = OrderOperation(
+    orderOperation = OrderOpsqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );
@@ -39,7 +39,7 @@ void main() {
       date: DateTime.now(),
     );
     final tOrderMap = tOrder.toSqlite();
-    final tableName = TableNameValue.get(TableName.customerOrder);
+    final tableName = NamaTabel.get(TableName.customerOrder);
 
     test('1. getAllOrders harus mengembalikan daftar pesanan dari database',
         () async {
@@ -130,7 +130,7 @@ void main() {
 
       expect(result, 5);
       verify(mockDatabase.rawQuery(
-        'SELECT COUNT(*) FROM customerOrder WHERE ${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
+        'SELECT COUNT(*) FROM customerOrder WHERE ${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
         [status.name],
       )).called(1);
     });
@@ -176,7 +176,7 @@ void main() {
       expect(result.first.id, tOrder.id);
       verify(mockDatabase.query(
         tableName,
-        where: '${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [status.name],
         orderBy: anyNamed('orderBy'),
       )).called(1);
@@ -197,7 +197,7 @@ void main() {
       final ids = ['1', '2'];
       final questionMarks = List.filled(ids.length, '?').join(',');
       final expectedWhere =
-          '${ColumnNames.id} IN ($questionMarks) AND ${ColumnNames.isDeleted} = 0';
+          '${NamaKolom.id} IN ($questionMarks) AND ${NamaKolom.isDeleted} = 0';
 
       when(mockDatabase.query(
         any,

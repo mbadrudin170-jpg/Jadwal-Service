@@ -5,14 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_riwayat_aktivasi.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-class MockTransactionOperation extends Mock implements TransactionOperation {}
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
 class MockNotifikasiServis extends Mock implements NotifikasiServis {}
 
@@ -20,7 +21,7 @@ class MockKoneksiInternetService extends Mock
     implements KoneksiInternetService {}
 
 void main() {
-  late MockTransactionOperation mockTransactionOperation;
+  late MockTransactionOpFirebase mockTransactionOperation;
   late MockNotifikasiServis mockNotifikasiServis;
   late MockKoneksiInternetService mockKoneksiInternetService;
 
@@ -38,7 +39,7 @@ void main() {
   );
 
   setUp(() {
-    mockTransactionOperation = MockTransactionOperation();
+    mockTransactionOperation = MockTransactionOpFirebase();
     mockNotifikasiServis = MockNotifikasiServis();
     mockKoneksiInternetService = MockKoneksiInternetService();
   });
@@ -46,7 +47,7 @@ void main() {
   ProviderContainer makeProviderContainer() {
     final container = ProviderContainer(
       overrides: [
-        transactionOperationProvider
+        transactionOpFirebaseProvider
             .overrideWithValue(mockTransactionOperation),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
         koneksiInternetServiceProvider
@@ -67,7 +68,7 @@ void main() {
     );
   }
 
-  testWidgets('1. Tes tampilan awal form riwayat langganan', (tester) async {
+  testWidgets('01. Tes tampilan awal form riwayat langganan', (tester) async {
     final container = makeProviderContainer();
     await tester
         .pumpWidget(createTestWidget(container, transaction: transaction));

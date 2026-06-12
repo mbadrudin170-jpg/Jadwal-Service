@@ -4,22 +4,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/model.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/sub_category_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/sub_kategori_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-import 'active_customer_detail_test.mocks.dart';
+// Mocks
+class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
+
+class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
+
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+
+class MockDompetOpFirebase extends Mock implements DompetOpFirebase {}
+
+class MockKategoriOpFirebase extends Mock implements KategoriOpFirebase {}
+
+class MockSubKategoriOpFirebase extends Mock implements SubKategoriOpFirebase {}
 
 void main() {
-  late MockCustomerOperation mockCustomerOperation;
-  late MockPackageOperation mockPackageOperation;
-  late MockTransactionOperation mockTransactionOperation;
-  late MockWalletOperation mockWalletOperation;
-  late MockCategoryOperation mockCategoryOperation;
-  late MockSubCategoryOperation mockSubCategoryOperation;
+  late MockCustomerOpFirebase mockCustomerOperation;
+  late MockPaketOpFirebase mockPackageOperation;
+  late MockTransactionOpFirebase mockTransactionOperation;
+  late MockDompetOpFirebase mockWalletOperation;
+  late MockKategoriOpFirebase mockCategoryOperation;
+  late MockSubKategoriOpFirebase mockSubCategoryOperation;
 
   final tTransaction = TransactionModel(
     id: '1',
@@ -35,23 +54,25 @@ void main() {
   );
 
   setUp(() {
-    mockCustomerOperation = MockCustomerOperation();
-    mockPackageOperation = MockPackageOperation();
-    mockTransactionOperation = MockTransactionOperation();
-    mockWalletOperation = MockWalletOperation();
-    mockCategoryOperation = MockCategoryOperation();
-    mockSubCategoryOperation = MockSubCategoryOperation();
+    mockCustomerOperation = MockCustomerOpFirebase();
+    mockPackageOperation = MockPaketOpFirebase();
+    mockTransactionOperation = MockTransactionOpFirebase();
+    mockWalletOperation = MockDompetOpFirebase();
+    mockCategoryOperation = MockKategoriOpFirebase();
+    mockSubCategoryOperation = MockSubKategoriOpFirebase();
   });
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
       overrides: [
-        customerOperationProvider.overrideWithValue(mockCustomerOperation),
-        packageOperationProvider.overrideWithValue(mockPackageOperation),
-        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
-        walletOperationProvider.overrideWithValue(mockWalletOperation),
-        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
-        subCategoryOperationProvider.overrideWithValue(mockSubCategoryOperation),
+        customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
+        paketOpFirebaseProvider.overrideWithValue(mockPackageOperation),
+        transactionOpFirebaseProvider
+            .overrideWithValue(mockTransactionOperation),
+        dompetOpFirebaseProvider.overrideWithValue(mockWalletOperation),
+        kategoriOpFirebaseProvider.overrideWithValue(mockCategoryOperation),
+        subKategoriOpFirebaseProvider
+            .overrideWithValue(mockSubCategoryOperation),
       ],
       child: MaterialApp(
         home: TransactionDetailPage(transaction: tTransaction),
@@ -61,14 +82,25 @@ void main() {
 
   group('TransactionDetailPage', () {
     testWidgets('01. should display transaction details', (tester) async {
-      when(() => mockWalletOperation.getById(any()))
-          .thenAnswer((_) async => WalletModel(id: 'wallet1', name: 'Test Wallet'));
-      when(() => mockCategoryOperation.getCategoryById(any())).thenAnswer((_) async =>
-          CategoryModel(id: 'cat1', name: 'Test Category', type: CategoryType.income));
+      when(() => mockWalletOperation.ambilBerdasarkanId(any())).thenAnswer(
+          (_) async => WalletModel(id: 'wallet1', name: 'Test Wallet'));
+      when(() => mockCategoryOperation.ambilBerdasarkanId(any())).thenAnswer(
+          (_) async => CategoryModel(
+              id: 'cat1', name: 'Test Category', type: CategoryType.income));
       when(() => mockCustomerOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => CustomerModel(id: 'cust1', name: 'Test Customer', phone: '', password: '', address: ''));
-      when(() => mockPackageOperation.ambilBerdasarkanId(any())).thenAnswer((_) async =>
-          PackageModel(id: 'pkg1', name: 'Test Package', price: 100, duration: 30, type: DurationType.days));
+          (_) async => CustomerModel(
+              id: 'cust1',
+              name: 'Test Customer',
+              phone: '',
+              password: '',
+              address: ''));
+      when(() => mockPackageOperation.ambilBerdasarkanId(any())).thenAnswer(
+          (_) async => PackageModel(
+              id: 'pkg1',
+              name: 'Test Package',
+              price: 100,
+              duration: 30,
+              type: DurationType.days));
 
       await tester.pumpWidget(createWidgetUnderTest());
 

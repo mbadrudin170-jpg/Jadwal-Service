@@ -3,7 +3,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
@@ -102,7 +102,7 @@ void main() {
         'softDelete() harus mengatur isDeleted dan memanggil updateGlobalStatus',
         () async {
       const docId = 'doc_to_soft_delete';
-      final data = <String, dynamic>{'id': docId, ColumnNames.isDeleted: false};
+      final data = <String, dynamic>{'id': docId, NamaKolom.isDeleted: false};
       await fakeFirestore.collection(collectionName).doc(docId).set(data);
 
       await baseOpFirebase.hapusSementara(collectionName, docId);
@@ -111,8 +111,8 @@ void main() {
           await fakeFirestore.collection(collectionName).doc(docId).get();
       final docData = dataAsMap(doc.data());
       expect(doc.exists, isTrue);
-      expect(docData?[ColumnNames.isDeleted], isTrue);
-      expect(docData?.containsKey(ColumnNames.archivedAt), isTrue);
+      expect(docData?[NamaKolom.isDeleted], isTrue);
+      expect(docData?.containsKey(NamaKolom.archivedAt), isTrue);
       verify(mockStatusOpFirebase.updateGlobalStatus()).called(1);
     });
 
@@ -148,14 +148,14 @@ void main() {
       await fakeFirestore
           .collection(collectionName)
           .doc('doc1')
-          .set({'id': 'doc1', ColumnNames.isDeleted: false});
+          .set({'id': 'doc1', NamaKolom.isDeleted: false});
       await fakeFirestore
           .collection(collectionName)
           .doc('doc2')
-          .set({'id': 'doc2', ColumnNames.isDeleted: false});
+          .set({'id': 'doc2', NamaKolom.isDeleted: false});
       await fakeFirestore.collection(collectionName).doc('doc3').set({
         'id': 'doc3',
-        ColumnNames.isDeleted: true
+        NamaKolom.isDeleted: true
       }); // Ini tidak akan tersentuh
 
       // JALANKAN
@@ -169,18 +169,16 @@ void main() {
       final doc2 =
           await fakeFirestore.collection(collectionName).doc('doc2').get();
 
-      expect(dataAsMap(doc1.data())?[ColumnNames.isDeleted], isTrue);
-      expect(
-          dataAsMap(doc1.data())?.containsKey(ColumnNames.archivedAt), isTrue);
-      expect(dataAsMap(doc2.data())?[ColumnNames.isDeleted], isTrue);
-      expect(
-          dataAsMap(doc2.data())?.containsKey(ColumnNames.archivedAt), isTrue);
+      expect(dataAsMap(doc1.data())?[NamaKolom.isDeleted], isTrue);
+      expect(dataAsMap(doc1.data())?.containsKey(NamaKolom.archivedAt), isTrue);
+      expect(dataAsMap(doc2.data())?[NamaKolom.isDeleted], isTrue);
+      expect(dataAsMap(doc2.data())?.containsKey(NamaKolom.archivedAt), isTrue);
 
       // Pastikan dokumen yang sudah terhapus tidak ikut diubah (tidak ada archivedAt)
       final doc3 =
           await fakeFirestore.collection(collectionName).doc('doc3').get();
       expect(
-          dataAsMap(doc3.data())?.containsKey(ColumnNames.archivedAt), isFalse);
+          dataAsMap(doc3.data())?.containsKey(NamaKolom.archivedAt), isFalse);
 
       // Verifikasi bahwa updateGlobalStatus hanya dipanggil SEKALI.
       verify(mockStatusOpFirebase.updateGlobalStatus()).called(1);

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/category_model.dart';
@@ -27,14 +27,14 @@ import 'download_data_test.mocks.dart';
   DompetOpSqlite,
   CategoryOperation,
   PaketOpSqlite,
-  CustomerOperation,
+  PelangganOpSqlite,
   ActiveCustomerOperation,
   TransactionOperation,
   FeedbackOperation,
-  OrderOperation,
-  SubCategoryOperation,
+  OrderOpsqlite,
+  SubKategoriOpSqlite,
   ApkVersionOperation,
-  SettingsOperation,
+  SettingsOpSqlite,
   FirebaseFirestore,
   CollectionReference,
   Query,
@@ -121,7 +121,7 @@ void main() {
       when(mockDoc.id).thenReturn('doc1');
       when(
         mockDoc.data(),
-      ).thenReturn({ColumnNames.updatedAt: Timestamp.fromDate(DateTime(2024))});
+      ).thenReturn({NamaKolom.updatedAt: Timestamp.fromDate(DateTime(2024))});
 
       when(mockSettingsDoc.exists).thenReturn(false);
     });
@@ -196,7 +196,7 @@ void main() {
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.id).thenReturn('settingsId');
         when(mockSettingsDoc.data()).thenReturn({
-          ColumnNames.updatedAt: Timestamp.fromDate(serverTime),
+          NamaKolom.updatedAt: Timestamp.fromDate(serverTime),
           'autoSyncInterval': 2,
           'autoDeleteArchiveDays': 30,
           'maintenanceMode': false,
@@ -219,7 +219,7 @@ void main() {
             .thenAnswer((final _) async => mockSettingsDoc);
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.data()).thenReturn({
-          ColumnNames.updatedAt: Timestamp.fromDate(serverTime),
+          NamaKolom.updatedAt: Timestamp.fromDate(serverTime),
           'autoSyncInterval': 2,
           'autoDeleteArchiveDays': 30,
           'maintenanceMode': false,

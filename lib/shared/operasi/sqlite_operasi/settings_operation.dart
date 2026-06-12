@@ -1,39 +1,39 @@
 // path: lib/shared/operasi/settings_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
-class SettingsOperation {
-  final SqliteDatabase _dbHelper;
-  final BaseOperation _baseOperation;
+class SettingsOpSqlite {
+  final SqliteDatabase sqliteDb;
+  final BaseOpSqlite _baseOpSqlite;
 
-  /// Konstruktor untuk [SettingsOperation].
+  /// Konstruktor untuk [SettingsOpSqlite].
   ///
-  /// Memungkinkan injeksi dependensi untuk [_dbHelper] dan [_baseOperation] guna memfasilitasi pengujian.
-  SettingsOperation({
+  /// Memungkinkan injeksi dependensi untuk [sqliteDb] dan [_baseOpSqlite] guna memfasilitasi pengujian.
+  SettingsOpSqlite({
     required final SqliteDatabase dbHelper,
-    required final BaseOperation baseOperation,
-  })  : _dbHelper = dbHelper,
-        _baseOperation = baseOperation;
+    required final BaseOpSqlite baseOperation,
+  })  : sqliteDb = dbHelper,
+        _baseOpSqlite = baseOperation;
 
-  final String _tableName = TableNameValue.get(TableName.settings);
+  final String _namaTabel = NamaTabel.settings;
 
   /// Mengambil data pengaturan dari database.
   /// Jika tidak ada, akan membuat pengaturan default.
   Future<SettingsModel> getSettings() async {
     try {
       Log.info(
-        'Memulai proses pengambilan data pengaturan dari database - method: getSettings, tabel: ${TableNameValue.get(TableName.settings)}',
+        'Memulai proses pengambilan data pengaturan dari database - method: getSettings, tabel: ${NamaTabel.settings}',
+        'Memulai proses pengambilan data pengaturan dari database - method: ambilPengaturan, tabel: ${NamaTabel.settings}',
       );
-      final db = await _dbHelper.database;
+      final db = await sqliteDb.database;
 
       final result = await db.query(
-        _tableName,
+        _namaTabel,
         where: 'id = ?',
         whereArgs: [globalSettingsId],
       );
@@ -79,8 +79,8 @@ class SettingsOperation {
       Log.info(
         'Memulai proses simpan/perbarui untuk pengaturan dengan ID: ${settingsToSave.id}',
       );
-      await _baseOperation.sisipkan(
-        _tableName,
+      await _baseOpSqlite.sisipkan(
+        _namaTabel,
         settingsToSave.toSqlite(),
         dariServer: fromServer,
       );
@@ -100,37 +100,32 @@ class SettingsOperation {
   /// Memperbarui sebagian field dari [SettingsModel] di database.
   ///
   /// [data] adalah Map yang berisi field yang akan diperbarui.
-  Future<void> update(
+  Future<void> updateSettings(
     final Map<String, dynamic> data, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     try {
       Log.info(
         'Memulai proses update parsial untuk pengaturan dengan ID: $globalSettingsId',
       );
 
-      // Selalu tambahkan timestamp `updated_at` pada setiap operasi tulis dalam bentuk epoch millisecond.
       final dataToUpdate = {
         ...data,
-        ColumnNames.updatedAt: DateTime.now().millisecondsSinceEpoch,
+        NamaKolom.updatedAt: DateTime.now().millisecondsSinceEpoch,
       };
 
-      await _baseOperation.update(
-        _tableName,
+      await _baseOpSqlite.update(
+        _namaTabel,
         dataToUpdate,
         globalSettingsId,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
 
       Log.info(
         'Pengaturan berhasil diperbarui sebagian. Fields: ${data.keys.join(', ')}',
       );
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal memperbarui data pengaturan sebagian: $e',
-        e: e,
-        st: st,
-      );
+      Log.error('Gagal memperbarui data pengaturan sebagian: $e', e: e, st: st);
       rethrow;
     }
   }
@@ -142,24 +137,19 @@ class SettingsOperation {
   }) async {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
-      final settingsToSave = settings.copyWith(
+      final dataToSave = settings.copyWith(
         id: globalSettingsId,
         updatedAt: DateTime.now().toUtc(),
       );
-      final settingsData = settingsToSave.toSqlite();
-
-      await _baseOperation.insertOrUpdateBatch(
-        _tableName,
-        [settingsData],
+      final data = dataToSave.toSqlite();
+      await _baseOpSqlite.insertOrUpdateBatch(
+        _namaTabel,
+        [data],
         fromServer: fromServer,
       );
       Log.info('Batch operation untuk pengaturan berhasil.');
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal menyimpan pengaturan dengan batch: $e',
-        e: e,
-        st: st,
-      );
+    } catch (e, st) {
+      Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, st: st);
       rethrow;
     }
   }

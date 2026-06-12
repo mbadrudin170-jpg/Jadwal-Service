@@ -8,7 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 
-class MockCustomerOperation extends Mock implements CustomerOperation {}
+class MockCustomerOperation extends Mock implements PelangganOpSqlite {}
 
 void main() {
   late MockCustomerOperation mockCustomerOperation;
@@ -36,12 +36,14 @@ void main() {
     );
   }
 
-  testWidgets('01. CustomerForm should display add form correctly', (tester) async {
+  testWidgets('01. CustomerForm should display add form correctly',
+      (tester) async {
     await tester.pumpWidget(createTestWidget());
     expect(find.text('Tambah Pelanggan'), findsOneWidget);
   });
 
-  testWidgets('02. CustomerForm should display edit form correctly', (tester) async {
+  testWidgets('02. CustomerForm should display edit form correctly',
+      (tester) async {
     await tester.pumpWidget(createTestWidget(customer: testCustomer));
     expect(find.text('Edit Pelanggan'), findsOneWidget);
     expect(find.text('Test Customer'), findsOneWidget);

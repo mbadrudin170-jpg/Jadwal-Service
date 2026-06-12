@@ -27,7 +27,7 @@ class SettingsForm extends ConsumerStatefulWidget {
 
 class _SettingsFormState extends ConsumerState<SettingsForm> {
   final _formKey = GlobalKey<FormState>();
-  late final SettingsOperation _settingsOperation;
+  late final SettingsOpSqlite _settingsOperation;
   late TextEditingController _intervalController;
   late TextEditingController _hapusArsipController;
   late TextEditingController _infoPemeliharaanController;

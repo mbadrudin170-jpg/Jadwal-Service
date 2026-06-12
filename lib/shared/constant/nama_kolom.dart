@@ -1,0 +1,65 @@
+// path: lib/shared/constant/nama_kolom.dart
+
+
+abstract final class NamaKolom {
+  static const String id = 'id';
+  static const String isDeleted = 'is_deleted';
+  static const String updatedAt = 'updated_at';
+  static const String archivedAt = 'archived_at';
+  static const String name = 'name';
+  static const String balance = 'balance';
+  static const String description = 'description';
+  static const String amount = 'amount';
+  static const String date = 'date';
+  static const String type = 'type';
+  static const String walletId = 'wallet_id';
+  static const String categoryId = 'category_id';
+  static const String subCategoryId = 'sub_category_id';
+  static const String customerId = 'customer_id';
+  static const String packageId = 'package_id';
+  static const String transactionId = 'transaction_id';
+  static const String destinationWalletId = 'destination_wallet_id';
+  static const String earnedPoints = 'earned_points';
+  static const String usedPoints = 'used_points';
+  static const String paymentStatus = 'payment_status';
+  static const String packageDuration = 'package_duration';
+  static const String durationType = 'duration_type';
+  static const String startDate = 'start_date';
+  static const String endDate = 'end_date';
+  static const String isActivated = 'is_activated';
+  static const String price = 'price';
+  static const String duration = 'duration';
+  static const String rewardPoints = 'reward_points';
+  static const String redemptionPoints = 'redemption_points';
+  static const String isPublic = 'is_public';
+  static const String phone = 'phone';
+  static const String address = 'address';
+  static const String password = 'password';
+  static const String macAddress = 'mac_address';
+  static const String status = 'status';
+  static const String content = 'content';
+  static const String userId = 'user_id';
+  static const String releaseNotes = 'release_notes';
+  static const String latestBuildNumber = 'latest_build_number';
+  static const String downloadLinks = 'download_links';
+  static const String latestVersion = 'latest_version';
+  static const String isUpdateRequired = 'is_update_required';
+  static const String lastActiveAt = 'last_active_at';
+  static const String youtubeTutorial = 'youtube_tutorial';
+  static const String autoSyncInterval = 'auto_sync_interval';
+  static const String autoDeleteArchiveDays = 'auto_delete_archive_days';
+  static const String maintenanceMode = 'maintenance_mode';
+  static const String maintenanceInfo = 'maintenance_info';
+  static const String tableName = 'table_name';
+  static const String ids = 'ids';
+  static const String value = 'value';
+  static const String imageUrl = 'image_url';
+  static const String isActive = 'is_active';
+  static const String createdAt = 'created_at';
+  static const String title = 'title';
+  static const String isRead = 'is_read';
+  static const String idTujuan = 'id_tujuan';
+  static const String tanggalTampil = 'tanggal_tampil';
+  static const String durasiBonus = 'durasi_bonus';
+  static const String durasiBonusType = 'durasi_bonus_type';
+}

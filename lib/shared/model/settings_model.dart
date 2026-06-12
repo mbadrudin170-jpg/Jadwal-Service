@@ -2,7 +2,7 @@
 // diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
@@ -66,24 +66,23 @@ class SettingsModel implements HasId {
   factory SettingsModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating SettingsModel from SQLite');
     return SettingsModel(
-      autoSyncInterval: map[ColumnNames.autoSyncInterval] as int? ?? 24,
-      autoDeleteArchiveDays:
-          map[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: ParserUtil.parseBool(map[ColumnNames.maintenanceMode]),
-      maintenanceInfo: map[ColumnNames.maintenanceInfo] as String? ?? '',
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      autoSyncInterval: map[NamaKolom.autoSyncInterval] as int? ?? 24,
+      autoDeleteArchiveDays: map[NamaKolom.autoDeleteArchiveDays] as int? ?? 30,
+      maintenanceMode: ParserUtil.parseBool(map[NamaKolom.maintenanceMode]),
+      maintenanceInfo: map[NamaKolom.maintenanceInfo] as String? ?? '',
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
     );
   }
 
   /// Converts `SettingsModel` to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.autoSyncInterval: autoSyncInterval,
-      ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
-      ColumnNames.maintenanceMode: maintenanceMode ? 1 : 0,
-      ColumnNames.maintenanceInfo: maintenanceInfo,
-      ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.autoSyncInterval: autoSyncInterval,
+      NamaKolom.autoDeleteArchiveDays: autoDeleteArchiveDays,
+      NamaKolom.maintenanceMode: maintenanceMode ? 1 : 0,
+      NamaKolom.maintenanceInfo: maintenanceInfo,
+      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -91,24 +90,24 @@ class SettingsModel implements HasId {
   factory SettingsModel.fromFirebase(final Map<String, dynamic> data) {
     Log.info('Creating SettingsModel from Firebase');
     return SettingsModel(
-      id: data[ColumnNames.id] as String? ?? globalSettingsId,
-      autoSyncInterval: data[ColumnNames.autoSyncInterval] as int? ?? 24,
+      id: data[NamaKolom.id] as String? ?? globalSettingsId,
+      autoSyncInterval: data[NamaKolom.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays:
-          data[ColumnNames.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: ParserUtil.parseBool(data[ColumnNames.maintenanceMode]),
-      maintenanceInfo: data[ColumnNames.maintenanceInfo] as String? ?? '',
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+          data[NamaKolom.autoDeleteArchiveDays] as int? ?? 30,
+      maintenanceMode: ParserUtil.parseBool(data[NamaKolom.maintenanceMode]),
+      maintenanceInfo: data[NamaKolom.maintenanceInfo] as String? ?? '',
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
     );
   }
 
   /// Converts `SettingsModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.autoSyncInterval: autoSyncInterval,
-      ColumnNames.autoDeleteArchiveDays: autoDeleteArchiveDays,
-      ColumnNames.maintenanceMode: maintenanceMode,
-      ColumnNames.maintenanceInfo: maintenanceInfo,
-      ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.autoSyncInterval: autoSyncInterval,
+      NamaKolom.autoDeleteArchiveDays: autoDeleteArchiveDays,
+      NamaKolom.maintenanceMode: maintenanceMode,
+      NamaKolom.maintenanceInfo: maintenanceInfo,
+      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

@@ -2,7 +2,7 @@
 // diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
@@ -36,9 +36,9 @@ class StatusModel implements HasId {
     final Map<String, dynamic> map,
   ) {
     return StatusModel(
-      id: map[ColumnNames.id] as String? ?? globalStatusId,
+      id: map[NamaKolom.id] as String? ?? globalStatusId,
       updatedAt: ParserUtil.parseDateTime(
-            map[ColumnNames.updatedAt],
+            map[NamaKolom.updatedAt],
           ) ??
           DateTime.now(),
     );
@@ -47,8 +47,8 @@ class StatusModel implements HasId {
   /// Converts `StatusModel` to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -56,15 +56,15 @@ class StatusModel implements HasId {
   factory StatusModel.fromFirebase(final Map<String, dynamic> data) {
     Log.info('Creating StatusModel from Firebase');
     return StatusModel(
-      id: data[ColumnNames.id] as String? ?? globalStatusId,
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+      id: data[NamaKolom.id] as String? ?? globalStatusId,
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.id: id,
+      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

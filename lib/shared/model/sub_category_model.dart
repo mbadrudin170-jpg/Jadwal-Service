@@ -3,7 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/category_model.dart' show CategoryModel;
 import 'package:wifi/shared/model/has_id.dart';
@@ -67,15 +67,15 @@ class SubCategoryModel implements HasId {
 
   /// Factory constructor untuk membuat [SubCategoryModel] dari data SQLite.
   factory SubCategoryModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Membuat SubCategoryModel dari SQLite: ${map[ColumnNames.id]}');
+    Log.info('Membuat SubCategoryModel dari SQLite: ${map[NamaKolom.id]}');
     return SubCategoryModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      name: map[ColumnNames.name] as String? ?? '',
-      categoryId: map[ColumnNames.categoryId] as String? ?? '',
+      id: map[NamaKolom.id] as String? ?? '',
+      name: map[NamaKolom.name] as String? ?? '',
+      categoryId: map[NamaKolom.categoryId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
@@ -83,27 +83,28 @@ class SubCategoryModel implements HasId {
   Map<String, dynamic> toSqlite() {
     Log.info('Mengonversi SubCategoryModel ke format SQLite: $id');
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.categoryId: categoryId,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.categoryId: categoryId,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
   /// Factory constructor untuk membuat [SubCategoryModel] dari data Firebase.
-  factory SubCategoryModel.fromFirebase(final String id, final Map<String, dynamic> data) {
+  factory SubCategoryModel.fromFirebase(
+      final String id, final Map<String, dynamic> data) {
     Log.info('Membuat SubCategoryModel dari Firebase: $id');
     return SubCategoryModel(
       id: id,
-      name: data[ColumnNames.name] as String? ?? '',
-      categoryId: data[ColumnNames.categoryId] as String? ?? '',
+      name: data[NamaKolom.name] as String? ?? '',
+      categoryId: data[NamaKolom.categoryId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
@@ -112,15 +113,15 @@ class SubCategoryModel implements HasId {
   Map<String, dynamic> toFirebase() {
     Log.info('Mengonversi SubCategoryModel ke format Firebase: $id');
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.categoryId: categoryId,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.categoryId: categoryId,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.isDeleted: isDeleted,
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

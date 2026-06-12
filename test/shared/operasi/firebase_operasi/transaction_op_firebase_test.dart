@@ -2,8 +2,8 @@
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dar
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
   late TransactionOpFirebase transactionOpFirebase;
-  final transactionsCollection = TableNameValue.get(TableName.transactions);
+  final transactionsCollection = NamaTabel.get(TableName.transactions);
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
@@ -74,7 +74,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![ColumnNames.customerId], t1.customerId);
+      expect(snapshot.data()![NamaKolom.customerId], t1.customerId);
     });
 
     test('1.2. harus bisa mendapatkan transaksi lunas terbaru', () async {
@@ -234,7 +234,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![ColumnNames.isDeleted], isTrue);
+      expect(snapshot.data()![NamaKolom.isDeleted], isTrue);
     });
 
     test('1.9. harus bisa mendapatkan paket aktif pelanggan', () async {

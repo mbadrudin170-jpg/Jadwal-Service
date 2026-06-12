@@ -1,8 +1,8 @@
 // path: test/shared/operasi/firebase_operasi/status_op_firebase_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/status_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
@@ -16,7 +16,7 @@ void main() {
     setUp(() {
       fakeFirestore = FakeFirebaseFirestore();
       statusOpFirebase = StatusOpFirebase(firestore: fakeFirestore);
-      collectionName = TableNameValue.get(TableName.statusGlobal);
+      collectionName = NamaTabel.get(TableName.statusGlobal);
     });
 
     test(
@@ -40,9 +40,9 @@ void main() {
 
       // Verifikasi bahwa dokumen ada dan berisi field 'updatedAt'.
       expect(doc.exists, isTrue);
-      expect(doc.data()?.containsKey(ColumnNames.updatedAt), isTrue,
+      expect(doc.data()?.containsKey(NamaKolom.updatedAt), isTrue,
           reason: 'Field updatedAt seharusnya ada setelah pembaruan');
-      expect(doc.data()?[ColumnNames.updatedAt], isNotNull,
+      expect(doc.data()?[NamaKolom.updatedAt], isNotNull,
           reason: 'Nilai updatedAt tidak boleh null');
     });
   });

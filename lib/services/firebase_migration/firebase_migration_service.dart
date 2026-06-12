@@ -2,8 +2,8 @@
 // Diperbarui: Menambahkan migrasi khusus untuk koleksi singleton (status, settings).
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
@@ -15,155 +15,155 @@ class FirebaseMigrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final List<String> _isDeletedCollections = [
-    TableNameValue.get(TableName.wallet),
-    TableNameValue.get(TableName.category),
-    TableNameValue.get(TableName.package),
-    TableNameValue.get(TableName.activeCustomer),
-    TableNameValue.get(TableName.customer),
-    TableNameValue.get(TableName.customerOrder),
-    TableNameValue.get(TableName.subCategory),
-    TableNameValue.get(TableName.transactions),
-    TableNameValue.get(TableName.userApkVersion),
-    TableNameValue.get(TableName.feedback),
+    NamaTabel.get(TableName.wallet),
+    NamaTabel.get(TableName.category),
+    NamaTabel.get(TableName.package),
+    NamaTabel.get(TableName.activeCustomer),
+    NamaTabel.get(TableName.customer),
+    NamaTabel.get(TableName.customerOrder),
+    NamaTabel.get(TableName.subCategory),
+    NamaTabel.get(TableName.transactions),
+    NamaTabel.get(TableName.userApkVersion),
+    NamaTabel.get(TableName.feedback),
   ];
 
   final Map<String, Map<String, String>> _columnMigrations = {
-    TableNameValue.get(TableName.wallet): {
-      'namaDompet': ColumnNames.name,
-      'saldo': ColumnNames.balance,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.wallet): {
+      'namaDompet': NamaKolom.name,
+      'saldo': NamaKolom.balance,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.category): {
-      'nama': ColumnNames.name,
-      'tipe': ColumnNames.type,
-      'id_sub_kategori': ColumnNames.subCategoryId,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.category): {
+      'nama': NamaKolom.name,
+      'tipe': NamaKolom.type,
+      'id_sub_kategori': NamaKolom.subCategoryId,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.subCategory): {
-      'nama': ColumnNames.name,
-      'id_kategori': ColumnNames.categoryId,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.subCategory): {
+      'nama': NamaKolom.name,
+      'id_kategori': NamaKolom.categoryId,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.package): {
-      'nama': ColumnNames.name,
-      'harga': ColumnNames.price,
-      'durasi': ColumnNames.duration,
-      'tipe': ColumnNames.type,
-      'jumlahPoin': ColumnNames.earnedPoints,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'poin_hadiah': ColumnNames.rewardPoints,
-      'poin_penukaran': ColumnNames.redemptionPoints,
-      'isPublic': ColumnNames.isPublic,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.package): {
+      'nama': NamaKolom.name,
+      'harga': NamaKolom.price,
+      'durasi': NamaKolom.duration,
+      'tipe': NamaKolom.type,
+      'jumlahPoin': NamaKolom.earnedPoints,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'poin_hadiah': NamaKolom.rewardPoints,
+      'poin_penukaran': NamaKolom.redemptionPoints,
+      'isPublic': NamaKolom.isPublic,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.customer): {
-      'nama': ColumnNames.name,
-      'telepon': ColumnNames.phone,
-      'alamat': ColumnNames.address,
-      'password': ColumnNames.password,
-      'mac_address': ColumnNames.macAddress,
-      'status': ColumnNames.status,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.customer): {
+      'nama': NamaKolom.name,
+      'telepon': NamaKolom.phone,
+      'alamat': NamaKolom.address,
+      'password': NamaKolom.password,
+      'mac_address': NamaKolom.macAddress,
+      'status': NamaKolom.status,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.activeCustomer): {
-      'id_pelanggan': ColumnNames.customerId,
-      'id_paket': ColumnNames.packageId,
-      'id_transaksi': ColumnNames.transactionId,
-      'tanggalMulai': ColumnNames.startDate,
-      'TanggalMulai': ColumnNames.startDate,
-      'tanggal_mulai': ColumnNames.startDate,
-      'tanggalBerakhir': ColumnNames.endDate,
-      'TanggalBerakhir': ColumnNames.endDate,
-      'tanggal_berakhir': ColumnNames.endDate,
-      'status': ColumnNames.status,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.activeCustomer): {
+      'id_pelanggan': NamaKolom.customerId,
+      'id_paket': NamaKolom.packageId,
+      'id_transaksi': NamaKolom.transactionId,
+      'tanggalMulai': NamaKolom.startDate,
+      'TanggalMulai': NamaKolom.startDate,
+      'tanggal_mulai': NamaKolom.startDate,
+      'tanggalBerakhir': NamaKolom.endDate,
+      'TanggalBerakhir': NamaKolom.endDate,
+      'tanggal_berakhir': NamaKolom.endDate,
+      'status': NamaKolom.status,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.transactions): {
-      'keterangan': ColumnNames.description,
-      'jumlah': ColumnNames.amount,
-      'tanggal': ColumnNames.date,
-      'tipe': ColumnNames.type,
-      'id_dompet': ColumnNames.walletId,
-      'id_kategori': ColumnNames.categoryId,
-      'id_sub_kategori': ColumnNames.subCategoryId,
-      'id_pelanggan': ColumnNames.customerId,
-      'id_paket': ColumnNames.packageId,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'id_dompet_tujuan': ColumnNames.destinationWalletId,
-      'poin_yang_dihasilkan': ColumnNames.earnedPoints,
-      'poin_yang_digunakan': ColumnNames.usedPoints,
-      'status_pembayaran': ColumnNames.paymentStatus,
-      'durasi_paket': ColumnNames.packageDuration,
-      'tipe_durasi_paket': ColumnNames.durationType,
-      'TanggalMulai': ColumnNames.startDate,
-      'tanggal_berakhir': ColumnNames.endDate,
-      'aktivasi_paket': ColumnNames.isActivated,
-      'tanggalMulai': ColumnNames.startDate,
-      'tanggalBerakhir': ColumnNames.endDate,
-      'tipeDuraisiPaket': ColumnNames.durationType,
-      'tipeDurasiPaket': ColumnNames.durationType,
-      'aktivasiPaket': ColumnNames.isActivated,
-      'durasiPaket': ColumnNames.packageDuration,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.transactions): {
+      'keterangan': NamaKolom.description,
+      'jumlah': NamaKolom.amount,
+      'tanggal': NamaKolom.date,
+      'tipe': NamaKolom.type,
+      'id_dompet': NamaKolom.walletId,
+      'id_kategori': NamaKolom.categoryId,
+      'id_sub_kategori': NamaKolom.subCategoryId,
+      'id_pelanggan': NamaKolom.customerId,
+      'id_paket': NamaKolom.packageId,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'id_dompet_tujuan': NamaKolom.destinationWalletId,
+      'poin_yang_dihasilkan': NamaKolom.earnedPoints,
+      'poin_yang_digunakan': NamaKolom.usedPoints,
+      'status_pembayaran': NamaKolom.paymentStatus,
+      'durasi_paket': NamaKolom.packageDuration,
+      'tipe_durasi_paket': NamaKolom.durationType,
+      'TanggalMulai': NamaKolom.startDate,
+      'tanggal_berakhir': NamaKolom.endDate,
+      'aktivasi_paket': NamaKolom.isActivated,
+      'tanggalMulai': NamaKolom.startDate,
+      'tanggalBerakhir': NamaKolom.endDate,
+      'tipeDuraisiPaket': NamaKolom.durationType,
+      'tipeDurasiPaket': NamaKolom.durationType,
+      'aktivasiPaket': NamaKolom.isActivated,
+      'durasiPaket': NamaKolom.packageDuration,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.feedback): {
-      'isi': ColumnNames.content,
-      'tanggal': ColumnNames.date,
-      'userId': ColumnNames.userId,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.feedback): {
+      'isi': NamaKolom.content,
+      'tanggal': NamaKolom.date,
+      'userId': NamaKolom.userId,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.customerOrder): {
-      'id_pelanggan': ColumnNames.customerId,
-      'id_paket': ColumnNames.packageId,
-      'tanggal': ColumnNames.date,
-      'status': ColumnNames.status,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.customerOrder): {
+      'id_pelanggan': NamaKolom.customerId,
+      'id_paket': NamaKolom.packageId,
+      'tanggal': NamaKolom.date,
+      'status': NamaKolom.status,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.userApkVersion): {
-      'catatan_rilis': ColumnNames.releaseNotes,
-      'nomor_build_terbaru': ColumnNames.latestBuildNumber,
-      'tautan_unduhan': ColumnNames.downloadLinks,
-      'versi_terbaru': ColumnNames.latestVersion,
-      'wajib_update': ColumnNames.isUpdateRequired,
-      'youtube_tutorial': ColumnNames.youtubeTutorial,
-      'diperbarui': ColumnNames.updatedAt,
-      'diarsipkan': ColumnNames.archivedAt,
-      'isDeleted': ColumnNames.isDeleted,
+    NamaTabel.get(TableName.userApkVersion): {
+      'catatan_rilis': NamaKolom.releaseNotes,
+      'nomor_build_terbaru': NamaKolom.latestBuildNumber,
+      'tautan_unduhan': NamaKolom.downloadLinks,
+      'versi_terbaru': NamaKolom.latestVersion,
+      'wajib_update': NamaKolom.isUpdateRequired,
+      'youtube_tutorial': NamaKolom.youtubeTutorial,
+      'diperbarui': NamaKolom.updatedAt,
+      'diarsipkan': NamaKolom.archivedAt,
+      'isDeleted': NamaKolom.isDeleted,
     },
-    TableNameValue.get(TableName.settings): {
-      'interval_sinkronisasi_otomatis': ColumnNames.autoSyncInterval,
-      'hapus_otomatis_data_arsip': ColumnNames.autoDeleteArchiveDays,
-      'mode_pemeliharaan': ColumnNames.maintenanceMode,
-      'info_pemeliharaan': ColumnNames.maintenanceInfo,
-      'diperbarui': ColumnNames.updatedAt,
+    NamaTabel.get(TableName.settings): {
+      'interval_sinkronisasi_otomatis': NamaKolom.autoSyncInterval,
+      'hapus_otomatis_data_arsip': NamaKolom.autoDeleteArchiveDays,
+      'mode_pemeliharaan': NamaKolom.maintenanceMode,
+      'info_pemeliharaan': NamaKolom.maintenanceInfo,
+      'diperbarui': NamaKolom.updatedAt,
     },
-    TableNameValue.get(TableName.statusGlobal): {
-      'diperbarui': ColumnNames.updatedAt,
+    NamaTabel.get(TableName.statusGlobal): {
+      'diperbarui': NamaKolom.updatedAt,
     },
-    TableNameValue.get(TableName.uploadStatus): {
-      'value': ColumnNames.value,
-      'diperbarui': ColumnNames.updatedAt,
+    NamaTabel.get(TableName.uploadStatus): {
+      'value': NamaKolom.value,
+      'diperbarui': NamaKolom.updatedAt,
     },
-    TableNameValue.get(TableName.message): {
-      'isi': ColumnNames.content,
-      'tanggal': ColumnNames.date,
-      'status': ColumnNames.status,
+    NamaTabel.get(TableName.message): {
+      'isi': NamaKolom.content,
+      'tanggal': NamaKolom.date,
+      'status': NamaKolom.status,
     },
   };
 
@@ -371,14 +371,14 @@ class FirebaseMigrationService {
   /// Migrasi untuk field `isPublic` menjadi `is_public`.
   Future<void> _migrateIsPublic(
       final WriteBatch batch, final List<String> logs) async {
-    final collectionName = TableNameValue.get(TableName.package);
+    final collectionName = NamaTabel.get(TableName.package);
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
       if (data.containsKey('isPublic')) {
         batch.update(doc.reference, {
-          ColumnNames.isPublic: data['isPublic'],
+          NamaKolom.isPublic: data['isPublic'],
           'isPublic': FieldValue.delete(),
         });
         count++;
@@ -386,14 +386,14 @@ class FirebaseMigrationService {
     }
     if (count > 0) {
       logs.add(
-          '  - [isPublic -> ${ColumnNames.isPublic}] $count dokumen akan dimigrasi.');
+          '  - [isPublic -> ${NamaKolom.isPublic}] $count dokumen akan dimigrasi.');
     }
   }
 
   /// Migrasi untuk field di koleksi `user_apk_version`.
   Future<void> _migrateUserApkVersion(
       final WriteBatch batch, final List<String> logs) async {
-    final collectionName = TableNameValue.get(TableName.userApkVersion);
+    final collectionName = NamaTabel.get(TableName.userApkVersion);
     final snapshot = await _firestore.collection(collectionName).get();
     int buildCount = 0;
     int linkCount = 0;
@@ -403,8 +403,8 @@ class FirebaseMigrationService {
       final update = <String, dynamic>{};
       bool buildNeed = false;
       bool linkNeed = false;
-      final oldBuild = data[ColumnNames.latestBuildNumber];
-      final oldLink = data[ColumnNames.downloadLinks];
+      final oldBuild = data[NamaKolom.latestBuildNumber];
+      final oldLink = data[NamaKolom.downloadLinks];
       if (oldBuild != null && oldBuild is! Map) {
         buildNeed = true;
         int val = 0;
@@ -413,7 +413,7 @@ class FirebaseMigrationService {
         } else if (oldBuild is String) {
           val = int.tryParse(oldBuild) ?? 0;
         }
-        update[ColumnNames.latestBuildNumber] = {
+        update[NamaKolom.latestBuildNumber] = {
           'universal': val,
           'bit_32': 0,
           'bit_64': 0
@@ -425,7 +425,7 @@ class FirebaseMigrationService {
         if (oldLink is String) {
           link = oldLink;
         }
-        update[ColumnNames.downloadLinks] = {
+        update[NamaKolom.downloadLinks] = {
           'universal': link,
           'bit_32': '',
           'bit_64': ''
@@ -444,11 +444,11 @@ class FirebaseMigrationService {
     }
     if (buildCount > 0) {
       logs.add(
-          '  - [${ColumnNames.latestBuildNumber}] $buildCount dokumen dimigrasi.');
+          '  - [${NamaKolom.latestBuildNumber}] $buildCount dokumen dimigrasi.');
     }
     if (linkCount > 0) {
       logs.add(
-          '  - [${ColumnNames.downloadLinks}] $linkCount dokumen dimigrasi.');
+          '  - [${NamaKolom.downloadLinks}] $linkCount dokumen dimigrasi.');
     }
     if (bothCount > 0) {
       logs.add('  - [build+link] $bothCount dokumen dimigrasi.');
@@ -458,18 +458,18 @@ class FirebaseMigrationService {
   /// Migrasi untuk field `value` di koleksi `upload_status`.
   Future<void> _migrateUploadStatusValue(
       final WriteBatch batch, final List<String> logs) async {
-    final collectionName = TableNameValue.get(TableName.uploadStatus);
+    final collectionName = NamaTabel.get(TableName.uploadStatus);
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
     for (final doc in snapshot.docs) {
       final data = doc.data();
-      if (data.containsKey(ColumnNames.value)) {
-        final val = data[ColumnNames.value];
+      if (data.containsKey(NamaKolom.value)) {
+        final val = data[NamaKolom.value];
         if (val is String && (val == '0' || val == '1')) {
-          batch.update(doc.reference, {ColumnNames.value: val == '1'});
+          batch.update(doc.reference, {NamaKolom.value: val == '1'});
           count++;
         } else if (val is int && (val == 0 || val == 1)) {
-          batch.update(doc.reference, {ColumnNames.value: val == 1});
+          batch.update(doc.reference, {NamaKolom.value: val == 1});
           count++;
         }
       }
@@ -530,20 +530,20 @@ class FirebaseMigrationService {
     final logs = <String>[];
 
     final Map<String, String> legacyToNew = {
-      'dompet': TableNameValue.get(TableName.wallet),
-      'kategori': TableNameValue.get(TableName.category),
-      'sub_kategori': TableNameValue.get(TableName.subCategory),
-      'paket': TableNameValue.get(TableName.package),
-      'pelanggan': TableNameValue.get(TableName.customer),
-      'pelanggan_aktif': TableNameValue.get(TableName.activeCustomer),
-      'transaksi': TableNameValue.get(TableName.transactions),
-      'kritik_saran': TableNameValue.get(TableName.feedback),
-      'pesanan': TableNameValue.get(TableName.customerOrder),
-      'versi_apk_user': TableNameValue.get(TableName.userApkVersion),
-      'pengaturan': TableNameValue.get(TableName.settings),
-      'status': TableNameValue.get(TableName.statusGlobal),
-      'status_unggah': TableNameValue.get(TableName.uploadStatus),
-      'pesan': TableNameValue.get(TableName.message),
+      'dompet': NamaTabel.get(TableName.wallet),
+      'kategori': NamaTabel.get(TableName.category),
+      'sub_kategori': NamaTabel.get(TableName.subCategory),
+      'paket': NamaTabel.get(TableName.package),
+      'pelanggan': NamaTabel.get(TableName.customer),
+      'pelanggan_aktif': NamaTabel.get(TableName.activeCustomer),
+      'transaksi': NamaTabel.get(TableName.transactions),
+      'kritik_saran': NamaTabel.get(TableName.feedback),
+      'pesanan': NamaTabel.get(TableName.customerOrder),
+      'versi_apk_user': NamaTabel.get(TableName.userApkVersion),
+      'pengaturan': NamaTabel.get(TableName.settings),
+      'status': NamaTabel.get(TableName.statusGlobal),
+      'status_unggah': NamaTabel.get(TableName.uploadStatus),
+      'pesan': NamaTabel.get(TableName.message),
     };
 
     onProgress('Menganalisis migrasi koleksi lama...');
@@ -553,7 +553,7 @@ class FirebaseMigrationService {
       final mapping = _columnMigrations[newName];
 
       if (mapping != null) {
-        if (newName == TableNameValue.get(TableName.settings)) {
+        if (newName == NamaTabel.get(TableName.settings)) {
           await _migrateSingletonCollection(
             legacyCollectionName: legacyName,
             newCollectionName: newName,
@@ -562,7 +562,7 @@ class FirebaseMigrationService {
             batch: batch,
             logs: logs,
           );
-        } else if (newName == TableNameValue.get(TableName.statusGlobal)) {
+        } else if (newName == NamaTabel.get(TableName.statusGlobal)) {
           await _migrateSingletonCollection(
             legacyCollectionName: legacyName,
             newCollectionName: newName,

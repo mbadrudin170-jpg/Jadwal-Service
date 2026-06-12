@@ -1,7 +1,6 @@
 // path: test/admin/halaman/detail/active_customer_detail_test.dart
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,23 +10,25 @@ import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/active_customer_form.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 // Mocks
-class MockCustomerOperation extends Mock implements CustomerOperation {}
+class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
 
-class MockPackageOperation extends Mock implements PaketOpSqlite {}
+class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
 
-class MockTransactionOperation extends Mock implements TransactionOperation {}
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
 class MockPesanInfoPaket extends Mock implements PesanInfoPaket {}
 
@@ -62,8 +63,6 @@ void main() {
     amount: 100000.0,
     type: TransactionType.income,
     paymentStatus: PaymentStatus.paid,
-    durasiBonus: 5,
-    durasiBonusType: DurationType.days,
     description: '',
     walletId: '',
     categoryId: '',
@@ -77,7 +76,6 @@ void main() {
     startDate: DateTime.now().subtract(const Duration(days: 10)),
     endDate: DateTime.now().add(const Duration(days: 20)),
     status: PaymentStatus.paid,
-    customerId: '',
   );
 
   final tActiveCustomerDetailModel = ActiveCustomerDetailModel(
@@ -90,14 +88,14 @@ void main() {
       ActiveCustomerState(activeCustomers: [tActiveCustomerDetailModel]);
 
   late MockCustomerOpFirebase mockCustomerOp;
-  late MockPackageOpFirebase mockPackageOp;
+  late MockPaketOpFirebase mockPackageOp;
   late MockTransactionOpFirebase mockTransactionOp;
   late MockPesanInfoPaket mockPesanInfoPaket;
   late MockNavigatorObserver mockNavigatorObserver;
 
   setUp(() {
     mockCustomerOp = MockCustomerOpFirebase();
-    mockPackageOp = MockPackageOpFirebase();
+    mockPackageOp = MockPaketOpFirebase();
     mockTransactionOp = MockTransactionOpFirebase();
     mockPesanInfoPaket = MockPesanInfoPaket();
     mockNavigatorObserver = MockNavigatorObserver();
@@ -115,15 +113,14 @@ void main() {
     );
   }
 
-  group('activeCustomerDetailProvider Tests', () {
+  group('detailLanggananProvider Tests', () {
     test('Test 01: should return full data on success', () async {
       final container = ProviderContainer(
         overrides: [
-          activeCustomerProvider
-              .overrideWith((ref) async => tActiveCustomerState),
-          customerOperationProvider.overrideWithValue(mockCustomerOp),
-          packageOperationProvider.overrideWithValue(mockPackageOp),
-          transactionOperationProvider.overrideWithValue(mockTransactionOp),
+          activeCustomerProvider.overrideWith((ref) => tActiveCustomerState),
+          customerOpFirebaseProvider.overrideWithValue(mockCustomerOp),
+          paketOpFirebaseProvider.overrideWithValue(mockPackageOp),
+          transactionOpFirebaseProvider.overrideWithValue(mockTransactionOp),
         ],
       );
 
@@ -132,11 +129,11 @@ void main() {
       when(() => mockPackageOp.ambilBerdasarkanId(tActiveCustomer.packageId))
           .thenAnswer((_) async => tPackage);
       when(() => mockTransactionOp
-              .getTransactionById(tActiveCustomer.transactionId!))
+              .ambilBerdasarkanId(tActiveCustomer.transactionId!))
           .thenAnswer((_) async => tTransaction);
 
-      final result = await container
-          .read(activeCustomerDetailProvider(tActiveCustomer.id).future);
+      final result =
+          await container.read(detailLanggananProvider(tActiveCustomer.id).future);
 
       expect(result.customer, tCustomer);
       expect(result.package, tPackage);
@@ -149,12 +146,12 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           activeCustomerProvider.overrideWith(
-              (ref) => Future.value(ActiveCustomerState(activeCustomers: []))),
+              (ref) => ActiveCustomerState(activeCustomers: [])),
         ],
       );
 
       await expectLater(
-        container.read(activeCustomerDetailProvider(tActiveCustomer.id).future),
+        container.read(detailLanggananProvider(tActiveCustomer.id).future),
         throwsA(isA<Exception>().having((e) => e.toString(), 'toString',
             contains('Data pelanggan aktif tidak ditemukan'))),
       );
@@ -163,10 +160,10 @@ void main() {
 
   group('ActiveCustomerDetailPage Widget Tests', () {
     final overrides = [
-      activeCustomerProvider.overrideWith((ref) async => tActiveCustomerState),
-      customerOperationProvider.overrideWithValue(mockCustomerOp),
-      packageOperationProvider.overrideWithValue(mockPackageOp),
-      transactionOperationProvider.overrideWithValue(mockTransactionOp),
+      activeCustomerProvider.overrideWith((ref) => tActiveCustomerState),
+      customerOpFirebaseProvider.overrideWithValue(mockCustomerOp),
+      paketOpFirebaseProvider.overrideWithValue(mockPackageOp),
+      transactionOpFirebaseProvider.overrideWithValue(mockTransactionOp),
       pesanInfoPaketProvider.overrideWithValue(mockPesanInfoPaket),
     ];
 
@@ -175,35 +172,40 @@ void main() {
           .thenAnswer((_) async => tCustomer);
       when(() => mockPackageOp.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tPackage);
-      when(() => mockTransactionOp.getTransactionById(any()))
+      when(() => mockTransactionOp.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
     });
 
     testWidgets('Test 03: should show loading state correctly', (tester) async {
-      final completer = Completer();
+      final completer = Completer<
+          ({
+            ActiveCustomerModel activeCustomer,
+            CustomerModel? customer,
+            PackageModel? package,
+            TransactionModel? transaction
+          })>();
       final loadingOverrides = [
-        activeCustomerDetailProvider(tActiveCustomer.id).overrideWith(
-          (ref) async => await completer.future,
+        detailLanggananProvider(tActiveCustomer.id).overrideWith(
+          (ref) => completer.future,
         ),
+        ...overrides,
       ];
 
       await tester.pumpWidget(createTestWidget(loadingOverrides));
-      expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator),
-          findsOneWidget); // Sesuai implementasi, hanya text kosong
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
     testWidgets('Test 04: should show error state correctly', (tester) async {
       final errorOverrides = [
-        activeCustomerDetailProvider(tActiveCustomer.id)
+        detailLanggananProvider(tActiveCustomer.id)
             .overrideWith((ref) => throw Exception('Test Error')),
+        ...overrides,
       ];
 
       await tester.pumpWidget(createTestWidget(errorOverrides));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Terjadi kesalahan: Exception: Test Error'),
-          findsOneWidget);
+      expect(find.textContaining('Error: Exception: Test Error'), findsOneWidget);
     });
 
     testWidgets('Test 05: should display all data correctly', (tester) async {
@@ -217,9 +219,9 @@ void main() {
       expect(find.text('Paket Kencang'), findsOneWidget);
       expect(find.text('Aktif'), findsOneWidget);
       expect(find.text('10 Poin'), findsOneWidget);
-      expect(find.text('5 Hari'), findsOneWidget); // Bonus
-      expect(find.textContaining('Berakhir'), findsOneWidget);
-      expect(find.textContaining('Kirim Info via WhatsApp'), findsOneWidget);
+      expect(find.text('0 Hari'), findsOneWidget); // Bonus
+      expect(find.textContaining('Berakhir pada'), findsOneWidget);
+      expect(find.text('Kirim Info via WhatsApp'), findsOneWidget);
       expect(find.byIcon(Icons.edit), findsOneWidget);
     });
 
@@ -262,7 +264,7 @@ void main() {
     testWidgets('Test 09: tapping "Kirim Info" button calls provider method',
         (tester) async {
       when(() => mockPesanInfoPaket.kirimRincianPaket(any()))
-          .thenAnswer((_) async {});
+          .thenAnswer((_) async => true);
 
       await tester.pumpWidget(createTestWidget(overrides));
       await tester.pumpAndSettle();

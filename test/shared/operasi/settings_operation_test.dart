@@ -5,8 +5,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/settings_model.dart' as model;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -14,13 +14,13 @@ import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 
 import 'settings_operation_test.mocks.dart';
 
-@GenerateMocks([SqliteDatabase, BaseOperation, Database])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late SettingsOperation settingsOperation;
-  final tableName = TableNameValue.get(TableName.settings);
+  late SettingsOpSqlite settingsOperation;
+  final tableName = NamaTabel.get(TableName.settings);
 
   // --- PERBAIKAN: Menggunakan ID String yang benar dari model ---
   const String globalSettingsId = model.globalSettingsId;
@@ -29,7 +29,7 @@ void main() {
     mockDbHelper = MockDatabaseHelper();
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
-    settingsOperation = SettingsOperation(
+    settingsOperation = SettingsOpSqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );
@@ -44,12 +44,12 @@ void main() {
       // Atur
       // --- PERBAIKAN: Menggunakan konstanta ColumnNames ---
       final settingsMap = {
-        ColumnNames.id: globalSettingsId,
-        ColumnNames.autoSyncInterval: 48,
-        ColumnNames.autoDeleteArchiveDays: 60,
-        ColumnNames.maintenanceMode: 1,
-        ColumnNames.maintenanceInfo: 'Under construction',
-        ColumnNames.updatedAt: DateTime.now().millisecondsSinceEpoch,
+        NamaKolom.id: globalSettingsId,
+        NamaKolom.autoSyncInterval: 48,
+        NamaKolom.autoDeleteArchiveDays: 60,
+        NamaKolom.maintenanceMode: 1,
+        NamaKolom.maintenanceInfo: 'Under construction',
+        NamaKolom.updatedAt: DateTime.now().millisecondsSinceEpoch,
       };
 
       when(mockDatabase.query(
@@ -102,7 +102,7 @@ void main() {
       final savedData = captured.first as Map<String, dynamic>;
 
       // --- PERBAIKAN: Memeriksa dengan konstanta ColumnNames dan ID yang benar ---
-      expect(savedData[ColumnNames.id], globalSettingsId);
+      expect(savedData[NamaKolom.id], globalSettingsId);
     });
   });
 
@@ -132,8 +132,8 @@ void main() {
       final savedData = captured.first as Map<String, dynamic>;
 
       // --- PERBAIKAN: Memeriksa dengan konstanta ColumnNames dan ID yang benar ---
-      expect(savedData[ColumnNames.id], globalSettingsId);
-      expect(savedData[ColumnNames.autoSyncInterval], 12);
+      expect(savedData[NamaKolom.id], globalSettingsId);
+      expect(savedData[NamaKolom.autoSyncInterval], 12);
     });
 
     test('4. harus meneruskan flag fromServer dengan benar', () async {

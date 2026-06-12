@@ -8,7 +8,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/status_order_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
@@ -68,13 +68,13 @@ void main() {
 
     // 2. Stub panggilan yang terjadi di dalam konstruktor SEBELUM instansiasi
     // Stub untuk koleksi 'status_global' yang menyebabkan error
-    when(mockFirestore.collection(TableNameValue.get(TableName.statusGlobal)))
+    when(mockFirestore.collection(NamaTabel.get(TableName.statusGlobal)))
         .thenReturn(mockStatusCollectionReference);
     when(mockStatusCollectionReference.doc(any))
         .thenReturn(mockDocumentReference);
 
     // Stub untuk koleksi utama 'customer_order'
-    when(mockFirestore.collection(TableNameValue.get(TableName.customerOrder)))
+    when(mockFirestore.collection(NamaTabel.get(TableName.customerOrder)))
         .thenReturn(mockOrderCollectionReference);
 
     // Stub untuk method `set` yang dipanggil oleh StatusOpFirebase
@@ -117,7 +117,7 @@ void main() {
           .thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
       verify(mockBaseOp.sisipkan(
-              TableNameValue.get(TableName.customerOrder), order.id, orderMap))
+              NamaTabel.get(TableName.customerOrder), order.id, orderMap))
           .called(1);
     });
 
@@ -125,7 +125,7 @@ void main() {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) => Future.value());
       await orderOpFirebase.updateOrder(order);
       verify(mockBaseOp.update(
-              TableNameValue.get(TableName.customerOrder), order.id, orderMap))
+              NamaTabel.get(TableName.customerOrder), order.id, orderMap))
           .called(1);
     });
 
@@ -137,7 +137,7 @@ void main() {
       await orderOpFirebase.softDeleteOrder(orderId);
 
       verify(mockBaseOp.hapusSementara(
-              TableNameValue.get(TableName.customerOrder), orderId))
+              NamaTabel.get(TableName.customerOrder), orderId))
           .called(1);
     });
 

@@ -123,7 +123,7 @@ class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
 /// A class which mocks [BaseOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
+class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
   MockBaseOperation() {
     _i1.throwOnMissingStub(this);
   }

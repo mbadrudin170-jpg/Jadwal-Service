@@ -1,8 +1,8 @@
 // path: lib/fitur/dompet/operasi/dompet_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
@@ -11,14 +11,14 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data dompet di database lokal.
 class DompetOpSqlite {
   final SqliteDatabase dbHelper;
-  final BaseOperation _baseOperation;
-  final String _tableName = TableNameValue.get(TableName.wallet);
+  final BaseOpSqlite _baseOperation;
+  final String _tableName = NamaTabel.get(TableName.wallet);
   final _nowUtc = DateTime.now().toUtc();
 
   /// Konstruktor dengan injeksi dependensi untuk pengujian.
   DompetOpSqlite({
     required this.dbHelper,
-    required final BaseOperation baseOperation,
+    required final BaseOpSqlite baseOperation,
   }) : _baseOperation = baseOperation;
 
   Future<void> tambahDompet(
@@ -51,7 +51,7 @@ class DompetOpSqlite {
       final db = await dbHelper.database;
       final query = showArchived
           ? null
-          : '${ColumnNames.isDeleted} = 0 AND ${ColumnNames.archivedAt} IS NULL';
+          : '${NamaKolom.isDeleted} = 0 AND ${NamaKolom.archivedAt} IS NULL';
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: query,
@@ -76,7 +76,7 @@ class DompetOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.id} = ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [id],
       );
 
@@ -173,7 +173,7 @@ class DompetOpSqlite {
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -196,7 +196,7 @@ class DompetOpSqlite {
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.balance} > 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.balance} > 0 AND ${NamaKolom.isDeleted} = 0',
       );
 
       double total = 0.0;
@@ -219,7 +219,7 @@ class DompetOpSqlite {
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
-        'SELECT SUM(${ColumnNames.balance}) as total FROM $_tableName WHERE ${ColumnNames.balance} < 0 AND ${ColumnNames.isDeleted} = 0',
+        'SELECT SUM(${NamaKolom.balance}) as total FROM $_tableName WHERE ${NamaKolom.balance} < 0 AND ${NamaKolom.isDeleted} = 0',
       );
 
       double total = 0.0;

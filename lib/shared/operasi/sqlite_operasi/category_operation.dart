@@ -2,8 +2,8 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -16,14 +16,14 @@ class CategoryOperation {
   final SqliteDatabase dbHelper;
 
   /// Instance dari BaseOperation untuk operasi database umum.
-  final BaseOperation _baseOperation;
+  final BaseOpSqlite _baseOperation;
 
-  final String _tableName = TableNameValue.get(TableName.category);
+  final String _tableName = NamaTabel.category;
 
   /// Konstruktor untuk CategoryOperation.
   CategoryOperation({
     required this.dbHelper,
-    required final BaseOperation baseOperation,
+    required final BaseOpSqlite baseOperation,
   }) : _baseOperation = baseOperation {
     Log.info('CategoryOperation instance dibuat.');
   }
@@ -59,7 +59,7 @@ class CategoryOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.isDeleted} = 0',
       );
       final listCategory = List.generate(
         maps.length,
@@ -80,7 +80,7 @@ class CategoryOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
       if (maps.isNotEmpty) {
@@ -109,7 +109,7 @@ class CategoryOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.type} = ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.type} = ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [type.name],
       );
       final listCategory = List.generate(
@@ -269,7 +269,7 @@ class CategoryOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.updatedAt} > ?',
+        where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       final listCategory = List.generate(
@@ -331,7 +331,7 @@ class CategoryOperation {
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} IN ($placeholders)',
+        where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
       final listCategory = List.generate(

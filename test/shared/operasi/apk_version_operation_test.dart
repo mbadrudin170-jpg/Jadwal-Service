@@ -7,15 +7,15 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
 import 'apk_version_operation_test.mocks.dart';
 
 @GenerateMocks([
   SqliteDatabase,
   Database,
-  BaseOperation,
-  UploadStatusOperation,
+  BaseOpSqlite,
+  StatusUploadOpSqlite,
 ])
 void main() {
   late MockDatabaseHelper mockDbHelper;

@@ -153,7 +153,7 @@ class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
 /// A class which mocks [BaseOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
+class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   MockBaseOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -314,7 +314,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
 /// A class which mocks [CustomerOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCustomerOperation extends _i1.Mock implements _i8.CustomerOperation {
+class MockCustomerOperation extends _i1.Mock implements _i8.PelangganOpSqlite {
   MockCustomerOperation() {
     _i1.throwOnMissingStub(this);
   }

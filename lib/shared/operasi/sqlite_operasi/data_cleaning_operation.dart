@@ -3,8 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
@@ -36,17 +36,17 @@ class DataCleaningOperation {
 
     // Daftar nama tabel untuk SQLite dan koleksi untuk Firestore
     final List<String> tableAndCollectionList = [
-      TableNameValue.get(TableName.customer),
-      TableNameValue.get(TableName.activeCustomer),
-      TableNameValue.get(TableName.package),
-      TableNameValue.get(TableName.category),
-      TableNameValue.get(TableName.subCategory),
-      TableNameValue.get(TableName.transactions),
-      TableNameValue.get(TableName.wallet),
-      TableNameValue.get(TableName.customerOrder),
-      TableNameValue.get(TableName.userApkVersion),
-      TableNameValue.get(TableName.feedback),
-      TableNameValue.get(TableName.notification),
+      NamaTabel.get(TableName.customer),
+      NamaTabel.get(TableName.activeCustomer),
+      NamaTabel.get(TableName.package),
+      NamaTabel.get(TableName.category),
+      NamaTabel.get(TableName.subCategory),
+      NamaTabel.get(TableName.transactions),
+      NamaTabel.get(TableName.wallet),
+      NamaTabel.get(TableName.customerOrder),
+      NamaTabel.get(TableName.userApkVersion),
+      NamaTabel.get(TableName.feedback),
+      NamaTabel.get(TableName.notification),
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---
@@ -77,7 +77,7 @@ class DataCleaningOperation {
       final db = await _dbHelper.database;
       for (final table in tables) {
         final query =
-            'DELETE FROM $table WHERE ${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} <= ?';
+            'DELETE FROM $table WHERE ${NamaKolom.archivedAt} IS NOT NULL AND ${NamaKolom.archivedAt} <= ?';
         final deletedRows = await db.rawDelete(query, [timeLimitEpoch]);
         if (deletedRows > 0) {
           Log.info(
@@ -107,8 +107,8 @@ class DataCleaningOperation {
         // Ini membutuhkan composite index di Firestore: (isDeleted, archivedAt).
         return _firestore
             .collection(collectionName)
-            .where(ColumnNames.isDeleted, isEqualTo: true)
-            .where(ColumnNames.archivedAt, isLessThanOrEqualTo: timeLimit)
+            .where(NamaKolom.isDeleted, isEqualTo: true)
+            .where(NamaKolom.archivedAt, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
 

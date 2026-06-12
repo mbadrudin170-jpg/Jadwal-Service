@@ -29,11 +29,11 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
       ref.watch(walletOperationProvider);
   late final CategoryOperation _categoryOperation =
       ref.watch(categoryOperationProvider);
-  late final CustomerOperation _customerOperation =
+  late final PelangganOpSqlite _customerOperation =
       ref.watch(customerOperationProvider);
   late final PaketOpSqlite _packageOperation =
       ref.watch(packageOperationProvider);
-  late final SubCategoryOperation _subCategoryOperation =
+  late final SubKategoriOpSqlite _subCategoryOperation =
       ref.watch(subCategoryOperationProvider);
 
   late TransactionModel _currentTransaction;

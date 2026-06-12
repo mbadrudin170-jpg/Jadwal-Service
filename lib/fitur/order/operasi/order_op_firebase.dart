@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class OrderOpFirebase extends BaseOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
-  final String _collectionName = TableNameValue.get(TableName.customerOrder);
+  final String _collectionName = NamaTabel.get(TableName.customerOrder);
 
   OrderOpFirebase({
     required FirebaseFirestore firestore,
@@ -48,8 +48,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     Log.info('Mendapatkan stream semua pesanan');
     return _firestore
         .collection(_collectionName)
-        .where(ColumnNames.isDeleted, isEqualTo: false)
-        .orderBy(ColumnNames.updatedAt, descending: true)
+        .where(NamaKolom.isDeleted, isEqualTo: false)
+        .orderBy(NamaKolom.updatedAt, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -90,8 +90,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     try {
       return _firestore
           .collection(_collectionName)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .where(ColumnNames.customerId, isEqualTo: userId)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.customerId, isEqualTo: userId)
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -111,9 +111,9 @@ class OrderOpFirebase extends BaseOpFirebase {
   Stream<List<OrderModel>> getStreamByStatus(StatusOrderEnum status) {
     return _firestore
         .collection(_collectionName)
-        .where(ColumnNames.status, isEqualTo: status.name)
-        .where(ColumnNames.isDeleted, isEqualTo: false)
-        .orderBy(ColumnNames.updatedAt, descending: true)
+        .where(NamaKolom.status, isEqualTo: status.name)
+        .where(NamaKolom.isDeleted, isEqualTo: false)
+        .orderBy(NamaKolom.updatedAt, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -135,9 +135,9 @@ class OrderOpFirebase extends BaseOpFirebase {
     try {
       final snapshot = await _firestore
           .collection(_collectionName)
-          .where(ColumnNames.status, isEqualTo: status.name)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .orderBy(ColumnNames.updatedAt, descending: true)
+          .where(NamaKolom.status, isEqualTo: status.name)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .orderBy(NamaKolom.updatedAt, descending: true)
           .get();
       return snapshot.docs
           .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -160,12 +160,12 @@ class OrderOpFirebase extends BaseOpFirebase {
     try {
       Query query = _firestore
           .collection(_collectionName)
-          .where(ColumnNames.status, isEqualTo: status.name)
-          .where(ColumnNames.isDeleted, isEqualTo: false);
+          .where(NamaKolom.status, isEqualTo: status.name)
+          .where(NamaKolom.isDeleted, isEqualTo: false);
 
       // Jika userId disediakan (bukan admin), filter berdasarkan customerId
       if (userId.isNotEmpty) {
-        query = query.where(ColumnNames.customerId, isEqualTo: userId);
+        query = query.where(NamaKolom.customerId, isEqualTo: userId);
       }
 
       final snapshot = await query.count().get();

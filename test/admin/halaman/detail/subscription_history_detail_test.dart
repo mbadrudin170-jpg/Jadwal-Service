@@ -6,20 +6,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-import 'active_customer_detail_test.mocks.dart';
+// Mocks
+class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
+
+class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
+
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
 void main() {
-  late MockCustomerOperation mockCustomerOperation;
-  late MockPackageOperation mockPackageOperation;
-  late MockTransactionOperation mockTransactionOperation;
+  late MockCustomerOpFirebase mockCustomerOperation;
+  late MockPaketOpFirebase mockPackageOperation;
+  late MockTransactionOpFirebase mockTransactionOperation;
 
   final tCustomer = CustomerModel(
     id: 'cust1',
@@ -51,20 +57,20 @@ void main() {
   );
 
   setUp(() {
-    mockCustomerOperation = MockCustomerOperation();
-    mockPackageOperation = MockPackageOperation();
-    mockTransactionOperation = MockTransactionOperation();
+    mockCustomerOperation = MockCustomerOpFirebase();
+    mockPackageOperation = MockPaketOpFirebase();
+    mockTransactionOperation = MockTransactionOpFirebase();
   });
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
       overrides: [
-        customerOperationProvider.overrideWithValue(mockCustomerOperation),
-        packageOperationProvider.overrideWithValue(mockPackageOperation),
-        transactionOperationProvider.overrideWithValue(mockTransactionOperation),
+        customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
+        paketOpFirebaseProvider.overrideWithValue(mockPackageOperation),
+        transactionOpFirebaseProvider.overrideWithValue(mockTransactionOperation),
       ],
       child: MaterialApp(
-        home: DetailLangganan(idTransaksi: tTransaction.id),
+        home: DetailRiwayatAktivasi(idTransaksi: tTransaction.id),
       ),
     );
   }
@@ -72,7 +78,7 @@ void main() {
   group('DetailLangganan Widget Test', () {
     testWidgets('01. should show loading indicator when fetching data',
         (tester) async {
-      when(() => mockTransactionOperation.getTransactionById(any()))
+      when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
       when(() => mockCustomerOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tCustomer);
@@ -85,7 +91,7 @@ void main() {
     });
 
     testWidgets('02. should show data when fetch is successful', (tester) async {
-      when(() => mockTransactionOperation.getTransactionById(any()))
+      when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
       when(() => mockCustomerOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tCustomer);
@@ -101,7 +107,7 @@ void main() {
 
     testWidgets('03. should show error message when transaction is not found',
         (tester) async {
-      when(() => mockTransactionOperation.getTransactionById(any()))
+      when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => null);
 
       await tester.pumpWidget(createWidgetUnderTest());

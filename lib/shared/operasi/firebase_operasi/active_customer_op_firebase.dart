@@ -1,7 +1,7 @@
 // path: lib/shared/operasi/firebase_operasi/active_customer_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -21,7 +21,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
 
   /// Mendapatkan referensi ke koleksi active_customers.
   CollectionReference get _collection =>
-      _firestore.collection(TableNameValue.get(TableName.activeCustomer));
+      _firestore.collection(NamaTabel.get(TableName.activeCustomer));
 
   /// Menambah atau memperbarui data pelanggan aktif.
   /// Fungsi ini menggunakan ID pelanggan sebagai ID dokumen untuk memastikan
@@ -33,7 +33,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
     try {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
       await sisipkan(
-        TableNameValue.get(TableName.activeCustomer),
+        NamaTabel.get(TableName.activeCustomer),
         activeCustomer.customerId,
         activeCustomer.toFirebase(),
       );
@@ -78,8 +78,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
     Log.warning('Memulai penghapusan pelanggan aktif: $customerId');
     try {
       // Menggunakan fungsi delete dari BaseOpFirebase
-      await hapusPermanen(
-          TableNameValue.get(TableName.activeCustomer), customerId);
+      await hapusPermanen(NamaTabel.get(TableName.activeCustomer), customerId);
       Log.info('Berhasil menghapus pelanggan aktif: $customerId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus pelanggan aktif: $customerId', e: e, st: s);

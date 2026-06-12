@@ -4,28 +4,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+class MockDompetOpFirebase extends Mock implements DompetOpFirebase {}
 
-class MockCategoryOperation extends Mock implements CategoryOperation {}
+class MockKategoriOpFirebase extends Mock implements KategoriOpFirebase {}
 
-class MockTransactionOperation extends Mock implements TransactionOperation {}
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
 void main() {
-  late MockDompetOpSqlite mockDompetOpSqlite;
-  late MockCategoryOperation mockCategoryOperation;
-  late MockTransactionOperation mockTransactionOperation;
+  late MockDompetOpFirebase mockDompetOpFirebase;
+  late MockKategoriOpFirebase mockKategoriOpFirebase;
+  late MockTransactionOpFirebase mockTransactionOpFirebase;
   late TransactionModel testTransaction;
 
   setUp(() {
-    mockDompetOpSqlite = MockDompetOpSqlite();
-    mockCategoryOperation = MockCategoryOperation();
-    mockTransactionOperation = MockTransactionOperation();
+    mockDompetOpFirebase = MockDompetOpFirebase();
+    mockKategoriOpFirebase = MockKategoriOpFirebase();
+    mockTransactionOpFirebase = MockTransactionOpFirebase();
     testTransaction = TransactionModel(
       id: '1',
       description: 'Test Transaction',
@@ -40,10 +43,10 @@ void main() {
   Widget createTestWidget({TransactionModel? transaction}) {
     return ProviderScope(
       overrides: [
-        walletOperationProvider.overrideWithValue(mockDompetOpSqlite),
-        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
-        transactionOperationProvider
-            .overrideWithValue(mockTransactionOperation),
+        dompetOpFirebaseProvider.overrideWithValue(mockDompetOpFirebase),
+        kategoriOpFirebaseProvider.overrideWithValue(mockKategoriOpFirebase),
+        transactionOpFirebaseProvider
+            .overrideWithValue(mockTransactionOpFirebase),
       ],
       child: MaterialApp(
         home: FormTransaksi(transaksi: transaction),
@@ -53,8 +56,9 @@ void main() {
 
   testWidgets('01. FormTransaksiPage should display add form correctly',
       (tester) async {
-    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => []);
-    when(() => mockCategoryOperation.getCategories())
+    when(() => mockDompetOpFirebase.ambilSemuaDompet())
+        .thenAnswer((_) async => []);
+    when(() => mockKategoriOpFirebase.ambilSemuaKategori())
         .thenAnswer((_) async => []);
     await tester.pumpWidget(createTestWidget());
     await tester.pumpAndSettle();
@@ -63,10 +67,11 @@ void main() {
 
   testWidgets('02. FormTransaksiPage should display edit form correctly',
       (tester) async {
-    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => [
+    when(() => mockDompetOpFirebase.ambilSemuaDompet()).thenAnswer((_) async => [
           WalletModel(id: '1', name: 'Test Wallet', balance: 0),
         ]);
-    when(() => mockCategoryOperation.getCategories()).thenAnswer((_) async => [
+    when(() => mockKategoriOpFirebase.ambilSemuaKategori())
+        .thenAnswer((_) async => [
           CategoryModel(
               id: '1', name: 'Test Category', type: CategoryType.income),
         ]);

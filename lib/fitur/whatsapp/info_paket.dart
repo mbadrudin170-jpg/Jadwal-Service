@@ -20,11 +20,11 @@ final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
 
 /// Kelas untuk mengirim pesan informasi paket melalui WhatsApp.
 class PesanInfoPaket {
-  final CustomerOperation _customerOperation;
+  final PelangganOpSqlite _customerOperation;
   final PaketOpSqlite _packageOperation;
 
   PesanInfoPaket({
-    required CustomerOperation customerOperation,
+    required PelangganOpSqlite customerOperation,
     required PaketOpSqlite packageOperation,
   })  : _customerOperation = customerOperation,
         _packageOperation = packageOperation;

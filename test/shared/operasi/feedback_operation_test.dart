@@ -5,8 +5,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -15,7 +15,7 @@ import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'feedback_operation_test.mocks.dart';
 
 // 1. Definisikan kelas yang akan di-mock
-@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database, Transaction])
 void main() {
   // 2. Deklarasikan variabel untuk mock dan kelas yang diuji
   late MockDatabaseHelper mockDbHelper;
@@ -23,7 +23,7 @@ void main() {
   late MockDatabase mockDatabase;
   late MockTransaction mockTransaction;
   late FeedbackOperation feedbackOperation;
-  final tableName = TableNameValue.get(TableName.feedback);
+  final tableName = NamaTabel.get(TableName.feedback);
 
   // 3. Siapkan instance sebelum setiap test
   setUp(() {
@@ -115,8 +115,8 @@ void main() {
       expect(result.first.isDeleted, false);
       verify(mockDatabase.query(
         tableName,
-        where: '${ColumnNames.isDeleted} = 0',
-        orderBy: '${ColumnNames.date} DESC',
+        where: '${NamaKolom.isDeleted} = 0',
+        orderBy: '${NamaKolom.date} DESC',
       )).called(1);
     });
 
@@ -175,7 +175,7 @@ void main() {
       expect(result.first.id, updatedFeedback.id);
       verify(mockDatabase.query(
         tableName,
-        where: '${ColumnNames.updatedAt} > ?',
+        where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       )).called(1);
     });
@@ -269,7 +269,7 @@ void main() {
       verify(mockBaseOperation.runComplexOperation<int>(any)).called(1);
       verify(mockTransaction.delete(
         tableName,
-        where: '${ColumnNames.userId} = ?',
+        where: '${NamaKolom.userId} = ?',
         whereArgs: [userId],
       )).called(1);
     });

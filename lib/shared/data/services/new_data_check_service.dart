@@ -10,22 +10,22 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 class NewDataCheckService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-  final UploadStatusOperation _uploadStatusOperation;
+  final StatusUploadOpSqlite _uploadStatusOperation;
 
   /// Konstruktor dengan injeksi dependensi.
   NewDataCheckService({
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
-    required UploadStatusOperation uploadStatusOperation,
+    required StatusUploadOpSqlite uploadStatusOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
         _uploadStatusOperation = uploadStatusOperation {
@@ -70,7 +70,7 @@ class NewDataCheckService {
   Future<void> resetNeedUpload() async {
     Log.info('Mereset bendera need_upload menjadi false.');
     try {
-      await _uploadStatusOperation.resetNeedUpload();
+      await _uploadStatusOperation.resetStatusUpload();
       Log.info('Bendera need_upload berhasil direset.');
     } on Exception catch (e, s) {
       Log.error(
@@ -119,16 +119,16 @@ class NewDataCheckService {
         );
         final data = docSnapshot.data() as Map<String, dynamic>;
 
-        if (data.containsKey(ColumnNames.updatedAt)) {
+        if (data.containsKey(NamaKolom.updatedAt)) {
           Log.info(
-            'Field "${ColumnNames.updatedAt}" ditemukan. Mem-parsing nilai: ${data[ColumnNames.updatedAt]}',
+            'Field "${NamaKolom.updatedAt}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.updatedAt]}',
           );
           final DateTime? serverTime =
-              ParserUtil.parseDateTime(data[ColumnNames.updatedAt]);
+              ParserUtil.parseDateTime(data[NamaKolom.updatedAt]);
 
           if (serverTime == null) {
             Log.warning(
-              'Gagal mem-parsing nilai "${ColumnNames.updatedAt}" dari server. '
+              'Gagal mem-parsing nilai "${NamaKolom.updatedAt}" dari server. '
               'Nilai tidak valid atau format tidak didukung. '
               'Mengasumsikan tidak ada data baru.',
             );
@@ -150,7 +150,7 @@ class NewDataCheckService {
           return isAfter;
         } else {
           Log.warning(
-            'Struktur data dokumen di server tidak sesuai standar. Field "${ColumnNames.updatedAt}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
+            'Struktur data dokumen di server tidak sesuai standar. Field "${NamaKolom.updatedAt}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
           );
           return false;
         }
@@ -175,6 +175,6 @@ final newDataCheckServiceProvider = Provider<NewDataCheckService>((ref) {
   return NewDataCheckService(
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
-    uploadStatusOperation: ref.read(uploadStatusOperationProvider),
+    uploadStatusOperation: ref.read(statusUploadOpSlite),
   );
 });

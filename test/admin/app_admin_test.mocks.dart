@@ -17,7 +17,7 @@ import 'package:wifi/admin/data/sqlite.dart' as _i3;
 import 'package:wifi/fitur/background/background_service.dart' as _i17;
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i10;
 import 'package:wifi/shared/data/services/sync_check_service.dart' as _i21;
-import 'package:wifi/shared/data/sync/initial_download.dart' as _i12;
+import 'package:wifi/shared/data/sync/unduhan_awal_service.dart' as _i12;
 import 'package:wifi/shared/data/sync/upload_data.dart' as _i20;
 import 'package:wifi/shared/export/model.dart' as _i4;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i14;
@@ -546,7 +546,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
 /// A class which mocks [LayananUnduhAwal].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLayananUnduhAwal extends _i1.Mock implements _i12.LayananUnduhAwal {
+class MockLayananUnduhAwal extends _i1.Mock implements _i12.UnduhanAwalService {
   MockLayananUnduhAwal() {
     _i1.throwOnMissingStub(this);
   }
@@ -759,7 +759,7 @@ class MockActiveCustomerOperation extends _i1.Mock
 /// A class which mocks [SettingsOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOperation {
+class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOpSqlite {
   MockSettingsOperation() {
     _i1.throwOnMissingStub(this);
   }
@@ -797,13 +797,13 @@ class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOperation {
   @override
   _i7.Future<void> update(
     Map<String, dynamic>? data, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #update,
           [data],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i7.Future<void>.value(),
         returnValueForMissingStub: _i7.Future<void>.value(),

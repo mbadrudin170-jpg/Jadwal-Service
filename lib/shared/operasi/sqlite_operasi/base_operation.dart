@@ -6,36 +6,36 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
-final baseOperationProvider = Provider<BaseOperation>((ref) {
+final baseOpSqliteProvider = Provider<BaseOpSqlite>((ref) {
   Log.info('Membuat instance BaseOperation...');
 
-  final dbHelper = ref.read(sqliteDatabaseProvider);
+  final sqliteDb = ref.read(sqliteDatabaseProvider);
 
-  final uploadStatusOperasi = ref.read(uploadStatusOperationProvider);
+  final uploadStatusOperasi = ref.read(statusUploadOpSlite);
 
-  return BaseOperation(
-    dbHelper: dbHelper,
+  return BaseOpSqlite(
+    dbHelper: sqliteDb,
     uploadStatusOperasi: uploadStatusOperasi,
   );
 });
 
 /// Kelas ini adalah PUSAT KONTROL untuk semua operasi tulis (write) ke database.
-class BaseOperation {
+class BaseOpSqlite {
   final SqliteDatabase _dbHelper;
-  final UploadStatusOperation _uploadStatusOperasi;
+  final StatusUploadOpSqlite _uploadStatusOperasi;
   final now = DateTime.now().toUtc();
 
   /// Konstruktor untuk `BaseOperation`.
   ///
   /// Memungkinkan injeksi dependensi untuk `DatabaseHelper` dan `UploadStatusOperation`
   /// untuk memfasilitasi pengujian.
-  BaseOperation({
+  BaseOpSqlite({
     required final SqliteDatabase dbHelper,
-    required final UploadStatusOperation uploadStatusOperasi,
+    required final StatusUploadOpSqlite uploadStatusOperasi,
   })  : _dbHelper = dbHelper,
         _uploadStatusOperasi = uploadStatusOperasi {
     Log.info('BaseOperation instance dibuat.');
@@ -65,7 +65,8 @@ class BaseOperation {
             Log.info(
               '[TRANSAKSI AKTIF] Menandai status `needUpload` menjadi TRUE (operasi lokal).',
             );
-            await _uploadStatusOperasi.setNeedUpload(true, transaction: txn);
+            await _uploadStatusOperasi.tandaiButuhUpload(true,
+                transaction: txn);
             Log.info(
               '[TRANSAKSI AKTIF] Status `needUpload` berhasil ditandai.',
             );
@@ -240,11 +241,11 @@ class BaseOperation {
           final rowsAffected = await txn.update(
             table,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.archivedAt: now.millisecondsSinceEpoch,
+              NamaKolom.updatedAt: now.millisecondsSinceEpoch,
             },
-            where: '${ColumnNames.id} = ?',
+            where: '${NamaKolom.id} = ?',
             whereArgs: [id],
           );
 
@@ -286,11 +287,11 @@ class BaseOperation {
           final rowsAffected = await txn.update(
             table,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: now.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: now.millisecondsSinceEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.archivedAt: now.millisecondsSinceEpoch,
+              NamaKolom.updatedAt: now.millisecondsSinceEpoch,
             },
-            where: '${ColumnNames.isDeleted} = 0',
+            where: '${NamaKolom.isDeleted} = 0',
           );
 
           Log.info(

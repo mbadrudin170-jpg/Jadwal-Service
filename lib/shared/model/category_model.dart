@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -69,7 +69,6 @@ class CategoryModel implements HasId {
     );
   }
 
-
   /// Safe helper to parse an enum from a string.
   static T? _safeParseEnum<T extends Enum>(
     final List<T> values,
@@ -112,31 +111,31 @@ class CategoryModel implements HasId {
     }
 
     return CategoryModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      name: map[ColumnNames.name] as String? ?? '',
-      type: _safeParseEnum(CategoryType.values, map[ColumnNames.type]) ??
+      id: map[NamaKolom.id] as String? ?? '',
+      name: map[NamaKolom.name] as String? ?? '',
+      type: _safeParseEnum(CategoryType.values, map[NamaKolom.type]) ??
           CategoryType.expense,
-      subCategories: parseSubCategories(map[ColumnNames.subCategoryId]),
+      subCategories: parseSubCategories(map[NamaKolom.subCategoryId]),
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts [CategoryModel] to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     final data = {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.type: type.name,
-      ColumnNames.subCategoryId: jsonEncode(
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.type: type.name,
+      NamaKolom.subCategoryId: jsonEncode(
         subCategories.map((final sub) => sub.toSqlite()).toList(),
       ),
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
     return data;
   }
@@ -152,7 +151,7 @@ class CategoryModel implements HasId {
             .map((final item) {
               if (item is Map<String, dynamic>) {
                 final String subId =
-                    item[ColumnNames.id] as String? ?? const Uuid().v4();
+                    item[NamaKolom.id] as String? ?? const Uuid().v4();
                 return SubCategoryModel.fromFirebase(subId, item);
               }
               return null;
@@ -165,30 +164,30 @@ class CategoryModel implements HasId {
 
     return CategoryModel(
       id: id,
-      name: data[ColumnNames.name] as String? ?? '',
-      type: _safeParseEnum(CategoryType.values, data[ColumnNames.type]) ??
+      name: data[NamaKolom.name] as String? ?? '',
+      type: _safeParseEnum(CategoryType.values, data[NamaKolom.type]) ??
           CategoryType.expense,
-      subCategories: parseSubCategories(data[ColumnNames.subCategoryId]),
+      subCategories: parseSubCategories(data[NamaKolom.subCategoryId]),
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts [CategoryModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     final data = {
-      ColumnNames.name: name,
-      ColumnNames.type: type.name,
-      ColumnNames.subCategoryId:
+      NamaKolom.name: name,
+      NamaKolom.type: type.name,
+      NamaKolom.subCategoryId:
           subCategories.map((final sub) => sub.toFirebase()).toList(),
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.isDeleted: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
     return data;

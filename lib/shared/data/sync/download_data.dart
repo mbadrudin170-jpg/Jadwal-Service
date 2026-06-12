@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -17,17 +17,17 @@ import 'package:wifi/shared/utils/sync_manager.dart';
 class DownloadDataService {
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
-  final DompetOpSqlite _walletOperation;
+  final DompetOpSqlite _dompetOpSqlite;
   final CategoryOperation _categoryOperation;
-  final PaketOpSqlite _packageOperation;
-  final CustomerOperation _customerOperation;
+  final PaketOpSqlite _paketOpSqlite;
+  final PelangganOpSqlite _pelangganOpSqlite;
   final ActiveCustomerOperation _activeCustomerOperation;
   final TransactionOperation _transactionOperation;
   final FeedbackOperation _feedbackOperation;
-  final OrderOperation _orderOperation;
-  final SubCategoryOperation _subCategoryOperation;
+  final OrderOpsqlite _orderOperation;
+  final SubKategoriOpSqlite _subCategoryOperation;
   final ApkVersionOperation _apkVersionOperation;
-  final SettingsOperation _settingsOperation;
+  final SettingsOpSqlite _settingsOperation;
 
   /// Konstruktor dengan injeksi dependensi (untuk produksi dan testing)
   DownloadDataService({
@@ -35,21 +35,21 @@ class DownloadDataService {
     required SyncManager syncManager,
     required DompetOpSqlite walletOperation,
     required CategoryOperation categoryOperation,
-    required PaketOpSqlite packageOperation,
-    required CustomerOperation customerOperation,
+    required PaketOpSqlite paketOpSqlite,
+    required PelangganOpSqlite pelangganOpSqlite,
     required ActiveCustomerOperation activeCustomerOperation,
     required TransactionOperation transactionOperation,
     required FeedbackOperation feedbackOperation,
-    required OrderOperation orderOperation,
-    required SubCategoryOperation subCategoryOperation,
+    required OrderOpsqlite orderOperation,
+    required SubKategoriOpSqlite subCategoryOperation,
     required ApkVersionOperation apkVersionOperation,
-    required SettingsOperation settingsOperation,
+    required SettingsOpSqlite settingsOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
-        _walletOperation = walletOperation,
+        _dompetOpSqlite = walletOperation,
         _categoryOperation = categoryOperation,
-        _packageOperation = packageOperation,
-        _customerOperation = customerOperation,
+        _paketOpSqlite = paketOpSqlite,
+        _pelangganOpSqlite = pelangganOpSqlite,
         _activeCustomerOperation = activeCustomerOperation,
         _transactionOperation = transactionOperation,
         _feedbackOperation = feedbackOperation,
@@ -67,20 +67,20 @@ class DownloadDataService {
     required final DompetOpSqlite walletOperation,
     required final CategoryOperation categoryOperation,
     required final PaketOpSqlite packageOperation,
-    required final CustomerOperation customerOperation,
+    required final PelangganOpSqlite customerOperation,
     required final ActiveCustomerOperation activeCustomerOperation,
     required final TransactionOperation transactionOperation,
     required final FeedbackOperation feedbackOperation,
-    required final OrderOperation orderOperation,
-    required final SubCategoryOperation subCategoryOperation,
+    required final OrderOpsqlite orderOperation,
+    required final SubKategoriOpSqlite subCategoryOperation,
     required final ApkVersionOperation apkVersionOperation,
-    required final SettingsOperation settingsOperation,
+    required final SettingsOpSqlite settingsOperation,
   })  : _firestore = firestore,
         _syncManager = syncManager,
-        _walletOperation = walletOperation,
+        _dompetOpSqlite = walletOperation,
         _categoryOperation = categoryOperation,
-        _packageOperation = packageOperation,
-        _customerOperation = customerOperation,
+        _paketOpSqlite = packageOperation,
+        _pelangganOpSqlite = customerOperation,
         _activeCustomerOperation = activeCustomerOperation,
         _transactionOperation = transactionOperation,
         _feedbackOperation = feedbackOperation,
@@ -115,7 +115,7 @@ class DownloadDataService {
       Log.info(
         'Prosedur unduh data massal selesai sepenuhnya. Total durasi: ${stopwatch.elapsed.inMilliseconds} ms.',
       );
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
         'Kegagalan kritis selama prosedur unduh massal.',
         e: e,
@@ -131,7 +131,7 @@ class DownloadDataService {
     try {
       final lastDownloadTime = await _syncManager.getLastDownload();
       // Menggunakan konstanta TableName.settings untuk nama koleksi
-      final collectionName = TableNameValue.get(TableName.settings);
+      final collectionName = NamaTabel.get(TableName.settings);
       // Menggunakan globalSettingsId dari settings_model.dart
       final docRef =
           _firestore.collection(collectionName).doc(globalSettingsId);
@@ -140,12 +140,12 @@ class DownloadDataService {
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
-        if (data.containsKey(ColumnNames.updatedAt)) {
-          final dynamic fieldValue = data[ColumnNames.updatedAt];
+        if (data.containsKey(NamaKolom.updatedAt)) {
+          final dynamic fieldValue = data[NamaKolom.updatedAt];
 
           if (fieldValue is! Timestamp) {
             Log.error(
-                'Inkompatibilitas Tipe: Field "${ColumnNames.updatedAt}" bukan Timestamp.');
+                'Inkompatibilitas Tipe: Field "${NamaKolom.updatedAt}" bukan Timestamp.');
             return;
           }
 
@@ -164,12 +164,12 @@ class DownloadDataService {
           }
         } else {
           Log.warning(
-              'Dokumen pengaturan tidak memiliki field "${ColumnNames.updatedAt}".');
+              'Dokumen pengaturan tidak memiliki field "${NamaKolom.updatedAt}".');
         }
       } else {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
       }
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error('Kesalahan sinkronisasi Settings.', e: e, st: s);
       rethrow;
     }
@@ -180,11 +180,11 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<WalletModel>(
-      collectionName: TableNameValue.get(TableName.wallet),
+      collectionName: NamaTabel.get(TableName.wallet),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: WalletModel.fromFirebase,
       batchOperation: (final data) =>
-          _walletOperation.insertOrUpdateBatch(data, fromServer: true),
+          _dompetOpSqlite.insertOrUpdateBatch(data, fromServer: true),
     );
   }
 
@@ -193,7 +193,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CategoryModel>(
-      collectionName: TableNameValue.get(TableName.category),
+      collectionName: NamaTabel.get(TableName.category),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -206,11 +206,11 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<PackageModel>(
-      collectionName: TableNameValue.get(TableName.package),
+      collectionName: NamaTabel.get(TableName.package),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PackageModel.fromFirebase,
       batchOperation: (final data) =>
-          _packageOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+          _paketOpSqlite.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -219,11 +219,11 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CustomerModel>(
-      collectionName: TableNameValue.get(TableName.customer),
+      collectionName: NamaTabel.get(TableName.customer),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CustomerModel.fromFirebase,
       batchOperation: (final data) =>
-          _customerOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+          _pelangganOpSqlite.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -232,7 +232,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ActiveCustomerModel>(
-      collectionName: TableNameValue.get(TableName.activeCustomer),
+      collectionName: NamaTabel.get(TableName.activeCustomer),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ActiveCustomerModel.fromFirebase,
       batchOperation: (final data) =>
@@ -245,7 +245,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<TransactionModel>(
-      collectionName: TableNameValue.get(TableName.transactions),
+      collectionName: NamaTabel.get(TableName.transactions),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransactionModel.fromFirebase,
       batchOperation: (final data) =>
@@ -258,7 +258,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<FeedbackModel>(
-      collectionName: TableNameValue.get(TableName.feedback),
+      collectionName: NamaTabel.get(TableName.feedback),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: FeedbackModel.fromFirebase,
       batchOperation: (final data) =>
@@ -271,7 +271,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<OrderModel>(
-      collectionName: TableNameValue.get(TableName.customerOrder),
+      collectionName: NamaTabel.get(TableName.customerOrder),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
@@ -284,7 +284,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<SubCategoryModel>(
-      collectionName: TableNameValue.get(TableName.subCategory),
+      collectionName: NamaTabel.get(TableName.subCategory),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: SubCategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -297,7 +297,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ApkVersionModel>(
-      collectionName: TableNameValue.get(TableName.userApkVersion),
+      collectionName: NamaTabel.get(TableName.userApkVersion),
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ApkVersionModel.fromFirebase,
       batchOperation: (final data) =>
@@ -320,7 +320,7 @@ class DownloadDataService {
       // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
       final snapshot = await _firestore
           .collection(collectionName)
-          .where(ColumnNames.updatedAt, isGreaterThan: lastDownloadTime)
+          .where(NamaKolom.updatedAt, isGreaterThan: lastDownloadTime)
           .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isNotEmpty) {
@@ -370,8 +370,8 @@ final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
     syncManager: ref.read(syncManagerProvider),
     walletOperation: ref.read(walletOperationProvider),
     categoryOperation: ref.read(categoryOperationProvider),
-    packageOperation: ref.read(packageOperationProvider),
-    customerOperation: ref.read(customerOperationProvider),
+    paketOpSqlite: ref.read(packageOperationProvider),
+    pelangganOpSqlite: ref.read(customerOperationProvider),
     activeCustomerOperation: ref.read(activeCustomerOperationProvider),
     transactionOperation: ref.read(transactionOperationProvider),
     feedbackOperation: ref.read(feedbackOperationProvider),

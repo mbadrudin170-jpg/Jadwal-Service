@@ -1,5 +1,7 @@
 // path: lib/admin/halaman/lainnya/detail_event_a.dart
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,11 +23,11 @@ class DetailEventA extends ConsumerWidget {
           IconButton(
             icon: const Icon(TIcons.edit),
             onPressed: () {
-              Navigator.push(
+              unawaited(Navigator.push(
                 context,
                 MaterialPageRoute<void>(
                     builder: (context) => const ManageAnnouncementPage()),
-              );
+              ));
             },
           ),
         ],
@@ -58,8 +60,7 @@ class DetailEventA extends ConsumerWidget {
             const Divider(),
             _buildInfoRow('Selesai', event.endDate.toLocal().toString()),
             const Divider(),
-            _buildInfoRow(
-                'Dibuat pada', event.createdAt.toLocal().toString()),
+            _buildInfoRow('Dibuat pada', event.createdAt.toLocal().toString()),
             const Divider(),
             _buildInfoRow('Terakhir Diperbarui',
                 event.updatedAt?.toLocal().toString() ?? '-'),

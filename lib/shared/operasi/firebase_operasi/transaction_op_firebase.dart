@@ -5,8 +5,8 @@
 // ditambahkan: Fungsi softDeleteTransaction untuk menandai transaksi sebagai terhapus.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -22,14 +22,14 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
   /// Mendapatkan referensi ke koleksi transaction.
   CollectionReference get _collection =>
-      firestore.collection(TableNameValue.get(TableName.transactions));
+      firestore.collection(NamaTabel.transactions);
 
   /// Menambahkan transaksi baru ke Firestore.
   Future<void> tambahTransaksi(TransactionModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
       await sisipkan(
-        TableNameValue.get(TableName.transactions),
+        NamaTabel.transactions,
         transaksi.id,
         transaksi.toFirebase(),
       );
@@ -49,10 +49,10 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info(
           'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
-          .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .orderBy(ColumnNames.endDate, descending: true)
+          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
+          .where(NamaKolom.paymentStatus, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .orderBy(NamaKolom.endDate, descending: true)
           .limit(1)
           .get();
 
@@ -83,9 +83,9 @@ class TransactionOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Mengambil semua transaksi untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .orderBy(ColumnNames.date, descending: true)
+          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .orderBy(NamaKolom.date, descending: true)
           .get();
 
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
@@ -104,16 +104,16 @@ class TransactionOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Menghitung total poin untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
-          .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.paymentStatus, isEqualTo: PaymentStatus.paid.name)
           .get();
 
       int totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        totalPoin += (data[ColumnNames.earnedPoints] as int? ?? 0);
-        totalPoin -= (data[ColumnNames.usedPoints] as int? ?? 0);
+        totalPoin += (data[NamaKolom.earnedPoints] as int? ?? 0);
+        totalPoin -= (data[NamaKolom.usedPoints] as int? ?? 0);
       }
       Log.info('Total poin untuk $idPelanggan adalah $totalPoin');
       return totalPoin;
@@ -128,8 +128,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
     Log.warning(
         'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi');
     try {
-      await hapusPermanen(
-          TableNameValue.get(TableName.transactions), idTransaksi);
+      await hapusPermanen(NamaTabel.transactions, idTransaksi);
       Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
@@ -142,8 +141,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   Future<void> hapusSementaraTransaksi(String idTransaksi) async {
     Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
     try {
-      await hapusSementara(
-          TableNameValue.get(TableName.transactions), idTransaksi);
+      await hapusSementara(NamaTabel.transactions, idTransaksi);
       Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',
@@ -164,11 +162,11 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
       final querySnapshot = await _collection
           // 1. Cari transaksi milik pelanggan yang benar
-          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
+          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
           // 2. Pastikan transaksi tidak dihapus
-          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
-          .where(ColumnNames.endDate, isGreaterThan: now)
+          .where(NamaKolom.endDate, isGreaterThan: now)
           .get();
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong

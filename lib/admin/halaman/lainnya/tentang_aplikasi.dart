@@ -23,7 +23,7 @@ class TentangAplikasiPage extends StatefulWidget {
 
 class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
   // Informasi paket aplikasi akan disimpan di sini.
-  PackageInfo _packageInfo = PackageInfo(
+  PackageInfo _infoPerangkat = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
     version: 'Unknown',
@@ -37,18 +37,18 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
   void initState() {
     super.initState();
     Log.info('Menginisialisasi halaman Tentang Aplikasi');
-    unawaited(_initInfo());
+    unawaited(_loadData());
   }
 
-  Future<void> _initInfo() async {
+  Future<void> _loadData() async {
     Log.info('Memulai pengambilan informasi aplikasi dan perangkat');
 
     try {
       Log.info('Mengambil PackageInfo dari platform');
-      final packageInfo = await PackageInfo.fromPlatform();
+      final infoPerangkat = await PackageInfo.fromPlatform();
 
       Log.info(
-        'PackageInfo berhasil diambil - Nama: ${packageInfo.appName}, Versi: ${packageInfo.version}, Build: ${packageInfo.buildNumber}, Package: ${packageInfo.packageName}',
+        'PackageInfo berhasil diambil - Nama: ${infoPerangkat.appName}, Versi: ${infoPerangkat.version}, Build: ${infoPerangkat.buildNumber}, Package: ${infoPerangkat.packageName}',
       );
 
       String deviceArch = 'Unknown';
@@ -71,7 +71,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
       }
 
       setState(() {
-        _packageInfo = packageInfo;
+        _infoPerangkat = infoPerangkat;
         _deviceArch = deviceArch;
         _minSDK = 'Android 5.0 (Lollipop)';
         Log.info(
@@ -90,10 +90,10 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info('Membangun UI halaman Tentang Aplikasi');
     Log.info(
-      'Informasi yang ditampilkan - App: ${_packageInfo.appName}, Versi: ${_packageInfo.version}, Build: ${_packageInfo.buildNumber}',
+      'Informasi yang ditampilkan - App: ${_infoPerangkat.appName}, Versi: ${_infoPerangkat.version}, Build: ${_infoPerangkat.buildNumber}',
     );
 
     return Scaffold(
@@ -110,25 +110,30 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
       body: ListView(
         padding: const EdgeInsets.all(20.0),
         children: <Widget>[
-gapH20,          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
-gapH20,          Text(
-            _packageInfo.appName,
+          gapH20,
+          const Icon(Icons.wifi_tethering, size: 80, color: Colors.deepPurple),
+          gapH20,
+          Text(
+            _infoPerangkat.appName,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-gapH8,          Text(
-            'Versi ${_packageInfo.version}',
+          gapH8,
+          Text(
+            'Versi ${_infoPerangkat.version}',
             style: Theme.of(context).textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
-gapH24,          const Text(
+          gapH24,
+          const Text(
             'Aplikasi ini membantu Anda mengelola pelanggan dan layanan WiFi dengan lebih mudah. Lacak pembayaran, kelola paket, dan dapatkan notifikasi penting langsung di perangkat Anda.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16),
           ),
-gapH32,          Card(
+          gapH32,
+          Card(
             elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -140,25 +145,26 @@ gapH32,          Card(
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const Divider(height: 20),
-                  _buildInfoRow('Nomor Build', _packageInfo.buildNumber),
+                  _buildInfoRow('Nomor Build', _infoPerangkat.buildNumber),
                   _buildInfoRow('Minimal OS', _minSDK),
                   _buildInfoRow('Arsitektur Perangkat', _deviceArch),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          gapH40,
           const Text(
             '© 2024 Dibuat dengan Penuh Semangat',
             style: TextStyle(color: Colors.grey, fontSize: 12),
             textAlign: TextAlign.center,
           ),
-gapH20,        ],
+          gapH20,
+        ],
       ),
     );
   }
 
-  Widget _buildInfoRow(final String label, final String value) {
+  Widget _buildInfoRow(String label, String value) {
     Log.info('Membangun baris info teknis - $label: $value');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

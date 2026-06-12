@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'transaction_operation_test.mocks.dart';
 
-@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database, Transaction])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
@@ -45,7 +45,7 @@ void main() {
       updatedAt: DateTime.now(),
     );
     final tTransactionMap = tTransaction.toSqlite();
-    final tableName = TableNameValue.get(TableName.transactions);
+    final tableName = NamaTabel.get(TableName.transactions);
 
     test('getAllTransactions should return a list of transactions', () async {
       when(mockDatabase.query(

@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -96,8 +96,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<WalletModel>(
-        TableNameValue.get(TableName.wallet),
-        TableNameValue.get(TableName.wallet),
+        NamaTabel.wallet,
+        NamaTabel.wallet,
         WalletModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -127,8 +127,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<CategoryModel>(
-        TableNameValue.get(TableName.category),
-        TableNameValue.get(TableName.category),
+        NamaTabel.category,
+        NamaTabel.category,
         CategoryModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -158,8 +158,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<FeedbackModel>(
-        TableNameValue.get(TableName.feedback),
-        TableNameValue.get(TableName.feedback),
+        NamaTabel.feedback,
+        NamaTabel.feedback,
         FeedbackModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -189,8 +189,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<PackageModel>(
-        TableNameValue.get(TableName.package),
-        TableNameValue.get(TableName.package),
+        NamaTabel.package,
+        NamaTabel.package,
         PackageModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -220,8 +220,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<ActiveCustomerModel>(
-        TableNameValue.get(TableName.activeCustomer),
-        TableNameValue.get(TableName.activeCustomer),
+        NamaTabel.activeCustomer,
+        NamaTabel.activeCustomer,
         ActiveCustomerModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -251,8 +251,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<CustomerModel>(
-        TableNameValue.get(TableName.customer),
-        TableNameValue.get(TableName.customer),
+        NamaTabel.customer,
+        NamaTabel.customer,
         CustomerModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -282,8 +282,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<OrderModel>(
-        TableNameValue.get(TableName.customerOrder),
-        TableNameValue.get(TableName.customerOrder),
+        NamaTabel.customerOrder,
+        NamaTabel.customerOrder,
         OrderModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -313,8 +313,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<TransactionModel>(
-        TableNameValue.get(TableName.transactions),
-        TableNameValue.get(TableName.transactions),
+        NamaTabel.transactions,
+        NamaTabel.transactions,
         TransactionModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -344,8 +344,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<SubCategoryModel>(
-        TableNameValue.get(TableName.subCategory),
-        TableNameValue.get(TableName.subCategory),
+        NamaTabel.subCategory,
+        NamaTabel.subCategory,
         SubCategoryModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -375,8 +375,8 @@ class UploadDataService {
         'Data pengaturan akan selalu diunggah, jadi waktu ini akan diabaikan pada level query.',
       );
       await uploadGenericData<SettingsModel>(
-        TableNameValue.get(TableName.settings),
-        TableNameValue.get(TableName.settings),
+        NamaTabel.settings,
+        NamaTabel.settings,
         SettingsModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -406,8 +406,8 @@ class UploadDataService {
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<ApkVersionModel>(
-        TableNameValue.get(TableName.userApkVersion),
-        TableNameValue.get(TableName.userApkVersion),
+        NamaTabel.userApkVersion,
+        NamaTabel.userApkVersion,
         ApkVersionModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
@@ -457,7 +457,7 @@ class UploadDataService {
 
       List<Map<String, dynamic>> dataToUpload = [];
 
-      if (tableName == TableNameValue.get(TableName.settings)) {
+      if (tableName == NamaTabel.userApkVersion) {
         Log.info(
           'Tabel $tableName adalah tabel khusus. Mengambil semua data tanpa filter waktu.',
         );
@@ -465,11 +465,11 @@ class UploadDataService {
       } else {
         Log.info(
           'Melakukan query pada tabel $tableName dengan kondisi: '
-          '${ColumnNames.updatedAt} > ${lastSyncTime.millisecondsSinceEpoch}',
+          '${NamaKolom.updatedAt} > ${lastSyncTime.millisecondsSinceEpoch}',
         );
         dataToUpload = await db.query(
           tableName,
-          where: '${ColumnNames.updatedAt} > ?',
+          where: '${NamaKolom.updatedAt} > ?',
           whereArgs: [lastSyncTime.millisecondsSinceEpoch],
         );
       }

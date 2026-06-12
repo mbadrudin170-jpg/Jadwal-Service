@@ -14,7 +14,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sqflite/sqflite.dart' as _i7;
 import 'package:wifi/shared/model/upload_status_model.dart' as _i8;
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
     as _i6;
 import 'package:wifi/shared/utils/sync_manager.dart' as _i9;
 
@@ -186,13 +186,13 @@ class _FakeDocumentSnapshot_13<T1 extends Object?> extends _i1.SmartFake
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUploadStatusOperation extends _i1.Mock
-    implements _i6.UploadStatusOperation {
+    implements _i6.StatusUploadOpSqlite {
   MockUploadStatusOperation() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<void> setNeedUpload(
+  _i5.Future<void> tandaiButuhUpload(
     bool? needUpload, {
     _i7.Transaction? transaction,
   }) =>
@@ -216,7 +216,7 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i5.Future<bool>);
 
   @override
-  _i5.Future<void> resetNeedUpload() => (super.noSuchMethod(
+  _i5.Future<void> resetStatusUpload() => (super.noSuchMethod(
         Invocation.method(
           #resetNeedUpload,
           [],

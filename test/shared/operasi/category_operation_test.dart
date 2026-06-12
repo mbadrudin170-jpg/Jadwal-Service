@@ -14,7 +14,7 @@ import 'category_operation_test.mocks.dart';
 @GenerateMocks([
   SqliteDatabase,
   Database,
-  BaseOperation,
+  BaseOpSqlite,
 ])
 void main() {
   late MockDatabaseHelper mockDbHelper;

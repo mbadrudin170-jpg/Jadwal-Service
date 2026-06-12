@@ -32,7 +32,7 @@ class CategoryPage extends ConsumerStatefulWidget {
 /// State untuk [CategoryPage].
 class _CategoryPageState extends ConsumerState<CategoryPage> {
   late final CategoryOperation _categoryOperation;
-  late final SubCategoryOperation _subCategoryOperation;
+  late final SubKategoriOpSqlite _subCategoryOperation;
   late Future<List<CategoryModel>> _categoryListFuture;
   CategoryType _selectedType = CategoryType.income;
   bool _isEdit = false;

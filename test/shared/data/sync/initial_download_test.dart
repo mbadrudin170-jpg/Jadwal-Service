@@ -5,13 +5,13 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
-import 'package:wifi/shared/data/sync/initial_download.dart';
+import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
 
 import 'initial_download_test.mocks.dart';
 
 @GenerateMocks([DownloadDataService, SqliteDatabase, Database])
 void main() {
-  late LayananUnduhAwal initialDownloadService;
+  late UnduhanAwalService initialDownloadService;
   late MockDownloadDataService mockDownloadDataService;
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDb;
@@ -24,9 +24,9 @@ void main() {
     // Mock DatabaseHelper agar mengembalikan mock database
     when(mockDbHelper.database).thenAnswer((_) async => mockDb);
 
-    initialDownloadService = LayananUnduhAwal(
-      layananUnduh: mockDownloadDataService,
-      dbHelper: mockDbHelper,
+    initialDownloadService = UnduhanAwalService(
+      downloadDataService: mockDownloadDataService,
+      sqliteDb: mockDbHelper,
     );
   });
 

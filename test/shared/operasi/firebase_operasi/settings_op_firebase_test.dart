@@ -1,8 +1,8 @@
 // path: test/shared/operasi/firebase_operasi/settings_op_firebase_test.dart
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
@@ -22,11 +22,11 @@ void main() {
         () async {
       // Persiapan
       final settingsData = {
-        ColumnNames.maintenanceMode: true,
-        ColumnNames.maintenanceInfo: 'Sedang maintenance!',
+        NamaKolom.maintenanceMode: true,
+        NamaKolom.maintenanceInfo: 'Sedang maintenance!',
       };
       await fakeFirestore
-          .collection(TableNameValue.get(TableName.settings))
+          .collection(NamaTabel.get(TableName.settings))
           .doc(globalSettingsId)
           .set(settingsData);
 
@@ -35,8 +35,8 @@ void main() {
 
       // Verifikasi
       expect(result, isNotNull);
-      expect(result[ColumnNames.maintenanceMode], isTrue);
-      expect(result[ColumnNames.maintenanceInfo], 'Sedang maintenance!');
+      expect(result[NamaKolom.maintenanceMode], isTrue);
+      expect(result[NamaKolom.maintenanceInfo], 'Sedang maintenance!');
     });
 
     test(
@@ -47,8 +47,8 @@ void main() {
 
       // Verifikasi
       expect(result, isNotNull);
-      expect(result[ColumnNames.maintenanceMode], isFalse);
-      expect(result[ColumnNames.maintenanceInfo],
+      expect(result[NamaKolom.maintenanceMode], isFalse);
+      expect(result[NamaKolom.maintenanceInfo],
           'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.');
     });
   });

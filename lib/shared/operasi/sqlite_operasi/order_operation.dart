@@ -4,28 +4,28 @@
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pesanan di database lokal.
-class OrderOperation {
+class OrderOpsqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
   final SqliteDatabase dbHelper;
 
-  /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  final BaseOperation baseOperation;
+  /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
+  final BaseOpSqlite baseOperation;
 
-  /// Konstruktor untuk [OrderOperation].
-  OrderOperation({
+  /// Konstruktor untuk [OrderOpsqlite].
+  OrderOpsqlite({
     required this.dbHelper,
     required this.baseOperation,
   });
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
-  String get _tableName => TableNameValue.get(TableName.customerOrder);
+  String get _tableName => NamaTabel.get(TableName.customerOrder);
 
 // TODO : menambahkan unit tes nya
   Future<int> getJumlahByStatus(StatusOrderEnum status) async {
@@ -33,7 +33,7 @@ class OrderOperation {
     try {
       final db = await dbHelper.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
+        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -75,7 +75,7 @@ class OrderOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan.');
       return maps.map(OrderModel.fromSqlite).toList();
@@ -91,8 +91,8 @@ class OrderOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = 0',
-        orderBy: '${ColumnNames.date} DESC',
+        where: '${NamaKolom.isDeleted} = 0',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
       yield maps.map(OrderModel.fromSqlite).toList();
@@ -110,9 +110,9 @@ class OrderOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.status} = ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [status.name],
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info(
           'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.');
@@ -134,7 +134,7 @@ class OrderOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
 
@@ -256,7 +256,7 @@ class OrderOperation {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '${ColumnNames.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${ColumnNames.isDeleted} = 0',
+            '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.isDeleted} = 0',
         whereArgs: ids,
       );
       Log.info(

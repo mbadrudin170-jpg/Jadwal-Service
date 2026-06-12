@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 
@@ -139,14 +139,14 @@ class SqliteDatabase {
 
     if (oldVersion < 51) {
       Log.info(
-        '[MIGRASI v51] Menambahkan kolom `${ColumnNames.lastActiveAt}` ke tabel `${TableNameValue.get(TableName.customer)}`.',
+        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.lastActiveAt}` ke tabel `${NamaTabel.get(TableName.customer)}`.',
       );
       await _migrateToV51(db);
     }
 
     if (oldVersion < 52) {
       Log.info(
-        '[MIGRASI v52] Membuat tabel `${TableNameValue.get(TableName.notification)}`.',
+        '[MIGRASI v52] Membuat tabel `${NamaTabel.get(TableName.notification)}`.',
       );
       await _migrateToV52(db);
     }
@@ -166,12 +166,12 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV51(final Database db) async {
-    Log.info('[MIGRASI v51] Menambahkan kolom ${ColumnNames.lastActiveAt}...');
+    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.lastActiveAt}...');
     await db.execute(
-      'ALTER TABLE ${TableNameValue.get(TableName.customer)} ADD COLUMN ${ColumnNames.lastActiveAt} INTEGER',
+      'ALTER TABLE ${NamaTabel.get(TableName.customer)} ADD COLUMN ${NamaKolom.lastActiveAt} INTEGER',
     );
     Log.info(
-        '[MIGRASI v51] Penambahan kolom ${ColumnNames.lastActiveAt} selesai.');
+        '[MIGRASI v51] Penambahan kolom ${NamaKolom.lastActiveAt} selesai.');
   }
 
   Future<void> _migrateToV52(final Database db) async {
@@ -184,22 +184,22 @@ class SqliteDatabase {
     Log.info(
         '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...');
 
-    final String tableName = TableNameValue.get(TableName.transactions);
+    final String tableName = NamaTabel.get(TableName.transactions);
     // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns =
         results.map((row) => row['name'] as String).toList();
 
     // Hanya tambahkan kolom jika belum ada dalam daftar kolom yang ada
-    if (!existingColumns.contains(ColumnNames.durasiBonus)) {
+    if (!existingColumns.contains(NamaKolom.durasiBonus)) {
       await db.execute(
-        'ALTER TABLE "$tableName" ADD COLUMN ${ColumnNames.durasiBonus} INTEGER',
+        'ALTER TABLE "$tableName" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER',
       );
     }
 
-    if (!existingColumns.contains(ColumnNames.durasiBonusType)) {
+    if (!existingColumns.contains(NamaKolom.durasiBonusType)) {
       await db.execute(
-        'ALTER TABLE "$tableName" ADD COLUMN ${ColumnNames.durasiBonusType} TEXT',
+        'ALTER TABLE "$tableName" ADD COLUMN ${NamaKolom.durasiBonusType} TEXT',
       );
     }
     Log.info('[MIGRASI v53] Penambahan kolom selesai.');
@@ -411,35 +411,35 @@ class SqliteDatabase {
     Log.warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
 
     await db.execute(
-        'ALTER TABLE dompet RENAME TO ${TableNameValue.get(TableName.wallet)}');
+        'ALTER TABLE dompet RENAME TO ${NamaTabel.get(TableName.wallet)}');
     await db.execute(
-        'ALTER TABLE kategori RENAME TO ${TableNameValue.get(TableName.category)}');
+        'ALTER TABLE kategori RENAME TO ${NamaTabel.get(TableName.category)}');
     await db.execute(
-        'ALTER TABLE sub_kategori RENAME TO ${TableNameValue.get(TableName.subCategory)}');
+        'ALTER TABLE sub_kategori RENAME TO ${NamaTabel.get(TableName.subCategory)}');
     await db.execute(
-        'ALTER TABLE paket RENAME TO ${TableNameValue.get(TableName.package)}');
+        'ALTER TABLE paket RENAME TO ${NamaTabel.get(TableName.package)}');
     await db.execute(
-        'ALTER TABLE pelanggan RENAME TO ${TableNameValue.get(TableName.customer)}');
+        'ALTER TABLE pelanggan RENAME TO ${NamaTabel.get(TableName.customer)}');
     await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME TO ${TableNameValue.get(TableName.activeCustomer)}');
+        'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.get(TableName.activeCustomer)}');
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction via TableNameValue
     await db.execute(
-        'ALTER TABLE transaksi RENAME TO "${TableNameValue.get(TableName.transactions)}"');
+        'ALTER TABLE transaksi RENAME TO "${NamaTabel.get(TableName.transactions)}"');
     await db.execute(
-        'ALTER TABLE kritik_saran RENAME TO ${TableNameValue.get(TableName.feedback)}');
+        'ALTER TABLE kritik_saran RENAME TO ${NamaTabel.get(TableName.feedback)}');
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
     await db.execute(
-        'ALTER TABLE pesanan RENAME TO "${TableNameValue.get(TableName.customerOrder)}"');
+        'ALTER TABLE pesanan RENAME TO "${NamaTabel.get(TableName.customerOrder)}"');
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME TO ${TableNameValue.get(TableName.userApkVersion)}');
+        'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.get(TableName.userApkVersion)}');
     await db.execute(
-        'ALTER TABLE pengaturan RENAME TO ${TableNameValue.get(TableName.settings)}');
+        'ALTER TABLE pengaturan RENAME TO ${NamaTabel.get(TableName.settings)}');
     await db.execute(
-        'ALTER TABLE status_unggah RENAME TO ${TableNameValue.get(TableName.uploadStatus)}');
+        'ALTER TABLE status_unggah RENAME TO ${NamaTabel.get(TableName.uploadStatus)}');
     await db.execute(
-        'ALTER TABLE pesan RENAME TO ${TableNameValue.get(TableName.message)}');
+        'ALTER TABLE pesan RENAME TO ${NamaTabel.get(TableName.message)}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
   }
@@ -480,15 +480,15 @@ class SqliteDatabase {
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
-    final String trxTable = '"${TableNameValue.get(TableName.transactions)}"';
+    final String trxTable = '"${NamaTabel.get(TableName.transactions)}"';
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${ColumnNames.walletId})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.walletId})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${ColumnNames.destinationWalletId})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${NamaKolom.destinationWalletId})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${ColumnNames.isDeleted})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.isDeleted})',
     );
     Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
@@ -515,201 +515,201 @@ class SqliteDatabase {
   // ============================================================
 
   static final String _tabelWallet = '''
-    CREATE TABLE ${TableNameValue.get(TableName.wallet)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.name} TEXT NOT NULL,
-      ${ColumnNames.balance} REAL NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.wallet)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.name} TEXT NOT NULL,
+      ${NamaKolom.balance} REAL NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER
     )
   ''';
 
   static final String _tabelTransaction = '''
-    CREATE TABLE "${TableNameValue.get(TableName.transactions)}" (
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.description} TEXT NOT NULL,
-      ${ColumnNames.amount} REAL NOT NULL,
-      ${ColumnNames.date} INTEGER NOT NULL,
-      ${ColumnNames.type} TEXT NOT NULL,
-      ${ColumnNames.walletId} TEXT,
-      ${ColumnNames.categoryId} TEXT,
-      ${ColumnNames.subCategoryId} TEXT,
-      ${ColumnNames.customerId} TEXT,
-      ${ColumnNames.packageId} TEXT,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.archivedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.destinationWalletId} TEXT,
-      ${ColumnNames.earnedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.usedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.paymentStatus} TEXT,
-      ${ColumnNames.packageDuration} INTEGER,
-      ${ColumnNames.durationType} TEXT,
-      ${ColumnNames.durasiBonus} INTEGER,
-      ${ColumnNames.durasiBonusType} TEXT,
-      ${ColumnNames.startDate} INTEGER,
-      ${ColumnNames.endDate} INTEGER,
-      ${ColumnNames.isActivated} INTEGER DEFAULT 0
+    CREATE TABLE "${NamaTabel.get(TableName.transactions)}" (
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.description} TEXT NOT NULL,
+      ${NamaKolom.amount} REAL NOT NULL,
+      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.type} TEXT NOT NULL,
+      ${NamaKolom.walletId} TEXT,
+      ${NamaKolom.categoryId} TEXT,
+      ${NamaKolom.subCategoryId} TEXT,
+      ${NamaKolom.customerId} TEXT,
+      ${NamaKolom.packageId} TEXT,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.archivedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.destinationWalletId} TEXT,
+      ${NamaKolom.earnedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.usedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.paymentStatus} TEXT,
+      ${NamaKolom.packageDuration} INTEGER,
+      ${NamaKolom.durationType} TEXT,
+      ${NamaKolom.durasiBonus} INTEGER,
+      ${NamaKolom.durasiBonusType} TEXT,
+      ${NamaKolom.startDate} INTEGER,
+      ${NamaKolom.endDate} INTEGER,
+      ${NamaKolom.isActivated} INTEGER DEFAULT 0
     )
   ''';
 
   static final String _tabelUserApkVersion = '''
-    CREATE TABLE ${TableNameValue.get(TableName.userApkVersion)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.releaseNotes} TEXT NOT NULL,
-      ${ColumnNames.latestBuildNumber} TEXT NOT NULL,
-      ${ColumnNames.downloadLinks} TEXT NOT NULL,
-      ${ColumnNames.latestVersion} TEXT NOT NULL,
-      ${ColumnNames.isUpdateRequired} INTEGER NOT NULL,
-      ${ColumnNames.youtubeTutorial} TEXT NOT NULL,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      ${ColumnNames.updatedAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.userApkVersion)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.releaseNotes} TEXT NOT NULL,
+      ${NamaKolom.latestBuildNumber} TEXT NOT NULL,
+      ${NamaKolom.downloadLinks} TEXT NOT NULL,
+      ${NamaKolom.latestVersion} TEXT NOT NULL,
+      ${NamaKolom.isUpdateRequired} INTEGER NOT NULL,
+      ${NamaKolom.youtubeTutorial} TEXT NOT NULL,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      ${NamaKolom.updatedAt} INTEGER
     )
   ''';
 
   static final String _tabelUploadStatus = '''
-    CREATE TABLE ${TableNameValue.get(TableName.uploadStatus)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.value} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.uploadStatus)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.value} TEXT NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER
     )
   ''';
 
   static final String _tabelMessage = '''
-    CREATE TABLE ${TableNameValue.get(TableName.message)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.content} TEXT NOT NULL,
-      ${ColumnNames.date} INTEGER NOT NULL,
-      ${ColumnNames.status} TEXT NOT NULL
+    CREATE TABLE ${NamaTabel.get(TableName.message)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.content} TEXT NOT NULL,
+      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.status} TEXT NOT NULL
     )
   ''';
 
   static final String _tabelSetting = '''
-    CREATE TABLE ${TableNameValue.get(TableName.settings)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.autoSyncInterval} INTEGER NOT NULL DEFAULT 24,
-      ${ColumnNames.autoDeleteArchiveDays} INTEGER NOT NULL DEFAULT 30,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.maintenanceMode} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.maintenanceInfo} TEXT
+    CREATE TABLE ${NamaTabel.get(TableName.settings)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.autoSyncInterval} INTEGER NOT NULL DEFAULT 24,
+      ${NamaKolom.autoDeleteArchiveDays} INTEGER NOT NULL DEFAULT 30,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.maintenanceMode} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.maintenanceInfo} TEXT
     )
   ''';
 
   static final String _tabelCategory = '''
-    CREATE TABLE ${TableNameValue.get(TableName.category)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.name} TEXT NOT NULL,
-      ${ColumnNames.type} TEXT NOT NULL,
-      ${ColumnNames.subCategoryId} TEXT,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.category)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.name} TEXT NOT NULL,
+      ${NamaKolom.type} TEXT NOT NULL,
+      ${NamaKolom.subCategoryId} TEXT,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER
     )
   ''';
 
   static final String _tabelSubCategory = '''
-    CREATE TABLE ${TableNameValue.get(TableName.subCategory)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.name} TEXT NOT NULL,
-      ${ColumnNames.categoryId} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      FOREIGN KEY (${ColumnNames.categoryId}) REFERENCES ${TableNameValue.get(TableName.category)} (${ColumnNames.id}) ON DELETE CASCADE
+    CREATE TABLE ${NamaTabel.get(TableName.subCategory)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.name} TEXT NOT NULL,
+      ${NamaKolom.categoryId} TEXT NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      FOREIGN KEY (${NamaKolom.categoryId}) REFERENCES ${NamaTabel.get(TableName.category)} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
   static final String _tabelPackage = '''
-    CREATE TABLE ${TableNameValue.get(TableName.package)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.name} TEXT NOT NULL,
-      ${ColumnNames.price} INTEGER NOT NULL,
-      ${ColumnNames.duration} INTEGER NOT NULL,
-      ${ColumnNames.type} TEXT NOT NULL,
-      ${ColumnNames.earnedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      ${ColumnNames.rewardPoints} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.redemptionPoints} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.isPublic} INTEGER NOT NULL DEFAULT 1
+    CREATE TABLE ${NamaTabel.get(TableName.package)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.name} TEXT NOT NULL,
+      ${NamaKolom.price} INTEGER NOT NULL,
+      ${NamaKolom.duration} INTEGER NOT NULL,
+      ${NamaKolom.type} TEXT NOT NULL,
+      ${NamaKolom.earnedPoints} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      ${NamaKolom.rewardPoints} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.redemptionPoints} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.isPublic} INTEGER NOT NULL DEFAULT 1
     )
   ''';
 
   static final String _tabelCustomer = '''
-    CREATE TABLE ${TableNameValue.get(TableName.customer)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.name} TEXT NOT NULL,
-      ${ColumnNames.phone} TEXT NOT NULL,
-      ${ColumnNames.address} TEXT NOT NULL,
-      ${ColumnNames.password} TEXT NOT NULL,
-      ${ColumnNames.macAddress} TEXT NOT NULL,
-      ${ColumnNames.status} TEXT NOT NULL DEFAULT 'aktif',
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.archivedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.lastActiveAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.customer)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.name} TEXT NOT NULL,
+      ${NamaKolom.phone} TEXT NOT NULL,
+      ${NamaKolom.address} TEXT NOT NULL,
+      ${NamaKolom.password} TEXT NOT NULL,
+      ${NamaKolom.macAddress} TEXT NOT NULL,
+      ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.archivedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.lastActiveAt} INTEGER
     )
   ''';
 
   static final String _tabelActiveCustomer = '''
-    CREATE TABLE ${TableNameValue.get(TableName.activeCustomer)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.customerId} TEXT NOT NULL,
-      ${ColumnNames.packageId} TEXT NOT NULL,
-      ${ColumnNames.transactionId} TEXT,
-      ${ColumnNames.startDate} INTEGER,
-      ${ColumnNames.endDate} INTEGER,
-      ${ColumnNames.status} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      FOREIGN KEY (${ColumnNames.customerId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${ColumnNames.packageId}) REFERENCES ${TableNameValue.get(TableName.package)} (${ColumnNames.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${ColumnNames.transactionId}) REFERENCES "${TableNameValue.get(TableName.transactions)}" (${ColumnNames.id}) ON DELETE SET NULL
+    CREATE TABLE ${NamaTabel.get(TableName.activeCustomer)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.customerId} TEXT NOT NULL,
+      ${NamaKolom.packageId} TEXT NOT NULL,
+      ${NamaKolom.transactionId} TEXT,
+      ${NamaKolom.startDate} INTEGER,
+      ${NamaKolom.endDate} INTEGER,
+      ${NamaKolom.status} TEXT NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.get(TableName.package)} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.transactionId}) REFERENCES "${NamaTabel.get(TableName.transactions)}" (${NamaKolom.id}) ON DELETE SET NULL
     )
   ''';
 
   static final String _tabelFeedback = '''
-    CREATE TABLE ${TableNameValue.get(TableName.feedback)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.content} TEXT NOT NULL,
-      ${ColumnNames.date} INTEGER NOT NULL,
-      ${ColumnNames.userId} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      FOREIGN KEY (${ColumnNames.userId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE
+    CREATE TABLE ${NamaTabel.get(TableName.feedback)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.content} TEXT NOT NULL,
+      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.userId} TEXT NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      FOREIGN KEY (${NamaKolom.userId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
   static final String _tabelOrder = '''
-    CREATE TABLE "${TableNameValue.get(TableName.customerOrder)}" (
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.customerId} TEXT NOT NULL,
-      ${ColumnNames.packageId} TEXT NOT NULL,
-      ${ColumnNames.date} INTEGER NOT NULL,
-      ${ColumnNames.status} TEXT,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER,
-      FOREIGN KEY (${ColumnNames.customerId}) REFERENCES ${TableNameValue.get(TableName.customer)} (${ColumnNames.id}) ON DELETE CASCADE,
-      FOREIGN KEY (${ColumnNames.packageId}) REFERENCES ${TableNameValue.get(TableName.package)} (${ColumnNames.id}) ON DELETE CASCADE
+    CREATE TABLE "${NamaTabel.get(TableName.customerOrder)}" (
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.customerId} TEXT NOT NULL,
+      ${NamaKolom.packageId} TEXT NOT NULL,
+      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.status} TEXT,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER,
+      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE,
+      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.get(TableName.package)} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
   // 1. Definisi tabel notifikasi
   static final String _tabelNotification = '''
-    CREATE TABLE ${TableNameValue.get(TableName.notification)}(
-      ${ColumnNames.id} TEXT PRIMARY KEY,
-      ${ColumnNames.content} TEXT NOT NULL,
-      ${ColumnNames.date} INTEGER NOT NULL,
-      ${ColumnNames.status} TEXT NOT NULL,
-      ${ColumnNames.updatedAt} INTEGER,
-      ${ColumnNames.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${ColumnNames.archivedAt} INTEGER
+    CREATE TABLE ${NamaTabel.get(TableName.notification)}(
+      ${NamaKolom.id} TEXT PRIMARY KEY,
+      ${NamaKolom.content} TEXT NOT NULL,
+      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.status} TEXT NOT NULL,
+      ${NamaKolom.updatedAt} INTEGER,
+      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.archivedAt} INTEGER
     )
   ''';
   // ============================================================

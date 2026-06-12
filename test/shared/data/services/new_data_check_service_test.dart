@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/data/services/new_data_check_service.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'new_data_check_service_test.mocks.dart';
@@ -13,7 +13,7 @@ import 'new_data_check_service_test.mocks.dart';
 // Menambahkan semua kelas yang perlu di-mock, termasuk dari Firebase.
 // Ini adalah cara yang paling andal untuk memastikan mockito dapat menangani semua metode.
 @GenerateMocks([
-  UploadStatusOperation,
+  StatusUploadOpSqlite,
   SyncManager,
   FirebaseFirestore,
   CollectionReference,

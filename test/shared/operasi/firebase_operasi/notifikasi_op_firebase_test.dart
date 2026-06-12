@@ -3,8 +3,8 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/enum/tipe_notifikasi_enum.dart';
 import 'package:wifi/shared/model/notifikasi_model.dart';
@@ -19,7 +19,7 @@ void main() {
     late FakeFirebaseFirestore firestore;
     late MockBaseOpFirebase mockBaseOp;
     late NotifikasiOpFirebase notifikasiOp;
-    final collection = TableNameValue.get(TableName.notifikasi);
+    final collection = NamaTabel.get(TableName.notifikasi);
     final now = DateTime.now();
 
     // 1. Inisialisasi sebelum setiap tes
@@ -260,7 +260,7 @@ void main() {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
       await notifikasiOp.tandaiSudahDibaca(idToUpdate);
       verify(mockBaseOp.update(collection, idToUpdate, {
-        ColumnNames.isRead: true,
+        NamaKolom.isRead: true,
       })).called(1);
     });
 

@@ -19,7 +19,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 // 1. Membuat mock class dengan Mocktail
-class MockOrderOperation extends Mock implements OrderOperation {}
+class MockOrderOperation extends Mock implements OrderOpsqlite {}
 
 class MockOrderOpFirebase extends Mock implements OrderOpFirebase {}
 

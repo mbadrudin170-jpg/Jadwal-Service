@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 
 import 'package_operation_test.mocks.dart';
 
-@GenerateMocks([SqliteDatabase, BaseOperation, Database])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
@@ -41,7 +41,7 @@ void main() {
       updatedAt: DateTime.now(),
     );
     final tPackageMap = tPackage.toSqlite();
-    final tableName = TableNameValue.get(TableName.package);
+    final tableName = NamaTabel.get(TableName.package);
 
     test('1. getAll harus mengembalikan daftar paket dari database', () async {
       when(mockDatabase.rawQuery(any)).thenAnswer((_) async => [tPackageMap]);

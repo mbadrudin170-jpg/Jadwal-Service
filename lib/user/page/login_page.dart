@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -79,10 +79,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       }
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
-          .collection(TableNameValue.get(TableName.customer))
-          .where(ColumnNames.phone, isEqualTo: phone)
-          .where(ColumnNames.password, isEqualTo: password)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .collection(NamaTabel.get(TableName.customer))
+          .where(NamaKolom.phone, isEqualTo: phone)
+          .where(NamaKolom.password, isEqualTo: password)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
           .limit(1)
           .get();
       if (!mounted) return;

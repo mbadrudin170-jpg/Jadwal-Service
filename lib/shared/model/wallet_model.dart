@@ -3,7 +3,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
@@ -65,27 +65,26 @@ class WalletModel implements HasId {
   /// Creates a [WalletModel] instance from a SQLite map.
   factory WalletModel.fromSqlite(final Map<String, dynamic> map) {
     return WalletModel(
-      id: map[ColumnNames.id] as String?,
-      name: (map[ColumnNames.name] as String?) ?? '',
-      balance: (map[ColumnNames.balance] as num?)?.toDouble() ?? 0.0,
+      id: map[NamaKolom.id] as String?,
+      name: (map[NamaKolom.name] as String?) ?? '',
+      balance: (map[NamaKolom.balance] as num?)?.toDouble() ?? 0.0,
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts this [WalletModel] instance into a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.balance: balance,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.balance: balance,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -94,27 +93,27 @@ class WalletModel implements HasId {
       final String id, final Map<String, dynamic> data) {
     return WalletModel(
       id: id,
-      name: (data[ColumnNames.name] as String?) ?? '',
-      balance: (data[ColumnNames.balance] as num?)?.toDouble() ?? 0.0,
+      name: (data[NamaKolom.name] as String?) ?? '',
+      balance: (data[NamaKolom.balance] as num?)?.toDouble() ?? 0.0,
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
   /// Converts this [WalletModel] instance into a map for Firestore storage.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.balance: balance,
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.balance: balance,
+      NamaKolom.isDeleted: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

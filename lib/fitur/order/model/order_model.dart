@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -53,30 +53,29 @@ abstract class OrderModel with _$OrderModel implements HasId {
 
   // ---------- SQLite ----------
   factory OrderModel.fromSqlite(Map<String, dynamic> map) {
-    Log.info('Creating OrderModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating OrderModel from SQLite: ${map[NamaKolom.id]}');
     return OrderModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      customerId: map[ColumnNames.customerId] as String? ?? '',
-      packageId: map[ColumnNames.packageId] as String? ?? '',
-      date: ParserUtil.parseDateTime(map[ColumnNames.date]) ?? DateTime.now(),
-      status: _parseStatus(map[ColumnNames.status]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
+      id: map[NamaKolom.id] as String? ?? '',
+      customerId: map[NamaKolom.customerId] as String? ?? '',
+      packageId: map[NamaKolom.packageId] as String? ?? '',
+      date: ParserUtil.parseDateTime(map[NamaKolom.date]) ?? DateTime.now(),
+      status: _parseStatus(map[NamaKolom.status]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
     );
   }
 
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.customerId: customerId,
-      ColumnNames.packageId: packageId,
-      ColumnNames.date: date.millisecondsSinceEpoch,
-      ColumnNames.status: status.name,
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.customerId: customerId,
+      NamaKolom.packageId: packageId,
+      NamaKolom.date: date.millisecondsSinceEpoch,
+      NamaKolom.status: status.name,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -88,27 +87,27 @@ abstract class OrderModel with _$OrderModel implements HasId {
     // Alternatif: buat dariJson manual seperti di bawah.
     return OrderModel(
       id: id,
-      customerId: data[ColumnNames.customerId] as String? ?? '',
-      packageId: data[ColumnNames.packageId] as String? ?? '',
-      date: (data[ColumnNames.date] as Timestamp?)?.toDate() ?? DateTime.now(),
-      status: _parseStatus(data[ColumnNames.status]),
-      updatedAt: (data[ColumnNames.updatedAt] as Timestamp?)?.toDate(),
-      isDeleted: data[ColumnNames.isDeleted] as bool? ?? false,
-      archivedAt: (data[ColumnNames.archivedAt] as Timestamp?)?.toDate(),
+      customerId: data[NamaKolom.customerId] as String? ?? '',
+      packageId: data[NamaKolom.packageId] as String? ?? '',
+      date: (data[NamaKolom.date] as Timestamp?)?.toDate() ?? DateTime.now(),
+      status: _parseStatus(data[NamaKolom.status]),
+      updatedAt: (data[NamaKolom.updatedAt] as Timestamp?)?.toDate(),
+      isDeleted: data[NamaKolom.isDeleted] as bool? ?? false,
+      archivedAt: (data[NamaKolom.archivedAt] as Timestamp?)?.toDate(),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.customerId: customerId,
-      ColumnNames.packageId: packageId,
-      ColumnNames.date: Timestamp.fromDate(date.toUtc()),
-      ColumnNames.status: status.name,
-      ColumnNames.updatedAt:
+      NamaKolom.id: id,
+      NamaKolom.customerId: customerId,
+      NamaKolom.packageId: packageId,
+      NamaKolom.date: Timestamp.fromDate(date.toUtc()),
+      NamaKolom.status: status.name,
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      ColumnNames.isDeleted: isDeleted,
-      ColumnNames.archivedAt:
+      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

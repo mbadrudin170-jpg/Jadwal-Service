@@ -1,7 +1,7 @@
 // path: lib/shared/model/event_model.dart
 
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart';
@@ -52,32 +52,31 @@ class EventModel implements HasId {
 
   /// Membuat [EventModel] dari SQLite map.
   factory EventModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating EventModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating EventModel from SQLite: ${map[NamaKolom.id]}');
     return EventModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      imageUrl: map[ColumnNames.imageUrl] as String? ?? '',
-      isActive: ParserUtil.parseBool(map[ColumnNames.isActive]),
-      createdAt: ParserUtil.parseDateTime(map[ColumnNames.createdAt]) ??
-          DateTime.now(),
-      startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]) ??
-          DateTime.now(),
+      id: map[NamaKolom.id] as String? ?? '',
+      imageUrl: map[NamaKolom.imageUrl] as String? ?? '',
+      isActive: ParserUtil.parseBool(map[NamaKolom.isActive]),
+      createdAt:
+          ParserUtil.parseDateTime(map[NamaKolom.createdAt]) ?? DateTime.now(),
+      startDate:
+          ParserUtil.parseDateTime(map[NamaKolom.startDate]) ?? DateTime.now(),
       endDate:
-          ParserUtil.parseDateTime(map[ColumnNames.endDate]) ?? DateTime.now(),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+          ParserUtil.parseDateTime(map[NamaKolom.endDate]) ?? DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
     );
   }
 
   /// Mengonversi [EventModel] ke map untuk penyimpanan SQLite.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.imageUrl: imageUrl,
-      ColumnNames.isActive: isActive ? 1 : 0,
-      ColumnNames.createdAt: createdAt.millisecondsSinceEpoch,
-      ColumnNames.startDate: startDate.millisecondsSinceEpoch,
-      ColumnNames.endDate: endDate.millisecondsSinceEpoch,
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.imageUrl: imageUrl,
+      NamaKolom.isActive: isActive ? 1 : 0,
+      NamaKolom.createdAt: createdAt.millisecondsSinceEpoch,
+      NamaKolom.startDate: startDate.millisecondsSinceEpoch,
+      NamaKolom.endDate: endDate.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -87,28 +86,28 @@ class EventModel implements HasId {
     Log.info('Creating EventModel from Supabase: $id');
     return EventModel(
       id: id,
-      imageUrl: data[ColumnNames.imageUrl] as String? ?? '',
-      isActive: ParserUtil.parseBool(data[ColumnNames.isActive]),
-      createdAt: ParserUtil.parseDateTime(data[ColumnNames.createdAt]) ??
-          DateTime.now(),
-      startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]) ??
-          DateTime.now(),
+      imageUrl: data[NamaKolom.imageUrl] as String? ?? '',
+      isActive: ParserUtil.parseBool(data[NamaKolom.isActive]),
+      createdAt:
+          ParserUtil.parseDateTime(data[NamaKolom.createdAt]) ?? DateTime.now(),
+      startDate:
+          ParserUtil.parseDateTime(data[NamaKolom.startDate]) ?? DateTime.now(),
       endDate:
-          ParserUtil.parseDateTime(data[ColumnNames.endDate]) ?? DateTime.now(),
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
+          ParserUtil.parseDateTime(data[NamaKolom.endDate]) ?? DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
     );
   }
 
   /// Mengonversi [EventModel] ke map untuk penyimpanan Supabase.
   Map<String, dynamic> toSupabase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.imageUrl: imageUrl,
-      ColumnNames.isActive: isActive,
-      ColumnNames.startDate: startDate.toIso8601String(),
-      ColumnNames.endDate: endDate.toIso8601String(),
-      ColumnNames.createdAt: createdAt.toIso8601String(),
-      ColumnNames.updatedAt: (updatedAt ?? DateTime.now()).toIso8601String(),
+      NamaKolom.id: id,
+      NamaKolom.imageUrl: imageUrl,
+      NamaKolom.isActive: isActive,
+      NamaKolom.startDate: startDate.toIso8601String(),
+      NamaKolom.endDate: endDate.toIso8601String(),
+      NamaKolom.createdAt: createdAt.toIso8601String(),
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).toIso8601String(),
     };
   }
 }

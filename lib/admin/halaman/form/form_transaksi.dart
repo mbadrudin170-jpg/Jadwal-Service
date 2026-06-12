@@ -69,10 +69,10 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     _dompetOperasi = ref.read(walletOperationProvider);
     _kategoriOperasi = ref.read(categoryOperationProvider);
     _transaksiOperasi = ref.read(transactionOperationProvider);
-    unawaited(_loadAndPopulateInitialData());
+    unawaited(_loadData());
   }
 
-  Future<void> _loadAndPopulateInitialData() async {
+  Future<void> _loadData() async {
     Log.info('Memulai pemuatan data awal (dompet & kategori).');
     setState(() => _isLoading = true);
 
@@ -203,7 +203,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     });
   }
 
-  Future<void> _selectDate(final BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     Log.info('Memilih tanggal, saat ini: $_selectedDate');
     final picked = await showDatePicker(
       context: context,
@@ -217,13 +217,13 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     }
   }
 
-  Future<void> _selectTime(final BuildContext context) async {
+  Future<void> _selectTime(BuildContext context) async {
     Log.info('Memilih waktu, saat ini: $_selectedTime');
     final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
       context: context,
       initialTime: initial,
-      builder: (final context, final child) => MediaQuery(
+      builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
     );
@@ -321,7 +321,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     Log.info(
       'Membangun UI FormTransaksiPage. isLoading: $_isLoading, isSaving: $_isSaving',
     );
@@ -343,7 +343,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         style: ButtonStyle(
                           backgroundColor:
                               WidgetStateProperty.resolveWith<Color>(
-                            (final Set<WidgetState> states) {
+                            (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
                                   case TransactionType.income:
@@ -359,7 +359,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           ),
                           foregroundColor:
                               WidgetStateProperty.resolveWith<Color>(
-                            (final Set<WidgetState> states) {
+                            (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
                                   case TransactionType.income:
@@ -374,7 +374,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             },
                           ),
                           side: WidgetStateProperty.resolveWith<BorderSide>(
-                            (final Set<WidgetState> states) {
+                            (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
                                   case TransactionType.income:
@@ -391,7 +391,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           ),
                         ),
                         segments: TransactionType.values.map((
-                          final TransactionType tipe,
+                          TransactionType tipe,
                         ) {
                           return ButtonSegment<TransactionType>(
                             value: tipe,
@@ -400,7 +400,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         }).toList(),
                         selected: <TransactionType>{_tipe},
                         onSelectionChanged:
-                            (final Set<TransactionType> newSelection) {
+                            (Set<TransactionType> newSelection) {
                           setState(() {
                             Log.info(
                               'Tipe transaksi diubah menjadi: ${newSelection.first.name}',
@@ -418,10 +418,10 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         labelText: 'Keterangan',
                       ),
                       textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (final _) {
+                      onFieldSubmitted: (_) {
                         FocusScope.of(context).requestFocus(_jumlahFocusNode);
                       },
-                      validator: (final value) => value == null || value.isEmpty
+                      validator: (value) => value == null || value.isEmpty
                           ? 'Keterangan tidak boleh kosong'
                           : null,
                     ),
@@ -431,7 +431,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       decoration: const InputDecoration(labelText: 'Jumlah'),
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.done,
-                      validator: (final value) {
+                      validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Jumlah tidak boleh kosong';
                         }
@@ -453,19 +453,19 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       key: ValueKey<WalletModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
                       decoration: const InputDecoration(labelText: 'Dompet'),
-                      items: _dompetList.map((final dompet) {
+                      items: _dompetList.map((dompet) {
                         return DropdownMenuItem(
                           value: dompet,
                           child: Text(dompet.name),
                         );
                       }).toList(),
-                      onChanged: (final val) {
+                      onChanged: (val) {
                         Log.info(
                           'Pengguna memilih dompet: ${val?.name ?? "null"}',
                         );
                         setState(() => _selectedDompet = val);
                       },
-                      validator: (final val) =>
+                      validator: (val) =>
                           val == null ? 'Dompet harus dipilih' : null,
                     ),
                     if (_tipe == TransactionType.transfer)
@@ -475,19 +475,19 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
                         ),
-                        items: _dompetList.map((final dompet) {
+                        items: _dompetList.map((dompet) {
                           return DropdownMenuItem(
                             value: dompet,
                             child: Text(dompet.name),
                           );
                         }).toList(),
-                        onChanged: (final val) {
+                        onChanged: (val) {
                           Log.info(
                             'Pengguna memilih dompet tujuan: ${val?.name ?? "null"}',
                           );
                           setState(() => _selectedDompetTujuan = val);
                         },
-                        validator: (final val) {
+                        validator: (val) {
                           if (val == null) return 'Dompet tujuan harus dipilih';
                           if (val == _selectedDompet) {
                             return 'Dompet tidak boleh sama';
@@ -504,13 +504,13 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
                         ),
-                        items: _kategoriFiltered.map((final kategori) {
+                        items: _kategoriFiltered.map((kategori) {
                           return DropdownMenuItem(
                             value: kategori,
                             child: Text(kategori.name),
                           );
                         }).toList(),
-                        onChanged: (final val) {
+                        onChanged: (val) {
                           Log.info(
                             'Pengguna memilih kategori: ${val?.name ?? "null"}',
                           );
@@ -519,7 +519,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             _selectedSubKategori = null;
                           });
                         },
-                        validator: (final val) =>
+                        validator: (val) =>
                             val == null ? 'Kategori harus dipilih' : null,
                       ),
                     if (_selectedKategori != null &&
@@ -531,19 +531,19 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           labelText: 'Sub Kategori',
                         ),
                         items:
-                            _selectedKategori!.subCategories.map((final sub) {
+                            _selectedKategori!.subCategories.map((sub) {
                           return DropdownMenuItem(
                             value: sub,
                             child: Text(sub.name),
                           );
                         }).toList(),
-                        onChanged: (final val) {
+                        onChanged: (val) {
                           Log.info(
                             'Pengguna memilih sub-kategori: ${val?.name ?? "null"}',
                           );
                           setState(() => _selectedSubKategori = val);
                         },
-                        validator: (final val) =>
+                        validator: (val) =>
                             val == null ? 'Sub Kategori harus dipilih' : null,
                       ),
                     gapH20,

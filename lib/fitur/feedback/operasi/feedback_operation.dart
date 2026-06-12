@@ -3,8 +3,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -12,8 +12,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOperation {
   final SqliteDatabase dbHelper;
-  final BaseOperation baseOperation;
-  final String _tableName = TableNameValue.get(TableName.feedback);
+  final BaseOpSqlite baseOperation;
+  final String _tableName = NamaTabel.get(TableName.feedback);
 
   FeedbackOperation({
     required this.dbHelper,
@@ -51,7 +51,7 @@ class FeedbackOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       final feedbackList = List.generate(
         maps.length,
@@ -72,8 +72,8 @@ class FeedbackOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = 0',
-        orderBy: '${ColumnNames.date} DESC',
+        where: '${NamaKolom.isDeleted} = 0',
+        orderBy: '${NamaKolom.date} DESC',
       );
       final feedbackList = List.generate(
         maps.length,
@@ -127,7 +127,7 @@ class FeedbackOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.updatedAt} > ?',
+        where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
       final feedbackList = List.generate(
@@ -298,7 +298,7 @@ class FeedbackOperation {
         (final Transaction txn) async {
           final int deletedCount = await txn.delete(
             _tableName,
-            where: '${ColumnNames.userId} = ?',
+            where: '${NamaKolom.userId} = ?',
             whereArgs: [userId],
           );
           Log.info(

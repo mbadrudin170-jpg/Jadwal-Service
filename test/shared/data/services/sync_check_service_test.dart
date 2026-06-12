@@ -3,8 +3,8 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/new_data_check_service.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
@@ -75,15 +75,15 @@ void main() {
 
       // Pastikan status global diperbarui karena ada unggahan
       final statusDoc = await mockFirestore
-          .collection(TableNameValue.get(TableName.statusGlobal))
+          .collection(NamaTabel.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .get();
       expect(statusDoc.exists, isTrue);
-      expect(statusDoc.data(), contains(ColumnNames.updatedAt));
+      expect(statusDoc.data(), contains(NamaKolom.updatedAt));
 
       // Pastikan proses unduh terpicu
       verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: TableNameValue.get(TableName.statusGlobal),
+              collectionName: NamaTabel.get(TableName.statusGlobal),
               documentId: globalStatusId))
           .called(1);
       verify(mockDownloadService.downloadAllData()).called(1);
@@ -109,7 +109,7 @@ void main() {
 
       // Pastikan proses unduh diperiksa tapi tidak dieksekusi
       verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: TableNameValue.get(TableName.statusGlobal),
+              collectionName: NamaTabel.get(TableName.statusGlobal),
               documentId: globalStatusId))
           .called(1);
       verifyNever(mockDownloadService.downloadAllData());
@@ -136,7 +136,7 @@ void main() {
 
       // Pastikan status global tidak diperbarui
       final statusDoc = await mockFirestore
-          .collection(TableNameValue.get(TableName.statusGlobal))
+          .collection(NamaTabel.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .get();
       expect(statusDoc.exists, isFalse);
@@ -163,13 +163,13 @@ void main() {
       verifyNever(mockUploadService.uploadAllData());
 
       verify(mockNewDataCheck.hasNewFirebaseData(
-              collectionName: TableNameValue.get(TableName.statusGlobal),
+              collectionName: NamaTabel.get(TableName.statusGlobal),
               documentId: globalStatusId))
           .called(1);
       verifyNever(mockDownloadService.downloadAllData());
 
       final statusDoc = await mockFirestore
-          .collection(TableNameValue.get(TableName.statusGlobal))
+          .collection(NamaTabel.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .get();
       expect(statusDoc.exists, isFalse);
@@ -195,7 +195,7 @@ void main() {
       verifyNever(mockSyncManager.setLastUpload(any));
       verifyNever(mockNewDataCheck.resetNeedUpload());
       final statusDoc = await mockFirestore
-          .collection(TableNameValue.get(TableName.statusGlobal))
+          .collection(NamaTabel.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .get();
       expect(statusDoc.exists, isFalse);

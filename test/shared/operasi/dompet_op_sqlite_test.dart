@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -12,7 +12,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 
 import 'dompet_op_sqlite_test.mocks.dart';
 
-@GenerateMocks([SqliteDatabase, BaseOperation, Database, Transaction])
+@GenerateMocks([SqliteDatabase, BaseOpSqlite, Database, Transaction])
 void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
@@ -38,7 +38,7 @@ void main() {
       updatedAt: DateTime.now(),
     );
     final tWalletMap = tWallet.toSqlite();
-    final tableName = TableNameValue.get(TableName.wallet);
+    final tableName = NamaTabel.get(TableName.wallet);
 
     test('1. getWallets harus mengembalikan daftar dompet', () async {
       when(mockDatabase.query(any, where: anyNamed('where')))

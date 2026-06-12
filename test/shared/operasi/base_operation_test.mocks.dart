@@ -10,7 +10,7 @@ import 'package:mockito/src/dummies.dart' as _i5;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as _i2;
 import 'package:wifi/admin/data/sqlite.dart' as _i4;
 import 'package:wifi/shared/model/upload_status_model.dart' as _i7;
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart'
     as _i6;
 
 // ignore_for_file: type=lint
@@ -572,13 +572,13 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockUploadStatusOperation extends _i1.Mock
-    implements _i6.UploadStatusOperation {
+    implements _i6.StatusUploadOpSqlite {
   MockUploadStatusOperation() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<void> setNeedUpload(
+  _i3.Future<void> tandaiButuhUpload(
     bool? needUpload, {
     _i2.Transaction? transaction,
   }) =>
@@ -602,7 +602,7 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i3.Future<bool>);
 
   @override
-  _i3.Future<void> resetNeedUpload() => (super.noSuchMethod(
+  _i3.Future<void> resetStatusUpload() => (super.noSuchMethod(
         Invocation.method(
           #resetNeedUpload,
           [],

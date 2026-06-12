@@ -18,8 +18,8 @@ import 'active_customer_operation_test.mocks.dart';
 
 @GenerateMocks([
   SqliteDatabase,
-  BaseOperation,
-  CustomerOperation,
+  BaseOpSqlite,
+  PelangganOpSqlite,
   NotifikasiServis,
   Database,
   Transaction,

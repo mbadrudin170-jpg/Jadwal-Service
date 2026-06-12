@@ -41,7 +41,7 @@ class _FakeDatabaseHelper_0 extends _i1.SmartFake
         );
 }
 
-class _FakeBaseOperation_1 extends _i1.SmartFake implements _i3.BaseOperation {
+class _FakeBaseOperation_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
   _FakeBaseOperation_1(
     Object parent,
     Invocation parentInvocation,
@@ -70,13 +70,13 @@ class MockTransactionOperation extends _i1.Mock
       ) as _i2.SqliteDatabase);
 
   @override
-  _i3.BaseOperation get baseOperation => (super.noSuchMethod(
+  _i3.BaseOpSqlite get baseOperation => (super.noSuchMethod(
         Invocation.getter(#baseOperation),
         returnValue: _FakeBaseOperation_1(
           this,
           Invocation.getter(#baseOperation),
         ),
-      ) as _i3.BaseOperation);
+      ) as _i3.BaseOpSqlite);
 
   @override
   _i5.Future<int> addTransaction(
@@ -288,7 +288,7 @@ class MockTransactionOperation extends _i1.Mock
 /// A class which mocks [CustomerOperation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCustomerOperation extends _i1.Mock implements _i7.CustomerOperation {
+class MockCustomerOperation extends _i1.Mock implements _i7.PelangganOpSqlite {
   MockCustomerOperation() {
     _i1.throwOnMissingStub(this);
   }

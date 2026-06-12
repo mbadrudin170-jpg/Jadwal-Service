@@ -4,8 +4,8 @@
 // diperbaiki: Menambahkan logging inisialisasi.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -22,7 +22,7 @@ class SettingsOpFirebase {
 
   /// Mendapatkan referensi ke koleksi setting.
   CollectionReference get _collection =>
-      _db.collection(TableNameValue.get(TableName.settings));
+      _db.collection(NamaTabel.settings);
 
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {
@@ -35,15 +35,15 @@ class SettingsOpFirebase {
       }
       Log.warning('Dokumen pengaturan tidak ditemukan, pakai default.');
       return {
-        ColumnNames.maintenanceMode: false,
-        ColumnNames.maintenanceInfo:
+        NamaKolom.maintenanceMode: false,
+        NamaKolom.maintenanceInfo:
             'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.',
       };
     } on Exception catch (e, s) {
       Log.error('Error mengambil pengaturan.', e: e, st: s);
       return {
-        ColumnNames.maintenanceMode: false,
-        ColumnNames.maintenanceInfo:
+        NamaKolom.maintenanceMode: false,
+        NamaKolom.maintenanceInfo:
             'Gagal memuat pengaturan. Menggunakan default.',
       };
     }

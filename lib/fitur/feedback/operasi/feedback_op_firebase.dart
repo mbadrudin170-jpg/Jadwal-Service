@@ -2,8 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class FeedbackOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  final String _collectionName = TableNameValue.get(TableName.feedback);
+  final String _collectionName = NamaTabel.get(TableName.feedback);
 
   /// Konstruktor untuk inisialisasi.
   FeedbackOpFirebase({
@@ -32,7 +32,7 @@ class FeedbackOpFirebase {
 
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
-    data[ColumnNames.date] = FieldValue.serverTimestamp();
+    data[NamaKolom.date] = FieldValue.serverTimestamp();
     await _baseOp.tambah(_collectionName, data);
   }
 
@@ -40,7 +40,7 @@ class FeedbackOpFirebase {
   Future<void> update(String docId, String newContent) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
     await _baseOp.update(_collectionName, docId, {
-      ColumnNames.content: newContent,
+      NamaKolom.content: newContent,
     });
   }
 
@@ -64,9 +64,9 @@ class FeedbackOpFirebase {
   Stream<List<FeedbackModel>> getByUser(String userId) {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
-        .where(ColumnNames.userId, isEqualTo: userId)
-        .where(ColumnNames.isDeleted, isEqualTo: false)
-        .orderBy(ColumnNames.date, descending: true)
+        .where(NamaKolom.userId, isEqualTo: userId)
+        .where(NamaKolom.isDeleted, isEqualTo: false)
+        .orderBy(NamaKolom.date, descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {

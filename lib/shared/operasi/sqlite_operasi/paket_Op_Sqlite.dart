@@ -3,8 +3,8 @@
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
@@ -16,9 +16,9 @@ class PaketOpSqlite {
   @visibleForTesting
   final SqliteDatabase dbHelper;
 
-  /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  final BaseOperation baseOperation;
-  final String _tableName = TableNameValue.get(TableName.package);
+  /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
+  final BaseOpSqlite baseOperation;
+  final String _tableName = NamaTabel.get(TableName.package);
   final _nowUtc = DateTime.now().toUtc();
 
   PaketOpSqlite({
@@ -52,10 +52,10 @@ class PaketOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${ColumnNames.type}
-            WHEN 'jam' THEN ${ColumnNames.duration}
-            WHEN 'hari' THEN ${ColumnNames.duration} * 24
-            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+          CASE ${NamaKolom.type}
+            WHEN 'jam' THEN ${NamaKolom.duration}
+            WHEN 'hari' THEN ${NamaKolom.duration} * 24
+            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tableName
@@ -79,14 +79,14 @@ class PaketOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${ColumnNames.type}
-            WHEN 'jam' THEN ${ColumnNames.duration}
-            WHEN 'hari' THEN ${ColumnNames.duration} * 24
-            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+          CASE ${NamaKolom.type}
+            WHEN 'jam' THEN ${NamaKolom.duration}
+            WHEN 'hari' THEN ${NamaKolom.duration} * 24
+            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tableName
-        WHERE ${ColumnNames.isDeleted} = 0
+        WHERE ${NamaKolom.isDeleted} = 0
         ORDER BY urutan ASC
       ''');
 
@@ -107,14 +107,14 @@ class PaketOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${ColumnNames.type}
-            WHEN 'jam' THEN ${ColumnNames.duration}
-            WHEN 'hari' THEN ${ColumnNames.duration} * 24
-            WHEN 'bulan' THEN ${ColumnNames.duration} * 24 * 30
+          CASE ${NamaKolom.type}
+            WHEN 'jam' THEN ${NamaKolom.duration}
+            WHEN 'hari' THEN ${NamaKolom.duration} * 24
+            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tableName
-        WHERE ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.isPublic} = 1
+        WHERE ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.isPublic} = 1
         ORDER BY urutan ASC
       ''');
 
@@ -135,7 +135,7 @@ class PaketOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
 
@@ -245,7 +245,7 @@ class PaketOpSqlite {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.updatedAt} > ?',
+        where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
@@ -298,7 +298,7 @@ class PaketOpSqlite {
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} IN ($placeholders)',
+        where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
       Log.info('Berhasil mengambil ${maps.length} paket dari ${ids.length} ID');

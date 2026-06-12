@@ -3,79 +3,87 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/model.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/active_customer_op_firebase.dart';
 
-class MockCustomerOperation extends Mock implements CustomerOperation {}
+// Mocks
+class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
 
-class MockPackageOperation extends Mock implements PaketOpSqlite {}
+class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
 
-class MockTransactionOperation extends Mock implements TransactionOperation {}
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
-class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+class MockDompetOpFirebase extends Mock implements DompetOpFirebase {}
 
-class MockCategoryOperation extends Mock implements CategoryOperation {}
+class MockKategoriOpFirebase extends Mock implements KategoriOpFirebase {}
 
-class MockActiveCustomerOperation extends Mock
-    implements ActiveCustomerOperation {}
+class MockActiveCustomerOpFirebase extends Mock
+    implements ActiveCustomerOpFirebase {}
 
 class MockNotifikasiOpFirebase extends Mock implements NotifikasiOpFirebase {}
 
 void main() {
-  late MockCustomerOperation mockCustomerOperation;
-  late MockPackageOperation mockPackageOperation;
-  late MockTransactionOperation mockTransactionOperation;
-  late MockDompetOpSqlite mockDompetOpSqlite;
-  late MockCategoryOperation mockCategoryOperation;
-  late MockActiveCustomerOperation mockActiveCustomerOperation;
+  late MockCustomerOpFirebase mockCustomerOperation;
+  late MockPaketOpFirebase mockPackageOperation;
+  late MockTransactionOpFirebase mockTransactionOperation;
+  late MockDompetOpFirebase mockDompetOpFirebase;
+  late MockKategoriOpFirebase mockCategoryOperation;
+  late MockActiveCustomerOpFirebase mockActiveCustomerOperation;
   late MockNotifikasiOpFirebase mockNotifikasiOpFirebase;
 
   setUp(() {
-    mockCustomerOperation = MockCustomerOperation();
-    mockPackageOperation = MockPackageOperation();
-    mockTransactionOperation = MockTransactionOperation();
-    mockDompetOpSqlite = MockDompetOpSqlite();
-    mockCategoryOperation = MockCategoryOperation();
-    mockActiveCustomerOperation = MockActiveCustomerOperation();
+    mockCustomerOperation = MockCustomerOpFirebase();
+    mockPackageOperation = MockPaketOpFirebase();
+    mockTransactionOperation = MockTransactionOpFirebase();
+    mockDompetOpFirebase = MockDompetOpFirebase();
+    mockCategoryOperation = MockKategoriOpFirebase();
+    mockActiveCustomerOperation = MockActiveCustomerOpFirebase();
     mockNotifikasiOpFirebase = MockNotifikasiOpFirebase();
   });
 
-  Widget createWidgetUnderTest() {
+  Widget createWidgetUnderTest({ActiveCustomerModel? activeCustomer}) {
     return ProviderScope(
       overrides: [
-        customerOperationProvider.overrideWithValue(mockCustomerOperation),
-        packageOperationProvider.overrideWithValue(mockPackageOperation),
-        transactionOperationProvider
+        customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
+        paketOpFirebaseProvider.overrideWithValue(mockPackageOperation),
+        transactionOpFirebaseProvider
             .overrideWithValue(mockTransactionOperation),
-        walletOperationProvider.overrideWithValue(mockDompetOpSqlite),
-        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
-        activeCustomerOperationProvider
+        dompetOpFirebaseProvider.overrideWithValue(mockDompetOpFirebase),
+        kategoriOpFirebaseProvider.overrideWithValue(mockCategoryOperation),
+        activeCustomerOpFirebaseProvider
             .overrideWithValue(mockActiveCustomerOperation),
         notifikasiOpFirebaseProvider
             .overrideWithValue(mockNotifikasiOpFirebase),
       ],
-      child: const MaterialApp(
-        home: FormPelangganAktif(),
+      child: MaterialApp(
+        home: FormPelangganAktif(pelangganAktif: activeCustomer),
       ),
     );
   }
 
   testWidgets('01. should show loading indicator and then the form',
       (tester) async {
-    when(() => mockCustomerOperation.ambilSemua()).thenAnswer((_) async => []);
-    when(() => mockPackageOperation.ambilBerdasarkanAktif())
-        .thenAnswer((_) async => []);
-    when(() => mockDompetOpSqlite.getWallets()).thenAnswer((_) async => []);
-    when(() => mockCategoryOperation.getCategories())
-        .thenAnswer((_) async => []);
+    when(() => mockCustomerOperation.ambilSemuaPelanggan())
+        .thenAnswer((_) async => <CustomerModel>[]);
+    when(() => mockPackageOperation.ambilSemuaPaketAktif())
+        .thenAnswer((_) async => <PackageModel>[]);
+    when(() => mockDompetOpFirebase.ambilSemuaDompet())
+        .thenAnswer((_) async => <WalletModel>[]);
+    when(() => mockCategoryOperation.ambilSemuaKategori())
+        .thenAnswer((_) async => <CategoryModel>[]);
 
     await tester.pumpWidget(createWidgetUnderTest());
 

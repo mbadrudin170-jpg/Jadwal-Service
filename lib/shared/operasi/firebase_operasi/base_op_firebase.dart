@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
@@ -36,7 +36,7 @@ class BaseOpFirebase {
     Log.info('Base add: Menambah dokumen baru di $collectionName');
     try {
       final collectionRef = firestore.collection(collectionName);
-      data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
       final docRef = await collectionRef.add(data);
       unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base add berhasil: ${docRef.path}');
@@ -61,7 +61,7 @@ class BaseOpFirebase {
     Log.info('Base insert: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
-      data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
       await docRef.set(data);
       unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base insert berhasil: $collectionName/$docId');
@@ -85,7 +85,7 @@ class BaseOpFirebase {
     Log.info('Base update: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
-      data[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
       await docRef.update(data);
       unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base update berhasil: $collectionName/$docId');
@@ -107,9 +107,9 @@ class BaseOpFirebase {
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
       await docRef.update({
-        ColumnNames.isDeleted: true,
-        ColumnNames.updatedAt: FieldValue.serverTimestamp(),
-        ColumnNames.archivedAt: FieldValue.serverTimestamp(),
+        NamaKolom.isDeleted: true,
+        NamaKolom.updatedAt: FieldValue.serverTimestamp(),
+        NamaKolom.archivedAt: FieldValue.serverTimestamp(),
       });
       unawaited(_statusOp.updateGlobalStatus());
       Log.info('Base softDelete berhasil: $collectionName/$docId');
@@ -149,7 +149,7 @@ class BaseOpFirebase {
     try {
       final querySnapshot = await firestore
           .collection(collectionName)
-          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -160,9 +160,9 @@ class BaseOpFirebase {
       final batch = firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          ColumnNames.isDeleted: true,
-          ColumnNames.archivedAt: FieldValue.serverTimestamp(),
-          ColumnNames.updatedAt: FieldValue.serverTimestamp(),
+          NamaKolom.isDeleted: true,
+          NamaKolom.archivedAt: FieldValue.serverTimestamp(),
+          NamaKolom.updatedAt: FieldValue.serverTimestamp(),
         });
       }
 
@@ -203,7 +203,7 @@ class BaseOpFirebase {
         final docId = item[idKey] as String?;
         if (docId != null) {
           final docRef = firestore.collection(collectionName).doc(docId);
-          item[ColumnNames.updatedAt] = FieldValue.serverTimestamp();
+          item[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
           // Menggunakan set dengan merge: true untuk perilaku upsert
           batch.set(docRef, item, SetOptions(merge: true));
         }

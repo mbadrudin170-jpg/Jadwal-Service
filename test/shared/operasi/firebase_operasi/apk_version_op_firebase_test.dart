@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
@@ -17,7 +17,7 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     apkVersionOp = ApkVersionOpFirebase(firestore: fakeFirestore);
     collectionRef =
-        fakeFirestore.collection(TableNameValue.get(TableName.userApkVersion));
+        fakeFirestore.collection(NamaTabel.get(TableName.userApkVersion));
   });
 
   final apkVersion = ApkVersionModel(
@@ -42,7 +42,7 @@ void main() {
     await collectionRef.doc(apkVersion.id).set(apkVersion.toFirebase());
 
     // Act
-    final result = await apkVersionOp.ambilVersiTerbaru();
+    final result = await apkVersionOp.getVersiTerbaru();
 
     // Assert
     expect(result, isA<ApkVersionModel>());

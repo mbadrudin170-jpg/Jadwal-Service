@@ -2,8 +2,8 @@
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
   late PaketOpFirebase packageOpFirebase;
-  final packageCollection = TableNameValue.get(TableName.package);
+  final packageCollection = NamaTabel.get(TableName.package);
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
@@ -121,8 +121,8 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(packageCollection).doc(p1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![ColumnNames.isDeleted], isTrue);
-      expect(snapshot.data()![ColumnNames.archivedAt], isNotNull);
+      expect(snapshot.data()![NamaKolom.isDeleted], isTrue);
+      expect(snapshot.data()![NamaKolom.archivedAt], isNotNull);
     });
   });
 }

@@ -4,8 +4,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/model.dart';
@@ -17,19 +17,19 @@ const uuid = Uuid();
 
 class ActiveCustomerOperation {
   final SqliteDatabase dbHelper;
-  final BaseOperation _baseOperation;
+  final BaseOpSqlite _baseOperation;
   final NotifikasiServis _notifikasiServis;
-  final CustomerOperation _customerOperation;
-  final String _tableName = TableNameValue.get(TableName.activeCustomer);
-  final String _customerTableName = TableNameValue.get(TableName.customer);
-  final String _packageTableName = TableNameValue.get(TableName.package);
+  final PelangganOpSqlite _customerOperation;
+  final String _tableName = NamaTabel.activeCustomer;
+  final String _customerTableName = NamaTabel.customer;
+  final String _packageTableName = NamaTabel.package;
 
   DateTime get _nowUtc => DateTime.now().toUtc();
 
   ActiveCustomerOperation({
     required this.dbHelper,
-    required BaseOperation baseOperation,
-    required CustomerOperation customerOperation,
+    required BaseOpSqlite baseOperation,
+    required PelangganOpSqlite customerOperation,
     required NotifikasiServis notifikasiServis,
   })  : _baseOperation = baseOperation,
         _customerOperation = customerOperation,
@@ -71,13 +71,13 @@ class ActiveCustomerOperation {
     final query = '''
       SELECT
         ac.*,
-        c.${ColumnNames.name} as customer_name,
-        p.${ColumnNames.name} as package_name
+        c.${NamaKolom.name} as customer_name,
+        p.${NamaKolom.name} as package_name
       FROM $_tableName ac
-      LEFT JOIN $_customerTableName c ON ac.${ColumnNames.customerId} = c.${ColumnNames.id}
-      LEFT JOIN $_packageTableName p ON ac.${ColumnNames.packageId} = p.${ColumnNames.id}
-      WHERE ac.${ColumnNames.isDeleted} = 0
-        AND ac.${ColumnNames.endDate} >= ?
+      LEFT JOIN $_customerTableName c ON ac.${NamaKolom.customerId} = c.${NamaKolom.id}
+      LEFT JOIN $_packageTableName p ON ac.${NamaKolom.packageId} = p.${NamaKolom.id}
+      WHERE ac.${NamaKolom.isDeleted} = 0
+        AND ac.${NamaKolom.endDate} >= ?
     ''';
 
     try {
@@ -147,7 +147,7 @@ class ActiveCustomerOperation {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = ?',
+        where: '${NamaKolom.isDeleted} = ?',
         whereArgs: [0],
       );
 
@@ -169,7 +169,7 @@ class ActiveCustomerOperation {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
 
@@ -204,7 +204,7 @@ class ActiveCustomerOperation {
           await txn.update(
             _tableName,
             data,
-            where: '${ColumnNames.id} = ?',
+            where: '${NamaKolom.id} = ?',
             whereArgs: [customerToSave.id],
           );
         },
@@ -331,7 +331,7 @@ class ActiveCustomerOperation {
           await txn.update(
             _tableName,
             archivedCustomer.toSqlite(),
-            where: '${ColumnNames.id} = ?',
+            where: '${NamaKolom.id} = ?',
             whereArgs: [id],
           );
 
@@ -361,7 +361,7 @@ class ActiveCustomerOperation {
           final List<Map<String, dynamic>> expiredCustomers = await txn.query(
             _tableName,
             where:
-                '${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} < ?',
+                '${NamaKolom.archivedAt} IS NOT NULL AND ${NamaKolom.archivedAt} < ?',
             whereArgs: [deadline.millisecondsSinceEpoch],
           );
 
@@ -371,13 +371,13 @@ class ActiveCustomerOperation {
           }
 
           final idsToDelete = expiredCustomers
-              .map((final map) => map[ColumnNames.id] as String)
+              .map((final map) => map[NamaKolom.id] as String)
               .toList();
 
           final count = await txn.delete(
             _tableName,
             where:
-                '${ColumnNames.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
+                '${NamaKolom.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
             whereArgs: idsToDelete,
           );
 
@@ -400,7 +400,7 @@ class ActiveCustomerOperation {
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _tableName,
-        where: '${ColumnNames.endDate} < ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${NamaKolom.endDate} < ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
@@ -409,21 +409,20 @@ class ActiveCustomerOperation {
         return 0;
       }
 
-      final idsToArchive = expiredCustomers
-          .map((final p) => p[ColumnNames.id] as String)
-          .toList();
+      final idsToArchive =
+          expiredCustomers.map((final p) => p[NamaKolom.id] as String).toList();
 
       await _baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           await txn.update(
             _tableName,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.archivedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.updatedAt: _nowUtc.millisecondsSinceEpoch,
             },
             where:
-                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+                '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
             whereArgs: idsToArchive,
           );
 
@@ -462,12 +461,12 @@ class ActiveCustomerOperation {
           await txn.update(
             _tableName,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.archivedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.updatedAt: _nowUtc.millisecondsSinceEpoch,
             },
             where:
-                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
+                '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
             whereArgs: idsToArchive,
           );
 
@@ -501,7 +500,7 @@ class ActiveCustomerOperation {
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} IN ($placeholders)',
+        where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
 

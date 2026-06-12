@@ -2,29 +2,29 @@
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pelanggan di database lokal.
-class CustomerOperation {
+class PelangganOpSqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
   final SqliteDatabase dbHelper;
 
-  /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
-  final BaseOperation _baseOperation;
+  /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
+  final BaseOpSqlite _baseOperation;
 
-  final String _namaTabel = TableNameValue.get(TableName.customer);
+  final String _namaTabel = NamaTabel.customer;
 
-  /// Konstruktor untuk [CustomerOperation].
+  /// Konstruktor untuk [PelangganOpSqlite].
   ///
   /// Memungkinkan injeksi dependensi untuk [dbHelper] dan [baseOperation]
   /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
-  CustomerOperation({
+  PelangganOpSqlite({
     required this.dbHelper,
-    required BaseOperation baseOperation,
+    required BaseOpSqlite baseOperation,
   }) : _baseOperation = baseOperation {
     Log.info('CustomerOperation diinisialisasi');
   }
@@ -65,8 +65,7 @@ class CustomerOperation {
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where:
-            '${ColumnNames.archivedAt} IS NULL AND ${ColumnNames.isDeleted} = ?',
+        where: '${NamaKolom.archivedAt} IS NULL AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [0],
       );
 
@@ -108,7 +107,7 @@ class CustomerOperation {
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
 
@@ -196,7 +195,7 @@ class CustomerOperation {
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where: '${ColumnNames.updatedAt} > ?',
+        where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info(
@@ -254,7 +253,7 @@ class CustomerOperation {
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
         _namaTabel,
-        where: '${ColumnNames.id} IN ($placeholders)',
+        where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
       Log.info(

@@ -7,8 +7,8 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -90,8 +90,7 @@ class StatistikRepository {
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      final String tableName =
-          '"${TableNameValue.get(TableName.transactions)}"';
+      final String tableName = '"${NamaTabel.get(TableName.transactions)}"';
       final String paidStatus = PaymentStatus.paid.name;
       final String unpaidStatus = PaymentStatus.unpaid.name;
 
@@ -99,13 +98,13 @@ class StatistikRepository {
         '''
         SELECT SUM(
           CASE
-            WHEN ${ColumnNames.paymentStatus} = ? THEN ${ColumnNames.amount}
-            WHEN ${ColumnNames.paymentStatus} = ? THEN -${ColumnNames.amount}
+            WHEN ${NamaKolom.paymentStatus} = ? THEN ${NamaKolom.amount}
+            WHEN ${NamaKolom.paymentStatus} = ? THEN -${NamaKolom.amount}
             ELSE 0
           END
         ) as total
         FROM $tableName
-        WHERE ${ColumnNames.isDeleted} = 0
+        WHERE ${NamaKolom.isDeleted} = 0
         ''',
         [paidStatus, unpaidStatus],
       );
@@ -135,13 +134,13 @@ class StatistikRepository {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      final String tableName = '"${TableNameValue.get(TableName.customer)}"';
+      final String tableName = '"${NamaTabel.get(TableName.customer)}"';
 
       final result = await db.rawQuery(
         '''
         SELECT COUNT(*) 
         FROM $tableName 
-        WHERE ${ColumnNames.isDeleted} = 0
+        WHERE ${NamaKolom.isDeleted} = 0
         ''',
       );
 

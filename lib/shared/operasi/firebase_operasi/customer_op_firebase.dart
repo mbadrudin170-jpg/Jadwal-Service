@@ -6,10 +6,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas ini menangani semua operasi terkait data pelanggan di Firestore.
@@ -18,7 +17,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class CustomerOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  final String _collectionName = TableNameValue.get(TableName.customer);
+  final String _collectionName = NamaTabel.customer;
 
   /// Konstruktor untuk inisialisasi.
   CustomerOpFirebase({
@@ -70,7 +69,7 @@ class CustomerOpFirebase {
   Future<void> perbaruiTerakhirAktif(String id) async {
     Log.info('Mendelegasikan update last active untuk: $id');
     await _baseOp.update(_collectionName, id, {
-      ColumnNames.lastActiveAt: FieldValue.serverTimestamp(),
+      NamaKolom.lastActiveAt: FieldValue.serverTimestamp(),
     });
   }
 
@@ -93,7 +92,7 @@ class CustomerOpFirebase {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
       final querySnapshot = await _customerCollection
-          .where(ColumnNames.isDeleted, isEqualTo: false)
+          .where(NamaKolom.isDeleted, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {

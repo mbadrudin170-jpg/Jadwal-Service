@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -91,47 +91,47 @@ class NotifikasiModel implements HasId {
   }
 
   factory NotifikasiModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating NotifikasiModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
-      id: map[ColumnNames.id] as String?,
-      startDate: ParserUtil.parseDateTime(map[ColumnNames.startDate]) ??
-          DateTime.now(),
+      id: map[NamaKolom.id] as String?,
+      startDate:
+          ParserUtil.parseDateTime(map[NamaKolom.startDate]) ?? DateTime.now(),
       endDate:
-          ParserUtil.parseDateTime(map[ColumnNames.endDate]) ?? DateTime.now(),
-      title: map[ColumnNames.title] as String? ?? '',
-      description: map[ColumnNames.description] as String? ?? '',
-      isRead: ParserUtil.parseBool(map[ColumnNames.isRead]),
+          ParserUtil.parseDateTime(map[NamaKolom.endDate]) ?? DateTime.now(),
+      title: map[NamaKolom.title] as String? ?? '',
+      description: map[NamaKolom.description] as String? ?? '',
+      isRead: ParserUtil.parseBool(map[NamaKolom.isRead]),
       type: _safeParseEnum(
             TipeNotifikasiEnum.values,
-            map[ColumnNames.type],
+            map[NamaKolom.type],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]) ??
-          DateTime.now(),
-      idTujuan: map[ColumnNames.idTujuan] as String? ?? '',
-      userId: map[ColumnNames.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-      tanggalTampil: ParserUtil.parseDateTime(map[ColumnNames.tanggalTampil]) ??
+      updatedAt:
+          ParserUtil.parseDateTime(map[NamaKolom.updatedAt]) ?? DateTime.now(),
+      idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
+      userId: map[NamaKolom.userId] as String? ?? '',
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      tanggalTampil: ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
     );
   }
 
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.startDate: startDate.millisecondsSinceEpoch,
-      ColumnNames.endDate: endDate.millisecondsSinceEpoch,
-      ColumnNames.title: title,
-      ColumnNames.description: description,
-      ColumnNames.isRead: isRead ? 1 : 0,
-      ColumnNames.type: type.name,
-      ColumnNames.updatedAt: updatedAt.millisecondsSinceEpoch,
-      ColumnNames.idTujuan: idTujuan,
-      ColumnNames.userId: userId,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      ColumnNames.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
+      NamaKolom.id: id,
+      NamaKolom.startDate: startDate.millisecondsSinceEpoch,
+      NamaKolom.endDate: endDate.millisecondsSinceEpoch,
+      NamaKolom.title: title,
+      NamaKolom.description: description,
+      NamaKolom.isRead: isRead ? 1 : 0,
+      NamaKolom.type: type.name,
+      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.idTujuan: idTujuan,
+      NamaKolom.userId: userId,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
     };
   }
 
@@ -140,45 +140,44 @@ class NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from Firebase: $id');
     return NotifikasiModel(
       id: id,
-      startDate: ParserUtil.parseDateTime(data[ColumnNames.startDate]) ??
-          DateTime.now(),
+      startDate:
+          ParserUtil.parseDateTime(data[NamaKolom.startDate]) ?? DateTime.now(),
       endDate:
-          ParserUtil.parseDateTime(data[ColumnNames.endDate]) ?? DateTime.now(),
-      tanggalTampil:
-          ParserUtil.parseDateTime(data[ColumnNames.tanggalTampil]) ??
-              DateTime.now(),
-      title: data[ColumnNames.title] as String? ?? '',
-      description: data[ColumnNames.description] as String? ?? '',
-      isRead: ParserUtil.parseBool(data[ColumnNames.isRead]),
+          ParserUtil.parseDateTime(data[NamaKolom.endDate]) ?? DateTime.now(),
+      tanggalTampil: ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
+          DateTime.now(),
+      title: data[NamaKolom.title] as String? ?? '',
+      description: data[NamaKolom.description] as String? ?? '',
+      isRead: ParserUtil.parseBool(data[NamaKolom.isRead]),
       type: _safeParseEnum(
             TipeNotifikasiEnum.values,
-            data[ColumnNames.type],
+            data[NamaKolom.type],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]) ??
-          DateTime.now(),
-      idTujuan: data[ColumnNames.idTujuan] as String? ?? '',
-      userId: data[ColumnNames.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
+      updatedAt:
+          ParserUtil.parseDateTime(data[NamaKolom.updatedAt]) ?? DateTime.now(),
+      idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
+      userId: data[NamaKolom.userId] as String? ?? '',
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.startDate: Timestamp.fromDate(startDate.toUtc()),
-      ColumnNames.endDate: Timestamp.fromDate(endDate.toUtc()),
-      ColumnNames.title: title,
-      ColumnNames.description: description,
-      ColumnNames.isRead: isRead,
-      ColumnNames.type: type.name,
-      ColumnNames.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
-      ColumnNames.idTujuan: idTujuan,
-      ColumnNames.userId: userId,
-      ColumnNames.isDeleted: isDeleted,
-      ColumnNames.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
-      ColumnNames.archivedAt:
+      NamaKolom.id: id,
+      NamaKolom.startDate: Timestamp.fromDate(startDate.toUtc()),
+      NamaKolom.endDate: Timestamp.fromDate(endDate.toUtc()),
+      NamaKolom.title: title,
+      NamaKolom.description: description,
+      NamaKolom.isRead: isRead,
+      NamaKolom.type: type.name,
+      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.idTujuan: idTujuan,
+      NamaKolom.userId: userId,
+      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

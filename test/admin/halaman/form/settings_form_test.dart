@@ -8,7 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 
-class MockSettingsOperation extends Mock implements SettingsOperation {}
+class MockSettingsOperation extends Mock implements SettingsOpSqlite {}
 
 void main() {
   late MockSettingsOperation mockSettingsOperation;
@@ -36,7 +36,8 @@ void main() {
     );
   }
 
-  testWidgets('01. SettingsForm should display settings correctly', (tester) async {
+  testWidgets('01. SettingsForm should display settings correctly',
+      (tester) async {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.text('Edit Pengaturan'), findsOneWidget);

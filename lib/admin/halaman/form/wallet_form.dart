@@ -27,7 +27,7 @@ class WalletForm extends ConsumerStatefulWidget {
 class _WalletFormState extends ConsumerState<WalletForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  late final DompetOpSqlite _walletOperation;
+  late final DompetOpSqlite _dompetOpSqlite;
 
   late FocusNode _namaFocusNode;
 
@@ -39,7 +39,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
     final isEditMode = widget.wallet != null;
     Log.info('Membuat state WalletForm. '
         'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.name}, Saldo: ${widget.wallet!.balance})" : "TAMBAH BARU"}');
-    _walletOperation = ref.read(walletOperationProvider);
+    _dompetOpSqlite = ref.read(walletOperationProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
@@ -68,7 +68,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
     super.dispose();
   }
 
-  Future<void> _saveform() async {
+  Future<void> _simpanform() async {
     Log.info(
       'Tombol Simpan ditekan. Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}',
     );
@@ -86,30 +86,30 @@ class _WalletFormState extends ConsumerState<WalletForm> {
           );
           Log.info('Saldo tetap: ${widget.wallet!.balance}');
 
-          final updatedWallet = WalletModel(
+          final dataToUdpate = WalletModel(
             id: widget.wallet!.id,
             name: _namaController.text,
             balance: widget.wallet!.balance,
           );
 
-          await _walletOperation.updateDompet(updatedWallet);
+          await _dompetOpSqlite.updateDompet(dataToUdpate);
           Log.info('Update dompet berhasil.');
         } else {
           Log.info('Proses TAMBAH dompet baru');
 
-          final newId = const Uuid().v4();
+          final id = const Uuid().v4();
           Log.info(
-              'UUID baru: $newId, Nama: ${_namaController.text}, Saldo awal: 0.0');
+              'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0');
 
-          final newWallet = WalletModel(
-            id: newId,
+          final dataBaru = WalletModel(
+            id: id,
             name: _namaController.text,
             balance: 0.0,
             updatedAt: DateTime.now(),
           );
 
-          await _walletOperation.tambahDompet(newWallet);
-          Log.info('Dompet baru berhasil disimpan. ID: $newId');
+          await _dompetOpSqlite.tambahDompet(dataBaru);
+          Log.info('Dompet baru berhasil disimpan. ID: $id');
         }
 
         if (!mounted) return;
@@ -132,7 +132,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         if (mounted) {
           Navigator.pop(context, true);
         }
-      } on Exception catch (e, s) {
+      }  catch (e, s) {
         Log.error(
           'Gagal menyimpan dompet. Proses ${_isEditMode ? "update" : "create"} gagal.',
           e: e,
@@ -179,15 +179,15 @@ class _WalletFormState extends ConsumerState<WalletForm> {
                   prefixIcon: Icon(TIcons.wallet),
                 ),
                 textInputAction: TextInputAction.done,
-                onFieldSubmitted: (final _) async {
+                onFieldSubmitted: (_) async {
                   Log.info('Field nama disubmit. Memanggil simpan.');
-                  await _saveform();
+                  await _simpanform();
                 },
-                onChanged: (final value) {
+                onChanged: (value) {
                   Log.info(
                       'Nama dompet berubah: "$value" (${value.length} karakter)');
                 },
-                validator: (final value) {
+                validator: (value) {
                   if (value == null || value.isEmpty) {
                     Log.warning('Validasi: Nama dompet kosong.');
                     return 'Nama dompet tidak boleh kosong';
@@ -199,7 +199,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
               ElevatedButton(
                 onPressed: () async {
                   Log.info('Tombol Simpan ditekan.');
-                  await _saveform();
+                  await _simpanform();
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, TSizes.p48),

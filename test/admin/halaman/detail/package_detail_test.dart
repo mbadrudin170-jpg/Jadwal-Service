@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/form_paket.dart';
+import 'package:wifi/admin/halaman/form/package_form.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/shared/export/enum.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
@@ -46,10 +46,10 @@ void main() {
     await tester.pumpWidget(createTestWidget());
 
     expect(find.text('Paket Super Cepat'), findsOneWidget);
-    expect(find.text('Rp 100000'), findsOneWidget);
-    expect(find.text('30 Days'), findsOneWidget);
-    expect(find.text('50 Poin'), findsOneWidget);
-    expect(find.text('500 Poin'), findsOneWidget);
+    expect(find.text('Rp100.000'), findsOneWidget);
+    expect(find.text('30 hari'), findsOneWidget);
+    expect(find.text('50'), findsOneWidget);
+    expect(find.text('500'), findsOneWidget);
     expect(find.text('Tersedia di Aplikasi'), findsOneWidget);
   });
 
@@ -64,6 +64,6 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => mockNavigatorObserver.didPush(any(), any()));
-    expect(find.byType(FormPaket), findsOneWidget);
+    expect(find.byType(PackageForm), findsOneWidget);
   });
 }

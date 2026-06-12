@@ -5,16 +5,16 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/upload_status_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
 
 import 'base_operation_test.mocks.dart';
 
 @GenerateMocks([
   SqliteDatabase,
   Database,
-  UploadStatusOperation,
+  StatusUploadOpSqlite,
   Batch,
   Transaction,
 ])
@@ -22,7 +22,7 @@ void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockDatabase mockDatabase;
   late MockUploadStatusOperation mockUploadStatusOperation;
-  late BaseOperation baseOperation;
+  late BaseOpSqlite baseOperation;
   late MockTransaction mockTxn;
   late MockBatch mockBatch;
 
@@ -33,7 +33,7 @@ void main() {
     mockTxn = MockTransaction();
     mockBatch = MockBatch();
 
-    baseOperation = BaseOperation(
+    baseOperation = BaseOpSqlite(
       dbHelper: mockDbHelper,
       uploadStatusOperasi: mockUploadStatusOperation,
     );
@@ -67,7 +67,7 @@ void main() {
             exclusive: anyNamed('exclusive')))
         .thenAnswer((_) async => <Object?>[]);
 
-    when(mockUploadStatusOperation.setNeedUpload(any,
+    when(mockUploadStatusOperation.tandaiButuhUpload(any,
             transaction: anyNamed('transaction')))
         .thenAnswer((_) async {});
   });
@@ -82,7 +82,7 @@ void main() {
       verify(mockTxn.insert(table, data,
               conflictAlgorithm: ConflictAlgorithm.replace))
           .called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
+      verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);
     });
@@ -95,8 +95,8 @@ void main() {
       await baseOperation.update(table, data, id);
 
       verify(mockTxn.update(table, data,
-          where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
+          where: '${NamaKolom.id} = ?', whereArgs: [id])).called(1);
+      verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);
     });
@@ -110,14 +110,14 @@ void main() {
       final captured = verify(mockTxn.update(
         table,
         captureAny,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       )).captured;
 
       final capturedMap = captured.first as Map<String, Object?>;
-      expect(capturedMap[ColumnNames.isDeleted], 1);
-      expect(capturedMap.containsKey(ColumnNames.archivedAt), isTrue);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
+      expect(capturedMap[NamaKolom.isDeleted], 1);
+      expect(capturedMap.containsKey(NamaKolom.archivedAt), isTrue);
+      verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);
     });
@@ -129,9 +129,9 @@ void main() {
       await baseOperation.delete(table, id);
 
       verify(mockTxn.delete(table,
-          where: '${ColumnNames.id} = ?', whereArgs: [id])).called(1);
+          where: '${NamaKolom.id} = ?', whereArgs: [id])).called(1);
 
-      verify(mockUploadStatusOperation.setNeedUpload(true,
+      verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);
     });
@@ -150,7 +150,7 @@ void main() {
               conflictAlgorithm: ConflictAlgorithm.replace))
           .called(2);
       verify(mockBatch.commit(noResult: true)).called(1);
-      verify(mockUploadStatusOperation.setNeedUpload(true,
+      verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);
     });

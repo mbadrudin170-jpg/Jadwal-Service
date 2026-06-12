@@ -1,8 +1,8 @@
 // path: lib/shared/operasi/sqlite_operasi/apk_version_operation.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -12,12 +12,12 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
 class ApkVersionOperation {
   final SqliteDatabase dbHelper;
-  final String _tableName = TableNameValue.get(TableName.userApkVersion);
-  final BaseOperation _baseOperation;
+  final String _tableName = NamaTabel.userApkVersion;
+  final BaseOpSqlite _baseOperation;
 
   /// Konstruktor untuk [ApkVersionOperation].
   ApkVersionOperation({
-    required final BaseOperation baseOperation,
+    required final BaseOpSqlite baseOperation,
     required this.dbHelper,
   }) : _baseOperation = baseOperation {
     Log.info(
@@ -176,7 +176,7 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const orderBy = '${ColumnNames.updatedAt} DESC';
+      const orderBy = '${NamaKolom.updatedAt} DESC';
       Log.info('Query: SELECT * FROM $_tableName ORDER BY $orderBy');
 
       final List<Map<String, dynamic>> maps = await db.query(
@@ -216,13 +216,13 @@ class ApkVersionOperation {
   /// Mengambil semua versi APK yang aktif dari database.
   Future<List<ApkVersionModel>> getAllActiveApkVersions() async {
     Log.info(
-      'Mengambil semua versi APK aktif (${ColumnNames.isDeleted} = 0) dari tabel $_tableName',
+      'Mengambil semua versi APK aktif (${NamaKolom.isDeleted} = 0) dari tabel $_tableName',
     );
 
     try {
       final db = await dbHelper.database;
-      const where = '${ColumnNames.isDeleted} = 0';
-      const orderBy = '${ColumnNames.updatedAt} DESC';
+      const where = '${NamaKolom.isDeleted} = 0';
+      const orderBy = '${NamaKolom.updatedAt} DESC';
       Log.info(
           'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy');
 
@@ -263,8 +263,8 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const where = '${ColumnNames.isDeleted} = 0';
-      const orderBy = '${ColumnNames.updatedAt} DESC';
+      const where = '${NamaKolom.isDeleted} = 0';
+      const orderBy = '${NamaKolom.updatedAt} DESC';
       Log.info(
           'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy LIMIT 1');
 
@@ -303,7 +303,7 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const where = 'id = ? AND ${ColumnNames.isDeleted} = 0';
+      const where = 'id = ? AND ${NamaKolom.isDeleted} = 0';
       Log.info('Query: SELECT * FROM $_tableName WHERE $where');
 
       final maps = await db.query(

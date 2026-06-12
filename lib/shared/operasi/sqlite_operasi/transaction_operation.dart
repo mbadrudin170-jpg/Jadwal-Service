@@ -5,8 +5,8 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
@@ -15,8 +15,8 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 /// Kelas untuk operasi terkait data transaksi di database lokal.
 class TransactionOperation {
   final SqliteDatabase dbHelper;
-  final BaseOperation baseOperation;
-  final String _tableName = TableNameValue.get(TableName.transactions);
+  final BaseOpSqlite baseOperation;
+  final String _tableName = NamaTabel.get(TableName.transactions);
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
@@ -41,27 +41,27 @@ class TransactionOperation {
         SELECT
           COALESCE(SUM(
             CASE
-              WHEN ${ColumnNames.type} = 'income'
-                AND ${ColumnNames.walletId} = ?
-              THEN ${ColumnNames.amount}
+              WHEN ${NamaKolom.type} = 'income'
+                AND ${NamaKolom.walletId} = ?
+              THEN ${NamaKolom.amount}
 
-              WHEN ${ColumnNames.type} = 'expense'
-                AND ${ColumnNames.walletId} = ?
-              THEN -${ColumnNames.amount}
+              WHEN ${NamaKolom.type} = 'expense'
+                AND ${NamaKolom.walletId} = ?
+              THEN -${NamaKolom.amount}
 
-              WHEN ${ColumnNames.type} = 'transfer'
-                AND ${ColumnNames.walletId} = ?
-              THEN -${ColumnNames.amount}
+              WHEN ${NamaKolom.type} = 'transfer'
+                AND ${NamaKolom.walletId} = ?
+              THEN -${NamaKolom.amount}
 
-              WHEN ${ColumnNames.type} = 'transfer'
-                AND ${ColumnNames.destinationWalletId} = ?
-              THEN ${ColumnNames.amount}
+              WHEN ${NamaKolom.type} = 'transfer'
+                AND ${NamaKolom.destinationWalletId} = ?
+              THEN ${NamaKolom.amount}
 
               ELSE 0
             END
           ), 0) as total
         FROM $_tableName
-        WHERE ${ColumnNames.isDeleted} = 0 AND (${ColumnNames.walletId} = ? OR ${ColumnNames.destinationWalletId} = ?)
+        WHERE ${NamaKolom.isDeleted} = 0 AND (${NamaKolom.walletId} = ? OR ${NamaKolom.destinationWalletId} = ?)
         ''',
         [walletId, walletId, walletId, walletId, walletId, walletId],
       );
@@ -70,12 +70,12 @@ class TransactionOperation {
           (totalResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
       await txn.update(
-        TableNameValue.get(TableName.wallet),
+        NamaTabel.get(TableName.wallet),
         {
-          ColumnNames.balance: totalBalance,
-          ColumnNames.updatedAt: _nowEpoch,
+          NamaKolom.balance: totalBalance,
+          NamaKolom.updatedAt: _nowEpoch,
         },
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [walletId],
       );
 
@@ -133,9 +133,9 @@ class TransactionOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = ?',
+        where: '${NamaKolom.isDeleted} = ?',
         whereArgs: [0],
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
 
       Log.info('Berhasil mengambil ${maps.length} data transaksi dari SQLite');
@@ -155,7 +155,7 @@ class TransactionOperation {
       Log.info('Mencari transaksi berdasarkan ID: $id');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} = ?',
+        where: '${NamaKolom.id} = ?',
         whereArgs: [id],
         limit: 1,
       );
@@ -184,9 +184,9 @@ class TransactionOperation {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '${ColumnNames.customerId} = ? AND ${ColumnNames.paymentStatus} = ? AND ${ColumnNames.isDeleted} = ?',
+            '${NamaKolom.customerId} = ? AND ${NamaKolom.paymentStatus} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [customerId, PaymentStatus.paid.name, 0],
-        orderBy: '${ColumnNames.endDate} DESC',
+        orderBy: '${NamaKolom.endDate} DESC',
         limit: 1,
       );
 
@@ -217,9 +217,9 @@ class TransactionOperation {
       Log.info('Mengambil transaksi untuk Customer ID: $customerId');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = ?',
+        where: '${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [customerId, 0],
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info(
           'Ditemukan ${maps.length} transaksi untuk Customer ID: $customerId');
@@ -241,9 +241,9 @@ class TransactionOperation {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '(${ColumnNames.walletId} = ? OR ${ColumnNames.destinationWalletId} = ?) AND ${ColumnNames.isDeleted} = ?',
+            '(${NamaKolom.walletId} = ? OR ${NamaKolom.destinationWalletId} = ?) AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [walletId, walletId, 0],
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info('Ditemukan ${maps.length} transaksi untuk Wallet ID: $walletId');
       return List.generate(maps.length, (final i) {
@@ -262,10 +262,9 @@ class TransactionOperation {
       Log.info('Mengambil transaksi dengan status isActivated = 1');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where:
-            '${ColumnNames.isActivated} = ? AND ${ColumnNames.isDeleted} = ?',
+        where: '${NamaKolom.isActivated} = ? AND ${NamaKolom.isDeleted} = ?',
         whereArgs: [1, 0],
-        orderBy: '${ColumnNames.date} DESC',
+        orderBy: '${NamaKolom.date} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} transaksi aktivasi paket');
       return List.generate(maps.length, (final i) {
@@ -287,14 +286,14 @@ class TransactionOperation {
       await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai update transaksi database ID: $id');
-          final maps = await txn.query(_tableName,
-              where: '${ColumnNames.id} = ?', whereArgs: [id]);
+          final maps = await txn
+              .query(_tableName, where: '${NamaKolom.id} = ?', whereArgs: [id]);
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransactionModel.fromSqlite(maps.first);
             final updateData = newTransaction.copyWith(updatedAt: _nowUtc);
             await txn.update(_tableName, updateData.toSqlite(),
-                where: '${ColumnNames.id} = ?', whereArgs: [id]);
+                where: '${NamaKolom.id} = ?', whereArgs: [id]);
             Log.info('Data transaksi ID: $id diperbarui');
 
             final affectedWallets = <String>{};
@@ -334,8 +333,8 @@ class TransactionOperation {
       await baseOperation.runComplexOperation<void>(
         (final Transaction txn) async {
           Log.info('Memulai soft delete atomik untuk ID: $id');
-          final maps = await txn.query(_tableName,
-              where: '${ColumnNames.id} = ?', whereArgs: [id]);
+          final maps = await txn
+              .query(_tableName, where: '${NamaKolom.id} = ?', whereArgs: [id]);
 
           if (maps.isEmpty) {
             Log.warning('Soft delete gagal: Transaksi ID $id tidak ditemukan');
@@ -346,11 +345,11 @@ class TransactionOperation {
           await txn.update(
             _tableName,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: _nowEpoch,
-              ColumnNames.archivedAt: _nowEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.updatedAt: _nowEpoch,
+              NamaKolom.archivedAt: _nowEpoch,
             },
-            where: '${ColumnNames.id} = ?',
+            where: '${NamaKolom.id} = ?',
             whereArgs: [id],
           );
 
@@ -382,20 +381,20 @@ class TransactionOperation {
           final rowsAffected = await txn.update(
             _tableName,
             {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.updatedAt: _nowEpoch,
-              ColumnNames.archivedAt: _nowEpoch,
+              NamaKolom.isDeleted: 1,
+              NamaKolom.updatedAt: _nowEpoch,
+              NamaKolom.archivedAt: _nowEpoch,
             },
-            where: '${ColumnNames.isDeleted} = ?',
+            where: '${NamaKolom.isDeleted} = ?',
             whereArgs: [0],
           );
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
 
           await txn.update(
-            TableNameValue.get(TableName.wallet),
+            NamaTabel.get(TableName.wallet),
             {
-              ColumnNames.balance: 0,
-              ColumnNames.updatedAt: _nowEpoch,
+              NamaKolom.balance: 0,
+              NamaKolom.updatedAt: _nowEpoch,
             },
           );
           Log.info(
@@ -418,7 +417,7 @@ class TransactionOperation {
       final db = await _db;
       Log.info('Menghitung total seluruh pemasukan');
       final result = await db.rawQuery(
-          "SELECT SUM(${ColumnNames.amount}) as total FROM $_tableName WHERE ${ColumnNames.type} = 'income' AND ${ColumnNames.isDeleted} = 0");
+          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tableName WHERE ${NamaKolom.type} = 'income' AND ${NamaKolom.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -437,7 +436,7 @@ class TransactionOperation {
       final db = await _db;
       Log.info('Menghitung total seluruh pengeluaran');
       final result = await db.rawQuery(
-          "SELECT SUM(${ColumnNames.amount}) as total FROM $_tableName WHERE ${ColumnNames.type} = 'expense' AND ${ColumnNames.isDeleted} = 0");
+          "SELECT SUM(${NamaKolom.amount}) as total FROM $_tableName WHERE ${NamaKolom.type} = 'expense' AND ${NamaKolom.isDeleted} = 0");
       double total = 0.0;
       if (result.isNotEmpty && result.first['total'] != null) {
         total = (result.first['total'] as num).toDouble();
@@ -466,7 +465,7 @@ class TransactionOperation {
       final db = await dbHelper.database;
       Log.info('Menghitung poin yang dihasilkan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.earnedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.paymentStatus} = ?',
+          'SELECT SUM(${NamaKolom.earnedPoints}) as total FROM $_tableName WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
           [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin dihasilkan: $total');
@@ -483,7 +482,7 @@ class TransactionOperation {
       final db = await dbHelper.database;
       Log.info('Menghitung poin yang digunakan Customer: $customerId');
       final result = await db.rawQuery(
-          'SELECT SUM(${ColumnNames.usedPoints}) as total FROM $_tableName WHERE ${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0 AND ${ColumnNames.paymentStatus} = ?',
+          'SELECT SUM(${NamaKolom.usedPoints}) as total FROM $_tableName WHERE ${NamaKolom.customerId} = ? AND ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.paymentStatus} = ?',
           [customerId, PaymentStatus.paid.name]);
       final total = result.first['total'] as int? ?? 0;
       Log.info('Poin digunakan: $total');
@@ -563,7 +562,7 @@ class TransactionOperation {
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.id} IN ($placeholders)',
+        where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );
       Log.info('Berhasil mengambil ${maps.length} transaksi dari list ID');

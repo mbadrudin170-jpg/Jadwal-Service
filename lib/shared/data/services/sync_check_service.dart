@@ -2,8 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/data/services/new_data_check_service.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
@@ -74,17 +74,17 @@ class SyncCheckService {
   Future<void> _updateGlobalStatus() async {
     try {
       await _firestore
-          .collection(TableNameValue.get(TableName.statusGlobal))
+          .collection(NamaTabel.get(TableName.statusGlobal))
           .doc(globalStatusId)
           .set(
-        {ColumnNames.updatedAt: FieldValue.serverTimestamp()},
+        {NamaKolom.updatedAt: FieldValue.serverTimestamp()},
         SetOptions(merge: true),
       );
       Log.info(
-          'Dokumen ${TableNameValue.get(TableName.statusGlobal)}/global berhasil diperbarui.');
+          'Dokumen ${NamaTabel.get(TableName.statusGlobal)}/global berhasil diperbarui.');
     } on Exception catch (e, s) {
       Log.error(
-          'Gagal memperbarui dokumen ${TableNameValue.get(TableName.statusGlobal)}/global.',
+          'Gagal memperbarui dokumen ${NamaTabel.get(TableName.statusGlobal)}/global.',
           e: e,
           st: s);
     }
@@ -93,7 +93,7 @@ class SyncCheckService {
   Future<void> _checkAndRunDownload() async {
     try {
       final bool hasNewServerData = await _newDataCheck.hasNewFirebaseData(
-        collectionName: TableNameValue.get(TableName.statusGlobal),
+        collectionName: NamaTabel.get(TableName.statusGlobal),
         documentId: globalStatusId,
       );
 

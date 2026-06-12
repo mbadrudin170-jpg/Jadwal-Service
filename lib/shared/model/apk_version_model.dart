@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
@@ -164,42 +164,41 @@ class ApkVersionModel implements HasId {
   /// Factory to create `ApkVersionModel` from SQLite data.
   factory ApkVersionModel.fromSqlite(final Map<String, dynamic> map) {
     return ApkVersionModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      releaseNotes: map[ColumnNames.releaseNotes] as String? ?? '',
-      latestVersion: map[ColumnNames.latestVersion] as String? ?? '',
-      youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
+      id: map[NamaKolom.id] as String? ?? '',
+      releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
+      latestVersion: map[NamaKolom.latestVersion] as String? ?? '',
+      youtubeTutorial: map[NamaKolom.youtubeTutorial] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      isUpdateRequired: ParserUtil.parseBool(map[ColumnNames.isUpdateRequired]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
-      downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
+      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.isUpdateRequired]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      latestBuildNumber: _parseBuildNumber(map[NamaKolom.latestBuildNumber]),
+      downloadLinks: _parseDownloadLinks(map[NamaKolom.downloadLinks]),
       // DIUBAH: Menggunakan ParserUtil
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
     );
   }
 
   /// Converts the model to a Map for SQLite.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.releaseNotes: releaseNotes,
-      ColumnNames.latestVersion: latestVersion,
-      ColumnNames.youtubeTutorial: youtubeTutorial,
+      NamaKolom.id: id,
+      NamaKolom.releaseNotes: releaseNotes,
+      NamaKolom.latestVersion: latestVersion,
+      NamaKolom.youtubeTutorial: youtubeTutorial,
       // DIUBAH: Memastikan konsistensi
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.latestBuildNumber: jsonEncode(
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.latestBuildNumber: jsonEncode(
         latestBuildNumber
             .map((final key, final value) => MapEntry(key.name, value)),
       ),
-      ColumnNames.downloadLinks: jsonEncode(
+      NamaKolom.downloadLinks: jsonEncode(
         downloadLinks
             .map((final key, final value) => MapEntry(key.name, value)),
       ),
-      ColumnNames.isUpdateRequired: isUpdateRequired ? 1 : 0,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.isUpdateRequired: isUpdateRequired ? 1 : 0,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
     };
   }
 
@@ -212,15 +211,15 @@ class ApkVersionModel implements HasId {
       final String id, final Map<String, dynamic> map) {
     return ApkVersionModel(
       id: id,
-      releaseNotes: map[ColumnNames.releaseNotes] as String? ?? '',
-      latestVersion: map[ColumnNames.latestVersion] as String? ?? '',
-      youtubeTutorial: map[ColumnNames.youtubeTutorial] as String? ?? '',
-      isUpdateRequired: ParserUtil.parseBool(map[ColumnNames.isUpdateRequired]),
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      latestBuildNumber: _parseBuildNumber(map[ColumnNames.latestBuildNumber]),
-      downloadLinks: _parseDownloadLinks(map[ColumnNames.downloadLinks]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
+      releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
+      latestVersion: map[NamaKolom.latestVersion] as String? ?? '',
+      youtubeTutorial: map[NamaKolom.youtubeTutorial] as String? ?? '',
+      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.isUpdateRequired]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      latestBuildNumber: _parseBuildNumber(map[NamaKolom.latestBuildNumber]),
+      downloadLinks: _parseDownloadLinks(map[NamaKolom.downloadLinks]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
     );
   }
 
@@ -228,21 +227,21 @@ class ApkVersionModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       // DIUBAH: 'id' tidak seharusnya menjadi bagian dari data dokumen
-      ColumnNames.releaseNotes: releaseNotes,
-      ColumnNames.latestVersion: latestVersion,
-      ColumnNames.youtubeTutorial: youtubeTutorial,
-      ColumnNames.updatedAt:
+      NamaKolom.releaseNotes: releaseNotes,
+      NamaKolom.latestVersion: latestVersion,
+      NamaKolom.youtubeTutorial: youtubeTutorial,
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      ColumnNames.latestBuildNumber: latestBuildNumber.map(
+      NamaKolom.latestBuildNumber: latestBuildNumber.map(
         (final key, final value) => MapEntry(key.name, value),
       ),
-      ColumnNames.downloadLinks: downloadLinks.map(
+      NamaKolom.downloadLinks: downloadLinks.map(
         (final key, final value) => MapEntry(key.name, value),
       ),
-      ColumnNames.isUpdateRequired: isUpdateRequired,
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.isUpdateRequired: isUpdateRequired,
+      NamaKolom.isDeleted: isDeleted,
     };
   }
 }

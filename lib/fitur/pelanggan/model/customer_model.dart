@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/shared/constant/column_names.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
@@ -84,37 +84,36 @@ class CustomerModel implements HasId {
 
   /// Creates a [CustomerModel] from a SQLite map.
   factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {
-    Log.info('Creating CustomerModel from SQLite: ${map[ColumnNames.id]}');
+    Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
     return CustomerModel(
-      id: map[ColumnNames.id] as String? ?? '',
-      name: map[ColumnNames.name] as String? ?? '',
-      phone: map[ColumnNames.phone] as String? ?? '',
-      address: map[ColumnNames.address] as String? ?? '',
-      password: map[ColumnNames.password] as String? ?? '',
-      macAddress: map[ColumnNames.macAddress] as String? ?? '',
+      id: map[NamaKolom.id] as String? ?? '',
+      name: map[NamaKolom.name] as String? ?? '',
+      phone: map[NamaKolom.phone] as String? ?? '',
+      address: map[NamaKolom.address] as String? ?? '',
+      password: map[NamaKolom.password] as String? ?? '',
+      macAddress: map[NamaKolom.macAddress] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      isDeleted: ParserUtil.parseBool(map[ColumnNames.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(map[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(map[ColumnNames.archivedAt]),
-      lastActiveAt: ParserUtil.parseDateTime(map[ColumnNames.lastActiveAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      lastActiveAt: ParserUtil.parseDateTime(map[NamaKolom.lastActiveAt]),
     );
   }
 
   /// Converts the [CustomerModel] to a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.phone: phone,
-      ColumnNames.address: address,
-      ColumnNames.password: password,
-      ColumnNames.macAddress: macAddress,
-      ColumnNames.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.phone: phone,
+      NamaKolom.address: address,
+      NamaKolom.password: password,
+      NamaKolom.macAddress: macAddress,
+      NamaKolom.isDeleted: isDeleted ? 1 : 0,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      ColumnNames.updatedAt:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      ColumnNames.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      ColumnNames.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
+      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -124,36 +123,36 @@ class CustomerModel implements HasId {
     Log.info('Creating CustomerModel from Firebase: $id');
     return CustomerModel(
       id: id,
-      name: data[ColumnNames.name] as String? ?? '',
-      phone: data[ColumnNames.phone] as String? ?? '',
-      address: data[ColumnNames.address] as String? ?? '',
-      password: data[ColumnNames.password] as String? ?? '',
-      macAddress: data[ColumnNames.macAddress] as String? ?? '',
+      name: data[NamaKolom.name] as String? ?? '',
+      phone: data[NamaKolom.phone] as String? ?? '',
+      address: data[NamaKolom.address] as String? ?? '',
+      password: data[NamaKolom.password] as String? ?? '',
+      macAddress: data[NamaKolom.macAddress] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      isDeleted: ParserUtil.parseBool(data[ColumnNames.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(data[ColumnNames.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(data[ColumnNames.archivedAt]),
-      lastActiveAt: ParserUtil.parseDateTime(data[ColumnNames.lastActiveAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      lastActiveAt: ParserUtil.parseDateTime(data[NamaKolom.lastActiveAt]),
     );
   }
 
   /// Converts the [CustomerModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      ColumnNames.id: id,
-      ColumnNames.name: name,
-      ColumnNames.phone: phone,
-      ColumnNames.address: address,
-      ColumnNames.password: password,
-      ColumnNames.macAddress: macAddress,
-      ColumnNames.isDeleted: isDeleted,
+      NamaKolom.id: id,
+      NamaKolom.name: name,
+      NamaKolom.phone: phone,
+      NamaKolom.address: address,
+      NamaKolom.password: password,
+      NamaKolom.macAddress: macAddress,
+      NamaKolom.isDeleted: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      ColumnNames.updatedAt:
+      NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      ColumnNames.archivedAt:
+      NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      ColumnNames.lastActiveAt: lastActiveAt != null
+      NamaKolom.lastActiveAt: lastActiveAt != null
           ? Timestamp.fromDate(lastActiveAt!.toUtc())
           : null,
     };

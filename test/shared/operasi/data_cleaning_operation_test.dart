@@ -6,8 +6,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/constant/column_names.dart';
-import 'package:wifi/shared/constant/table_name_value.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 
@@ -28,7 +28,7 @@ void main() {
   late DataCleaningOperation dataCleaningOperation;
 
   // Nama tabel untuk pengujian
-  final testTable = TableNameValue.get(TableName.customer);
+  final testTable = NamaTabel.get(TableName.customer);
 
   setUp(() async {
     // Setup untuk SQLite
@@ -40,8 +40,8 @@ void main() {
       CREATE TABLE $testTable (
         id TEXT PRIMARY KEY,
         name TEXT,
-        ${ColumnNames.isDeleted} INTEGER DEFAULT 0,
-        ${ColumnNames.archivedAt} INTEGER
+        ${NamaKolom.isDeleted} INTEGER DEFAULT 0,
+        ${NamaKolom.archivedAt} INTEGER
       )
     ''');
 
@@ -76,13 +76,13 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': oldDataIdSqlite,
       'name': 'Old User SQLite',
-      ColumnNames.isDeleted: 1,
-      ColumnNames.archivedAt:
+      NamaKolom.isDeleted: 1,
+      NamaKolom.archivedAt:
           timeLimit.subtract(const Duration(days: 1)).millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).set({
-      ColumnNames.isDeleted: true,
-      ColumnNames.archivedAt: Timestamp.fromDate(
+      NamaKolom.isDeleted: true,
+      NamaKolom.archivedAt: Timestamp.fromDate(
         timeLimit.subtract(const Duration(days: 1)),
       ),
     });
@@ -93,12 +93,12 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': newDataIdSqlite,
       'name': 'New User SQLite',
-      ColumnNames.isDeleted: 1,
-      ColumnNames.archivedAt: now.millisecondsSinceEpoch,
+      NamaKolom.isDeleted: 1,
+      NamaKolom.archivedAt: now.millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(newDataIdFirestore).set({
-      ColumnNames.isDeleted: true,
-      ColumnNames.archivedAt: Timestamp.now(),
+      NamaKolom.isDeleted: true,
+      NamaKolom.archivedAt: Timestamp.now(),
     });
 
     // Verifikasi Awal
