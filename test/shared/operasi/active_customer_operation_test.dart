@@ -30,7 +30,7 @@ void main() {
   late MockCustomerOperation mockCustomerOperation;
   late MockNotifikasiServis mockNotifikasiServis;
   late MockDatabase mockDatabase;
-  late ActiveCustomerOperation activeCustomerOperation;
+  late PelangganAktifOpSqlite activeCustomerOperation;
   late MockTransaction mockTransaction;
 
   setUp(() {
@@ -43,10 +43,10 @@ void main() {
 
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
 
-    activeCustomerOperation = ActiveCustomerOperation(
+    activeCustomerOperation = PelangganAktifOpSqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
-      customerOperation: mockCustomerOperation,
+      pelangganOpSqlite: mockCustomerOperation,
       notifikasiServis: mockNotifikasiServis,
     );
   });
@@ -94,7 +94,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tActiveCustomerMap1]);
 
-      final result = await activeCustomerOperation.getAllActiveCustomers();
+      final result = await activeCustomerOperation.getALl();
 
       expect(result, isA<List<PelangganAktifModel>>());
       expect(result.length, 1);
@@ -107,7 +107,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tActiveCustomerMap1]);
 
-      final result = await activeCustomerOperation.getActiveCustomerById('1');
+      final result = await activeCustomerOperation.getById('1');
 
       expect(result, isA<PelangganAktifModel>());
       expect(result?.id, tActiveCustomer1.id);

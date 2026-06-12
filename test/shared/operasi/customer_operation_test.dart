@@ -55,7 +55,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
-      final result = await customerOperation.getAll();
+      final result = await customerOperation.ambilSemua();
 
       expect(result, isA<List<PelangganModel>>());
       expect(result.first.id, tCustomer.id);

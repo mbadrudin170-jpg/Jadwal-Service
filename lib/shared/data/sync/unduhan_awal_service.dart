@@ -129,7 +129,7 @@ class UnduhanAwalService {
 }
 
 // ✅ HANYA SATU PROVIDER - gunakan Provider biasa
-final initialDownloadServiceProvider = Provider<UnduhanAwalService>((ref) {
+final unduhanAwalServiceProvider = Provider<UnduhanAwalService>((ref) {
   return UnduhanAwalService(
     sqliteDb: ref.read(sqliteDatabaseProvider),
     downloadDataService: ref.read(downloadDataServiceProvider),

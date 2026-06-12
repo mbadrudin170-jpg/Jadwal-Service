@@ -49,7 +49,7 @@ class DetailDompet extends ConsumerStatefulWidget {
   final DompetOpSqlite? walletOperation;
 
   /// Operasi untuk mengelola data transaksi.
-  final TransactionOperation? transactionOperation;
+  final TransaksiOpsqlite? transactionOperation;
 
   /// Membuat instance [DetailDompet].
   const DetailDompet({

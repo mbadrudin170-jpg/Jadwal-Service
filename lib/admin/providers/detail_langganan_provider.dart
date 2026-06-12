@@ -26,7 +26,7 @@ Future<DetailLanggananState?> ambilDetailLangganan(
 ) async {
   // Ambil semua operation repo
   final transaksiOpSqlite = ref.watch(transactionOperationProvider);
-  final pelangganOpSqlite = ref.watch(customerOperationProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final paketOpSqlite = ref.watch(packageOperationProvider);
 
   // 1. Ambil data transaksi utama

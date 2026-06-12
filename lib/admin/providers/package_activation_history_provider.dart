@@ -56,14 +56,14 @@ class PackageActivationHistory extends _$PackageActivationHistory {
   FutureOr<PackageActivationHistoryState> build() {
     ref.watch(transactionOperationProvider);
     ref.watch(
-        customerOperationProvider); // Pastikan provider customer juga ditonton
+        pelangganOpSqliteProvider); // Pastikan provider customer juga ditonton
     return _loadData(SortOption.endDate);
   }
 
   Future<PackageActivationHistoryState> _loadData(SortOption targetSort) async {
     // 3. Ambil kedua data stream
     final transactionOp = ref.read(transactionOperationProvider);
-    final customerOp = ref.read(customerOperationProvider);
+    final customerOp = ref.read(pelangganOpSqliteProvider);
 
     final transactions =
         await transactionOp.getTransactionsByPackageActivation();

@@ -43,7 +43,7 @@ class StatistikState {
 
 @Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
-  StatistikOpSqlite get _repository => ref.watch(statistikRepositoryProvider);
+  StatistikOpSqlite get _repository => ref.watch(statistikOpSliteProvider);
 
   @override
   Future<StatistikState> build() {
@@ -61,7 +61,7 @@ class Statistik extends _$Statistik {
       final pelanggan = await _repository.getTotalPelanggan();
       final langgananAktif = await _repository.getJumlahLanggananAktif();
       final feedbackBaru = await _repository.getJumlahFeedbackBaru();
-      final paketTerlaris = await _repository.getBestSellingPackages();
+      final paketTerlaris = await _repository.getPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
 
       return StatistikState(

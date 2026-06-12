@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/customer_detail.dart
+// path: lib/admin/halaman/detail/detail_pelanggan.dart
 
 import 'dart:async';
 
@@ -66,7 +66,7 @@ MAC : ${customer.macAddress}
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(customerDetailProvider(idPelanggan));
+    final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
     return detailAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),

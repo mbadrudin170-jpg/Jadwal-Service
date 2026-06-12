@@ -80,7 +80,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   }
 
   Future<void> _saveForm() async {
-    final customerOperation = ref.read(customerOperationProvider);
+    final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
@@ -103,14 +103,13 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
           );
-          await customerOperation.tambah(newCustomer);
+          await pelangganOpSqlite.tambah(newCustomer);
         } else {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',
           );
-          await customerOperation.perbaruiPelanggan(newCustomer);
+          await pelangganOpSqlite.perbaruiPelanggan(newCustomer);
         }
-        ref.invalidate(customerDetailProvider(widget.customer!.id));
         ref.invalidate(customerListProvider);
         if (!mounted) return;
 

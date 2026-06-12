@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'package_activation_history_provider_test.mocks.dart';
 
-@GenerateMocks([TransactionOperation, PelangganOpSqlite])
+@GenerateMocks([TransaksiOpsqlite, PelangganOpSqlite])
 void main() {
   // 1. Definisikan data dummy yang valid
   final now = DateTime.now();

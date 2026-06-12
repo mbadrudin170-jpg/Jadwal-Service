@@ -93,11 +93,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
-    final pelangganOpSqlite = ref.read(customerOperationProvider);
+    final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
     final paketOpsqlite = ref.read(packageOperationProvider);
     final transaksiOperasi = ref.read(transactionOperationProvider);
     final dompetOpSqlite = ref.read(walletOperationProvider);
-    final kategoriOperasi = ref.read(categoryOperationProvider);
+    final kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
     try {
       final pa = widget.pelangganAktif;
       final transaksiTerkaitFuture = pa?.transactionId != null
@@ -105,10 +105,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           : Future<TransaksiModel?>.value();
 
       final results = await Future.wait<Object?>([
-        pelangganOpSqlite.ambilSemua(),
+        pelangganAktifOpSqlite.getALl(),
         paketOpsqlite.ambilBerdasarkanAktif(),
-        dompetOpSqlite.getWallets(),
-        kategoriOperasi.getCategories(),
+        dompetOpSqlite.getAll(),
+        kategoriOpSqlite.getAll(),
         transaksiTerkaitFuture,
       ]);
 
@@ -261,7 +261,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<SaveResultModel<PelangganAktifModel>> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
-    final pelangganAktifOperasi = ref.read(activeCustomerOperationProvider);
+    final pelangganAktifOpsqlite = ref.read(pelangganAktifOpSqliteProvider);
     if (!(_formKey.currentState?.validate() ?? false)) {
       Log.warning('Validasi form gagal');
       if (mounted) {
@@ -336,7 +336,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
-        pelangganAktifHasil = await pelangganAktifOperasi
+        pelangganAktifHasil = await pelangganAktifOpsqlite
             .updateActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
@@ -345,7 +345,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Log.info(
             'menghapus data notifikasi dalam mode edit agar data selalu terbaru');
       } else {
-        pelangganAktifHasil = await pelangganAktifOperasi
+        pelangganAktifHasil = await pelangganAktifOpsqlite
             .createActiveCustomer(pelangganAktifData);
         await ref
             .read(transactionProvider.notifier)
@@ -767,7 +767,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           if (hasil.success) {
             ToastUtil.success(context, hasil.message);
             ref.invalidate(activeCustomerOpFirebaseProvider);
-            ref.invalidate(activeCustomerOperationProvider);
+            ref.invalidate(pelangganAktifOpSqliteProvider);
             ref.invalidate(transactionOperationProvider);
             ref.invalidate(transactionOpFirebaseProvider);
             ref.invalidate(walletOperationProvider);

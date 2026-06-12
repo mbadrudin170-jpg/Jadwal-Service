@@ -42,7 +42,7 @@ class DompetOpSqlite {
   /// Mengambil semua dompet dari database.
   ///
   /// Jika [showArchived] `true`, maka dompet yang telah diarsipkan juga akan diambil.
-  Future<List<WalletModel>> getWallets({
+  Future<List<WalletModel>> getAll({
     final bool showArchived = false,
   }) async {
     Log.info('Memulai getWallets (showArchived: $showArchived).');

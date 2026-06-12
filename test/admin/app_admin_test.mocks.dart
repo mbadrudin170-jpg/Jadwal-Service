@@ -563,12 +563,12 @@ class MockUnduhanAwalService extends _i1.Mock
       ) as _i7.Future<void>);
 }
 
-/// A class which mocks [ActiveCustomerOperation].
+/// A class which mocks [PelangganAktifOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockActiveCustomerOperation extends _i1.Mock
-    implements _i13.ActiveCustomerOperation {
-  MockActiveCustomerOperation() {
+class MockPelangganAktifOpSqlite extends _i1.Mock
+    implements _i13.PelangganAktifOpSqlite {
+  MockPelangganAktifOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -625,10 +625,9 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i7.Future<_i4.PelangganAktifModel>);
 
   @override
-  _i7.Future<List<_i4.PelangganAktifModel>> getAllActiveCustomers() =>
-      (super.noSuchMethod(
+  _i7.Future<List<_i4.PelangganAktifModel>> getALl() => (super.noSuchMethod(
         Invocation.method(
-          #getAllActiveCustomers,
+          #getALl,
           [],
         ),
         returnValue: _i7.Future<List<_i4.PelangganAktifModel>>.value(
@@ -636,10 +635,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i7.Future<List<_i4.PelangganAktifModel>>);
 
   @override
-  _i7.Future<_i4.PelangganAktifModel?> getActiveCustomerById(String? id) =>
+  _i7.Future<_i4.PelangganAktifModel?> getById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomerById,
+          #getById,
           [id],
         ),
         returnValue: _i7.Future<_i4.PelangganAktifModel?>.value(),
@@ -710,11 +709,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<void> permanentlyDeleteArchivedCustomers(
-          {bool? fromServer = false}) =>
+  _i7.Future<void> hapusPermanenDataSoftDelete({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #permanentlyDeleteArchivedCustomers,
+          #hapusPermanenDataSoftDelete,
           [],
           {#fromServer: fromServer},
         ),

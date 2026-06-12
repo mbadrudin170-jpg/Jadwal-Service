@@ -3,7 +3,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
+import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/debug/log.dart';
 
@@ -15,19 +15,19 @@ Future<List<(PelangganModel, int)>> customerList(Ref ref) async {
   Log.info(
       'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...');
 
-  final customerOp = ref.watch(customerOperationProvider);
-  final pointsOp = ref.watch(sqlitePointsDataSourceProvider);
-  final customers = await customerOp.ambilSemua();
-  final List<Future<int>> pointsFutures = customers
-      .map((PelangganModel c) => pointsOp.getTotalPoints(c.id))
+  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
+  final poinOpSqlite = ref.watch(sqlitePointsDataSourceProvider);
+  final listPelanggan = await pelangganOpSqlite.ambilSemua();
+  final List<Future<int>> pointsFutures = listPelanggan
+      .map((PelangganModel c) => poinOpSqlite.getTotalPoints(c.id))
       .toList();
-  final points = await Future.wait(pointsFutures);
-  final List<(PelangganModel, int)> result = [];
-  for (int i = 0; i < customers.length; i++) {
-    result.add((customers[i], points[i]));
+  final poin = await Future.wait(pointsFutures);
+  final List<(PelangganModel, int)> hasil = [];
+  for (int i = 0; i < listPelanggan.length; i++) {
+    hasil.add((listPelanggan[i], poin[i]));
   }
 
-  return result;
+  return hasil;
 }
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
@@ -35,7 +35,7 @@ Future<List<(PelangganModel, int)>> customerList(Ref ref) async {
 class UrutanPelangganState extends _$UrutanPelangganState {
   @override
   UrutanPelanggan build() {
-    return UrutanPelanggan.nameAZ;
+    return UrutanPelanggan.namaAZ;
   }
 
   void ubahUrutan(UrutanPelanggan urutanBaru) {
@@ -69,11 +69,11 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 @riverpod
-Future<(PelangganModel?, int)> customerDetail(Ref ref, String id) async {
-  final customerOp = ref.watch(customerOperationProvider);
-  final transactionOp = ref.watch(transactionOperationProvider);
-  final customer = await customerOp.getById(id);
-  final points = await transactionOp.getTotalPoints(id);
+Future<(PelangganModel?, int)> pelangganDetail(Ref ref, String id) async {
+  final pelangganOpSqlte = ref.watch(pelangganOpSqliteProvider);
+  final transaksiOpSqlite = ref.watch(transactionOperationProvider);
+  final pelanggan = await pelangganOpSqlte.getById(id);
+  final poin = await transaksiOpSqlite.getTotalPoints(id);
 
-  return (customer, points);
+  return (pelanggan, poin);
 }

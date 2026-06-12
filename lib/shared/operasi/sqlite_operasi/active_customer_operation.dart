@@ -14,7 +14,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 
 const uuid = Uuid();
 
-class ActiveCustomerOperation {
+class PelangganAktifOpSqlite {
   final SqliteDatabase dbHelper;
   final BaseOpSqlite _baseOperation;
   final NotifikasiServis _notifikasiServis;
@@ -25,13 +25,13 @@ class ActiveCustomerOperation {
 
   DateTime get _nowUtc => DateTime.now().toUtc();
 
-  ActiveCustomerOperation({
+  PelangganAktifOpSqlite({
     required this.dbHelper,
     required BaseOpSqlite baseOperation,
-    required PelangganOpSqlite customerOperation,
+    required PelangganOpSqlite pelangganOpSqlite,
     required NotifikasiServis notifikasiServis,
   })  : _baseOperation = baseOperation,
-        _customerOperation = customerOperation,
+        _customerOperation = pelangganOpSqlite,
         _notifikasiServis = notifikasiServis {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
@@ -39,8 +39,7 @@ class ActiveCustomerOperation {
   Future<void> rescheduleAllNotifications() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<PelangganAktifModel> allActiveCustomers =
-          await getAllActiveCustomers();
+      final List<PelangganAktifModel> allActiveCustomers = await getALl();
 
       if (allActiveCustomers.isEmpty) {
         Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
@@ -139,7 +138,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<List<PelangganAktifModel>> getAllActiveCustomers() async {
+  Future<List<PelangganAktifModel>> getALl() async {
     try {
       final db = await dbHelper.database;
       Log.info('Mengambil semua active customer dari tabel $_tableName');
@@ -161,7 +160,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<PelangganAktifModel?> getActiveCustomerById(final String id) async {
+  Future<PelangganAktifModel?> getById(final String id) async {
     try {
       final db = await dbHelper.database;
       Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
@@ -313,7 +312,7 @@ class ActiveCustomerOperation {
     try {
       Log.info('Mengarsipkan active customer ID: $id');
 
-      final activeCustomer = await getActiveCustomerById(id);
+      final activeCustomer = await getById(id);
       if (activeCustomer == null) {
         Log.info('Active customer ID: $id tidak ditemukan');
         return;
@@ -349,7 +348,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<void> permanentlyDeleteArchivedCustomers({
+  Future<void> hapusPermanenDataSoftDelete({
     final bool fromServer = false,
   }) async {
     try {
@@ -446,7 +445,7 @@ class ActiveCustomerOperation {
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA active customer');
-      final allCustomers = await getAllActiveCustomers();
+      final allCustomers = await getALl();
 
       if (allCustomers.isEmpty) {
         Log.info('Tidak ada active customer untuk diarsipkan');

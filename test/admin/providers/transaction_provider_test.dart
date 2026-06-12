@@ -14,7 +14,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'transaction_provider_test.mocks.dart';
 
 // 1. Membuat mock untuk TransactionOperation
-@GenerateNiceMocks([MockSpec<TransactionOperation>()])
+@GenerateNiceMocks([MockSpec<TransaksiOpsqlite>()])
 void main() {
   late MockTransactionOperation mockOperation;
   late ProviderContainer container;

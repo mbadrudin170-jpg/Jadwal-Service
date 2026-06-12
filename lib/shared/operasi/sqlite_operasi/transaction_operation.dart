@@ -13,14 +13,14 @@ import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
-class TransactionOperation {
+class TransaksiOpsqlite {
   final SqliteDatabase dbHelper;
   final BaseOpSqlite baseOperation;
   final String _tableName = NamaTabel.transactions;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
-  TransactionOperation({
+  TransaksiOpsqlite({
     required this.dbHelper,
     required this.baseOperation,
   });
@@ -494,7 +494,7 @@ class TransactionOperation {
   }
 
   /// Menghitung total saldo poin seorang pelanggan.
-  Future<int> getTotalPoints(final String customerId) async {
+  Future<int> getTotalPoints(String customerId) async {
     Log.info('Menghitung saldo poin akhir Customer: $customerId');
     final earnedPoints = await getEarnedPoints(customerId);
     final usedPoints = await getUsedPoints(customerId);

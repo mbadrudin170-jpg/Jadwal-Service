@@ -32,7 +32,7 @@ final class WalletProvider extends $AsyncNotifierProvider<Wallet, WalletState> {
   Wallet create() => Wallet();
 }
 
-String _$walletHash() => r'ba5ef76d13d52a0e9bd4fe742c23f7008d86027d';
+String _$walletHash() => r'3ae8230a29101d418dc930758ff902e617e79015';
 
 abstract class _$Wallet extends $AsyncNotifier<WalletState> {
   FutureOr<WalletState> build();

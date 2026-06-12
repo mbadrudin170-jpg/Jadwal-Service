@@ -26,7 +26,7 @@ class CustomerNameWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun CustomerNameWidget untuk customerId: $customerId');
-    final customerOperation = ref.read(customerOperationProvider);
+    final customerOperation = ref.read(pelangganOpSqliteProvider);
     return FutureBuilder<PelangganModel?>(
       future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {

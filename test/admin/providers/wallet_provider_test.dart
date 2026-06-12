@@ -44,7 +44,7 @@ void main() {
   });
 
   void aturStubSukses() {
-    when(mockDompetOpSqlite.getWallets())
+    when(mockDompetOpSqlite.getAll())
         .thenAnswer((_) async => [tWallet1, tWallet2]);
     when(mockDompetOpSqlite.ambilSaldoPositif())
         .thenAnswer((_) async => 100000);
@@ -69,7 +69,7 @@ void main() {
     expect(state.totalSaldoNegatif, 50000);
     expect(state.totalSaldo, 50000);
 
-    verify(mockDompetOpSqlite.getWallets()).called(1);
+    verify(mockDompetOpSqlite.getAll()).called(1);
     verify(mockDompetOpSqlite.ambilSaldoPositif()).called(1);
     verify(mockDompetOpSqlite.ambilSaldoNegatif()).called(1);
     verify(mockDompetOpSqlite.ambilTotalsaldo()).called(1);
@@ -87,7 +87,7 @@ void main() {
     );
 
     when(mockDompetOpSqlite.tambahDompet(newWallet)).thenAnswer((_) async {});
-    when(mockDompetOpSqlite.getWallets())
+    when(mockDompetOpSqlite.getAll())
         .thenAnswer((_) async => [tWallet1, tWallet2, newWallet]);
     when(mockDompetOpSqlite.ambilSaldoPositif())
         .thenAnswer((_) async => 120000);
@@ -112,7 +112,7 @@ void main() {
 
     when(mockDompetOpSqlite.updateDompet(updatedWallet))
         .thenAnswer((_) async {});
-    when(mockDompetOpSqlite.getWallets())
+    when(mockDompetOpSqlite.getAll())
         .thenAnswer((_) async => [updatedWallet, tWallet2]);
     when(mockDompetOpSqlite.ambilSaldoPositif())
         .thenAnswer((_) async => 150000);
@@ -133,7 +133,7 @@ void main() {
     await container.read(walletProvider.future);
 
     when(mockDompetOpSqlite.softDelete(tWallet1.id)).thenAnswer((_) async {});
-    when(mockDompetOpSqlite.getWallets()).thenAnswer((_) async => [tWallet2]);
+    when(mockDompetOpSqlite.getAll()).thenAnswer((_) async => [tWallet2]);
     when(mockDompetOpSqlite.ambilSaldoPositif()).thenAnswer((_) async => 0);
     when(mockDompetOpSqlite.ambilSaldoNegatif())
         .thenAnswer((_) async => -50000);
@@ -154,7 +154,7 @@ void main() {
     await container.read(walletProvider.future);
 
     when(mockDompetOpSqlite.softDeleteAll()).thenAnswer((_) async => 2);
-    when(mockDompetOpSqlite.getWallets()).thenAnswer((_) async => []);
+    when(mockDompetOpSqlite.getAll()).thenAnswer((_) async => []);
     when(mockDompetOpSqlite.ambilSaldoPositif()).thenAnswer((_) async => 0);
     when(mockDompetOpSqlite.ambilSaldoNegatif()).thenAnswer((_) async => 0);
     when(mockDompetOpSqlite.ambilTotalsaldo()).thenAnswer((_) async => 0);
@@ -178,7 +178,7 @@ void main() {
         name: 'Dompet Lain',
         balance: 30000,
         updatedAt: DateTime.now());
-    when(mockDompetOpSqlite.getWallets()).thenAnswer((_) async => [tWallet3]);
+    when(mockDompetOpSqlite.getAll()).thenAnswer((_) async => [tWallet3]);
     when(mockDompetOpSqlite.ambilSaldoPositif()).thenAnswer((_) async => 30000);
     when(mockDompetOpSqlite.ambilSaldoNegatif()).thenAnswer((_) async => 0);
     when(mockDompetOpSqlite.ambilTotalsaldo()).thenAnswer((_) async => 30000);
@@ -191,6 +191,6 @@ void main() {
     expect(state?.wallets.first.id, '3');
     expect(state?.totalSaldo, 30000);
     // getWallets dipanggil dua kali (build dan refresh)
-    verify(mockDompetOpSqlite.getWallets()).called(2);
+    verify(mockDompetOpSqlite.getAll()).called(2);
   });
 }

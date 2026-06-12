@@ -54,7 +54,7 @@ void main() {
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tCategoryMap]);
 
-      final result = await categoryOperation.getCategories();
+      final result = await categoryOperation.getAll();
 
       expect(result, isA<List<CategoryModel>>());
       expect(result.first.id, tCategory.id);

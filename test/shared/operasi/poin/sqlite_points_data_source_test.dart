@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'sqlite_points_data_source_test.mocks.dart';
 
-@GenerateMocks([TransactionOperation, PaketOpSqlite])
+@GenerateMocks([TransaksiOpsqlite, PaketOpSqlite])
 void main() {
   late MockTransactionOperation mockTransactionOperation;
   late MockPackageOperation mockPackageOperation;

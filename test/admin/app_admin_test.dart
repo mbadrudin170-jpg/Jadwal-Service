@@ -98,7 +98,7 @@ class MockWorkmanagerPlatform extends Mock
   KoneksiInternetService,
   NotifikasiServis,
   UnduhanAwalService,
-  ActiveCustomerOperation,
+  PelangganAktifOpSqlite,
   SettingsOpSqlite,
   DataCleaningOperation,
   SqliteDatabase,
@@ -184,7 +184,7 @@ void main() {
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
-        initialDownloadServiceProvider.overrideWithValue(mockLayananUnduhAwal),
+        unduhanAwalServiceProvider.overrideWithValue(mockLayananUnduhAwal),
         activeCustomerOperationProvider
             .overrideWithValue(mockActiveCustomerOperation),
         settingsOperationProvider.overrideWithValue(mockSettingsOperation),

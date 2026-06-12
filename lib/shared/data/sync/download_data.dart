@@ -20,8 +20,8 @@ class DownloadDataService {
   final CategoryOperation _categoryOperation;
   final PaketOpSqlite _paketOpSqlite;
   final PelangganOpSqlite _pelangganOpSqlite;
-  final ActiveCustomerOperation _activeCustomerOperation;
-  final TransactionOperation _transactionOperation;
+  final PelangganAktifOpSqlite _activeCustomerOperation;
+  final TransaksiOpsqlite _transactionOperation;
   final FeedbackOperation _feedbackOperation;
   final OrderOpsqlite _orderOperation;
   final SubKategoriOpSqlite _subCategoryOperation;
@@ -36,8 +36,8 @@ class DownloadDataService {
     required CategoryOperation categoryOperation,
     required PaketOpSqlite paketOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
-    required ActiveCustomerOperation activeCustomerOperation,
-    required TransactionOperation transactionOperation,
+    required PelangganAktifOpSqlite activeCustomerOperation,
+    required TransaksiOpsqlite transactionOperation,
     required FeedbackOperation feedbackOperation,
     required OrderOpsqlite orderOperation,
     required SubKategoriOpSqlite subCategoryOperation,
@@ -67,8 +67,8 @@ class DownloadDataService {
     required final CategoryOperation categoryOperation,
     required final PaketOpSqlite packageOperation,
     required final PelangganOpSqlite customerOperation,
-    required final ActiveCustomerOperation activeCustomerOperation,
-    required final TransactionOperation transactionOperation,
+    required final PelangganAktifOpSqlite activeCustomerOperation,
+    required final TransaksiOpsqlite transactionOperation,
     required final FeedbackOperation feedbackOperation,
     required final OrderOpsqlite orderOperation,
     required final SubKategoriOpSqlite subCategoryOperation,

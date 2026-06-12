@@ -111,7 +111,7 @@ class PelangganAktif extends _$PelangganAktif {
   }
 
   Future<PelangganAktifState> _loadData() async {
-    final operation = ref.watch(activeCustomerOperationProvider);
+    final operation = ref.watch(pelangganAktifOpSqliteProvider);
     final results = await Future.wait([
       operation.getAllActiveCustomersWithDetails(),
     ]);
@@ -126,9 +126,8 @@ class PelangganAktif extends _$PelangganAktif {
     final currentSortBy = state.value?.sortBy ?? SortOption.berakhirHariIni;
     state = const AsyncValue.loading();
     try {
-      final operation = ref.read(activeCustomerOperationProvider);
-      final data = await operation.getAllActiveCustomersWithDetails();
-      final sortedData = _sortData(data, currentSortBy);
+      final data =await  ref.read(pelangganAktifOpSqliteProvider).getAllActiveCustomersWithDetails();
+     final sortedData = _sortData(data, currentSortBy);
       state = AsyncValue.data(PelangganAktifState(
           daftarPelangganAktif: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {

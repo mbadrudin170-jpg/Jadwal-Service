@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 
-class MockTransactionOperation extends Mock implements TransactionOperation {}
+class MockTransactionOperation extends Mock implements TransaksiOpsqlite {}
 
 void main() {
   late MockDompetOpSqlite mockDompetOpSqlite;

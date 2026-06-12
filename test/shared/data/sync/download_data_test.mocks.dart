@@ -384,10 +384,10 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i12.WalletModel>> getWallets({bool? showArchived = false}) =>
+  _i9.Future<List<_i12.WalletModel>> getAll({bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getWallets,
+          #getAll,
           [],
           {#showArchived: showArchived},
         ),
@@ -527,9 +527,9 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
       ) as _i9.Future<_i3.CategoryModel>);
 
   @override
-  _i9.Future<List<_i3.CategoryModel>> getCategories() => (super.noSuchMethod(
+  _i9.Future<List<_i3.CategoryModel>> getAll() => (super.noSuchMethod(
         Invocation.method(
-          #getCategories,
+          #getAll,
           [],
         ),
         returnValue:
@@ -1003,12 +1003,12 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i17.PelangganOpSqlite {
       ) as _i9.Future<List<_i18.PelangganModel>>);
 }
 
-/// A class which mocks [ActiveCustomerOperation].
+/// A class which mocks [PelangganAktifOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockActiveCustomerOperation extends _i1.Mock
-    implements _i19.ActiveCustomerOperation {
-  MockActiveCustomerOperation() {
+class MockPelangganAktifOpSqlite extends _i1.Mock
+    implements _i19.PelangganAktifOpSqlite {
+  MockPelangganAktifOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -1065,10 +1065,9 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i9.Future<_i5.PelangganAktifModel>);
 
   @override
-  _i9.Future<List<_i5.PelangganAktifModel>> getAllActiveCustomers() =>
-      (super.noSuchMethod(
+  _i9.Future<List<_i5.PelangganAktifModel>> getALl() => (super.noSuchMethod(
         Invocation.method(
-          #getAllActiveCustomers,
+          #getALl,
           [],
         ),
         returnValue: _i9.Future<List<_i5.PelangganAktifModel>>.value(
@@ -1076,10 +1075,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i9.Future<List<_i5.PelangganAktifModel>>);
 
   @override
-  _i9.Future<_i5.PelangganAktifModel?> getActiveCustomerById(String? id) =>
+  _i9.Future<_i5.PelangganAktifModel?> getById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomerById,
+          #getById,
           [id],
         ),
         returnValue: _i9.Future<_i5.PelangganAktifModel?>.value(),
@@ -1150,11 +1149,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<void> permanentlyDeleteArchivedCustomers(
-          {bool? fromServer = false}) =>
+  _i9.Future<void> hapusPermanenDataSoftDelete({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #permanentlyDeleteArchivedCustomers,
+          #hapusPermanenDataSoftDelete,
           [],
           {#fromServer: fromServer},
         ),
@@ -1197,12 +1195,11 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i9.Future<List<_i5.PelangganAktifModel>>);
 }
 
-/// A class which mocks [TransactionOperation].
+/// A class which mocks [TransaksiOpsqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransactionOperation extends _i1.Mock
-    implements _i21.TransactionOperation {
-  MockTransactionOperation() {
+class MockTransaksiOpsqlite extends _i1.Mock implements _i21.TransaksiOpsqlite {
+  MockTransaksiOpsqlite() {
     _i1.throwOnMissingStub(this);
   }
 

@@ -30,7 +30,7 @@ class Wallet extends _$Wallet {
   Future<WalletState> _loadData() async {
     final operation = ref.watch(walletOperationProvider);
     final results = await Future.wait([
-      operation.getWallets(),
+      operation.getAll(),
       operation.ambilSaldoPositif(),
       operation.ambilSaldoNegatif(),
       operation.ambilTotalsaldo(),
@@ -49,7 +49,7 @@ class Wallet extends _$Wallet {
     state = await AsyncValue.guard(() async {
       final operation = ref.read(walletOperationProvider);
       await operation.tambahDompet(wallet);
-      
+
       return _loadData();
     });
   }

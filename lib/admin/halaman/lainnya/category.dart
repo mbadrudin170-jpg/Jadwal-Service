@@ -10,7 +10,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/category_form.dart';
+import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
@@ -41,7 +41,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
   @override
   void initState() {
     super.initState();
-    _categoryOperation = ref.read(categoryOperationProvider);
+    _categoryOperation = ref.read(kategoriOpSqliteProvider);
     _subCategoryOperation = ref.read(subCategoryOperationProvider);
     Log.info('Menginisialisasi halaman Kategori');
     _loadCategories();
@@ -49,7 +49,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
 
   Future<List<CategoryModel>> _loadCategoriesAndHandleErrors() async {
     try {
-      return await _categoryOperation.getCategories();
+      return await _categoryOperation.getAll();
     } on Exception catch (e, st) {
       Log.error('Gagal memuat data kategori', e: e, s: st);
       if (mounted) {

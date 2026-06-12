@@ -54,8 +54,8 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(notifikasiServisProvider);
-    final connectionService = ref.read(koneksiInternetServiceProvider);
-    final dbHelper = ref.read(sqliteDatabaseProvider);
+    final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
+    final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
       await BackgroundService.init();
 
@@ -78,16 +78,16 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       await initializeDateFormatting('id_ID');
 
-      await dbHelper.database;
+      await sqliteDb.database;
 
-      final activeCustomerOp = ref.read(activeCustomerOperationProvider);
-      await activeCustomerOp.permanentlyDeleteArchivedCustomers();
+      final pelangganAktifOpSqlite = ref.read(pelangganAktifOpSqliteProvider);
+      await pelangganAktifOpSqlite.hapusPermanenDataSoftDelete();
 
-      final isOnline = await connectionService.cekKoneksiLokal();
+      final isOnline = await koneksiInternetService.cekInternet(ref);
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
 
-        final initialDownloadService = ref.read(initialDownloadServiceProvider);
+        final initialDownloadService = ref.read(unduhanAwalServiceProvider);
         try {
           await initialDownloadService.jalankanUnduhanAwal().timeout(
                 const Duration(seconds: 30),
@@ -98,9 +98,9 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
               'Initial download memakan waktu terlalu lama (timeout). Melanjutkan inisialisasi...');
         }
 
-        final settingsOperation = ref.read(settingsOperationProvider);
-        final settingsModel = await settingsOperation.getSettings();
-        final retentionDays = settingsModel.autoDeleteArchiveDays;
+        final dataPengaturan =
+            await ref.read(settingsOperationProvider).getSettings();
+        final retentionDays = dataPengaturan.autoDeleteArchiveDays;
         final dataCleaningOperation = ref.read(dataCleaningOperationProvider);
         await dataCleaningOperation
             .deleteAllExpiredArchivedData(retentionDays: retentionDays)

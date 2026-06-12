@@ -82,7 +82,7 @@ final class CustomerListProvider extends $FunctionalProvider<
   }
 }
 
-String _$customerListHash() => r'61270a915caf3f9a16af216ae79b212bab2a7135';
+String _$customerListHash() => r'e347d79ed19a65dc1359c7afbf71c2a502a10a19';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
@@ -121,7 +121,7 @@ final class UrutanPelangganStateProvider
 }
 
 String _$urutanPelangganStateHash() =>
-    r'bf46790b0c49ff9c8da072dc3368a5f8fbae199c';
+    r'4d10172b1c7b6624a3ba78ae04fb5e40835a3fd8';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
@@ -260,12 +260,12 @@ abstract class _$SearchQueryPelanggan extends $Notifier<String> {
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-@ProviderFor(customerDetail)
-final customerDetailProvider = CustomerDetailFamily._();
+@ProviderFor(pelangganDetail)
+final pelangganDetailProvider = PelangganDetailFamily._();
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-final class CustomerDetailProvider extends $FunctionalProvider<
+final class PelangganDetailProvider extends $FunctionalProvider<
         AsyncValue<
             (
               PelangganModel?,
@@ -292,23 +292,23 @@ final class CustomerDetailProvider extends $FunctionalProvider<
               int,
             )> {
   /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
-  CustomerDetailProvider._(
-      {required CustomerDetailFamily super.from,
+  PelangganDetailProvider._(
+      {required PelangganDetailFamily super.from,
       required String super.argument})
       : super(
           retry: null,
-          name: r'customerDetailProvider',
+          name: r'pelangganDetailProvider',
           isAutoDispose: true,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$customerDetailHash();
+  String debugGetCreateSourceHash() => _$pelangganDetailHash();
 
   @override
   String toString() {
-    return r'customerDetailProvider'
+    return r'pelangganDetailProvider'
         ''
         '($argument)';
   }
@@ -330,7 +330,7 @@ final class CustomerDetailProvider extends $FunctionalProvider<
         int,
       )> create(Ref ref) {
     final argument = this.argument as String;
-    return customerDetail(
+    return pelangganDetail(
       ref,
       argument,
     );
@@ -338,7 +338,7 @@ final class CustomerDetailProvider extends $FunctionalProvider<
 
   @override
   bool operator ==(Object other) {
-    return other is CustomerDetailProvider && other.argument == argument;
+    return other is PelangganDetailProvider && other.argument == argument;
   }
 
   @override
@@ -347,11 +347,11 @@ final class CustomerDetailProvider extends $FunctionalProvider<
   }
 }
 
-String _$customerDetailHash() => r'8c70d63dd1f1d8e0f2f94725407c72bffd13c822';
+String _$pelangganDetailHash() => r'fe47ac1d6a223a7628a634f952dcab294e3816bb';
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-final class CustomerDetailFamily extends $Family
+final class PelangganDetailFamily extends $Family
     with
         $FunctionalFamilyOverride<
             FutureOr<
@@ -360,10 +360,10 @@ final class CustomerDetailFamily extends $Family
                   int,
                 )>,
             String> {
-  CustomerDetailFamily._()
+  PelangganDetailFamily._()
       : super(
           retry: null,
-          name: r'customerDetailProvider',
+          name: r'pelangganDetailProvider',
           dependencies: null,
           $allTransitiveDependencies: null,
           isAutoDispose: true,
@@ -371,11 +371,11 @@ final class CustomerDetailFamily extends $Family
 
   /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
-  CustomerDetailProvider call(
+  PelangganDetailProvider call(
     String id,
   ) =>
-      CustomerDetailProvider._(argument: id, from: this);
+      PelangganDetailProvider._(argument: id, from: this);
 
   @override
-  String toString() => r'customerDetailProvider';
+  String toString() => r'pelangganDetailProvider';
 }

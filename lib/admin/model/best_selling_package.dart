@@ -6,14 +6,14 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 /// Menggabungkan data dari [PaketModel] dengan jumlah total penjualannya.
 class BestSellingPackage {
   /// Data lengkap dari paket yang terjual.
-  final PaketModel package;
+  final PaketModel paket;
 
   /// Jumlah total paket ini terjual berdasarkan data transaksi.
-  final int totalSold;
+  final int totalTerjual;
 
   /// Konstruktor untuk membuat instance [BestSellingPackage].
   BestSellingPackage({
-    required this.package,
-    required this.totalSold,
+    required this.paket,
+    required this.totalTerjual,
   });
 }

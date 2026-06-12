@@ -40,7 +40,7 @@ void callbackDispatcher() {
         case rescheduleNotificationsTaskName:
           try {
             final activeCustomerOp =
-                container.read(activeCustomerOperationProvider);
+                container.read(pelangganAktifOpSqliteProvider);
             await activeCustomerOp.rescheduleAllNotifications();
             Log.info(
                 'Background task "$task" (reschedule) selesai dengan sukses.');
@@ -100,7 +100,7 @@ class BackgroundService {
     await _initializeBackgroundIsolate();
     final container = ProviderContainer();
     try {
-      final activeCustomerOp = container.read(activeCustomerOperationProvider);
+      final activeCustomerOp = container.read(pelangganAktifOpSqliteProvider);
       final count = await activeCustomerOp.archiveExpiredCustomers();
       Log.info(
           'Proses pengarsipan selesai. $count pelanggan kedaluwarsa telah diarsipkan.');

@@ -1,4 +1,4 @@
-// path: lib/fitur/pelanggan/ui/admin/customer.dart
+// path: lib/fitur/pelanggan/ui/admin/pelanggan.dart
 
 import 'dart:async';
 
@@ -16,12 +16,12 @@ import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Enum untuk menentukan opsi pengurutan daftar customer.
 enum UrutanPelanggan {
-  nameAZ,
-  nameZA,
-  lastActiveNewest,
-  lastActiveOldest,
-  pointsHighest,
-  pointsLowest,
+  namaAZ,
+  namaZa,
+  terakhirOnline,
+  terbaruOnline,
+  poinTerbanyak,
+  pointerkecil,
 }
 
 // --- Combined & Filtered Data Provider ---
@@ -42,32 +42,32 @@ final filteredCustomersProvider =
 
       // 2. Jalankan Fitur Pengurutan (Sorting)
       switch (sortOption) {
-        case UrutanPelanggan.nameAZ:
+        case UrutanPelanggan.namaAZ:
           filtered.sort((a, b) =>
               a.$1.name.toLowerCase().compareTo(b.$1.name.toLowerCase()));
           break;
-        case UrutanPelanggan.nameZA:
+        case UrutanPelanggan.namaZa:
           filtered.sort((a, b) =>
               b.$1.name.toLowerCase().compareTo(a.$1.name.toLowerCase()));
           break;
-        case UrutanPelanggan.lastActiveNewest:
+        case UrutanPelanggan.terakhirOnline:
           filtered.sort((a, b) {
             if (a.$1.lastActiveAt == null) return 1;
             if (b.$1.lastActiveAt == null) return -1;
             return b.$1.lastActiveAt!.compareTo(a.$1.lastActiveAt!);
           });
           break;
-        case UrutanPelanggan.lastActiveOldest:
+        case UrutanPelanggan.terbaruOnline:
           filtered.sort((a, b) {
             if (a.$1.lastActiveAt == null) return -1;
             if (b.$1.lastActiveAt == null) return 1;
             return a.$1.lastActiveAt!.compareTo(b.$1.lastActiveAt!);
           });
           break;
-        case UrutanPelanggan.pointsHighest:
+        case UrutanPelanggan.poinTerbanyak:
           filtered.sort((a, b) => b.$2.compareTo(a.$2));
           break;
-        case UrutanPelanggan.pointsLowest:
+        case UrutanPelanggan.pointerkecil:
           filtered.sort((a, b) => a.$2.compareTo(b.$2));
           break;
       }
@@ -79,8 +79,8 @@ final filteredCustomersProvider =
 });
 
 /// Halaman untuk menampilkan dan mengelola daftar semua customer.
-class CustomerPage extends ConsumerWidget {
-  const CustomerPage({super.key});
+class Pelanggan extends ConsumerWidget {
+  const Pelanggan({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -155,8 +155,8 @@ class CustomerPage extends ConsumerWidget {
           child: Text('Gagal memuat data: $e'),
         );
       },
-      data: (customers) {
-        if (customers.isEmpty) {
+      data: (listPelanggan) {
+        if (listPelanggan.isEmpty) {
           return Center(
             child: Text(
               isSearching
@@ -167,19 +167,19 @@ class CustomerPage extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          itemCount: customers.length,
+          itemCount: listPelanggan.length,
           itemBuilder: (context, index) {
-            final (customer, points) = customers[index];
+            final (pelanggan, poin) = listPelanggan[index];
             return Card(
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: ListTile(
-                title: Text(customer.name,
+                title: Text(pelanggan.name,
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(
-                  customer.lastActiveAt == null
+                  pelanggan.lastActiveAt == null
                       ? '-'
                       : FormatDateTime.formatDateAndTimeCompact(
-                          customer.lastActiveAt!),
+                          pelanggan.lastActiveAt!),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -187,15 +187,15 @@ class CustomerPage extends ConsumerWidget {
                     const Icon(TIcons.star, color: Colors.amber),
                     gapH4,
                     Text(
-                      points.toString(),
+                      poin.toString(),
                       style: context.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                onTap: () => _navigasiKeetail(context, ref, customer.id),
-                onLongPress: () => _showOptionsDialog(context, ref, customer),
+                onTap: () => _navigasiKeetail(context, ref, pelanggan.id),
+                onLongPress: () => _showOptionsDialog(context, ref, pelanggan),
               ),
             );
           },
@@ -233,14 +233,14 @@ class CustomerPage extends ConsumerWidget {
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
         children: <Widget>[
-          buildOption('Nama (A-Z)', UrutanPelanggan.nameAZ),
-          buildOption('Nama (Z-A)', UrutanPelanggan.nameZA),
+          buildOption('Nama (A-Z)', UrutanPelanggan.namaAZ),
+          buildOption('Nama (Z-A)', UrutanPelanggan.namaZa),
           buildOption(
-              'Aktivitas Terakhir (Terbaru)', UrutanPelanggan.lastActiveNewest),
+              'Aktivitas Terakhir (Terbaru)', UrutanPelanggan.terakhirOnline),
           buildOption(
-              'Aktivitas Terakhir (Terlama)', UrutanPelanggan.lastActiveOldest),
-          buildOption('Poin (Tertinggi)', UrutanPelanggan.pointsHighest),
-          buildOption('Poin (Terendah)', UrutanPelanggan.pointsLowest),
+              'Aktivitas Terakhir (Terlama)', UrutanPelanggan.terbaruOnline),
+          buildOption('Poin (Tertinggi)', UrutanPelanggan.poinTerbanyak),
+          buildOption('Poin (Terendah)', UrutanPelanggan.pointerkecil),
         ],
       ),
     );
@@ -346,7 +346,7 @@ class CustomerPage extends ConsumerWidget {
   Future<void> _softDeleteCustomer(
       BuildContext context, WidgetRef ref, String id) async {
     try {
-      await ref.read(customerOperationProvider).hapusSementara(id);
+      await ref.read(pelangganOpSqliteProvider).hapusSementara(id);
       ref.invalidate(customerListProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');

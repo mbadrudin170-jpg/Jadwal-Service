@@ -27,9 +27,9 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   late final DompetOpSqlite _dompetOpSqlite =
       ref.watch(walletOperationProvider);
   late final CategoryOperation _categoryOperation =
-      ref.watch(categoryOperationProvider);
+      ref.watch(kategoriOpSqliteProvider);
   late final PelangganOpSqlite _customerOperation =
-      ref.watch(customerOperationProvider);
+      ref.watch(pelangganOpSqliteProvider);
   late final PaketOpSqlite _packageOperation =
       ref.watch(packageOperationProvider);
   late final SubKategoriOpSqlite _subKategoriOpSqlite =
@@ -46,9 +46,9 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   }
 
   Future<String?> _getName(
-    final Future<dynamic> Function(String) getModel,
-    final String id,
-    final String label,
+    Future<dynamic> Function(String) getModel,
+    String id,
+    String label,
   ) async {
     if (id.isEmpty) return null;
 
@@ -72,7 +72,6 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   Future<void> _navigasiKeForm() async {
     Log.info(
         'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
-    // 1. Ubah tipe data yang diharapkan dari `Navigator.push` menjadi `bool?`
     final isSaved = await Navigator.push<bool?>(
       context,
       MaterialPageRoute(
@@ -91,7 +90,6 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
 
         if (updatedTransaction != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
-          // 4. Perbarui state dengan data baru.
           setState(() {
             _currentTransaction = updatedTransaction;
             _diUpdate = true;
@@ -99,7 +97,6 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
         } else {
           Log.warning(
               'Gagal memuat ulang transaksi: data tidak ditemukan setelah update.');
-          // Mungkin transaksi dihapus? Kembali saja.
           if (mounted) Navigator.pop(context, true);
         }
       } catch (e, s) {
@@ -115,7 +112,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final transaksi = _currentTransaction;
 
     return Scaffold(
@@ -226,7 +223,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
     );
   }
 
-  Widget _buildDetailRow(final String label, final String value) {
+  Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -242,10 +239,10 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
   }
 
   Widget _buildFutureDetailRow(
-      final String label, final Future<String?> future) {
+      String label, Future<String?> future) {
     return FutureBuilder<String?>(
       future: future,
-      builder: (final context, final snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildDetailRow(label, 'Memuat...');
         }

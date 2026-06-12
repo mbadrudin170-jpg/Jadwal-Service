@@ -221,7 +221,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   }
 
   Future<void> _saveForm() async {
-    final kategoriOperasi = ref.read(categoryOperationProvider);
+    final kategoriOperasi = ref.read(kategoriOpSqliteProvider);
     Log.info('Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}');
     Log.info(
       'Jenis: ${_isSubKategoriMode ? "SUB-KATEGORI" : "KATEGORI UTAMA"}',

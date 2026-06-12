@@ -50,7 +50,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   late final DompetOpSqlite _dompetOperasi;
   late final CategoryOperation _kategoriOperasi;
-  late final TransactionOperation _transaksiOperasi;
+  late final TransaksiOpsqlite _transaksiOperasi;
 
   List<CategoryModel> _kategoriList = [];
   List<WalletModel> _dompetList = [];
@@ -67,7 +67,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
     );
     _dompetOperasi = ref.read(walletOperationProvider);
-    _kategoriOperasi = ref.read(categoryOperationProvider);
+    _kategoriOperasi = ref.read(kategoriOpSqliteProvider);
     _transaksiOperasi = ref.read(transactionOperationProvider);
     unawaited(_loadData());
   }
@@ -77,9 +77,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     setState(() => _isLoading = true);
 
     try {
-      final dompetList = await _dompetOperasi.getWallets();
+      final dompetList = await _dompetOperasi.getAll();
       Log.info('Berhasil memuat ${dompetList.length} dompet.');
-      final kategoriList = await _kategoriOperasi.getCategories();
+      final kategoriList = await _kategoriOperasi.getAll();
       Log.info('Berhasil memuat ${kategoriList.length} kategori.');
 
       if (!mounted) return;

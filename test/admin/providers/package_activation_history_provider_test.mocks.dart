@@ -51,12 +51,11 @@ class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
         );
 }
 
-/// A class which mocks [TransactionOperation].
+/// A class which mocks [TransaksiOpsqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransactionOperation extends _i1.Mock
-    implements _i4.TransactionOperation {
-  MockTransactionOperation() {
+class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
+  MockTransaksiOpsqlite() {
     _i1.throwOnMissingStub(this);
   }
 

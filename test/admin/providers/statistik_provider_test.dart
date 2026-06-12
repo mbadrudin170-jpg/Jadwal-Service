@@ -15,8 +15,8 @@ class MockStatistikRepository extends Mock implements StatistikOpSqlite {}
 
 void main() {
   final tBestSellingPackage = BestSellingPackage(
-    totalSold: 10,
-    package: PaketModel(
+    totalTerjual: 10,
+    paket: PaketModel(
       name: 'Paket A',
       price: 50000,
       duration: 30,
@@ -28,7 +28,7 @@ void main() {
     final mockRepository = MockStatistikRepository();
     final container = ProviderContainer(
       overrides: [
-        statistikRepositoryProvider.overrideWithValue(mockRepository),
+        statistikOpSliteProvider.overrideWithValue(mockRepository),
       ],
     );
     addTearDown(container.dispose);
@@ -37,7 +37,7 @@ void main() {
     when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
     when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
     when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
-    when(mockRepository.getBestSellingPackages)
+    when(mockRepository.getPaketTerlaris)
         .thenAnswer((_) async => [tBestSellingPackage]);
 
     await expectLater(container.read(statistikProvider.future), completes);
@@ -52,7 +52,7 @@ void main() {
     final mockRepository = MockStatistikRepository();
     final container = ProviderContainer(
       overrides: [
-        statistikRepositoryProvider.overrideWithValue(mockRepository),
+        statistikOpSliteProvider.overrideWithValue(mockRepository),
       ],
     );
     addTearDown(container.dispose);
@@ -83,7 +83,7 @@ void main() {
     final mockRepository = MockStatistikRepository();
     final container = ProviderContainer(
       overrides: [
-        statistikRepositoryProvider.overrideWithValue(mockRepository),
+        statistikOpSliteProvider.overrideWithValue(mockRepository),
       ],
     );
     addTearDown(container.dispose);
@@ -92,7 +92,7 @@ void main() {
     when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
     when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
     when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
-    when(mockRepository.getBestSellingPackages).thenAnswer((_) async => []);
+    when(mockRepository.getPaketTerlaris).thenAnswer((_) async => []);
     await container.read(statistikProvider.future);
 
     when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 2000.0);

@@ -13,7 +13,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 import 'boot_service_test.mocks.dart';
 
-@GenerateMocks([AlarmScheduler, ActiveCustomerOperation])
+@GenerateMocks([AlarmScheduler, PelangganAktifOpSqlite])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

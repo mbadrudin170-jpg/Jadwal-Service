@@ -15,86 +15,79 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
-final statistikRepositoryProvider = Provider<StatistikOpSqlite>((ref) {
+final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
   return StatistikOpSqlite(
-    activeCustomerOperation: ref.watch(activeCustomerOperationProvider),
-    feedbackOperation: ref.watch(feedbackOperationProvider),
-    packageOperation: ref.watch(packageOperationProvider),
-    transactionOperation: ref.watch(transactionOperationProvider),
+    pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
+    feedbackOpSqlite: ref.watch(feedbackOperationProvider),
+    paketOpSqlite: ref.watch(packageOperationProvider),
+    transaksiOpSqlite: ref.watch(transactionOperationProvider),
   );
 });
 
 /// Repos
 class StatistikOpSqlite {
-  final ActiveCustomerOperation _activeCustomerOperation;
+  final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
   final FeedbackOperation _feedbackOperation;
-  final PaketOpSqlite _packageOperation;
-  final TransactionOperation _transactionOperation;
+  final PaketOpSqlite _paketOpsqlite;
+  final TransaksiOpsqlite _transaksiOpSlite;
 
   StatistikOpSqlite({
-    required ActiveCustomerOperation activeCustomerOperation,
-    required FeedbackOperation feedbackOperation,
-    required PaketOpSqlite packageOperation,
-    required TransactionOperation transactionOperation,
-  })  : _activeCustomerOperation = activeCustomerOperation,
-        _feedbackOperation = feedbackOperation,
-        _packageOperation = packageOperation,
-        _transactionOperation = transactionOperation;
+    required PelangganAktifOpSqlite pelangganAktifOpSqlite,
+    required FeedbackOperation feedbackOpSqlite,
+    required PaketOpSqlite paketOpSqlite,
+    required TransaksiOpsqlite transaksiOpSqlite,
+  })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
+        _feedbackOperation = feedbackOpSqlite,
+        _paketOpsqlite = paketOpSqlite,
+        _transaksiOpSlite = transaksiOpSqlite;
 
-  Future<List<BestSellingPackage>> getBestSellingPackages(
-      {final int limit = 5}) async {
+  Future<List<BestSellingPackage>> getPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
-      final allPackages = await _packageOperation.ambilBerdasarkanAktif();
-      final allTransactions = await _transactionOperation.getAllTransactions();
+      final allPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
+      final allTransaksi = await _transaksiOpSlite.getAllTransactions();
 
-      if (allTransactions.isEmpty) {
+      if (allTransaksi.isEmpty) {
         Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
         return [];
       }
 
-      // Hitung frekuensi penjualan setiap paketId
-      final salesCount = allTransactions
-          .where((final t) => t.packageId != null)
-          .groupListsBy((final t) => t.packageId!)
-          .map((final key, final value) => MapEntry(key, value.length));
+      final salesCount = allTransaksi
+          .where((t) => t.packageId != null)
+          .groupListsBy((t) => t.packageId!)
+          .map((key, value) => MapEntry(key, value.length));
 
-      // Buat list BestSellingPackage
-      final bestSellingPackages = allPackages.map((final package) {
+      final paketTerlaris = allPaket.map((paket) {
         return BestSellingPackage(
-          package: package,
-          totalSold: salesCount[package.id] ?? 0,
+          paket: paket,
+          totalTerjual: salesCount[paket.id] ?? 0,
         );
       }).toList();
 
-      // Urutkan dari yang paling banyak terjual
-      bestSellingPackages
-          .sort((final a, final b) => b.totalSold.compareTo(a.totalSold));
+      paketTerlaris.sort((a, b) => b.totalTerjual.compareTo(a.totalTerjual));
 
-      // Ambil sejumlah limit, jika lebih
-      final result = bestSellingPackages.take(limit).toList();
+      final hasil = paketTerlaris.take(limit).toList();
       Log.info(
-          'Berhasil menghitung ${result.length} paket terlaris: ${result.map((final p) => '${p.package.name} (${p.totalSold})').toList()}');
+          'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.name} (${p.totalTerjual})').toList()}');
 
-      return result;
+      return hasil;
     } on Exception catch (e, st) {
       Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghitung total pendapatan bersih (paid - unpaid) dari tabel transaksi untuk bulan ini.
   Future<double> getPendapatanBulanIni() async {
     Log.info(
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      const String tableName = '"${NamaTabel.transactions}"';
-      final String paidStatus = PaymentStatus.paid.name;
-      final String unpaidStatus = PaymentStatus.unpaid.name;
+      const String namaTabel = '"${NamaTabel.transactions}"';
+      final String statusLunas = PaymentStatus.paid.name;
+      final String statusBelumLunas = PaymentStatus.unpaid.name;
 
-      final List<Map<String, dynamic>> result = await db.rawQuery(
+      final List<Map<String, dynamic>> hasil = await db.rawQuery(
         '''
         SELECT SUM(
           CASE
@@ -103,43 +96,39 @@ class StatistikOpSqlite {
             ELSE 0
           END
         ) as total
-        FROM $tableName
+        FROM $namaTabel
         WHERE ${NamaKolom.isDeleted} = 0
         ''',
-        [paidStatus, unpaidStatus],
+        [statusLunas, statusBelumLunas],
       );
 
-      Log.info('Query pendapatan bersih selesai. Hasil mentah: $result');
+      Log.info('Query pendapatan bersih selesai. Hasil mentah: $hasil');
 
-      if (result.isNotEmpty && result.first['total'] != null) {
-        final total = (result.first['total'] as num).toDouble();
+      if (hasil.isNotEmpty && hasil.first['total'] != null) {
+        final total = (hasil.first['total'] as num).toDouble();
         Log.info('Total pendapatan bersih yang dihitung: $total');
         return total;
       } else {
         Log.info('Tidak ada transaksi ditemukan bulan ini, mengembalikan 0.0');
         return 0.0;
       }
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
-        e: e,
-        s: st,
-      );
+    } catch (e, st) {
+      Log.error('Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
+          e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghitung jumlah total pelanggan yang tidak dihapus dari database.
   Future<int> getTotalPelanggan() async {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      const String tableName = '"${NamaTabel.customer}"';
+      const String namaTabel = '"${NamaTabel.customer}"';
 
       final result = await db.rawQuery(
         '''
         SELECT COUNT(*) 
-        FROM $tableName 
+        FROM $namaTabel 
         WHERE ${NamaKolom.isDeleted} = 0
         ''',
       );
@@ -150,48 +139,33 @@ class StatistikOpSqlite {
       Log.info('Total pelanggan yang dihitung: $count');
       return count;
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil total pelanggan dari SQLite.',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghitung jumlah langganan aktif dari database.
   Future<int> getJumlahLanggananAktif() async {
     Log.info('Mulai mengambil jumlah langganan aktif.');
     try {
-      final activeCustomers =
-          await _activeCustomerOperation.getAllActiveCustomers();
+      final activeCustomers = await _pelangganAktifOpSqlite.getALl();
       final count = activeCustomers.length;
       Log.info('Jumlah langganan aktif yang dihitung: $count');
       return count;
     } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil jumlah langganan aktif.',
-        e: e,
-        s: st,
-      );
+      Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }
   }
 
-  /// Menghitung jumlah feedback baru (aktif) dari database.
   Future<int> getJumlahFeedbackBaru() async {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
-      final activeFeedback = await _feedbackOperation.getAllActiveFeedback();
-      final count = activeFeedback.length;
+      final listfeddbackAktif = await _feedbackOperation.getAllActiveFeedback();
+      final count = listfeddbackAktif.length;
       Log.info('Jumlah feedback baru yang dihitung: $count');
       return count;
-    } on Exception catch (e, st) {
-      Log.error(
-        'Gagal mengambil jumlah feedback baru.',
-        e: e,
-        s: st,
-      );
+    } catch (e, st) {
+      Log.error('Gagal mengambil jumlah feedback baru.', e: e, s: st);
       rethrow;
     }
   }

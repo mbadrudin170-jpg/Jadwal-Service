@@ -48,7 +48,7 @@ final activeCustomerDetailProvider = FutureProvider.family<
   final pelangganAktif = detailModel.activeCustomer;
 
   // 3. Fetch detail tambahan menggunakan operasi individual
-  final pelangganOpSqlite = ref.watch(customerOperationProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final paketOpSqlite = ref.watch(packageOperationProvider);
   final transaksiOpsqlite = ref.watch(transactionOperationProvider);
   final hasil = await Future.wait<Object?>([

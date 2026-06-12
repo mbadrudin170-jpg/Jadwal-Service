@@ -15,7 +15,7 @@ import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/data_dummy/halaman_data_dummy.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page_a.dart';
-import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
+import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -92,7 +92,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             context: context,
             icon: TIcons.customers,
             title: 'Data Pelanggan',
-            onTap: () => _navigateTo(const CustomerPage(), 'Data Pelanggan'),
+            onTap: () => _navigateTo(const Pelanggan(), 'Data Pelanggan'),
           ),
           _buildMenuItem(
             context: context,

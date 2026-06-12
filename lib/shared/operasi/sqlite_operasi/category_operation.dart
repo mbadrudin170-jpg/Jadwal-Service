@@ -51,7 +51,7 @@ class CategoryOperation {
   }
 
   /// Mengambil semua kategori yang tidak diarsipkan.
-  Future<List<CategoryModel>> getCategories() async {
+  Future<List<CategoryModel>> getAll() async {
     Log.info(
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
     try {

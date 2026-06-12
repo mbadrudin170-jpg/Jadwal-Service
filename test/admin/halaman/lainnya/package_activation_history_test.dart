@@ -21,7 +21,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'package_activation_history_test.mocks.dart';
 
-@GenerateMocks([TransactionOperation, PaketOpSqlite, PelangganOpSqlite])
+@GenerateMocks([TransaksiOpsqlite, PaketOpSqlite, PelangganOpSqlite])
 void main() {
   late MockTransactionOperation mockTransactionOp;
   late MockPackageOperation mockPackageOp;

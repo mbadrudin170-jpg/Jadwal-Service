@@ -86,9 +86,9 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     super.dispose();
   }
 
-  ActiveCustomerOperation get _activeCustomerOperation =>
-      ref.read(activeCustomerOperationProvider);
-  TransactionOperation get _transactionOperation =>
+  PelangganAktifOpSqlite get _activeCustomerOperation =>
+      ref.read(pelangganAktifOpSqliteProvider);
+  TransaksiOpsqlite get _transactionOperation =>
       ref.read(transactionOperationProvider);
 
   void _onSearchChanged() {

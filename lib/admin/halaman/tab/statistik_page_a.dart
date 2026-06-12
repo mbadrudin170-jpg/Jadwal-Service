@@ -7,7 +7,7 @@ import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
+import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -106,7 +106,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                                builder: (_) => const CustomerPage())),
+                                builder: (_) => const Pelanggan())),
                         title: 'Total Pelanggan',
                         value: data.totalPelanggan.toString(),
                         icon: TIcons.customers,
@@ -287,8 +287,8 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           final item = packages[index];
           return ListTile(
             leading: CircleAvatar(child: Text('#${index + 1}')),
-            title: Text(item.package.name),
-            trailing: Text('${item.totalSold} terjual',
+            title: Text(item.paket.name),
+            trailing: Text('${item.totalTerjual} terjual',
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.bold)),
           );

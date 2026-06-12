@@ -7,11 +7,11 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 /// Service untuk memeriksa dan mengarsipkan langganan yang kadaluwarsa.
 class ExpiredSubscriptionCheckService {
-  final ActiveCustomerOperation _activeCustomerOperation;
+  final PelangganAktifOpSqlite _activeCustomerOperation;
 
   /// Konstruktor dengan injeksi dependensi.
   ExpiredSubscriptionCheckService({
-    required ActiveCustomerOperation activeCustomerOperation,
+    required PelangganAktifOpSqlite activeCustomerOperation,
   }) : _activeCustomerOperation = activeCustomerOperation {
     Log.info(
         'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.');

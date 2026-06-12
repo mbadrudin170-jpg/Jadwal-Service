@@ -15,7 +15,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 import 'active_customer_provider_test.mocks.dart';
 
-@GenerateNiceMocks([MockSpec<ActiveCustomerOperation>()])
+@GenerateNiceMocks([MockSpec<PelangganAktifOpSqlite>()])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

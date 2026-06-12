@@ -9,11 +9,11 @@ import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class SQLitePointsDataSource implements PointsPageDataSource {
-  final TransactionOperation _transactionOperation;
+  final TransaksiOpsqlite _transactionOperation;
   final PaketOpSqlite _packageOperation;
 
   SQLitePointsDataSource({
-    required TransactionOperation transactionOperation,
+    required TransaksiOpsqlite transactionOperation,
     required PaketOpSqlite packageOperation,
   })  : _transactionOperation = transactionOperation,
         _packageOperation = packageOperation;

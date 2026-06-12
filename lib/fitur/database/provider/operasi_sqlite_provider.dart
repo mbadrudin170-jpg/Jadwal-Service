@@ -34,14 +34,14 @@ PaketOpSqlite packageOperation(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [TransactionOperation].
+/// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
 @Riverpod(keepAlive: true)
-TransactionOperation transactionOperation(Ref ref) {
+TransaksiOpsqlite transactionOperation(Ref ref) {
   Log.info('Membuat instance TransactionOperation via @riverpod...');
   final dbHelper = ref.watch(sqliteDatabaseProvider);
   final baseOperation = ref.watch(baseOpSqliteProvider);
 
-  return TransactionOperation(
+  return TransaksiOpsqlite(
     dbHelper: dbHelper,
     baseOperation: baseOperation,
   );
@@ -49,7 +49,7 @@ TransactionOperation transactionOperation(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 @Riverpod(keepAlive: true)
-PelangganOpSqlite customerOperation(Ref ref) {
+PelangganOpSqlite pelangganOpSqlite(Ref ref) {
   Log.info('Membuat instance CustomerOperation via @riverpod...');
   final dbHelper = ref.watch(sqliteDatabaseProvider);
   final baseOperation = ref.watch(baseOpSqliteProvider);
@@ -60,19 +60,19 @@ PelangganOpSqlite customerOperation(Ref ref) {
   );
 }
 
-/// Provider untuk menyediakan instance dari [ActiveCustomerOperation].
+/// Provider untuk menyediakan instance dari [PelangganAktifOpSqlite].
 @Riverpod(keepAlive: true)
-ActiveCustomerOperation activeCustomerOperation(Ref ref) {
+PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   Log.info('Membuat instance ActiveCustomerOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOperation = ref.watch(baseOpSqliteProvider);
-  final customerOperation = ref.watch(customerOperationProvider);
+  final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
   final notifikasiServis = ref.watch(notifikasiServisProvider);
 
-  return ActiveCustomerOperation(
-    dbHelper: dbHelper,
+  return PelangganAktifOpSqlite(
+    dbHelper: sqliteDb,
     baseOperation: baseOperation,
-    customerOperation: customerOperation,
+    pelangganOpSqlite: pelangganOpSqlite,
     notifikasiServis: notifikasiServis,
   );
 }
@@ -92,7 +92,7 @@ ApkVersionOperation apkVersionOperation(Ref ref) {
 
 /// Provider untuk menyediakan instance dari [CategoryOperation].
 @Riverpod(keepAlive: true)
-CategoryOperation categoryOperation(Ref ref) {
+CategoryOperation kategoriOpSqlite(Ref ref) {
   Log.info('Membuat instance CategoryOperation via @riverpod...');
   final dbHelper = ref.watch(sqliteDatabaseProvider);
   final baseOperation = ref.watch(baseOpSqliteProvider);

@@ -44,7 +44,7 @@ void main() {
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tWalletMap]);
 
-      final result = await dompetOpSqlite.getWallets();
+      final result = await dompetOpSqlite.getAll();
 
       expect(result, isA<List<WalletModel>>());
       expect(result.length, 1);

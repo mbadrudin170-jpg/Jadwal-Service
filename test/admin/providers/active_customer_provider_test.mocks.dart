@@ -49,11 +49,11 @@ class _FakePelangganAktifModel_1 extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [ActiveCustomerOperation].
+/// A class which mocks [PelangganAktifOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockActiveCustomerOperation extends _i1.Mock
-    implements _i4.ActiveCustomerOperation {
+class MockPelangganAktifOpSqlite extends _i1.Mock
+    implements _i4.PelangganAktifOpSqlite {
   @override
   _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
@@ -123,10 +123,9 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i5.Future<_i3.PelangganAktifModel>);
 
   @override
-  _i5.Future<List<_i3.PelangganAktifModel>> getAllActiveCustomers() =>
-      (super.noSuchMethod(
+  _i5.Future<List<_i3.PelangganAktifModel>> getALl() => (super.noSuchMethod(
         Invocation.method(
-          #getAllActiveCustomers,
+          #getALl,
           [],
         ),
         returnValue: _i5.Future<List<_i3.PelangganAktifModel>>.value(
@@ -137,10 +136,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i5.Future<List<_i3.PelangganAktifModel>>);
 
   @override
-  _i5.Future<_i3.PelangganAktifModel?> getActiveCustomerById(String? id) =>
+  _i5.Future<_i3.PelangganAktifModel?> getById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomerById,
+          #getById,
           [id],
         ),
         returnValue: _i5.Future<_i3.PelangganAktifModel?>.value(),
@@ -221,11 +220,10 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> permanentlyDeleteArchivedCustomers(
-          {bool? fromServer = false}) =>
+  _i5.Future<void> hapusPermanenDataSoftDelete({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #permanentlyDeleteArchivedCustomers,
+          #hapusPermanenDataSoftDelete,
           [],
           {#fromServer: fromServer},
         ),

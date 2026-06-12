@@ -118,7 +118,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
         try {
           final dataPelanggan = await ref
-              .read(customerOperationProvider)
+              .read(pelangganOpSqliteProvider)
               .getById(widget.customerId);
 
           final now = DateTime.now();

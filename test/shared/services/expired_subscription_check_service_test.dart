@@ -9,7 +9,7 @@ import 'package:wifi/shared/services/expired_subscription_check_service.dart';
 import 'expired_subscription_check_service_test.mocks.dart';
 
 // Jalankan perintah `flutter pub run build_runner build` untuk menghasilkan file mocks
-@GenerateMocks([ActiveCustomerOperation])
+@GenerateMocks([PelangganAktifOpSqlite])
 void main() {
   // Deklarasi variabel untuk mock dan service
   late MockActiveCustomerOperation mockActiveCustomerOperation;
@@ -44,7 +44,8 @@ void main() {
       // tapi untuk sekarang kita fokus pada interaksi dengan operation.
     });
 
-    test('2. harus mencatat error saat archiveExpiredCustomers melempar pengecualian',
+    test(
+        '2. harus mencatat error saat archiveExpiredCustomers melempar pengecualian',
         () async {
       // Arrange
       // Atur agar mock melempar sebuah exception saat dipanggil

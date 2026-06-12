@@ -39,9 +39,9 @@ class HalamanDataDummy extends ConsumerWidget {
                   'Pelanggan',
                   DataDummy.customers,
                   ref
-                      .read(customerOperationProvider)
+                      .read(pelangganOpSqliteProvider)
                       .sisipkanAtauPerbaruiBatch);
-              ref.invalidate(customerOperationProvider);
+              ref.invalidate(pelangganOpSqliteProvider);
             },
             label: 'Tambah Pelanggan Dummy',
             icon: Icons.person_add,
@@ -60,8 +60,8 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Kategori', DataDummy.categories,
-                  ref.read(categoryOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(categoryOperationProvider);
+                  ref.read(kategoriOpSqliteProvider).insertOrUpdateBatch);
+              ref.invalidate(kategoriOpSqliteProvider);
             },
             label: 'Tambah Kategori Dummy',
             icon: Icons.category,
@@ -113,7 +113,7 @@ class HalamanDataDummy extends ConsumerWidget {
                   'Pelanggan Aktif',
                   DataDummy.activeCustomers,
                   ref
-                      .read(activeCustomerOperationProvider)
+                      .read(pelangganAktifOpSqliteProvider)
                       .insertOrUpdateBatch);
               ref.invalidate(pelangganAktifProvider);
             },

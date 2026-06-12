@@ -18,7 +18,7 @@ void main() {
   late MockDatabaseHelper mockDbHelper;
   late MockBaseOperation mockBaseOperation;
   late MockDatabase mockDatabase;
-  late TransactionOperation transactionOperation;
+  late TransaksiOpsqlite transactionOperation;
   late MockTransaction mockTransaction;
 
   setUp(() {
@@ -26,7 +26,7 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     mockTransaction = MockTransaction();
-    transactionOperation = TransactionOperation(
+    transactionOperation = TransaksiOpsqlite(
       dbHelper: mockDbHelper,
       baseOperation: mockBaseOperation,
     );

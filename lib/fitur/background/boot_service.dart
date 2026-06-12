@@ -31,7 +31,7 @@ class BootService {
   Future<void> rescheduleArchivingTask(ProviderContainer container) async {
     Log.info('Memulai penjadwalan ulang tugas pengarsipan...');
     final alarmScheduler = container.read(alarmSchedulerProvider);
-    final activeCustomerOp = container.read(activeCustomerOperationProvider);
+    final activeCustomerOp = container.read(pelangganAktifOpSqliteProvider);
 
     try {
       final activeCustomers =
