@@ -173,7 +173,7 @@ class PackageOperation {
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
-      await baseOperation.softDelete(
+      await baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: dariServer,
@@ -189,7 +189,7 @@ class PackageOperation {
   Future<int> hapusSementaraSemua({bool dariServer = false}) async {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
-      final count = await baseOperation.softDeleteAll(
+      final count = await baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: dariServer,
       );

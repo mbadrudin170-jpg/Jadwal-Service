@@ -20,7 +20,7 @@ class CustomerOperation {
   /// Instance dari [BaseOperation] untuk operasi CRUD dasar.
   final BaseOperation _baseOperation;
 
-  final String _tableName = TableNameValue.get(TableName.customer);
+  final String _namaTabel = TableNameValue.get(TableName.customer);
 
   /// Konstruktor untuk [CustomerOperation].
   ///
@@ -47,7 +47,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.insert(
-        _tableName,
+        _namaTabel,
         data,
         fromServer: dariServer,
       );
@@ -68,7 +68,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where:
             '${ColumnNames.archivedAt} IS NULL AND ${ColumnNames.isDeleted} = ?',
         whereArgs: [0],
@@ -91,7 +91,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
       );
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
@@ -111,7 +111,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
@@ -140,7 +140,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.update(
-        _tableName,
+        _namaTabel,
         data,
         customer.id,
         dariServer: dariServer,
@@ -160,8 +160,8 @@ class CustomerOperation {
   }) async {
     Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {
-      await _baseOperation.softDelete(
-        _tableName,
+      await _baseOperation.hapusSementara(
+        _namaTabel,
         id,
         dariServer: dariServer,
       );
@@ -178,8 +178,8 @@ class CustomerOperation {
   }) async {
     Log.info('Memulai proses soft delete untuk semua customer.');
     try {
-      final count = await _baseOperation.softDeleteAll(
-        _tableName,
+      final count = await _baseOperation.hapusSementaraSemua(
+        _namaTabel,
         dariServer: dariServer,
       );
       Log.info(
@@ -199,7 +199,7 @@ class CustomerOperation {
       final db = await dbHelper.database;
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${ColumnNames.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -232,7 +232,7 @@ class CustomerOperation {
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       await _baseOperation.insertOrUpdateBatch(
-        _tableName,
+        _namaTabel,
         data,
         fromServer: dariServer,
       );
@@ -257,7 +257,7 @@ class CustomerOperation {
       final placeholders = List.filled(ids.length, '?').join(',');
       // DIUBAH: Menggunakan TableNameValue berbasis v50
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${ColumnNames.id} IN ($placeholders)',
         whereArgs: ids,
       );

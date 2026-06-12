@@ -88,11 +88,11 @@ void main() {
     });
 
     test('softDelete should soft delete a category', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+      when(mockBaseOperation.hapusSementara(any, any)).thenAnswer((_) async {});
 
       await categoryOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(any, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(any, '1')).called(1);
     });
   });
 }

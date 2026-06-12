@@ -51,7 +51,8 @@ void main() {
     });
 
     test('2. getAll harus mengembalikan daftar customer', () async {
-      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+      when(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
       final result = await customerOperation.getAll();
@@ -61,7 +62,8 @@ void main() {
     });
 
     test('3. getById harus mengembalikan seorang customer', () async {
-      when(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+      when(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCustomerMap]);
 
       final result = await customerOperation.getById('1');
@@ -79,11 +81,11 @@ void main() {
     });
 
     test('5. softDelete harus melakukan soft delete pada customer', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+      when(mockBaseOperation.hapusSementara(any, any)).thenAnswer((_) async {});
 
       await customerOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(any, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(any, '1')).called(1);
     });
   });
 }

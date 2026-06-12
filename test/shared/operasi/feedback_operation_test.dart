@@ -220,14 +220,14 @@ void main() {
       await feedbackOperation.softDelete('id1');
 
       // Assert
-      verify(mockBaseOperation.softDelete(tableName, 'id1')).called(1);
+      verify(mockBaseOperation.hapusSementara(tableName, 'id1')).called(1);
     });
 
     test(
         '11. softDeleteAll harus memanggil baseOperation.softDeleteAll dan mengembalikan jumlahnya',
         () async {
       // Arrange
-      when(mockBaseOperation.softDeleteAll(tableName))
+      when(mockBaseOperation.hapusSementaraSemua(tableName))
           .thenAnswer((_) async => 5);
 
       // Act
@@ -235,7 +235,7 @@ void main() {
 
       // Assert
       expect(count, 5);
-      verify(mockBaseOperation.softDeleteAll(tableName)).called(1);
+      verify(mockBaseOperation.hapusSementaraSemua(tableName)).called(1);
     });
 
     test('12. deleteAll harus mengeksekusi delete dalam sebuah transaksi',

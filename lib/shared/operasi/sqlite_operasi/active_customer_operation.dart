@@ -164,7 +164,7 @@ class ActiveCustomerOperation {
   Future<void> hapusPelangganAktif(String id, {bool dariServer = false}) async {
     Log.info('Menghapus (soft delete) pelanggan aktif ID: $id');
     try {
-      await baseOperation.softDelete(
+      await baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: dariServer,
@@ -258,7 +258,7 @@ class ActiveCustomerOperation {
   Future<int> hapusSemuaPelangganAktif({bool dariServer = false}) async {
     Log.info('Menghapus (soft delete) semua pelanggan aktif');
     try {
-      final count = await baseOperation.softDeleteAll(
+      final count = await baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: dariServer,
       );

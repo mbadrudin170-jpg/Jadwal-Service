@@ -96,15 +96,17 @@ void main() {
       verify(mockBaseOperation.delete(tableName, '1')).called(1);
     });
 
-    test('6. softDelete harus memanggil softDelete pada baseOperation', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+    test('6. softDelete harus memanggil softDelete pada baseOperation',
+        () async {
+      when(mockBaseOperation.hapusSementara(any, any)).thenAnswer((_) async {});
 
       await packageOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(tableName, '1')).called(1);
     });
 
-    test('7. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
+    test(
+        '7. insertOrUpdateBatch harus memanggil insertOrUpdateBatch pada baseOperation',
         () async {
       when(mockBaseOperation.insertOrUpdateBatch(any, any))
           .thenAnswer((_) async {});

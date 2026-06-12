@@ -1,4 +1,3 @@
-
 // path: test/shared/operasi/base_operation_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
@@ -45,8 +44,8 @@ void main() {
     // Mengembalikan hasil `action` secara langsung, karena `action` itu sendiri
     // sudah merupakan sebuah Future.
     when(mockDatabase.transaction(any)).thenAnswer((invocation) {
-      final action = invocation.positionalArguments.first
-          as Future<dynamic> Function(Transaction);
+      final action = invocation.positionalArguments.first as Future<dynamic>
+          Function(Transaction);
       return action(mockTxn);
     });
 
@@ -106,7 +105,7 @@ void main() {
       const table = 'test_table';
       const id = '1';
 
-      await baseOperation.softDelete(table, id);
+      await baseOperation.hapusSementara(table, id);
 
       final captured = verify(mockTxn.update(
         table,

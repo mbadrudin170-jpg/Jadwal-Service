@@ -223,7 +223,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk feedback ID: $id');
     try {
-      await baseOperation.softDelete(
+      await baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -245,7 +245,7 @@ class FeedbackOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua feedback');
     try {
-      final count = await baseOperation.softDeleteAll(
+      final count = await baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );

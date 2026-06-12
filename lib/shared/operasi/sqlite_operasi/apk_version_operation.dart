@@ -93,7 +93,7 @@ class ApkVersionOperation {
   }) async {
     Log.info('Memulai soft delete untuk APK version ID: $id via BaseOperation');
     try {
-      await _baseOperation.softDelete(
+      await _baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -114,7 +114,7 @@ class ApkVersionOperation {
     Log.info(
         'Memulai proses soft delete untuk SEMUA active APK versions via BaseOperation');
     try {
-      final count = await _baseOperation.softDeleteAll(
+      final count = await _baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );

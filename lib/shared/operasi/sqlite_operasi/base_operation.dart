@@ -228,7 +228,7 @@ class BaseOperation {
   }
 
   /// Melakukan soft delete pada satu baris di [table] berdasarkan [id].
-  Future<void> softDelete(
+  Future<void> hapusSementara(
     final String table,
     final String id, {
     final bool dariServer = false,
@@ -275,7 +275,7 @@ class BaseOperation {
   }
 
   /// Melakukan soft delete pada semua baris di [table] yang belum di-soft-delete.
-  Future<int> softDeleteAll(
+  Future<int> hapusSementaraSemua(
     final String table, {
     final bool dariServer = false,
   }) async {

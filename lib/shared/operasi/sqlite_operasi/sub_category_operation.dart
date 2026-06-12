@@ -135,7 +135,7 @@ class SubCategoryOperation {
   }) async {
     Log.info('Memulai soft delete untuk sub-kategori ID: $id');
     try {
-      await baseOperation.softDelete(
+      await baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -153,7 +153,7 @@ class SubCategoryOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua sub-kategori');
     try {
-      final count = await baseOperation.softDeleteAll(
+      final count = await baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );

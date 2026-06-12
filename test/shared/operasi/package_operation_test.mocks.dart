@@ -229,7 +229,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> softDelete(
+  _i3.Future<void> hapusSementara(
     String? table,
     String? id, {
     bool? dariServer = false,
@@ -248,7 +248,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<int> softDeleteAll(
+  _i3.Future<int> hapusSementaraSemua(
     String? table, {
     bool? dariServer = false,
   }) =>

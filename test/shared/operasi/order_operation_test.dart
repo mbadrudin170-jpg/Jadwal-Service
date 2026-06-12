@@ -98,12 +98,12 @@ void main() {
 
     test('5. softDelete harus memanggil softDelete pada baseOperation',
         () async {
-      when(mockBaseOperation.softDelete(any, any))
+      when(mockBaseOperation.hapusSementara(any, any))
           .thenAnswer((_) => Future.value());
 
       await orderOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(tableName, '1')).called(1);
     });
 
     test(
@@ -135,7 +135,8 @@ void main() {
       )).called(1);
     });
 
-    test('8. getAllActiveOrdersStream harus mengembalikan stream daftar pesanan aktif',
+    test(
+        '8. getAllActiveOrdersStream harus mengembalikan stream daftar pesanan aktif',
         () async {
       when(mockDatabase.query(
         any,
@@ -157,7 +158,8 @@ void main() {
       ));
     });
 
-    test('9. getOrdersByStatus harus mengembalikan daftar pesanan berdasarkan status',
+    test(
+        '9. getOrdersByStatus harus mengembalikan daftar pesanan berdasarkan status',
         () async {
       const status = StatusOrderEnum.diproses;
       when(mockDatabase.query(
@@ -182,19 +184,20 @@ void main() {
 
     test('10. softDeleteAll harus memanggil softDeleteAll pada baseOperation',
         () async {
-      when(mockBaseOperation.softDeleteAll(any))
+      when(mockBaseOperation.hapusSementaraSemua(any))
           .thenAnswer((_) async => 1);
 
       await orderOperation.softDeleteAll();
 
-      verify(mockBaseOperation.softDeleteAll(tableName)).called(1);
+      verify(mockBaseOperation.hapusSementaraSemua(tableName)).called(1);
     });
 
     test('11. getOrdersByIds harus mengembalikan daftar pesanan berdasarkan ID',
         () async {
       final ids = ['1', '2'];
       final questionMarks = List.filled(ids.length, '?').join(',');
-      final expectedWhere = '${ColumnNames.id} IN ($questionMarks) AND ${ColumnNames.isDeleted} = 0';
+      final expectedWhere =
+          '${ColumnNames.id} IN ($questionMarks) AND ${ColumnNames.isDeleted} = 0';
 
       when(mockDatabase.query(
         any,

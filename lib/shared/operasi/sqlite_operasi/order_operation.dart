@@ -185,7 +185,7 @@ class OrderOperation {
   }) async {
     Log.info('Memulai soft delete untuk pesanan ID: $id');
     try {
-      await baseOperation.softDelete(
+      await baseOperation.hapusSementara(
         _tableName,
         id,
         dariServer: fromServer,
@@ -203,7 +203,7 @@ class OrderOperation {
   }) async {
     Log.info('Memulai soft delete untuk semua pesanan');
     try {
-      final count = await baseOperation.softDeleteAll(
+      final count = await baseOperation.hapusSementaraSemua(
         _tableName,
         dariServer: fromServer,
       );

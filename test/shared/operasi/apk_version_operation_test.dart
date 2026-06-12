@@ -54,7 +54,8 @@ void main() {
       verify(mockDatabase.query(any, orderBy: anyNamed('orderBy'))).called(1);
     });
 
-    test('2. getLatestApkVersion harus mengembalikan versi apk terbaru', () async {
+    test('2. getLatestApkVersion harus mengembalikan versi apk terbaru',
+        () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'),
               orderBy: anyNamed('orderBy'),
@@ -84,11 +85,11 @@ void main() {
     });
 
     test('5. softDelete harus melakukan soft delete pada versi apk', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+      when(mockBaseOperation.hapusSementara(any, any)).thenAnswer((_) async {});
 
       await apkVersionOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(any, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(any, '1')).called(1);
     });
   });
 }

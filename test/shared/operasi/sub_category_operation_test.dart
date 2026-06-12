@@ -107,11 +107,11 @@ void main() {
     });
 
     test('softDelete should call softDelete on baseOperation', () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async {});
+      when(mockBaseOperation.hapusSementara(any, any)).thenAnswer((_) async {});
 
       await subCategoryOperation.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(tableName, '1')).called(1);
     });
 
     test('insertOrUpdateBatch should call insertOrUpdateBatch on baseOperation',

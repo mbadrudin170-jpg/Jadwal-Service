@@ -72,22 +72,24 @@ void main() {
 
     test('4. softDelete harus memanggil softDelete pada baseOperation',
         () async {
-      when(mockBaseOperation.softDelete(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.hapusSementara(any, any))
+          .thenAnswer((_) async => 1);
 
       await dompetOpSqlite.softDelete('1');
 
-      verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
+      verify(mockBaseOperation.hapusSementara(tableName, '1')).called(1);
     });
 
     test(
         '5. softDeleteAll harus menjalankan operasi kompleks untuk menghapus semua',
         () async {
-      when(mockBaseOperation.softDeleteAll(tableName, dariServer: false))
+      when(mockBaseOperation.hapusSementaraSemua(tableName, dariServer: false))
           .thenAnswer((_) async => 1);
 
       await dompetOpSqlite.softDeleteAll();
 
-      verify(mockBaseOperation.softDeleteAll(tableName, dariServer: false))
+      verify(mockBaseOperation.hapusSementaraSemua(tableName,
+              dariServer: false))
           .called(1);
     });
 
