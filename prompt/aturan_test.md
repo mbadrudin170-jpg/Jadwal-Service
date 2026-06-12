@@ -43,3 +43,76 @@ Langkah kerja:
 5. Jelaskan bagian yang masih belum bisa tercakup jika ada.
 
 Berikut file yang akan diuji:
+
+Berikut daftar aturan yang bisa kamu tambahkan ke prompt AI agar konsisten menggunakan Mocktail dan tidak membuat file mock manual:
+
+# Aturan Unit Test Mocktail
+
+1. **Wajib menggunakan Mocktail sebagai library mocking utama.**
+2. **Dilarang menggunakan Mockito.**
+3. **Dilarang menjalankan generator mock (`build_runner`, `@GenerateMocks`, `@GenerateNiceMocks`).**
+4. **Dilarang membuat file khusus mock seperti:**
+
+   * `*_mock.dart`
+   * `*_mocks.dart`
+   * `mock_*.dart`
+5. **Class mock harus dibuat langsung di dalam file test yang membutuhkannya.**
+6. **Gunakan pola berikut untuk mock:**
+
+   ```dart
+   class MockRepository extends Mock implements Repository {}
+   ```
+7. **Jika membutuhkan Fake, buat Fake di dalam file test yang sama.**
+8. **Satu file test harus berdiri sendiri dan tidak bergantung pada file mock eksternal.**
+9. **Jangan membuat folder `mocks/` atau `test/mocks/`.**
+10. **Prioritaskan keterbacaan dan kesederhanaan test dibanding pembuatan abstraksi mock tambahan.**
+11. **Setiap file production wajib memiliki file test yang sesuai tanpa membuat file mock terpisah.**
+12. **Semua dependency eksternal (repository, service, datasource, storage, API, provider) harus dimock menggunakan Mocktail.**
+13. **Gunakan `registerFallbackValue()` hanya jika memang diperlukan oleh Mocktail.**
+14. **Hindari mock berlebihan; gunakan objek asli jika tidak memiliki efek samping atau akses eksternal.**
+15. **File test harus dapat dijalankan langsung tanpa proses code generation tambahan.**
+
+# Contoh Struktur yang Diinginkan
+
+```text
+lib/
+└── fitur/
+    └── akun/
+        └── provider/
+            └── akun_provider.dart
+
+test/
+└── fitur/
+    └── akun/
+        └── provider/
+            └── akun_provider_test.dart
+```
+
+Isi mock langsung di:
+
+```dart
+// akun_provider_test.dart
+
+class MockAuthRepository extends Mock implements AuthRepository {}
+
+class FakeUser extends Fake implements User {}
+```
+
+Bukan:
+
+```text
+test/
+├── mocks/
+│   ├── auth_repository_mock.dart
+│   └── user_mock.dart
+└── akun_provider_test.dart
+```
+
+# Ringkasan Singkat
+
+* Gunakan Mocktail.
+* Jangan gunakan Mockito.
+* Jangan gunakan code generation.
+* Jangan buat file mock terpisah.
+* Mock dan Fake dibuat langsung di file test yang menggunakannya.
+* Setiap file test harus mandiri (self-contained).

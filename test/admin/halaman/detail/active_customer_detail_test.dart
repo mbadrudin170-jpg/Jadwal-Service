@@ -1,13 +1,268 @@
-**Fixing the Test: A Detailed Plan**
+// path: test/admin/halaman/detail/active_customer_detail_test.dart
+import 'dart:async';
 
-Okay, so I need to get this test file working. Based on the error messages, I've got some key models – `CustomerModel`, `PackageModel`, `TransactionModel`, and `ActiveCustomerDetailModel` – that need to be aligned with their definitions. Plus, the test is using `activeCustomerDetailProvider` from Riverpod, so I need to understand how to mock it correctly.
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
+import 'package:wifi/admin/halaman/detail/customer_detail.dart';
+import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/form/active_customer_form.dart';
+import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/whatsapp/info_paket.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/model/state/active_customer_state.dart';
 
-First, the models. It looks like the `tCustomer` object is missing the `password` and `phone` field. Easy fix: I'll add `password` and `phone` since they're now required. The `tPackage` is referencing `durationType`, when it should be `type`, which is a `DurationType`. The `tTransaction` is missing several required fields (`date`, `description`, `amount`, `type`, `walletId`, and `categoryId`), and it's also using an incorrect field (`status` instead of `paymentStatus`). That's all straightforward.
+// Mocks
+class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
 
-The tricky part is `ActiveCustomerDetailModel` and the Riverpod provider. The test uses a named constructor with `customerName` and `packageName`, but looking at the `active_customer_detail_model.dart`, the constructor actually wants `customer` and `package` objects (with `customerName` and `packageName` available as properties derived from the objects). The tests seem to be providing `customerName` and `packageName` directly for simplicity. This gets used *inside* `ActiveCustomerState`, which is what the tests need to mock by overriding the `activeCustomerProvider`. Since the `activeCustomerDetailProvider` *subsequently* fetches `customer`, `package`, and `transaction` using the `activeCustomer.id`, the `ActiveCustomerDetailModel` within the `ActiveCustomerState` override is somewhat simplified. However, the `customerName` and `packageName` still need to be properly defined within `ActiveCustomerDetailModel`.
+class MockPackageOpFirebase extends Mock implements PackageOpFirebase {}
 
-The tests are using `activeCustomerDetailProvider`, which relies on `activeCustomerProvider` and other data retrieval operations. So, in the tests, I need to override the behavior to provide controlled data for the specific test cases. `activeCustomerProvider` returns an `ActiveCustomerState` which contains a `List<ActiveCustomerDetailModel>`. Now, the crucial part. I see the provided code block tries `overrideWith((ref) => Stream.value(ActiveCustomerState(...)))` which won't work. The correct way to override the `NotifierProvider` is with a `Notifier` or a `FakeActiveCustomerNotifier`, providing an `AsyncValue` to control its state, based on the test's requirements.
+class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
-I will create a `FakeActiveCustomerNotifier` to override. It'll extend the `ActiveCustomer` and its `build` method will return a specific `AsyncValue` containing the data I want. For the tests, I can use `AsyncValue.data`, `AsyncValue.loading`, or `AsyncValue.error` to simulate different states.
+class MockPesanInfoPaket extends Mock implements PesanInfoPaket {}
 
-In terms of the test logic itself, I'll need to directly override the `activeCustomerDetailProvider` for certain tests like the loading and error state tests. Let's see how I can use this new knowledge to fix these errors!
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
+class FakeRoute extends Fake implements Route<dynamic> {}
+
+void main() {
+  // Data dummy
+  final tCustomer = CustomerModel(
+    id: 'cust1',
+    name: 'John Doe',
+    phone: '081234567890',
+    email: 'john.doe@example.com',
+    password: 'password',
+    address: '123 Main St',
+  );
+
+  final tPackage = PackageModel(
+    id: 'pkg1',
+    name: 'Paket Kencang',
+    price: 100000,
+    duration: 30,
+    type: DurationType.day,
+    rewardPoints: 10,
+  );
+
+  final tTransaction = TransactionModel(
+    id: 'trans1',
+    customerId: 'cust1',
+    packageId: 'pkg1',
+    date: DateTime.now(),
+    amount: 100000,
+    type: TransactionType.purchase,
+    paymentStatus: PaymentStatus.paid,
+    durasiBonus: 5,
+    durasiBonusType: DurationType.day,
+  );
+
+  final tActiveCustomer = ActiveCustomerModel(
+    id: 'active1',
+    customerId: 'cust1',
+    packageId: 'pkg1',
+    transactionId: 'trans1',
+    startDate: DateTime.now().subtract(const Duration(days: 10)),
+    endDate: DateTime.now().add(const Duration(days: 20)),
+    status: ActiveStatus.active,
+  );
+
+  final tActiveCustomerDetailModel = ActiveCustomerDetailModel(
+    activeCustomer: tActiveCustomer,
+    customerName: tCustomer.name,
+    packageName: tPackage.name,
+  );
+
+  final tActiveCustomerState =
+      ActiveCustomerState(activeCustomers: [tActiveCustomerDetailModel]);
+
+  late MockCustomerOpFirebase mockCustomerOp;
+  late MockPackageOpFirebase mockPackageOp;
+  late MockTransactionOpFirebase mockTransactionOp;
+  late MockPesanInfoPaket mockPesanInfoPaket;
+  late MockNavigatorObserver mockNavigatorObserver;
+
+  setUp(() {
+    mockCustomerOp = MockCustomerOpFirebase();
+    mockPackageOp = MockPackageOpFirebase();
+    mockTransactionOp = MockTransactionOpFirebase();
+    mockPesanInfoPaket = MockPesanInfoPaket();
+    mockNavigatorObserver = MockNavigatorObserver();
+    registerFallbackValue(FakeRoute());
+  });
+
+  // Helper untuk membuat test widget
+  Widget createTestWidget(List<Override> overrides) {
+    return ProviderScope(
+      overrides: overrides,
+      child: MaterialApp(
+        home: ActiveCustomerDetailPage(activeCustomer: tActiveCustomer),
+        navigatorObservers: [mockNavigatorObserver],
+      ),
+    );
+  }
+
+  group('activeCustomerDetailProvider Tests', () {
+    test('Test 01: should return full data on success', () async {
+      final container = ProviderContainer(
+        overrides: [
+          activeCustomerProvider
+              .overrideWith((ref) => Future.value(tActiveCustomerState)),
+          customerOperationProvider.overrideWithValue(mockCustomerOp),
+          packageOperationProvider.overrideWithValue(mockPackageOp),
+          transactionOperationProvider.overrideWithValue(mockTransactionOp),
+        ],
+      );
+
+      when(() => mockCustomerOp.getById(tActiveCustomer.customerId))
+          .thenAnswer((_) async => tCustomer);
+      when(() => mockPackageOp.getById(tActiveCustomer.packageId))
+          .thenAnswer((_) async => tPackage);
+      when(() => mockTransactionOp.getTransactionById(tActiveCustomer.transactionId!))
+          .thenAnswer((_) async => tTransaction);
+
+      final result = await container
+          .read(activeCustomerDetailProvider(tActiveCustomer.id).future);
+
+      expect(result.customer, tCustomer);
+      expect(result.package, tPackage);
+      expect(result.transaction, tTransaction);
+      expect(result.activeCustomer, tActiveCustomer);
+    });
+
+    test('Test 02: should throw exception when active customer not found',
+        () async {
+      final container = ProviderContainer(
+        overrides: [
+          activeCustomerProvider.overrideWith((ref) =>
+              Future.value(const ActiveCustomerState(activeCustomers: []))),
+        ],
+      );
+
+      await expectLater(
+        container.read(activeCustomerDetailProvider(tActiveCustomer.id).future),
+        throwsA(isA<Exception>().having((e) => e.toString(), 'toString',
+            contains('Data pelanggan aktif tidak ditemukan'))),
+      );
+    });
+  });
+
+  group('ActiveCustomerDetailPage Widget Tests', () {
+    final overrides = [
+      activeCustomerProvider
+          .overrideWith((ref) => Future.value(tActiveCustomerState)),
+      customerOperationProvider.overrideWithValue(mockCustomerOp),
+      packageOperationProvider.overrideWithValue(mockPackageOp),
+      transactionOperationProvider.overrideWithValue(mockTransactionOp),
+      pesanInfoPaketProvider.overrideWithValue(mockPesanInfoPaket),
+    ];
+
+    setUp(() {
+      when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => tCustomer);
+      when(() => mockPackageOp.getById(any())).thenAnswer((_) async => tPackage);
+      when(() => mockTransactionOp.getTransactionById(any()))
+          .thenAnswer((_) async => tTransaction);
+    });
+
+    testWidgets('Test 03: should show loading state correctly',
+        (tester) async {
+      final completer = Completer();
+      final loadingOverrides = [
+        activeCustomerDetailProvider(tActiveCustomer.id).overrideWith(
+          (ref) => completer.future,
+        ),
+      ];
+
+      await tester.pumpWidget(createTestWidget(loadingOverrides));
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.text(''), findsOneWidget); // Sesuai implementasi, hanya text kosong
+    });
+
+    testWidgets('Test 04: should show error state correctly', (tester) async {
+      final errorOverrides = [
+        activeCustomerDetailProvider(tActiveCustomer.id)
+            .overrideWith((ref) => throw Exception('Test Error')),
+      ];
+
+      await tester.pumpWidget(createTestWidget(errorOverrides));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Terjadi kesalahan: Exception: Test Error'),
+          findsOneWidget);
+    });
+
+    testWidgets('Test 05: should display all data correctly', (tester) async {
+      await tester.pumpWidget(createTestWidget(overrides));
+      await tester.pumpAndSettle();
+
+      expect(find.text('John Doe'), findsOneWidget); // AppBar title
+      expect(find.widgetWithText(TextButton, 'John Doe'), findsOneWidget); // Body title
+      expect(find.text('081234567890'), findsOneWidget);
+      expect(find.text('Paket Kencang'), findsOneWidget);
+      expect(find.text('Aktif'), findsOneWidget);
+      expect(find.text('10 Poin'), findsOneWidget);
+      expect(find.text('5 Day'), findsOneWidget); // Bonus
+      expect(find.textContaining('Berakhir'), findsOneWidget);
+      expect(find.textContaining('Kirim Info via WhatsApp'), findsOneWidget);
+      expect(find.byIcon(Icons.edit), findsOneWidget);
+    });
+
+    testWidgets('Test 06: tapping edit button navigates to form',
+        (tester) async {
+      await tester.pumpWidget(createTestWidget(overrides));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpAndSettle();
+
+      verify(() => mockNavigatorObserver.didPush(any(), any()));
+      expect(find.byType(FormPelangganAktif), findsOneWidget);
+    });
+
+    testWidgets('Test 07: tapping customer name navigates to customer detail',
+        (tester) async {
+      await tester.pumpWidget(createTestWidget(overrides));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(TextButton, 'John Doe'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockNavigatorObserver.didPush(any(), any()));
+      expect(find.byType(CustomerDetailPage), findsOneWidget);
+    });
+
+    testWidgets('Test 08: tapping package name navigates to package detail',
+        (tester) async {
+      await tester.pumpWidget(createTestWidget(overrides));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Paket Kencang'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockNavigatorObserver.didPush(any(), any()));
+      expect(find.byType(PackageDetailPage), findsOneWidget);
+    });
+
+    testWidgets('Test 09: tapping "Kirim Info" button calls provider method',
+        (tester) async {
+      when(() => mockPesanInfoPaket.kirimRincianPaket(any()))
+          .thenAnswer((_) async {});
+
+      await tester.pumpWidget(createTestWidget(overrides));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Kirim Info via WhatsApp'));
+      await tester.pump();
+
+      verify(() => mockPesanInfoPaket.kirimRincianPaket(any())).called(1);
+    });
+  });
+}
