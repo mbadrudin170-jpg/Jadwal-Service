@@ -144,13 +144,16 @@ class DaftarAkunPage extends ConsumerWidget {
           TextButton(
             child: const Text('Hapus'),
             onPressed: () async {
-              // Ambil navigator SEBELUM await
               final navigator = Navigator.of(context);
+              final dialogNavigator = Navigator.of(dialogContext);
+
               try {
                 final akunLogin = await ref.read(userIdProvider.future);
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop(); // Tutup dialog
+                if (dialogNavigator.context.mounted) {
+                  dialogNavigator.pop(); // Tutup dialog
                 }
+
+                if (!context.mounted) return;
 
                 if (akunLogin == customer.id) {
                   await _tanganiHapusAkunAktif(
