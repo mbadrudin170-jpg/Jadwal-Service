@@ -52,7 +52,7 @@ void main() {
   });
 
   group('ActiveCustomerOperation Tests', () {
-    final tActiveCustomer1 = ActiveCustomerModel(
+    final tActiveCustomer1 = PelangganAktifModel(
       id: '1',
       idPelanggan: 'cust1',
       packageId: 'pkg1',
@@ -61,7 +61,7 @@ void main() {
       status: PaymentStatus.paid,
     );
 
-    final tActiveCustomer2 = ActiveCustomerModel(
+    final tActiveCustomer2 = PelangganAktifModel(
       id: '2',
       idPelanggan: 'cust2',
       packageId: 'pkg2',
@@ -70,14 +70,14 @@ void main() {
       status: PaymentStatus.paid,
     );
 
-    final tCustomer1 = CustomerModel(
+    final tCustomer1 = PelangganModel(
       id: 'cust1',
       name: 'Budi',
       phone: '08123',
       address: 'Jalan A',
       password: 'pass',
     );
-    final tCustomer2 = CustomerModel(
+    final tCustomer2 = PelangganModel(
       id: 'cust2',
       name: 'Citra',
       phone: '08456',
@@ -96,7 +96,7 @@ void main() {
 
       final result = await activeCustomerOperation.getAllActiveCustomers();
 
-      expect(result, isA<List<ActiveCustomerModel>>());
+      expect(result, isA<List<PelangganAktifModel>>());
       expect(result.length, 1);
       expect(result.first.id, tActiveCustomer1.id);
     });
@@ -109,7 +109,7 @@ void main() {
 
       final result = await activeCustomerOperation.getActiveCustomerById('1');
 
-      expect(result, isA<ActiveCustomerModel>());
+      expect(result, isA<PelangganAktifModel>());
       expect(result?.id, tActiveCustomer1.id);
     });
 

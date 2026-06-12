@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class FromRiwayatAktivasi extends ConsumerStatefulWidget {
-  final TransactionModel transaksi;
+  final TransaksiModel transaksi;
 
   const FromRiwayatAktivasi({super.key, required this.transaksi});
 

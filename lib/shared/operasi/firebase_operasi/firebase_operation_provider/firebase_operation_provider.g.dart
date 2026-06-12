@@ -367,9 +367,9 @@ String _$customerOpFirebaseHash() =>
 final packageOpFirebaseProvider = PackageOpFirebaseProvider._();
 
 final class PackageOpFirebaseProvider extends $FunctionalProvider<
-    PackageOpFirebase,
-    PackageOpFirebase,
-    PackageOpFirebase> with $Provider<PackageOpFirebase> {
+    PaketOpFirebase,
+    PaketOpFirebase,
+    PaketOpFirebase> with $Provider<PaketOpFirebase> {
   PackageOpFirebaseProvider._()
       : super(
           from: null,
@@ -386,25 +386,24 @@ final class PackageOpFirebaseProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<PackageOpFirebase> $createElement(
-          $ProviderPointer pointer) =>
+  $ProviderElement<PaketOpFirebase> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  PackageOpFirebase create(Ref ref) {
+  PaketOpFirebase create(Ref ref) {
     return packageOpFirebase(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(PackageOpFirebase value) {
+  Override overrideWithValue(PaketOpFirebase value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<PackageOpFirebase>(value),
+      providerOverride: $SyncValueProvider<PaketOpFirebase>(value),
     );
   }
 }
 
-String _$packageOpFirebaseHash() => r'b35081ba0f083713c1f722aa3c3fd0d741f784ff';
+String _$packageOpFirebaseHash() => r'585d74a2967fb31d88e47e04a91de48f75a15eb4';
 
 @ProviderFor(transactionOpFirebase)
 final transactionOpFirebaseProvider = TransactionOpFirebaseProvider._();
@@ -571,4 +570,4 @@ final class ActiveNotificationsStreamProvider extends $FunctionalProvider<
 }
 
 String _$activeNotificationsStreamHash() =>
-    r'1018648da844207c72b484206aade00561771760';
+    r'4e4561520c50e9b2e39a656e772df96e1d145bc8';

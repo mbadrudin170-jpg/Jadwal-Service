@@ -64,9 +64,9 @@ class _FakeFuture_2<T1> extends _i1.SmartFake implements _i3.Future<T1> {
         );
 }
 
-class _FakeDatabaseHelper_3 extends _i1.SmartFake
+class _FakeSqliteDatabase_3 extends _i1.SmartFake
     implements _i4.SqliteDatabase {
-  _FakeDatabaseHelper_3(
+  _FakeSqliteDatabase_3(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -106,11 +106,11 @@ class _FakeBatch_6 extends _i1.SmartFake implements _i2.Batch {
         );
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -150,11 +150,11 @@ class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [BaseOperation].
+/// A class which mocks [BaseOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
-  MockBaseOperation() {
+class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
+  MockBaseOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -207,12 +207,12 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insert,
+          #sisipkan,
           [
             table,
             data,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -233,7 +233,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
             data,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -252,7 +252,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -266,12 +266,12 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -284,9 +284,9 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [table],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);
@@ -311,144 +311,146 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [CustomerOperation].
+/// A class which mocks [PelangganOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCustomerOperation extends _i1.Mock implements _i8.PelangganOpSqlite {
-  MockCustomerOperation() {
+class MockPelangganOpSqlite extends _i1.Mock implements _i8.PelangganOpSqlite {
+  MockPelangganOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i4.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_3(
+        returnValue: _FakeSqliteDatabase_3(
           this,
           Invocation.getter(#dbHelper),
         ),
       ) as _i4.SqliteDatabase);
 
   @override
-  _i3.Future<void> add(
-    _i9.CustomerModel? customer, {
-    bool? fromServer = false,
+  _i3.Future<void> tambah(
+    _i9.PelangganModel? customer, {
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #add,
+          #tambah,
           [customer],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i9.CustomerModel>> getAll() => (super.noSuchMethod(
+  _i3.Future<List<_i9.PelangganModel>> ambilSemua() => (super.noSuchMethod(
         Invocation.method(
-          #getAll,
+          #ambilSemua,
           [],
         ),
         returnValue:
-            _i3.Future<List<_i9.CustomerModel>>.value(<_i9.CustomerModel>[]),
-      ) as _i3.Future<List<_i9.CustomerModel>>);
+            _i3.Future<List<_i9.PelangganModel>>.value(<_i9.PelangganModel>[]),
+      ) as _i3.Future<List<_i9.PelangganModel>>);
 
   @override
-  _i3.Future<List<_i9.CustomerModel>> getAllCustomers() => (super.noSuchMethod(
+  _i3.Future<List<_i9.PelangganModel>> ambilSemuaPelanggan() =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getAllCustomers,
+          #ambilSemuaPelanggan,
           [],
         ),
         returnValue:
-            _i3.Future<List<_i9.CustomerModel>>.value(<_i9.CustomerModel>[]),
-      ) as _i3.Future<List<_i9.CustomerModel>>);
+            _i3.Future<List<_i9.PelangganModel>>.value(<_i9.PelangganModel>[]),
+      ) as _i3.Future<List<_i9.PelangganModel>>);
 
   @override
-  _i3.Future<_i9.CustomerModel?> getById(String? id) => (super.noSuchMethod(
+  _i3.Future<_i9.PelangganModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i3.Future<_i9.CustomerModel?>.value(),
-      ) as _i3.Future<_i9.CustomerModel?>);
+        returnValue: _i3.Future<_i9.PelangganModel?>.value(),
+      ) as _i3.Future<_i9.PelangganModel?>);
 
   @override
-  _i3.Future<void> updateCustomer(
-    _i9.CustomerModel? customer, {
-    bool? fromServer = false,
+  _i3.Future<void> perbaruiPelanggan(
+    _i9.PelangganModel? customer, {
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateCustomer,
+          #perbaruiPelanggan,
           [customer],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> softDelete(
+  _i3.Future<void> hapusSementara(
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [id],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<int> softDeleteAll({bool? fromServer = false}) =>
+  _i3.Future<int> hapusSementaraSemua({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<List<_i9.CustomerModel>> getChangesSince(DateTime? since) =>
+  _i3.Future<List<_i9.PelangganModel>> ambilPerubahanSejak(DateTime? since) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getChangesSince,
+          #ambilPerubahanSejak,
           [since],
         ),
         returnValue:
-            _i3.Future<List<_i9.CustomerModel>>.value(<_i9.CustomerModel>[]),
-      ) as _i3.Future<List<_i9.CustomerModel>>);
+            _i3.Future<List<_i9.PelangganModel>>.value(<_i9.PelangganModel>[]),
+      ) as _i3.Future<List<_i9.PelangganModel>>);
 
   @override
-  _i3.Future<void> insertOrUpdateBatch(
-    List<_i9.CustomerModel>? items, {
-    bool? fromServer = false,
+  _i3.Future<void> sisipkanAtauPerbaruiBatch(
+    List<_i9.PelangganModel>? items, {
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insertOrUpdateBatch,
+          #sisipkanAtauPerbaruiBatch,
           [items],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i9.CustomerModel>> getCustomersByIds(List<String>? ids) =>
+  _i3.Future<List<_i9.PelangganModel>> ambilPelangganBerdasarkanId(
+          List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getCustomersByIds,
+          #ambilPelangganBerdasarkanId,
           [ids],
         ),
         returnValue:
-            _i3.Future<List<_i9.CustomerModel>>.value(<_i9.CustomerModel>[]),
-      ) as _i3.Future<List<_i9.CustomerModel>>);
+            _i3.Future<List<_i9.PelangganModel>>.value(<_i9.PelangganModel>[]),
+      ) as _i3.Future<List<_i9.PelangganModel>>);
 }
 
 /// A class which mocks [NotifikasiServis].

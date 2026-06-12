@@ -214,7 +214,7 @@ final class PointsPageDataProvider extends $FunctionalProvider<
   }
 }
 
-String _$pointsPageDataHash() => r'c5d811a6de7915b5b086a7a5ef7db681205ba0f2';
+String _$pointsPageDataHash() => r'c28468c21175271b025427f2c6c5f12afeb8bebf';
 
 final class PointsPageDataFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<PointsPageData>, String> {
@@ -240,12 +240,12 @@ final class PointsPageDataFamily extends $Family
 final pointsHistoryProvider = PointsHistoryFamily._();
 
 final class PointsHistoryProvider extends $FunctionalProvider<
-        AsyncValue<List<TransactionModel>>,
-        List<TransactionModel>,
-        FutureOr<List<TransactionModel>>>
+        AsyncValue<List<TransaksiModel>>,
+        List<TransaksiModel>,
+        FutureOr<List<TransaksiModel>>>
     with
-        $FutureModifier<List<TransactionModel>>,
-        $FutureProvider<List<TransactionModel>> {
+        $FutureModifier<List<TransaksiModel>>,
+        $FutureProvider<List<TransaksiModel>> {
   PointsHistoryProvider._(
       {required PointsHistoryFamily super.from, required String super.argument})
       : super(
@@ -268,12 +268,12 @@ final class PointsHistoryProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $FutureProviderElement<List<TransactionModel>> $createElement(
+  $FutureProviderElement<List<TransaksiModel>> $createElement(
           $ProviderPointer pointer) =>
       $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<TransactionModel>> create(Ref ref) {
+  FutureOr<List<TransaksiModel>> create(Ref ref) {
     final argument = this.argument as String;
     return pointsHistory(
       ref,
@@ -292,10 +292,10 @@ final class PointsHistoryProvider extends $FunctionalProvider<
   }
 }
 
-String _$pointsHistoryHash() => r'f9a8be686559629aebe8db1978f853829d8bef9d';
+String _$pointsHistoryHash() => r'0821fe98315b076f5495d3698e386cb61db4b144';
 
 final class PointsHistoryFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<TransactionModel>>, String> {
+    with $FunctionalFamilyOverride<FutureOr<List<TransaksiModel>>, String> {
   PointsHistoryFamily._()
       : super(
           retry: null,

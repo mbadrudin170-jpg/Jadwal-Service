@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
 
   group('CalculationUtil.hitungTanggalBerakhir', () {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi jam', () {
-      final paket = PackageModel(
+      final paket = PaketModel(
         name: 'Paket Jam',
         price: 1000,
         duration: 3,
@@ -26,7 +26,7 @@ void main() {
 
     test('harus menghitung tanggal berakhir dengan benar untuk durasi hari',
         () {
-      final paket = PackageModel(
+      final paket = PaketModel(
         name: 'Paket Harian',
         price: 5000,
         duration: 7,
@@ -39,7 +39,7 @@ void main() {
 
     test('harus menghitung tanggal berakhir dengan benar untuk durasi bulan',
         () {
-      final paket = PackageModel(
+      final paket = PaketModel(
         name: 'Paket Bulanan',
         price: 50000,
         duration: 2,
@@ -53,7 +53,7 @@ void main() {
 
     test('harus menghitung tanggal berakhir dengan benar untuk durasi menit',
         () {
-      final paket = PackageModel(
+      final paket = PaketModel(
         name: 'Paket Menitan',
         price: 500,
         duration: 90,

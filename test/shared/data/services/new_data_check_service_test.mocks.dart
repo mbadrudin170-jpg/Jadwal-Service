@@ -182,12 +182,12 @@ class _FakeDocumentSnapshot_13<T1 extends Object?> extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [UploadStatusOperation].
+/// A class which mocks [StatusUploadOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUploadStatusOperation extends _i1.Mock
+class MockStatusUploadOpSqlite extends _i1.Mock
     implements _i6.StatusUploadOpSqlite {
-  MockUploadStatusOperation() {
+  MockStatusUploadOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -198,7 +198,7 @@ class MockUploadStatusOperation extends _i1.Mock
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #setNeedUpload,
+          #tandaiButuhUpload,
           [needUpload],
           {#transaction: transaction},
         ),
@@ -207,9 +207,9 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<bool> getNeedUpload() => (super.noSuchMethod(
+  _i5.Future<bool> ambilButuhUpload() => (super.noSuchMethod(
         Invocation.method(
-          #getNeedUpload,
+          #ambilButuhUpload,
           [],
         ),
         returnValue: _i5.Future<bool>.value(false),
@@ -218,7 +218,7 @@ class MockUploadStatusOperation extends _i1.Mock
   @override
   _i5.Future<void> resetStatusUpload() => (super.noSuchMethod(
         Invocation.method(
-          #resetNeedUpload,
+          #resetStatusUpload,
           [],
         ),
         returnValue: _i5.Future<void>.value(),
@@ -226,10 +226,9 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<_i8.UploadStatusModel?> getUploadStatusModel() =>
-      (super.noSuchMethod(
+  _i5.Future<_i8.UploadStatusModel?> ambilStatusUpload() => (super.noSuchMethod(
         Invocation.method(
-          #getUploadStatusModel,
+          #ambilStatusUpload,
           [],
         ),
         returnValue: _i5.Future<_i8.UploadStatusModel?>.value(),

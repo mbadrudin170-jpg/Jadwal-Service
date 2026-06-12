@@ -7,18 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 /// Kelas utilitas untuk berbagai perhitungan terkait paket pelanggan.
 ///
 /// Menyediakan fungsi untuk menghitung sisa hari, status hangus,
 /// teks representasi masa aktif, dan warna indikator status.
 class CalculationUtil {
-
   /// menghitung kapan tanggal berkahirnya sebuah paket user
   static DateTime hitungTanggalBerakhir(
     final DateTime startDate,
-    final PackageModel paket, {
+    final PaketModel paket, {
     final int? durasiBonus,
     final DurationType? durasiBonusType,
   }) {

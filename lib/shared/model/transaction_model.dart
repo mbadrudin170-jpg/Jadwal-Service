@@ -8,7 +8,7 @@ import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
-class TransactionModel implements HasId {
+class TransaksiModel implements HasId {
   @override
   final String id;
   final DateTime date;
@@ -20,7 +20,7 @@ class TransactionModel implements HasId {
   final String? destinationWalletId;
   final String? customerId;
   final String? packageId;
-  final String? subCategoryId;
+  final String? idSubKategori;
   final PaymentStatus paymentStatus;
   final int earnedPoints;
   final int usedPoints;
@@ -35,7 +35,7 @@ class TransactionModel implements HasId {
   final DateTime? endDate;
   final bool isActivated;
 
-  TransactionModel({
+  TransaksiModel({
     final String? id,
     required this.date,
     required this.description,
@@ -46,7 +46,7 @@ class TransactionModel implements HasId {
     this.destinationWalletId,
     this.customerId,
     this.packageId,
-    this.subCategoryId,
+    this.idSubKategori,
     this.paymentStatus = PaymentStatus.unpaid,
     this.earnedPoints = 0,
     this.usedPoints = 0,
@@ -64,7 +64,7 @@ class TransactionModel implements HasId {
     Log.info('TransactionModel created: $id, type: ${type.name}');
   }
 
-  TransactionModel copyWith({
+  TransaksiModel copyWith({
     final String? id,
     final DateTime? date,
     final String? description,
@@ -90,7 +90,7 @@ class TransactionModel implements HasId {
     final DateTime? endDate,
     final bool? isActivated,
   }) {
-    return TransactionModel(
+    return TransaksiModel(
       id: id ?? this.id,
       date: date ?? this.date,
       description: description ?? this.description,
@@ -101,7 +101,7 @@ class TransactionModel implements HasId {
       destinationWalletId: destinationWalletId ?? this.destinationWalletId,
       customerId: customerId ?? this.customerId,
       packageId: packageId ?? this.packageId,
-      subCategoryId: subCategoryId ?? this.subCategoryId,
+      idSubKategori: subCategoryId ?? this.idSubKategori,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       earnedPoints: earnedPoints ?? this.earnedPoints,
       usedPoints: usedPoints ?? this.usedPoints,
@@ -134,9 +134,9 @@ class TransactionModel implements HasId {
     return null;
   }
 
-  factory TransactionModel.fromSqlite(final Map<String, dynamic> map) {
+  factory TransaksiModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating TransactionModel from SQLite: ${map[NamaKolom.id]}');
-    return TransactionModel(
+    return TransaksiModel(
       id: map[NamaKolom.id] as String? ?? '',
       date: ParserUtil.parseDateTime(map[NamaKolom.date]) ?? DateTime.now(),
       description: map[NamaKolom.description] as String? ?? '',
@@ -148,7 +148,7 @@ class TransactionModel implements HasId {
       destinationWalletId: map[NamaKolom.destinationWalletId] as String?,
       customerId: map[NamaKolom.customerId] as String?,
       packageId: map[NamaKolom.packageId] as String?,
-      subCategoryId: map[NamaKolom.subCategoryId] as String?,
+      idSubKategori: map[NamaKolom.subCategoryId] as String?,
       paymentStatus: _safeParseEnum(
             PaymentStatus.values,
             map[NamaKolom.paymentStatus],
@@ -185,7 +185,7 @@ class TransactionModel implements HasId {
       NamaKolom.destinationWalletId: destinationWalletId,
       NamaKolom.customerId: customerId,
       NamaKolom.packageId: packageId,
-      NamaKolom.subCategoryId: subCategoryId,
+      NamaKolom.subCategoryId: idSubKategori,
       NamaKolom.paymentStatus: paymentStatus.name,
       NamaKolom.earnedPoints: earnedPoints,
       NamaKolom.usedPoints: usedPoints,
@@ -202,10 +202,10 @@ class TransactionModel implements HasId {
     };
   }
 
-  factory TransactionModel.fromFirebase(
+  factory TransaksiModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating TransactionModel from Firebase: $id');
-    return TransactionModel(
+    return TransaksiModel(
       id: id,
       date: ParserUtil.parseDateTime(data[NamaKolom.date]) ?? DateTime.now(),
       description: data[NamaKolom.description] as String? ?? '',
@@ -217,7 +217,7 @@ class TransactionModel implements HasId {
       destinationWalletId: data[NamaKolom.destinationWalletId] as String?,
       customerId: data[NamaKolom.customerId] as String?,
       packageId: data[NamaKolom.packageId] as String?,
-      subCategoryId: data[NamaKolom.subCategoryId] as String?,
+      idSubKategori: data[NamaKolom.subCategoryId] as String?,
       paymentStatus: _safeParseEnum(
             PaymentStatus.values,
             data[NamaKolom.paymentStatus],
@@ -254,7 +254,7 @@ class TransactionModel implements HasId {
       NamaKolom.destinationWalletId: destinationWalletId,
       NamaKolom.customerId: customerId,
       NamaKolom.packageId: packageId,
-      NamaKolom.subCategoryId: subCategoryId,
+      NamaKolom.subCategoryId: idSubKategori,
       NamaKolom.paymentStatus: paymentStatus.name,
       NamaKolom.earnedPoints: earnedPoints,
       NamaKolom.usedPoints: usedPoints,

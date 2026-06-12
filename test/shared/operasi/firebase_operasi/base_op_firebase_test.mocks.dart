@@ -33,9 +33,9 @@ class MockStatusOpFirebase extends _i1.Mock implements _i2.StatusOpFirebase {
   }
 
   @override
-  _i3.Future<void> updateGlobalStatus() => (super.noSuchMethod(
+  _i3.Future<void> perbaruiStatusGlobal() => (super.noSuchMethod(
         Invocation.method(
-          #updateGlobalStatus,
+          #perbaruiStatusGlobal,
           [],
         ),
         returnValue: _i3.Future<void>.value(),

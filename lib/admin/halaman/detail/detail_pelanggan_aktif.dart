@@ -7,16 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/admin/halaman/detail/customer_detail.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/calculation_util.dart';
@@ -26,15 +26,15 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Provider untuk memuat detail lengkap pelanggan aktif secara asinkron.
 final activeCustomerDetailProvider = FutureProvider.family<
     ({
-      CustomerModel? customer,
-      PackageModel? package,
-      TransactionModel? transaction,
-      ActiveCustomerModel activeCustomer,
+      PelangganModel? customer,
+      PaketModel? package,
+      TransaksiModel? transaction,
+      PelangganAktifModel activeCustomer,
     }),
     String>((ref, id) async {
   // 1. Ambil daftar pelanggan aktif dari activeCustomerProvider
-  final activeCustomerState = await ref.watch(activeCustomerProvider.future);
-  final activeCustomerDetails = activeCustomerState.activeCustomers;
+  final activeCustomerState = await ref.watch(pelangganAktifProvider.future);
+  final activeCustomerDetails = activeCustomerState.daftarPelangganAktif;
 
   // 2. Cari ActiveCustomerDetailModel yang sesuai dengan ID
   final detailModel = activeCustomerDetails.firstWhereOrNull(
@@ -45,55 +45,54 @@ final activeCustomerDetailProvider = FutureProvider.family<
     throw Exception('Data pelanggan aktif tidak ditemukan dalam daftar.');
   }
 
-  final activeCustomer = detailModel.activeCustomer;
+  final pelangganAktif = detailModel.activeCustomer;
 
   // 3. Fetch detail tambahan menggunakan operasi individual
-  final customerOp = ref.watch(customerOperationProvider);
-  final packageOp = ref.watch(packageOperationProvider);
-  final transactionOp = ref.watch(transactionOperationProvider);
-  final results = await Future.wait<Object?>([
-    customerOp.ambilBerdasarkanId(activeCustomer.customerId),
-    activeCustomer.packageId.isNotEmpty
-        ? packageOp.ambilBerdasarkanId(activeCustomer.packageId)
-        : Future<PackageModel?>.value(),
-    (activeCustomer.transactionId != null &&
-            activeCustomer.transactionId!.isNotEmpty)
-        ? transactionOp.getTransactionById(activeCustomer.transactionId!)
-        : Future<TransactionModel?>.value(),
+  final pelangganOpSqlite = ref.watch(customerOperationProvider);
+  final paketOpSqlite = ref.watch(packageOperationProvider);
+  final transaksiOpsqlite = ref.watch(transactionOperationProvider);
+  final hasil = await Future.wait<Object?>([
+    pelangganOpSqlite.getById(pelangganAktif.customerId),
+    pelangganAktif.packageId.isNotEmpty
+        ? paketOpSqlite.getById(pelangganAktif.packageId)
+        : Future<PaketModel?>.value(),
+    (pelangganAktif.transactionId != null &&
+            pelangganAktif.transactionId!.isNotEmpty)
+        ? transaksiOpsqlite.getById(pelangganAktif.transactionId!)
+        : Future<TransaksiModel?>.value(),
   ]);
 
   return (
-    customer: results[0] as CustomerModel?,
-    package: results[1] as PackageModel?,
-    transaction: results[2] as TransactionModel?,
-    activeCustomer: activeCustomer,
+    customer: hasil[0] as PelangganModel?,
+    package: hasil[1] as PaketModel?,
+    transaction: hasil[2] as TransaksiModel?,
+    activeCustomer: pelangganAktif,
   );
 });
 
-class ActiveCustomerDetailPage extends ConsumerStatefulWidget {
-  final ActiveCustomerModel activeCustomer;
-  const ActiveCustomerDetailPage({super.key, required this.activeCustomer});
+class DetailPelangganAktif extends ConsumerStatefulWidget {
+  final PelangganAktifModel pelangganAktif;
+  const DetailPelangganAktif({super.key, required this.pelangganAktif});
   @override
-  ConsumerState<ActiveCustomerDetailPage> createState() =>
-      _ActiveCustomerDetailPageState();
+  ConsumerState<DetailPelangganAktif> createState() =>
+      _DetailPelangganAktifState();
 }
 
-class _ActiveCustomerDetailPageState
-    extends ConsumerState<ActiveCustomerDetailPage> {
+class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
   // 1. Meluncurkan aplikasi WhatsApp
-  Future<void> _launchWhatsApp(final String phoneNumber) async {
-    String formattedNumber = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+  Future<void> _launchWhatsApp(String phone) async {
+    String formatNomor = phone.replaceAll(RegExp(r'[^0-9]'), '');
 
-    if (formattedNumber.startsWith('0')) {
-      formattedNumber = '62${formattedNumber.substring(1)}';
-    } else if (!formattedNumber.startsWith('62')) {
-      formattedNumber = '62$formattedNumber';
+    if (formatNomor.startsWith('0')) {
+      formatNomor = '62${formatNomor.substring(1)}';
+    } else if (!formatNomor.startsWith('62')) {
+      formatNomor = '62$formatNomor';
     }
 
-    final Uri whatsappUri = Uri.parse('https://wa.me/$formattedNumber');
+    final Uri whatsappUri = Uri.parse('https://wa.me/$formatNomor');
 
     try {
-      Log.info('Mencoba membuka WhatsApp: $formattedNumber');
+      Log.info('Mencoba membuka WhatsApp: $formatNomor');
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
         Log.info('Berhasil membuka WhatsApp.');
@@ -111,12 +110,13 @@ class _ActiveCustomerDetailPageState
   }
 
   // 2. Navigasi ke halaman edit pelanggan aktif
-  Future<void> _navigateToEdit(ActiveCustomerModel model) async {
-    Log.info('Navigasi ke form edit pelanggan aktif ID: ${model.id}');
+  Future<void> _navigateToEdit(PelangganAktifModel pelangganaktif) async {
+    Log.info('Navigasi ke form edit pelanggan aktif ID: ${pelangganaktif.id}');
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => FormPelangganAktif(pelangganAktif: model),
+        builder: (context) =>
+            FormPelangganAktif(pelangganAktif: pelangganaktif),
       ),
     );
   }
@@ -125,15 +125,15 @@ class _ActiveCustomerDetailPageState
   void initState() {
     super.initState();
     Log.info('Membuka halaman Detail Pelanggan Aktif');
-    Log.info('  - ID Pelanggan Aktif: ${widget.activeCustomer.id}');
+    Log.info('  - ID Pelanggan Aktif: ${widget.pelangganAktif.id}');
   }
 
   @override
   Widget build(BuildContext context) {
     Log.info(
-        'Membangun UI detail pelanggan aktif untuk ID: ${widget.activeCustomer.id}.');
+        'Membangun UI detail pelanggan aktif untuk ID: ${widget.pelangganAktif.id}.');
     final detailAsync =
-        ref.watch(activeCustomerDetailProvider(widget.activeCustomer.id));
+        ref.watch(activeCustomerDetailProvider(widget.pelangganAktif.id));
     return detailAsync.when(
       data: (data) => _buildScaffold(context, data),
       loading: () => const Scaffold(body: Center(child: Text(''))),
@@ -146,25 +146,25 @@ class _ActiveCustomerDetailPageState
   Widget _buildScaffold(
     BuildContext context,
     ({
-      CustomerModel? customer,
-      PackageModel? package,
-      TransactionModel? transaction,
-      ActiveCustomerModel activeCustomer
+      PelangganModel? customer,
+      PaketModel? package,
+      TransaksiModel? transaction,
+      PelangganAktifModel activeCustomer
     }) data,
   ) {
-    final activeCustomer = data.activeCustomer;
-    final customer = data.customer;
-    final package = data.package;
-    final transaction = data.transaction;
+    final pelangganAktif = data.activeCustomer;
+    final pelanggan = data.customer;
+    final paket = data.package;
+    final transaksi = data.transaction;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(customer?.name ?? 'Detail Pelanggan'),
+        title: Text(pelanggan?.name ?? 'Detail Pelanggan'),
         actions: [
           // 4. Tombol edit di AppBar
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () => _navigateToEdit(activeCustomer),
+            onPressed: () => _navigateToEdit(pelangganAktif),
           ),
         ],
       ),
@@ -189,22 +189,21 @@ class _ActiveCustomerDetailPageState
                       Center(
                         child: TextButton(
                           onPressed: () {
-                            if (customer != null) {
+                            if (pelanggan != null) {
                               Log.info(
-                                  'Navigasi ke detail pelanggan: ${customer.name}');
+                                  'Navigasi ke detail pelanggan: ${pelanggan.name}');
                               unawaited(Navigator.push<void>(
                                 context,
-                                MaterialPageRoute<void>(
-                                  builder: (final context) =>
-                                      CustomerDetailPage(
-                                    customerId: customer.id,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailPelanggan(
+                                    customerId: pelanggan.id,
                                   ),
                                 ),
                               ));
                             }
                           },
                           child: Text(
-                            customer?.name ?? activeCustomer.customerId,
+                            pelanggan?.name ?? pelangganAktif.customerId,
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -219,19 +218,17 @@ class _ActiveCustomerDetailPageState
                         // 9. Baris info paket (bisa diklik)
                         context,
                         'No HP',
-                        customer?.phone ??
+                        pelanggan?.phone ??
                             'Tidak ditemukan', // 10. Baris info status
                       ),
                       InkWell(
                         onTap: () {
-                          if (package != null) {
-                            Log.info(
-                                'Navigasi ke detail paket: ${package.name}');
+                          if (paket != null) {
+                            Log.info('Navigasi ke detail paket: ${paket.name}');
                             unawaited(Navigator.push<void>(
                               context,
                               MaterialPageRoute<void>(
-                                builder: (final context) =>
-                                    PackageDetailPage(paket: package),
+                                builder: (context) => DetailPaket(paket: paket),
                               ),
                             ));
                           }
@@ -239,49 +236,48 @@ class _ActiveCustomerDetailPageState
                         child: _buildInfoRow(
                           context,
                           'Paket',
-                          package?.name ?? ' (ID: ${activeCustomer.packageId})',
+                          paket?.name ?? ' (ID: ${pelangganAktif.packageId})',
                         ),
                       ),
                       _buildInfoRow(
                         context,
                         'Status',
-                        activeCustomer.status.displayName,
+                        pelangganAktif.status.displayName,
                       ),
-                      if (package != null)
+                      if (paket != null)
                         _buildInfoRow(
                           context,
                           'Poin Diperoleh',
-                          '${package.rewardPoints} Poin',
+                          '${paket.rewardPoints} Poin',
                         ),
-                      if (transaction != null &&
-                          (transaction.durasiBonus ?? 0) > 0)
+                      if (transaksi != null && (transaksi.durasiBonus ?? 0) > 0)
                         _buildInfoRow(
                           context,
                           'Bonus',
-                          '${transaction.durasiBonus} ${transaction.durasiBonusType?.displayName ?? ""}',
+                          '${transaksi.durasiBonus} ${transaksi.durasiBonusType?.displayName ?? ""}',
                         ),
                       _buildInfoRow(
                         context,
                         'Mulai',
                         FormatDateTime.formatDateAndTimeCompact(
-                            activeCustomer.startDate),
+                            pelangganAktif.startDate),
                       ),
                       _buildInfoRow(
                         context,
                         'Berakhir',
                         FormatDateTime.formatDateAndTimeCompact(
-                            activeCustomer.endDate),
+                            pelangganAktif.endDate),
                       ),
                       const Divider(),
                       gapH16,
                       Text(
                         CalculationUtil.getRemainingActivePeriodText(
-                          activeCustomer.endDate,
+                          pelangganAktif.endDate,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color:
                                   CalculationUtil.getRemainingActivePeriodColor(
-                                activeCustomer.endDate,
+                                pelangganAktif.endDate,
                               ),
                               fontWeight: FontWeight.bold,
                             ),
@@ -293,10 +289,9 @@ class _ActiveCustomerDetailPageState
                         label: const Text('Kirim Info via WhatsApp'),
                         onPressed: () {
                           Log.info('Tombol kirim info WhatsApp ditekan.');
-                          final pesanInfoPaket =
-                              ref.read(pesanInfoPaketProvider);
-                          unawaited(
-                              pesanInfoPaket.kirimRincianPaket(activeCustomer));
+                          unawaited(ref
+                              .read(pesanInfoPaketProvider)
+                              .kirimRincianPaket(pelangganAktif));
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(

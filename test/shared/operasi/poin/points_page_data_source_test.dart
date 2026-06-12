@@ -2,7 +2,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 
@@ -27,7 +27,7 @@ void main() {
     test('getPublicPackages returns a Future<List<PackageModel>>', () {
       when(dataSource.getPublicPackages()).thenAnswer((_) async => []);
 
-      expect(dataSource.getPublicPackages(), isA<Future<List<PackageModel>>>());
+      expect(dataSource.getPublicPackages(), isA<Future<List<PaketModel>>>());
     });
 
     test('getPointsTransactions returns a Future<List<TransactionModel>>', () {
@@ -36,14 +36,14 @@ void main() {
           .thenAnswer((_) async => []);
 
       expect(dataSource.getPointsTransactions(customerId),
-          isA<Future<List<TransactionModel>>>());
+          isA<Future<List<TransaksiModel>>>());
     });
 
     test('getPackageById returns a Future<PackageModel?>', () {
       const packageId = 'test_id';
       when(dataSource.getPaketByid(packageId)).thenAnswer((_) async => null);
 
-      expect(dataSource.getPaketByid(packageId), isA<Future<PackageModel?>>());
+      expect(dataSource.getPaketByid(packageId), isA<Future<PaketModel?>>());
     });
 
     test('isFirebase returns a bool', () {

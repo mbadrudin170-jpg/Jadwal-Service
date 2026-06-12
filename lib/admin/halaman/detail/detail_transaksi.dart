@@ -12,20 +12,19 @@ import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah transaksi.
-class TransactionDetailPage extends ConsumerStatefulWidget {
+class DetailTransaksi extends ConsumerStatefulWidget {
   /// Model transaksi yang akan ditampilkan.
-  final TransactionModel transaction;
+  final TransaksiModel transaction;
 
   /// Konstruktor untuk TransactionDetailPage.
-  const TransactionDetailPage({super.key, required this.transaction});
+  const DetailTransaksi({super.key, required this.transaction});
 
   @override
-  ConsumerState<TransactionDetailPage> createState() =>
-      _TransactionDetailPageState();
+  ConsumerState<DetailTransaksi> createState() => _DetailTransaksistate();
 }
 
-class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
-  late final DompetOpSqlite _walletOperation =
+class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
+  late final DompetOpSqlite _dompetOpSqlite =
       ref.watch(walletOperationProvider);
   late final CategoryOperation _categoryOperation =
       ref.watch(categoryOperationProvider);
@@ -33,10 +32,10 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
       ref.watch(customerOperationProvider);
   late final PaketOpSqlite _packageOperation =
       ref.watch(packageOperationProvider);
-  late final SubKategoriOpSqlite _subCategoryOperation =
+  late final SubKategoriOpSqlite _subKategoriOpSqlite =
       ref.watch(subCategoryOperationProvider);
 
-  late TransactionModel _currentTransaction;
+  late TransaksiModel _currentTransaction;
   bool _diUpdate = false;
 
   @override
@@ -60,8 +59,8 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
         if (model is WalletModel) name = model.name;
         if (model is CategoryModel) name = model.name;
         if (model is SubCategoryModel) name = model.name;
-        if (model is CustomerModel) name = model.name;
-        if (model is PackageModel) name = model.name;
+        if (model is PelangganModel) name = model.name;
+        if (model is PaketModel) name = model.name;
         return name ?? 'Nama tidak tersedia';
       }
       return 'Data tidak ditemukan';
@@ -70,7 +69,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
     }
   }
 
-  Future<void> _openEditForm() async {
+  Future<void> _navigasiKeForm() async {
     Log.info(
         'Membuka FormTransaksiPage dari halaman detail untuk mengedit transaksi: ${_currentTransaction.id}');
     // 1. Ubah tipe data yang diharapkan dari `Navigator.push` menjadi `bool?`
@@ -86,9 +85,9 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
       Log.info(
           'Form edit melaporkan keberhasilan penyimpanan. Memuat ulang data transaksi dari database.');
       try {
-        final transactionOp = ref.read(transactionOperationProvider);
+        final transaksiOpSqlite = ref.read(transactionOperationProvider);
         final updatedTransaction =
-            await transactionOp.getTransactionById(_currentTransaction.id);
+            await transaksiOpSqlite.getById(_currentTransaction.id);
 
         if (updatedTransaction != null) {
           Log.info('Berhasil memuat data transaksi terbaru. Memperbarui UI.');
@@ -117,7 +116,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
 
   @override
   Widget build(final BuildContext context) {
-    final transaction = _currentTransaction;
+    final transaksi = _currentTransaction;
 
     return Scaffold(
       appBar: AppBar(
@@ -129,7 +128,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
         actions: [
           IconButton(
             icon: const Icon(TIcons.edit),
-            onPressed: _openEditForm,
+            onPressed: _navigasiKeForm,
             tooltip: 'Edit Transaksi',
           ),
         ],
@@ -138,29 +137,29 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildDetailRow('Keterangan', transaction.description),
+            _buildDetailRow('Keterangan', transaksi.description),
             _buildDetailRow(
               'Tanggal',
-              FormatDateTime.formatDateAndTimeCompact(transaction.date),
+              FormatDateTime.formatDateAndTimeCompact(transaksi.date),
             ),
             _buildDetailRow(
-                'Jumlah', CurrencyFormat.formatCurrency(transaction.amount)),
-            _buildDetailRow('Tipe', transaction.type.displayName),
+                'Jumlah', CurrencyFormat.formatCurrency(transaksi.amount)),
+            _buildDetailRow('Tipe', transaksi.type.displayName),
             _buildFutureDetailRow(
               'Dompet',
               _getName(
-                _walletOperation.getById,
-                transaction.walletId,
+                _dompetOpSqlite.getById,
+                transaksi.walletId,
                 'Dompet',
               ),
             ),
-            if (transaction.destinationWalletId != null &&
-                transaction.destinationWalletId!.isNotEmpty)
+            if (transaksi.destinationWalletId != null &&
+                transaksi.destinationWalletId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getName(
-                  _walletOperation.getById,
-                  transaction.destinationWalletId!,
+                  _dompetOpSqlite.getById,
+                  transaksi.destinationWalletId!,
                   'Dompet Tujuan',
                 ),
               ),
@@ -168,62 +167,59 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
               'Kategori',
               _getName(
                 _categoryOperation.getCategoryById,
-                transaction.categoryId,
+                transaksi.categoryId,
                 'Kategori',
               ),
             ),
-            if (transaction.subCategoryId != null &&
-                transaction.subCategoryId!.isNotEmpty)
+            if (transaksi.idSubKategori != null &&
+                transaksi.idSubKategori!.isNotEmpty)
               _buildFutureDetailRow(
                 'Sub Kategori',
                 _getName(
-                  _subCategoryOperation.getSubCategoryById,
-                  transaction.subCategoryId!,
+                  _subKategoriOpSqlite.getSubCategoryById,
+                  transaksi.idSubKategori!,
                   'Sub-Kategori',
                 ),
               ),
-            if (transaction.customerId != null &&
-                transaction.customerId!.isNotEmpty)
+            if (transaksi.customerId != null &&
+                transaksi.customerId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getName(
-                  _customerOperation.ambilBerdasarkanId,
-                  transaction.customerId!,
+                  _customerOperation.getById,
+                  transaksi.customerId!,
                   'Pelanggan',
                 ),
               ),
-            if (transaction.packageId != null &&
-                transaction.packageId!.isNotEmpty)
+            if (transaksi.packageId != null && transaksi.packageId!.isNotEmpty)
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
-                  _packageOperation.ambilBerdasarkanId,
-                  transaction.packageId!,
+                  _packageOperation.getById,
+                  transaksi.packageId!,
                   'Paket',
                 ),
               ),
             _buildDetailRow(
               'Status Pembayaran',
-              transaction.paymentStatus.displayName,
+              transaksi.paymentStatus.displayName,
             ),
             _buildDetailRow(
-                'Poin Dihasilkan', transaction.earnedPoints.toString()),
-            _buildDetailRow(
-                'Poin Digunakan', transaction.usedPoints.toString()),
-            if (transaction.startDate != null)
+                'Poin Dihasilkan', transaksi.earnedPoints.toString()),
+            _buildDetailRow('Poin Digunakan', transaksi.usedPoints.toString()),
+            if (transaksi.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-                FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaksi.startDate!),
               ),
-            if (transaction.endDate != null)
+            if (transaksi.endDate != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
+                FormatDateTime.formatDateAndTimeCompact(transaksi.endDate!),
               ),
-            if (transaction.durasiBonus! > 0 &&
-                transaction.durasiBonusType != null)
+            if (transaksi.durasiBonus! > 0 && transaksi.durasiBonusType != null)
               _buildDetailRow('Bonus',
-                  '${transaction.durasiBonus} ${transaction.durasiBonusType?.displayName}')
+                  '${transaksi.durasiBonus} ${transaksi.durasiBonusType?.displayName}')
           ],
         ),
       ),

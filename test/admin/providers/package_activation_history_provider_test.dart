@@ -22,15 +22,15 @@ void main() {
   final tomorrow = today.add(const Duration(days: 1));
 
   // Customer dummies
-  final c1 = CustomerModel(
+  final c1 = PelangganModel(
       id: 'c1', name: 'Charlie', phone: '', address: '', password: '');
-  final c2 = CustomerModel(
+  final c2 = PelangganModel(
       id: 'c2', name: 'Alpha', phone: '', address: '', password: '');
-  final c3 = CustomerModel(
+  final c3 = PelangganModel(
       id: 'c3', name: 'Bravo', phone: '', address: '', password: '');
 
   // Transaction dummies
-  final t1 = TransactionModel(
+  final t1 = TransaksiModel(
       id: '1',
       customerId: 'c1',
       date: yesterday,
@@ -42,7 +42,7 @@ void main() {
       walletId: '',
       categoryId: '',
       updatedAt: today);
-  final t2 = TransactionModel(
+  final t2 = TransaksiModel(
     id: '2',
     customerId: 'c2',
     date: today,
@@ -54,7 +54,7 @@ void main() {
     categoryId: '',
     updatedAt: tomorrow,
   );
-  final t3 = TransactionModel(
+  final t3 = TransaksiModel(
     id: '3',
     customerId: 'c3',
     date: yesterday.subtract(const Duration(days: 1)),
@@ -68,7 +68,7 @@ void main() {
     updatedAt: yesterday,
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
-  final t4 = TransactionModel(
+  final t4 = TransaksiModel(
     id: '4',
     customerId: 'c4-nonexistent',
     date: today.subtract(const Duration(days: 2)),

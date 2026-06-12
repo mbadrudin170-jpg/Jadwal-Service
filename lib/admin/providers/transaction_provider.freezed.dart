@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$TransactionState {
-  List<TransactionModel> get transactions;
+  List<TransaksiModel> get transactions;
   double get totalIncome;
   double get totalExpense;
   double get netTotal;
@@ -66,7 +66,7 @@ abstract mixin class $TransactionStateCopyWith<$Res> {
       _$TransactionStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<TransactionModel> transactions,
+      {List<TransaksiModel> transactions,
       double totalIncome,
       double totalExpense,
       double netTotal,
@@ -96,7 +96,7 @@ class _$TransactionStateCopyWithImpl<$Res>
       transactions: null == transactions
           ? _self.transactions
           : transactions // ignore: cast_nullable_to_non_nullable
-              as List<TransactionModel>,
+              as List<TransaksiModel>,
       totalIncome: null == totalIncome
           ? _self.totalIncome
           : totalIncome // ignore: cast_nullable_to_non_nullable
@@ -210,7 +210,7 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<TransactionModel> transactions, double totalIncome,
+    TResult Function(List<TransaksiModel> transactions, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)?
         $default, {
     required TResult orElse(),
@@ -240,7 +240,7 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<TransactionModel> transactions, double totalIncome,
+    TResult Function(List<TransaksiModel> transactions, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)
         $default,
   ) {
@@ -268,7 +268,7 @@ extension TransactionStatePatterns on TransactionState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<TransactionModel> transactions, double totalIncome,
+    TResult? Function(List<TransaksiModel> transactions, double totalIncome,
             double totalExpense, double netTotal, SortBy sortBy)?
         $default,
   ) {
@@ -287,17 +287,17 @@ extension TransactionStatePatterns on TransactionState {
 
 class _TransactionState implements TransactionState {
   const _TransactionState(
-      {final List<TransactionModel> transactions = const [],
+      {final List<TransaksiModel> transactions = const [],
       this.totalIncome = 0.0,
       this.totalExpense = 0.0,
       this.netTotal = 0.0,
       this.sortBy = SortBy.newest})
       : _transactions = transactions;
 
-  final List<TransactionModel> _transactions;
+  final List<TransaksiModel> _transactions;
   @override
   @JsonKey()
-  List<TransactionModel> get transactions {
+  List<TransaksiModel> get transactions {
     if (_transactions is EqualUnmodifiableListView) return _transactions;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_transactions);
@@ -364,7 +364,7 @@ abstract mixin class _$TransactionStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<TransactionModel> transactions,
+      {List<TransaksiModel> transactions,
       double totalIncome,
       double totalExpense,
       double netTotal,
@@ -394,7 +394,7 @@ class __$TransactionStateCopyWithImpl<$Res>
       transactions: null == transactions
           ? _self._transactions
           : transactions // ignore: cast_nullable_to_non_nullable
-              as List<TransactionModel>,
+              as List<TransaksiModel>,
       totalIncome: null == totalIncome
           ? _self.totalIncome
           : totalIncome // ignore: cast_nullable_to_non_nullable

@@ -25,9 +25,9 @@ import 'package:wifi/shared/model/wallet_model.dart' as _i5;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDatabaseHelper_0 extends _i1.SmartFake
+class _FakeSqliteDatabase_0 extends _i1.SmartFake
     implements _i2.SqliteDatabase {
-  _FakeDatabaseHelper_0(
+  _FakeSqliteDatabase_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -43,11 +43,11 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
   @override
   _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_0(
+        returnValue: _FakeSqliteDatabase_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-        returnValueForMissingStub: _FakeDatabaseHelper_0(
+        returnValueForMissingStub: _FakeSqliteDatabase_0(
           this,
           Invocation.getter(#dbHelper),
         ),

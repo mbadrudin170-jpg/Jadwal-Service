@@ -88,7 +88,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       if (querySnapshot.docs.isNotEmpty) {
         final userDoc = querySnapshot.docs.first;
-        final customer = CustomerModel.fromFirebase(userDoc.id, userDoc.data());
+        final customer =
+            PelangganModel.fromFirebase(userDoc.id, userDoc.data());
         Log.info('Pengguna berhasil login: ${customer.name}');
 
         // 1. Simpan sesi (kritis)

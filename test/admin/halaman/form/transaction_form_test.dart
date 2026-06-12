@@ -23,13 +23,13 @@ void main() {
   late MockDompetOpFirebase mockDompetOpFirebase;
   late MockKategoriOpFirebase mockKategoriOpFirebase;
   late MockTransactionOpFirebase mockTransactionOpFirebase;
-  late TransactionModel testTransaction;
+  late TransaksiModel testTransaction;
 
   setUp(() {
     mockDompetOpFirebase = MockDompetOpFirebase();
     mockKategoriOpFirebase = MockKategoriOpFirebase();
     mockTransactionOpFirebase = MockTransactionOpFirebase();
-    testTransaction = TransactionModel(
+    testTransaction = TransaksiModel(
       id: '1',
       description: 'Test Transaction',
       amount: 1000,
@@ -40,7 +40,7 @@ void main() {
     );
   });
 
-  Widget createTestWidget({TransactionModel? transaction}) {
+  Widget createTestWidget({TransaksiModel? transaction}) {
     return ProviderScope(
       overrides: [
         dompetOpFirebaseProvider.overrideWithValue(mockDompetOpFirebase),
@@ -67,14 +67,15 @@ void main() {
 
   testWidgets('02. FormTransaksiPage should display edit form correctly',
       (tester) async {
-    when(() => mockDompetOpFirebase.ambilSemuaDompet()).thenAnswer((_) async => [
-          WalletModel(id: '1', name: 'Test Wallet', balance: 0),
-        ]);
+    when(() => mockDompetOpFirebase.ambilSemuaDompet())
+        .thenAnswer((_) async => [
+              WalletModel(id: '1', name: 'Test Wallet', balance: 0),
+            ]);
     when(() => mockKategoriOpFirebase.ambilSemuaKategori())
         .thenAnswer((_) async => [
-          CategoryModel(
-              id: '1', name: 'Test Category', type: CategoryType.income),
-        ]);
+              CategoryModel(
+                  id: '1', name: 'Test Category', type: CategoryType.income),
+            ]);
     await tester.pumpWidget(createTestWidget(transaction: testTransaction));
     await tester.pumpAndSettle();
     expect(find.text('Edit Transaksi'), findsOneWidget);

@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -73,7 +73,7 @@ class TransactionPageA extends ConsumerWidget {
   /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
   Future<void> _navigateToTransactionForm(
     BuildContext context, {
-    TransactionModel? transaction,
+    TransaksiModel? transaction,
   }) async {
     Log.info(
       transaction == null
@@ -223,7 +223,7 @@ class _TransactionBody extends ConsumerWidget {
 
 /// Widget yang bertanggung jawab untuk membangun ListView dari transaksi.
 class _TransactionListView extends ConsumerWidget {
-  final List<TransactionModel> transactions;
+  final List<TransaksiModel> transactions;
 
   const _TransactionListView({required this.transactions});
 
@@ -269,11 +269,11 @@ class _TransactionListView extends ConsumerWidget {
 
   /// Navigasi ke halaman detail transaksi.
   Future<void> _navigateToTransactionDetail(
-      BuildContext context, TransactionModel transaction) async {
+      BuildContext context, TransaksiModel transaction) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => TransactionDetailPage(transaction: transaction),
+        builder: (context) => DetailTransaksi(transaction: transaction),
       ),
     );
   }
@@ -281,7 +281,7 @@ class _TransactionListView extends ConsumerWidget {
   /// Navigasi ke halaman form (dibutuhkan di sini untuk action onEdit).
   Future<void> _navigateToTransactionForm(
     BuildContext context, {
-    TransactionModel? transaction,
+    TransaksiModel? transaction,
   }) async {
     await Navigator.push(
       context,

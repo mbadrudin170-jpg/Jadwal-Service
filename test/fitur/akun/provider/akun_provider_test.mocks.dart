@@ -78,7 +78,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i4.Future<_i5.ThemeMode>);
 
   @override
-  _i4.Future<void> simpanAkun(_i6.CustomerModel? pelanggan) =>
+  _i4.Future<void> simpanAkun(_i6.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanAkun,
@@ -89,7 +89,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> simpanAkunSaatIni(_i6.CustomerModel? pelanggan) =>
+  _i4.Future<void> simpanAkunSaatIni(_i6.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanAkunSaatIni,
@@ -100,16 +100,16 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i6.CustomerModel>> ambilDaftarAkun() => (super.noSuchMethod(
+  _i4.Future<List<_i6.PelangganModel>> ambilDaftarAkun() => (super.noSuchMethod(
         Invocation.method(
           #ambilDaftarAkun,
           [],
         ),
         returnValue:
-            _i4.Future<List<_i6.CustomerModel>>.value(<_i6.CustomerModel>[]),
+            _i4.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
         returnValueForMissingStub:
-            _i4.Future<List<_i6.CustomerModel>>.value(<_i6.CustomerModel>[]),
-      ) as _i4.Future<List<_i6.CustomerModel>>);
+            _i4.Future<List<_i6.PelangganModel>>.value(<_i6.PelangganModel>[]),
+      ) as _i4.Future<List<_i6.PelangganModel>>);
 
   @override
   _i4.Future<void> hapusAkun(String? idPengguna) => (super.noSuchMethod(
@@ -142,14 +142,14 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<_i6.CustomerModel?> ambilAkunLogin() => (super.noSuchMethod(
+  _i4.Future<_i6.PelangganModel?> ambilAkunLogin() => (super.noSuchMethod(
         Invocation.method(
           #ambilAkunLogin,
           [],
         ),
-        returnValue: _i4.Future<_i6.CustomerModel?>.value(),
-        returnValueForMissingStub: _i4.Future<_i6.CustomerModel?>.value(),
-      ) as _i4.Future<_i6.CustomerModel?>);
+        returnValue: _i4.Future<_i6.PelangganModel?>.value(),
+        returnValueForMissingStub: _i4.Future<_i6.PelangganModel?>.value(),
+      ) as _i4.Future<_i6.PelangganModel?>);
 
   @override
   _i4.Future<void> hapusSemuaData() => (super.noSuchMethod(

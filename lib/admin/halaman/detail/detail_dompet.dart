@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
@@ -22,7 +22,7 @@ class DetailDompetData {
   final WalletModel wallet;
 
   /// Daftar transaksi yang terkait dengan dompet.
-  final List<TransactionModel> transactions;
+  final List<TransaksiModel> transactions;
 
   /// Total pendapatan dari transaksi.
   final double totalIncome;
@@ -86,7 +86,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
       ]);
 
       final latestWallet = results[0] as WalletModel?;
-      final transactionList = results[1] as List<TransactionModel>;
+      final transactionList = results[1] as List<TransaksiModel>;
 
       if (latestWallet == null) {
         throw Exception('Dompet tidak ditemukan.');
@@ -129,15 +129,14 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   }
 
   Future<void> _navigateToTransactionDetail(
-      final TransactionModel transaction) async {
+      final TransaksiModel transaction) async {
     Log.info(
       'Navigasi ke TransactionDetailPage dari WalletDetail untuk transaksi ID: ${transaction.id}',
     );
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (final context) =>
-            TransactionDetailPage(transaction: transaction),
+        builder: (final context) => DetailTransaksi(transaction: transaction),
       ),
     );
 
@@ -152,7 +151,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   }
 
   Future<void> _navigateToTransactionForm(
-      {final TransactionModel? transaction}) async {
+      {final TransaksiModel? transaction}) async {
     Log.info(
       'Membuka FormTransaksiPage untuk mengedit transaksi ID: ${transaction?.id} dari WalletDetail.',
     );
@@ -241,7 +240,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
     );
   }
 
-  Widget _buildTransactionList(final List<TransactionModel> transactionData) {
+  Widget _buildTransactionList(final List<TransaksiModel> transactionData) {
     final groupedTransactions = groupTransactionsByDate(transactionData);
     final transactionOperation = ref.read(transactionOperationProvider);
     return ListView.builder(

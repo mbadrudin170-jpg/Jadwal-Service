@@ -14,8 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$PoinState {
-  List<PackageModel> get rewards;
-  List<TransactionModel> get transaksi;
+  List<PaketModel> get rewards;
+  List<TransaksiModel> get transaksi;
   int get totalPoin;
 
   /// Create a copy of PoinState
@@ -55,8 +55,8 @@ abstract mixin class $PoinStateCopyWith<$Res> {
       _$PoinStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<PackageModel> rewards,
-      List<TransactionModel> transaksi,
+      {List<PaketModel> rewards,
+      List<TransaksiModel> transaksi,
       int totalPoin});
 }
 
@@ -80,11 +80,11 @@ class _$PoinStateCopyWithImpl<$Res> implements $PoinStateCopyWith<$Res> {
       rewards: null == rewards
           ? _self.rewards
           : rewards // ignore: cast_nullable_to_non_nullable
-              as List<PackageModel>,
+              as List<PaketModel>,
       transaksi: null == transaksi
           ? _self.transaksi
           : transaksi // ignore: cast_nullable_to_non_nullable
-              as List<TransactionModel>,
+              as List<TransaksiModel>,
       totalPoin: null == totalPoin
           ? _self.totalPoin
           : totalPoin // ignore: cast_nullable_to_non_nullable
@@ -186,8 +186,8 @@ extension PoinStatePatterns on PoinState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<PackageModel> rewards,
-            List<TransactionModel> transaksi, int totalPoin)?
+    TResult Function(List<PaketModel> rewards, List<TransaksiModel> transaksi,
+            int totalPoin)?
         $default, {
     required TResult orElse(),
   }) {
@@ -215,8 +215,8 @@ extension PoinStatePatterns on PoinState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<PackageModel> rewards,
-            List<TransactionModel> transaksi, int totalPoin)
+    TResult Function(List<PaketModel> rewards, List<TransaksiModel> transaksi,
+            int totalPoin)
         $default,
   ) {
     final _that = this;
@@ -242,8 +242,8 @@ extension PoinStatePatterns on PoinState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<PackageModel> rewards,
-            List<TransactionModel> transaksi, int totalPoin)?
+    TResult? Function(List<PaketModel> rewards, List<TransaksiModel> transaksi,
+            int totalPoin)?
         $default,
   ) {
     final _that = this;
@@ -260,25 +260,25 @@ extension PoinStatePatterns on PoinState {
 
 class _PoinState implements PoinState {
   const _PoinState(
-      {final List<PackageModel> rewards = const [],
-      final List<TransactionModel> transaksi = const [],
+      {final List<PaketModel> rewards = const [],
+      final List<TransaksiModel> transaksi = const [],
       this.totalPoin = 0})
       : _rewards = rewards,
         _transaksi = transaksi;
 
-  final List<PackageModel> _rewards;
+  final List<PaketModel> _rewards;
   @override
   @JsonKey()
-  List<PackageModel> get rewards {
+  List<PaketModel> get rewards {
     if (_rewards is EqualUnmodifiableListView) return _rewards;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_rewards);
   }
 
-  final List<TransactionModel> _transaksi;
+  final List<TransaksiModel> _transaksi;
   @override
   @JsonKey()
-  List<TransactionModel> get transaksi {
+  List<TransaksiModel> get transaksi {
     if (_transaksi is EqualUnmodifiableListView) return _transaksi;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_transaksi);
@@ -330,8 +330,8 @@ abstract mixin class _$PoinStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<PackageModel> rewards,
-      List<TransactionModel> transaksi,
+      {List<PaketModel> rewards,
+      List<TransaksiModel> transaksi,
       int totalPoin});
 }
 
@@ -355,11 +355,11 @@ class __$PoinStateCopyWithImpl<$Res> implements _$PoinStateCopyWith<$Res> {
       rewards: null == rewards
           ? _self._rewards
           : rewards // ignore: cast_nullable_to_non_nullable
-              as List<PackageModel>,
+              as List<PaketModel>,
       transaksi: null == transaksi
           ? _self._transaksi
           : transaksi // ignore: cast_nullable_to_non_nullable
-              as List<TransactionModel>,
+              as List<TransaksiModel>,
       totalPoin: null == totalPoin
           ? _self.totalPoin
           : totalPoin // ignore: cast_nullable_to_non_nullable

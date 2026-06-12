@@ -33,7 +33,7 @@ class CustomerOpFirebase {
       _firestore.collection(_collectionName);
 
   /// Membuat pelanggan baru di Firestore.
-  Future<void> addPelanggan(CustomerModel pelanggan) async {
+  Future<void> addPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
     await _baseOp.sisipkan(
       _collectionName,
@@ -43,7 +43,7 @@ class CustomerOpFirebase {
   }
 
   /// Memperbarui data pelanggan yang ada di Firestore.
-  Future<void> updatePelanggan(CustomerModel pelanggan) async {
+  Future<void> updatePelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
     await _baseOp.update(
       _collectionName,
@@ -88,7 +88,7 @@ class CustomerOpFirebase {
   // =======================================================================
 
   /// Mengambil semua data pelanggan yang tidak di-soft-delete.
-  Future<List<CustomerModel>> getAllPelanggan() async {
+  Future<List<PelangganModel>> getAllPelanggan() async {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
       final querySnapshot = await _customerCollection
@@ -101,7 +101,7 @@ class CustomerOpFirebase {
       }
 
       final pelanggan = querySnapshot.docs.map((doc) {
-        return CustomerModel.fromFirebase(
+        return PelangganModel.fromFirebase(
           doc.id,
           doc.data()! as Map<String, dynamic>,
         );
@@ -116,11 +116,11 @@ class CustomerOpFirebase {
   }
 
   /// Mengambil data pelanggan secara real-time (stream).
-  Stream<CustomerModel?> getStreamPelanggan(String idPengguna) {
+  Stream<PelangganModel?> getStreamPelanggan(String idPengguna) {
     Log.info('Streaming data pelanggan untuk: $idPengguna');
     return _customerCollection.doc(idPengguna).snapshots().map((snapshot) {
       if (snapshot.exists) {
-        return CustomerModel.fromFirebase(
+        return PelangganModel.fromFirebase(
           snapshot.id,
           snapshot.data()! as Map<String, dynamic>,
         );
@@ -132,11 +132,11 @@ class CustomerOpFirebase {
   }
 
   /// Mengambil data pelanggan sekali (one-time fetch).
-  Future<CustomerModel?> getById(String idPengguna) async {
+  Future<PelangganModel?> getById(String idPengguna) async {
     try {
       final doc = await _customerCollection.doc(idPengguna).get();
       if (doc.exists) {
-        return CustomerModel.fromFirebase(
+        return PelangganModel.fromFirebase(
           doc.id,
           doc.data()! as Map<String, dynamic>,
         );

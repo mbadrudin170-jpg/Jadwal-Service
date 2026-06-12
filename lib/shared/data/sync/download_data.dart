@@ -204,10 +204,10 @@ class DownloadDataService {
   Future<void> downloadPackageData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<PackageModel>(
+    await synchronizeCollection<PaketModel>(
       collectionName: NamaTabel.package,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: PackageModel.fromFirebase,
+      fromFirebase: PaketModel.fromFirebase,
       batchOperation: (final data) =>
           _paketOpSqlite.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
@@ -217,10 +217,10 @@ class DownloadDataService {
   Future<void> downloadCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<CustomerModel>(
+    await synchronizeCollection<PelangganModel>(
       collectionName: NamaTabel.customer,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: CustomerModel.fromFirebase,
+      fromFirebase: PelangganModel.fromFirebase,
       batchOperation: (final data) =>
           _pelangganOpSqlite.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
@@ -230,10 +230,10 @@ class DownloadDataService {
   Future<void> downloadActiveCustomerData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<ActiveCustomerModel>(
+    await synchronizeCollection<PelangganAktifModel>(
       collectionName: NamaTabel.activeCustomer,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: ActiveCustomerModel.fromFirebase,
+      fromFirebase: PelangganAktifModel.fromFirebase,
       batchOperation: (final data) =>
           _activeCustomerOperation.insertOrUpdateBatch(data, fromServer: true),
     );
@@ -243,10 +243,10 @@ class DownloadDataService {
   Future<void> downloadTransactionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<TransactionModel>(
+    await synchronizeCollection<TransaksiModel>(
       collectionName: NamaTabel.transactions,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: TransactionModel.fromFirebase,
+      fromFirebase: TransaksiModel.fromFirebase,
       batchOperation: (final data) =>
           _transactionOperation.insertOrUpdateBatch(data, fromServer: true),
     );

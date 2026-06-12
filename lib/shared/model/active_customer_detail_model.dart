@@ -6,7 +6,7 @@ import 'package:wifi/shared/model/active_customer_model.dart';
 /// Ini bukan tabel database, melainkan hasil dari query JOIN yang efisien.
 class ActiveCustomerDetailModel {
   /// Data inti pelanggan aktif.
-  final ActiveCustomerModel activeCustomer;
+  final PelangganAktifModel activeCustomer;
 
   /// Nama lengkap pelanggan, diambil dari tabel `customer`.
   final String customerName;

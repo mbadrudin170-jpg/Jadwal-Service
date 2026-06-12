@@ -19,31 +19,31 @@ final class CustomerListProvider extends $FunctionalProvider<
         AsyncValue<
             List<
                 (
-                  CustomerModel,
+                  PelangganModel,
                   int,
                 )>>,
         List<
             (
-              CustomerModel,
+              PelangganModel,
               int,
             )>,
         FutureOr<
             List<
                 (
-                  CustomerModel,
+                  PelangganModel,
                   int,
                 )>>>
     with
         $FutureModifier<
             List<
                 (
-                  CustomerModel,
+                  PelangganModel,
                   int,
                 )>>,
         $FutureProvider<
             List<
                 (
-                  CustomerModel,
+                  PelangganModel,
                   int,
                 )>> {
   /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
@@ -66,7 +66,7 @@ final class CustomerListProvider extends $FunctionalProvider<
   $FutureProviderElement<
       List<
           (
-            CustomerModel,
+            PelangganModel,
             int,
           )>> $createElement($ProviderPointer pointer) =>
       $FutureProviderElement(pointer);
@@ -75,14 +75,14 @@ final class CustomerListProvider extends $FunctionalProvider<
   FutureOr<
       List<
           (
-            CustomerModel,
+            PelangganModel,
             int,
           )>> create(Ref ref) {
     return customerList(ref);
   }
 }
 
-String _$customerListHash() => r'95c853b8e06ecad07a3915450a8401d4d3e336ba';
+String _$customerListHash() => r'61270a915caf3f9a16af216ae79b212bab2a7135';
 
 /// Provider untuk menyimpan state opsi urutan pelanggan yang dipilih oleh user.
 
@@ -268,27 +268,27 @@ final customerDetailProvider = CustomerDetailFamily._();
 final class CustomerDetailProvider extends $FunctionalProvider<
         AsyncValue<
             (
-              CustomerModel?,
+              PelangganModel?,
               int,
             )>,
         (
-          CustomerModel?,
+          PelangganModel?,
           int,
         ),
         FutureOr<
             (
-              CustomerModel?,
+              PelangganModel?,
               int,
             )>>
     with
         $FutureModifier<
             (
-              CustomerModel?,
+              PelangganModel?,
               int,
             )>,
         $FutureProvider<
             (
-              CustomerModel?,
+              PelangganModel?,
               int,
             )> {
   /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
@@ -317,7 +317,7 @@ final class CustomerDetailProvider extends $FunctionalProvider<
   @override
   $FutureProviderElement<
       (
-        CustomerModel?,
+        PelangganModel?,
         int,
       )> $createElement(
           $ProviderPointer pointer) =>
@@ -326,7 +326,7 @@ final class CustomerDetailProvider extends $FunctionalProvider<
   @override
   FutureOr<
       (
-        CustomerModel?,
+        PelangganModel?,
         int,
       )> create(Ref ref) {
     final argument = this.argument as String;
@@ -347,7 +347,7 @@ final class CustomerDetailProvider extends $FunctionalProvider<
   }
 }
 
-String _$customerDetailHash() => r'baac615ffb2b665b4a2833d5a8a716092bb53227';
+String _$customerDetailHash() => r'8c70d63dd1f1d8e0f2f94725407c72bffd13c822';
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 
@@ -356,7 +356,7 @@ final class CustomerDetailFamily extends $Family
         $FunctionalFamilyOverride<
             FutureOr<
                 (
-                  CustomerModel?,
+                  PelangganModel?,
                   int,
                 )>,
             String> {

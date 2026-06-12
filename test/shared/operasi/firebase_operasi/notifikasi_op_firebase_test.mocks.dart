@@ -65,13 +65,13 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
       ) as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> add(
+  _i4.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #add,
+          #tambah,
           [
             collectionName,
             data,
@@ -81,7 +81,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
             _FakeDocumentReference_1<Object?>(
           this,
           Invocation.method(
-            #add,
+            #tambah,
             [
               collectionName,
               data,
@@ -98,7 +98,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insert,
+          #sisipkan,
           [
             collectionName,
             docId,
@@ -135,7 +135,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [
             collectionName,
             docId,
@@ -152,7 +152,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #delete,
+          #hapusPermanen,
           [
             collectionName,
             docId,
@@ -166,7 +166,7 @@ class MockBaseOpFirebase extends _i1.Mock implements _i3.BaseOpFirebase {
   _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [collectionName],
         ),
         returnValue: _i4.Future<int>.value(0),

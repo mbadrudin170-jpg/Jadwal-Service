@@ -10,7 +10,7 @@ export '../model/event_model.dart';
 export '../model/has_id.dart';
 export '../model/notifikasi_model.dart';
 export '../model/order_model_ok.dart';
-export '../model/package_model.dart';
+export '../../fitur/paket/model/paket_model.dart';
 export '../model/save_result_model.dart';
 export '../model/settings_model.dart';
 export '../model/status_model.dart';

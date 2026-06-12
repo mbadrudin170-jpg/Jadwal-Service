@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
 
 class TransactionDetailPage extends StatelessWidget {
-  final TransactionModel transaction;
-  final PackageModel? package;
+  final TransaksiModel transaction;
+  final PaketModel? package;
 
   const TransactionDetailPage(
       {super.key, required this.transaction, this.package});

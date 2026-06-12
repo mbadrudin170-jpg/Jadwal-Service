@@ -1,15 +1,14 @@
-
 // path: test/user/page/transaction_detail_u_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 
 void main() {
-  final transaction = TransactionModel(
+  final transaction = TransaksiModel(
     id: '1',
     customerId: '1',
     packageId: '1',
@@ -24,7 +23,7 @@ void main() {
     usedPoints: 0,
   );
 
-  final package = PackageModel(
+  final package = PaketModel(
     id: '1',
     name: 'Test Package',
     price: 100000,
@@ -40,7 +39,8 @@ void main() {
   }
 
   group('TransactionDetailPage', () {
-    testWidgets('Test 01: should display transaction details', (WidgetTester tester) async {
+    testWidgets('Test 01: should display transaction details',
+        (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
       expect(find.text('Detail Transaksi'), findsOneWidget);

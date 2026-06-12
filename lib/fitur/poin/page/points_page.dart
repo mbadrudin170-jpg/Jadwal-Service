@@ -70,7 +70,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
   }
 
   Future<void> _tukarPoin(BuildContext context, WidgetRef ref,
-      PackageModel reward, int currentPoints) async {
+      PaketModel reward, int currentPoints) async {
     if (_isTukarPoin) return;
     setState(() => _isTukarPoin = true);
     try {
@@ -119,7 +119,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         try {
           final dataPelanggan = await ref
               .read(customerOperationProvider)
-              .ambilBerdasarkanId(widget.customerId);
+              .getById(widget.customerId);
 
           final now = DateTime.now();
           final idOrder = const Uuid().v4();
@@ -166,10 +166,10 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     }
   }
 
-  Future<void> _navigasiKeDetailtransaksi(TransactionModel transaction) async {
+  Future<void> _navigasiKeDetailtransaksi(TransaksiModel transaction) async {
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaction.id}');
-    PackageModel? package;
+    PaketModel? package;
     if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
       final dataSource = ref.read(pointsDataSourceProvider);
       try {
@@ -231,7 +231,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     );
   }
 
-  Widget _buildRewardList(List<PackageModel> rewardList, int totalPoints) {
+  Widget _buildRewardList(List<PaketModel> rewardList, int totalPoints) {
     Log.info('Building reward list.');
     if (rewardList.isEmpty) {
       return const Center(child: Text('Belum ada hadiah yang tersedia'));

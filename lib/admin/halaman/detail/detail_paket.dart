@@ -4,27 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah paket.
-class PackageDetailPage extends ConsumerStatefulWidget {
+class DetailPaket extends ConsumerStatefulWidget {
   /// Model paket yang akan ditampilkan.
-  final PackageModel paket;
+  final PaketModel paket;
 
   /// Konstruktor untuk PackageDetailPage.
-  const PackageDetailPage({
+  const DetailPaket({
     super.key,
     required this.paket,
   });
 
   @override
-  ConsumerState<PackageDetailPage> createState() => _PackageDetailPageState();
+  ConsumerState<DetailPaket> createState() => _DetailPaketState();
 }
 
-class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
-  late PackageModel _package;
+class _DetailPaketState extends ConsumerState<DetailPaket> {
+  late PaketModel _package;
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build( BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_package.name),

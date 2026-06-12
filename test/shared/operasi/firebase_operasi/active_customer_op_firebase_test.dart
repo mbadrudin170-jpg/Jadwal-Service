@@ -21,7 +21,7 @@ void main() {
         fakeFirestore.collection(NamaTabel.get(TableName.activeCustomer));
   });
 
-  final activeCustomer = ActiveCustomerModel(
+  final activeCustomer = PelangganAktifModel(
     id: 'cust1',
     idPelanggan: 'cust1',
     packageId: 'pkg1',
@@ -55,7 +55,7 @@ void main() {
         .getActiveCustomersById(activeCustomer.idPelanggan);
 
     // Assert
-    expect(result, isA<ActiveCustomerModel>());
+    expect(result, isA<PelangganAktifModel>());
     expect(result?.idPelanggan, 'cust1');
     expect(result?.packageId, 'pkg1');
   });

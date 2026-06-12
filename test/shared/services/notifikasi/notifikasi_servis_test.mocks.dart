@@ -667,7 +667,7 @@ class MockNotifikasiOpFirebase extends _i1.Mock
   @override
   _i3.Stream<List<_i18.NotifikasiModel>> getNotifAktif() => (super.noSuchMethod(
         Invocation.method(
-          #getActiveNotifications,
+          #getNotifAktif,
           [],
         ),
         returnValue: _i3.Stream<List<_i18.NotifikasiModel>>.empty(),
@@ -718,7 +718,7 @@ class MockNotifikasiOpFirebase extends _i1.Mock
   _i3.Future<void> updateNotif(_i18.NotifikasiModel? notifikasi) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateNotifikasi,
+          #updateNotif,
           [notifikasi],
         ),
         returnValue: _i3.Future<void>.value(),

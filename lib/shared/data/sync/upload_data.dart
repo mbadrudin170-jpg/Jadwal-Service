@@ -187,10 +187,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk paket: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<PackageModel>(
+      await uploadGenericData<PaketModel>(
         NamaTabel.package,
         NamaTabel.package,
-        PackageModel.fromSqlite,
+        PaketModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );
@@ -218,10 +218,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk pelanggan_aktif: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<ActiveCustomerModel>(
+      await uploadGenericData<PelangganAktifModel>(
         NamaTabel.activeCustomer,
         NamaTabel.activeCustomer,
-        ActiveCustomerModel.fromSqlite,
+        PelangganAktifModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );
@@ -249,10 +249,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk pelanggan: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<CustomerModel>(
+      await uploadGenericData<PelangganModel>(
         NamaTabel.customer,
         NamaTabel.customer,
-        CustomerModel.fromSqlite,
+        PelangganModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );
@@ -311,10 +311,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk transaksi: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<TransactionModel>(
+      await uploadGenericData<TransaksiModel>(
         NamaTabel.transactions,
         NamaTabel.transactions,
-        TransactionModel.fromSqlite,
+        TransaksiModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );

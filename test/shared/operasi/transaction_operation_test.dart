@@ -34,7 +34,7 @@ void main() {
   });
 
   group('TransactionOperation Tests', () {
-    final tTransaction = TransactionModel(
+    final tTransaction = TransaksiModel(
       id: '1',
       amount: 50000,
       date: DateTime.now(),
@@ -57,7 +57,7 @@ void main() {
 
       final result = await transactionOperation.getAllTransactions();
 
-      expect(result, isA<List<TransactionModel>>());
+      expect(result, isA<List<TransaksiModel>>());
       expect(result.length, 1);
       expect(result.first.id, tTransaction.id);
       verify(mockDatabase.query(

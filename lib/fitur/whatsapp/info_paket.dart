@@ -6,7 +6,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -31,7 +31,7 @@ class PesanInfoPaket {
 
   /// Mengambil detail pelanggan dan paket, membuat pesan,
   /// lalu mengirimkannya melalui WhatsApp.
-  Future<void> kirimRincianPaket(ActiveCustomerModel activeCustomer) async {
+  Future<void> kirimRincianPaket(PelangganAktifModel activeCustomer) async {
     Log.info(
       'Memulai proses pengiriman rincian paket via WhatsApp untuk pelanggan aktif ID: ${activeCustomer.id}',
     );
@@ -39,12 +39,11 @@ class PesanInfoPaket {
     try {
       Log.info(
           'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}');
-      final CustomerModel? customer =
-          await _customerOperation.ambilBerdasarkanId(
+      final PelangganModel? customer = await _customerOperation.getById(
         activeCustomer.customerId,
       );
       Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');
-      final PackageModel? package = await _packageOperation.ambilBerdasarkanId(
+      final PaketModel? package = await _packageOperation.getById(
         activeCustomer.packageId,
       );
 
@@ -80,9 +79,9 @@ class PesanInfoPaket {
   }
 
   String _buildMessage(
-    CustomerModel customer,
-    PackageModel package,
-    ActiveCustomerModel activeCustomer,
+    PelangganModel customer,
+    PaketModel package,
+    PelangganAktifModel activeCustomer,
     String paymentStatus,
   ) {
     final customerName = customer.name;

@@ -25,7 +25,7 @@ import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 /// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
 class FormTransaksi extends ConsumerStatefulWidget {
   /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
-  final TransactionModel? transaksi;
+  final TransaksiModel? transaksi;
 
   /// Membuat instance dari [FormTransaksi].
   const FormTransaksi({super.key, this.transaksi});
@@ -136,14 +136,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             },
           );
 
-          if (trx.subCategoryId != null && _selectedKategori != null) {
+          if (trx.idSubKategori != null && _selectedKategori != null) {
             _selectedSubKategori = _selectedKategori!.subCategories
                 .cast<SubCategoryModel?>()
                 .firstWhere(
-              (final sk) => sk?.id == trx.subCategoryId,
+              (final sk) => sk?.id == trx.idSubKategori,
               orElse: () {
                 Log.warning(
-                  'Sub-kategori dengan ID ${trx.subCategoryId} tidak ditemukan.',
+                  'Sub-kategori dengan ID ${trx.idSubKategori} tidak ditemukan.',
                 );
                 return null;
               },
@@ -246,7 +246,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _selectedTime!.minute,
       );
       final double jumlah = double.parse(_jumlahController.text).abs();
-      final transaksi = TransactionModel(
+      final transaksi = TransaksiModel(
         id: _isEditMode ? widget.transaksi!.id : const Uuid().v4(),
         description: _keteranganController.text,
         amount: jumlah,
@@ -257,7 +257,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             ? _selectedDompetTujuan?.id
             : null,
         categoryId: _selectedKategori?.id ?? '',
-        subCategoryId: _selectedSubKategori?.id,
+        idSubKategori: _selectedSubKategori?.id,
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
@@ -530,8 +530,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',
                         ),
-                        items:
-                            _selectedKategori!.subCategories.map((sub) {
+                        items: _selectedKategori!.subCategories.map((sub) {
                           return DropdownMenuItem(
                             value: sub,
                             child: Text(sub.name),

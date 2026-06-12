@@ -79,11 +79,11 @@ class _FakeDateTime_4 extends _i1.SmartFake implements DateTime {
         );
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -579,11 +579,11 @@ class MockDatabase extends _i1.Mock implements _i2.Database {
       ) as _i2.Batch);
 }
 
-/// A class which mocks [BaseOperation].
+/// A class which mocks [BaseOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
-  MockBaseOperation() {
+class MockBaseOpSqlite extends _i1.Mock implements _i6.BaseOpSqlite {
+  MockBaseOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -636,12 +636,12 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insert,
+          #sisipkan,
           [
             table,
             data,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -662,7 +662,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
             data,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -681,7 +681,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -695,12 +695,12 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -713,9 +713,9 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [table],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);
@@ -740,12 +740,12 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOpSqlite {
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [UploadStatusOperation].
+/// A class which mocks [StatusUploadOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUploadStatusOperation extends _i1.Mock
+class MockStatusUploadOpSqlite extends _i1.Mock
     implements _i7.StatusUploadOpSqlite {
-  MockUploadStatusOperation() {
+  MockStatusUploadOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -756,7 +756,7 @@ class MockUploadStatusOperation extends _i1.Mock
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #setNeedUpload,
+          #tandaiButuhUpload,
           [needUpload],
           {#transaction: transaction},
         ),
@@ -765,9 +765,9 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<bool> getNeedUpload() => (super.noSuchMethod(
+  _i3.Future<bool> ambilButuhUpload() => (super.noSuchMethod(
         Invocation.method(
-          #getNeedUpload,
+          #ambilButuhUpload,
           [],
         ),
         returnValue: _i3.Future<bool>.value(false),
@@ -776,7 +776,7 @@ class MockUploadStatusOperation extends _i1.Mock
   @override
   _i3.Future<void> resetStatusUpload() => (super.noSuchMethod(
         Invocation.method(
-          #resetNeedUpload,
+          #resetStatusUpload,
           [],
         ),
         returnValue: _i3.Future<void>.value(),
@@ -784,10 +784,9 @@ class MockUploadStatusOperation extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<_i8.UploadStatusModel?> getUploadStatusModel() =>
-      (super.noSuchMethod(
+  _i3.Future<_i8.UploadStatusModel?> ambilStatusUpload() => (super.noSuchMethod(
         Invocation.method(
-          #getUploadStatusModel,
+          #ambilStatusUpload,
           [],
         ),
         returnValue: _i3.Future<_i8.UploadStatusModel?>.value(),

@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/customer_detail.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -71,7 +71,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                             context,
                             MaterialPageRoute<void>(
                               builder: (context) =>
-                                  CustomerDetailPage(customerId: customer.id),
+                                  DetailPelanggan(customerId: customer.id),
                             ),
                           ),
                   children: [
@@ -89,8 +89,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                       : () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                              builder: (context) =>
-                                  PackageDetailPage(paket: package),
+                              builder: (context) => DetailPaket(paket: package),
                             ),
                           ),
                   children: [

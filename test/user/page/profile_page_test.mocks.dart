@@ -9,7 +9,7 @@ import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i5;
-import 'package:wifi/shared/model/package_model.dart' as _i7;
+import 'package:wifi/fitur/paket/model/paket_model.dart' as _i7;
 import 'package:wifi/shared/model/transaction_model.dart' as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart'
     as _i3;
@@ -71,12 +71,12 @@ class MockCustomerOpFirebase extends _i1.Mock
   }
 
   @override
-  _i4.Future<_i5.CustomerModel?> getById(String? id) => (super.noSuchMethod(
+  _i4.Future<_i5.PelangganModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #ambilBerdasarkanId,
           [id],
         ),
-        returnValue: _i4.Future.value(_i5.CustomerModel(
+        returnValue: _i4.Future.value(_i5.PelangganModel(
           id: '',
           name: '',
           phone: '',
@@ -84,7 +84,7 @@ class MockCustomerOpFirebase extends _i1.Mock
           registrationDate: DateTime(2024),
           isActive: false,
         )),
-      ) as _i4.Future<_i5.CustomerModel?>);
+      ) as _i4.Future<_i5.PelangganModel?>);
 }
 
 /// A class which mocks [TransactionOpFirebase].
@@ -97,15 +97,15 @@ class MockTransactionOpFirebase extends _i1.Mock
   }
 
   @override
-  _i4.Future<List<_i6.TransactionModel>> getPaketAktifCustomer(
+  _i4.Future<List<_i6.TransaksiModel>> getPaketAktifCustomer(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPaketAktifCustomer,
           [customerId],
         ),
-        returnValue: _i4.Future.value(<_i6.TransactionModel>[]),
-      ) as _i4.Future<List<_i6.TransactionModel>>);
+        returnValue: _i4.Future.value(<_i6.TransaksiModel>[]),
+      ) as _i4.Future<List<_i6.TransaksiModel>>);
 
   @override
   _i4.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
@@ -126,13 +126,12 @@ class MockPackageOpFirebase extends _i1.Mock implements _i9.PaketOpFirebase {
   }
 
   @override
-  _i4.Future<_i7.PackageModel?> getPackageById(String? id) =>
-      (super.noSuchMethod(
+  _i4.Future<_i7.PaketModel?> getPackageById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getPackageById,
           [id],
         ),
-        returnValue: _i4.Future.value(_i7.PackageModel(
+        returnValue: _i4.Future.value(_i7.PaketModel(
           id: '',
           name: '',
           price: 0,
@@ -142,5 +141,5 @@ class MockPackageOpFirebase extends _i1.Mock implements _i9.PaketOpFirebase {
           isAvailable: false,
           createdAt: DateTime(2024),
         )),
-      ) as _i4.Future<_i7.PackageModel?>);
+      ) as _i4.Future<_i7.PaketModel?>);
 }

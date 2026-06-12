@@ -35,68 +35,68 @@ class MockCustomerOpFirebase extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> addCustomer(_i4.CustomerModel? customer) =>
+  _i3.Future<void> addPelanggan(_i4.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addCustomer,
-          [customer],
+          #addPelanggan,
+          [pelanggan],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateCustomer(_i4.CustomerModel? customer) =>
+  _i3.Future<void> updatePelanggan(_i4.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateCustomer,
-          [customer],
+          #updatePelanggan,
+          [pelanggan],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> softDeleteCustomer(String? customerId) =>
+  _i3.Future<void> softDelete(String? id) => (super.noSuchMethod(
+        Invocation.method(
+          #softDelete,
+          [id],
+        ),
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> hapusPelangganPermanen(String? idPelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteCustomer,
-          [customerId],
+          #hapusPelangganPermanen,
+          [idPelanggan],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> deleteCustomer(String? customerId) => (super.noSuchMethod(
+  _i3.Future<void> perbaruiTerakhirAktif(String? id) => (super.noSuchMethod(
         Invocation.method(
-          #deleteCustomer,
-          [customerId],
+          #perbaruiTerakhirAktif,
+          [id],
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> updateLastActive(String? customerId) => (super.noSuchMethod(
-        Invocation.method(
-          #updateLastActive,
-          [customerId],
-        ),
-        returnValue: _i3.Future<void>.value(),
-        returnValueForMissingStub: _i3.Future<void>.value(),
-      ) as _i3.Future<void>);
-
-  @override
-  _i3.Future<void> saveFcmToken(
-    String? userId,
+  _i3.Future<void> simpanTokenFCM(
+    String? id,
     String? token,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #saveFcmToken,
+          #simpanTokenFCM,
           [
-            userId,
+            id,
             token,
           ],
         ),
@@ -105,31 +105,32 @@ class MockCustomerOpFirebase extends _i1.Mock
       ) as _i3.Future<void>);
 
   @override
-  _i3.Future<List<_i4.CustomerModel>> getAllCustomers() => (super.noSuchMethod(
+  _i3.Future<List<_i4.PelangganModel>> getAllPelanggan() => (super.noSuchMethod(
         Invocation.method(
-          #getAllCustomers,
+          #getAllPelanggan,
           [],
         ),
         returnValue:
-            _i3.Future<List<_i4.CustomerModel>>.value(<_i4.CustomerModel>[]),
-      ) as _i3.Future<List<_i4.CustomerModel>>);
+            _i3.Future<List<_i4.PelangganModel>>.value(<_i4.PelangganModel>[]),
+      ) as _i3.Future<List<_i4.PelangganModel>>);
 
   @override
-  _i3.Stream<_i4.CustomerModel?> getCustomerStream(String? userId) =>
+  _i3.Stream<_i4.PelangganModel?> getStreamPelanggan(String? idPengguna) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getCustomerStream,
-          [userId],
+          #getStreamPelanggan,
+          [idPengguna],
         ),
-        returnValue: _i3.Stream<_i4.CustomerModel?>.empty(),
-      ) as _i3.Stream<_i4.CustomerModel?>);
+        returnValue: _i3.Stream<_i4.PelangganModel?>.empty(),
+      ) as _i3.Stream<_i4.PelangganModel?>);
 
   @override
-  _i3.Future<_i4.CustomerModel?> getById(String? userId) => (super.noSuchMethod(
+  _i3.Future<_i4.PelangganModel?> getById(String? idPengguna) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #ambilBerdasarkanId,
-          [userId],
+          #getById,
+          [idPengguna],
         ),
-        returnValue: _i3.Future<_i4.CustomerModel?>.value(),
-      ) as _i3.Future<_i4.CustomerModel?>);
+        returnValue: _i3.Future<_i4.PelangganModel?>.value(),
+      ) as _i3.Future<_i4.PelangganModel?>);
 }

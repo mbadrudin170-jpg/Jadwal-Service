@@ -47,7 +47,7 @@ class LayananPenyimpananLokal {
     }
   }
 
-  Future<void> simpanAkun(CustomerModel pelanggan) async {
+  Future<void> simpanAkun(PelangganModel pelanggan) async {
     Log.info(
         '[Simpan Akun] Menyimpan atau memperbarui akun: ${pelanggan.name}.');
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
@@ -70,7 +70,7 @@ class LayananPenyimpananLokal {
     await prefs.setString(_kunciDaftarAkun, jsonEncode(daftarAkun));
   }
 
-  Future<void> simpanAkunSaatIni(CustomerModel pelanggan) async {
+  Future<void> simpanAkunSaatIni(PelangganModel pelanggan) async {
     Log.info(
         '[Simpan Akun Aktif] Mengatur ${pelanggan.name} sebagai akun aktif.');
     await hapusTokenLogin();
@@ -81,7 +81,7 @@ class LayananPenyimpananLokal {
     );
   }
 
-  Future<List<CustomerModel>> ambilDaftarAkun() async {
+  Future<List<PelangganModel>> ambilDaftarAkun() async {
     Log.info(
         '[Ambil Daftar Akun] Mengambil semua akun dari penyimpanan lokal.');
     final daftarAkunJson = prefs.getString(_kunciDaftarAkun);
@@ -93,7 +93,7 @@ class LayananPenyimpananLokal {
         jsonDecode(daftarAkunJson) as List<dynamic>;
     final listAkun = daftarAkun
         .cast<Map<String, dynamic>>()
-        .map(CustomerModel.fromSqlite)
+        .map(PelangganModel.fromSqlite)
         .toList();
     Log.info('[Ambil Daftar Akun] Berhasil mengambil ${listAkun.length} akun.');
     return listAkun;
@@ -143,7 +143,7 @@ class LayananPenyimpananLokal {
     Log.info('[Logout] Berhasil logout.');
   }
 
-  Future<CustomerModel?> ambilAkunLogin() async {
+  Future<PelangganModel?> ambilAkunLogin() async {
     Log.info('[Ambil Akun Saat Ini] Mengambil akun yang sedang login.');
     final idPengguna = prefs.getString(_kunciIdPengguna);
     if (idPengguna == null) {
@@ -171,7 +171,7 @@ class LayananPenyimpananLokal {
         );
         return null;
       }
-      final pelanggan = CustomerModel.fromSqlite(akunJson);
+      final pelanggan = PelangganModel.fromSqlite(akunJson);
       Log.info(
         '[Ambil Akun Saat Ini] Akun ${pelanggan.name} berhasil diambil.',
       );

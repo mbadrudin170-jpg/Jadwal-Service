@@ -7,7 +7,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 
@@ -32,7 +32,7 @@ void main() {
   });
 
   group('PackageOperation Tests', () {
-    final tPackage = PackageModel(
+    final tPackage = PaketModel(
       id: '1',
       name: 'Basic Plan',
       price: 150000,
@@ -48,7 +48,7 @@ void main() {
 
       final result = await packageOperation.getAll();
 
-      expect(result, isA<List<PackageModel>>());
+      expect(result, isA<List<PaketModel>>());
       expect(result.length, 1);
       expect(result.first.id, tPackage.id);
       verify(mockDatabase.rawQuery(any)).called(1);
@@ -63,7 +63,7 @@ void main() {
 
       final result = await packageOperation.getById('1');
 
-      expect(result, isA<PackageModel>());
+      expect(result, isA<PaketModel>());
       expect(result?.id, tPackage.id);
       verify(mockDatabase.query(
         tableName,

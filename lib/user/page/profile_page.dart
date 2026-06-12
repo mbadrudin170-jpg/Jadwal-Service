@@ -21,10 +21,10 @@ import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 class _ProfileData {
-  final CustomerModel customer;
+  final PelangganModel customer;
   final int totalPoints;
-  final TransactionModel? paketAktif;
-  final PackageModel? packageModel;
+  final TransaksiModel? paketAktif;
+  final PaketModel? packageModel;
 
   _ProfileData({
     required this.customer,
@@ -83,12 +83,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ]);
 
       final totalPoints = results[0] as int;
-      final activeSubscriptions = results[1] as List<TransactionModel>;
+      final activeSubscriptions = results[1] as List<TransaksiModel>;
       Log.info(
           'Total poin diambil: $totalPoints. Langganan aktif ditemukan: ${activeSubscriptions.length}.');
 
-      TransactionModel? lastSubscription;
-      PackageModel? packageModel;
+      TransaksiModel? lastSubscription;
+      PaketModel? packageModel;
 
       if (activeSubscriptions.isNotEmpty) {
         lastSubscription = activeSubscriptions.reduce(
@@ -211,8 +211,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   Widget _buildActivePackageDetails(
     BuildContext context,
-    TransactionModel? lastSubscription,
-    PackageModel? packageModel,
+    TransaksiModel? lastSubscription,
+    PaketModel? packageModel,
   ) {
     if (lastSubscription == null) {
       return const _InfoItem(

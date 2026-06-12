@@ -33,7 +33,7 @@ final class PengelolaAkunProvider
   PengelolaAkun create() => PengelolaAkun();
 }
 
-String _$pengelolaAkunHash() => r'8c17e8202ade26afa01e9382a3cb3b9ca789aebb';
+String _$pengelolaAkunHash() => r'0e10b3efe5adb91bacd0ab2c14fef31d1dda0cb1';
 
 abstract class _$PengelolaAkun extends $AsyncNotifier<AkunState> {
   FutureOr<AkunState> build();

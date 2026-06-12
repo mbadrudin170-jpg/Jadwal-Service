@@ -104,7 +104,7 @@ class DaftarAkunPage extends ConsumerWidget {
   Future<void> _pilihAkun(
     BuildContext context,
     WidgetRef ref,
-    CustomerModel customer,
+    PelangganModel customer,
   ) async {
     final navigator = Navigator.of(context);
     try {
@@ -131,7 +131,7 @@ class DaftarAkunPage extends ConsumerWidget {
   }
 
   Future<void> _tampilkanDialogHapus(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+      BuildContext context, WidgetRef ref, PelangganModel customer) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -187,7 +187,7 @@ class DaftarAkunPage extends ConsumerWidget {
     BuildContext context,
     NavigatorState navigator,
     WidgetRef ref,
-    CustomerModel customer,
+    PelangganModel customer,
   ) async {
     Log.info(
       'akun yang di hapus ternyata akun yang sedang login',

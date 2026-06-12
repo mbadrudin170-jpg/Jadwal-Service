@@ -39,7 +39,7 @@ class ActiveCustomerOperation {
   Future<void> rescheduleAllNotifications() async {
     Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
     try {
-      final List<ActiveCustomerModel> allActiveCustomers =
+      final List<PelangganAktifModel> allActiveCustomers =
           await getAllActiveCustomers();
 
       if (allActiveCustomers.isEmpty) {
@@ -90,7 +90,7 @@ class ActiveCustomerOperation {
       return List.generate(maps.length, (final i) {
         final map = maps[i];
         return ActiveCustomerDetailModel(
-          activeCustomer: ActiveCustomerModel.fromSqlite(map),
+          activeCustomer: PelangganAktifModel.fromSqlite(map),
           customerName: map['customer_name'] as String? ?? 'Tanpa Nama',
           packageName: map['package_name'] as String? ?? 'Tanpa Paket',
         );
@@ -104,8 +104,8 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<ActiveCustomerModel> createActiveCustomer(
-    final ActiveCustomerModel activeCustomer, {
+  Future<PelangganAktifModel> createActiveCustomer(
+    final PelangganAktifModel activeCustomer, {
     final bool fromServer = false,
   }) async {
     try {
@@ -139,7 +139,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<List<ActiveCustomerModel>> getAllActiveCustomers() async {
+  Future<List<PelangganAktifModel>> getAllActiveCustomers() async {
     try {
       final db = await dbHelper.database;
       Log.info('Mengambil semua active customer dari tabel $_tableName');
@@ -153,7 +153,7 @@ class ActiveCustomerOperation {
       Log.info('Berhasil mengambil ${maps.length} active customer');
       return List.generate(
         maps.length,
-        (final i) => ActiveCustomerModel.fromSqlite(maps[i]),
+        (final i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil semua active customer', e: e, st: st);
@@ -161,7 +161,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<ActiveCustomerModel?> getActiveCustomerById(final String id) async {
+  Future<PelangganAktifModel?> getActiveCustomerById(final String id) async {
     try {
       final db = await dbHelper.database;
       Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
@@ -173,7 +173,7 @@ class ActiveCustomerOperation {
       );
 
       if (maps.isNotEmpty) {
-        final activeCustomer = ActiveCustomerModel.fromSqlite(maps.first);
+        final activeCustomer = PelangganAktifModel.fromSqlite(maps.first);
         Log.info('Active customer ID: $id ditemukan');
         return activeCustomer;
       }
@@ -186,8 +186,8 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<ActiveCustomerModel> updateActiveCustomer(
-    final ActiveCustomerModel activeCustomer, {
+  Future<PelangganAktifModel> updateActiveCustomer(
+    final PelangganAktifModel activeCustomer, {
     final bool fromServer = false,
   }) async {
     try {
@@ -222,13 +222,13 @@ class ActiveCustomerOperation {
   }
 
   Future<void> scheduleNotification(
-      final ActiveCustomerModel activeCustomer) async {
+      final PelangganAktifModel activeCustomer) async {
     try {
       Log.info(
           '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
 
-      final customer = await _customerOperation
-          .ambilBerdasarkanId(activeCustomer.customerId);
+      final customer =
+          await _customerOperation.getById(activeCustomer.customerId);
       final customerName = customer?.name ?? 'Tanpa Nama';
 
       await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
@@ -279,7 +279,7 @@ class ActiveCustomerOperation {
   }
 
   Future<void> insertOrUpdateBatch(
-    final List<ActiveCustomerModel> items, {
+    final List<PelangganAktifModel> items, {
     final bool fromServer = false,
   }) async {
     try {
@@ -486,7 +486,7 @@ class ActiveCustomerOperation {
     }
   }
 
-  Future<List<ActiveCustomerModel>> ambilBerdasarkanIds(
+  Future<List<PelangganAktifModel>> ambilBerdasarkanIds(
     final List<String> ids,
   ) async {
     try {
@@ -505,7 +505,7 @@ class ActiveCustomerOperation {
 
       Log.info('Ditemukan ${maps.length} dari ${ids.length} active customer');
       return List.generate(maps.length, (final i) {
-        return ActiveCustomerModel.fromSqlite(maps[i]);
+        return PelangganAktifModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil active customer berdasarkan IDs',

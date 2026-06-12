@@ -14,8 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$AkunState {
-  CustomerModel? get akunSaatIni;
-  List<CustomerModel> get daftarAkunTersimpan;
+  PelangganModel? get akunSaatIni;
+  List<PelangganModel> get daftarAkunTersimpan;
 
   /// Create a copy of AkunState
   /// with the given fields replaced by the non-null parameter values.
@@ -51,7 +51,7 @@ abstract mixin class $AkunStateCopyWith<$Res> {
       _$AkunStateCopyWithImpl;
   @useResult
   $Res call(
-      {CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan});
+      {PelangganModel? akunSaatIni, List<PelangganModel> daftarAkunTersimpan});
 }
 
 /// @nodoc
@@ -73,11 +73,11 @@ class _$AkunStateCopyWithImpl<$Res> implements $AkunStateCopyWith<$Res> {
       akunSaatIni: freezed == akunSaatIni
           ? _self.akunSaatIni
           : akunSaatIni // ignore: cast_nullable_to_non_nullable
-              as CustomerModel?,
+              as PelangganModel?,
       daftarAkunTersimpan: null == daftarAkunTersimpan
           ? _self.daftarAkunTersimpan
           : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
-              as List<CustomerModel>,
+              as List<PelangganModel>,
     ));
   }
 }
@@ -175,8 +175,8 @@ extension AkunStatePatterns on AkunState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(CustomerModel? akunSaatIni,
-            List<CustomerModel> daftarAkunTersimpan)?
+    TResult Function(PelangganModel? akunSaatIni,
+            List<PelangganModel> daftarAkunTersimpan)?
         $default, {
     required TResult orElse(),
   }) {
@@ -204,8 +204,8 @@ extension AkunStatePatterns on AkunState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan)
+    TResult Function(PelangganModel? akunSaatIni,
+            List<PelangganModel> daftarAkunTersimpan)
         $default,
   ) {
     final _that = this;
@@ -231,8 +231,8 @@ extension AkunStatePatterns on AkunState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(CustomerModel? akunSaatIni,
-            List<CustomerModel> daftarAkunTersimpan)?
+    TResult? Function(PelangganModel? akunSaatIni,
+            List<PelangganModel> daftarAkunTersimpan)?
         $default,
   ) {
     final _that = this;
@@ -250,15 +250,15 @@ extension AkunStatePatterns on AkunState {
 class _AkunState implements AkunState {
   const _AkunState(
       {this.akunSaatIni,
-      final List<CustomerModel> daftarAkunTersimpan = const []})
+      final List<PelangganModel> daftarAkunTersimpan = const []})
       : _daftarAkunTersimpan = daftarAkunTersimpan;
 
   @override
-  final CustomerModel? akunSaatIni;
-  final List<CustomerModel> _daftarAkunTersimpan;
+  final PelangganModel? akunSaatIni;
+  final List<PelangganModel> _daftarAkunTersimpan;
   @override
   @JsonKey()
-  List<CustomerModel> get daftarAkunTersimpan {
+  List<PelangganModel> get daftarAkunTersimpan {
     if (_daftarAkunTersimpan is EqualUnmodifiableListView)
       return _daftarAkunTersimpan;
     // ignore: implicit_dynamic_type
@@ -303,7 +303,7 @@ abstract mixin class _$AkunStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {CustomerModel? akunSaatIni, List<CustomerModel> daftarAkunTersimpan});
+      {PelangganModel? akunSaatIni, List<PelangganModel> daftarAkunTersimpan});
 }
 
 /// @nodoc
@@ -325,11 +325,11 @@ class __$AkunStateCopyWithImpl<$Res> implements _$AkunStateCopyWith<$Res> {
       akunSaatIni: freezed == akunSaatIni
           ? _self.akunSaatIni
           : akunSaatIni // ignore: cast_nullable_to_non_nullable
-              as CustomerModel?,
+              as PelangganModel?,
       daftarAkunTersimpan: null == daftarAkunTersimpan
           ? _self._daftarAkunTersimpan
           : daftarAkunTersimpan // ignore: cast_nullable_to_non_nullable
-              as List<CustomerModel>,
+              as List<PelangganModel>,
     ));
   }
 }

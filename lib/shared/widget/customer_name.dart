@@ -39,7 +39,7 @@ class CustomerNameWidget extends ConsumerWidget {
   /// Membangun widget menggunakan data dari Firebase (Stream).
   Widget _buildFromFirebase(WidgetRef ref) {
     final customerOpFirebase = ref.read(customerOpFirebaseProvider);
-    return StreamBuilder<CustomerModel?>(
+    return StreamBuilder<PelangganModel?>(
       stream: customerOpFirebase.getStreamPelanggan(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,8 +74,8 @@ class CustomerNameWidget extends ConsumerWidget {
   /// Membangun widget menggunakan data dari SQLite (Future).
   Widget _buildFromSqlite(WidgetRef ref) {
     final customerOperation = ref.read(customerOperationProvider);
-    return FutureBuilder<CustomerModel?>(
-      future: customerOperation.ambilBerdasarkanId(customerId),
+    return FutureBuilder<PelangganModel?>(
+      future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text('...', style: style);

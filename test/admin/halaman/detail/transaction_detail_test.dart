@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/detail/transaction_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
@@ -40,7 +40,7 @@ void main() {
   late MockKategoriOpFirebase mockCategoryOperation;
   late MockSubKategoriOpFirebase mockSubCategoryOperation;
 
-  final tTransaction = TransactionModel(
+  final tTransaction = TransaksiModel(
     id: '1',
     date: DateTime.now(),
     description: 'Test Transaction',
@@ -75,7 +75,7 @@ void main() {
             .overrideWithValue(mockSubCategoryOperation),
       ],
       child: MaterialApp(
-        home: TransactionDetailPage(transaction: tTransaction),
+        home: DetailTransaksi(transaction: tTransaction),
       ),
     );
   }
@@ -88,14 +88,14 @@ void main() {
           (_) async => CategoryModel(
               id: 'cat1', name: 'Test Category', type: CategoryType.income));
       when(() => mockCustomerOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => CustomerModel(
+          (_) async => PelangganModel(
               id: 'cust1',
               name: 'Test Customer',
               phone: '',
               password: '',
               address: ''));
       when(() => mockPackageOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => PackageModel(
+          (_) async => PaketModel(
               id: 'pkg1',
               name: 'Test Package',
               price: 100,

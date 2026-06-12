@@ -14,7 +14,7 @@ import 'package:wifi/shared/widget/card/point_card.dart';
 /// ke clipboard.
 class CustomerDetailUI extends StatefulWidget {
   /// Data pelanggan yang akan ditampilkan.
-  final CustomerModel customer;
+  final PelangganModel customer;
 
   /// Total poin yang dimiliki pelanggan.
   final int totalPoints;

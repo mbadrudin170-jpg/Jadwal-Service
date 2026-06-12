@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
@@ -27,7 +27,7 @@ void main() {
   late MockPaketOpFirebase mockPackageOperation;
   late MockTransactionOpFirebase mockTransactionOperation;
 
-  final tCustomer = CustomerModel(
+  final tCustomer = PelangganModel(
     id: 'cust1',
     name: 'Test Customer',
     phone: '123456789',
@@ -35,7 +35,7 @@ void main() {
     password: 'password',
   );
 
-  final tPackage = PackageModel(
+  final tPackage = PaketModel(
     id: 'pkg1',
     name: 'Test Package',
     price: 100000,
@@ -43,7 +43,7 @@ void main() {
     type: DurationType.days,
   );
 
-  final tTransaction = TransactionModel(
+  final tTransaction = TransaksiModel(
     id: 'trans1',
     customerId: 'cust1',
     packageId: 'pkg1',
@@ -67,7 +67,8 @@ void main() {
       overrides: [
         customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
         paketOpFirebaseProvider.overrideWithValue(mockPackageOperation),
-        transactionOpFirebaseProvider.overrideWithValue(mockTransactionOperation),
+        transactionOpFirebaseProvider
+            .overrideWithValue(mockTransactionOperation),
       ],
       child: MaterialApp(
         home: DetailRiwayatAktivasi(idTransaksi: tTransaction.id),
@@ -90,7 +91,8 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('02. should show data when fetch is successful', (tester) async {
+    testWidgets('02. should show data when fetch is successful',
+        (tester) async {
       when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
       when(() => mockCustomerOperation.ambilBerdasarkanId(any()))

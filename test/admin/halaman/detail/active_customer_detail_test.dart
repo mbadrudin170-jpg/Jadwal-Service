@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
-import 'package:wifi/admin/halaman/detail/customer_detail.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
-import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
@@ -38,7 +38,7 @@ class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
   // Data dummy
-  final tCustomer = CustomerModel(
+  final tCustomer = PelangganModel(
     id: 'cust1',
     name: 'John Doe',
     phone: '081234567890',
@@ -46,7 +46,7 @@ void main() {
     address: '123 Main St',
   );
 
-  final tPackage = PackageModel(
+  final tPackage = PaketModel(
     id: 'pkg1',
     name: 'Paket Kencang',
     price: 100000,
@@ -55,7 +55,7 @@ void main() {
     rewardPoints: 10,
   );
 
-  final tTransaction = TransactionModel(
+  final tTransaction = TransaksiModel(
     id: 'trans1',
     customerId: 'cust1',
     packageId: 'pkg1',
@@ -68,7 +68,7 @@ void main() {
     categoryId: '',
   );
 
-  final tActiveCustomer = ActiveCustomerModel(
+  final tActiveCustomer = PelangganAktifModel(
     id: 'active1',
     customerId: 'cust1',
     packageId: 'pkg1',
@@ -85,7 +85,7 @@ void main() {
   );
 
   final tActiveCustomerState =
-      ActiveCustomerState(activeCustomers: [tActiveCustomerDetailModel]);
+      PelangganAktifState(pelangganAktif: [tActiveCustomerDetailModel]);
 
   late MockCustomerOpFirebase mockCustomerOp;
   late MockPaketOpFirebase mockPackageOp;
@@ -107,7 +107,7 @@ void main() {
     return ProviderScope(
       overrides: overrides,
       child: MaterialApp(
-        home: ActiveCustomerDetailPage(activeCustomer: tActiveCustomer),
+        home: DetailPelangganAktif(pelangganAktif: tActiveCustomer),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );
@@ -132,8 +132,8 @@ void main() {
               .ambilBerdasarkanId(tActiveCustomer.transactionId!))
           .thenAnswer((_) async => tTransaction);
 
-      final result =
-          await container.read(detailLanggananProvider(tActiveCustomer.id).future);
+      final result = await container
+          .read(detailLanggananProvider(tActiveCustomer.id).future);
 
       expect(result.customer, tCustomer);
       expect(result.package, tPackage);
@@ -145,8 +145,8 @@ void main() {
         () async {
       final container = ProviderContainer(
         overrides: [
-          activeCustomerProvider.overrideWith(
-              (ref) => ActiveCustomerState(activeCustomers: [])),
+          activeCustomerProvider
+              .overrideWith((ref) => PelangganAktifState(pelangganAktif: [])),
         ],
       );
 
@@ -179,10 +179,10 @@ void main() {
     testWidgets('Test 03: should show loading state correctly', (tester) async {
       final completer = Completer<
           ({
-            ActiveCustomerModel activeCustomer,
-            CustomerModel? customer,
-            PackageModel? package,
-            TransactionModel? transaction
+            PelangganAktifModel activeCustomer,
+            PelangganModel? customer,
+            PaketModel? package,
+            TransaksiModel? transaction
           })>();
       final loadingOverrides = [
         detailLanggananProvider(tActiveCustomer.id).overrideWith(
@@ -205,7 +205,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(errorOverrides));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Error: Exception: Test Error'), findsOneWidget);
+      expect(
+          find.textContaining('Error: Exception: Test Error'), findsOneWidget);
     });
 
     testWidgets('Test 05: should display all data correctly', (tester) async {
@@ -246,7 +247,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(CustomerDetailPage), findsOneWidget);
+      expect(find.byType(DetailPelanggan), findsOneWidget);
     });
 
     testWidgets('Test 08: tapping package name navigates to package detail',
@@ -258,7 +259,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(PackageDetailPage), findsOneWidget);
+      expect(find.byType(DetailPaket), findsOneWidget);
     });
 
     testWidgets('Test 09: tapping "Kirim Info" button calls provider method',

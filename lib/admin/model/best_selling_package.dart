@@ -1,12 +1,12 @@
 // path: lib/admin/model/best_selling_package.dart
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 /// Model untuk merepresentasikan paket yang paling banyak terjual.
 ///
-/// Menggabungkan data dari [PackageModel] dengan jumlah total penjualannya.
+/// Menggabungkan data dari [PaketModel] dengan jumlah total penjualannya.
 class BestSellingPackage {
   /// Data lengkap dari paket yang terjual.
-  final PackageModel package;
+  final PaketModel package;
 
   /// Jumlah total paket ini terjual berdasarkan data transaksi.
   final int totalSold;

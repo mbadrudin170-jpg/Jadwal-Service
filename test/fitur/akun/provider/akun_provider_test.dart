@@ -18,7 +18,7 @@ void main() {
   late ProviderContainer container;
 
   // 2. Data dummy untuk pengujian
-  final tAkun1 = CustomerModel(
+  final tAkun1 = PelangganModel(
     id: 'cust1',
     name: 'Budi',
     address: 'Jl. Melati No. 1',
@@ -26,7 +26,7 @@ void main() {
     password: 'password123',
   );
 
-  final tAkun2 = CustomerModel(
+  final tAkun2 = PelangganModel(
     id: 'cust2',
     name: 'Andi',
     address: 'Jl. Mawar No. 2',
@@ -121,7 +121,8 @@ void main() {
           .thenAnswer((_) async => [tAkun1, tAkun2]);
       await container.read(pengelolaAkunProvider.future);
 
-      when(mockPenyimpanan.hapusAkun('cust2')).thenAnswer((_) => Future.value());
+      when(mockPenyimpanan.hapusAkun('cust2'))
+          .thenAnswer((_) => Future.value());
       when(mockPenyimpanan.ambilDaftarAkun()).thenAnswer((_) async => [tAkun1]);
 
       // Act
@@ -143,7 +144,8 @@ void main() {
           .thenAnswer((_) async => [tAkun1, tAkun2]);
       await container.read(pengelolaAkunProvider.future);
 
-      when(mockPenyimpanan.hapusAkun('cust1')).thenAnswer((_) => Future.value());
+      when(mockPenyimpanan.hapusAkun('cust1'))
+          .thenAnswer((_) => Future.value());
       when(mockPenyimpanan.hapusTokenLogin()).thenAnswer((_) => Future.value());
       when(mockPenyimpanan.ambilAkunLogin()).thenAnswer((_) async => null);
       when(mockPenyimpanan.ambilDaftarAkun()).thenAnswer((_) async => [tAkun2]);

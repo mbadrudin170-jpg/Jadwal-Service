@@ -11,7 +11,7 @@ part 'pelanggan_provider.g.dart';
 
 /// Provider asinkron untuk mengambil semua data customer beserta poin mereka dari SQLite.
 @riverpod
-Future<List<(CustomerModel, int)>> customerList(Ref ref) async {
+Future<List<(PelangganModel, int)>> customerList(Ref ref) async {
   Log.info(
       'Mendapatkan daftar pelanggan aktif beserta poin dari SQLite via pelangganProvider...');
 
@@ -19,10 +19,10 @@ Future<List<(CustomerModel, int)>> customerList(Ref ref) async {
   final pointsOp = ref.watch(sqlitePointsDataSourceProvider);
   final customers = await customerOp.ambilSemua();
   final List<Future<int>> pointsFutures = customers
-      .map((CustomerModel c) => pointsOp.getTotalPoints(c.id))
+      .map((PelangganModel c) => pointsOp.getTotalPoints(c.id))
       .toList();
   final points = await Future.wait(pointsFutures);
-  final List<(CustomerModel, int)> result = [];
+  final List<(PelangganModel, int)> result = [];
   for (int i = 0; i < customers.length; i++) {
     result.add((customers[i], points[i]));
   }
@@ -69,10 +69,10 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 
 /// Provider untuk mengambil detail data satu pelanggan beserta poinnya secara asinkron
 @riverpod
-Future<(CustomerModel?, int)> customerDetail(Ref ref, String id) async {
+Future<(PelangganModel?, int)> customerDetail(Ref ref, String id) async {
   final customerOp = ref.watch(customerOperationProvider);
   final transactionOp = ref.watch(transactionOperationProvider);
-  final customer = await customerOp.ambilBerdasarkanId(id);
+  final customer = await customerOp.getById(id);
   final points = await transactionOp.getTotalPoints(id);
 
   return (customer, points);

@@ -15,8 +15,8 @@ part 'poin_provider.freezed.dart';
 @freezed
 abstract class PoinState with _$PoinState {
   const factory PoinState({
-    @Default([]) List<PackageModel> rewards,
-    @Default([]) List<TransactionModel> transaksi,
+    @Default([]) List<PaketModel> rewards,
+    @Default([]) List<TransaksiModel> transaksi,
     @Default(0) int totalPoin,
   }) = _PoinState;
 }
@@ -48,7 +48,7 @@ PointsPageDataSource pointsDataSource(Ref ref) {
   }
 }
 
-typedef PointsPageData = ({int totalPoints, List<PackageModel> rewards});
+typedef PointsPageData = ({int totalPoints, List<PaketModel> rewards});
 
 @riverpod
 Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
@@ -61,12 +61,12 @@ Future<PointsPageData> pointsPageData(Ref ref, String customerId) async {
 
   return (
     totalPoints: totalPoints as int,
-    rewards: rewards as List<PackageModel>
+    rewards: rewards as List<PaketModel>
   );
 }
 
 @riverpod
-Future<List<TransactionModel>> pointsHistory(Ref ref, String customerId) {
+Future<List<TransaksiModel>> pointsHistory(Ref ref, String customerId) {
   final dataSource = ref.watch(pointsDataSourceProvider);
   return dataSource.getPointsTransactions(customerId);
 }

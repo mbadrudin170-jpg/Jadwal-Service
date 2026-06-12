@@ -7,7 +7,7 @@ import 'dart:async' as _i4;
 
 import 'package:cloud_firestore/cloud_firestore.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/shared/model/package_model.dart' as _i7;
+import 'package:wifi/fitur/paket/model/paket_model.dart' as _i7;
 import 'package:wifi/shared/model/transaction_model.dart' as _i5;
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart'
     as _i6;
@@ -70,89 +70,89 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<void> addTransaction(_i5.TransactionModel? transaction) =>
+  _i4.Future<void> tambahTransaksi(_i5.TransaksiModel? transaksi) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addTransaction,
-          [transaction],
+          #tambahTransaksi,
+          [transaksi],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<_i5.TransactionModel?> getLatestPaidTransactionByUserId(
-          String? customerId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getLatestPaidTransactionByUserId,
-          [customerId],
-        ),
-        returnValue: _i4.Future<_i5.TransactionModel?>.value(),
-      ) as _i4.Future<_i5.TransactionModel?>);
+  _i4.Future<_i5.TransaksiModel?>
+      ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(String? idPelanggan) =>
+          (super.noSuchMethod(
+            Invocation.method(
+              #ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan,
+              [idPelanggan],
+            ),
+            returnValue: _i4.Future<_i5.TransaksiModel?>.value(),
+          ) as _i4.Future<_i5.TransaksiModel?>);
 
   @override
-  _i4.Future<List<_i5.TransactionModel>> getByCustomerId(String? customerId) =>
+  _i4.Future<List<_i5.TransaksiModel>> ambilBerdasarkanIdPelanggan(
+          String? idPelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getByCustomerId,
-          [customerId],
+          #ambilBerdasarkanIdPelanggan,
+          [idPelanggan],
         ),
-        returnValue: _i4.Future<List<_i5.TransactionModel>>.value(
-            <_i5.TransactionModel>[]),
-      ) as _i4.Future<List<_i5.TransactionModel>>);
+        returnValue:
+            _i4.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
+      ) as _i4.Future<List<_i5.TransaksiModel>>);
 
   @override
-  _i4.Future<int> getTotalPoints(String? customerId) => (super.noSuchMethod(
+  _i4.Future<int> ambilTotalPoin(String? idPelanggan) => (super.noSuchMethod(
         Invocation.method(
-          #getTotalPoints,
-          [customerId],
+          #ambilTotalPoin,
+          [idPelanggan],
         ),
         returnValue: _i4.Future<int>.value(0),
       ) as _i4.Future<int>);
 
   @override
-  _i4.Future<void> deleteTransaction(String? transactionId) =>
-      (super.noSuchMethod(
+  _i4.Future<void> hapusTransaksi(String? idTransaksi) => (super.noSuchMethod(
         Invocation.method(
-          #deleteTransaction,
-          [transactionId],
+          #hapusTransaksi,
+          [idTransaksi],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> softDeleteTransaction(String? transactionId) =>
+  _i4.Future<void> hapusSementaraTransaksi(String? idTransaksi) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteTransaction,
-          [transactionId],
+          #hapusSementaraTransaksi,
+          [idTransaksi],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.TransactionModel>> getPaketAktifCustomer(
-          String? customerId) =>
+  _i4.Future<List<_i5.TransaksiModel>> ambilPaketAktifPelanggan(
+          String? idPelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getPaketAktifCustomer,
-          [customerId],
+          #ambilPaketAktifPelanggan,
+          [idPelanggan],
         ),
-        returnValue: _i4.Future<List<_i5.TransactionModel>>.value(
-            <_i5.TransactionModel>[]),
-      ) as _i4.Future<List<_i5.TransactionModel>>);
+        returnValue:
+            _i4.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
+      ) as _i4.Future<List<_i5.TransaksiModel>>);
 
   @override
-  _i4.Future<_i2.DocumentReference<Object?>> add(
+  _i4.Future<_i2.DocumentReference<Object?>> tambah(
     String? collectionName,
     Map<String, dynamic>? data,
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #add,
+          #tambah,
           [
             collectionName,
             data,
@@ -162,7 +162,7 @@ class MockTransactionOpFirebase extends _i1.Mock
             _FakeDocumentReference_1<Object?>(
           this,
           Invocation.method(
-            #add,
+            #tambah,
             [
               collectionName,
               data,
@@ -179,7 +179,7 @@ class MockTransactionOpFirebase extends _i1.Mock
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insert,
+          #sisipkan,
           [
             collectionName,
             docId,
@@ -216,7 +216,7 @@ class MockTransactionOpFirebase extends _i1.Mock
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [
             collectionName,
             docId,
@@ -233,7 +233,7 @@ class MockTransactionOpFirebase extends _i1.Mock
   ) =>
       (super.noSuchMethod(
         Invocation.method(
-          #delete,
+          #hapusPermanen,
           [
             collectionName,
             docId,
@@ -247,7 +247,7 @@ class MockTransactionOpFirebase extends _i1.Mock
   _i4.Future<int> hapusSementaraSemua(String? collectionName) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [collectionName],
         ),
         returnValue: _i4.Future<int>.value(0),
@@ -273,11 +273,11 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i4.Future<void>);
 }
 
-/// A class which mocks [PackageOpFirebase].
+/// A class which mocks [PaketOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPackageOpFirebase extends _i1.Mock implements _i6.PaketOpFirebase {
-  MockPackageOpFirebase() {
+class MockPaketOpFirebase extends _i1.Mock implements _i6.PaketOpFirebase {
+  MockPaketOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -291,50 +291,49 @@ class MockPackageOpFirebase extends _i1.Mock implements _i6.PaketOpFirebase {
       ) as _i2.FirebaseFirestore);
 
   @override
-  _i4.Future<List<_i7.PackageModel>> getPublicPackages() => (super.noSuchMethod(
+  _i4.Future<List<_i7.PaketModel>> ambilPaketPublik() => (super.noSuchMethod(
         Invocation.method(
-          #getPublicPackages,
+          #ambilPaketPublik,
           [],
         ),
-        returnValue:
-            _i4.Future<List<_i7.PackageModel>>.value(<_i7.PackageModel>[]),
-      ) as _i4.Future<List<_i7.PackageModel>>);
+        returnValue: _i4.Future<List<_i7.PaketModel>>.value(<_i7.PaketModel>[]),
+      ) as _i4.Future<List<_i7.PaketModel>>);
 
   @override
-  _i4.Future<_i7.PackageModel?> getPackageById(String? packageId) =>
+  _i4.Future<_i7.PaketModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getPackageById,
-          [packageId],
+          #ambilBerdasarkanId,
+          [id],
         ),
-        returnValue: _i4.Future<_i7.PackageModel?>.value(),
-      ) as _i4.Future<_i7.PackageModel?>);
+        returnValue: _i4.Future<_i7.PaketModel?>.value(),
+      ) as _i4.Future<_i7.PaketModel?>);
 
   @override
-  _i4.Stream<_i7.PackageModel?> getPackageStreamById(String? packageId) =>
+  _i4.Stream<_i7.PaketModel?> ambilStreamBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getPackageStreamById,
-          [packageId],
+          #ambilStreamBerdasarkanId,
+          [id],
         ),
-        returnValue: _i4.Stream<_i7.PackageModel?>.empty(),
-      ) as _i4.Stream<_i7.PackageModel?>);
+        returnValue: _i4.Stream<_i7.PaketModel?>.empty(),
+      ) as _i4.Stream<_i7.PaketModel?>);
 
   @override
-  _i4.Future<void> deletePackage(String? packageId) => (super.noSuchMethod(
+  _i4.Future<void> delete(String? id) => (super.noSuchMethod(
         Invocation.method(
-          #deletePackage,
-          [packageId],
+          #delete,
+          [id],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<void> softDeletePackage(String? packageId) => (super.noSuchMethod(
+  _i4.Future<void> softDelete(String? id) => (super.noSuchMethod(
         Invocation.method(
-          #softDeletePackage,
-          [packageId],
+          #softDelete,
+          [id],
         ),
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),

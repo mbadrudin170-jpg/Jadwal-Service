@@ -24,7 +24,7 @@ void main() {
   });
 
   // Data model pelanggan untuk digunakan dalam tes
-  final c1 = CustomerModel(
+  final c1 = PelangganModel(
     id: 'cust-001',
     name: 'Pelanggan Satu',
     phone: '0811111111',
@@ -32,7 +32,7 @@ void main() {
     password: 'password',
   );
 
-  final c2 = CustomerModel(
+  final c2 = PelangganModel(
     id: 'cust-002',
     name: 'Pelanggan Dua',
     phone: '0822222222',
@@ -40,7 +40,7 @@ void main() {
     password: 'password',
     isDeleted: true, // soft-deleted
   );
-  final c3 = CustomerModel(
+  final c3 = PelangganModel(
     id: 'cust-003',
     name: 'Pelanggan Tiga',
     phone: '0833333333',
@@ -178,9 +178,9 @@ void main() {
         stream,
         emitsInOrder([
           // Matcher untuk data pertama
-          isA<CustomerModel>().having((c) => c.name, 'name', c1.name),
+          isA<PelangganModel>().having((c) => c.name, 'name', c1.name),
           // Matcher untuk data kedua setelah update
-          isA<CustomerModel>()
+          isA<PelangganModel>()
               .having((c) => c.name, 'name', 'Nama Baru dari Stream'),
         ]),
       );

@@ -78,7 +78,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     children: [
                       PackageNameWidget(
                         packageFuture: packageOperation
-                            .ambilBerdasarkanId(transaction.packageId ?? ''),
+                            .getById(transaction.packageId ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),
                       gapH4,

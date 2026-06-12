@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 /// Widget yang menampilkan nama paket berdasarkan Future yang diberikan.
 ///
@@ -12,8 +12,8 @@ import 'package:wifi/shared/model/package_model.dart';
 /// dan menampilkan hasilnya. Menampilkan indikator loading saat menunggu,
 /// atau 'Paket tidak tersedia' jika data null atau error.
 class PackageNameWidget extends StatelessWidget {
-  /// Future yang mengembalikan [PackageModel] untuk ditampilkan namanya.
-  final Future<PackageModel?> packageFuture;
+  /// Future yang mengembalikan [PaketModel] untuk ditampilkan namanya.
+  final Future<PaketModel?> packageFuture;
 
   /// Gaya teks opsional untuk nama paket.
   final TextStyle? style;
@@ -23,7 +23,7 @@ class PackageNameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<PackageModel?>(
+    return FutureBuilder<PaketModel?>(
       future: packageFuture,
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

@@ -1,5 +1,4 @@
-// path: lib/shared/model/package_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
+// path: lib/shared/model/paket_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -7,45 +6,23 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
+import 'package:wifi/shared/utils/parser_util.dart';
 
-/// Model for a package offered.
-class PackageModel implements HasId {
+class PaketModel implements HasId {
   @override
   final String id;
-
-  /// The name of the package.
   final String name;
-
-  /// The price of the package.
   final int price;
-
-  /// The duration of the package.
   final int duration;
-
-  /// The type of duration for the package.
   final DurationType type;
-
-  /// The number of points given as a reward for purchasing this package.
   final int rewardPoints;
-
-  /// The number of points required to redeem this package.
   final int redemptionPoints;
-
-  /// The status of whether this package is public or not.
   final bool isPublic;
-
-  /// The last time the data was updated.
   final DateTime? updatedAt;
-
-  /// The status of whether this package has been deleted (soft delete).
   final bool isDeleted;
-
-  /// The time this package was archived.
   final DateTime? archivedAt;
 
-  /// Constructor for `PackageModel`.
-  PackageModel({
+  PaketModel({
     final String? id,
     required this.name,
     required this.price,
@@ -61,8 +38,7 @@ class PackageModel implements HasId {
     Log.info('PackageModel created: $id, name: $name');
   }
 
-  /// Creates a copy of this [PackageModel] with modified values.
-  PackageModel copyWith({
+  PaketModel copyWith({
     final String? id,
     final String? name,
     final int? price,
@@ -75,7 +51,7 @@ class PackageModel implements HasId {
     final bool? isDeleted,
     final DateTime? archivedAt,
   }) {
-    return PackageModel(
+    return PaketModel(
       id: id ?? this.id,
       name: name ?? this.name,
       price: price ?? this.price,
@@ -90,20 +66,16 @@ class PackageModel implements HasId {
     );
   }
 
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
-
-  /// Helper to parse DurationType from a string.
   static DurationType _parseType(final dynamic value) {
     return DurationType.values.firstWhere(
       (final e) => e.name == value,
-      orElse: () => DurationType.days, // Default value
+      orElse: () => DurationType.days,
     );
   }
 
-  /// Creates a `PackageModel` instance from SQLite map data.
-  factory PackageModel.fromSqlite(final Map<String, dynamic> map) {
+  factory PaketModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating PackageModel from SQLite: ${map[NamaKolom.id]}');
-    return PackageModel(
+    return PaketModel(
       id: map[NamaKolom.id] as String?,
       name: map[NamaKolom.name] as String? ?? '',
       price: map[NamaKolom.price] as int? ?? 0,
@@ -111,7 +83,6 @@ class PackageModel implements HasId {
       type: _parseType(map[NamaKolom.type]),
       rewardPoints: map[NamaKolom.rewardPoints] as int? ?? 0,
       redemptionPoints: map[NamaKolom.redemptionPoints] as int? ?? 0,
-      // DIUBAH: Menggunakan ParserUtil
       isPublic: ParserUtil.parseBool(map[NamaKolom.isPublic]),
       isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
       updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
@@ -119,7 +90,6 @@ class PackageModel implements HasId {
     );
   }
 
-  /// Converts `PackageModel` to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
@@ -131,18 +101,16 @@ class PackageModel implements HasId {
       NamaKolom.redemptionPoints: redemptionPoints,
       NamaKolom.isPublic: isPublic ? 1 : 0,
       NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
       NamaKolom.updatedAt:
           (updatedAt ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
       NamaKolom.archivedAt: archivedAt?.toUtc().millisecondsSinceEpoch,
     };
   }
 
-  /// Creates a `PackageModel` instance from Firebase map data.
-  factory PackageModel.fromFirebase(
+  factory PaketModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating PackageModel from Firebase: $id');
-    return PackageModel(
+    return PaketModel(
       id: id,
       name: data[NamaKolom.name] as String? ?? '',
       price: data[NamaKolom.price] as int? ?? 0,
@@ -150,7 +118,6 @@ class PackageModel implements HasId {
       type: _parseType(data[NamaKolom.type]),
       rewardPoints: data[NamaKolom.rewardPoints] as int? ?? 0,
       redemptionPoints: data[NamaKolom.redemptionPoints] as int? ?? 0,
-      // DIUBAH: Menggunakan ParserUtil
       isPublic: ParserUtil.parseBool(data[NamaKolom.isPublic]),
       isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
       updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
@@ -158,7 +125,6 @@ class PackageModel implements HasId {
     );
   }
 
-  /// Converts `PackageModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
@@ -170,10 +136,8 @@ class PackageModel implements HasId {
       NamaKolom.redemptionPoints: redemptionPoints,
       NamaKolom.isPublic: isPublic,
       NamaKolom.isDeleted: isDeleted,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.updatedAt:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       NamaKolom.archivedAt:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };

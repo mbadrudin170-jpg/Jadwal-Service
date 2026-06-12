@@ -13,7 +13,7 @@ void main() {
   final customer1 = ActiveCustomerDetailModel(
     customerName: 'Charlie',
     packageName: 'Bulanan',
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
       id: '1',
       idPelanggan: 'c1',
       packageId: 'p1',
@@ -27,7 +27,7 @@ void main() {
   final customer2 = ActiveCustomerDetailModel(
     customerName: 'Alice',
     packageName: 'Mingguan',
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
       id: '2',
       idPelanggan: 'c2',
       packageId: 'p2',
@@ -41,7 +41,7 @@ void main() {
   final customer3 = ActiveCustomerDetailModel(
     customerName: 'Bob',
     packageName: 'Harian',
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
       id: '3',
       idPelanggan: 'c3',
       packageId: 'p3',
@@ -55,7 +55,7 @@ void main() {
   final customer4 = ActiveCustomerDetailModel(
     customerName: 'Zebra',
     packageName: 'Harian',
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
       id: '4',
       idPelanggan: 'c4',
       packageId: 'p4',

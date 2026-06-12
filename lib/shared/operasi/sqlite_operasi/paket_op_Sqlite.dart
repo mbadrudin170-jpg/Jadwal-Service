@@ -6,7 +6,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data paket di database lokal.
@@ -27,8 +27,8 @@ class PaketOpSqlite {
     Log.info('PackageOperation instance dibuat.');
   }
 
-  /// Menyimpan [PackageModel] baru ke dalam database.
-  Future<void> tambah(PackageModel package, {bool dariServer = false}) async {
+  /// Menyimpan [PaketModel] baru ke dalam database.
+  Future<void> tambah(PaketModel package, {bool dariServer = false}) async {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
@@ -45,7 +45,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket, termasuk yang diarsipkan.
-  Future<List<PackageModel>> ambilSemua() async {
+  Future<List<PaketModel>> ambilSemua() async {
     Log.info('Memulai proses pengambilan semua data paket');
     try {
       final db = await dbHelper.database;
@@ -63,7 +63,7 @@ class PaketOpSqlite {
 
       Log.info('Berhasil mengambil ${maps.length} data paket');
       return List.generate(maps.length, (i) {
-        return PackageModel.fromSqlite(maps[i]);
+        return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
       Log.error('Gagal mengambil semua data paket', e: e, st: s);
@@ -72,7 +72,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket aktif (tidak diarsipkan).
-  Future<List<PackageModel>> ambilBerdasarkanAktif() async {
+  Future<List<PaketModel>> ambilBerdasarkanAktif() async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await dbHelper.database;
@@ -91,7 +91,7 @@ class PaketOpSqlite {
 
       Log.info('Berhasil mengambil ${maps.length} data paket aktif');
       return List.generate(maps.length, (i) {
-        return PackageModel.fromSqlite(maps[i]);
+        return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
       Log.error('Gagal mengambil semua data paket aktif', e: e, st: s);
@@ -100,7 +100,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket yang bersifat publik.
-  Future<List<PackageModel>> getPaketPublic() async {
+  Future<List<PaketModel>> getPaketPublic() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await dbHelper.database;
@@ -119,7 +119,7 @@ class PaketOpSqlite {
 
       Log.info('Berhasil mengambil ${maps.length} data paket publik');
       return List.generate(maps.length, (i) {
-        return PackageModel.fromSqlite(maps[i]);
+        return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
       Log.error('Gagal mengambil semua data paket publik', e: e, st: s);
@@ -127,8 +127,8 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil [PackageModel] berdasarkan [id].
-  Future<PackageModel?> ambilBerdasarkanId(String id) async {
+  /// Mengambil [PaketModel] berdasarkan [id].
+  Future<PaketModel?> getById(String id) async {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
@@ -140,7 +140,7 @@ class PaketOpSqlite {
 
       if (maps.isNotEmpty) {
         Log.info('Paket ditemukan untuk ID: $id');
-        return PackageModel.fromSqlite(maps.first);
+        return PaketModel.fromSqlite(maps.first);
       }
       Log.warning('Paket dengan ID $id tidak ditemukan');
       return null;
@@ -150,8 +150,8 @@ class PaketOpSqlite {
     }
   }
 
-  /// Memperbarui [PackageModel] yang ada di database.
-  Future<void> perbarui(PackageModel package, {bool dariServer = false}) async {
+  /// Memperbarui [PaketModel] yang ada di database.
+  Future<void> perbarui(PaketModel package, {bool dariServer = false}) async {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
@@ -168,7 +168,7 @@ class PaketOpSqlite {
     }
   }
 
-  /// Melakukan soft delete pada [PackageModel] berdasarkan [id].
+  /// Melakukan soft delete pada [PaketModel] berdasarkan [id].
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
@@ -200,7 +200,7 @@ class PaketOpSqlite {
     }
   }
 
-  /// Menghapus [PackageModel] dari database secara permanen.
+  /// Menghapus [PaketModel] dari database secara permanen.
   Future<void> hapus(String id, {bool dariServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
@@ -237,7 +237,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PackageModel>> ambilPerubahanSejak(DateTime since) async {
+  Future<List<PaketModel>> ambilPerubahanSejak(DateTime since) async {
     Log.info(
         'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
     try {
@@ -248,17 +248,16 @@ class PaketOpSqlite {
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
-      return List.generate(
-          maps.length, (i) => PackageModel.fromSqlite(maps[i]));
+      return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
     } catch (e, s) {
       Log.error('Gagal mengambil perubahan paket', e: e, st: s);
       rethrow;
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [PackageModel] dalam satu batch.
+  /// Menyisipkan atau memperbarui sekumpulan [PaketModel] dalam satu batch.
   Future<void> sisipkanAtauPerbaruiBatch(
-    List<PackageModel> items, {
+    List<PaketModel> items, {
     bool dariServer = false,
   }) async {
     Log.info('Memulai insertOrUpdateBatch untuk ${items.length} item paket');
@@ -284,9 +283,8 @@ class PaketOpSqlite {
     }
   }
 
-  /// Mengambil beberapa [PackageModel] berdasarkan daftar [ids].
-  Future<List<PackageModel>> ambilBerdasarkanBeberapaId(
-      List<String> ids) async {
+  /// Mengambil beberapa [PaketModel] berdasarkan daftar [ids].
+  Future<List<PaketModel>> ambilBerdasarkanBeberapaId(List<String> ids) async {
     Log.info('Memulai pengambilan paket berdasarkan list ID: $ids');
     try {
       if (ids.isEmpty) {
@@ -302,7 +300,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil mengambil ${maps.length} paket dari ${ids.length} ID');
       return List.generate(maps.length, (i) {
-        return PackageModel.fromSqlite(maps[i]);
+        return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
       Log.error('Gagal mengambil paket berdasarkan list ID', e: e, st: s);

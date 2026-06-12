@@ -8,18 +8,17 @@ part of 'operasi_sqlite_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Provider untuk menyediakan instance dari [PackageOperation].
+/// Provider untuk menyediakan instance dari [PaketOpSqlite].
 
 @ProviderFor(packageOperation)
 final packageOperationProvider = PackageOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [PackageOperation].
+/// Provider untuk menyediakan instance dari [PaketOpSqlite].
 
-final class PackageOperationProvider extends $FunctionalProvider<
-    PackageOperation,
-    PackageOperation,
-    PackageOperation> with $Provider<PackageOperation> {
-  /// Provider untuk menyediakan instance dari [PackageOperation].
+final class PackageOperationProvider
+    extends $FunctionalProvider<PaketOpSqlite, PaketOpSqlite, PaketOpSqlite>
+    with $Provider<PaketOpSqlite> {
+  /// Provider untuk menyediakan instance dari [PaketOpSqlite].
   PackageOperationProvider._()
       : super(
           from: null,
@@ -36,24 +35,24 @@ final class PackageOperationProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<PackageOperation> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<PaketOpSqlite> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  PackageOperation create(Ref ref) {
+  PaketOpSqlite create(Ref ref) {
     return packageOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(PackageOperation value) {
+  Override overrideWithValue(PaketOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<PackageOperation>(value),
+      providerOverride: $SyncValueProvider<PaketOpSqlite>(value),
     );
   }
 }
 
-String _$packageOperationHash() => r'd8bf4fb8eccee62dea626cb535bd390ff4e0960a';
+String _$packageOperationHash() => r'4300f68097795646d111e2f80537de355d29b908';
 
 /// Provider untuk menyediakan instance dari [TransactionOperation].
 
@@ -102,20 +101,20 @@ final class TransactionOperationProvider extends $FunctionalProvider<
 }
 
 String _$transactionOperationHash() =>
-    r'314c5f3ce4808cf1df52fde215fba4192003e30f';
+    r'a6c14e5a274e13fe7584441ec79101ef9a3763d7';
 
-/// Provider untuk menyediakan instance dari [CustomerOperation].
+/// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 
 @ProviderFor(customerOperation)
 final customerOperationProvider = CustomerOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [CustomerOperation].
+/// Provider untuk menyediakan instance dari [PelangganOpSqlite].
 
 final class CustomerOperationProvider extends $FunctionalProvider<
-    CustomerOperation,
-    CustomerOperation,
-    CustomerOperation> with $Provider<CustomerOperation> {
-  /// Provider untuk menyediakan instance dari [CustomerOperation].
+    PelangganOpSqlite,
+    PelangganOpSqlite,
+    PelangganOpSqlite> with $Provider<PelangganOpSqlite> {
+  /// Provider untuk menyediakan instance dari [PelangganOpSqlite].
   CustomerOperationProvider._()
       : super(
           from: null,
@@ -132,25 +131,25 @@ final class CustomerOperationProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<CustomerOperation> $createElement(
+  $ProviderElement<PelangganOpSqlite> $createElement(
           $ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  CustomerOperation create(Ref ref) {
+  PelangganOpSqlite create(Ref ref) {
     return customerOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CustomerOperation value) {
+  Override overrideWithValue(PelangganOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CustomerOperation>(value),
+      providerOverride: $SyncValueProvider<PelangganOpSqlite>(value),
     );
   }
 }
 
-String _$customerOperationHash() => r'41272e4b2b15a81a1bc6741805522d2f0eb396c9';
+String _$customerOperationHash() => r'345de1ae3a24f309f56bb3ac43391daf9bcaa141';
 
 /// Provider untuk menyediakan instance dari [ActiveCustomerOperation].
 
@@ -199,7 +198,7 @@ final class ActiveCustomerOperationProvider extends $FunctionalProvider<
 }
 
 String _$activeCustomerOperationHash() =>
-    r'4e55cd25bda321a7ad5431ed9337f86306a0da0f';
+    r'6bc1e3bae24dc4aea1a03bf1716c1b0f7ea92872';
 
 /// Provider untuk menyediakan instance dari [ApkVersionOperation].
 
@@ -248,7 +247,7 @@ final class ApkVersionOperationProvider extends $FunctionalProvider<
 }
 
 String _$apkVersionOperationHash() =>
-    r'2bb15324e8827988428e02d2bd511f5249867141';
+    r'e7b1681e23977d1d1fdf4058c6ae7f9b49ac4774';
 
 /// Provider untuk menyediakan instance dari [CategoryOperation].
 
@@ -296,7 +295,7 @@ final class CategoryOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$categoryOperationHash() => r'6d08c18cf743efa0effb7d19935c12b456752816';
+String _$categoryOperationHash() => r'd6bb63a87fdf1ee71ad359f28ef3612e6ac02851';
 
 /// Provider untuk menyediakan instance dari [DataCleaningOperation].
 
@@ -393,14 +392,14 @@ final class FeedbackOperationProvider extends $FunctionalProvider<
   }
 }
 
-String _$feedbackOperationHash() => r'76f60efc9b539182b588a10811fbff244a50a7f1';
+String _$feedbackOperationHash() => r'27777d0e1b27bef3d78407eae7a844850e8d4a97';
 
 @ProviderFor(orderOperation)
 final orderOperationProvider = OrderOperationProvider._();
 
 final class OrderOperationProvider
-    extends $FunctionalProvider<OrderOperation, OrderOperation, OrderOperation>
-    with $Provider<OrderOperation> {
+    extends $FunctionalProvider<OrderOpsqlite, OrderOpsqlite, OrderOpsqlite>
+    with $Provider<OrderOpsqlite> {
   OrderOperationProvider._()
       : super(
           from: null,
@@ -417,37 +416,37 @@ final class OrderOperationProvider
 
   @$internal
   @override
-  $ProviderElement<OrderOperation> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<OrderOpsqlite> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  OrderOperation create(Ref ref) {
+  OrderOpsqlite create(Ref ref) {
     return orderOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(OrderOperation value) {
+  Override overrideWithValue(OrderOpsqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<OrderOperation>(value),
+      providerOverride: $SyncValueProvider<OrderOpsqlite>(value),
     );
   }
 }
 
-String _$orderOperationHash() => r'5b1230184032961008baa3350af4ce87c7a8af18';
+String _$orderOperationHash() => r'7cd302763c2801a20f73a4e8f445420114647486';
 
-/// Provider untuk menyediakan instance dari [SettingsOperation].
+/// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 
 @ProviderFor(settingsOperation)
 final settingsOperationProvider = SettingsOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [SettingsOperation].
+/// Provider untuk menyediakan instance dari [SettingsOpSqlite].
 
 final class SettingsOperationProvider extends $FunctionalProvider<
-    SettingsOperation,
-    SettingsOperation,
-    SettingsOperation> with $Provider<SettingsOperation> {
-  /// Provider untuk menyediakan instance dari [SettingsOperation].
+    SettingsOpSqlite,
+    SettingsOpSqlite,
+    SettingsOpSqlite> with $Provider<SettingsOpSqlite> {
+  /// Provider untuk menyediakan instance dari [SettingsOpSqlite].
   SettingsOperationProvider._()
       : super(
           from: null,
@@ -464,38 +463,37 @@ final class SettingsOperationProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<SettingsOperation> $createElement(
-          $ProviderPointer pointer) =>
+  $ProviderElement<SettingsOpSqlite> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  SettingsOperation create(Ref ref) {
+  SettingsOpSqlite create(Ref ref) {
     return settingsOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SettingsOperation value) {
+  Override overrideWithValue(SettingsOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<SettingsOperation>(value),
+      providerOverride: $SyncValueProvider<SettingsOpSqlite>(value),
     );
   }
 }
 
-String _$settingsOperationHash() => r'957637cda34d493db5ca2e640a214eeb59be7a28';
+String _$settingsOperationHash() => r'1dabb1ceba8cb80d7c913dd4d99d8c774e5ebc41';
 
-/// Provider untuk menyediakan instance dari [SubCategoryOperation].
+/// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 
 @ProviderFor(subCategoryOperation)
 final subCategoryOperationProvider = SubCategoryOperationProvider._();
 
-/// Provider untuk menyediakan instance dari [SubCategoryOperation].
+/// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
 
 final class SubCategoryOperationProvider extends $FunctionalProvider<
-    SubCategoryOperation,
-    SubCategoryOperation,
-    SubCategoryOperation> with $Provider<SubCategoryOperation> {
-  /// Provider untuk menyediakan instance dari [SubCategoryOperation].
+    SubKategoriOpSqlite,
+    SubKategoriOpSqlite,
+    SubKategoriOpSqlite> with $Provider<SubKategoriOpSqlite> {
+  /// Provider untuk menyediakan instance dari [SubKategoriOpSqlite].
   SubCategoryOperationProvider._()
       : super(
           from: null,
@@ -512,26 +510,26 @@ final class SubCategoryOperationProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<SubCategoryOperation> $createElement(
+  $ProviderElement<SubKategoriOpSqlite> $createElement(
           $ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  SubCategoryOperation create(Ref ref) {
+  SubKategoriOpSqlite create(Ref ref) {
     return subCategoryOperation(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SubCategoryOperation value) {
+  Override overrideWithValue(SubKategoriOpSqlite value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<SubCategoryOperation>(value),
+      providerOverride: $SyncValueProvider<SubKategoriOpSqlite>(value),
     );
   }
 }
 
 String _$subCategoryOperationHash() =>
-    r'34ed47c602f1b5dd6be378d74f6d7941302046cd';
+    r'c813b7aad2bd798fb47afbca7fae00e57e2babe4';
 
 /// Provider untuk menyediakan instance dari [DompetOpSqlite].
 
@@ -577,4 +575,4 @@ final class WalletOperationProvider
   }
 }
 
-String _$walletOperationHash() => r'7c2977f2cb16b87139d8ba7fadb38dbf231f48f2';
+String _$walletOperationHash() => r'877ced8dad92c4013d9e9d1abf9412f087d04b4a';

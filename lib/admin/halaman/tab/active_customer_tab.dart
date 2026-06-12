@@ -4,9 +4,9 @@ import 'dart:async';
 // TODO : buatkan file test nya
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/active_customer_detail.dart';
-import 'package:wifi/admin/halaman/form/active_customer_form.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan_aktif.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -75,7 +75,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
             e: e);
       }
-      await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
+      await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
     });
   }
 
@@ -101,7 +101,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
-    await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
+    await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
   }
 
   Future<void> _softDeleteCustomer(
@@ -140,7 +140,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
           ToastUtil.success(
               context, 'Pelanggan "$customerName" berhasil diarsipkan.');
         }
-        await ref.read(activeCustomerProvider.notifier).fetchActiveCustomers();
+        await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
       } on Exception catch (e, s) {
         Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, st: s);
         if (mounted) {
@@ -153,7 +153,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   }
 
   Future<void> _showSortDialog() async {
-    final currentState = ref.read(activeCustomerProvider).value;
+    final currentState = ref.read(pelangganAktifProvider).value;
     if (currentState == null) {
       ToastUtil.info(context, 'Data sedang dimuat, coba sesaat lagi.');
       return;
@@ -198,7 +198,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                             )
                           : null,
                       onTap: () {
-                        ref.read(activeCustomerProvider.notifier).setSortBy(o);
+                        ref.read(pelangganAktifProvider.notifier).setSortBy(o);
                         Navigator.pop(ctx);
                       },
                     );
@@ -275,7 +275,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
               ToastUtil.success(context, 'Berhasil mengarsipkan  pelanggan.');
             }
             await ref
-                .read(activeCustomerProvider.notifier)
+                .read(pelangganAktifProvider.notifier)
                 .fetchActiveCustomers();
           } on Exception catch (e, s) {
             Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, st: s);
@@ -297,7 +297,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                 context, '$count pelanggan kadaluarsa diarsipkan.');
           }
           await ref
-              .read(activeCustomerProvider.notifier)
+              .read(pelangganAktifProvider.notifier)
               .fetchActiveCustomers();
         } on Exception catch (e, s) {
           Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, st: s);
@@ -315,7 +315,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   @override
   Widget build(final BuildContext context) {
     super.build(context);
-    final activeCustomerAsync = ref.watch(activeCustomerProvider);
+    final activeCustomerAsync = ref.watch(pelangganAktifProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -356,7 +356,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {
-            final customersFromProvider = state.activeCustomers;
+            final customersFromProvider = state.daftarPelangganAktif;
             final query = _searchController.text.toLowerCase();
             final displayedCustomers = customersFromProvider
                 .where((c) => c.customerName.toLowerCase().contains(query))
@@ -384,7 +384,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                           context,
                           MaterialPageRoute<void>(
                               builder: (final _) =>
-                                  ActiveCustomerDetailPage(activeCustomer: c)));
+                                  DetailPelangganAktif(pelangganAktif: c)));
                     },
                     child: ListTile(
                       title: Text(

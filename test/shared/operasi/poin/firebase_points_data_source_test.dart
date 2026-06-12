@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
@@ -58,14 +58,14 @@ void main() {
         () async {
       // Arrange
       final mockPackages = [
-        PackageModel(
+        PaketModel(
             id: '1',
             name: 'Paket A',
             redemptionPoints: 100,
             price: 0,
             duration: 30,
             type: DurationType.days),
-        PackageModel(
+        PaketModel(
             id: '2',
             name: 'Paket B',
             redemptionPoints: 200,
@@ -94,7 +94,7 @@ void main() {
       final now = DateTime.now();
       final allTransactions = [
         // Transaksi yang harus lolos filter
-        TransactionModel(
+        TransaksiModel(
             id: '1',
             description: 'Beli Poin',
             earnedPoints: 50,
@@ -105,7 +105,7 @@ void main() {
             paymentStatus: PaymentStatus.paid,
             walletId: 'wallet1',
             categoryId: 'cat1'),
-        TransactionModel(
+        TransaksiModel(
             id: '3',
             description: 'Tukar Hadiah',
             usedPoints: 100,
@@ -117,7 +117,7 @@ void main() {
             walletId: 'wallet1',
             categoryId: 'cat1'),
         // Transaksi ini harus diabaikan karena tidak ada poin yang didapat atau digunakan
-        TransactionModel(
+        TransaksiModel(
             id: '2',
             description: 'Bayar Tagihan',
             date: now,
@@ -151,7 +151,7 @@ void main() {
         '4. getPackageById harus memanggil metode yang benar pada PackageOpFirebase',
         () async {
       // Arrange
-      final mockPackage = PackageModel(
+      final mockPackage = PaketModel(
           id: packageId,
           name: 'Paket Detail',
           redemptionPoints: 50,

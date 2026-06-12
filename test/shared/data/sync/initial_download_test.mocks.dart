@@ -221,11 +221,11 @@ class MockDownloadDataService extends _i1.Mock
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i5.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i5.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 

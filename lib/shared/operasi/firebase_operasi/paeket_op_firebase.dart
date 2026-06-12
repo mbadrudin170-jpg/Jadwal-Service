@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 class PaketOpFirebase {
   final FirebaseFirestore db;
@@ -13,10 +13,9 @@ class PaketOpFirebase {
     Log.info('PackageOpFirebase diinisialisasi.');
   }
 
-  CollectionReference get _collection =>
-      db.collection(NamaTabel.package);
+  CollectionReference get _collection => db.collection(NamaTabel.package);
 
-  Future<List<PackageModel>> ambilPaketPublik() async {
+  Future<List<PaketModel>> ambilPaketPublik() async {
     try {
       Log.info('Mengambil paket publik untuk penukaran poin.');
       final querySnapshot = await _collection
@@ -28,7 +27,7 @@ class PaketOpFirebase {
           'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
       return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        return PackageModel.fromFirebase(doc.id, data);
+        return PaketModel.fromFirebase(doc.id, data);
       }).toList();
     } on Exception catch (e, s) {
       Log.error('Error mengambil paket publik: $e', e: e, st: s);
@@ -36,13 +35,13 @@ class PaketOpFirebase {
     }
   }
 
-  Future<PackageModel?> ambilBerdasarkanId(String id) async {
+  Future<PaketModel?> ambilBerdasarkanId(String id) async {
     try {
       Log.info('Mengambil model paket untuk ID: $id');
       final doc = await _collection.doc(id).get();
       if (doc.exists) {
         final data = doc.data()! as Map<String, dynamic>;
-        final package = PackageModel.fromFirebase(doc.id, data);
+        final package = PaketModel.fromFirebase(doc.id, data);
         Log.info('Model paket ditemukan');
         return package;
       }
@@ -55,13 +54,13 @@ class PaketOpFirebase {
   }
 
   /// Mengambil data paket secara real-time berdasarkan ID.
-  Stream<PackageModel?> ambilStreamBerdasarkanId(String id) {
+  Stream<PaketModel?> ambilStreamBerdasarkanId(String id) {
     Log.info('Memulai stream untuk paket ID: $id');
     return _collection.doc(id).snapshots().map((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data()! as Map<String, dynamic>;
         Log.info('Data paket diperbarui dari stream: $id');
-        return PackageModel.fromFirebase(snapshot.id, data);
+        return PaketModel.fromFirebase(snapshot.id, data);
       }
       Log.warning('Paket ID $id tidak ditemukan di stream.');
       return null;

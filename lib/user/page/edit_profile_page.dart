@@ -15,7 +15,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Memungkinkan pengguna untuk mengubah nama, nomor telepon, dan password mereka.
 class EditProfilePage extends ConsumerStatefulWidget {
   /// Data pelanggan yang akan diedit.
-  final CustomerModel customer;
+  final PelangganModel customer;
 
   // /// ID unik pengguna yang sedang login.
   // final String userId;

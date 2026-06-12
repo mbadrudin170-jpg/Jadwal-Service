@@ -6,8 +6,8 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:wifi/fitur/paket/model/paket_model.dart' as _i4;
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart' as _i2;
-import 'package:wifi/shared/model/package_model.dart' as _i4;
 import 'package:wifi/shared/model/transaction_model.dart' as _i5;
 
 // ignore_for_file: type=lint
@@ -50,34 +50,33 @@ class MockPointsPageDataSource extends _i1.Mock
       ) as _i3.Future<int>);
 
   @override
-  _i3.Future<List<_i4.PackageModel>> getPublicPackages() => (super.noSuchMethod(
+  _i3.Future<List<_i4.PaketModel>> getPublicPackages() => (super.noSuchMethod(
         Invocation.method(
           #getPublicPackages,
           [],
         ),
-        returnValue:
-            _i3.Future<List<_i4.PackageModel>>.value(<_i4.PackageModel>[]),
-      ) as _i3.Future<List<_i4.PackageModel>>);
+        returnValue: _i3.Future<List<_i4.PaketModel>>.value(<_i4.PaketModel>[]),
+      ) as _i3.Future<List<_i4.PaketModel>>);
 
   @override
-  _i3.Future<List<_i5.TransactionModel>> getPointsTransactions(
+  _i3.Future<List<_i5.TransaksiModel>> getPointsTransactions(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getPointsTransactions,
           [customerId],
         ),
-        returnValue: _i3.Future<List<_i5.TransactionModel>>.value(
-            <_i5.TransactionModel>[]),
-      ) as _i3.Future<List<_i5.TransactionModel>>);
+        returnValue:
+            _i3.Future<List<_i5.TransaksiModel>>.value(<_i5.TransaksiModel>[]),
+      ) as _i3.Future<List<_i5.TransaksiModel>>);
 
   @override
-  _i3.Future<_i4.PackageModel?> getPaketByid(String? packageId) =>
+  _i3.Future<_i4.PaketModel?> getPaketByid(String? packageId) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getPackageById,
+          #getPaketByid,
           [packageId],
         ),
-        returnValue: _i3.Future<_i4.PackageModel?>.value(),
-      ) as _i3.Future<_i4.PackageModel?>);
+        returnValue: _i3.Future<_i4.PaketModel?>.value(),
+      ) as _i3.Future<_i4.PaketModel?>);
 }

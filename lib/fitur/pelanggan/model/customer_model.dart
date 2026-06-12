@@ -8,7 +8,7 @@ import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model representing a customer's data.
-class CustomerModel implements HasId {
+class PelangganModel implements HasId {
   @override
   final String id;
 
@@ -39,8 +39,8 @@ class CustomerModel implements HasId {
   /// The timestamp of when the customer was last active.
   final DateTime? lastActiveAt;
 
-  /// Creates a new instance of the [CustomerModel].
-  CustomerModel({
+  /// Creates a new instance of the [PelangganModel].
+  PelangganModel({
     final String? id,
     required this.name,
     required this.phone,
@@ -55,8 +55,8 @@ class CustomerModel implements HasId {
     Log.info('CustomerModel created: $id, name: $name');
   }
 
-  /// Creates a copy of the [CustomerModel] with updated fields.
-  CustomerModel copyWith({
+  /// Creates a copy of the [PelangganModel] with updated fields.
+  PelangganModel copyWith({
     final String? id,
     final String? name,
     final String? phone,
@@ -68,7 +68,7 @@ class CustomerModel implements HasId {
     final DateTime? archivedAt,
     final DateTime? lastActiveAt,
   }) {
-    return CustomerModel(
+    return PelangganModel(
       id: id ?? this.id,
       name: name ?? this.name,
       phone: phone ?? this.phone,
@@ -82,10 +82,10 @@ class CustomerModel implements HasId {
     );
   }
 
-  /// Creates a [CustomerModel] from a SQLite map.
-  factory CustomerModel.fromSqlite(final Map<String, dynamic> map) {
+  /// Creates a [PelangganModel] from a SQLite map.
+  factory PelangganModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
-    return CustomerModel(
+    return PelangganModel(
       id: map[NamaKolom.id] as String? ?? '',
       name: map[NamaKolom.name] as String? ?? '',
       phone: map[NamaKolom.phone] as String? ?? '',
@@ -100,7 +100,7 @@ class CustomerModel implements HasId {
     );
   }
 
-  /// Converts the [CustomerModel] to a map for SQLite storage.
+  /// Converts the [PelangganModel] to a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
@@ -117,11 +117,11 @@ class CustomerModel implements HasId {
     };
   }
 
-  /// Creates a [CustomerModel] from a Firebase document.
-  factory CustomerModel.fromFirebase(
+  /// Creates a [PelangganModel] from a Firebase document.
+  factory PelangganModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     Log.info('Creating CustomerModel from Firebase: $id');
-    return CustomerModel(
+    return PelangganModel(
       id: id,
       name: data[NamaKolom.name] as String? ?? '',
       phone: data[NamaKolom.phone] as String? ?? '',
@@ -136,7 +136,7 @@ class CustomerModel implements HasId {
     );
   }
 
-  /// Converts the [CustomerModel] to a map for Firebase storage.
+  /// Converts the [PelangganModel] to a map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,

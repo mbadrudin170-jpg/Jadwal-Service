@@ -11,8 +11,8 @@ import 'package:wifi/shared/model/transaction_model.dart';
 part 'package_activation_history_provider.g.dart';
 
 class TransactionWithCustomer {
-  final TransactionModel transaction;
-  final CustomerModel? customer;
+  final TransaksiModel transaction;
+  final PelangganModel? customer;
 
   TransactionWithCustomer({required this.transaction, this.customer});
 

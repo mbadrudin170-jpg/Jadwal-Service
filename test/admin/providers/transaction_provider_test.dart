@@ -23,7 +23,7 @@ void main() {
   final tDate1 = DateTime(2023, 1, 1);
   final tDate2 = DateTime(2023, 1, 2);
 
-  final tTransaction1 = TransactionModel(
+  final tTransaction1 = TransaksiModel(
     id: '1',
     description: 'Pembelian Pulsa',
     categoryId: 'cat1',
@@ -33,7 +33,7 @@ void main() {
     walletId: 'wallet1',
   );
 
-  final tTransaction2 = TransactionModel(
+  final tTransaction2 = TransaksiModel(
     id: '2',
     description: 'Gaji',
     categoryId: 'cat2',

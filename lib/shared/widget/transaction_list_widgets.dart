@@ -14,10 +14,10 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
-Map<DateTime, List<TransactionModel>> groupTransactionsByDate(
-  final List<TransactionModel> transactions,
+Map<DateTime, List<TransaksiModel>> groupTransactionsByDate(
+  final List<TransaksiModel> transactions,
 ) {
-  final Map<DateTime, List<TransactionModel>> grouped = {};
+  final Map<DateTime, List<TransaksiModel>> grouped = {};
   for (final t in transactions) {
     final date = DateTime(t.date.year, t.date.month, t.date.day);
     grouped[date] ??= [];
@@ -54,7 +54,7 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
 class TransactionTile extends ConsumerStatefulWidget {
-  final TransactionModel transaction;
+  final TransaksiModel transaction;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -223,7 +223,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 /// Membangun widget [TransactionTile] dengan parameter yang diberikan.
 Widget buildTransactionItem(
   final BuildContext context,
-  final TransactionModel transaction, {
+  final TransaksiModel transaction, {
   final VoidCallback? onTap,
   final VoidCallback? onEdit,
   final VoidCallback? onDelete,

@@ -24,7 +24,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       firestore.collection(NamaTabel.transactions);
 
   /// Menambahkan transaksi baru ke Firestore.
-  Future<void> tambahTransaksi(TransactionModel transaksi) async {
+  Future<void> tambahTransaksi(TransaksiModel transaksi) async {
     Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
       await sisipkan(
@@ -41,7 +41,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
   /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
   /// Digunakan untuk menentukan status langganan aktif di sisi user.
-  Future<TransactionModel?> ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(
+  Future<TransaksiModel?> ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
     try {
@@ -65,7 +65,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       final data = doc.data() as Map<String, dynamic>;
       Log.info(
           'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan');
-      return TransactionModel.fromFirebase(doc.id, data);
+      return TransaksiModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error(
           'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
@@ -76,7 +76,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransactionModel>> ambilBerdasarkanIdPelanggan(
+  Future<List<TransaksiModel>> ambilBerdasarkanIdPelanggan(
     String idPelanggan,
   ) async {
     try {
@@ -90,7 +90,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
       return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        return TransactionModel.fromFirebase(doc.id, data);
+        return TransaksiModel.fromFirebase(doc.id, data);
       }).toList();
     } on Exception catch (e, s) {
       Log.error('Error mengambil transaksi: $e', e: e, st: s);
@@ -151,7 +151,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
   /// Mengambil daftar paket aktif (transaksi yang belum kedaluwarsa)
   /// untuk seorang pelanggan.
-  Future<List<TransactionModel>> ambilPaketAktifPelanggan(
+  Future<List<TransaksiModel>> ambilPaketAktifPelanggan(
     String idPelanggan,
   ) async {
     try {
@@ -176,7 +176,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
       // Ubah setiap dokumen menjadi objek TransactionModel
       final daftarPaketAktif = querySnapshot.docs.map((doc) {
-        return TransactionModel.fromFirebase(
+        return TransaksiModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,
         );

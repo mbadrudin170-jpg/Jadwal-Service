@@ -17,7 +17,7 @@ part 'transaction_provider.freezed.dart';
 @freezed
 abstract class TransactionState with _$TransactionState {
   const factory TransactionState({
-    @Default([]) List<TransactionModel> transactions,
+    @Default([]) List<TransaksiModel> transactions,
     @Default(0.0) double totalIncome,
     @Default(0.0) double totalExpense,
     @Default(0.0) double netTotal,
@@ -47,7 +47,7 @@ class Transaction extends _$Transaction {
       _operation.getNetTotal(),
     ]);
 
-    final transactions = results[0] as List<TransactionModel>;
+    final transactions = results[0] as List<TransaksiModel>;
 
     // Jalankan sorting lokal sebelum state dilempar ke UI
     _performSort(transactions, targetSortBy);
@@ -68,7 +68,7 @@ class Transaction extends _$Transaction {
     // Jika tipe sorting-nya sama, tidak perlu memproses ulang data
     if (currentState.sortBy == newSortBy) return;
 
-    final List<TransactionModel> sortedTransactions =
+    final List<TransaksiModel> sortedTransactions =
         List.from(currentState.transactions);
     _performSort(sortedTransactions, newSortBy);
 
@@ -78,7 +78,7 @@ class Transaction extends _$Transaction {
     ));
   }
 
-  void _performSort(List<TransactionModel> transactions, SortBy sortBy) {
+  void _performSort(List<TransaksiModel> transactions, SortBy sortBy) {
     switch (sortBy) {
       case SortBy.newest:
         transactions.sort((a, b) => b.date.compareTo(a.date));
@@ -99,7 +99,7 @@ class Transaction extends _$Transaction {
   // Fungsi Mutasi Data (Gunakan ref.read di dalam scope aksi ini aman)
   // ==========================================================
 
-  Future<void> addTransaction(TransactionModel transaction) async {
+  Future<void> addTransaction(TransaksiModel transaction) async {
     // Ambil sorting saat ini sebelum masuk state loading
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
@@ -111,7 +111,7 @@ class Transaction extends _$Transaction {
     });
   }
 
-  Future<void> updateTransaction(TransactionModel transaction) async {
+  Future<void> updateTransaction(TransaksiModel transaction) async {
     final currentSort = state.value?.sortBy ?? SortBy.newest;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {

@@ -33,7 +33,7 @@ final class StatistikProvider
   Statistik create() => Statistik();
 }
 
-String _$statistikHash() => r'1dc277eb1f82b32fb5919b5ce16892db20ff7563';
+String _$statistikHash() => r'e699448b3822d0ff93458bab62dfe5befdd7ace4';
 
 abstract class _$Statistik extends $AsyncNotifier<StatistikState> {
   FutureOr<StatistikState> build();

@@ -6,7 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -25,7 +25,7 @@ import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 import 'package:wifi/shared/widget/input/input_angka.dart';
 
 class FormPelangganAktif extends ConsumerStatefulWidget {
-  final ActiveCustomerModel? pelangganAktif;
+  final PelangganAktifModel? pelangganAktif;
 
   const FormPelangganAktif({super.key, this.pelangganAktif});
 
@@ -36,15 +36,15 @@ class FormPelangganAktif extends ConsumerStatefulWidget {
 class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   final _formKey = GlobalKey<FormState>();
 
-  List<CustomerModel> _pelangganList = [];
-  List<PackageModel> _paketList = [];
+  List<PelangganModel> _pelangganList = [];
+  List<PaketModel> _paketList = [];
   List<WalletModel> _dompetList = [];
   List<CategoryModel> _kategoriPemasukanList = [];
   List<CategoryModel> _kategoriPengeluaranList = [];
   List<CategoryModel> get _kategoriList =>
       _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
-  CustomerModel? _pelangganDipilih;
-  PackageModel? _paketDipilih;
+  PelangganModel? _pelangganDipilih;
+  PaketModel? _paketDipilih;
   WalletModel? _dompetDipilih;
   CategoryModel? _kategoriDipilih;
   bool _isLoading = true;
@@ -69,7 +69,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     return (_saldoPoinPelanggan - pakai).clamp(0, 999999999);
   }
 
-  int _getDurationInMinutes(final PackageModel package) {
+  int _getDurationInMinutes(final PaketModel package) {
     switch (package.type) {
       case DurationType.minutes:
         return package.duration;
@@ -93,21 +93,21 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   Future<void> _loadAllData() async {
     setState(() => _isLoading = true);
     Log.info('Memulai memuat semua data untuk FormPelangganAktif');
-    final pelangganOperasi = ref.read(customerOperationProvider);
-    final paketOperasi = ref.read(packageOperationProvider);
+    final pelangganOpSqlite = ref.read(customerOperationProvider);
+    final paketOpsqlite = ref.read(packageOperationProvider);
     final transaksiOperasi = ref.read(transactionOperationProvider);
-    final dompetOperasi = ref.read(walletOperationProvider);
+    final dompetOpSqlite = ref.read(walletOperationProvider);
     final kategoriOperasi = ref.read(categoryOperationProvider);
     try {
       final pa = widget.pelangganAktif;
       final transaksiTerkaitFuture = pa?.transactionId != null
-          ? transaksiOperasi.getTransactionById(pa!.transactionId!)
-          : Future<TransactionModel?>.value();
+          ? transaksiOperasi.getById(pa!.transactionId!)
+          : Future<TransaksiModel?>.value();
 
       final results = await Future.wait<Object?>([
-        pelangganOperasi.ambilSemua(),
-        paketOperasi.ambilBerdasarkanAktif(),
-        dompetOperasi.getWallets(),
+        pelangganOpSqlite.ambilSemua(),
+        paketOpsqlite.ambilBerdasarkanAktif(),
+        dompetOpSqlite.getWallets(),
         kategoriOperasi.getCategories(),
         transaksiTerkaitFuture,
       ]);
@@ -116,10 +116,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         return;
       }
 
-      final pelangganList = (results[0] as List<CustomerModel>)
+      final pelangganList = (results[0] as List<PelangganModel>)
         ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-      final paketList = (results[1] as List<PackageModel>)
+      final paketList = (results[1] as List<PaketModel>)
         ..sort((a, b) =>
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
@@ -135,8 +135,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           .toList();
 
       final transaksiTerkait =
-          results.length > 4 && results[4] is TransactionModel
-              ? results[4] as TransactionModel?
+          results.length > 4 && results[4] is TransaksiModel
+              ? results[4] as TransaksiModel?
               : null;
 
       setState(() {
@@ -164,7 +164,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<void> _mapEditData(TransactionModel? transaksi) async {
+  Future<void> _mapEditData(TransaksiModel? transaksi) async {
     final transaksiOperasi = ref.read(transactionOperationProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
@@ -258,7 +258,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  Future<SaveResultModel<ActiveCustomerModel>> _simpanData() async {
+  Future<SaveResultModel<PelangganAktifModel>> _simpanData() async {
     Log.info('Mulai menyimpan form, isEditMode=$_modeEdit');
     final notifikasiOpFirebase = ref.read(notifikasiOpFirebaseProvider);
     final pelangganAktifOperasi = ref.read(activeCustomerOperationProvider);
@@ -301,7 +301,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               ? widget.pelangganAktif!.transactionId!
               : const Uuid().v4();
 
-      final pelangganAktifData = ActiveCustomerModel(
+      final pelangganAktifData = PelangganAktifModel(
           id: _modeEdit ? widget.pelangganAktif!.id : '',
           customerId: _pelangganDipilih!.id,
           packageId: _paketDipilih!.id,
@@ -310,7 +310,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           status: _statusPembayaran,
           transactionId: transaksiId);
 
-      final transaksiData = TransactionModel(
+      final transaksiData = TransaksiModel(
         id: transaksiId,
         date: tanggalMulai,
         description: 'Aktivasi Paket: ${_paketDipilih!.name}',
@@ -334,7 +334,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
           'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$transaksiId');
 
-      ActiveCustomerModel pelangganAktifHasil;
+      PelangganAktifModel pelangganAktifHasil;
       if (_modeEdit) {
         pelangganAktifHasil = await pelangganAktifOperasi
             .updateActiveCustomer(pelangganAktifData);
@@ -351,7 +351,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             .read(transactionProvider.notifier)
             .addTransaction(transaksiData);
       }
-      ref.invalidate(activeCustomerProvider);
+      ref.invalidate(pelangganAktifProvider);
 
       final totalDurasi = tanggalBerakhir.difference(tanggalMulai);
       final durasiSetengahJalan =
@@ -528,7 +528,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   Widget _buildPelangganDropdown() {
     final transaksiOperasi = ref.read(transactionOperationProvider);
-    return DropdownButtonFormField<CustomerModel>(
+    return DropdownButtonFormField<PelangganModel>(
       key: const Key('pelanggan_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Pelanggan', border: OutlineInputBorder()),
@@ -555,7 +555,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildPaketDropdown() {
-    return DropdownButtonFormField<PackageModel>(
+    return DropdownButtonFormField<PaketModel>(
       key: const Key('paket_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Paket', border: OutlineInputBorder()),
@@ -564,7 +564,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
           .toList(),
       onChanged: (newValue) {
-        Log.info('Paket dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        Log.info(
+            'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.name}');
         setState(() => _paketDipilih = newValue);
       },
       validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,

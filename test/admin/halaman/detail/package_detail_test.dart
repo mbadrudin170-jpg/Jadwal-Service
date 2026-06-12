@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
@@ -14,11 +14,11 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
-  late PackageModel testPackage;
+  late PaketModel testPackage;
   late MockNavigatorObserver mockNavigatorObserver;
 
   setUp(() {
-    testPackage = PackageModel(
+    testPackage = PaketModel(
       id: 'pkg-1',
       name: 'Paket Super Cepat',
       price: 100000,
@@ -35,7 +35,7 @@ void main() {
   Widget createTestWidget() {
     return ProviderScope(
       child: MaterialApp(
-        home: PackageDetailPage(paket: testPackage),
+        home: DetailPaket(paket: testPackage),
         navigatorObservers: [mockNavigatorObserver],
       ),
     );

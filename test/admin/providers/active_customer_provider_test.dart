@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/admin/providers/active_customer_provider.dart';
+import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
@@ -28,21 +28,21 @@ void main() {
   final tomorrow = today.add(const Duration(days: 1));
   final twoDaysAgo = today.subtract(const Duration(days: 2));
 
-  final customer1 = CustomerModel(
+  final customer1 = PelangganModel(
       id: 'cust1',
       name: 'Budi',
       address: '-',
       phone: '-',
       password: '-',
       updatedAt: now);
-  final customer2 = CustomerModel(
+  final customer2 = PelangganModel(
       id: 'cust2',
       name: 'Andi',
       address: '-',
       phone: '-',
       password: '-',
       updatedAt: now);
-  final customer3 = CustomerModel(
+  final customer3 = PelangganModel(
       id: 'cust3',
       name: 'Cici',
       address: '-',
@@ -50,7 +50,7 @@ void main() {
       password: '-',
       updatedAt: now);
 
-  final package1 = PackageModel(
+  final package1 = PaketModel(
       id: 'pkg1',
       name: 'Paket 1',
       price: 100000,
@@ -59,7 +59,7 @@ void main() {
       updatedAt: now);
 
   final activeCust1 = ActiveCustomerDetailModel(
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
         id: 'ac1',
         idPelanggan: 'cust1',
         packageId: 'pkg1',
@@ -72,7 +72,7 @@ void main() {
   );
 
   final activeCust2 = ActiveCustomerDetailModel(
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
         id: 'ac2',
         idPelanggan: 'cust2',
         packageId: 'pkg1',
@@ -85,7 +85,7 @@ void main() {
   );
 
   final activeCust3 = ActiveCustomerDetailModel(
-    activeCustomer: ActiveCustomerModel(
+    activeCustomer: PelangganAktifModel(
         id: 'ac3',
         idPelanggan: 'cust3',
         packageId: 'pkg1',
@@ -140,7 +140,7 @@ void main() {
       // 1. Ensure the initial build is successful.
       await container.read(activeCustomerProvider.future);
       expect(container.read(activeCustomerProvider),
-          isA<AsyncData<ActiveCustomerState>>());
+          isA<AsyncData<PelangganAktifState>>());
 
       // 2. Now, set up the mock to throw an error for the next call.
       when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
@@ -153,7 +153,7 @@ void main() {
 
       // Assert
       final state = container.read(activeCustomerProvider);
-      expect(state, isA<AsyncError<ActiveCustomerState>>());
+      expect(state, isA<AsyncError<PelangganAktifState>>());
       expect((state as AsyncError).error, isA<Exception>());
     });
 

@@ -14,9 +14,9 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$DetailLanggananState {
-  TransactionModel? get transaction;
-  CustomerModel? get customer;
-  PackageModel? get package;
+  TransaksiModel? get transaction;
+  PelangganModel? get customer;
+  PaketModel? get package;
 
   /// Create a copy of DetailLanggananState
   /// with the given fields replaced by the non-null parameter values.
@@ -54,9 +54,9 @@ abstract mixin class $DetailLanggananStateCopyWith<$Res> {
       _$DetailLanggananStateCopyWithImpl;
   @useResult
   $Res call(
-      {TransactionModel? transaction,
-      CustomerModel? customer,
-      PackageModel? package});
+      {TransaksiModel? transaction,
+      PelangganModel? customer,
+      PaketModel? package});
 }
 
 /// @nodoc
@@ -80,15 +80,15 @@ class _$DetailLanggananStateCopyWithImpl<$Res>
       transaction: freezed == transaction
           ? _self.transaction
           : transaction // ignore: cast_nullable_to_non_nullable
-              as TransactionModel?,
+              as TransaksiModel?,
       customer: freezed == customer
           ? _self.customer
           : customer // ignore: cast_nullable_to_non_nullable
-              as CustomerModel?,
+              as PelangganModel?,
       package: freezed == package
           ? _self.package
           : package // ignore: cast_nullable_to_non_nullable
-              as PackageModel?,
+              as PaketModel?,
     ));
   }
 }
@@ -186,8 +186,8 @@ extension DetailLanggananStatePatterns on DetailLanggananState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(TransactionModel? transaction, CustomerModel? customer,
-            PackageModel? package)?
+    TResult Function(TransaksiModel? transaction, PelangganModel? customer,
+            PaketModel? package)?
         $default, {
     required TResult orElse(),
   }) {
@@ -215,8 +215,8 @@ extension DetailLanggananStatePatterns on DetailLanggananState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(TransactionModel? transaction, CustomerModel? customer,
-            PackageModel? package)
+    TResult Function(TransaksiModel? transaction, PelangganModel? customer,
+            PaketModel? package)
         $default,
   ) {
     final _that = this;
@@ -242,8 +242,8 @@ extension DetailLanggananStatePatterns on DetailLanggananState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(TransactionModel? transaction, CustomerModel? customer,
-            PackageModel? package)?
+    TResult? Function(TransaksiModel? transaction, PelangganModel? customer,
+            PaketModel? package)?
         $default,
   ) {
     final _that = this;
@@ -262,11 +262,11 @@ class _DetailLanggananState implements DetailLanggananState {
   const _DetailLanggananState({this.transaction, this.customer, this.package});
 
   @override
-  final TransactionModel? transaction;
+  final TransaksiModel? transaction;
   @override
-  final CustomerModel? customer;
+  final PelangganModel? customer;
   @override
-  final PackageModel? package;
+  final PaketModel? package;
 
   /// Create a copy of DetailLanggananState
   /// with the given fields replaced by the non-null parameter values.
@@ -307,9 +307,9 @@ abstract mixin class _$DetailLanggananStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {TransactionModel? transaction,
-      CustomerModel? customer,
-      PackageModel? package});
+      {TransaksiModel? transaction,
+      PelangganModel? customer,
+      PaketModel? package});
 }
 
 /// @nodoc
@@ -333,15 +333,15 @@ class __$DetailLanggananStateCopyWithImpl<$Res>
       transaction: freezed == transaction
           ? _self.transaction
           : transaction // ignore: cast_nullable_to_non_nullable
-              as TransactionModel?,
+              as TransaksiModel?,
       customer: freezed == customer
           ? _self.customer
           : customer // ignore: cast_nullable_to_non_nullable
-              as CustomerModel?,
+              as PelangganModel?,
       package: freezed == package
           ? _self.package
           : package // ignore: cast_nullable_to_non_nullable
-              as PackageModel?,
+              as PaketModel?,
     ));
   }
 }

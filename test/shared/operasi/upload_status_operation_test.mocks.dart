@@ -65,11 +65,11 @@ class _FakeBatch_3 extends _i1.SmartFake implements _i2.Batch {
         );
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 

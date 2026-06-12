@@ -1,15 +1,17 @@
-// path: lib/admin/providers/active_customer_provider.dart
+// path: lib/admin/providers/pelanggan_aktif_provider.dart
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/data/services/navigasi_servis.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
-part 'active_customer_provider.g.dart';
+part 'pelanggan_aktif_provider.g.dart';
+part 'pelanggan_aktif_provider.freezed.dart';
 
 enum SortOption {
   berakhirHariIni,
@@ -23,30 +25,19 @@ enum SortOption {
   namaZA,
 }
 
-class ActiveCustomerState {
-  final List<ActiveCustomerDetailModel> activeCustomers;
-  final SortOption sortBy;
-
-  ActiveCustomerState({
-    this.activeCustomers = const [],
-    this.sortBy = SortOption.berakhirHariIni,
-  });
-
-  ActiveCustomerState copyWith({
-    List<ActiveCustomerDetailModel>? activeCustomers,
-    SortOption? sortBy,
-  }) {
-    return ActiveCustomerState(
-      activeCustomers: activeCustomers ?? this.activeCustomers,
-      sortBy: sortBy ?? this.sortBy,
-    );
-  }
+@freezed
+abstract class PelangganAktifState with _$PelangganAktifState {
+  const factory PelangganAktifState({
+    @Default([]) List<ActiveCustomerDetailModel> daftarPelangganAktif,
+    @Default(SortOption.berakhirHariIni) SortOption sortBy,
+  }) = _PelangganAktifState;
 }
 
 @riverpod
-class ActiveCustomer extends _$ActiveCustomer {
+class PelangganAktif extends _$PelangganAktif {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   @override
-  FutureOr<ActiveCustomerState> build() {
+  FutureOr<PelangganAktifState> build() {
     return _loadData();
   }
 
@@ -119,14 +110,14 @@ class ActiveCustomer extends _$ActiveCustomer {
     return sorted;
   }
 
-  Future<ActiveCustomerState> _loadData() async {
+  Future<PelangganAktifState> _loadData() async {
     final operation = ref.watch(activeCustomerOperationProvider);
     final results = await Future.wait([
       operation.getAllActiveCustomersWithDetails(),
     ]);
 
-    return ActiveCustomerState(
-      activeCustomers: results[0],
+    return PelangganAktifState(
+      daftarPelangganAktif: results[0],
     );
   }
 
@@ -138,12 +129,12 @@ class ActiveCustomer extends _$ActiveCustomer {
       final operation = ref.read(activeCustomerOperationProvider);
       final data = await operation.getAllActiveCustomersWithDetails();
       final sortedData = _sortData(data, currentSortBy);
-      state = AsyncValue.data(ActiveCustomerState(
-          activeCustomers: sortedData, sortBy: currentSortBy));
+      state = AsyncValue.data(PelangganAktifState(
+          daftarPelangganAktif: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil data pelanggan aktif.', e: e, st: st);
-      final context = NavigasiServis.navigatorKey.currentContext;
-      if (context != null) {
+      final context = navigatorKey.currentContext;
+      if (context!.mounted) {
         ToastUtil.error(context, 'Gagal memuat data pelanggan aktif.');
       } else {
         Log.warning('Context tidak tersedia saat menampilkan error toast.');
@@ -159,11 +150,10 @@ class ActiveCustomer extends _$ActiveCustomer {
       return;
     }
 
-    final pelangganTerurut =
-        _sortData(currentState.activeCustomers, urutanBaru);
+    final pelangganTerurut = _sortData(currentState.daftarPelangganAktif, urutanBaru);
     state = AsyncValue.data(
       currentState.copyWith(
-        activeCustomers: pelangganTerurut,
+        daftarPelangganAktif: pelangganTerurut,
         sortBy: urutanBaru,
       ),
     );

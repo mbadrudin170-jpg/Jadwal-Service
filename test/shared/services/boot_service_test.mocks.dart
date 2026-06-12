@@ -28,9 +28,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDatabaseHelper_0 extends _i1.SmartFake
+class _FakeSqliteDatabase_0 extends _i1.SmartFake
     implements _i2.SqliteDatabase {
-  _FakeDatabaseHelper_0(
+  _FakeSqliteDatabase_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -39,9 +39,9 @@ class _FakeDatabaseHelper_0 extends _i1.SmartFake
         );
 }
 
-class _FakeActiveCustomerModel_1 extends _i1.SmartFake
-    implements _i3.ActiveCustomerModel {
-  _FakeActiveCustomerModel_1(
+class _FakePelangganAktifModel_1 extends _i1.SmartFake
+    implements _i3.PelangganAktifModel {
+  _FakePelangganAktifModel_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -158,7 +158,7 @@ class MockActiveCustomerOperation extends _i1.Mock
   @override
   _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_0(
+        returnValue: _FakeSqliteDatabase_0(
           this,
           Invocation.getter(#dbHelper),
         ),
@@ -186,8 +186,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           ) as _i5.Future<List<_i7.ActiveCustomerDetailModel>>);
 
   @override
-  _i5.Future<_i3.ActiveCustomerModel> createActiveCustomer(
-    _i3.ActiveCustomerModel? activeCustomer, {
+  _i5.Future<_i3.PelangganAktifModel> createActiveCustomer(
+    _i3.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -196,8 +196,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           [activeCustomer],
           {#fromServer: fromServer},
         ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_1(
+        returnValue: _i5.Future<_i3.PelangganAktifModel>.value(
+            _FakePelangganAktifModel_1(
           this,
           Invocation.method(
             #createActiveCustomer,
@@ -205,32 +205,32 @@ class MockActiveCustomerOperation extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i5.Future<_i3.ActiveCustomerModel>);
+      ) as _i5.Future<_i3.PelangganAktifModel>);
 
   @override
-  _i5.Future<List<_i3.ActiveCustomerModel>> getAllActiveCustomers() =>
+  _i5.Future<List<_i3.PelangganAktifModel>> getAllActiveCustomers() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveCustomers,
           [],
         ),
-        returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
-            <_i3.ActiveCustomerModel>[]),
-      ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
+        returnValue: _i5.Future<List<_i3.PelangganAktifModel>>.value(
+            <_i3.PelangganAktifModel>[]),
+      ) as _i5.Future<List<_i3.PelangganAktifModel>>);
 
   @override
-  _i5.Future<_i3.ActiveCustomerModel?> getActiveCustomerById(String? id) =>
+  _i5.Future<_i3.PelangganAktifModel?> getActiveCustomerById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getActiveCustomerById,
           [id],
         ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel?>.value(),
-      ) as _i5.Future<_i3.ActiveCustomerModel?>);
+        returnValue: _i5.Future<_i3.PelangganAktifModel?>.value(),
+      ) as _i5.Future<_i3.PelangganAktifModel?>);
 
   @override
-  _i5.Future<_i3.ActiveCustomerModel> updateActiveCustomer(
-    _i3.ActiveCustomerModel? activeCustomer, {
+  _i5.Future<_i3.PelangganAktifModel> updateActiveCustomer(
+    _i3.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -239,8 +239,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           [activeCustomer],
           {#fromServer: fromServer},
         ),
-        returnValue: _i5.Future<_i3.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_1(
+        returnValue: _i5.Future<_i3.PelangganAktifModel>.value(
+            _FakePelangganAktifModel_1(
           this,
           Invocation.method(
             #updateActiveCustomer,
@@ -248,11 +248,11 @@ class MockActiveCustomerOperation extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i5.Future<_i3.ActiveCustomerModel>);
+      ) as _i5.Future<_i3.PelangganAktifModel>);
 
   @override
   _i5.Future<void> scheduleNotification(
-          _i3.ActiveCustomerModel? activeCustomer) =>
+          _i3.PelangganAktifModel? activeCustomer) =>
       (super.noSuchMethod(
         Invocation.method(
           #scheduleNotification,
@@ -264,7 +264,7 @@ class MockActiveCustomerOperation extends _i1.Mock
 
   @override
   _i5.Future<void> insertOrUpdateBatch(
-    List<_i3.ActiveCustomerModel>? items, {
+    List<_i3.PelangganAktifModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -328,14 +328,14 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i5.Future<int>);
 
   @override
-  _i5.Future<List<_i3.ActiveCustomerModel>> ambilBerdasarkanIds(
+  _i5.Future<List<_i3.PelangganAktifModel>> ambilBerdasarkanIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomersByIds,
+          #ambilBerdasarkanIds,
           [ids],
         ),
-        returnValue: _i5.Future<List<_i3.ActiveCustomerModel>>.value(
-            <_i3.ActiveCustomerModel>[]),
-      ) as _i5.Future<List<_i3.ActiveCustomerModel>>);
+        returnValue: _i5.Future<List<_i3.PelangganAktifModel>>.value(
+            <_i3.PelangganAktifModel>[]),
+      ) as _i5.Future<List<_i3.PelangganAktifModel>>);
 }

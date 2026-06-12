@@ -89,7 +89,7 @@ class TransactionOperation {
 
   /// Menambahkan transaksi baru ke database dan memperbarui saldo dompet terkait.
   Future<int> addTransaction(
-    final TransactionModel transaction, {
+    final TransaksiModel transaction, {
     final bool fromServer = false,
   }) async {
     try {
@@ -127,7 +127,7 @@ class TransactionOperation {
   }
 
   /// Mengambil semua transaksi yang tidak dihapus dari database.
-  Future<List<TransactionModel>> getAllTransactions() async {
+  Future<List<TransaksiModel>> getAllTransactions() async {
     try {
       Log.info('Mengambil data semua transaksi dari SQLite');
       final db = await dbHelper.database;
@@ -140,7 +140,7 @@ class TransactionOperation {
 
       Log.info('Berhasil mengambil ${maps.length} data transaksi dari SQLite');
       return List.generate(maps.length, (final i) {
-        return TransactionModel.fromSqlite(maps[i]);
+        return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil semua transaksi', e: e, st: st);
@@ -149,7 +149,7 @@ class TransactionOperation {
   }
 
   /// Mengambil satu transaksi berdasarkan ID-nya.
-  Future<TransactionModel?> getTransactionById(final String id) async {
+  Future<TransaksiModel?> getById(final String id) async {
     try {
       final db = await _db;
       Log.info('Mencari transaksi berdasarkan ID: $id');
@@ -166,7 +166,7 @@ class TransactionOperation {
       }
 
       Log.info('Transaksi ID: $id ditemukan');
-      return TransactionModel.fromSqlite(maps.first);
+      return TransaksiModel.fromSqlite(maps.first);
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil transaksi ID: $id', e: e, st: st);
       return null;
@@ -174,7 +174,7 @@ class TransactionOperation {
   }
 
   /// Mengambil transaksi lunas terbaru dari seorang pengguna.
-  Future<TransactionModel?> getLatestPaidTransactionByUserId(
+  Future<TransaksiModel?> getLatestPaidTransactionByUserId(
       final String customerId) async {
     try {
       final db = await _db;
@@ -198,7 +198,7 @@ class TransactionOperation {
 
       Log.info(
           'Transaksi lunas terbaru ditemukan untuk pengguna ID: $customerId');
-      return TransactionModel.fromSqlite(maps.first);
+      return TransaksiModel.fromSqlite(maps.first);
     } on Exception catch (e, st) {
       Log.error(
           'Gagal mengambil transaksi lunas terbaru untuk pengguna ID: $customerId',
@@ -209,7 +209,7 @@ class TransactionOperation {
   }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransactionModel>> getByIdPelanggan(
+  Future<List<TransaksiModel>> getByIdPelanggan(
     final String customerId,
   ) async {
     try {
@@ -224,7 +224,7 @@ class TransactionOperation {
       Log.info(
           'Ditemukan ${maps.length} transaksi untuk Customer ID: $customerId');
       return List.generate(maps.length, (i) {
-        return TransactionModel.fromSqlite(maps[i]);
+        return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Error ambil transaksi customer', e: e, st: st);
@@ -233,7 +233,7 @@ class TransactionOperation {
   }
 
   /// Mengambil semua transaksi yang terkait dengan sebuah dompet (baik sebagai sumber maupun tujuan).
-  Future<List<TransactionModel>> getTransactionsByWalletId(
+  Future<List<TransaksiModel>> getTransactionsByWalletId(
       final String walletId) async {
     try {
       final db = await _db;
@@ -247,7 +247,7 @@ class TransactionOperation {
       );
       Log.info('Ditemukan ${maps.length} transaksi untuk Wallet ID: $walletId');
       return List.generate(maps.length, (final i) {
-        return TransactionModel.fromSqlite(maps[i]);
+        return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Error ambil transaksi wallet', e: e, st: st);
@@ -256,7 +256,7 @@ class TransactionOperation {
   }
 
   /// Mengambil semua transaksi yang merupakan aktivasi paket.
-  Future<List<TransactionModel>> getTransactionsByPackageActivation() async {
+  Future<List<TransaksiModel>> getTransactionsByPackageActivation() async {
     try {
       final db = await _db;
       Log.info('Mengambil transaksi dengan status isActivated = 1');
@@ -268,7 +268,7 @@ class TransactionOperation {
       );
       Log.info('Berhasil mengambil ${maps.length} transaksi aktivasi paket');
       return List.generate(maps.length, (final i) {
-        return TransactionModel.fromSqlite(maps[i]);
+        return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Error saat mengambil transaksi aktivasi paket', e: e, st: st);
@@ -279,7 +279,7 @@ class TransactionOperation {
   /// Memperbarui data transaksi yang ada dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> updateTransaction(
     final String id,
-    final TransactionModel newTransaction, {
+    final TransaksiModel newTransaction, {
     final bool fromServer = false,
   }) async {
     try {
@@ -290,7 +290,7 @@ class TransactionOperation {
               .query(_tableName, where: '${NamaKolom.id} = ?', whereArgs: [id]);
 
           if (maps.isNotEmpty) {
-            final oldTransaction = TransactionModel.fromSqlite(maps.first);
+            final oldTransaction = TransaksiModel.fromSqlite(maps.first);
             final updateData = newTransaction.copyWith(updatedAt: _nowUtc);
             await txn.update(_tableName, updateData.toSqlite(),
                 where: '${NamaKolom.id} = ?', whereArgs: [id]);
@@ -341,7 +341,7 @@ class TransactionOperation {
             return;
           }
 
-          final oldTransaction = TransactionModel.fromSqlite(maps.first);
+          final oldTransaction = TransaksiModel.fromSqlite(maps.first);
           await txn.update(
             _tableName,
             {
@@ -506,7 +506,7 @@ class TransactionOperation {
 
   /// Memasukkan atau memperbarui beberapa transaksi sekaligus (batch) dan menghitung ulang saldo dompet yang terpengaruh.
   Future<void> insertOrUpdateBatch(
-    final List<TransactionModel> items, {
+    final List<TransaksiModel> items, {
     final bool fromServer = false,
   }) async {
     if (items.isEmpty) {
@@ -550,7 +550,7 @@ class TransactionOperation {
   }
 
   /// Mengambil beberapa transaksi berdasarkan daftar ID.
-  Future<List<TransactionModel>> getTransactionsByIds(
+  Future<List<TransaksiModel>> getTransactionsByIds(
       final List<String> ids) async {
     if (ids.isEmpty) {
       Log.warning('Pencarian Batch ID dibatalkan karena list ID kosong');
@@ -567,7 +567,7 @@ class TransactionOperation {
       );
       Log.info('Berhasil mengambil ${maps.length} transaksi dari list ID');
       return List.generate(maps.length, (final i) {
-        return TransactionModel.fromSqlite(maps[i]);
+        return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
       Log.error('Error saat ambil transaksi by IDs', e: e, st: st);

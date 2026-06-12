@@ -76,11 +76,11 @@ class _FakeBatch_4 extends _i1.SmartFake implements _i2.Batch {
         );
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i4.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -120,11 +120,11 @@ class MockDatabaseHelper extends _i1.Mock implements _i4.SqliteDatabase {
       ) as _i3.Future<void>);
 }
 
-/// A class which mocks [BaseOperation].
+/// A class which mocks [BaseOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
-  MockBaseOperation() {
+class MockBaseOpSqlite extends _i1.Mock implements _i5.BaseOpSqlite {
+  MockBaseOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -177,12 +177,12 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #insert,
+          #sisipkan,
           [
             table,
             data,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -203,7 +203,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
             data,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -222,7 +222,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -236,12 +236,12 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
+          #hapusSementara,
           [
             table,
             id,
           ],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -254,9 +254,9 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOpSqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDeleteAll,
+          #hapusSementaraSemua,
           [table],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);

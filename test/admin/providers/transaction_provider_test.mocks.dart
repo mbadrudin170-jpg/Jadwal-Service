@@ -27,9 +27,9 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeDatabaseHelper_0 extends _i1.SmartFake
+class _FakeSqliteDatabase_0 extends _i1.SmartFake
     implements _i2.SqliteDatabase {
-  _FakeDatabaseHelper_0(
+  _FakeSqliteDatabase_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -38,8 +38,8 @@ class _FakeDatabaseHelper_0 extends _i1.SmartFake
         );
 }
 
-class _FakeBaseOperation_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
-  _FakeBaseOperation_1(
+class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
+  _FakeBaseOpSqlite_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -56,11 +56,11 @@ class MockTransactionOperation extends _i1.Mock
   @override
   _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_0(
+        returnValue: _FakeSqliteDatabase_0(
           this,
           Invocation.getter(#dbHelper),
         ),
-        returnValueForMissingStub: _FakeDatabaseHelper_0(
+        returnValueForMissingStub: _FakeSqliteDatabase_0(
           this,
           Invocation.getter(#dbHelper),
         ),
@@ -69,11 +69,11 @@ class MockTransactionOperation extends _i1.Mock
   @override
   _i3.BaseOpSqlite get baseOperation => (super.noSuchMethod(
         Invocation.getter(#baseOperation),
-        returnValue: _FakeBaseOperation_1(
+        returnValue: _FakeBaseOpSqlite_1(
           this,
           Invocation.getter(#baseOperation),
         ),
-        returnValueForMissingStub: _FakeBaseOperation_1(
+        returnValueForMissingStub: _FakeBaseOpSqlite_1(
           this,
           Invocation.getter(#baseOperation),
         ),
@@ -81,7 +81,7 @@ class MockTransactionOperation extends _i1.Mock
 
   @override
   _i5.Future<int> addTransaction(
-    _i6.TransactionModel? transaction, {
+    _i6.TransaksiModel? transaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -95,85 +95,84 @@ class MockTransactionOperation extends _i1.Mock
       ) as _i5.Future<int>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getAllTransactions() =>
+  _i5.Future<List<_i6.TransaksiModel>> getAllTransactions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllTransactions,
           [],
         ),
-        returnValue: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-        returnValueForMissingStub: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-      ) as _i5.Future<List<_i6.TransactionModel>>);
+        returnValue:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+      ) as _i5.Future<List<_i6.TransaksiModel>>);
 
   @override
-  _i5.Future<_i6.TransactionModel?> getTransactionById(String? id) =>
-      (super.noSuchMethod(
+  _i5.Future<_i6.TransaksiModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
-          #getTransactionById,
+          #getById,
           [id],
         ),
-        returnValue: _i5.Future<_i6.TransactionModel?>.value(),
-        returnValueForMissingStub: _i5.Future<_i6.TransactionModel?>.value(),
-      ) as _i5.Future<_i6.TransactionModel?>);
+        returnValue: _i5.Future<_i6.TransaksiModel?>.value(),
+        returnValueForMissingStub: _i5.Future<_i6.TransaksiModel?>.value(),
+      ) as _i5.Future<_i6.TransaksiModel?>);
 
   @override
-  _i5.Future<_i6.TransactionModel?> getLatestPaidTransactionByUserId(
+  _i5.Future<_i6.TransaksiModel?> getLatestPaidTransactionByUserId(
           String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getLatestPaidTransactionByUserId,
           [customerId],
         ),
-        returnValue: _i5.Future<_i6.TransactionModel?>.value(),
-        returnValueForMissingStub: _i5.Future<_i6.TransactionModel?>.value(),
-      ) as _i5.Future<_i6.TransactionModel?>);
+        returnValue: _i5.Future<_i6.TransaksiModel?>.value(),
+        returnValueForMissingStub: _i5.Future<_i6.TransaksiModel?>.value(),
+      ) as _i5.Future<_i6.TransaksiModel?>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getByIdPelanggan(String? customerId) =>
+  _i5.Future<List<_i6.TransaksiModel>> getByIdPelanggan(String? customerId) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getTransactionsByCustomerId,
+          #getByIdPelanggan,
           [customerId],
         ),
-        returnValue: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-        returnValueForMissingStub: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-      ) as _i5.Future<List<_i6.TransactionModel>>);
+        returnValue:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+      ) as _i5.Future<List<_i6.TransaksiModel>>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getTransactionsByWalletId(
+  _i5.Future<List<_i6.TransaksiModel>> getTransactionsByWalletId(
           String? walletId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByWalletId,
           [walletId],
         ),
-        returnValue: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-        returnValueForMissingStub: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-      ) as _i5.Future<List<_i6.TransactionModel>>);
+        returnValue:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+      ) as _i5.Future<List<_i6.TransaksiModel>>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getTransactionsByPackageActivation() =>
+  _i5.Future<List<_i6.TransaksiModel>> getTransactionsByPackageActivation() =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByPackageActivation,
           [],
         ),
-        returnValue: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-        returnValueForMissingStub: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-      ) as _i5.Future<List<_i6.TransactionModel>>);
+        returnValue:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+      ) as _i5.Future<List<_i6.TransaksiModel>>);
 
   @override
   _i5.Future<void> updateTransaction(
     String? id,
-    _i6.TransactionModel? newTransaction, {
+    _i6.TransaksiModel? newTransaction, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -278,7 +277,7 @@ class MockTransactionOperation extends _i1.Mock
 
   @override
   _i5.Future<void> insertOrUpdateBatch(
-    List<_i6.TransactionModel>? items, {
+    List<_i6.TransaksiModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -292,16 +291,16 @@ class MockTransactionOperation extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i6.TransactionModel>> getTransactionsByIds(
+  _i5.Future<List<_i6.TransaksiModel>> getTransactionsByIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTransactionsByIds,
           [ids],
         ),
-        returnValue: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-        returnValueForMissingStub: _i5.Future<List<_i6.TransactionModel>>.value(
-            <_i6.TransactionModel>[]),
-      ) as _i5.Future<List<_i6.TransactionModel>>);
+        returnValue:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i6.TransaksiModel>>.value(<_i6.TransaksiModel>[]),
+      ) as _i5.Future<List<_i6.TransaksiModel>>);
 }

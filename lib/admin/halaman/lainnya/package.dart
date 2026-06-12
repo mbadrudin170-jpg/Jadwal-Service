@@ -4,13 +4,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/package_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -61,7 +61,7 @@ class PackagePage extends ConsumerWidget {
           }
 
           // Kinerja optimal: Salin & urutkan list di sini aman karena ditangani asinkron reaktif
-          final sortedList = List<PackageModel>.from(paketList);
+          final sortedList = List<PaketModel>.from(paketList);
           _urutkanList(sortedList, urutanSaatIni);
 
           return ListView.builder(
@@ -73,7 +73,7 @@ class PackagePage extends ConsumerWidget {
                   await Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (context) => PackageDetailPage(paket: paket),
+                      builder: (context) => DetailPaket(paket: paket),
                     ),
                   );
                 },
@@ -115,7 +115,7 @@ class PackagePage extends ConsumerWidget {
 
 // --- FUNGSI UTAS / HELPER DI LUAR WIDGET CLASS ---
 
-void _urutkanList(List<PackageModel> paketList, UrutanPaket urutan) {
+void _urutkanList(List<PaketModel> paketList, UrutanPaket urutan) {
   switch (urutan) {
     case UrutanPaket.namaAZ:
       paketList
@@ -148,7 +148,7 @@ void _urutkanList(List<PackageModel> paketList, UrutanPaket urutan) {
   }
 }
 
-int _getDurationInMinutes(PackageModel paket) {
+int _getDurationInMinutes(PaketModel paket) {
   switch (paket.type) {
     case DurationType.minutes:
       return paket.duration;
@@ -209,7 +209,7 @@ Future<void> _tampilkanDialogUrutkan(
 }
 
 Future<void> _showEditDeleteDialog(
-    BuildContext context, WidgetRef ref, PackageModel paket) async {
+    BuildContext context, WidgetRef ref, PaketModel paket) async {
   await showDialog<void>(
     context: context,
     builder: (dialogContext) {
@@ -243,7 +243,7 @@ Future<void> _showEditDeleteDialog(
 }
 
 Future<void> _showDeleteConfirmationDialog(
-    BuildContext context, WidgetRef ref, PackageModel paket) async {
+    BuildContext context, WidgetRef ref, PaketModel paket) async {
   final paketOperasi = ref.read(packageOperationProvider);
 
   await showDialog<void>(

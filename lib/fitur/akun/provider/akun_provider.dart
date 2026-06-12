@@ -11,8 +11,8 @@ part 'akun_provider.freezed.dart';
 @freezed
 abstract class AkunState with _$AkunState {
   const factory AkunState({
-    CustomerModel? akunSaatIni,
-    @Default([]) List<CustomerModel> daftarAkunTersimpan,
+    PelangganModel? akunSaatIni,
+    @Default([]) List<PelangganModel> daftarAkunTersimpan,
   }) = _AkunState;
 }
 
@@ -31,7 +31,7 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   // 1. Login / simpan akun
-  Future<void> login(CustomerModel akun) async {
+  Future<void> login(PelangganModel akun) async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
 
     await penyimpanan.simpanAkunSaatIni(akun);
@@ -56,17 +56,16 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   // 3. Hapus akun tertentu dari daftar
-  Future<void> hapusAkun(String idAkun) async {
+  Future<void> hapusAkun(String id) async {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
 
     final keadaanSaatIni = state.value;
     if (keadaanSaatIni == null) return;
 
-    await penyimpanan.hapusAkun(idAkun);
-    final daftarBaru = keadaanSaatIni.daftarAkunTersimpan
-        .where((a) => a.id != idAkun)
-        .toList();
-    final akunBaru = keadaanSaatIni.akunSaatIni?.id == idAkun
+    await penyimpanan.hapusAkun(id);
+    final daftarBaru =
+        keadaanSaatIni.daftarAkunTersimpan.where((a) => a.id != id).toList();
+    final akunBaru = keadaanSaatIni.akunSaatIni?.id == id
         ? null
         : keadaanSaatIni.akunSaatIni;
     state = AsyncValue.data(AkunState(

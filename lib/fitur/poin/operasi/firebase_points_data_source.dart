@@ -2,7 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
@@ -25,13 +25,12 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   }
 
   @override
-  Future<List<PackageModel>> getPublicPackages() {
+  Future<List<PaketModel>> getPublicPackages() {
     return _packageOpFirebase.ambilPaketPublik();
   }
 
   @override
-  Future<List<TransactionModel>> getPointsTransactions(
-      String customerId) async {
+  Future<List<TransaksiModel>> getPointsTransactions(String customerId) async {
     final history =
         await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customerId);
     return history
@@ -40,7 +39,7 @@ class FirebasePointsDataSource implements PointsPageDataSource {
   }
 
   @override
-  Future<PackageModel?> getPaketByid(String packageId) {
+  Future<PaketModel?> getPaketByid(String packageId) {
     return _packageOpFirebase.ambilBerdasarkanId(packageId);
   }
 

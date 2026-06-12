@@ -21,7 +21,7 @@ void main() {
   });
 
   // Data model transaksi untuk digunakan dalam tes
-  final t1 = TransactionModel(
+  final t1 = TransaksiModel(
     id: 'trx-001',
     customerId: 'cust-123',
     date: DateTime.now(),
@@ -35,7 +35,7 @@ void main() {
     earnedPoints: 10,
   );
 
-  final t2 = TransactionModel(
+  final t2 = TransaksiModel(
     id: 'trx-002',
     customerId: 'cust-123',
     date: DateTime.now(),
@@ -50,7 +50,7 @@ void main() {
     usedPoints: 5,
   );
 
-  final t3 = TransactionModel(
+  final t3 = TransaksiModel(
     id: 'trx-003',
     customerId: 'cust-456',
     date: DateTime.now(),
@@ -132,7 +132,7 @@ void main() {
 
         // Data Transaksi
         // 1. Lunas, tidak dihapus -> Dihitung (100 - 10 = 90)
-        final trx1 = TransactionModel(
+        final trx1 = TransaksiModel(
             id: 'trx-p1',
             customerId: customerId,
             paymentStatus: PaymentStatus.paid,
@@ -146,7 +146,7 @@ void main() {
             categoryId: '');
 
         // 2. Lunas, tidak dihapus -> Dihitung (50 - 5 = 45)
-        final trx2 = TransactionModel(
+        final trx2 = TransaksiModel(
             id: 'trx-p2',
             customerId: customerId,
             paymentStatus: PaymentStatus.paid,
@@ -160,7 +160,7 @@ void main() {
             categoryId: '');
 
         // 3. Belum lunas -> Diabaikan
-        final trx3 = TransactionModel(
+        final trx3 = TransaksiModel(
             id: 'trx-p3',
             customerId: customerId,
             earnedPoints: 200,
@@ -172,7 +172,7 @@ void main() {
             categoryId: '');
 
         // 4. Lunas, tapi soft deleted -> Diabaikan
-        final trx4 = TransactionModel(
+        final trx4 = TransaksiModel(
             id: 'trx-p4',
             customerId: customerId,
             paymentStatus: PaymentStatus.paid,
@@ -186,7 +186,7 @@ void main() {
             categoryId: '');
 
         // 5. Lunas, tidak dihapus, tapi beda customer -> Diabaikan
-        final trx5 = TransactionModel(
+        final trx5 = TransaksiModel(
             id: 'trx-p5',
             customerId: 'cust-other',
             paymentStatus: PaymentStatus.paid,

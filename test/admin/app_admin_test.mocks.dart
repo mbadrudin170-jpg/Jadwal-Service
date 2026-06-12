@@ -59,9 +59,9 @@ class _FakeFlutterLocalNotificationsPlugin_0 extends _i1.SmartFake
         );
 }
 
-class _FakeDatabaseHelper_1 extends _i1.SmartFake
+class _FakeSqliteDatabase_1 extends _i1.SmartFake
     implements _i3.SqliteDatabase {
-  _FakeDatabaseHelper_1(
+  _FakeSqliteDatabase_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -70,9 +70,9 @@ class _FakeDatabaseHelper_1 extends _i1.SmartFake
         );
 }
 
-class _FakeActiveCustomerModel_2 extends _i1.SmartFake
-    implements _i4.ActiveCustomerModel {
-  _FakeActiveCustomerModel_2(
+class _FakePelangganAktifModel_2 extends _i1.SmartFake
+    implements _i4.PelangganAktifModel {
+  _FakePelangganAktifModel_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -543,11 +543,12 @@ class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
       ) as _i7.Future<bool>);
 }
 
-/// A class which mocks [LayananUnduhAwal].
+/// A class which mocks [UnduhanAwalService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLayananUnduhAwal extends _i1.Mock implements _i12.UnduhanAwalService {
-  MockLayananUnduhAwal() {
+class MockUnduhanAwalService extends _i1.Mock
+    implements _i12.UnduhanAwalService {
+  MockUnduhanAwalService() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -574,7 +575,7 @@ class MockActiveCustomerOperation extends _i1.Mock
   @override
   _i3.SqliteDatabase get dbHelper => (super.noSuchMethod(
         Invocation.getter(#dbHelper),
-        returnValue: _FakeDatabaseHelper_1(
+        returnValue: _FakeSqliteDatabase_1(
           this,
           Invocation.getter(#dbHelper),
         ),
@@ -602,8 +603,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           ) as _i7.Future<List<_i14.ActiveCustomerDetailModel>>);
 
   @override
-  _i7.Future<_i4.ActiveCustomerModel> createActiveCustomer(
-    _i4.ActiveCustomerModel? activeCustomer, {
+  _i7.Future<_i4.PelangganAktifModel> createActiveCustomer(
+    _i4.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -612,8 +613,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           [activeCustomer],
           {#fromServer: fromServer},
         ),
-        returnValue: _i7.Future<_i4.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_2(
+        returnValue: _i7.Future<_i4.PelangganAktifModel>.value(
+            _FakePelangganAktifModel_2(
           this,
           Invocation.method(
             #createActiveCustomer,
@@ -621,32 +622,32 @@ class MockActiveCustomerOperation extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i7.Future<_i4.ActiveCustomerModel>);
+      ) as _i7.Future<_i4.PelangganAktifModel>);
 
   @override
-  _i7.Future<List<_i4.ActiveCustomerModel>> getAllActiveCustomers() =>
+  _i7.Future<List<_i4.PelangganAktifModel>> getAllActiveCustomers() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveCustomers,
           [],
         ),
-        returnValue: _i7.Future<List<_i4.ActiveCustomerModel>>.value(
-            <_i4.ActiveCustomerModel>[]),
-      ) as _i7.Future<List<_i4.ActiveCustomerModel>>);
+        returnValue: _i7.Future<List<_i4.PelangganAktifModel>>.value(
+            <_i4.PelangganAktifModel>[]),
+      ) as _i7.Future<List<_i4.PelangganAktifModel>>);
 
   @override
-  _i7.Future<_i4.ActiveCustomerModel?> getActiveCustomerById(String? id) =>
+  _i7.Future<_i4.PelangganAktifModel?> getActiveCustomerById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getActiveCustomerById,
           [id],
         ),
-        returnValue: _i7.Future<_i4.ActiveCustomerModel?>.value(),
-      ) as _i7.Future<_i4.ActiveCustomerModel?>);
+        returnValue: _i7.Future<_i4.PelangganAktifModel?>.value(),
+      ) as _i7.Future<_i4.PelangganAktifModel?>);
 
   @override
-  _i7.Future<_i4.ActiveCustomerModel> updateActiveCustomer(
-    _i4.ActiveCustomerModel? activeCustomer, {
+  _i7.Future<_i4.PelangganAktifModel> updateActiveCustomer(
+    _i4.PelangganAktifModel? activeCustomer, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -655,8 +656,8 @@ class MockActiveCustomerOperation extends _i1.Mock
           [activeCustomer],
           {#fromServer: fromServer},
         ),
-        returnValue: _i7.Future<_i4.ActiveCustomerModel>.value(
-            _FakeActiveCustomerModel_2(
+        returnValue: _i7.Future<_i4.PelangganAktifModel>.value(
+            _FakePelangganAktifModel_2(
           this,
           Invocation.method(
             #updateActiveCustomer,
@@ -664,11 +665,11 @@ class MockActiveCustomerOperation extends _i1.Mock
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i7.Future<_i4.ActiveCustomerModel>);
+      ) as _i7.Future<_i4.PelangganAktifModel>);
 
   @override
   _i7.Future<void> scheduleNotification(
-          _i4.ActiveCustomerModel? activeCustomer) =>
+          _i4.PelangganAktifModel? activeCustomer) =>
       (super.noSuchMethod(
         Invocation.method(
           #scheduleNotification,
@@ -680,7 +681,7 @@ class MockActiveCustomerOperation extends _i1.Mock
 
   @override
   _i7.Future<void> insertOrUpdateBatch(
-    List<_i4.ActiveCustomerModel>? items, {
+    List<_i4.PelangganAktifModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -744,25 +745,34 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i7.Future<int>);
 
   @override
-  _i7.Future<List<_i4.ActiveCustomerModel>> ambilBerdasarkanIds(
+  _i7.Future<List<_i4.PelangganAktifModel>> ambilBerdasarkanIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getActiveCustomersByIds,
+          #ambilBerdasarkanIds,
           [ids],
         ),
-        returnValue: _i7.Future<List<_i4.ActiveCustomerModel>>.value(
-            <_i4.ActiveCustomerModel>[]),
-      ) as _i7.Future<List<_i4.ActiveCustomerModel>>);
+        returnValue: _i7.Future<List<_i4.PelangganAktifModel>>.value(
+            <_i4.PelangganAktifModel>[]),
+      ) as _i7.Future<List<_i4.PelangganAktifModel>>);
 }
 
-/// A class which mocks [SettingsOperation].
+/// A class which mocks [SettingsOpSqlite].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOpSqlite {
-  MockSettingsOperation() {
+class MockSettingsOpSqlite extends _i1.Mock implements _i15.SettingsOpSqlite {
+  MockSettingsOpSqlite() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  _i3.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
+        returnValue: _FakeSqliteDatabase_1(
+          this,
+          Invocation.getter(#sqliteDb),
+        ),
+      ) as _i3.SqliteDatabase);
 
   @override
   _i7.Future<_i4.SettingsModel> getSettings() => (super.noSuchMethod(
@@ -795,15 +805,15 @@ class MockSettingsOperation extends _i1.Mock implements _i15.SettingsOpSqlite {
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<void> update(
+  _i7.Future<void> updateSettings(
     Map<String, dynamic>? data, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #update,
+          #updateSettings,
           [data],
-          {#fromServer: dariServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i7.Future<void>.value(),
         returnValueForMissingStub: _i7.Future<void>.value(),
@@ -846,11 +856,11 @@ class MockDataCleaningOperation extends _i1.Mock
       ) as _i7.Future<int>);
 }
 
-/// A class which mocks [DatabaseHelper].
+/// A class which mocks [SqliteDatabase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseHelper extends _i1.Mock implements _i3.SqliteDatabase {
-  MockDatabaseHelper() {
+class MockSqliteDatabase extends _i1.Mock implements _i3.SqliteDatabase {
+  MockSqliteDatabase() {
     _i1.throwOnMissingStub(this);
   }
 
@@ -976,7 +986,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i7.Future<_i19.ThemeMode>);
 
   @override
-  _i7.Future<void> simpanAkun(_i4.CustomerModel? pelanggan) =>
+  _i7.Future<void> simpanAkun(_i4.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanAkun,
@@ -987,7 +997,7 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<void> simpanAkunSaatIni(_i4.CustomerModel? pelanggan) =>
+  _i7.Future<void> simpanAkunSaatIni(_i4.PelangganModel? pelanggan) =>
       (super.noSuchMethod(
         Invocation.method(
           #simpanAkunSaatIni,
@@ -998,14 +1008,14 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<List<_i4.CustomerModel>> ambilDaftarAkun() => (super.noSuchMethod(
+  _i7.Future<List<_i4.PelangganModel>> ambilDaftarAkun() => (super.noSuchMethod(
         Invocation.method(
           #ambilDaftarAkun,
           [],
         ),
         returnValue:
-            _i7.Future<List<_i4.CustomerModel>>.value(<_i4.CustomerModel>[]),
-      ) as _i7.Future<List<_i4.CustomerModel>>);
+            _i7.Future<List<_i4.PelangganModel>>.value(<_i4.PelangganModel>[]),
+      ) as _i7.Future<List<_i4.PelangganModel>>);
 
   @override
   _i7.Future<void> hapusAkun(String? idPengguna) => (super.noSuchMethod(
@@ -1038,13 +1048,13 @@ class MockLayananPenyimpananLokal extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i4.CustomerModel?> ambilAkunLogin() => (super.noSuchMethod(
+  _i7.Future<_i4.PelangganModel?> ambilAkunLogin() => (super.noSuchMethod(
         Invocation.method(
           #ambilAkunLogin,
           [],
         ),
-        returnValue: _i7.Future<_i4.CustomerModel?>.value(),
-      ) as _i7.Future<_i4.CustomerModel?>);
+        returnValue: _i7.Future<_i4.PelangganModel?>.value(),
+      ) as _i7.Future<_i4.PelangganModel?>);
 
   @override
   _i7.Future<void> hapusSemuaData() => (super.noSuchMethod(

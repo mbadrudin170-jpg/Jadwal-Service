@@ -3,7 +3,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
@@ -24,12 +24,12 @@ class SQLitePointsDataSource implements PointsPageDataSource {
   }
 
   @override
-  Future<List<PackageModel>> getPublicPackages() {
+  Future<List<PaketModel>> getPublicPackages() {
     return _packageOperation.getPaketPublic();
   }
 
   @override
-  Future<List<TransactionModel>> getPointsTransactions(
+  Future<List<TransaksiModel>> getPointsTransactions(
       final String customerId) async {
     final history = await _transactionOperation.getByIdPelanggan(customerId);
     return history
@@ -38,8 +38,8 @@ class SQLitePointsDataSource implements PointsPageDataSource {
   }
 
   @override
-  Future<PackageModel?> getPaketByid(String packageId) {
-    return _packageOperation.ambilBerdasarkanId(packageId);
+  Future<PaketModel?> getPaketByid(String packageId) {
+    return _packageOperation.getById(packageId);
   }
 
   @override

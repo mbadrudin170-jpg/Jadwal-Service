@@ -12,7 +12,7 @@ import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
-  final CustomerModel customer;
+  final PelangganModel customer;
   final int totalPoints;
 
   _ProfileData({required this.customer, required this.totalPoints});
@@ -77,7 +77,7 @@ class _UserCustomerDetailPageState
   }
 
   /// Navigasi ke halaman edit profil, lalu menampilkan iklan saat kembali.
-  Future<void> _navigateToEdit(CustomerModel customer) async {
+  Future<void> _navigateToEdit(PelangganModel customer) async {
     await ref.read(interstitialAdServiceProvider).show();
     final bool? result = await Navigator.push<bool>(
       context,

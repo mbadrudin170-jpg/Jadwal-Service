@@ -1,4 +1,3 @@
-
 // path: test/user/page/edit_profile_page_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,15 +12,16 @@ import 'package:wifi/user/page/edit_profile_page.dart';
 // Mocks
 class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
 
-class MockKoneksiInternetService extends Mock implements KoneksiInternetService {}
+class MockKoneksiInternetService extends Mock
+    implements KoneksiInternetService {}
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
-class FakeCustomerModel extends Fake implements CustomerModel {}
+class FakeCustomerModel extends Fake implements PelangganModel {}
 
 void main() {
   // Data dummy
-  const customer = CustomerModel(
+  const customer = PelangganModel(
     id: 'user1',
     name: 'John Doe',
     phone: '081234567890',
@@ -68,7 +68,8 @@ void main() {
 
       // Verifikasi data awal di TextFormFields
       expect(find.widgetWithText(TextFormField, 'John Doe'), findsOneWidget);
-      expect(find.widgetWithText(TextFormField, '081234567890'), findsOneWidget);
+      expect(
+          find.widgetWithText(TextFormField, '081234567890'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'password123'), findsOneWidget);
 
       // Verifikasi tombol simpan
@@ -141,39 +142,48 @@ void main() {
     testWidgets('Test 06: Simpan perubahan berhasil saat online',
         (tester) async {
       // Ganti `_internetConnectionService` dengan mock
-      final pageState = tester.state<ConsumerState<EditProfilePage>>(find.byType(EditProfilePage)) as dynamic;
+      final pageState = tester.state<ConsumerState<EditProfilePage>>(
+          find.byType(EditProfilePage)) as dynamic;
       pageState._internetConnectionService = mockKoneksiInternetService;
 
       // Stub
-      when(() => mockKoneksiInternetService.cekInternet(any())).thenAnswer((_) async => true);
-      when(() => mockCustomerOpFirebase.updateCustomer(any())).thenAnswer((_) async => Future.value());
+      when(() => mockKoneksiInternetService.cekInternet(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockCustomerOpFirebase.updateCustomer(any()))
+          .thenAnswer((_) async => Future.value());
       when(() => mockNavigatorObserver.didPop(any(), any())).thenAnswer((_) {});
 
-
       await tester.pumpWidget(createWidgetUnderTest());
-      
+
       // Ubah data
       await tester.enterText(find.byType(TextFormField).at(0), 'Jane Doe');
-      
+
       // Simpan
       await tester.tap(find.text('SIMPAN'));
       await tester.pumpAndSettle();
 
       // Verifikasi
-      final captured = verify(() => mockCustomerOpFirebase.updateCustomer(captureAny())).captured.single as CustomerModel;
+      final captured =
+          verify(() => mockCustomerOpFirebase.updateCustomer(captureAny()))
+              .captured
+              .single as PelangganModel;
       expect(captured.name, 'Jane Doe');
-      
+
       verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
     });
 
-    testWidgets('Test 07: Tampilkan info saat mencoba simpan tanpa koneksi internet', (tester) async {
-      final pageState = tester.state<ConsumerState<EditProfilePage>>(find.byType(EditProfilePage)) as dynamic;
+    testWidgets(
+        'Test 07: Tampilkan info saat mencoba simpan tanpa koneksi internet',
+        (tester) async {
+      final pageState = tester.state<ConsumerState<EditProfilePage>>(
+          find.byType(EditProfilePage)) as dynamic;
       pageState._internetConnectionService = mockKoneksiInternetService;
-      
-      when(() => mockKoneksiInternetService.cekInternet(any())).thenAnswer((_) async => false);
+
+      when(() => mockKoneksiInternetService.cekInternet(any()))
+          .thenAnswer((_) async => false);
 
       await tester.pumpWidget(createWidgetUnderTest());
-      
+
       await tester.tap(find.text('SIMPAN'));
       await tester.pumpAndSettle();
 
@@ -181,34 +191,37 @@ void main() {
       verifyNever(() => mockCustomerOpFirebase.updateCustomer(any()));
       // Verifikasi tidak ada navigasi pop
       verifyNever(() => mockNavigatorObserver.didPop(any(), any()));
-
     });
 
-    testWidgets('Test 08: Tangani error saat gagal menyimpan perubahan', (tester) async {
+    testWidgets('Test 08: Tangani error saat gagal menyimpan perubahan',
+        (tester) async {
       final exception = Exception('Update failed');
-      final pageState = tester.state<ConsumerState<EditProfilePage>>(find.byType(EditProfilePage)) as dynamic;
+      final pageState = tester.state<ConsumerState<EditProfilePage>>(
+          find.byType(EditProfilePage)) as dynamic;
       pageState._internetConnectionService = mockKoneksiInternetService;
 
-      when(() => mockKoneksiInternetService.cekInternet(any())).thenAnswer((_) async => true);
-      when(() => mockCustomerOpFirebase.updateCustomer(any())).thenThrow(exception);
+      when(() => mockKoneksiInternetService.cekInternet(any()))
+          .thenAnswer((_) async => true);
+      when(() => mockCustomerOpFirebase.updateCustomer(any()))
+          .thenThrow(exception);
 
       await tester.pumpWidget(createWidgetUnderTest());
-      
+
       await tester.tap(find.text('SIMPAN'));
       await tester.pumpAndSettle();
-      
+
       // Verifikasi `updateCustomer` dipanggil
       verify(() => mockCustomerOpFirebase.updateCustomer(any())).called(1);
-      
+
       // Verifikasi tidak ada navigasi pop
       verifyNever(() => mockNavigatorObserver.didPop(any(), any()));
-      
     });
 
     testWidgets('Test 09: Pastikan controllers di-dispose', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
-      final state = tester.state(find.byType(EditProfilePage)) as _EditProfilePageState;
+      final state =
+          tester.state(find.byType(EditProfilePage)) as _EditProfilePageState;
 
       // Ambil controller sebelum di-dispose
       final nameController = state._nameController;

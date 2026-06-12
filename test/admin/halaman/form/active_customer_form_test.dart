@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/wallet_model.dart';
 import 'package:wifi/shared/model/category_model.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -54,7 +54,7 @@ void main() {
     mockNotifikasiOpFirebase = MockNotifikasiOpFirebase();
   });
 
-  Widget createWidgetUnderTest({ActiveCustomerModel? activeCustomer}) {
+  Widget createWidgetUnderTest({PelangganAktifModel? activeCustomer}) {
     return ProviderScope(
       overrides: [
         customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
@@ -77,9 +77,9 @@ void main() {
   testWidgets('01. should show loading indicator and then the form',
       (tester) async {
     when(() => mockCustomerOperation.ambilSemuaPelanggan())
-        .thenAnswer((_) async => <CustomerModel>[]);
+        .thenAnswer((_) async => <PelangganModel>[]);
     when(() => mockPackageOperation.ambilSemuaPaketAktif())
-        .thenAnswer((_) async => <PackageModel>[]);
+        .thenAnswer((_) async => <PaketModel>[]);
     when(() => mockDompetOpFirebase.ambilSemuaDompet())
         .thenAnswer((_) async => <WalletModel>[]);
     when(() => mockCategoryOperation.ambilSemuaKategori())

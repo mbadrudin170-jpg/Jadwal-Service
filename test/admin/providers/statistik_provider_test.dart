@@ -9,14 +9,14 @@ import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
 import 'package:wifi/admin/repository/statistik_op_sqlite.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 class MockStatistikRepository extends Mock implements StatistikOpSqlite {}
 
 void main() {
   final tBestSellingPackage = BestSellingPackage(
     totalSold: 10,
-    package: PackageModel(
+    package: PaketModel(
       name: 'Paket A',
       price: 50000,
       duration: 30,

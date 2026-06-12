@@ -13,7 +13,7 @@ import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
@@ -37,7 +37,7 @@ void main() {
     mockCustomerOp = MockCustomerOperation();
   });
 
-  final t1 = TransactionModel(
+  final t1 = TransaksiModel(
     id: 't1',
     customerId: 'c1',
     packageId: 'p1',
@@ -52,7 +52,7 @@ void main() {
     description: 'Pembayaran Paket',
   );
 
-  final c1 = CustomerModel(
+  final c1 = PelangganModel(
     id: 'c1',
     name: 'Budi Utomo',
     phone: '08123',
@@ -60,7 +60,7 @@ void main() {
     password: 'pwd',
   );
 
-  final p1 = PackageModel(
+  final p1 = PaketModel(
     id: 'p1',
     name: 'Paket Bulanan',
     price: 50000,

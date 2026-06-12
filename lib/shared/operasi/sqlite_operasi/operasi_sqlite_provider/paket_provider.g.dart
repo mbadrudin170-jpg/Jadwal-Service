@@ -18,12 +18,10 @@ final packageListProvider = PackageListProvider._();
 /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
 
 final class PackageListProvider extends $FunctionalProvider<
-        AsyncValue<List<PackageModel>>,
-        List<PackageModel>,
-        FutureOr<List<PackageModel>>>
-    with
-        $FutureModifier<List<PackageModel>>,
-        $FutureProvider<List<PackageModel>> {
+        AsyncValue<List<PaketModel>>,
+        List<PaketModel>,
+        FutureOr<List<PaketModel>>>
+    with $FutureModifier<List<PaketModel>>, $FutureProvider<List<PaketModel>> {
   /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
   /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
   PackageListProvider._()
@@ -42,17 +40,17 @@ final class PackageListProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $FutureProviderElement<List<PackageModel>> $createElement(
+  $FutureProviderElement<List<PaketModel>> $createElement(
           $ProviderPointer pointer) =>
       $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<PackageModel>> create(Ref ref) {
+  FutureOr<List<PaketModel>> create(Ref ref) {
     return packageList(ref);
   }
 }
 
-String _$packageListHash() => r'32924ceb6b3db6f85b9c4c613769c78de9831b16';
+String _$packageListHash() => r'73efbd8f71fd1b7c74bcd59221a3ee440d893dea';
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
 

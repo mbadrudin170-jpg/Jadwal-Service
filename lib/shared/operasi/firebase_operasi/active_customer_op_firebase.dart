@@ -19,20 +19,21 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
   }
 
   /// Mendapatkan referensi ke koleksi active_customers.
-  CollectionReference get _collection =>
-      _firestore.collection(NamaTabel.activeCustomer); // Diperbaiki: Menggunakan properti statis NamaTabel
+  CollectionReference get _collection => _firestore.collection(NamaTabel
+      .activeCustomer); // Diperbaiki: Menggunakan properti statis NamaTabel
 
   /// Menambah atau memperbarui data pelanggan aktif.
   /// Fungsi ini menggunakan ID pelanggan sebagai ID dokumen untuk memastikan
   /// setiap pelanggan hanya memiliki satu entri di koleksi active_customers.
   Future<void> setActiveCustomer(
-      final ActiveCustomerModel activeCustomer) async {
+      final PelangganAktifModel activeCustomer) async {
     Log.info(
         'Menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
     try {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
       await sisipkan(
-        NamaTabel.activeCustomer, // Diperbaiki: Menggunakan properti statis NamaTabel
+        NamaTabel
+            .activeCustomer, // Diperbaiki: Menggunakan properti statis NamaTabel
         activeCustomer.customerId,
         activeCustomer.toFirebase(),
       );
@@ -49,8 +50,8 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
 
   /// Mengambil data pelanggan aktif berdasarkan ID pelanggan dari Firebase.
   ///
-  /// Mengembalikan [ActiveCustomerModel] jika ditemukan, jika tidak `null`.
-  Future<ActiveCustomerModel?> getActiveCustomersById(
+  /// Mengembalikan [PelangganAktifModel] jika ditemukan, jika tidak `null`.
+  Future<PelangganAktifModel?> getActiveCustomersById(
     final String customerId,
   ) async {
     try {
@@ -64,7 +65,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
 
       final data = doc.data() as Map<String, dynamic>;
       Log.info('Data pelanggan aktif ditemukan untuk ID: $customerId');
-      return ActiveCustomerModel.fromFirebase(doc.id, data);
+      return PelangganAktifModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error('Error mengambil data pelanggan aktif untuk ID: $customerId',
           e: e, st: s);
@@ -77,7 +78,8 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
     Log.warning('Memulai penghapusan pelanggan aktif: $customerId');
     try {
       // Menggunakan fungsi delete dari BaseOpFirebase
-      await hapusPermanen(NamaTabel.activeCustomer, customerId); // Diperbaiki: Menggunakan properti statis NamaTabel
+      await hapusPermanen(NamaTabel.activeCustomer,
+          customerId); // Diperbaiki: Menggunakan properti statis NamaTabel
       Log.info('Berhasil menghapus pelanggan aktif: $customerId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus pelanggan aktif: $customerId', e: e, st: s);

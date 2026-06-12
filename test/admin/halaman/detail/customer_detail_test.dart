@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/detail/customer_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-class MockCustomerModel extends Mock implements CustomerModel {}
+class MockCustomerModel extends Mock implements PelangganModel {}
 
 void main() {
   late MockCustomerModel mockCustomer;
@@ -28,7 +28,7 @@ void main() {
     return ProviderScope(
       overrides: overrides,
       child: const MaterialApp(
-        home: CustomerDetailPage(customerId: 'cust-123'),
+        home: DetailPelanggan(customerId: 'cust-123'),
       ),
     );
   }
@@ -61,8 +61,8 @@ void main() {
   testWidgets('03. Menampilkan UI detail pelanggan saat data berhasil dimuat',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123').overrideWith((ref) =>
-          Future.value((customer: mockCustomer, totalPoints: 100))),
+      customerDetailProvider('cust-123').overrideWith(
+          (ref) => Future.value((customer: mockCustomer, totalPoints: 100))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -76,8 +76,8 @@ void main() {
   testWidgets('04. Menampilkan pesan pelanggan tidak ditemukan jika data null',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123')
-          .overrideWith((ref) => Future.value((customer: null, totalPoints: 0))),
+      customerDetailProvider('cust-123').overrideWith(
+          (ref) => Future.value((customer: null, totalPoints: 0))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));

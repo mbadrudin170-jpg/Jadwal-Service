@@ -11,7 +11,7 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
@@ -48,13 +48,13 @@ void main() {
     updatedAt: DateTime.now(),
   );
 
-  final package1 = PackageModel(
+  final package1 = PaketModel(
       id: 'pkg1',
       name: 'Paket Admin',
       price: 5,
       duration: 4,
       type: DurationType.days);
-  final package2 = PackageModel(
+  final package2 = PaketModel(
       id: 'pkg2',
       name: 'Paket User',
       price: 6,

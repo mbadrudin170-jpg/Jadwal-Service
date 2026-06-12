@@ -36,7 +36,7 @@ class _SubscriptionHistoryPageState
   final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
 
   SortMode _sortMode = SortMode.endDateNewest;
-  late Future<List<TransactionModel>> _historyFuture;
+  late Future<List<TransaksiModel>> _historyFuture;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _SubscriptionHistoryPageState
     _historyFuture = _loadHistory();
   }
 
-  Future<List<TransactionModel>> _loadHistory() async {
+  Future<List<TransaksiModel>> _loadHistory() async {
     final userId = await ref.watch(userIdProvider.future);
 
     if (userId == null) return [];
@@ -54,7 +54,7 @@ class _SubscriptionHistoryPageState
     return _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customer.id);
   }
 
-  List<TransactionModel> _sortHistory(List<TransactionModel> history) {
+  List<TransaksiModel> _sortHistory(List<TransaksiModel> history) {
     switch (_sortMode) {
       case SortMode.endDateNewest:
         history.sort((a, b) {
@@ -97,8 +97,8 @@ class _SubscriptionHistoryPageState
   }
 
   Future<void> _navigateToTransactionDetail(
-    TransactionModel tx,
-    Future<PackageModel?> packageFuture,
+    TransaksiModel tx,
+    Future<PaketModel?> packageFuture,
   ) async {
     final package = await packageFuture;
     await ref.read(interstitialAdServiceProvider).show();
@@ -142,7 +142,7 @@ class _SubscriptionHistoryPageState
           ),
         ],
       ),
-      body: StreamBuilder<CustomerModel?>(
+      body: StreamBuilder<PelangganModel?>(
         stream: userId.when(
           data: (id) => id != null
               ? customerOpFirebase.getStreamPelanggan(id)
@@ -163,7 +163,7 @@ class _SubscriptionHistoryPageState
           return Column(
             children: [
               Expanded(
-                child: FutureBuilder<List<TransactionModel>>(
+                child: FutureBuilder<List<TransaksiModel>>(
                   future: _historyFuture,
                   builder: (context, historySnapshot) {
                     if (historySnapshot.connectionState ==
@@ -190,7 +190,7 @@ class _SubscriptionHistoryPageState
                           final packageFuture = tx.packageId != null
                               ? packageOpFirebase
                                   .ambilBerdasarkanId(tx.packageId!)
-                              : Future<PackageModel?>.value();
+                              : Future<PaketModel?>.value();
                           final activeText = tx.endDate != null
                               ? CalculationUtil.getRemainingActivePeriodText(
                                   tx.endDate!)

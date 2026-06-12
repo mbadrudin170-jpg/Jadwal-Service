@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/detail/customer_detail.dart';
+import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
@@ -28,7 +28,7 @@ enum UrutanPelanggan {
 
 /// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
-    Provider.autoDispose<AsyncValue<List<(CustomerModel, int)>>>((ref) {
+    Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
   final customerListAsync = ref.watch(customerListProvider);
   final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
   final sortOption = ref.watch(urutanPelangganStateProvider);
@@ -253,7 +253,7 @@ class CustomerPage extends ConsumerWidget {
   Future<void> _addCustomer(BuildContext context, WidgetRef ref) async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => const CustomerForm()),
+      MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
     if (result ?? false) {
       ref.invalidate(customerListProvider);
@@ -268,14 +268,14 @@ class CustomerPage extends ConsumerWidget {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => CustomerDetailPage(customerId: customerId),
+        builder: (context) => DetailPelanggan(customerId: customerId),
       ),
     );
     ref.invalidate(customerListProvider);
   }
 
   Future<void> _showOptionsDialog(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+      BuildContext context, WidgetRef ref, PelangganModel customer) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -291,7 +291,7 @@ class CustomerPage extends ConsumerWidget {
                 final result = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CustomerForm(customer: customer),
+                    builder: (context) => FormPelanggan(customer: customer),
                   ),
                 );
                 if (result ?? false) {
@@ -318,7 +318,7 @@ class CustomerPage extends ConsumerWidget {
   }
 
   Future<void> _showSoftDeleteConfirmation(
-      BuildContext context, WidgetRef ref, CustomerModel customer) async {
+      BuildContext context, WidgetRef ref, PelangganModel customer) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(

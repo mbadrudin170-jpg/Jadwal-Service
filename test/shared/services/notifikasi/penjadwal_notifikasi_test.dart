@@ -28,7 +28,7 @@ void main() {
         '1. Harusnya menjadwalkan notifikasi akhir dan tengah periode jika ada langganan aktif',
         () {
       // Skenario: Ada transaksi aktif di masa depan.
-      final mockTransaction = TransactionModel(
+      final mockTransaction = TransaksiModel(
         id: 'trans1',
         customerId: userId, // Menggunakan customerId
         paymentStatus: PaymentStatus.paid,

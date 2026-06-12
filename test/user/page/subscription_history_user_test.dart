@@ -1,4 +1,3 @@
-
 // path: test/user/page/subscription_history_user_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,14 +23,14 @@ void main() {
   });
 
   final transactions = [
-    TransactionModel(
+    TransaksiModel(
       id: '1',
       customerId: '1',
       packageId: '1',
       startDate: DateTime(2023, 1, 1),
       endDate: DateTime(2023, 1, 31),
     ),
-    TransactionModel(
+    TransaksiModel(
       id: '2',
       customerId: '1',
       packageId: '2',

@@ -12,7 +12,7 @@ import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model for active customer data.
-class ActiveCustomerModel implements HasId {
+class PelangganAktifModel implements HasId {
   @override
   final String id;
 
@@ -44,7 +44,7 @@ class ActiveCustomerModel implements HasId {
   final DateTime? archivedAt;
 
   /// Constructor for `ActiveCustomerModel`.
-  ActiveCustomerModel({
+  PelangganAktifModel({
     final String? id,
     required this.customerId,
     required this.packageId,
@@ -60,7 +60,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Creates a copy of this `ActiveCustomerModel` with some modified values.
-  ActiveCustomerModel copyWith({
+  PelangganAktifModel copyWith({
     final String? id,
     final String? customerId,
     final String? packageId,
@@ -72,7 +72,7 @@ class ActiveCustomerModel implements HasId {
     final bool? isDeleted,
     final DateTime? archivedAt,
   }) {
-    return ActiveCustomerModel(
+    return PelangganAktifModel(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
       packageId: packageId ?? this.packageId,
@@ -87,7 +87,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Creates an `ActiveCustomerModel` instance from SQLite map data.
-  factory ActiveCustomerModel.fromSqlite(final Map<String, dynamic> map) {
+  factory PelangganAktifModel.fromSqlite(final Map<String, dynamic> map) {
     try {
       final startDate = ParserUtil.parseDateTime(map[NamaKolom.startDate]);
       final endDate = ParserUtil.parseDateTime(map[NamaKolom.endDate]);
@@ -99,7 +99,7 @@ class ActiveCustomerModel implements HasId {
         throw ArgumentError.notNull('endDate from SQLite');
       }
 
-      final model = ActiveCustomerModel(
+      final model = PelangganAktifModel(
         id: map[NamaKolom.id] as String,
         customerId: map[NamaKolom.customerId] as String? ?? '',
         packageId: map[NamaKolom.packageId] as String? ?? '',
@@ -139,7 +139,7 @@ class ActiveCustomerModel implements HasId {
   }
 
   /// Creates an `ActiveCustomerModel` instance from Firebase map data.
-  factory ActiveCustomerModel.fromFirebase(
+  factory PelangganAktifModel.fromFirebase(
     final String id,
     final Map<String, dynamic> data,
   ) {
@@ -154,7 +154,7 @@ class ActiveCustomerModel implements HasId {
         throw ArgumentError.notNull('endDate from Firebase');
       }
 
-      final model = ActiveCustomerModel(
+      final model = PelangganAktifModel(
         id: id,
         customerId: data[NamaKolom.customerId] as String? ?? '',
         packageId: data[NamaKolom.packageId] as String? ?? '',

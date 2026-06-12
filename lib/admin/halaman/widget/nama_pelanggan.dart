@@ -27,8 +27,8 @@ class CustomerNameWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun CustomerNameWidget untuk customerId: $customerId');
     final customerOperation = ref.read(customerOperationProvider);
-    return FutureBuilder<CustomerModel?>(
-      future: customerOperation.ambilBerdasarkanId(customerId),
+    return FutureBuilder<PelangganModel?>(
+      future: customerOperation.getById(customerId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Menunggu data pelanggan untuk ID: $customerId');

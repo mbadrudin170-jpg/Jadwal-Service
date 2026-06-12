@@ -33,7 +33,7 @@ void main() {
   });
 
   group('Pengujian CustomerOperation', () {
-    final tCustomer = CustomerModel(
+    final tCustomer = PelangganModel(
       id: '1',
       name: 'Test Customer',
       phone: '1234567890',
@@ -57,7 +57,7 @@ void main() {
 
       final result = await customerOperation.getAll();
 
-      expect(result, isA<List<CustomerModel>>());
+      expect(result, isA<List<PelangganModel>>());
       expect(result.first.id, tCustomer.id);
     });
 
@@ -68,7 +68,7 @@ void main() {
 
       final result = await customerOperation.getById('1');
 
-      expect(result, isA<CustomerModel>());
+      expect(result, isA<PelangganModel>());
       expect(result?.id, tCustomer.id);
     });
 

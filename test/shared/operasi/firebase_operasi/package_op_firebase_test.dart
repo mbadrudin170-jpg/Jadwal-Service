@@ -6,7 +6,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 
 void main() {
@@ -20,7 +20,7 @@ void main() {
   });
 
   // Data model paket untuk digunakan dalam tes
-  final p1 = PackageModel(
+  final p1 = PaketModel(
     id: 'pkg-001',
     name: 'Paket Internet Super Cepat',
     redemptionPoints: 100,
@@ -29,7 +29,7 @@ void main() {
     type: DurationType.days,
   );
 
-  final p2 = PackageModel(
+  final p2 = PaketModel(
     id: 'pkg-002',
     name: 'Paket Hemat',
     isPublic: false, // Bukan paket publik
@@ -39,14 +39,14 @@ void main() {
     type: DurationType.days,
   );
 
-  final p3 = PackageModel(
+  final p3 = PaketModel(
     id: 'pkg-003',
     name: 'Paket Bonus',
     duration: 1,
     price: 0,
     type: DurationType.days,
   );
-  final p4 = PackageModel(
+  final p4 = PaketModel(
     id: 'pkg-004',
     name: 'Paket Dihapus',
     isDeleted: true, // Sudah dihapus
@@ -57,7 +57,7 @@ void main() {
   );
 
   // Helper untuk menambahkan data ke fake firestore
-  Future<void> addPackageToFirestore(PackageModel package) async {
+  Future<void> addPackageToFirestore(PaketModel package) async {
     await fakeFirestore
         .collection(packageCollection)
         .doc(package.id)

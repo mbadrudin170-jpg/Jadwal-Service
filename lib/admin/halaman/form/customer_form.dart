@@ -14,18 +14,18 @@ import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit data pelanggan.
-class CustomerForm extends ConsumerStatefulWidget {
+class FormPelanggan extends ConsumerStatefulWidget {
   /// Model pelanggan yang akan diedit. Jika null, maka form dalam mode tambah baru.
-  final CustomerModel? customer;
+  final PelangganModel? customer;
 
   /// Konstruktor untuk CustomerForm.
-  const CustomerForm({super.key, this.customer});
+  const FormPelanggan({super.key, this.customer});
 
   @override
-  ConsumerState<CustomerForm> createState() => _CustomerFormState();
+  ConsumerState<FormPelanggan> createState() => _CustomerFormState();
 }
 
-class _CustomerFormState extends ConsumerState<CustomerForm> {
+class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final _teleponController = TextEditingController();
@@ -86,7 +86,7 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _isSaving = true);
 
-      final newCustomer = CustomerModel(
+      final newCustomer = PelangganModel(
         id: _isEditMode ? widget.customer!.id : const Uuid().v4(),
         name: _namaController.text.trim(),
         phone: _teleponController.text.trim(),

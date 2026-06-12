@@ -12,11 +12,11 @@ class MockCustomerOperation extends Mock implements PelangganOpSqlite {}
 
 void main() {
   late MockCustomerOperation mockCustomerOperation;
-  late CustomerModel testCustomer;
+  late PelangganModel testCustomer;
 
   setUp(() {
     mockCustomerOperation = MockCustomerOperation();
-    testCustomer = CustomerModel(
+    testCustomer = PelangganModel(
       id: '1',
       name: 'Test Customer',
       phone: '1234567890',
@@ -25,13 +25,13 @@ void main() {
     );
   });
 
-  Widget createTestWidget({CustomerModel? customer}) {
+  Widget createTestWidget({PelangganModel? customer}) {
     return ProviderScope(
       overrides: [
         customerOperationProvider.overrideWithValue(mockCustomerOperation),
       ],
       child: MaterialApp(
-        home: CustomerForm(customer: customer),
+        home: FormPelanggan(customer: customer),
       ),
     );
   }

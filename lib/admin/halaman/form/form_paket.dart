@@ -7,7 +7,7 @@ import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -18,7 +18,7 @@ import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 /// Halaman form untuk menambah atau mengedit paket.
 class FormPaket extends ConsumerStatefulWidget {
   /// Model paket yang akan diedit. Jika null, maka form akan membuat paket baru.
-  final PackageModel? package;
+  final PaketModel? package;
 
   /// Konstruktor untuk PackageForm.
   const FormPaket({super.key, this.package});
@@ -64,7 +64,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
   Future<void> _saveForm() async {
     if (_formKey.currentState!.validate()) {
-      final newPackage = PackageModel(
+      final newPackage = PaketModel(
           id: _isEditMode ? widget.package!.id : null,
           name: _nameController.text,
           price: int.tryParse(

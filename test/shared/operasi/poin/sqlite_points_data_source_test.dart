@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/package_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
@@ -47,7 +47,7 @@ void main() {
         '2. getPublicPackages harus mengembalikan paket publik dari operasi paket',
         () async {
       final packages = [
-        PackageModel(
+        PaketModel(
           id: '1',
           name: 'Test Package',
           price: 0,
@@ -69,7 +69,7 @@ void main() {
         '3. getPointsTransactions harus mengembalikan transaksi dengan poin dari operasi transaksi',
         () async {
       final transactions = [
-        TransactionModel(
+        TransaksiModel(
           id: '1',
           earnedPoints: 10,
           date: DateTime.now(),
@@ -79,7 +79,7 @@ void main() {
           walletId: '',
           categoryId: '',
         ),
-        TransactionModel(
+        TransaksiModel(
           id: '2',
           usedPoints: 5,
           date: DateTime.now(),
@@ -89,7 +89,7 @@ void main() {
           walletId: '',
           categoryId: '',
         ),
-        TransactionModel(
+        TransaksiModel(
           id: '3',
           date: DateTime.now(),
           description: '',
@@ -114,7 +114,7 @@ void main() {
     test('4. getPackageById harus mengembalikan paket dari operasi paket',
         () async {
       const packageId = 'test_package_id';
-      final package = PackageModel(
+      final package = PaketModel(
         id: packageId,
         name: 'Test Package',
         price: 0,

@@ -25,7 +25,7 @@ void main() {
   late MockNotifikasiServis mockNotifikasiServis;
   late MockKoneksiInternetService mockKoneksiInternetService;
 
-  final transaction = TransactionModel(
+  final transaction = TransaksiModel(
     id: '1',
     date: DateTime.now(),
     description: 'Test Transaction',
@@ -59,7 +59,7 @@ void main() {
   }
 
   Widget createTestWidget(ProviderContainer container,
-      {required TransactionModel transaction}) {
+      {required TransaksiModel transaction}) {
     return ProviderScope(
       parent: container,
       child: MaterialApp(

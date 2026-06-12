@@ -52,21 +52,21 @@ class DataDummy {
         ),
       ];
 
-  /// Daftar dummy untuk [CustomerModel]
-  static List<CustomerModel> get customers => [
-        CustomerModel(
+  /// Daftar dummy untuk [PelangganModel]
+  static List<PelangganModel> get customers => [
+        PelangganModel(
             id: customerBudiId,
             name: 'Budi Santoso',
             phone: '081234567890',
             password: 'password123',
             address: 'Jl. Merdeka No. 10, Jakarta'),
-        CustomerModel(
+        PelangganModel(
             id: customerSitiId,
             name: 'Siti Aminah',
             phone: '087654321098',
             password: 'password456',
             address: 'Jl. Pahlawan No. 25, Surabaya'),
-        CustomerModel(
+        PelangganModel(
             id: agusSetiawanId,
             name: 'Agus Setiawan',
             phone: '089987654321',
@@ -74,23 +74,23 @@ class DataDummy {
             address: 'Jl. Kemerdekaan No. 5, Bandung'),
       ];
 
-  /// Daftar dummy untuk [PackageModel]
-  static List<PackageModel> get packages => [
-        PackageModel(
+  /// Daftar dummy untuk [PaketModel]
+  static List<PaketModel> get packages => [
+        PaketModel(
           id: paketHematId,
           name: 'Paket Hemat 10 Mbps',
           price: 150000,
           duration: 30,
           type: DurationType.days,
         ),
-        PackageModel(
+        PaketModel(
           id: paketPremiumId,
           name: 'Paket Premium 50 Mbps',
           price: 350000,
           duration: 30,
           type: DurationType.days,
         ),
-        PackageModel(
+        PaketModel(
           id: paketGamerId,
           name: 'Paket Gamer 100 Mbps',
           price: 500000,
@@ -129,23 +129,23 @@ class DataDummy {
         WalletModel(id: walletSitiId, name: 'Dompet Siti', balance: 1000000),
       ];
 
-  /// Daftar dummy untuk [TransactionModel]
-  static List<TransactionModel> get transactions => [
-        TransactionModel(
+  /// Daftar dummy untuk [TransaksiModel]
+  static List<TransaksiModel> get transactions => [
+        TransaksiModel(
           id: transactionBudiId,
           walletId: walletBudiId,
           categoryId: kategoriPembayaranId,
-          subCategoryId: subKategoriInternetId,
+          idSubKategori: subKategoriInternetId,
           type: TransactionType.expense,
           amount: 150000,
           description: 'Pembayaran paket hemat',
           date: DateTime.now(),
         ),
-        TransactionModel(
+        TransaksiModel(
           id: transactionSitiId,
           walletId: walletSitiId,
           categoryId: kategoriPembayaranId,
-          subCategoryId: subKategoriInternetId,
+          idSubKategori: subKategoriInternetId,
           type: TransactionType.expense,
           amount: 350000,
           description: 'Pembayaran paket premium',
@@ -153,9 +153,9 @@ class DataDummy {
         ),
       ];
 
-  /// Daftar dummy untuk [ActiveCustomerModel]
-  static List<ActiveCustomerModel> get activeCustomers => [
-        ActiveCustomerModel(
+  /// Daftar dummy untuk [PelangganAktifModel]
+  static List<PelangganAktifModel> get activeCustomers => [
+        PelangganAktifModel(
           id: activeCustomerBudiId,
           customerId: customerBudiId,
           packageId: paketHematId,
@@ -163,7 +163,7 @@ class DataDummy {
           endDate: DateTime.now().add(const Duration(days: 20)),
           status: PaymentStatus.paid,
         ),
-        ActiveCustomerModel(
+        PelangganAktifModel(
           id: activeCustomerSitiId,
           customerId: customerSitiId,
           packageId: paketPremiumId,

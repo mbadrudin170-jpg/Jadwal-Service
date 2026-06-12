@@ -14,25 +14,25 @@ import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelan
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 
-class CustomerDetailPage extends ConsumerWidget {
+class DetailPelanggan extends ConsumerWidget {
   final String customerId;
 
-  const CustomerDetailPage({super.key, required this.customerId});
+  const DetailPelanggan({super.key, required this.customerId});
 
   Future<void> _editCustomer(
-      BuildContext context, CustomerModel? customer) async {
+      BuildContext context, PelangganModel? customer) async {
     if (customer == null) return;
     Log.info('Navigasi ke form edit pelanggan: ${customer.name}');
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => CustomerForm(customer: customer),
+        builder: (context) => FormPelanggan(customer: customer),
       ),
     );
   }
 
   Future<void> _copyAllInfo(
-      BuildContext context, CustomerModel customer) async {
+      BuildContext context, PelangganModel customer) async {
     Log.info('Menyalin info pelanggan: ${customer.name}');
     final info = '''
 Nama : ${customer.name}
@@ -50,7 +50,7 @@ MAC : ${customer.macAddress}
   }
 
   Future<void> _navigateToPoints(
-      BuildContext context, CustomerModel? customer) async {
+      BuildContext context, PelangganModel? customer) async {
     if (customer == null) return;
     Log.info('Navigasi ke halaman poin pelanggan: ${customer.name}');
 

@@ -3,19 +3,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
 
-part 'detail_langganan_provider.g.dart';
 part 'detail_langganan_provider.freezed.dart';
+part 'detail_langganan_provider.g.dart';
 
 @freezed
 abstract class DetailLanggananState with _$DetailLanggananState {
   const factory DetailLanggananState({
-    TransactionModel? transaction,
-    CustomerModel? customer,
-    PackageModel? package,
+    TransaksiModel? transaction,
+    PelangganModel? customer,
+    PaketModel? package,
   }) = _DetailLanggananState;
 }
 
@@ -25,27 +25,27 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   String idTransaksi,
 ) async {
   // Ambil semua operation repo
-  final opTransaksi = ref.watch(transactionOperationProvider);
-  final opPelanggan = ref.watch(customerOperationProvider);
-  final opPaket = ref.watch(packageOperationProvider);
+  final transaksiOpSqlite = ref.watch(transactionOperationProvider);
+  final pelangganOpSqlite = ref.watch(customerOperationProvider);
+  final paketOpSqlite = ref.watch(packageOperationProvider);
 
   // 1. Ambil data transaksi utama
-  final transaksi = await opTransaksi.getTransactionById(idTransaksi);
+  final transaksi = await transaksiOpSqlite.getById(idTransaksi);
   if (transaksi == null) return null;
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
-  final hasil = await Future.wait([
+  final hasil = await Future.wait<Object?>([
     transaksi.customerId != null
-        ? opPelanggan.ambilBerdasarkanId(transaksi.customerId!)
-        : Future<CustomerModel?>.value(),
+        ? pelangganOpSqlite.getById(transaksi.customerId!)
+        : Future<PelangganModel?>.value(),
     transaksi.packageId != null
-        ? opPaket.ambilBerdasarkanId(transaksi.packageId!)
-        : Future<PackageModel?>.value(),
+        ? paketOpSqlite.getById(transaksi.packageId!)
+        : Future<PaketModel?>.value(),
   ]);
 
   return DetailLanggananState(
     transaction: transaksi,
-    customer: hasil[0] as CustomerModel?,
-    package: hasil[1] as PackageModel?,
+    customer: hasil[0] as PelangganModel?,
+    package: hasil[1] as PaketModel?,
   );
 }
