@@ -1,517 +1,317 @@
 // path: lib/shared/operasi/sqlite_operasi/active_customer_operation.dart
+// diubah: Mengganti nama class dari OperasiPelangganAktif ke ActiveCustomerOperation.
+// diubah: Menggunakan TableNameValue.get() untuk konsistensi nama tabel.
+// diubah: Menggunakan BaseOperation untuk operasi tulis.
 
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/notifikasi/servis/notifikasi_servis.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/export/model.dart';
-import 'package:wifi/shared/model/active_customer_detail_model.dart';
+import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/customer_state.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 
-const uuid = Uuid();
-
 class ActiveCustomerOperation {
   final DatabaseHelper dbHelper;
-  final BaseOperation _baseOperation;
-  final NotifikasiServis _notifikasiServis;
-  final CustomerOperation _customerOperation;
-  final String _tableName = TableNameValue.get(TableName.activeCustomer);
-  final String _customerTableName = TableNameValue.get(TableName.customer);
-  final String _packageTableName = TableNameValue.get(TableName.package);
+  final BaseOperation baseOperation;
+  final CustomerOperation customerOperation;
+  final NotifikasiServis notifikasiServis;
 
-  DateTime get _nowUtc => DateTime.now().toUtc();
+  final String _tableName = TableNameValue.get(TableName.activeCustomer);
 
   ActiveCustomerOperation({
     required this.dbHelper,
-    required BaseOperation baseOperation,
-    required CustomerOperation customerOperation,
-    required NotifikasiServis notifikasiServis,
-  })  : _baseOperation = baseOperation,
-        _customerOperation = customerOperation,
-        _notifikasiServis = notifikasiServis {
-    Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
+    required this.baseOperation,
+    required this.customerOperation,
+    required this.notifikasiServis,
+  }) {
+    Log.info('ActiveCustomerOperation diinisialisasi');
   }
 
-  Future<void> rescheduleAllNotifications() async {
-    Log.info('MEMULAI PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI...');
-    try {
-      final List<ActiveCustomerModel> allActiveCustomers =
-          await getAllActiveCustomers();
-
-      if (allActiveCustomers.isEmpty) {
-        Log.info('Tidak ada pelanggan aktif untuk dijadwalkan ulang.');
-        return;
-      }
-
-      Log.info(
-          'Ditemukan ${allActiveCustomers.length} pelanggan aktif. Menjadwalkan ulang satu per satu...');
-
-      for (final activeCustomer in allActiveCustomers) {
-        await scheduleNotification(activeCustomer);
-      }
-
-      Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
-    } on Exception catch (e, st) {
-      Log.error('Gagal total saat proses penjadwalan ulang semua notifikasi',
-          e: e, st: st);
-    }
-  }
-
-  Future<List<ActiveCustomerDetailModel>>
-      getAllActiveCustomersWithDetails() async {
-    final db = await dbHelper.database;
-    Log.info(
-        'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)');
-
-    final query = '''
-      SELECT
-        ac.*,
-        c.${ColumnNames.name} as customer_name,
-        p.${ColumnNames.name} as package_name
-      FROM $_tableName ac
-      LEFT JOIN $_customerTableName c ON ac.${ColumnNames.customerId} = c.${ColumnNames.id}
-      LEFT JOIN $_packageTableName p ON ac.${ColumnNames.packageId} = p.${ColumnNames.id}
-      WHERE ac.${ColumnNames.isDeleted} = 0
-        AND ac.${ColumnNames.endDate} >= ?
-    ''';
-
-    try {
-      final List<Map<String, dynamic>> maps = await db.rawQuery(
-        query,
-        [_nowUtc.millisecondsSinceEpoch],
-      );
-      Log.info(
-          'Berhasil mengambil ${maps.length} pelanggan aktif yang belum berakhir dengan detail.');
-
-      return List.generate(maps.length, (final i) {
-        final map = maps[i];
-        return ActiveCustomerDetailModel(
-          activeCustomer: ActiveCustomerModel.fromSqlite(map),
-          customerName: map['customer_name'] as String? ?? 'Tanpa Nama',
-          packageName: map['package_name'] as String? ?? 'Tanpa Paket',
-        );
-      });
-    } on Exception catch (e, st) {
-      Log.error(
-          'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
-          e: e,
-          st: st);
-      rethrow;
-    }
-  }
-
-  Future<ActiveCustomerModel> createActiveCustomer(
-    final ActiveCustomerModel activeCustomer, {
-    final bool fromServer = false,
+  Future<void> tambahPelangganAktif(
+    ActiveCustomerModel activeCustomer, {
+    bool dariServer = false,
   }) async {
+    Log.info(
+        'Menambah atau memperbarui pelanggan aktif ID: ${activeCustomer.id}');
     try {
-      final newId = activeCustomer.id.isEmpty ? uuid.v4() : activeCustomer.id;
-      final customerToSave = activeCustomer.copyWith(
-        id: newId,
-        updatedAt: _nowUtc,
+      final data = activeCustomer
+          .copyWith(updatedAt: DateTime.now().toUtc())
+          .toSqlite();
+
+      await baseOperation.insert(
+        _tableName,
+        data,
+        fromServer: dariServer,
       );
 
-      Log.info('Membuat active customer baru - ID: $newId');
-
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final data = customerToSave.toSqlite();
-          await txn.insert(
-            _tableName,
-            data,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        },
-        fromServer: fromServer,
+      await customerOperation.updateCustomer(
+        (await customerOperation.getById(activeCustomer.customerId))!
+            .copyWith(lastActiveAt: DateTime.now().toUtc()),
+        fromServer: dariServer,
       );
 
-      await scheduleNotification(customerToSave);
-
-      Log.info('Active customer ID: $newId berhasil dibuat di $_tableName');
-      return customerToSave;
-    } on Exception catch (e, st) {
-      Log.error('Gagal membuat active customer', e: e, st: st);
+      Log.info(
+          'Pelanggan aktif ID: ${activeCustomer.id} berhasil ditambahkan/diperbarui');
+    } catch (e, s) {
+      Log.error(
+        'Gagal menambah/memperbarui pelanggan aktif',
+        e: e,
+        st: s,
+        data: activeCustomer.toSqlite(),
+      );
       rethrow;
     }
   }
 
-  Future<List<ActiveCustomerModel>> getAllActiveCustomers() async {
+  Future<List<ActiveCustomerModel>> ambilSemuaPelangganAktif() async {
+    Log.info('Mengambil semua data pelanggan aktif dari database lokal');
     try {
       final db = await dbHelper.database;
-      Log.info('Mengambil semua active customer dari tabel $_tableName');
-
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.isDeleted} = ?',
-        whereArgs: [0],
+        where: '${ColumnNames.isDeleted} = 0',
       );
-
-      Log.info('Berhasil mengambil ${maps.length} active customer');
-      return List.generate(
-        maps.length,
-        (final i) => ActiveCustomerModel.fromSqlite(maps[i]),
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengambil semua active customer', e: e, st: st);
-      rethrow;
+      Log.info('Ditemukan ${maps.length} pelanggan aktif');
+      return List.generate(maps.length, (i) {
+        return ActiveCustomerModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil pelanggan aktif', e: e, st: s);
+      return [];
     }
   }
 
-  Future<ActiveCustomerModel?> getActiveCustomerById(final String id) async {
+  Future<ActiveCustomerModel?> ambilBerdasarkanId(String id) async {
+    Log.info('Mencari pelanggan aktif berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
-      Log.info('Mencari active customer dengan ID: $id di tabel $_tableName');
-
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where: '${ColumnNames.id} = ?',
         whereArgs: [id],
       );
-
       if (maps.isNotEmpty) {
-        final activeCustomer = ActiveCustomerModel.fromSqlite(maps.first);
-        Log.info('Active customer ID: $id ditemukan');
-        return activeCustomer;
+        Log.info('Pelanggan aktif ID: $id ditemukan');
+        return ActiveCustomerModel.fromSqlite(maps.first);
       }
-
-      Log.info('Active customer ID: $id tidak ditemukan');
+      Log.warning('Pelanggan aktif ID: $id tidak ditemukan');
       return null;
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengambil active customer ID: $id', e: e, st: st);
-      rethrow;
+    } catch (e, s) {
+      Log.error('Gagal mencari pelanggan aktif', e: e, st: s);
+      return null;
     }
   }
 
-  Future<ActiveCustomerModel> updateActiveCustomer(
-    final ActiveCustomerModel activeCustomer, {
-    final bool fromServer = false,
-  }) async {
+  Future<List<ActiveCustomerModel>> ambilBerdasarkanIdPelanggan(
+      String idPelanggan) async {
+    Log.info('Mengambil semua paket aktif untuk pelanggan ID: $idPelanggan');
     try {
-      final customerToSave = activeCustomer.copyWith(
-        updatedAt: _nowUtc,
-      );
-
-      Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final data = customerToSave.toSqlite();
-          await txn.update(
-            _tableName,
-            data,
-            where: '${ColumnNames.id} = ?',
-            whereArgs: [customerToSave.id],
-          );
-        },
-        fromServer: fromServer,
-      );
-
-      await scheduleNotification(customerToSave);
-      Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
-
-      return customerToSave;
-    } on Exception catch (e, st) {
-      Log.error('Gagal memperbarui active customer ID: ${activeCustomer.id}',
-          e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<void> scheduleNotification(
-      final ActiveCustomerModel activeCustomer) async {
-    try {
-      Log.info(
-          '(RE)SCHEDULING: Menjadwalkan notifikasi untuk active customer ID: ${activeCustomer.id}');
-
-      final customer =
-          await _customerOperation.getById(activeCustomer.customerId);
-      final customerName = customer?.name ?? 'Tanpa Nama';
-
-      await _notifikasiServis.batalNotifikasi(activeCustomer.id.hashCode);
-      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 1));
-      await _notifikasiServis.batalNotifikasi((activeCustomer.id.hashCode + 2));
-      Log.info(
-          'Membatalkan notifikasi yang ada sebelum menjadwalkan ulang notifiaksi');
-
-      final exactTime = activeCustomer.endDate;
-      if (exactTime.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
-          id: (activeCustomer.id.hashCode + 2),
-          title: 'Masa Aktif Habis!',
-          body: 'Paket WiFi untuk $customerName telah berakhir sekarang.',
-          jadwal: exactTime,
-        );
-      }
-
-      final h1Schedule =
-          activeCustomer.endDate.subtract(const Duration(days: 1));
-      if (h1Schedule.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
-          id: activeCustomer.id.hashCode,
-          title: 'Paket Akan Segera Berakhir',
-          body: 'Paket untuk pelanggan $customerName akan berakhir besok.',
-          jadwal: h1Schedule,
-        );
-      }
-
-      final h3Schedule =
-          activeCustomer.endDate.subtract(const Duration(days: 3));
-      if (h3Schedule.isAfter(DateTime.now())) {
-        await _notifikasiServis.jadwalNotifikasi(
-          id: (activeCustomer.id.hashCode + 1),
-          title: 'Pengingat Paket',
-          body:
-              'Paket untuk pelanggan $customerName akan berakhir dalam 3 hari.',
-          jadwal: h3Schedule,
-        );
-      }
-
-      Log.info('Penjadwalan notifikasi selesai untuk ID: ${activeCustomer.id}',
-          {'h3': h3Schedule, 'h1': h1Schedule, 'h0': exactTime});
-    } on Exception catch (e, st) {
-      Log.error('Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
-          e: e, st: st);
-    }
-  }
-
-  Future<void> insertOrUpdateBatch(
-    final List<ActiveCustomerModel> items, {
-    final bool fromServer = false,
-  }) async {
-    try {
-      Log.info(
-          'Memproses batch ${items.length} active customer di $_tableName');
-
-      final data = items
-          .map(
-            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
-          )
-          .toList();
-
-      await _baseOperation.insertOrUpdateBatch(
-        _tableName,
-        data,
-        fromServer: fromServer,
-      );
-
-      Log.info('Batch ${items.length} active customer berhasil diproses');
-    } on Exception catch (e, st) {
-      Log.error('Gagal memproses batch ${items.length} active customer',
-          e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
-  }) async {
-    try {
-      Log.info('Mengarsipkan active customer ID: $id');
-
-      final activeCustomer = await getActiveCustomerById(id);
-      if (activeCustomer == null) {
-        Log.info('Active customer ID: $id tidak ditemukan');
-        return;
-      }
-
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final archivedCustomer = activeCustomer.copyWith(
-            updatedAt: _nowUtc,
-            isDeleted: true,
-            archivedAt: _nowUtc,
-          );
-
-          await txn.update(
-            _tableName,
-            archivedCustomer.toSqlite(),
-            where: '${ColumnNames.id} = ?',
-            whereArgs: [id],
-          );
-
-          await _notifikasiServis.batalNotifikasi(id.hashCode);
-          await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-          await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
-          Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
-        },
-        fromServer: fromServer,
-      );
-
-      Log.info('Active customer ID: $id berhasil diarsipkan');
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan active customer ID: $id', e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<void> permanentlyDeleteArchivedCustomers({
-    final bool fromServer = false,
-  }) async {
-    try {
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final deadline = _nowUtc.subtract(const Duration(days: 30));
-
-          final List<Map<String, dynamic>> expiredCustomers = await txn.query(
-            _tableName,
-            where:
-                '${ColumnNames.archivedAt} IS NOT NULL AND ${ColumnNames.archivedAt} < ?',
-            whereArgs: [deadline.millisecondsSinceEpoch],
-          );
-
-          if (expiredCustomers.isEmpty) {
-            Log.info('Tidak ada active customer diarsipkan lebih dari 30 hari');
-            return;
-          }
-
-          final idsToDelete = expiredCustomers
-              .map((final map) => map[ColumnNames.id] as String)
-              .toList();
-
-          final count = await txn.delete(
-            _tableName,
-            where:
-                '${ColumnNames.id} IN (${List.filled(idsToDelete.length, '?').join(',')})',
-            whereArgs: idsToDelete,
-          );
-
-          Log.info(
-              '$count active customer telah dihapus permanen dari $_tableName');
-        },
-        fromServer: fromServer,
-      );
-    } on Exception catch (e, st) {
-      Log.error('Gagal menghapus permanen active customer diarsipkan',
-          e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<int> archiveExpiredCustomers({bool fromServer = false}) async {
-    try {
-      Log.info('Memeriksa active customer kadaluarsa');
       final db = await dbHelper.database;
-
-      final List<Map<String, dynamic>> expiredCustomers = await db.query(
+      final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${ColumnNames.endDate} < ? AND ${ColumnNames.isDeleted} = 0',
-        whereArgs: [_nowUtc.millisecondsSinceEpoch],
+        where:
+            '${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
+        whereArgs: [idPelanggan],
+        orderBy: '${ColumnNames.endDate} DESC',
       );
 
-      if (expiredCustomers.isEmpty) {
-        Log.info('Tidak ada active customer kadaluarsa');
-        return 0;
-      }
-
-      final idsToArchive = expiredCustomers
-          .map((final p) => p[ColumnNames.id] as String)
-          .toList();
-
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          await txn.update(
-            _tableName,
-            {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
-            },
-            where:
-                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
-            whereArgs: idsToArchive,
-          );
-
-          for (final id in idsToArchive) {
-            await _notifikasiServis.batalNotifikasi(id.hashCode);
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
-          }
-        },
-        fromServer: fromServer,
-      );
-
-      Log.info(
-          '${idsToArchive.length} active customer kadaluarsa telah diarsipkan');
-      return idsToArchive.length;
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
-    try {
-      Log.info('Mengarsipkan SEMUA active customer');
-      final allCustomers = await getAllActiveCustomers();
-
-      if (allCustomers.isEmpty) {
-        Log.info('Tidak ada active customer untuk diarsipkan');
-        return 0;
-      }
-
-      final idsToArchive = allCustomers.map((final p) => p.id).toList();
-
-      await _baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
-          await txn.update(
-            _tableName,
-            {
-              ColumnNames.isDeleted: 1,
-              ColumnNames.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              ColumnNames.updatedAt: _nowUtc.millisecondsSinceEpoch,
-            },
-            where:
-                '${ColumnNames.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
-            whereArgs: idsToArchive,
-          );
-
-          for (final id in idsToArchive) {
-            await _notifikasiServis.batalNotifikasi(id.hashCode);
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 1));
-            await _notifikasiServis.batalNotifikasi((id.hashCode + 2));
-          }
-        },
-        fromServer: fromServer,
-      );
-
-      Log.info('${idsToArchive.length} active customer telah diarsipkan');
-      return idsToArchive.length;
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan semua active customer', e: e, st: st);
-      rethrow;
-    }
-  }
-
-  Future<List<ActiveCustomerModel>> getActiveCustomersByIds(
-    final List<String> ids,
-  ) async {
-    try {
-      if (ids.isEmpty) {
-        Log.info('getActiveCustomersByIds dipanggil dengan list ID kosong');
+      if (maps.isEmpty) {
+        Log.info('Tidak ada paket aktif ditemukan untuk pelanggan $idPelanggan');
         return [];
       }
 
-      final db = await dbHelper.database;
-      final placeholders = List.filled(ids.length, '?').join(',');
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
-        where: '${ColumnNames.id} IN ($placeholders)',
-        whereArgs: ids,
-      );
-
-      Log.info('Ditemukan ${maps.length} dari ${ids.length} active customer');
-      return List.generate(maps.length, (final i) {
+      Log.info('Ditemukan ${maps.length} paket aktif untuk pelanggan $idPelanggan');
+      return List.generate(maps.length, (i) {
         return ActiveCustomerModel.fromSqlite(maps[i]);
       });
-    } on Exception catch (e, st) {
-      Log.error('Gagal mengambil active customer berdasarkan IDs',
-          e: e, st: st);
+    } catch (e, s) {
+      Log.error('Gagal mengambil paket aktif pelanggan', e: e, st: s);
+      return [];
+    }
+  }
+
+  Future<void> perbaruiPelangganAktif(
+    ActiveCustomerModel activeCustomer, {
+    bool dariServer = false,
+  }) async {
+    Log.info('Memperbarui pelanggan aktif ID: ${activeCustomer.id}');
+    try {
+      final data = activeCustomer
+          .copyWith(updatedAt: DateTime.now().toUtc())
+          .toSqlite();
+      await baseOperation.update(
+        _tableName,
+        data,
+        activeCustomer.id,
+        fromServer: dariServer,
+      );
+      Log.info('Pembaruan pelanggan aktif ID: ${activeCustomer.id} berhasil');
+    } catch (e, s) {
+      Log.error(
+        'Gagal memperbarui pelanggan aktif',
+        e: e,
+        st: s,
+        data: activeCustomer.toSqlite(),
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> hapusPelangganAktif(String id, {bool dariServer = false}) async {
+    Log.info('Menghapus (soft delete) pelanggan aktif ID: $id');
+    try {
+      await baseOperation.softDelete(
+        _tableName,
+        id,
+        fromServer: dariServer,
+      );
+      Log.info('Berhasil menghapus (soft delete) pelanggan aktif ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal menghapus pelanggan aktif', e: e, st: s, data: {'id': id});
+      rethrow;
+    }
+  }
+
+  Future<List<CustomerState>> periksaStatusPelanggan() async {
+    Log.info('Memeriksa status semua pelanggan aktif...');
+    try {
+      final db = await dbHelper.database;
+      final now = DateTime.now();
+      final threeDaysFromNow = now.add(const Duration(days: 3));
+
+      final List<Map<String, dynamic>> results = await db.rawQuery(
+        '''
+      SELECT
+        c.id AS customer_id,
+        c.name AS customer_name,
+        MIN(ac.endDate) AS earliest_expiry
+      FROM
+        ${TableNameValue.get(TableName.customer)} c
+      LEFT JOIN
+        $_tableName ac ON c.id = ac.customer_id
+      WHERE
+        c.isDeleted = 0
+      GROUP BY
+        c.id, c.name
+      ''',
+      );
+
+      final customerStates = <CustomerState>[];
+      for (final row in results) {
+        final customerId = row['customer_id'] as String;
+        final customerName = row['customer_name'] as String;
+        final earliestExpiryMillis = row['earliest_expiry'] as int?;
+
+        DateTime? earliestExpiry;
+        if (earliestExpiryMillis != null) {
+          earliestExpiry =
+              DateTime.fromMillisecondsSinceEpoch(earliestExpiryMillis);
+        }
+
+        CustomerStatus status;
+        if (earliestExpiry == null) {
+          status = CustomerStatus.inactive;
+        } else if (earliestExpiry.isBefore(now)) {
+          status = CustomerStatus.expired;
+        } else if (earliestExpiry.isBefore(threeDaysFromNow)) {
+          status = CustomerStatus.expiringSoon;
+        } else {
+          status = CustomerStatus.active;
+        }
+
+        customerStates.add(CustomerState(
+          customerId: customerId,
+          customerName: customerName,
+          status: status,
+          expiryDate: earliestExpiry,
+        ));
+
+        // Kirim notifikasi jika akan kedaluwarsa atau sudah kedaluwarsa
+        if (status == CustomerStatus.expiringSoon) {
+          await notifikasiServis.tampilkanNotifikasiMasaAktifAkanHabis(
+            idPelanggan: customerId,
+            namaPelanggan: customerName,
+            tanggalKedaluwarsa: earliestExpiry!,
+          );
+        } else if (status == CustomerStatus.expired) {
+          await notifikasiServis.tampilkanNotifikasiMasaAktifHabis(
+            idPelanggan: customerId,
+            namaPelanggan: customerName,
+          );
+        }
+      }
+
+      Log.info('Pemeriksaan status pelanggan selesai. Total: ${results.length}');
+      return customerStates;
+    } catch (e, s) {
+      Log.error('Gagal memeriksa status pelanggan', e: e, st: s);
+      return [];
+    }
+  }
+
+  Future<int> hapusSemuaPelangganAktif({bool dariServer = false}) async {
+    Log.info('Menghapus (soft delete) semua pelanggan aktif');
+    try {
+      final count = await baseOperation.softDeleteAll(
+        _tableName,
+        fromServer: dariServer,
+      );
+      Log.info('Berhasil soft delete $count pelanggan aktif');
+      return count;
+    } catch (e, s) {
+      Log.error('Gagal soft delete semua pelanggan aktif', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  Future<List<ActiveCustomerModel>> ambilPerubahanSejak(DateTime sejak) async {
+    Log.info(
+        'Mengambil perubahan pelanggan aktif sejak ${sejak.toIso8601String()}');
+    try {
+      final db = await dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        _tableName,
+        where: '${ColumnNames.updatedAt} > ?',
+        whereArgs: [sejak.toUtc().millisecondsSinceEpoch],
+      );
+      Log.info('Ditemukan ${maps.length} perubahan pelanggan aktif');
+      return List.generate(maps.length, (i) {
+        return ActiveCustomerModel.fromSqlite(maps[i]);
+      });
+    } catch (e, s) {
+      Log.error('Gagal mengambil perubahan pelanggan aktif', e: e, st: s);
+      rethrow;
+    }
+  }
+
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<ActiveCustomerModel> items, {
+    bool dariServer = false,
+  }) async {
+    if (items.isEmpty) {
+      Log.warning('Daftar batch pelanggan aktif kosong, operasi dibatalkan');
+      return;
+    }
+    Log.info('Memulai batch insert/update untuk ${items.length} pelanggan aktif');
+    try {
+      final data = items
+          .map((item) =>
+              item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite())
+          .toList();
+
+      await baseOperation.insertOrUpdateBatch(
+        _tableName,
+        data,
+        fromServer: dariServer,
+      );
+      Log.info('Batch pelanggan aktif berhasil dieksekusi');
+    } catch (e, s) {
+      Log.error('Gagal batch insert/update pelanggan aktif', e: e, st: s);
       rethrow;
     }
   }

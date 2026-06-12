@@ -225,9 +225,9 @@ void main() {
 
     test('Test 5: add harus memanggil baseOp.insert dengan data yang benar',
         () async {
-      when(mockBaseOp.insert(any, any, any)).thenAnswer((_) async {});
+      when(mockBaseOp.sisipkan(any, any, any)).thenAnswer((_) async {});
       await notifikasiOp.addNotifikasi(notifikasi1);
-      verify(mockBaseOp.insert(
+      verify(mockBaseOp.sisipkan(
         collection,
         notifikasi1.id,
         notifikasi1.toFirebase(),
@@ -248,9 +248,9 @@ void main() {
     test('Test 7: delete harus memanggil baseOp.delete dengan ID yang benar',
         () async {
       const idToDelete = 'notif1';
-      when(mockBaseOp.delete(any, any)).thenAnswer((_) async {});
+      when(mockBaseOp.hapusPermanen(any, any)).thenAnswer((_) async {});
       await notifikasiOp.deleteNotif(idToDelete);
-      verify(mockBaseOp.delete(collection, idToDelete)).called(1);
+      verify(mockBaseOp.hapusPermanen(collection, idToDelete)).called(1);
     });
 
     test(

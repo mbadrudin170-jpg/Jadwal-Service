@@ -47,13 +47,13 @@ class FeedbackOpFirebase {
   /// Menghapus feedback secara permanen dari Firestore.
   Future<void> delete(final String docId) async {
     Log.warning('Mendelegasikan penghapusan permanen feedback: $docId');
-    await _baseOp.delete(_collectionName, docId);
+    await _baseOp.hapusPermanen(_collectionName, docId);
   }
 
   /// Melakukan soft delete pada feedback di Firestore.
   Future<void> softDeleteFeedback(final String docId) async {
     Log.info('Mendelegasikan soft delete feedback: $docId');
-    await _baseOp.softDelete(_collectionName, docId);
+    await _baseOp.hapusSementara(_collectionName, docId);
   }
 
   // =======================================================================

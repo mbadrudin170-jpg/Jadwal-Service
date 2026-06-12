@@ -26,7 +26,7 @@ class PenjadwalNotifikasi {
 
       // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
       final transaction =
-          await transactionOperation.getLatestPaidTransactionByUserId(userId);
+          await transactionOperation.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
 
       // Logika utama penjadwalan notifikasi
       if (transaction != null &&

@@ -28,15 +28,15 @@ class CustomerOperation {
   /// untuk memfasilitasi pengujian. Jika tidak disediakan, instance default akan digunakan.
   CustomerOperation({
     required this.dbHelper,
-    required final BaseOperation baseOperation,
+    required BaseOperation baseOperation,
   }) : _baseOperation = baseOperation {
     Log.info('CustomerOperation diinisialisasi');
   }
 
   /// Menyimpan [CustomerModel] baru ke dalam database.
-  Future<void> add(
-    final CustomerModel customer, {
-    final bool fromServer = false,
+  Future<void> tambah(
+    CustomerModel customer, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai pembuatan customer dengan ID: ${customer.id}');
     try {
@@ -49,7 +49,7 @@ class CustomerOperation {
       await _baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
 
       Log.info(
@@ -61,7 +61,7 @@ class CustomerOperation {
   }
 
   /// Mengambil semua pelanggan yang aktif (tidak diarsipkan dan tidak dihapus).
-  Future<List<CustomerModel>> getAll() async {
+  Future<List<CustomerModel>> ambilSemua() async {
     Log.info(
         'Mengambil semua customer yang aktif (tidak diarsipkan dan tidak dihapus).');
     try {
@@ -75,7 +75,7 @@ class CustomerOperation {
       );
 
       Log.info('Berhasil mengambil ${maps.length} customer aktif.');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return CustomerModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -85,7 +85,7 @@ class CustomerOperation {
   }
 
   /// Mengambil semua pelanggan, termasuk yang diarsipkan dan dihapus.
-  Future<List<CustomerModel>> getAllCustomers() async {
+  Future<List<CustomerModel>> ambilSemuaPelanggan() async {
     Log.info('Mengambil SEMUA data customer dari database lokal.');
     try {
       final db = await dbHelper.database;
@@ -95,7 +95,7 @@ class CustomerOperation {
       );
 
       Log.info('Berhasil mengambil total ${maps.length} customer.');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return CustomerModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -105,7 +105,7 @@ class CustomerOperation {
   }
 
   /// Mengambil [CustomerModel] berdasarkan [id].
-  Future<CustomerModel?> getById(final String id) async {
+  Future<CustomerModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mencari customer berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
@@ -129,9 +129,9 @@ class CustomerOperation {
   }
 
   /// Memperbarui [CustomerModel] yang ada di database.
-  Future<void> updateCustomer(
-    final CustomerModel customer, {
-    final bool fromServer = false,
+  Future<void> perbaruiPelanggan(
+    CustomerModel customer, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai pembaruan untuk customer ID: ${customer.id}');
     try {
@@ -143,7 +143,7 @@ class CustomerOperation {
         _tableName,
         data,
         customer.id,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
 
       Log.info('Berhasil memperbarui customer ID: ${customer.id}.');
@@ -154,16 +154,16 @@ class CustomerOperation {
   }
 
   /// Melakukan soft delete pada [CustomerModel] berdasarkan [id].
-  Future<void> softDelete(
-    final String id, {
-    final bool fromServer = false,
+  Future<void> hapusSementara(
+    String id, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {
       await _baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
     } catch (e, s) {
@@ -173,14 +173,14 @@ class CustomerOperation {
   }
 
   /// Melakukan soft delete pada semua customer.
-  Future<int> softDeleteAll({
-    final bool fromServer = false,
+  Future<int> hapusSementaraSemua({
+    bool dariServer = false,
   }) async {
     Log.info('Memulai proses soft delete untuk semua customer.');
     try {
       final count = await _baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info(
           'Berhasil melakukan soft delete pada semua customer. Total: $count');
@@ -193,7 +193,7 @@ class CustomerOperation {
   }
 
   /// Mengambil semua pelanggan yang telah diubah sejak [since].
-  Future<List<CustomerModel>> getChangesSince(final DateTime since) async {
+  Future<List<CustomerModel>> ambilPerubahanSejak(DateTime since) async {
     Log.info('Mengambil perubahan customer sejak: ${since.toIso8601String()}');
     try {
       final db = await dbHelper.database;
@@ -207,7 +207,7 @@ class CustomerOperation {
           'Ditemukan ${maps.length} perubahan customer sejak waktu yang ditentukan.');
       return List.generate(
         maps.length,
-        (final i) => CustomerModel.fromSqlite(maps[i]),
+        (i) => CustomerModel.fromSqlite(maps[i]),
       );
     } catch (e, s) {
       Log.error('Gagal mengambil perubahan customer.', e: e, st: s);
@@ -216,9 +216,9 @@ class CustomerOperation {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [CustomerModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
-    final List<CustomerModel> items, {
-    final bool fromServer = false,
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<CustomerModel> items, {
+    bool dariServer = false,
   }) async {
     if (items.isEmpty) {
       Log.info('Tidak ada item untuk diproses dalam batch.');
@@ -226,7 +226,7 @@ class CustomerOperation {
     }
     Log.info('Memulai batch insert/update untuk ${items.length} customer.');
     try {
-      final data = items.map((final item) {
+      final data = items.map((item) {
         return item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
       }).toList();
 
@@ -234,7 +234,7 @@ class CustomerOperation {
       await _baseOperation.insertOrUpdateBatch(
         _tableName,
         data,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info(
           'Berhasil menyelesaikan operasi batch untuk ${items.length} customer.');
@@ -245,7 +245,8 @@ class CustomerOperation {
   }
 
   /// Mengambil beberapa [CustomerModel] berdasarkan daftar [ids].
-  Future<List<CustomerModel>> getCustomersByIds(final List<String> ids) async {
+  Future<List<CustomerModel>> ambilPelangganBerdasarkanId(
+      List<String> ids) async {
     if (ids.isEmpty) {
       Log.info('List ID kosong, tidak ada customer yang diambil.');
       return [];
@@ -262,7 +263,7 @@ class CustomerOperation {
       );
       Log.info(
           'Berhasil mengambil ${maps.length} customer berdasarkan list ID.');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return CustomerModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {

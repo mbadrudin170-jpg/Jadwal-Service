@@ -377,7 +377,7 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<_i3.DocumentReference<Object?>>);
 
   @override
-  _i5.Future<void> insert(
+  _i5.Future<void> sisipkan(
     String? collectionName,
     String? docId,
     Map<String, dynamic>? data,
@@ -415,7 +415,7 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> softDelete(
+  _i5.Future<void> hapusSementara(
     String? collectionName,
     String? docId,
   ) =>
@@ -432,7 +432,7 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> delete(
+  _i5.Future<void> hapusPermanen(
     String? collectionName,
     String? docId,
   ) =>
@@ -449,7 +449,8 @@ class MockTransactionOpFirebase extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<int> softDeleteAll(String? collectionName) => (super.noSuchMethod(
+  _i5.Future<int> hapusSementaraSemua(String? collectionName) =>
+      (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [collectionName],

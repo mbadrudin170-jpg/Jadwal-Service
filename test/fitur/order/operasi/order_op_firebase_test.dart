@@ -76,7 +76,7 @@ void main() {
     // Stub untuk koleksi utama 'customer_order'
     when(mockFirestore.collection(TableNameValue.get(TableName.customerOrder)))
         .thenReturn(mockOrderCollectionReference);
-    
+
     // Stub untuk method `set` yang dipanggil oleh StatusOpFirebase
     when(mockDocumentReference.set(any, any)).thenAnswer((_) async {});
 
@@ -87,8 +87,10 @@ void main() {
     );
 
     // 4. Stub sisa method yang dibutuhkan untuk tes
-    when(mockOrderCollectionReference.doc(any)).thenReturn(mockDocumentReference);
-    when(mockOrderCollectionReference.where(any, isEqualTo: anyNamed('isEqualTo')))
+    when(mockOrderCollectionReference.doc(any))
+        .thenReturn(mockDocumentReference);
+    when(mockOrderCollectionReference.where(any,
+            isEqualTo: anyNamed('isEqualTo')))
         .thenReturn(mockQuery);
     when(mockQuery.orderBy(any, descending: anyNamed('descending')))
         .thenReturn(mockQuery);
@@ -111,9 +113,10 @@ void main() {
 
   group('Grup Pengujian OrderOpFirebase', () {
     test('1. Uji penambahan pesanan baru', () async {
-      when(mockBaseOp.insert(any, any, any)).thenAnswer((_) => Future.value());
+      when(mockBaseOp.sisipkan(any, any, any))
+          .thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
-      verify(mockBaseOp.insert(
+      verify(mockBaseOp.sisipkan(
               TableNameValue.get(TableName.customerOrder), order.id, orderMap))
           .called(1);
     });
@@ -128,11 +131,12 @@ void main() {
 
     test('3. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
-      when(mockBaseOp.softDelete(any, any)).thenAnswer((_) => Future.value());
+      when(mockBaseOp.hapusSementara(any, any))
+          .thenAnswer((_) => Future.value());
 
       await orderOpFirebase.softDeleteOrder(orderId);
 
-      verify(mockBaseOp.softDelete(
+      verify(mockBaseOp.hapusSementara(
               TableNameValue.get(TableName.customerOrder), orderId))
           .called(1);
     });

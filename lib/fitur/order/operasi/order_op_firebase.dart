@@ -27,7 +27,7 @@ class OrderOpFirebase extends BaseOpFirebase {
   /// 1. Menambahkan pesanan baru
   Future<void> addOrder(OrderModel order) async {
     Log.info('Menambahkan pesanan baru: ${order.id}');
-    await _baseOp.insert(_collectionName, order.id, order.toFirebase());
+    await _baseOp.sisipkan(_collectionName, order.id, order.toFirebase());
   }
 
   /// 2. Memperbarui pesanan yang ada
@@ -39,7 +39,7 @@ class OrderOpFirebase extends BaseOpFirebase {
   /// 3. Menghapus pesanan (soft delete)
   Future<void> softDeleteOrder(String orderId) async {
     Log.info('Menghapus pesanan: $orderId');
-    await _baseOp.softDelete(_collectionName, orderId);
+    await _baseOp.hapusSementara(_collectionName, orderId);
   }
 
   /// 4. Mendapatkan stream semua pesanan

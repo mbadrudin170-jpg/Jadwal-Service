@@ -32,7 +32,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
         'Menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}');
     try {
       // ID dokumen di koleksi active_customers adalah ID pelanggan itu sendiri.
-      await insert(
+      await sisipkan(
         TableNameValue.get(TableName.activeCustomer),
         activeCustomer.customerId,
         activeCustomer.toFirebase(),
@@ -78,7 +78,8 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
     Log.warning('Memulai penghapusan pelanggan aktif: $customerId');
     try {
       // Menggunakan fungsi delete dari BaseOpFirebase
-      await delete(TableNameValue.get(TableName.activeCustomer), customerId);
+      await hapusPermanen(
+          TableNameValue.get(TableName.activeCustomer), customerId);
       Log.info('Berhasil menghapus pelanggan aktif: $customerId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus pelanggan aktif: $customerId', e: e, st: s);

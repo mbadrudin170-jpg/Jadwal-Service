@@ -84,7 +84,7 @@ class NotifikasiOpFirebase {
   Future<void> addNotifikasi(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
-      await _baseOp.insert(
+      await _baseOp.sisipkan(
         _collection,
         notifikasi.id,
         notifikasi.toFirebase(),
@@ -113,7 +113,7 @@ class NotifikasiOpFirebase {
   Future<void> deleteNotif(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');
-      await _baseOp.delete(_collection, id);
+      await _baseOp.hapusPermanen(_collection, id);
     } catch (e) {
       Log.error('Error deleting notification: $e');
       rethrow;

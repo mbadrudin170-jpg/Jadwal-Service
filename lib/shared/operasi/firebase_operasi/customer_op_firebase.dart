@@ -36,7 +36,7 @@ class CustomerOpFirebase {
   /// Membuat pelanggan baru di Firestore.
   Future<void> tambahPelanggan(CustomerModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
-    await _baseOp.insert(
+    await _baseOp.sisipkan(
       _collectionName,
       pelanggan.id,
       pelanggan.toFirebase(),
@@ -56,14 +56,14 @@ class CustomerOpFirebase {
   /// Melakukan soft delete pada pelanggan di Firestore.
   Future<void> hapusPelangganSementara(String idPelanggan) async {
     Log.info('Mendelegasikan soft delete pelanggan: $idPelanggan');
-    await _baseOp.softDelete(_collectionName, idPelanggan);
+    await _baseOp.hapusSementara(_collectionName, idPelanggan);
   }
 
   /// Menghapus pelanggan dari Firestore secara permanen.
   /// PERHATIAN: Operasi ini tidak bisa dibatalkan!
   Future<void> hapusPelangganPermanen(String idPelanggan) async {
     Log.warning('Mendelegasikan penghapusan permanen pelanggan: $idPelanggan');
-    await _baseOp.delete(_collectionName, idPelanggan);
+    await _baseOp.hapusPermanen(_collectionName, idPelanggan);
   }
 
   /// Memperbarui waktu terakhir pengguna aktif.

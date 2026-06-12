@@ -29,7 +29,7 @@ class BaseOpFirebase {
   /// [collectionName]: Nama koleksi target.
   /// [data]: Map data yang akan disimpan.
   /// Mengembalikan [DocumentReference] dari dokumen yang baru dibuat.
-  Future<DocumentReference> add(
+  Future<DocumentReference> tambah(
     final String collectionName,
     final Map<String, dynamic> data,
   ) async {
@@ -53,7 +53,7 @@ class BaseOpFirebase {
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan dibuat.
   /// [data]: Map data yang akan disimpan.
-  Future<void> insert(
+  Future<void> sisipkan(
     final String collectionName,
     final String docId,
     final Map<String, dynamic> data,
@@ -101,7 +101,7 @@ class BaseOpFirebase {
   /// Ini akan mengatur `isDeleted` menjadi true dan memperbarui `updatedAt`.
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan di-soft-delete.
-  Future<void> softDelete(
+  Future<void> hapusSementara(
       final String collectionName, final String docId) async {
     Log.info('Base softDelete: $collectionName/$docId');
     try {
@@ -124,7 +124,8 @@ class BaseOpFirebase {
   ///
   /// [collectionName]: Nama koleksi target.
   /// [docId]: ID dokumen yang akan dihapus.
-  Future<void> delete(final String collectionName, final String docId) async {
+  Future<void> hapusPermanen(
+      final String collectionName, final String docId) async {
     Log.warning('Base delete (permanen): $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
@@ -143,7 +144,7 @@ class BaseOpFirebase {
   /// Fungsi ini akan mengambil semua dokumen yang belum di-soft-delete
   /// lalu memperbaruinya dalam satu batch.
   /// Mengembalikan jumlah dokumen yang berhasil di-soft-delete.
-  Future<int> softDeleteAll(final String collectionName) async {
+  Future<int> hapusSementaraSemua(final String collectionName) async {
     Log.info('Base softDeleteAll: Memulai untuk koleksi $collectionName');
     try {
       final querySnapshot = await firestore
