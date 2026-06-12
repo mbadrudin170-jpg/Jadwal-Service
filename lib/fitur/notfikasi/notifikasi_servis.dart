@@ -124,7 +124,7 @@ class NotifikasiServis {
   /// Wajib dipanggil sebelum menggunakan fitur notifikasi lainnya.
   ///
   /// [iconName] adalah nama resource drawable untuk ikon notifikasi Android.
-  Future<void> initNotif({required final String iconName}) async {
+  Future<void> inisialisasiNotifikasi({required final String iconName}) async {
     Log.info('Memulai proses inisialisasi NotifikasiServis...');
 
     await _inisialisasiZonaWaktu();
@@ -153,7 +153,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal melakukan inisialisasi plugin notifikasi',
         e: e,
-        s: s,
+        s: s
       );
     }
   }
@@ -197,7 +197,7 @@ class NotifikasiServis {
     unawaited(_langgananNotifikasiFirebase?.cancel());
     _langgananNotifikasiFirebase =
         notifikasiOp.getKhususAdmin().listen((listNotifikasi) async {
-      for (final notifikasi in listNotifikasi) {
+      for ( notifikasi in listNotifikasi) {
         if (!_idNotifikasiTampil.contains(notifikasi.id)) {
           await tampilkanNotifikasiLangsung(
             title: notifikasi.title,
@@ -257,7 +257,7 @@ class NotifikasiServis {
 
   // 4. Meminta izin dari pengguna untuk menampilkan notifikasi
   /// Meminta izin dari pengguna untuk menampilkan notifikasi.
-  Future<void> requestPermissions() async {
+  Future<void> requestPermissions() async {mintaIzin()
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
       if (kIsWeb) {
