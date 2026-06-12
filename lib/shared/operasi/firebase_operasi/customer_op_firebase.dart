@@ -110,7 +110,7 @@ class CustomerOpFirebase {
       Log.info('Berhasil mengambil ${pelanggan.length} pelanggan.');
       return pelanggan;
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil semua pelanggan', e: e, st: s);
+      Log.error('Gagal mengambil semua pelanggan', e: e, s: s);
       return []; // Kembalikan list kosong jika terjadi error
     }
   }
@@ -127,7 +127,7 @@ class CustomerOpFirebase {
       }
       return null;
     }).handleError((Object e, StackTrace s) {
-      Log.error('Error pada stream pelanggan untuk: $idPengguna', e: e, st: s);
+      Log.error('Error pada stream pelanggan untuk: $idPengguna', e: e, s: s);
     });
   }
 
@@ -144,7 +144,7 @@ class CustomerOpFirebase {
       Log.warning('Pelanggan $idPengguna tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
-      Log.error('Error mengambil pelanggan: $e', e: e, st: s);
+      Log.error('Error mengambil pelanggan: $e', e: e, s: s);
       return null;
     }
   }

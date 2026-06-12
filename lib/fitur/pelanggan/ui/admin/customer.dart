@@ -150,7 +150,7 @@ class CustomerPage extends ConsumerWidget {
     return customersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
-        Log.error('Gagal memuat daftar customer', e: e, st: s);
+        Log.error('Gagal memuat daftar customer', e: e, s: s);
         return Center(
           child: Text('Gagal memuat data: $e'),
         );
@@ -352,7 +352,7 @@ class CustomerPage extends ConsumerWidget {
         ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal mengarsipkan pelanggan', e: e, st: s);
+      Log.error('Gagal mengarsipkan pelanggan', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(context, 'Gagal mengarsipkan customer.');
       }

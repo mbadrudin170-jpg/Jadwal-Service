@@ -52,7 +52,7 @@ class PackagePage extends ConsumerWidget {
       body: asyncPackages.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) {
-          Log.error('Terjadi error saat memuat data paket', e: err, st: stack);
+          Log.error('Terjadi error saat memuat data paket', e: err, s: stack);
           return Center(child: Text('Error: $err'));
         },
         data: (paketList) {
@@ -273,7 +273,7 @@ Future<void> _showDeleteConfirmationDialog(
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
                 }
               } on Exception catch (e, s) {
-                Log.error('Gagal hapus paket', e: e, st: s);
+                Log.error('Gagal hapus paket', e: e, s: s);
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal menghapus paket: $e');
                 }
@@ -314,7 +314,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
                   ToastUtil.success(context, 'Semua paket dihapus.');
                 }
               } on Exception catch (e, s) {
-                Log.error('Gagal hapus semua paket', e: e, st: s);
+                Log.error('Gagal hapus semua paket', e: e, s: s);
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal menghapus semua paket: $e');
                 }

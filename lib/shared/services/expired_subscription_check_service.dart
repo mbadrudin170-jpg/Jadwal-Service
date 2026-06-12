@@ -30,7 +30,7 @@ class ExpiredSubscriptionCheckService {
         Log.info('Tidak ada langganan kadaluwarsa.');
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal memproses langganan kadaluwarsa.', e: e, st: s);
+      Log.error('Gagal memproses langganan kadaluwarsa.', e: e, s: s);
     }
   }
 }

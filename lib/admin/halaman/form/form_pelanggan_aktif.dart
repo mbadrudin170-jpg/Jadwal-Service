@@ -156,7 +156,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         Log.info('Semua data berhasil dimuat.');
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal memuat data referensi', e: e, st: s);
+      Log.error('Gagal memuat data referensi', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data: $e');
         setState(() => _isLoading = false);
@@ -435,7 +435,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       return SaveResultModel(
           success: true, message: successMessage, data: pelangganAktifHasil);
     } on Exception catch (e, s) {
-      Log.error('Gagal menyimpan data pelanggan aktif.', e: e, st: s);
+      Log.error('Gagal menyimpan data pelanggan aktif.', e: e, s: s);
       if (mounted) {
         ToastUtil.error(context, 'Gagal menyimpan: $e');
       }

@@ -1,6 +1,5 @@
 // path: lib/fitur/background/boot_service.dart
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/alarm/android_alarm_scheduler.dart';
 import 'package:wifi/fitur/background/background_service.dart';
@@ -20,7 +19,8 @@ class BootService {
       const Duration(hours: 1),
       archiveExpiredId, // ID unik untuk tugas ini
       BackgroundService.periksaDanArsipkanPelangganKedaluwarsa,
-      startAt: DateTime.now().add(const Duration(seconds: 10)), // Mulai setelah 10 detik
+      startAt: DateTime.now()
+          .add(const Duration(seconds: 10)), // Mulai setelah 10 detik
       exact: true, // Pastikan alarm berjalan tepat waktu
       wakeup: true, // Bangunkan perangkat jika perlu
       rescheduleOnReboot: true, // Jadwalkan ulang setelah reboot
@@ -39,7 +39,8 @@ class BootService {
 
       // Batalkan alarm sekali jalan yang mungkin sudah ada
       await alarmScheduler.cancel(oneShotArchivedId);
-      Log.info('Alarm sekali jalan (ID: $oneShotArchivedId) berhasil dibatalkan.');
+      Log.info(
+          'Alarm sekali jalan (ID: $oneShotArchivedId) berhasil dibatalkan.');
 
       if (activeCustomers.isEmpty) {
         Log.warning('Tidak ada pelanggan aktif, tidak ada penjadwalan ulang.');
@@ -47,8 +48,8 @@ class BootService {
       }
 
       // Urutkan untuk menemukan tanggal kedaluwarsa terdekat
-      activeCustomers
-          .sort((a, b) => a.activeCustomer.endDate.compareTo(b.activeCustomer.endDate));
+      activeCustomers.sort((a, b) =>
+          a.activeCustomer.endDate.compareTo(b.activeCustomer.endDate));
 
       final nearestExpiryDate = activeCustomers.first.activeCustomer.endDate;
 
@@ -65,7 +66,7 @@ class BootService {
       Log.info(
           'Penjadwalan ulang berhasil. Alarm sekali jalan diatur untuk: $nearestExpiryDate');
     } on Exception catch (e, st) {
-      Log.error('Gagal menjadwalkan ulang tugas pengarsipan', e: e, st: st);
+      Log.error('Gagal menjadwalkan ulang tugas pengarsipan', e: e, s: st);
       // Pertimbangkan untuk melempar kembali error jika perlu penanganan lebih lanjut
     }
   }

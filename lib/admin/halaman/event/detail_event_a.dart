@@ -27,7 +27,7 @@ class DetailEventA extends ConsumerWidget {
           }
           if (snapshot.hasError) {
             Log.error('Error fetching event detail',
-                e: snapshot.error, st: snapshot.stackTrace);
+                e: snapshot.error, s: snapshot.stackTrace);
             return const Center(child: Text('Gagal memuat data.'));
           }
 
@@ -54,7 +54,7 @@ class DetailEventA extends ConsumerWidget {
                         Log.error(
                             'Gagal memuat gambar detail: ${detailedEvent.imageUrl}',
                             e: e,
-                            st: st);
+                            s: st);
                         return Container(
                           height: 200,
                           color: Colors.grey[200],

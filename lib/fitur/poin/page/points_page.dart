@@ -156,7 +156,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
           ToastUtil.success(
               context, 'Order sudah terkirim menunggu konfirmasi Admin');
         } on Exception catch (e, st) {
-          Log.error('Gagal menukar poin: $e', e: e, st: st);
+          Log.error('Gagal menukar poin: $e', e: e, s: st);
           if (!mounted) return;
           ToastUtil.error(context, 'Terjadi kesalahan saat menukar poin.');
         }
@@ -176,7 +176,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         package = await dataSource.getPaketByid(transaction.packageId!);
       } on Exception catch (e, st) {
         Log.error('Failed to get package ${transaction.packageId}: $e',
-            e: e, st: st);
+            e: e, s: st);
       }
     }
     if (!mounted) return;

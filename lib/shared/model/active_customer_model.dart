@@ -117,7 +117,7 @@ class PelangganAktifModel implements HasId {
       Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
       return model;
     } catch (e, stack) {
-      Log.error('Failed to parse from SQLite: $map', e: e, st: stack);
+      Log.error('Failed to parse from SQLite: $map', e: e, s: stack);
       rethrow;
     }
   }
@@ -172,7 +172,7 @@ class PelangganAktifModel implements HasId {
       Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
       return model;
     } catch (e, stack) {
-      Log.error('Failed to parse from Firebase: $data', e: e, st: stack);
+      Log.error('Failed to parse from Firebase: $data', e: e, s: stack);
       rethrow;
     }
   }

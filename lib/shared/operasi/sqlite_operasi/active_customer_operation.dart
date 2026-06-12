@@ -57,7 +57,7 @@ class ActiveCustomerOperation {
       Log.info('PROSES PENJADWALAN ULANG SEMUA NOTIFIKASI SELESAI.');
     } on Exception catch (e, st) {
       Log.error('Gagal total saat proses penjadwalan ulang semua notifikasi',
-          e: e, st: st);
+          e: e, s: st);
     }
   }
 
@@ -99,7 +99,7 @@ class ActiveCustomerOperation {
       Log.error(
           'Gagal melakukan query JOIN untuk pelanggan aktif yang belum berakhir',
           e: e,
-          st: st);
+          s: st);
       rethrow;
     }
   }
@@ -134,7 +134,7 @@ class ActiveCustomerOperation {
       Log.info('Active customer ID: $newId berhasil dibuat di $_tableName');
       return customerToSave;
     } on Exception catch (e, st) {
-      Log.error('Gagal membuat active customer', e: e, st: st);
+      Log.error('Gagal membuat active customer', e: e, s: st);
       rethrow;
     }
   }
@@ -156,7 +156,7 @@ class ActiveCustomerOperation {
         (final i) => PelangganAktifModel.fromSqlite(maps[i]),
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil semua active customer', e: e, st: st);
+      Log.error('Gagal mengambil semua active customer', e: e, s: st);
       rethrow;
     }
   }
@@ -181,7 +181,7 @@ class ActiveCustomerOperation {
       Log.info('Active customer ID: $id tidak ditemukan');
       return null;
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil active customer ID: $id', e: e, st: st);
+      Log.error('Gagal mengambil active customer ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -216,7 +216,7 @@ class ActiveCustomerOperation {
       return customerToSave;
     } on Exception catch (e, st) {
       Log.error('Gagal memperbarui active customer ID: ${activeCustomer.id}',
-          e: e, st: st);
+          e: e, s: st);
       rethrow;
     }
   }
@@ -274,7 +274,7 @@ class ActiveCustomerOperation {
           {'h3': h3Schedule, 'h1': h1Schedule, 'h0': exactTime});
     } on Exception catch (e, st) {
       Log.error('Gagal menjadwalkan notifikasi untuk ID: ${activeCustomer.id}',
-          e: e, st: st);
+          e: e, s: st);
     }
   }
 
@@ -301,7 +301,7 @@ class ActiveCustomerOperation {
       Log.info('Batch ${items.length} active customer berhasil diproses');
     } on Exception catch (e, st) {
       Log.error('Gagal memproses batch ${items.length} active customer',
-          e: e, st: st);
+          e: e, s: st);
       rethrow;
     }
   }
@@ -344,7 +344,7 @@ class ActiveCustomerOperation {
 
       Log.info('Active customer ID: $id berhasil diarsipkan');
     } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan active customer ID: $id', e: e, st: st);
+      Log.error('Gagal mengarsipkan active customer ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -387,7 +387,7 @@ class ActiveCustomerOperation {
       );
     } on Exception catch (e, st) {
       Log.error('Gagal menghapus permanen active customer diarsipkan',
-          e: e, st: st);
+          e: e, s: st);
       rethrow;
     }
   }
@@ -438,7 +438,7 @@ class ActiveCustomerOperation {
           '${idsToArchive.length} active customer kadaluarsa telah diarsipkan');
       return idsToArchive.length;
     } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, st: st);
+      Log.error('Gagal mengarsipkan active customer kadaluarsa', e: e, s: st);
       rethrow;
     }
   }
@@ -481,7 +481,7 @@ class ActiveCustomerOperation {
       Log.info('${idsToArchive.length} active customer telah diarsipkan');
       return idsToArchive.length;
     } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan semua active customer', e: e, st: st);
+      Log.error('Gagal mengarsipkan semua active customer', e: e, s: st);
       rethrow;
     }
   }
@@ -508,8 +508,7 @@ class ActiveCustomerOperation {
         return PelangganAktifModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil active customer berdasarkan IDs',
-          e: e, st: st);
+      Log.error('Gagal mengambil active customer berdasarkan IDs', e: e, s: st);
       rethrow;
     }
   }

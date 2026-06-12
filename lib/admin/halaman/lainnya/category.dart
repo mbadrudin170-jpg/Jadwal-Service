@@ -51,7 +51,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     try {
       return await _categoryOperation.getCategories();
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat data kategori', e: e, st: st);
+      Log.error('Gagal memuat data kategori', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data kategori: $e');
       }
@@ -151,7 +151,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan kategori: $e');
-      Log.error('Gagal soft delete kategori ID: ${category.id}', e: e, st: st);
+      Log.error('Gagal soft delete kategori ID: ${category.id}', e: e, s: st);
     }
   }
 
@@ -173,7 +173,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
       Log.error('Gagal soft delete sub-kategori ID: ${subCategory.id}',
-          e: e, st: st);
+          e: e, s: st);
     }
   }
 
@@ -192,7 +192,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan semua kategori: $e');
-      Log.error('Gagal melakukan soft delete semua kategori', e: e, st: st);
+      Log.error('Gagal melakukan soft delete semua kategori', e: e, s: st);
     }
   }
 

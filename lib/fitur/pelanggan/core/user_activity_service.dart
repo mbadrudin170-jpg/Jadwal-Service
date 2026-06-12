@@ -54,7 +54,7 @@ class UserActivityService {
       Log.error(
           'pingActivity: Terjadi error pada logika throttling atau SharedPreferences.',
           e: e,
-          st: st);
+          s: st);
       // Tidak melempar ulang agar tidak mengganggu aplikasi.
     }
   }

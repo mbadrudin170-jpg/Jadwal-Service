@@ -112,7 +112,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       return isOnline;
     } on Exception catch (e, s) {
-      Log.error('Error kritis selama inisialisasi sekunder.', e: e, st: s);
+      Log.error('Error kritis selama inisialisasi sekunder.', e: e, s: s);
       return false;
     }
   }

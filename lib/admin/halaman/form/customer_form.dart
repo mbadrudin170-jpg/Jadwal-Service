@@ -139,7 +139,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
           Navigator.pop(context, true);
         }
       } on Exception catch (e, s) {
-        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, st: s);
+        Log.error('Gagal menyimpan data pelanggan ke database.', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal menyimpan data: $e');
         }

@@ -140,7 +140,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                           ToastUtil.success(context, 'Data berhasil dihapus');
                         }
                       } catch (e, st) {
-                        Log.error('Gagal menghapus pesanan', e: e, st: st);
+                        Log.error('Gagal menghapus pesanan', e: e, s: st);
                         if (context.mounted) {
                           ToastUtil.error(context, 'Gagal menghapus pesanan');
                         }
@@ -348,7 +348,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
             }
           } on Exception catch (e, st) {
             // 1. Catat log error secara detail untuk developer.
-            Log.error('Gagal memperbarui status pesanan', e: e, st: st, data: {
+            Log.error('Gagal memperbarui status pesanan', e: e, s: st, data: {
               'orderId': order.id,
               'newStatus': status,
             });

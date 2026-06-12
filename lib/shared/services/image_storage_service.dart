@@ -35,10 +35,10 @@ class ImageStorageService {
       Log.error(
           'Terjadi kesalahan spesifik Supabase Storage saat mengunggah gambar',
           e: e,
-          st: st);
+          s: st);
       rethrow;
     } catch (e, st) {
-      Log.error('Terjadi kesalahan umum saat mengunggah gambar', e: e, st: st);
+      Log.error('Terjadi kesalahan umum saat mengunggah gambar', e: e, s: st);
       rethrow;
     }
   }
@@ -55,7 +55,7 @@ class ImageStorageService {
       Log.info('Berhasil membuat signed URL untuk $bucket/$path');
       return signedUrl;
     } catch (e, st) {
-      Log.error('Gagal membuat signed URL', e: e, st: st);
+      Log.error('Gagal membuat signed URL', e: e, s: st);
       return null;
     }
   }
@@ -67,7 +67,7 @@ class ImageStorageService {
           'Berhasil mengunduh gambar $bucket/$path (${bytes.length} bytes)');
       return bytes;
     } catch (e, st) {
-      Log.error('Gagal mengunduh gambar', e: e, st: st);
+      Log.error('Gagal mengunduh gambar', e: e, s: st);
       return null;
     }
   }
@@ -80,7 +80,7 @@ class ImageStorageService {
       Log.info('Berhasil mengambil daftar file dari $bucket/$folderName');
       return result;
     } catch (e, st) {
-      Log.error('Gagal mengambil daftar file', e: e, st: st);
+      Log.error('Gagal mengambil daftar file', e: e, s: st);
       return null;
     }
   }
@@ -91,7 +91,7 @@ class ImageStorageService {
       Log.info('Berhasil menghapus file dari $bucket: $paths');
       return true;
     } catch (e, st) {
-      Log.error('Gagal menghapus file', e: e, st: st);
+      Log.error('Gagal menghapus file', e: e, s: st);
       return false;
     }
   }

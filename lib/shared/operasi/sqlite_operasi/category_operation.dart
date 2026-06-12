@@ -45,7 +45,7 @@ class CategoryOperation {
       Log.info('Berhasil membuat category baru dengan ID: ${newCategory.id}');
       return newCategory;
     } catch (e, st) {
-      Log.error('Gagal saat createCategory', e: e, st: st);
+      Log.error('Gagal saat createCategory', e: e, s: st);
       rethrow;
     }
   }
@@ -67,7 +67,7 @@ class CategoryOperation {
       Log.info('Berhasil mengambil ${listCategory.length} data category.');
       return listCategory;
     } catch (e, st) {
-      Log.error('Gagal saat getCategories', e: e, st: st);
+      Log.error('Gagal saat getCategories', e: e, s: st);
       rethrow;
     }
   }
@@ -94,7 +94,7 @@ class CategoryOperation {
       Log.error(
         'Gagal saat getCategoryById untuk ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -123,7 +123,7 @@ class CategoryOperation {
       Log.error(
         'Gagal saat getCategoriesByType untuk tipe: ${type.name}',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -149,7 +149,7 @@ class CategoryOperation {
       Log.error(
         'Gagal saat updateCategory untuk ID: ${category.id}',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -168,7 +168,7 @@ class CategoryOperation {
       );
       Log.info('Berhasil deleteCategory untuk ID: $id.');
     } catch (e, st) {
-      Log.error('Gagal saat deleteCategory untuk ID: $id', e: e, st: st);
+      Log.error('Gagal saat deleteCategory untuk ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -190,7 +190,7 @@ class CategoryOperation {
       Log.error(
         'Gagal saat soft delete category ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -212,7 +212,7 @@ class CategoryOperation {
       Log.error(
         'Gagal saat soft delete semua kategori',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -255,7 +255,7 @@ class CategoryOperation {
         fromServer: fromServer,
       );
     } catch (e, st) {
-      Log.error('Gagal saat menjalankan clearAndInsertAll', e: e, st: st);
+      Log.error('Gagal saat menjalankan clearAndInsertAll', e: e, s: st);
       rethrow;
     }
   }
@@ -279,7 +279,7 @@ class CategoryOperation {
           'Berhasil menemukan ${listCategory.length} perubahan category sejak ${since.toIso8601String()}.');
       return listCategory;
     } catch (e, st) {
-      Log.error('Gagal saat getChangesSince category', e: e, st: st);
+      Log.error('Gagal saat getChangesSince category', e: e, s: st);
       rethrow;
     }
   }
@@ -312,7 +312,7 @@ class CategoryOperation {
           'Berhasil menyelesaikan insertOrUpdateBatch untuk ${items.length} item category.');
     } catch (e, st) {
       Log.error('Gagal saat menjalankan insertOrUpdateBatch category',
-          e: e, st: st);
+          e: e, s: st);
       rethrow;
     }
   }
@@ -341,7 +341,7 @@ class CategoryOperation {
           'Berhasil mengambil ${listCategory.length} category dari ${ids.length} ID yang diminta.');
       return listCategory;
     } catch (e, st) {
-      Log.error('Gagal saat getCategoriesByIds', e: e, st: st);
+      Log.error('Gagal saat getCategoriesByIds', e: e, s: st);
       rethrow;
     }
   }

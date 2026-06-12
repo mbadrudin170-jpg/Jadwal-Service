@@ -113,7 +113,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal total saat menginisialisasi zona waktu lokal.',
         e: e,
-        st: st,
+        s: st,
       );
     }
   }
@@ -153,7 +153,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal melakukan inisialisasi plugin notifikasi',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -188,7 +188,7 @@ class NotifikasiServis {
         'Android Notification Channel "Notifikasi Penting" berhasil dibuat.',
       );
     } on Exception catch (e, s) {
-      Log.error('Gagal membuat Android Notification Channel', e: e, st: s);
+      Log.error('Gagal membuat Android Notification Channel', e: e, s: s);
     }
   }
 
@@ -208,7 +208,7 @@ class NotifikasiServis {
         }
       }
     }, onError: (Object e, StackTrace st) {
-      Log.error('Error pada stream notifikasi umum', e: e, st: st);
+      Log.error('Error pada stream notifikasi umum', e: e, s: st);
     });
   }
 
@@ -240,7 +240,7 @@ class NotifikasiServis {
         Log.error(
           'Error pada stream notifikasi Firebase',
           e: e,
-          st: st,
+          s: st,
         );
       },
       onDone: () {
@@ -281,7 +281,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal meminta izin notifikasi',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -351,7 +351,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal menampilkan notifikasi langsung',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -422,7 +422,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal mendaftarkan jadwal notifikasi',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -463,7 +463,7 @@ class NotifikasiServis {
       Log.error(
         'Gagal membatalkan notifikasi ID: $id',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -481,7 +481,7 @@ class NotifikasiServis {
       Log.error(
         'Terjadi kesalahan saat membersihkan semua notifikasi',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }

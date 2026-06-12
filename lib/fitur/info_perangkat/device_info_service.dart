@@ -52,7 +52,7 @@ class DeviceInfoService {
       Log.error(
         'Gagal mendapatkan info perangkat.',
         e: e,
-        st: s,
+        s: s,
       );
       return {
         'error': 'Gagal mendapatkan info perangkat: $e',

@@ -114,7 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               'memperbarui last aktif user setelah login berhasil ${customer.id}');
         } catch (e, s) {
           // Hanya catat error ini untuk debug, jangan tampilkan ke pengguna
-          Log.error('Gagal ping activity setelah login', e: e, st: s);
+          Log.error('Gagal ping activity setelah login', e: e, s: s);
         }
 
         return; // Selesai
@@ -124,7 +124,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             'Nomor telepon atau password yang Anda masukkan salah.');
       }
     } catch (e, s) {
-      Log.error('Terjadi kesalahan saat login.', e: e, st: s);
+      Log.error('Terjadi kesalahan saat login.', e: e, s: s);
       if (mounted) setState(() => _sedangLogin = false);
       if (!mounted) return;
       await _showErrorAlert(

@@ -89,7 +89,7 @@ class BaseOpSqlite {
           Log.error(
             '[TRANSAKSI GAGAL DI DALAM] Error di dalam blok transaksi.',
             e: e,
-            st: st,
+            s: st,
           );
           rethrow;
         }
@@ -98,7 +98,7 @@ class BaseOpSqlite {
       Log.error(
         '[TRANSAKSI GAGAL DI LUAR] Gagal memulai atau menyelesaikan transaksi.',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -137,7 +137,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal menyisipkan data ke tabel: $table',
         e: e,
-        st: s,
+        s: s,
         data: data,
       );
       rethrow;
@@ -183,7 +183,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal memperbarui data di tabel: $table',
         e: e,
-        st: s,
+        s: s,
         data: {'id': id, 'payload': data},
       );
       rethrow;
@@ -221,7 +221,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal menghapus data di tabel: $table',
         e: e,
-        st: s,
+        s: s,
         data: {'id': id},
       );
       rethrow;
@@ -268,7 +268,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal melakukan soft delete di tabel: $table',
         e: e,
-        st: s,
+        s: s,
         data: {'id': id},
       );
       rethrow;
@@ -307,7 +307,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal melakukan soft delete semua data di tabel: $table',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -357,7 +357,7 @@ class BaseOpSqlite {
       Log.error(
         'Gagal melakukan batch operation di tabel: $table',
         e: e,
-        st: s,
+        s: s,
         data: {'totalItem': dataList.length},
       );
       rethrow;

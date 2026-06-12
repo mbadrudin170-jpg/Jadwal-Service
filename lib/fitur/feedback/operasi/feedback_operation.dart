@@ -36,7 +36,7 @@ class FeedbackOperation {
       );
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {
-      Log.error('Gagal saat createFeedback', e: e, st: st);
+      Log.error('Gagal saat createFeedback', e: e, s: st);
       rethrow;
     }
   }
@@ -59,7 +59,7 @@ class FeedbackOperation {
       Log.info('Berhasil mengambil ${feedbackList.length} data kritik_saran.');
       return feedbackList;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getAllFeedback', e: e, st: st);
+      Log.error('Gagal saat getAllFeedback', e: e, s: st);
       rethrow;
     }
   }
@@ -81,7 +81,7 @@ class FeedbackOperation {
       Log.info('Berhasil mengambil ${feedbackList.length} feedback aktif.');
       return feedbackList;
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil feedback aktif', e: e, st: st);
+      Log.error('Gagal mengambil feedback aktif', e: e, s: st);
       rethrow;
     }
   }
@@ -111,7 +111,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat getFeedbackById untuk ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -141,7 +141,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat getChanges kritik_saran',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -180,7 +180,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat insertOrUpdateBatch kritik_saran',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -209,7 +209,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat deleteFeedback untuk ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -232,7 +232,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat soft delete feedback ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -254,7 +254,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat soft delete semua feedback',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -279,7 +279,7 @@ class FeedbackOperation {
         fromServer: fromServer,
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal saat deleteAllFeedback', e: e, st: st);
+      Log.error('Gagal saat deleteAllFeedback', e: e, s: st);
       rethrow;
     }
   }
@@ -311,7 +311,7 @@ class FeedbackOperation {
       Log.error(
         'Gagal saat deleteByUserId untuk userId: $userId',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -342,7 +342,7 @@ class FeedbackOperation {
       );
       return feedbackList;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getFeedbackByIds', e: e, st: st);
+      Log.error('Gagal saat getFeedbackByIds', e: e, s: st);
       rethrow;
     }
   }

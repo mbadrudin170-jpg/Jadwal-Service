@@ -87,7 +87,7 @@ class DataCleaningOperation {
       Log.info(
           'Total $totalDeleted baris data arsip kadaluarsa berhasil dihapus dari database SQLite.');
     } on Exception catch (e, s) {
-      Log.error('Gagal menjalankan pembersihan data di SQLite.', e: e, st: s);
+      Log.error('Gagal menjalankan pembersihan data di SQLite.', e: e, s: s);
     }
     return totalDeleted;
   }
@@ -145,7 +145,7 @@ class DataCleaningOperation {
       }
     } catch (e, s) {
       Log.error('Gagal menjalankan batch pembersihan data di Firestore.',
-          e: e, st: s);
+          e: e, s: s);
       // Melempar error karena kegagalan di Firestore bisa jadi lebih kritis.
       rethrow;
     }

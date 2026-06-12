@@ -100,7 +100,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
         throw Exception('Could not launch $whatsappUri');
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal membuka WhatsApp', e: e, st: s);
+      Log.error('Gagal membuka WhatsApp', e: e, s: s);
       if (!mounted) return;
       ToastUtil.error(
         context,

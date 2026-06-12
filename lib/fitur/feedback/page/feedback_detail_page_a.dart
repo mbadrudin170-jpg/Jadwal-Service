@@ -62,7 +62,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
         e: e,
-        st: s,
+        s: s,
       );
       // diubah: Melempar error dengan tipe yang benar.
       // Alasan: Mengikuti praktik terbaik penanganan error setelah tipenya dipastikan.
@@ -180,7 +180,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
         }
       } catch (e, st) {
         Log.error('Terjadi kesalahan saat menghapus kritik dan saran.',
-            e: e, st: st);
+            e: e, s: st);
 
         if (mounted) {
           Log.warning(
@@ -247,7 +247,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
             Log.error(
               'FutureBuilder menerima error saat memuat data.',
               e: snapshot.error,
-              st: snapshot.stackTrace,
+              s: snapshot.stackTrace,
             );
 
             return Center(

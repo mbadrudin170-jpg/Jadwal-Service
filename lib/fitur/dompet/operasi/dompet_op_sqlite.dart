@@ -34,7 +34,7 @@ class DompetOpSqlite {
       );
       Log.info('Berhasil membuat wallet dengan ID: ${wallet.id}');
     } on Exception catch (e, st) {
-      Log.error('Gagal saat tambahDompet', e: e, st: st);
+      Log.error('Gagal saat tambahDompet', e: e, s: st);
       rethrow;
     }
   }
@@ -63,7 +63,7 @@ class DompetOpSqlite {
       Log.info('Berhasil mengambil ${listWallet.length} data wallet.');
       return listWallet;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat getWallets', e: e, st: st);
+      Log.error('Gagal saat getWallets', e: e, s: st);
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class DompetOpSqlite {
       Log.error(
         'Gagal saat getById untuk ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -116,7 +116,7 @@ class DompetOpSqlite {
       Log.error(
         'Gagal saat updateDompet untuk ID: ${wallet.id}',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -137,7 +137,7 @@ class DompetOpSqlite {
       Log.error(
         'Gagal saat soft delete wallet ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -159,7 +159,7 @@ class DompetOpSqlite {
       Log.error(
         'Gagal saat soft delete semua dompet',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -183,7 +183,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat ambilTotalsaldo', e: e, st: st);
+      Log.error('Gagal saat ambilTotalsaldo', e: e, s: st);
       rethrow;
     }
   }
@@ -206,7 +206,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo positif: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat ambilSaldoPositif', e: e, st: st);
+      Log.error('Gagal saat ambilSaldoPositif', e: e, s: st);
       rethrow;
     }
   }
@@ -229,7 +229,7 @@ class DompetOpSqlite {
       Log.info('Berhasil menghitung total saldo negatif: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat ambilSaldoNegatif', e: e, st: st);
+      Log.error('Gagal saat ambilSaldoNegatif', e: e, s: st);
       rethrow;
     }
   }
@@ -257,7 +257,7 @@ class DompetOpSqlite {
       );
       Log.info('Batch dompet selesai diproses.');
     } on Exception catch (e, st) {
-      Log.error('Gagal menjalankan batch dompet', e: e, st: st);
+      Log.error('Gagal menjalankan batch dompet', e: e, s: st);
       rethrow;
     }
   }

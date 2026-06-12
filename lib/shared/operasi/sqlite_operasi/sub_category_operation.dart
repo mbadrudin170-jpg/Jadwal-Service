@@ -38,7 +38,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Berhasil membuat sub-kategori ID: ${subCategory.id}');
     } on Exception catch (e, s) {
-      Log.error('Gagal membuat sub-kategori.', e: e, st: s);
+      Log.error('Gagal membuat sub-kategori.', e: e, s: s);
       rethrow;
     }
   }
@@ -61,7 +61,7 @@ class SubKategoriOpSqlite {
       });
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil sub-kategori berdasarkan kategori ID.',
-          e: e, st: s);
+          e: e, s: s);
       rethrow;
     }
   }
@@ -84,7 +84,7 @@ class SubKategoriOpSqlite {
       Log.warning('Sub-kategori dengan ID: $id tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil sub-kategori berdasarkan ID.', e: e, st: s);
+      Log.error('Gagal mengambil sub-kategori berdasarkan ID.', e: e, s: s);
       rethrow;
     }
   }
@@ -106,7 +106,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Berhasil memperbarui sub-kategori ID: ${subCategory.id}');
     } on Exception catch (e, s) {
-      Log.error('Gagal memperbarui sub-kategori.', e: e, st: s);
+      Log.error('Gagal memperbarui sub-kategori.', e: e, s: s);
       rethrow;
     }
   }
@@ -122,7 +122,7 @@ class SubKategoriOpSqlite {
       );
       Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
     } on Exception catch (e, s) {
-      Log.error('Gagal menghapus sub-kategori secara permanen.', e: e, st: s);
+      Log.error('Gagal menghapus sub-kategori secara permanen.', e: e, s: s);
       rethrow;
     }
   }
@@ -141,7 +141,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Berhasil soft delete sub-kategori ID: $id.');
     } on Exception catch (e, st) {
-      Log.error('Gagal saat soft delete sub-kategori ID: $id', e: e, st: st);
+      Log.error('Gagal saat soft delete sub-kategori ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -159,7 +159,7 @@ class SubKategoriOpSqlite {
       Log.info('Berhasil soft delete semua sub-kategori. Total: $count item.');
       return count;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat soft delete semua sub-kategori', e: e, st: st);
+      Log.error('Gagal saat soft delete semua sub-kategori', e: e, s: st);
       rethrow;
     }
   }
@@ -190,7 +190,7 @@ class SubKategoriOpSqlite {
       );
       Log.info('Batch sub-kategori selesai diproses.');
     } on Exception catch (e, s) {
-      Log.error('Gagal menjalankan operasi batch sub-kategori.', e: e, st: s);
+      Log.error('Gagal menjalankan operasi batch sub-kategori.', e: e, s: s);
       rethrow;
     }
   }
@@ -218,7 +218,7 @@ class SubKategoriOpSqlite {
       });
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil sub-kategori berdasarkan list ID.',
-          e: e, st: s);
+          e: e, s: s);
       rethrow;
     }
   }

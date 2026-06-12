@@ -70,7 +70,7 @@ class SettingsAdminPage extends ConsumerWidget {
           ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
         }
       } on Exception catch (e, st) {
-        Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
+        Log.error('Gagal mereset waktu sinkronisasi', e: e, s: st);
         if (context.mounted) {
           ToastUtil.error(context, 'Gagal mereset waktu sinkronisasi: $e');
         }
@@ -210,7 +210,7 @@ class SettingsAdminPage extends ConsumerWidget {
           Log.error(
             'Gagal memuat pengaturan',
             e: error,
-            st: stackTrace,
+            s: stackTrace,
           );
           return Center(child: Text('Error: $error'));
         },

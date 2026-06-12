@@ -132,7 +132,7 @@ class PelangganAktif extends _$PelangganAktif {
       state = AsyncValue.data(PelangganAktifState(
           daftarPelangganAktif: sortedData, sortBy: currentSortBy));
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil data pelanggan aktif.', e: e, st: st);
+      Log.error('Gagal mengambil data pelanggan aktif.', e: e, s: st);
       final context = navigatorKey.currentContext;
       if (context!.mounted) {
         ToastUtil.error(context, 'Gagal memuat data pelanggan aktif.');
@@ -150,7 +150,8 @@ class PelangganAktif extends _$PelangganAktif {
       return;
     }
 
-    final pelangganTerurut = _sortData(currentState.daftarPelangganAktif, urutanBaru);
+    final pelangganTerurut =
+        _sortData(currentState.daftarPelangganAktif, urutanBaru);
     state = AsyncValue.data(
       currentState.copyWith(
         daftarPelangganAktif: pelangganTerurut,

@@ -123,7 +123,7 @@ class DaftarAkunPage extends ConsumerWidget {
       );
     } on Exception catch (e, st) {
       Log.error('Gagal menyimpan akun yang dipilih',
-          e: e, st: st, data: {'customer_id': customer.id});
+          e: e, s: st, data: {'customer_id': customer.id});
       if (context.mounted) {
         ToastUtil.error(context, 'Gagal memilih akun', logData: e.toString());
       }
@@ -170,7 +170,7 @@ class DaftarAkunPage extends ConsumerWidget {
                 }
               } catch (e, st) {
                 Log.error('Gagal menghapus akun',
-                    e: e, st: st, data: {'customer_id': customer.id});
+                    e: e, s: st, data: {'customer_id': customer.id});
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal menghapus akun',
                       logData: e.toString());
@@ -243,7 +243,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   (route) => false,
                 );
               } on Exception catch (e, st) {
-                Log.error('Gagal keluar & hapus akun', e: e, st: st);
+                Log.error('Gagal keluar & hapus akun', e: e, s: st);
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal keluar',
                       logData: e.toString());
@@ -280,7 +280,7 @@ class DaftarAkunPage extends ConsumerWidget {
                   (route) => false,
                 );
               } catch (e, st) {
-                Log.error('Gagal menghapus token login', e: e, st: st);
+                Log.error('Gagal menghapus token login', e: e, s: st);
                 if (context.mounted) {
                   ToastUtil.error(context, 'Gagal keluar',
                       logData: e.toString());

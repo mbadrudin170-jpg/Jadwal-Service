@@ -50,7 +50,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal menambah versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -79,7 +79,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -102,7 +102,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal melakukan soft delete pada APK version ID: $id',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -123,7 +123,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal melakukan soft delete untuk semua APK versions',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -157,7 +157,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal melakukan operasi batch - Jumlah data: ${modelList.length}, Tabel: $_tableName',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -206,7 +206,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal mengambil semua data versi APK dari tabel $_tableName, mengembalikan list kosong',
         e: e,
-        st: st,
+        s: st,
       );
       return [];
     }
@@ -250,7 +250,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal mengambil versi APK aktif dari tabel $_tableName, mengembalikan list kosong',
         e: e,
-        st: st,
+        s: st,
       );
       return [];
     }
@@ -290,7 +290,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal mengambil versi APK terbaru dari tabel $_tableName, mengembalikan null',
         e: e,
-        st: st,
+        s: st,
       );
       return null;
     }
@@ -327,7 +327,7 @@ class ApkVersionOperation {
       Log.error(
         'Gagal mengambil versi APK by ID: $id dari tabel $_tableName, mengembalikan null',
         e: e,
-        st: st,
+        s: st,
       );
       return null;
     }

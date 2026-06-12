@@ -118,7 +118,7 @@ class DownloadDataService {
       Log.error(
         'Kegagalan kritis selama prosedur unduh massal.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -169,7 +169,7 @@ class DownloadDataService {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
       }
     } catch (e, s) {
-      Log.error('Kesalahan sinkronisasi Settings.', e: e, st: s);
+      Log.error('Kesalahan sinkronisasi Settings.', e: e, s: s);
       rethrow;
     }
   }
@@ -335,7 +335,7 @@ class DownloadDataService {
             Log.error(
               'Gagal memproses dokumen ${doc.id} di koleksi $collectionName',
               e: e,
-              st: s,
+              s: s,
             );
           }
         }
@@ -356,7 +356,7 @@ class DownloadDataService {
       Log.error(
         'Kegagalan sinkronisasi koleksi: $collectionName',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }

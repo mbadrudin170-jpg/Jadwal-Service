@@ -48,7 +48,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
       await widget.onRefresh();
       Log.info('[Aksi Pengguna] Proses onRefresh selesai.');
     } on Exception catch (e, st) {
-      Log.error('Error selama callback onRefresh', e: e, st: st);
+      Log.error('Error selama callback onRefresh', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal menyegarkan data: $e');
       }

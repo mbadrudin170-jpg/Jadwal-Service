@@ -49,7 +49,7 @@ class EventPageA extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) {
             Log.error('Error saat memuat pengumuman realtime: $error',
-                e: error, st: stackTrace);
+                e: error, s: stackTrace);
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(TSizes.p16),
@@ -88,7 +88,7 @@ class EventPageA extends ConsumerWidget {
                                 Log.error(
                                     'Gagal memuat gambar: ${announcement.imageUrl}',
                                     e: e,
-                                    st: st);
+                                    s: st);
                                 return const Icon(TIcons.error);
                               },
                             ),

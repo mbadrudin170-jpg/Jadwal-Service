@@ -78,7 +78,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
         ToastUtil.success(context, 'Data detail telah diperbarui.');
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat ulang data APK', e: e, st: st);
+      Log.error('Gagal memuat ulang data APK', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat ulang data detail.');
       }

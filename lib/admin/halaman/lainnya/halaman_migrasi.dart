@@ -105,7 +105,7 @@ class _HalamanMigrasiState extends State<HalamanMigrasi> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-           gapH32,
+            gapH32,
             ElevatedButton.icon(
               onPressed: isButtonDisabled ? null : _runMigration,
               icon: buttonIcon,
@@ -161,7 +161,7 @@ class _MigrationProgressDialogState extends State<_MigrationProgressDialog> {
       });
       Log.info('Migrasi selesai tanpa error. Total log: ${logs.length}');
     } on Exception catch (e, st) {
-      Log.error('Migrasi gagal total', e: e, st: st);
+      Log.error('Migrasi gagal total', e: e, s: st);
       setState(() {
         _currentStatus = '❌ Gagal melakukan migrasi: $e';
         _isDone = true;

@@ -116,7 +116,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
         totalExpense: expense,
       );
     } catch (e, s) {
-      Log.error('Gagal memuat data detail dompet.', e: e, st: s);
+      Log.error('Gagal memuat data detail dompet.', e: e, s: s);
       rethrow;
     }
   }

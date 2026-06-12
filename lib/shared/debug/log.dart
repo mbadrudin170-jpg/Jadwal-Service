@@ -78,7 +78,7 @@ class Log {
   static void error(
     final String message, {
     final Object? e,
-    final StackTrace? st,
+    final StackTrace? s,
     final Object? data,
   }) {
     _logCustom(
@@ -87,7 +87,7 @@ class Log {
       color: _red,
       level: 1000,
       e: e,
-      st: st,
+      st: s,
     );
   }
 

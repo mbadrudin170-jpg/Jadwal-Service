@@ -86,7 +86,7 @@ class _ManageAnnouncementPageState
         _selectedEndDate = activeAnnouncement?.endDate;
       });
     } on Exception catch (e, st) {
-      Log.error('Gagal memuat pengumuman', e: e, st: st);
+      Log.error('Gagal memuat pengumuman', e: e, s: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal memuat data pengumuman.');
     }
@@ -101,7 +101,7 @@ class _ManageAnnouncementPageState
         });
       }
     } catch (e, st) {
-      Log.error('Gagal memilih gambar', e: e, st: st);
+      Log.error('Gagal memilih gambar', e: e, s: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal memilih gambar dari galeri.');
     }
@@ -127,7 +127,7 @@ class _ManageAnnouncementPageState
         lastDate: DateTime(2101),
       );
     } catch (e, st) {
-      Log.error('Error saat memilih tanggal', e: e, st: st);
+      Log.error('Error saat memilih tanggal', e: e, s: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal membuka pemilih tanggal');
     }
@@ -175,7 +175,7 @@ class _ManageAnnouncementPageState
         },
       );
     } catch (e, st) {
-      Log.error('Error saat memilih waktu', e: e, st: st);
+      Log.error('Error saat memilih waktu', e: e, s: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal membuka pemilih waktu');
     }
@@ -231,14 +231,14 @@ class _ManageAnnouncementPageState
     if (_selectedImage != null) {
       final storageService = ref.read(imageStorageServiceProvider);
       try {
-        final String uploadUrl = await storageService.uploadImage(
-            _selectedImage!, NamaTabel.events);
+        final String uploadUrl =
+            await storageService.uploadImage(_selectedImage!, NamaTabel.events);
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');
         }
       } catch (e, st) {
-        Log.error('Gagal mengunggah gambar', e: e, st: st);
+        Log.error('Gagal mengunggah gambar', e: e, s: st);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal mengunggah gambar. Silakan coba lagi.');
         setState(() {
@@ -283,7 +283,7 @@ class _ManageAnnouncementPageState
           await eventOpSupabase.update(oldActive);
         }
       } catch (e, st) {
-        Log.error('Gagal menonaktifkan pengumuman lama', e: e, st: st);
+        Log.error('Gagal menonaktifkan pengumuman lama', e: e, s: st);
         if (!mounted) return;
         ToastUtil.error(
             context, 'Gagal menonaktifkan pengumuman lain yang aktif.');
@@ -308,7 +308,7 @@ class _ManageAnnouncementPageState
         Navigator.of(context).pop();
       }
     } catch (e, st) {
-      Log.error('Gagal menyimpan pengumuman', e: e, st: st);
+      Log.error('Gagal menyimpan pengumuman', e: e, s: st);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal menyimpan pengumuman.');
     } finally {

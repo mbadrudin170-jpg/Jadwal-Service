@@ -39,7 +39,7 @@ class OrderOpsqlite {
           'Berhasil menghitung $count data pesanan aktif berstatus ${status.name}.');
       return count;
     } on Exception catch (e, s) {
-      Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, st: s);
+      Log.error('Gagal menghitung pesanan berdasarkan status.', e: e, s: s);
       rethrow;
     }
   }
@@ -61,7 +61,7 @@ class OrderOpsqlite {
       );
       Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
     } on Exception catch (e, s) {
-      Log.error('Gagal menyimpan pesanan.', e: e, st: s);
+      Log.error('Gagal menyimpan pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -78,7 +78,7 @@ class OrderOpsqlite {
       Log.info('Berhasil mengambil ${maps.length} data pesanan.');
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil semua pesanan.', e: e, st: s);
+      Log.error('Gagal mengambil semua pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -95,7 +95,7 @@ class OrderOpsqlite {
       Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
       yield maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil semua pesanan aktif.', e: e, st: s);
+      Log.error('Gagal mengambil semua pesanan aktif.', e: e, s: s);
       rethrow;
     }
   }
@@ -116,7 +116,7 @@ class OrderOpsqlite {
           'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.');
       return maps.map(OrderModel.fromSqlite).toList();
     } on Exception catch (e, s) {
-      Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, st: s);
+      Log.error('Gagal mengambil pesanan berdasarkan status.', e: e, s: s);
       rethrow;
     }
   }
@@ -157,7 +157,7 @@ class OrderOpsqlite {
         );
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal memperbarui status pesanan.', e: e, st: s);
+      Log.error('Gagal memperbarui status pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -171,7 +171,7 @@ class OrderOpsqlite {
       await baseOperation.delete(_tableName, id, dariServer: fromServer);
       Log.info('Berhasil menghapus pesanan dengan ID: $id.');
     } on Exception catch (e, s) {
-      Log.error('Gagal menghapus pesanan.', e: e, st: s);
+      Log.error('Gagal menghapus pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -190,7 +190,7 @@ class OrderOpsqlite {
       );
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {
-      Log.error('Gagal saat soft delete pesanan ID: $id', e: e, st: st);
+      Log.error('Gagal saat soft delete pesanan ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -208,7 +208,7 @@ class OrderOpsqlite {
       Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
       return count;
     } on Exception catch (e, st) {
-      Log.error('Gagal saat soft delete semua pesanan', e: e, st: st);
+      Log.error('Gagal saat soft delete semua pesanan', e: e, s: st);
       rethrow;
     }
   }
@@ -237,7 +237,7 @@ class OrderOpsqlite {
       );
       Log.info('Batch pesanan selesai diproses.');
     } on Exception catch (e, s) {
-      Log.error('Gagal menjalankan operasi batch pesanan.', e: e, st: s);
+      Log.error('Gagal menjalankan operasi batch pesanan.', e: e, s: s);
       rethrow;
     }
   }
@@ -264,7 +264,7 @@ class OrderOpsqlite {
       });
     } on Exception catch (e, s) {
       Log.error('Gagal mengambil data pesanan berdasarkan daftar ID.',
-          e: e, st: s);
+          e: e, s: s);
       rethrow;
     }
   }

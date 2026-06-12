@@ -58,7 +58,7 @@ class SettingsOpSqlite {
       Log.error(
         'Gagal mengambil data pengaturan: $e',
         e: e,
-        st: st,
+        s: st,
       );
       Log.warning('Mengembalikan SettingsModel default sebagai fallback.');
       return SettingsModel();
@@ -91,7 +91,7 @@ class SettingsOpSqlite {
       Log.error(
         'Gagal menyimpan atau memperbarui data pengaturan: $e',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -125,7 +125,7 @@ class SettingsOpSqlite {
         'Pengaturan berhasil diperbarui sebagian. Fields: ${data.keys.join(', ')}',
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal memperbarui data pengaturan sebagian: $e', e: e, st: st);
+      Log.error('Gagal memperbarui data pengaturan sebagian: $e', e: e, s: st);
       rethrow;
     }
   }
@@ -149,7 +149,7 @@ class SettingsOpSqlite {
       );
       Log.info('Batch operation untuk pengaturan berhasil.');
     } catch (e, st) {
-      Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, st: st);
+      Log.error('Gagal menyimpan pengaturan dengan batch: $e', e: e, s: st);
       rethrow;
     }
   }

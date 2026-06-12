@@ -125,7 +125,7 @@ class UjiKecepatan extends _$UjiKecepatan {
         sedangMenguji: false,
         statusPesan: 'Gagal melakukan pengujian',
       );
-      Log.error('Gagal saat melakukan uji kecepatan', e: e, st: st);
+      Log.error('Gagal saat melakukan uji kecepatan', e: e, s: st);
 
       if (context.mounted) {
         ToastUtil.error(

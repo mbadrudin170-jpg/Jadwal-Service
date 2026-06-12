@@ -74,14 +74,14 @@ MAC : ${customer.macAddress}
       ),
       error: (e, s) {
         Log.error('Gagal mengambil data pelanggan ID: $idPelanggan.',
-            e: e, st: s);
+            e: e, s: s);
         return Scaffold(
           appBar: AppBar(title: const Text('Detail Pelanggan')),
           body: Center(child: Text('Gagal memuat data: $e')),
         );
       },
       data: (data) {
-        final (customer, totalPoints) = data;
+        final (customer, totalPoin) = data;
 
         if (customer == null) {
           return Scaffold(
@@ -92,7 +92,7 @@ MAC : ${customer.macAddress}
 
         return CustomerDetailUI(
           pelanggan: customer,
-          totalPoin: totalPoints,
+          totalPoin: totalPoin,
           onEdit: () => _editCustomer(context, customer),
           onNavigateToPoints: () => _navigasiKePoin(context, customer),
           onCopyAll: () => _copyAllInfo(context, customer),

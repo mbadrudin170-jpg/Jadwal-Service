@@ -20,7 +20,7 @@ class NotifikasiOpFirebase {
         _baseOp = baseOp;
 
   Stream<List<NotifikasiModel>> getNotifAktif() {
-  /// Mengambil notifikasi yang sedang aktif.
+    /// Mengambil notifikasi yang sedang aktif.
     final now = DateTime.now();
     return _firestore
         .collection(_collection)
@@ -87,7 +87,8 @@ class NotifikasiOpFirebase {
       await _baseOp.sisipkan(
         _collection,
         notifikasi.id,
-        notifikasi.toFirebase(),);
+        notifikasi.toFirebase(),
+      );
     } catch (e) {
       Log.error('Error saving notification: $e');
       rethrow;
@@ -136,7 +137,7 @@ class NotifikasiOpFirebase {
       Log.info('Berhasil menghapus ${querySnapshot.docs.length} notifikasi.');
     } catch (e, st) {
       Log.error('Gagal menghapus notifikasi berdasarkan transactionId',
-          e: e, st: st);
+          e: e, s: st);
       rethrow;
     }
   }

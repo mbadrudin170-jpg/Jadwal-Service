@@ -60,7 +60,7 @@ class NewDataCheckService {
       Log.error(
         'Gagal melakukan pengecekan status need_upload pada SQLite. Terjadi kesalahan pada query database atau akses file database lokal terhambat.',
         e: e,
-        st: s,
+        s: s,
       );
       return false;
     }
@@ -76,7 +76,7 @@ class NewDataCheckService {
       Log.error(
         'Gagal mereset bendera need_upload.',
         e: e,
-        st: s,
+        s: s,
       );
     }
   }
@@ -164,7 +164,7 @@ class NewDataCheckService {
       Log.error(
         'Terjadi kegagalan saat proses pembandingan waktu server dan lokal. Masalah mungkin terletak pada koneksi jaringan atau hak akses (Security Rules) Firebase Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       return false;
     }

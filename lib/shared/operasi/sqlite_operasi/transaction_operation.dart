@@ -82,7 +82,7 @@ class TransactionOperation {
       Log.info(
           'Berhasil update saldo Wallet ID: $walletId menjadi $totalBalance');
     } on Exception catch (e, st) {
-      Log.error('Gagal hitung ulang saldo Wallet ID: $walletId', e: e, st: st);
+      Log.error('Gagal hitung ulang saldo Wallet ID: $walletId', e: e, s: st);
       rethrow;
     }
   }
@@ -121,7 +121,7 @@ class TransactionOperation {
       Log.info('Proses addTransaction ID: ${transaction.id} berhasil');
       return id;
     } on Exception catch (e, st) {
-      Log.error('Gagal menambah transaksi ID: ${transaction.id}', e: e, st: st);
+      Log.error('Gagal menambah transaksi ID: ${transaction.id}', e: e, s: st);
       rethrow;
     }
   }
@@ -143,7 +143,7 @@ class TransactionOperation {
         return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil semua transaksi', e: e, st: st);
+      Log.error('Gagal mengambil semua transaksi', e: e, s: st);
       return [];
     }
   }
@@ -168,7 +168,7 @@ class TransactionOperation {
       Log.info('Transaksi ID: $id ditemukan');
       return TransaksiModel.fromSqlite(maps.first);
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil transaksi ID: $id', e: e, st: st);
+      Log.error('Gagal mengambil transaksi ID: $id', e: e, s: st);
       return null;
     }
   }
@@ -203,7 +203,7 @@ class TransactionOperation {
       Log.error(
           'Gagal mengambil transaksi lunas terbaru untuk pengguna ID: $customerId',
           e: e,
-          st: st);
+          s: st);
       return null;
     }
   }
@@ -227,7 +227,7 @@ class TransactionOperation {
         return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Error ambil transaksi customer', e: e, st: st);
+      Log.error('Error ambil transaksi customer', e: e, s: st);
       return [];
     }
   }
@@ -250,7 +250,7 @@ class TransactionOperation {
         return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Error ambil transaksi wallet', e: e, st: st);
+      Log.error('Error ambil transaksi wallet', e: e, s: st);
       return [];
     }
   }
@@ -271,7 +271,7 @@ class TransactionOperation {
         return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Error saat mengambil transaksi aktivasi paket', e: e, st: st);
+      Log.error('Error saat mengambil transaksi aktivasi paket', e: e, s: st);
       return [];
     }
   }
@@ -319,7 +319,7 @@ class TransactionOperation {
       );
       Log.info('Proses updateTransaction ID: $id selesai');
     } on Exception catch (e, st) {
-      Log.error('Gagal update transaksi ID: $id', e: e, st: st);
+      Log.error('Gagal update transaksi ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -367,7 +367,7 @@ class TransactionOperation {
       );
       Log.info('Transaksi ID: $id berhasil diarsipkan secara atomik');
     } on Exception catch (e, st) {
-      Log.error('Gagal mengarsipkan transaksi ID: $id', e: e, st: st);
+      Log.error('Gagal mengarsipkan transaksi ID: $id', e: e, s: st);
       rethrow;
     }
   }
@@ -406,7 +406,7 @@ class TransactionOperation {
       );
       return count;
     } on Exception catch (e, st) {
-      Log.error('Gagal menghapus semua transaksi', e: e, st: st);
+      Log.error('Gagal menghapus semua transaksi', e: e, s: st);
       rethrow;
     }
   }
@@ -425,7 +425,7 @@ class TransactionOperation {
       Log.info('Total pemasukan: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Error hitung total pemasukan', e: e, st: st);
+      Log.error('Error hitung total pemasukan', e: e, s: st);
       return 0.0;
     }
   }
@@ -444,7 +444,7 @@ class TransactionOperation {
       Log.info('Total pengeluaran: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Error hitung total pengeluaran', e: e, st: st);
+      Log.error('Error hitung total pengeluaran', e: e, s: st);
       return 0.0;
     }
   }
@@ -471,7 +471,7 @@ class TransactionOperation {
       Log.info('Poin dihasilkan: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Error hitung poin dihasilkan', e: e, st: st);
+      Log.error('Error hitung poin dihasilkan', e: e, s: st);
       return 0;
     }
   }
@@ -488,7 +488,7 @@ class TransactionOperation {
       Log.info('Poin digunakan: $total');
       return total;
     } on Exception catch (e, st) {
-      Log.error('Error hitung poin digunakan', e: e, st: st);
+      Log.error('Error hitung poin digunakan', e: e, s: st);
       return 0;
     }
   }
@@ -544,7 +544,7 @@ class TransactionOperation {
       );
       Log.info('Proses Batch transaksi berhasil sepenuhnya');
     } on Exception catch (e, st) {
-      Log.error('Gagal menjalankan Batch transaksi', e: e, st: st);
+      Log.error('Gagal menjalankan Batch transaksi', e: e, s: st);
       rethrow;
     }
   }
@@ -570,7 +570,7 @@ class TransactionOperation {
         return TransaksiModel.fromSqlite(maps[i]);
       });
     } on Exception catch (e, st) {
-      Log.error('Error saat ambil transaksi by IDs', e: e, st: st);
+      Log.error('Error saat ambil transaksi by IDs', e: e, s: st);
       return [];
     }
   }

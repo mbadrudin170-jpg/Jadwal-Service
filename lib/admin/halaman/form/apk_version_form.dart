@@ -108,7 +108,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         );
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal memuat data versi terakhir', e: e, st: s);
+      Log.error('Gagal memuat data versi terakhir', e: e, s: s);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -269,7 +269,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         if (!mounted) return;
         Navigator.of(context).pop(true);
       } on Exception catch (e, s) {
-        Log.error('Terjadi kesalahan saat menyimpan data', e: e, st: s);
+        Log.error('Terjadi kesalahan saat menyimpan data', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan data: $e');
       } finally {

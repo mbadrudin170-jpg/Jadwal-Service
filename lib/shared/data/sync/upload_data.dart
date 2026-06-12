@@ -77,7 +77,7 @@ class UploadDataService {
         'Proses unggah tidak dapat diselesaikan sepenuhnya. '
         'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -108,7 +108,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -139,7 +139,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -170,7 +170,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -201,7 +201,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -232,7 +232,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -263,7 +263,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -294,7 +294,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -325,7 +325,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -356,7 +356,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -387,7 +387,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -418,7 +418,7 @@ class UploadDataService {
         'Kemungkinan penyebab: gagal membaca data dari SQLite, '
         'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }
@@ -542,7 +542,7 @@ class UploadDataService {
             'Data ini akan dilewati dan tidak dimasukkan ke batch. '
             'Data SQLite: $map',
             e: e,
-            st: s,
+            s: s,
           );
         }
       }
@@ -585,7 +585,7 @@ class UploadDataService {
       Log.error(
         'Gagal mengunggah data untuk tabel $tableName ke koleksi Firestore $collectionName. ',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }

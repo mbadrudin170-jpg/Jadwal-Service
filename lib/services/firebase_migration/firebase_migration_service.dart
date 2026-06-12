@@ -517,7 +517,7 @@ class FirebaseMigrationService {
     } on Exception catch (e, s) {
       final message =
           'Gagal menghapus koleksi `$collectionName`. Mungkin sudah terhapus atau terjadi error.';
-      Log.error(message, e: e, st: s);
+      Log.error(message, e: e, s: s);
       logs.add('  - [ERROR] $message');
     }
   }
@@ -617,7 +617,7 @@ class FirebaseMigrationService {
         logs.add('INFO: Pembersihan koleksi lama selesai.');
       } on Exception catch (e, s) {
         final message = 'Gagal melakukan commit perubahan: $e';
-        Log.error(message, e: e, st: s);
+        Log.error(message, e: e, s: s);
         onProgress('❌ $message');
         throw Exception('Gagal menyimpan perubahan ke Firestore.');
       }

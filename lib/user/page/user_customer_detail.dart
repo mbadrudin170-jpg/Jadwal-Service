@@ -63,7 +63,7 @@ class _UserCustomerDetailPageState
       Log.error(
         'Gagal memuat data profil lengkap dari Firestore.',
         e: e,
-        st: s,
+        s: s,
       );
       rethrow;
     }

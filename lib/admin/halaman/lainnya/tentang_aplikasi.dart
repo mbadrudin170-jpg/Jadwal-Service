@@ -84,7 +84,7 @@ class _TentangAplikasiPageState extends State<TentangAplikasiPage> {
       Log.error(
         'Gagal mengambil informasi aplikasi atau perangkat',
         e: e,
-        st: st,
+        s: st,
       );
     }
   }

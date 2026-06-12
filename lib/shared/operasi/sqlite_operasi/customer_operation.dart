@@ -50,7 +50,7 @@ class PelangganOpSqlite {
       Log.info(
           'Customer (ID: ${customerToSave.id}) berhasil dibuat di database lokal.');
     } catch (e, s) {
-      Log.error('Gagal membuat customer.', e: e, st: s);
+      Log.error('Gagal membuat customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -73,7 +73,7 @@ class PelangganOpSqlite {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil customer aktif.', e: e, st: s);
+      Log.error('Gagal mengambil customer aktif.', e: e, s: s);
       rethrow;
     }
   }
@@ -93,7 +93,7 @@ class PelangganOpSqlite {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil semua data customer.', e: e, st: s);
+      Log.error('Gagal mengambil semua data customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -117,7 +117,7 @@ class PelangganOpSqlite {
       Log.info('Customer dengan ID: $id tidak ditemukan (hasil valid).');
       return null;
     } catch (e, s) {
-      Log.error('Gagal mencari customer berdasarkan ID.', e: e, st: s);
+      Log.error('Gagal mencari customer berdasarkan ID.', e: e, s: s);
       rethrow;
     }
   }
@@ -142,7 +142,7 @@ class PelangganOpSqlite {
 
       Log.info('Berhasil memperbarui customer ID: ${customer.id}.');
     } catch (e, s) {
-      Log.error('Gagal memperbarui customer.', e: e, st: s);
+      Log.error('Gagal memperbarui customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -161,7 +161,7 @@ class PelangganOpSqlite {
       );
       Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
     } catch (e, s) {
-      Log.error('Gagal menghapus customer.', e: e, st: s);
+      Log.error('Gagal menghapus customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -180,8 +180,7 @@ class PelangganOpSqlite {
           'Berhasil melakukan soft delete pada semua customer. Total: $count');
       return count;
     } catch (e, s) {
-      Log.error('Gagal melakukan soft delete pada semua customer.',
-          e: e, st: s);
+      Log.error('Gagal melakukan soft delete pada semua customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -204,7 +203,7 @@ class PelangganOpSqlite {
         (i) => PelangganModel.fromSqlite(maps[i]),
       );
     } catch (e, s) {
-      Log.error('Gagal mengambil perubahan customer.', e: e, st: s);
+      Log.error('Gagal mengambil perubahan customer.', e: e, s: s);
       rethrow;
     }
   }
@@ -233,7 +232,7 @@ class PelangganOpSqlite {
       Log.info(
           'Berhasil menyelesaikan operasi batch untuk ${items.length} customer.');
     } catch (e, s) {
-      Log.error('Gagal menjalankan operasi batch.', e: e, st: s);
+      Log.error('Gagal menjalankan operasi batch.', e: e, s: s);
       rethrow;
     }
   }
@@ -261,7 +260,7 @@ class PelangganOpSqlite {
         return PelangganModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil customer berdasarkan list ID.', e: e, st: s);
+      Log.error('Gagal mengambil customer berdasarkan list ID.', e: e, s: s);
       rethrow;
     }
   }

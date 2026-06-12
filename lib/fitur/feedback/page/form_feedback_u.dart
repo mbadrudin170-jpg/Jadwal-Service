@@ -64,7 +64,7 @@ class _FormKritikDanSaranState extends ConsumerState<FormKritikDanSaran> {
           Navigator.of(context).pop();
         }
       } on Exception catch (e, s) {
-        Log.error('Gagal mengirim kritik dan saran', e: e, st: s);
+        Log.error('Gagal mengirim kritik dan saran', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengirim masukan: \$e');
         }

@@ -60,7 +60,7 @@ class CustomFutureBuilder<T> extends StatelessWidget {
           Log.error(
             'Error di dalam CustomFutureBuilder',
             e: snapshot.error,
-            st: snapshot.stackTrace,
+            s: snapshot.stackTrace,
           );
           return errorBuilder?.call(
                   context, snapshot.error!, snapshot.stackTrace) ??

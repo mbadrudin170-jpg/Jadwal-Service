@@ -81,7 +81,7 @@ class _TestNotificationPageState extends State<TestNotificationPage> {
       );
       _tampilkanSnackbar('Notifikasi berhasil dikirim!');
     } on Exception catch (e, st) {
-      Log.error('=== TEST: Gagal menampilkan notifikasi ===', e: e, st: st);
+      Log.error('=== TEST: Gagal menampilkan notifikasi ===', e: e, s: st);
       _tampilkanSnackbar('Gagal mengirim notifikasi: \$e');
     }
   }

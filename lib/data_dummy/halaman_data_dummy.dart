@@ -33,8 +33,14 @@ class HalamanDataDummy extends ConsumerWidget {
           _tombolFitur(
             context: context,
             onPressed: () async {
-              await _tambahData(context, ref, 'Pelanggan', DataDummy.customers,
-                  ref.read(customerOperationProvider).sisipkanAtauPerbaruiBatch);
+              await _tambahData(
+                  context,
+                  ref,
+                  'Pelanggan',
+                  DataDummy.customers,
+                  ref
+                      .read(customerOperationProvider)
+                      .sisipkanAtauPerbaruiBatch);
               ref.invalidate(customerOperationProvider);
             },
             label: 'Tambah Pelanggan Dummy',
@@ -189,7 +195,7 @@ class HalamanDataDummy extends ConsumerWidget {
             'Berhasil menambahkan/memperbarui ${dataList.length} data $modelName dummy.');
       }
     } catch (e, st) {
-      Log.error('Gagal menambahkan data $modelName dummy', e: e, st: st);
+      Log.error('Gagal menambahkan data $modelName dummy', e: e, s: st);
       if (context.mounted) {
         ToastUtil.error(
             context, 'Terjadi kesalahan saat menambah $modelName: $e');
@@ -209,7 +215,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context, 'Berhasil menambahkan/memperbarui data Pengaturan dummy.');
       }
     } catch (e, st) {
-      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, st: st);
+      Log.error('Gagal menambahkan data Pengaturan dummy', e: e, s: st);
       if (context.mounted) {
         ToastUtil.error(
             context, 'Terjadi kesalahan saat menambah Pengaturan: $e');

@@ -28,7 +28,7 @@ class EventOpSupabase {
             data[NamaKolom.id]?.toString() ?? '', data);
       }).toList();
     } catch (e, s) {
-      Log.error('❌ Gagal ambil data pengumuman', e: e, st: s);
+      Log.error('❌ Gagal ambil data pengumuman', e: e, s: s);
       rethrow;
     }
   }
@@ -40,7 +40,7 @@ class EventOpSupabase {
     // Gunakan yield* untuk mengalirkan data tanpa mengunci thread utama
     yield* _supabase.from(_tableName).stream(
         primaryKey: [NamaKolom.id]).handleError((Object e, StackTrace s) {
-      Log.error('❌ Error di dalam stream: $e', e: e, st: s);
+      Log.error('❌ Error di dalam stream: $e', e: e, s: s);
     }).map((List<Map<String, dynamic>> response) {
       Log.info(
           '⚡ Realtime: Menerima ${response.length} data pengumuman terbaru');
@@ -54,7 +54,7 @@ class EventOpSupabase {
   }
 
   Future<EventModel?> getActive() async {
-  /// Mengambil pengumuman yang sedang aktif.
+    /// Mengambil pengumuman yang sedang aktif.
     Log.info('EventOpSupabase: Mengambil pengumuman aktif');
     try {
       final List<Map<String, dynamic>> response = await _supabase
@@ -73,13 +73,13 @@ class EventOpSupabase {
       return EventModel.fromSupabase(
           data[NamaKolom.id]?.toString() ?? '', data);
     } catch (e, s) {
-      Log.error('Gagal mengambil pengumuman aktif dari Supabase', e: e, st: s);
+      Log.error('Gagal mengambil pengumuman aktif dari Supabase', e: e, s: s);
       rethrow;
     }
   }
 
   Future<EventModel?> getById(String id) async {
-  /// Mengambil pengumuman berdasarkan ID.
+    /// Mengambil pengumuman berdasarkan ID.
     Log.info('EventOpSupabase: Mengambil pengumuman berdasarkan id: $id');
     try {
       final List<Map<String, dynamic>> response = await _supabase
@@ -98,7 +98,7 @@ class EventOpSupabase {
       return EventModel.fromSupabase(
           data[NamaKolom.id]?.toString() ?? '', data);
     } catch (e, s) {
-      Log.error('Gagal mengambil pengumuman dengan id: $id', e: e, st: s);
+      Log.error('Gagal mengambil pengumuman dengan id: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -110,7 +110,7 @@ class EventOpSupabase {
       final Map<String, dynamic> dataPayload = event.toSupabase();
       await _supabase.from(_tableName).insert(dataPayload);
     } catch (e, s) {
-      Log.error('Gagal membuat pengumuman di Supabase', e: e, st: s);
+      Log.error('Gagal membuat pengumuman di Supabase', e: e, s: s);
       rethrow;
     }
   }
@@ -125,7 +125,7 @@ class EventOpSupabase {
           .update(dataPayload)
           .eq(NamaKolom.id, event.id);
     } catch (e, s) {
-      Log.error('Gagal memperbarui pengumuman di Supabase', e: e, st: s);
+      Log.error('Gagal memperbarui pengumuman di Supabase', e: e, s: s);
       rethrow;
     }
   }
@@ -136,7 +136,7 @@ class EventOpSupabase {
     try {
       await _supabase.from(_tableName).delete().eq(NamaKolom.id, id);
     } catch (e, s) {
-      Log.error('Gagal menghapus pengumuman di Supabase', e: e, st: s);
+      Log.error('Gagal menghapus pengumuman di Supabase', e: e, s: s);
       rethrow;
     }
   }

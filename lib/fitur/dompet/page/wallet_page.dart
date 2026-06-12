@@ -39,7 +39,7 @@ class WalletPage extends ConsumerWidget {
           return const Center(child: CircularProgressIndicator());
         },
         error: (err, stack) {
-          Log.error('Error saat memuat WalletProvider.', e: err, st: stack);
+          Log.error('Error saat memuat WalletProvider.', e: err, s: stack);
           return Center(
             child: Text(
               'Terjadi kesalahan: $err',
@@ -152,7 +152,7 @@ class WalletPage extends ConsumerWidget {
                         context, 'Semua dompet berhasil dihapus.');
                   }
                 }).catchError((Object e, StackTrace s) {
-                  Log.error('Gagal menghapus semua dompet.', e: e, st: s);
+                  Log.error('Gagal menghapus semua dompet.', e: e, s: s);
                   if (context.mounted) {
                     ToastUtil.error(context, 'Gagal menghapus dompet: $e');
                   }
@@ -191,7 +191,7 @@ class WalletPage extends ConsumerWidget {
                     ToastUtil.success(context, 'Dompet berhasil diarsipkan.');
                   }
                 }).catchError((Object e, StackTrace st) {
-                  Log.error('Gagal mengarsipkan dompet.', e: e, st: st);
+                  Log.error('Gagal mengarsipkan dompet.', e: e, s: st);
                   if (context.mounted) {
                     ToastUtil.error(context, 'Gagal mengarsipkan: $e');
                   }

@@ -119,7 +119,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
         });
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal mengunduh atau install pembaruan', e: e, st: st);
+      Log.error('Gagal mengunduh atau install pembaruan', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, e.toString());
         setState(() {
@@ -145,7 +145,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
         throw Exception('Could not launch $url');
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal membuka URL Tutorial', e: e, st: st);
+      Log.error('Gagal membuka URL Tutorial', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal membuka link tutorial.');
       }

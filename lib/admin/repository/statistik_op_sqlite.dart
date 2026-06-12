@@ -42,7 +42,6 @@ class StatistikOpSqlite {
         _packageOperation = packageOperation,
         _transactionOperation = transactionOperation;
 
-
   Future<List<BestSellingPackage>> getBestSellingPackages(
       {final int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
@@ -80,7 +79,7 @@ class StatistikOpSqlite {
 
       return result;
     } on Exception catch (e, st) {
-      Log.error('Gagal menghitung paket terlaris.', e: e, st: st);
+      Log.error('Gagal menghitung paket terlaris.', e: e, s: st);
       rethrow;
     }
   }
@@ -124,7 +123,7 @@ class StatistikOpSqlite {
       Log.error(
         'Gagal mengambil pendapatan bersih bulan ini dari SQLite.',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -154,7 +153,7 @@ class StatistikOpSqlite {
       Log.error(
         'Gagal mengambil total pelanggan dari SQLite.',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -173,7 +172,7 @@ class StatistikOpSqlite {
       Log.error(
         'Gagal mengambil jumlah langganan aktif.',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }
@@ -191,7 +190,7 @@ class StatistikOpSqlite {
       Log.error(
         'Gagal mengambil jumlah feedback baru.',
         e: e,
-        st: st,
+        s: st,
       );
       rethrow;
     }

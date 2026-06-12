@@ -183,7 +183,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
         ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
+      Log.error('Gagal menghapus semua transaksi.', e: e, s: s);
       if (context.mounted) {
         ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
       }

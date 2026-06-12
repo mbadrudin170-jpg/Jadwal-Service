@@ -93,7 +93,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         _isLoading = false;
       });
     } on Exception catch (e, s) {
-      Log.error('Gagal memuat data versi APK', e: e, st: s);
+      Log.error('Gagal memuat data versi APK', e: e, s: s);
       if (!mounted) return;
       setState(() {
         _error = 'Gagal memuat data: $e';
@@ -231,7 +231,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
       ToastUtil.success(
           context, 'Versi ${version.latestVersion} berhasil diarsipkan.');
     } on Exception catch (e, s) {
-      Log.error('Gagal soft delete data ID: ${version.id}', e: e, st: s);
+      Log.error('Gagal soft delete data ID: ${version.id}', e: e, s: s);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan: $e');
     }
@@ -264,7 +264,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         ToastUtil.success(context, 'Berhasil mengarsipkan $count versi APK.');
         unawaited(_loadData());
       } on Exception catch (e, s) {
-        Log.error('Gagal soft delete semua versi APK', e: e, st: s);
+        Log.error('Gagal soft delete semua versi APK', e: e, s: s);
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal mengarsipkan semua: $e');
       }

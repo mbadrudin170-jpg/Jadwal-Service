@@ -39,7 +39,7 @@ class PackageNameWidget extends StatelessWidget {
           Log.error(
             'Error di PackageNameWidget saat memuat paket',
             e: snapshot.error,
-            st: snapshot.stackTrace,
+            s: snapshot.stackTrace,
           );
           return Text(
             'Error',

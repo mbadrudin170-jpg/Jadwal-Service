@@ -142,7 +142,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         }
         await ref.read(pelangganAktifProvider.notifier).fetchActiveCustomers();
       } on Exception catch (e, s) {
-        Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, st: s);
+        Log.error('Gagal soft delete pelanggan ID: $customerId', e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal mengarsipkan pelanggan: $e');
         }
@@ -278,7 +278,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
                 .read(pelangganAktifProvider.notifier)
                 .fetchActiveCustomers();
           } on Exception catch (e, s) {
-            Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, st: s);
+            Log.error('Gagal mengarsipkan semua pelanggan aktif', e: e, s: s);
             if (mounted) {
               ToastUtil.error(
                   context, 'Gagal mengarsipkan semua pelanggan: $e');
@@ -300,7 +300,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
               .read(pelangganAktifProvider.notifier)
               .fetchActiveCustomers();
         } on Exception catch (e, s) {
-          Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, st: s);
+          Log.error('Gagal mengarsipkan pelanggan kadaluarsa', e: e, s: s);
           if (mounted) {
             ToastUtil.error(
                 context, 'Gagal mengarsipkan pelanggan kadaluarsa: $e');
@@ -352,7 +352,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         child: activeCustomerAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
-            Log.error('Error UI Pelanggan Aktif', e: error, st: stack);
+            Log.error('Error UI Pelanggan Aktif', e: error, s: stack);
             return Center(child: Text('Terjadi kesalahan: $error'));
           },
           data: (state) {

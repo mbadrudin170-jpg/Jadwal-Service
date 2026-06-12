@@ -43,7 +43,7 @@ class BaseOpFirebase {
       return docRef;
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base add',
-          e: e, st: s, data: {'collection': collectionName});
+          e: e, s: s, data: {'collection': collectionName});
       rethrow;
     }
   }
@@ -67,7 +67,7 @@ class BaseOpFirebase {
       Log.info('Base insert berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base insert',
-          e: e, st: s, data: {'collection': collectionName, 'docId': docId});
+          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class BaseOpFirebase {
       Log.info('Base update berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base update',
-          e: e, st: s, data: {'collection': collectionName, 'docId': docId});
+          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
       rethrow;
     }
   }
@@ -115,7 +115,7 @@ class BaseOpFirebase {
       Log.info('Base softDelete berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base softDelete',
-          e: e, st: s, data: {'collection': collectionName, 'docId': docId});
+          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
       rethrow;
     }
   }
@@ -134,7 +134,7 @@ class BaseOpFirebase {
       Log.info('Base delete (permanen) berhasil: $collectionName/$docId');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base delete (permanen)',
-          e: e, st: s, data: {'collection': collectionName, 'docId': docId});
+          e: e, s: s, data: {'collection': collectionName, 'docId': docId});
       rethrow;
     }
   }
@@ -176,7 +176,7 @@ class BaseOpFirebase {
       return count;
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base softDeleteAll',
-          e: e, st: s, data: {'collection': collectionName});
+          e: e, s: s, data: {'collection': collectionName});
       rethrow;
     }
   }
@@ -213,7 +213,7 @@ class BaseOpFirebase {
       Log.info('Base insertOrUpdateBatch berhasil.');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan base insertOrUpdateBatch',
-          e: e, st: s, data: {'collection': collectionName});
+          e: e, s: s, data: {'collection': collectionName});
       rethrow;
     }
   }

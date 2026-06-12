@@ -45,7 +45,7 @@ class KoneksiInternetService {
       Log.error(
         '[Lokal] ❌ Fatal: Gagal memeriksa koneksi lokal.',
         e: e,
-        st: st,
+        s: st,
       );
       return false;
     }

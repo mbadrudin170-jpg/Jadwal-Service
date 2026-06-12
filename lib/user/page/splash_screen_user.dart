@@ -98,7 +98,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
         await _navigateToNextPage();
       }
     } on Exception catch (e, st) {
-      Log.error('Error kritis saat inisialisasi', e: e, st: st);
+      Log.error('Error kritis saat inisialisasi', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal terhubung ke server.');
       }
@@ -151,7 +151,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       FirebaseFirestore.instance.settings =
           const Settings(persistenceEnabled: true);
     } on Exception catch (e, st) {
-      Log.error('Gagal inisialisasi layanan online', e: e, st: st);
+      Log.error('Gagal inisialisasi layanan online', e: e, s: st);
     }
   }
 
@@ -184,7 +184,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       }
       return null;
     } on Exception catch (e, st) {
-      Log.error('Gagal memeriksa mode pemeliharaan', e: e, st: st);
+      Log.error('Gagal memeriksa mode pemeliharaan', e: e, s: st);
       return null;
     }
   }

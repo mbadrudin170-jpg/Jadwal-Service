@@ -431,7 +431,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         Log.error(
           'Gagal menyimpan ${_isSubKategoriMode ? 'sub-kategori' : 'kategori'}. Proses ${_isEditMode ? 'update' : 'create'} mengalami kegagalan. Kemungkinan penyebab: koneksi database gagal, constraint violation, data tidak valid, atau terjadi error saat operasi database.',
           e: e,
-          st: s,
+          s: s,
         );
 
         if (!mounted) {

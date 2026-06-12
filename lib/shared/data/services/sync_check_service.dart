@@ -65,7 +65,7 @@ class SyncCheckService {
         return false;
       }
     } on Exception catch (e, s) {
-      Log.error('Kegagalan Operasional saat unggah.', e: e, st: s);
+      Log.error('Kegagalan Operasional saat unggah.', e: e, s: s);
       return false;
     }
   }
@@ -79,13 +79,10 @@ class SyncCheckService {
         {NamaKolom.updatedAt: FieldValue.serverTimestamp()},
         SetOptions(merge: true),
       );
-      Log.info(
-          'Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
+      Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');
     } on Exception catch (e, s) {
-      Log.error(
-          'Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
-          e: e,
-          st: s);
+      Log.error('Gagal memperbarui dokumen ${NamaTabel.statusGlobal}/global.',
+          e: e, s: s);
     }
   }
 
@@ -105,7 +102,7 @@ class SyncCheckService {
         Log.info('Cloud tidak memiliki pembaruan data.');
       }
     } on Exception catch (e, s) {
-      Log.error('Kegagalan Operasional saat unduh.', e: e, st: s);
+      Log.error('Kegagalan Operasional saat unduh.', e: e, s: s);
     }
   }
 }

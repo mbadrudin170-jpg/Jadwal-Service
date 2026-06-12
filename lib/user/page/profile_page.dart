@@ -111,7 +111,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         packageModel: packageModel,
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal total memuat data profil.', e: e, st: st);
+      Log.error('Gagal total memuat data profil.', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal memuat data profil.');
       }
@@ -146,7 +146,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
           if (snapshot.hasError) {
             Log.error('FutureBuilder<_ProfileData> error: ${snapshot.error}.',
-                e: snapshot.error, st: snapshot.stackTrace);
+                e: snapshot.error, s: snapshot.stackTrace);
             return Center(
               child: Text('Terjadi Error: ${snapshot.error}'),
             );
@@ -291,7 +291,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _reloadData();
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke detail pelanggan.', e: e, st: st);
+      Log.error('Gagal navigasi ke detail pelanggan.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman detail.');
     }
   }
@@ -313,7 +313,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _reloadData();
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke halaman poin.', e: e, st: st);
+      Log.error('Gagal navigasi ke halaman poin.', e: e, s: st);
       if (mounted) ToastUtil.error(context, 'Gagal membuka halaman poin.');
     }
   }

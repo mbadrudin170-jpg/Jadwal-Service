@@ -161,7 +161,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _filterKategoriInternal();
       }
     } on Exception catch (e, s) {
-      Log.error('Gagal total saat memuat data awal.', e: e, st: s);
+      Log.error('Gagal total saat memuat data awal.', e: e, s: s);
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal memuat data penting: $e');
     } finally {
@@ -303,7 +303,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         Log.error(
           'Gagal menyimpan transaksi ke database.',
           e: e,
-          st: s,
+          s: s,
         );
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');

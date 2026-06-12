@@ -43,7 +43,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
       Log.error(
           'Gagal menambah/memperbarui pelanggan aktif: ${activeCustomer.customerId}',
           e: e,
-          st: s);
+          s: s);
       rethrow;
     }
   }
@@ -68,7 +68,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
       return PelangganAktifModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error('Error mengambil data pelanggan aktif untuk ID: $customerId',
-          e: e, st: s);
+          e: e, s: s);
       return null;
     }
   }
@@ -82,7 +82,7 @@ class ActiveCustomerOpFirebase extends BaseOpFirebase {
           customerId); // Diperbaiki: Menggunakan properti statis NamaTabel
       Log.info('Berhasil menghapus pelanggan aktif: $customerId');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus pelanggan aktif: $customerId', e: e, st: s);
+      Log.error('Gagal menghapus pelanggan aktif: $customerId', e: e, s: s);
       rethrow;
     }
   }

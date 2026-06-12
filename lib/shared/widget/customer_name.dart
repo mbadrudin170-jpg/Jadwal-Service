@@ -49,7 +49,7 @@ class CustomerNameWidget extends ConsumerWidget {
           Log.error(
             'Error di CustomerNameWidget (Firebase) untuk ID: $customerId',
             e: snapshot.error,
-            st: snapshot.stackTrace,
+            s: snapshot.stackTrace,
           );
           return Text('Error',
               style: style ??
@@ -84,7 +84,7 @@ class CustomerNameWidget extends ConsumerWidget {
           Log.error(
             'Error di CustomerNameWidget (SQLite) untuk ID: $customerId',
             e: snapshot.error,
-            st: snapshot.stackTrace,
+            s: snapshot.stackTrace,
           );
           return Text('Error',
               style: style ??

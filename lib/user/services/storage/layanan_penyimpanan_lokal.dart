@@ -42,7 +42,7 @@ class LayananPenyimpananLokal {
       Log.info('[Ambil Tema] Mode tema ($themeMode) berhasil diambil.');
       return themeMode;
     } catch (e, st) {
-      Log.error('[Ambil Tema] Gagal mengambil mode tema.', e: e, st: st);
+      Log.error('[Ambil Tema] Gagal mengambil mode tema.', e: e, s: st);
       return ThemeMode.system;
     }
   }

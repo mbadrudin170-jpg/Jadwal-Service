@@ -102,7 +102,7 @@ class UpdateCheckService {
       Log.error(
         'Terjadi kesalahan saat memeriksa getUpdateInfo.',
         e: e,
-        st: st,
+        s: st,
       );
       return (
         isUpdateRequired: false,

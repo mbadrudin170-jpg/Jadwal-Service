@@ -43,7 +43,7 @@ class ApkVersionOpFirebase {
       Log.warning('Tidak ada versi APK aktif yang ditemukan');
       return null;
     } on Exception catch (e, st) {
-      Log.error('Error saat mengambil versi APK', e: e, st: st);
+      Log.error('Error saat mengambil versi APK', e: e, s: st);
       rethrow;
     }
   }

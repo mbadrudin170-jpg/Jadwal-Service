@@ -111,7 +111,7 @@ class ApkVersionModel implements HasId {
         final decoded = jsonDecode(data);
         if (decoded is Map) mapData = decoded;
       } on FormatException catch (e, st) {
-        Log.error('Failed to parse build number JSON', e: e, st: st);
+        Log.error('Failed to parse build number JSON', e: e, s: st);
       }
     }
 
@@ -141,7 +141,7 @@ class ApkVersionModel implements HasId {
         final decoded = jsonDecode(data);
         if (decoded is Map) mapData = decoded;
       } on FormatException catch (e, st) {
-        Log.error('Failed to parse download links JSON', e: e, st: st);
+        Log.error('Failed to parse download links JSON', e: e, s: st);
       }
     }
 

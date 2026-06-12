@@ -75,7 +75,7 @@ class Statistik extends _$Statistik {
       Log.error(
         '[StatistikNotifier] Gagal memuat data statistik.',
         e: e,
-        st: st,
+        s: st,
       );
       // Melempar kembali error agar ditangkap oleh AsyncValue.guard atau state provider.
       rethrow;

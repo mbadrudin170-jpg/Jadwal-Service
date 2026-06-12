@@ -39,7 +39,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil createPackage untuk id: ${package.id}');
     } catch (e, s) {
-      Log.error('Gagal createPackage untuk id: ${package.id}', e: e, st: s);
+      Log.error('Gagal createPackage untuk id: ${package.id}', e: e, s: s);
       rethrow;
     }
   }
@@ -66,7 +66,7 @@ class PaketOpSqlite {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil semua data paket', e: e, st: s);
+      Log.error('Gagal mengambil semua data paket', e: e, s: s);
       rethrow;
     }
   }
@@ -94,7 +94,7 @@ class PaketOpSqlite {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil semua data paket aktif', e: e, st: s);
+      Log.error('Gagal mengambil semua data paket aktif', e: e, s: s);
       rethrow;
     }
   }
@@ -122,7 +122,7 @@ class PaketOpSqlite {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil semua data paket publik', e: e, st: s);
+      Log.error('Gagal mengambil semua data paket publik', e: e, s: s);
       rethrow;
     }
   }
@@ -145,7 +145,7 @@ class PaketOpSqlite {
       Log.warning('Paket dengan ID $id tidak ditemukan');
       return null;
     } catch (e, s) {
-      Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, st: s);
+      Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -163,7 +163,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil updatePackage untuk id: ${package.id}');
     } catch (e, s) {
-      Log.error('Gagal updatePackage untuk id: ${package.id}', e: e, st: s);
+      Log.error('Gagal updatePackage untuk id: ${package.id}', e: e, s: s);
       rethrow;
     }
   }
@@ -179,7 +179,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil soft delete untuk package id: $id');
     } catch (e, s) {
-      Log.error('Gagal soft delete untuk package id: $id', e: e, st: s);
+      Log.error('Gagal soft delete untuk package id: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -195,7 +195,7 @@ class PaketOpSqlite {
       Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
       return count;
     } catch (e, s) {
-      Log.error('Gagal soft-delete semua paket', e: e, st: s);
+      Log.error('Gagal soft-delete semua paket', e: e, s: s);
       rethrow;
     }
   }
@@ -211,7 +211,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil deletePackage untuk id: $id');
     } catch (e, s) {
-      Log.error('Gagal deletePackage untuk id: $id', e: e, st: s);
+      Log.error('Gagal deletePackage untuk id: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -231,7 +231,7 @@ class PaketOpSqlite {
         fromServer: dariServer,
       );
     } catch (e, s) {
-      Log.error('Gagal menghapus semua data paket', e: e, st: s);
+      Log.error('Gagal menghapus semua data paket', e: e, s: s);
       rethrow;
     }
   }
@@ -250,7 +250,7 @@ class PaketOpSqlite {
       Log.info('Ditemukan ${maps.length} perubahan paket');
       return List.generate(maps.length, (i) => PaketModel.fromSqlite(maps[i]));
     } catch (e, s) {
-      Log.error('Gagal mengambil perubahan paket', e: e, st: s);
+      Log.error('Gagal mengambil perubahan paket', e: e, s: s);
       rethrow;
     }
   }
@@ -278,7 +278,7 @@ class PaketOpSqlite {
       );
       Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
     } catch (e, s) {
-      Log.error('Gagal insertOrUpdateBatch', e: e, st: s);
+      Log.error('Gagal insertOrUpdateBatch', e: e, s: s);
       rethrow;
     }
   }
@@ -303,7 +303,7 @@ class PaketOpSqlite {
         return PaketModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
-      Log.error('Gagal mengambil paket berdasarkan list ID', e: e, st: s);
+      Log.error('Gagal mengambil paket berdasarkan list ID', e: e, s: s);
       rethrow;
     }
   }

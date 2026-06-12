@@ -20,8 +20,7 @@ class SettingsOpFirebase {
   }
 
   /// Mendapatkan referensi ke koleksi setting.
-  CollectionReference get _collection =>
-      _db.collection(NamaTabel.settings);
+  CollectionReference get _collection => _db.collection(NamaTabel.settings);
 
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {
@@ -39,7 +38,7 @@ class SettingsOpFirebase {
             'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.',
       };
     } on Exception catch (e, s) {
-      Log.error('Error mengambil pengaturan.', e: e, st: s);
+      Log.error('Error mengambil pengaturan.', e: e, s: s);
       return {
         NamaKolom.maintenanceMode: false,
         NamaKolom.maintenanceInfo:

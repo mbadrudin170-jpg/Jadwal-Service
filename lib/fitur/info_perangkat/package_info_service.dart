@@ -1,6 +1,5 @@
 // path: lib/fitur/info_perangkat/package_info_service.dart
 
-
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_info_model.dart';
@@ -30,7 +29,7 @@ class PackageInfoService {
       });
       return model;
     } on Exception catch (e, st) {
-      Log.error('Gagal mengambil info paket.', e: e, st: st);
+      Log.error('Gagal mengambil info paket.', e: e, s: st);
       return null;
     }
   }

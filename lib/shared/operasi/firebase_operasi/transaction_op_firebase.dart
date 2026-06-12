@@ -34,7 +34,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       );
       Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, st: s);
+      Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, s: s);
       rethrow;
     }
   }
@@ -70,7 +70,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.error(
           'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
           e: e,
-          st: s);
+          s: s);
       return null;
     }
   }
@@ -93,7 +93,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
         return TransaksiModel.fromFirebase(doc.id, data);
       }).toList();
     } on Exception catch (e, s) {
-      Log.error('Error mengambil transaksi: $e', e: e, st: s);
+      Log.error('Error mengambil transaksi: $e', e: e, s: s);
       return [];
     }
   }
@@ -117,7 +117,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info('Total poin untuk $idPelanggan adalah $totalPoin');
       return totalPoin;
     } on Exception catch (e, s) {
-      Log.error('Error menghitung total poin: $e', e: e, st: s);
+      Log.error('Error menghitung total poin: $e', e: e, s: s);
       return 0;
     }
   }
@@ -131,7 +131,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
-          e: e, st: s);
+          e: e, s: s);
       rethrow;
     }
   }
@@ -144,7 +144,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
       Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',
-          e: e, st: s);
+          e: e, s: s);
       rethrow;
     }
   }
@@ -189,7 +189,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.error(
         'Gagal mengambil paket aktif untuk pelanggan $idPelanggan: $e',
         e: e,
-        st: s,
+        s: s,
       );
       // Kembalikan list kosong jika terjadi error agar aplikasi tidak crash
       return [];

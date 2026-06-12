@@ -105,7 +105,7 @@ class CategoryModel implements HasId {
         }
         return [];
       } on FormatException catch (e, st) {
-        Log.error('Failed to parse subcategories from JSON', e: e, st: st);
+        Log.error('Failed to parse subcategories from JSON', e: e, s: st);
         return [];
       }
     }

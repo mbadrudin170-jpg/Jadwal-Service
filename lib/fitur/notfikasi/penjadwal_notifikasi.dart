@@ -25,8 +25,8 @@ class PenjadwalNotifikasi {
       final transactionOperation = TransactionOpFirebase();
 
       // Dapatkan transaksi lunas terbaru yang akan datang dari Firebase.
-      final transaction =
-          await transactionOperation.ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
+      final transaction = await transactionOperation
+          .ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(userId);
 
       // Logika utama penjadwalan notifikasi
       if (transaction != null &&
@@ -91,7 +91,7 @@ class PenjadwalNotifikasi {
         Log.info('Alarm dengan ID $alarmId juga dibatalkan.');
       }
     } on Exception catch (e, st) {
-      Log.error('Gagal mengatur notifikasi dari Firebase', e: e, st: st);
+      Log.error('Gagal mengatur notifikasi dari Firebase', e: e, s: st);
       // Jika terjadi error, coba batalkan semua notifikasi dan alarm untuk kebersihan.
       await notifikasiServis.batalNotifikasi(endNotificationId);
       await notifikasiServis.batalNotifikasi(midNotificationId);

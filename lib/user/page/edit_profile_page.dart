@@ -81,7 +81,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         Log.error(
           'Gagal menyimpan perubahan profil',
           e: e,
-          st: st,
+          s: st,
         );
         if (!mounted) return;
         ToastUtil.error(context, 'Gagal menyimpan perubahan: $e');

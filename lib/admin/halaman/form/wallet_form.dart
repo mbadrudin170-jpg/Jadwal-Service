@@ -132,11 +132,11 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         if (mounted) {
           Navigator.pop(context, true);
         }
-      }  catch (e, s) {
+      } catch (e, s) {
         Log.error(
           'Gagal menyimpan dompet. Proses ${_isEditMode ? "update" : "create"} gagal.',
           e: e,
-          st: s,
+          s: s,
         );
 
         if (!mounted) return;

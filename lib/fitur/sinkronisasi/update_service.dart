@@ -56,11 +56,11 @@ class UpdateService {
         throw Exception('Gagal memulai instalasi: ${result.message}');
       }
     } on DioException catch (e) {
-      Log.error('Error saat mengunduh (Dio)', e: e, st: e.stackTrace);
+      Log.error('Error saat mengunduh (Dio)', e: e, s: e.stackTrace);
       throw Exception(
           'Gagal mengunduh pembaruan. Periksa koneksi internet Anda.');
     } on Object catch (e, st) {
-      Log.error('Error umum saat proses update', e: e, st: st);
+      Log.error('Error umum saat proses update', e: e, s: st);
       throw Exception('Terjadi kesalahan saat proses pembaruan: $e');
     }
   }

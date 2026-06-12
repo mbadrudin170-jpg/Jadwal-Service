@@ -48,7 +48,7 @@ class StatusUploadOpSqlite {
       );
       Log.info('setNeedUpload berhasil: needUpload=$needUpload');
     } catch (e, st) {
-      Log.error('Gagal setNeedUpload: $e', e: e, st: st);
+      Log.error('Gagal setNeedUpload: $e', e: e, s: st);
       rethrow;
     }
   }
@@ -71,7 +71,7 @@ class StatusUploadOpSqlite {
       Log.info('getNeedUpload: tidak ada data, mengembalikan false');
       return false;
     } catch (e, st) {
-      Log.error('Gagal getNeedUpload: $e', e: e, st: st);
+      Log.error('Gagal getNeedUpload: $e', e: e, s: st);
       return false;
     }
   }
@@ -83,7 +83,7 @@ class StatusUploadOpSqlite {
       await tandaiButuhUpload(false);
       Log.info('resetNeedUpload berhasil');
     } on Exception catch (e, st) {
-      Log.error('Gagal resetNeedUpload: $e', e: e, st: st);
+      Log.error('Gagal resetNeedUpload: $e', e: e, s: st);
       rethrow;
     }
   }
@@ -100,13 +100,14 @@ class StatusUploadOpSqlite {
       );
       if (query.isNotEmpty) {
         final data = UploadStatusModel.fromSqlite(query.first);
-        Log.info('getUploadStatusModel berhasil: needUpload=${data.needUpload}');
+        Log.info(
+            'getUploadStatusModel berhasil: needUpload=${data.needUpload}');
         return data;
       }
       Log.info('getUploadStatusModel: tidak ada data, mengembalikan null');
       return null;
     } catch (e, st) {
-      Log.error('Gagal getUploadStatusModel: $e', e: e, st: st);
+      Log.error('Gagal getUploadStatusModel: $e', e: e, s: st);
       return null;
     }
   }

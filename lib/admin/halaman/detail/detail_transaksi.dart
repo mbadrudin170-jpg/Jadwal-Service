@@ -104,7 +104,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
         }
       } catch (e, s) {
         Log.error('Gagal memuat ulang data transaksi setelah edit.',
-            e: e, st: s);
+            e: e, s: s);
         if (mounted) {
           ToastUtil.error(context, 'Gagal memuat data terbaru.');
         }

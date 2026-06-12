@@ -30,7 +30,7 @@ class PaketOpFirebase {
         return PaketModel.fromFirebase(doc.id, data);
       }).toList();
     } on Exception catch (e, s) {
-      Log.error('Error mengambil paket publik: $e', e: e, st: s);
+      Log.error('Error mengambil paket publik: $e', e: e, s: s);
       return [];
     }
   }
@@ -48,7 +48,7 @@ class PaketOpFirebase {
       Log.warning('Paket dengan ID $id tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
-      Log.error('Error mengambil model paket: $e', e: e, st: s);
+      Log.error('Error mengambil model paket: $e', e: e, s: s);
       return null;
     }
   }
@@ -65,7 +65,7 @@ class PaketOpFirebase {
       Log.warning('Paket ID $id tidak ditemukan di stream.');
       return null;
     }).handleError((Object e, StackTrace s) {
-      Log.error('Error pada stream paket ID: $id', e: e, st: s);
+      Log.error('Error pada stream paket ID: $id', e: e, s: s);
       return null;
     });
   }
@@ -76,7 +76,7 @@ class PaketOpFirebase {
       await _collection.doc(id).delete();
       Log.info('Penghapusan permanen paket berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $id', e: e, st: s);
+      Log.error('Gagal menghapus paket secara permanen: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -91,7 +91,7 @@ class PaketOpFirebase {
       });
       Log.info('Soft delete paket berhasil: $id');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete paket: $id', e: e, st: s);
+      Log.error('Gagal melakukan soft delete paket: $id', e: e, s: s);
       rethrow;
     }
   }

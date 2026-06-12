@@ -50,7 +50,7 @@ class UnduhanAwalService {
       Log.info("Tabel '$namaTabel': $jumlah baris.");
       return jumlah == 0;
     } on Exception catch (e, st) {
-      Log.error("Gagal mengecek tabel '$namaTabel'.", e: e, st: st);
+      Log.error("Gagal mengecek tabel '$namaTabel'.", e: e, s: st);
       return false;
     }
   }
@@ -68,7 +68,7 @@ class UnduhanAwalService {
         Log.info("Lewati '$namaTabel' (Sudah ada data).");
       }
     } on Exception catch (e, s) {
-      Log.error("ERROR saat mengunduh '$namaTabel'", e: e, st: s);
+      Log.error("ERROR saat mengunduh '$namaTabel'", e: e, s: s);
     }
   }
 

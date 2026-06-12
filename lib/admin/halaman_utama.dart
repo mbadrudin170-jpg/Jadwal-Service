@@ -121,7 +121,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
       await _syncService.runSyncCheck();
       Log.info('Sinkronisasi data selesai.');
     } on Exception catch (e, s) {
-      Log.error('Gagal sinkronisasi data.', e: e, st: s);
+      Log.error('Gagal sinkronisasi data.', e: e, s: s);
     } finally {
       if (mounted) setState(() => _sedangSync = false);
     }

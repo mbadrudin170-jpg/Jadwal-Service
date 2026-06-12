@@ -88,7 +88,7 @@ class PreferenceService {
       await prefs.setInt(key, millis);
       Log.info('✨ Timestamp $label berhasil disimpan | UTC: $time');
     } on Exception catch (e, s) {
-      Log.error('Error saat menyimpan timestamp $label: $e', e: e, st: s);
+      Log.error('Error saat menyimpan timestamp $label: $e', e: e, s: s);
     }
   }
 

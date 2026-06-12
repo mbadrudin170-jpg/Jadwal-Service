@@ -53,7 +53,7 @@ class SqliteDatabase {
       Log.info('Database berhasil diinisialisasi dan di-cache.');
       return _database!;
     } on Exception catch (e, st) {
-      Log.error('Gagal total mendapatkan instance database.', e: e, st: st);
+      Log.error('Gagal total mendapatkan instance database.', e: e, s: st);
       rethrow;
     }
   }
@@ -87,7 +87,7 @@ class SqliteDatabase {
         onUpgrade: _onUpgrade,
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal membuka atau membuat database.', e: e, st: st);
+      Log.error('Gagal membuka atau membuat database.', e: e, s: st);
       rethrow;
     }
   }
@@ -449,7 +449,7 @@ class SqliteDatabase {
       await batch.commit(noResult: true);
       Log.info('PROSES PEMBUATAN TABEL & INDEX SELESAI');
     } on Exception catch (e, st) {
-      Log.error('Gagal total saat membuat tabel atau index.', e: e, st: st);
+      Log.error('Gagal total saat membuat tabel atau index.', e: e, s: st);
       rethrow;
     }
   }

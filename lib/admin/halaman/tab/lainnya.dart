@@ -74,7 +74,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
       );
       Log.info('Kembali dari halaman $pageName.');
     } on Exception catch (e, st) {
-      Log.error('Gagal navigasi ke halaman $pageName.', e: e, st: st);
+      Log.error('Gagal navigasi ke halaman $pageName.', e: e, s: st);
       if (mounted) {
         ToastUtil.error(context, 'Gagal membuka halaman $pageName.');
       }

@@ -37,7 +37,7 @@ class StatusOpFirebase {
 
       Log.info('Pembaruan global status berhasil.');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal memperbarui global status.', e: e, st: s);
+      Log.error('Gagal memperbarui global status.', e: e, s: s);
       // Melempar ulang error agar bisa ditangani di lapisan atas jika perlu.
       rethrow;
     }

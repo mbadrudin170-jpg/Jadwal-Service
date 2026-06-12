@@ -99,7 +99,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
       Log.error(
         'Gagal mendapatkan nama kategori untuk ID: ${widget.transaction.categoryId}',
         e: e,
-        st: st,
+        s: st,
       );
       return 'Error Kategori';
     }
@@ -115,7 +115,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
       Log.error(
         'Gagal mendapatkan nama dompet untuk ID: ${widget.transaction.walletId}',
         e: e,
-        st: st,
+        s: st,
       );
       return 'Error Dompet';
     }
@@ -187,7 +187,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
               Log.error(
                 'Error di FutureBuilder TransactionTile untuk ID: ${widget.transaction.id}',
                 e: snapshot.error,
-                st: snapshot.stackTrace,
+                s: snapshot.stackTrace,
               );
               return Text('Error memuat data',
                   style: textTheme.bodyMedium?.copyWith(color: Colors.red));

@@ -67,7 +67,7 @@ void pengontrolNotifikasi(Ref ref) {
         },
         loading: () => Log.info('Menunggu LocalStorageService siap...'),
         error: (e, st) {
-          Log.error('Error pada localStorageServiceProvider', e: e, st: st);
+          Log.error('Error pada localStorageServiceProvider', e: e, s: st);
           servis.hentikanPemantauanNotifikasi();
         },
       );

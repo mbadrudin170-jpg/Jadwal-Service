@@ -98,7 +98,7 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
           Navigator.pop(context, true); // Kembali dengan hasil true
         }
       } on Exception catch (e, st) {
-        Log.error('Gagal menyimpan pengaturan.', e: e, st: st);
+        Log.error('Gagal menyimpan pengaturan.', e: e, s: st);
         if (mounted) {
           ToastUtil.error(context, 'Gagal menyimpan pengaturan: $e');
         }

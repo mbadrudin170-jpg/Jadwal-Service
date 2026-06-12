@@ -58,7 +58,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error mendapatkan stream pesanan',
         e: e,
-        st: st,
+        s: st,
       );
       return <OrderModel>[];
     });
@@ -78,7 +78,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error mendapatkan pesanan by ID',
         e: e,
-        st: st,
+        s: st,
         data: {'orderId': orderId},
       );
       return null;
@@ -100,7 +100,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error mendapatkan stream pesanan by User ID',
         e: e,
-        st: st,
+        s: st,
         data: {'userId': userId},
       );
       return Stream.value([]);
@@ -122,7 +122,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error mendapatkan stream pesanan berdasarkan status',
         e: e,
-        st: st,
+        s: st,
         data: {'status': status.name},
       );
       return <OrderModel>[];
@@ -146,7 +146,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error mendapatkan list pesanan by status',
         e: e,
-        st: st,
+        s: st,
         data: {'status': status.name},
       );
       return [];
@@ -179,7 +179,7 @@ class OrderOpFirebase extends BaseOpFirebase {
       Log.error(
         'Error menghitung pesanan by status',
         e: e,
-        st: st,
+        s: st,
         data: {'status': status.name, 'userId': userId},
       );
       return 0;

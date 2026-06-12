@@ -32,7 +32,7 @@ void callbackDispatcher() {
             Log.error(
               'Error saat menjalankan background task "$task"',
               e: e,
-              st: st,
+              s: st,
             );
             return false;
           }
@@ -49,7 +49,7 @@ void callbackDispatcher() {
             Log.error(
               'Error saat menjalankan background task "$task" (reschedule)',
               e: e,
-              st: st,
+              s: st,
             );
             return false;
           }
@@ -89,7 +89,7 @@ class BackgroundService {
       await daftarSinkronisasiPeriodik();
       await daftarPenjadwalanUlangPeriodik();
     } on Exception catch (e, st) {
-      Log.error('Gagal menginisialisasi background services.', e: e, st: st);
+      Log.error('Gagal menginisialisasi background services.', e: e, s: st);
     }
   }
 
@@ -108,7 +108,7 @@ class BackgroundService {
       Log.error(
         'Gagal menjalankan periksaDanArsipkanPelangganKedaluwarsa di background',
         e: e,
-        st: st,
+        s: st,
       );
     } finally {
       container.dispose();
@@ -132,7 +132,7 @@ class BackgroundService {
         'Tugas sinkronisasi periodik ($syncTaskName) berhasil didaftarkan.',
       );
     } on Exception catch (e, st) {
-      Log.error('Gagal mendaftarkan tugas periodik sync.', e: e, st: st);
+      Log.error('Gagal mendaftarkan tugas periodik sync.', e: e, s: st);
     }
   }
 
@@ -153,7 +153,7 @@ class BackgroundService {
       );
     } on Exception catch (e, st) {
       Log.error('Gagal mendaftarkan tugas penjadwalan ulang notifikasi.',
-          e: e, st: st);
+          e: e, s: st);
     }
   }
 

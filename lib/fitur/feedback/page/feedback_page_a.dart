@@ -46,7 +46,8 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   /// Memuat data pelanggan sekali saja untuk mapping ID -> Nama
   Future<void> _loadPelangganMapping() async {
     try {
-      final pelangganList = await ref.read(customerOperationProvider).ambilSemua();
+      final pelangganList =
+          await ref.read(customerOperationProvider).ambilSemua();
       if (mounted) {
         setState(() {
           _mapNamaUser = {for (var p in pelangganList) p.id: p.name};
@@ -102,7 +103,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           ToastUtil.success(context, 'Kritik dan saran berhasil dihapus');
         }
       } on Exception catch (e, st) {
-        Log.error('Gagal menghapus kritik/saran ID: ${item.id}', e: e, st: st);
+        Log.error('Gagal menghapus kritik/saran ID: ${item.id}', e: e, s: st);
         if (mounted) {
           ToastUtil.error(context, 'Gagal menghapus: $e');
         }
@@ -124,7 +125,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
           skipLoadingOnRefresh: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, st) {
-            Log.error('Gagal memuat data kritik dan saran', e: e, st: st);
+            Log.error('Gagal memuat data kritik dan saran', e: e, s: st);
             return Center(child: Text('Gagal memuat data: $e'));
           },
           data: (allFeedback) {
