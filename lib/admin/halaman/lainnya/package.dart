@@ -1,14 +1,16 @@
 // path: lib/admin/halaman/lainnya/package.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/package_form.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -230,7 +232,7 @@ Future<void> _showEditDeleteDialog(
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              _showDeleteConfirmationDialog(context, ref, paket);
+              unawaited(_showDeleteConfirmationDialog(context, ref, paket));
             },
             child: const Text('Hapus'),
           ),

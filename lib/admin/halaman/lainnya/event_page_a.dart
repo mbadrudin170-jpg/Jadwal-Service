@@ -33,7 +33,7 @@ class EventPageA extends ConsumerWidget {
   const EventPageA({super.key});
 
   @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // 2. Tonton state dari StreamProvider terbaru
     final announcementsAsync = ref.watch(announcementsStreamProvider);
 
@@ -125,6 +125,8 @@ class EventPageA extends ConsumerWidget {
                       ],
                     ),
                     onTap: () {
+                      Log.info('Menavigasi ke detail pengumuman.',
+                          {'id': announcement.id});
                       unawaited(Navigator.push(
                           context,
                           MaterialPageRoute<void>(
@@ -140,11 +142,12 @@ class EventPageA extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
+          Log.info('Membuka halaman untuk mengelola pengumuman baru.');
+          unawaited(Navigator.push(
             context,
             MaterialPageRoute<void>(
                 builder: (context) => const ManageAnnouncementPage()),
-          );
+          ));
         },
         child: const Icon(TIcons.add),
       ),

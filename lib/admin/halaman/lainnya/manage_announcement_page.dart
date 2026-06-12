@@ -109,7 +109,7 @@ class _ManageAnnouncementPageState
     }
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+  Future<void> _selectDate(bool isStartDate) async {
     DateTime initialDate = DateTime.now();
     if (isStartDate) {
       if (_selectedStartDate != null) {
@@ -154,7 +154,7 @@ class _ManageAnnouncementPageState
     }
   }
 
-  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+  Future<void> _selectTime(bool isStartTime) async {
     TimeOfDay initialTime = TimeOfDay.now();
     final DateTime? currentDateTime =
         isStartTime ? _selectedStartDate : _selectedEndDate;
@@ -323,7 +323,7 @@ class _ManageAnnouncementPageState
   }
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola Pengumuman'),
@@ -425,8 +425,8 @@ class _ManageAnnouncementPageState
                       : TimeOfDay(
                           hour: _selectedStartDate!.hour,
                           minute: _selectedStartDate!.minute),
-                  onSelectDate: () => _selectDate(context, true),
-                  onSelectTime: () => _selectTime(context, true)),
+                  onSelectDate: () => _selectDate(true),
+                  onSelectTime: () => _selectTime(true)),
               DateTimePickerWidget(
                 labelText: 'Selesai:',
                 selectedDate: _selectedEndDate,
@@ -435,8 +435,8 @@ class _ManageAnnouncementPageState
                     : TimeOfDay(
                         hour: _selectedEndDate!.hour,
                         minute: _selectedEndDate!.minute),
-                onSelectDate: () => _selectDate(context, false),
-                onSelectTime: () => _selectTime(context, false),
+                onSelectDate: () => _selectDate(false),
+                onSelectTime: () => _selectTime(false),
               ),
               gapH16,
               SwitchListTile(
@@ -446,7 +446,7 @@ class _ManageAnnouncementPageState
                 ),
                 value: _isSwitched,
                 secondary: const Icon(TIcons.toggleOn),
-                onChanged: (final bool value) {
+                onChanged: (bool value) {
                   setState(() {
                     _isSwitched = value;
                   });

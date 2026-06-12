@@ -1,10 +1,13 @@
 // path: lib/admin/halaman/lainnya/package_activation_history.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
 import 'package:wifi/admin/providers/package_activation_history_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -25,7 +28,9 @@ class PackageActivationHistoryPage extends ConsumerWidget {
             icon: const Icon(TIcons.filter),
             onPressed: () {
               if (historyAsync.hasValue) {
-                _showSortDialog(context, ref, historyAsync.value!.sortBy);
+                Log.info('Membuka dialog pengurutan riwayat langganan.');
+                unawaited(
+                    _showSortDialog(context, ref, historyAsync.value!.sortBy));
               }
             },
             tooltip: 'Urutkan',
@@ -53,6 +58,8 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 child: ListTile(
                   onTap: () async {
+                    Log.info('Melihat detail riwayat langganan.',
+                        {'transactionId': transaction.id});
                     await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
