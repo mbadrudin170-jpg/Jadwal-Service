@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/lainnya/apk_version_page.dart';
 import 'package:wifi/admin/halaman/lainnya/category.dart';
 import 'package:wifi/admin/halaman/lainnya/event_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/package.dart';
-import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
+import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/admin/halaman/lainnya/settings_page_a.dart';
 import 'package:wifi/admin/halaman/lainnya/tentang_aplikasi.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
@@ -111,7 +111,7 @@ class _LainnyaPageState extends State<LainnyaPage> {
             icon: TIcons.clock,
             title: 'Riwayat Aktivasi Paket',
             onTap: () => _navigateTo(
-                const PackageActivationHistoryPage(), 'Riwayat Aktivasi Paket'),
+                const RiwayatAktivasiPaket(), 'Riwayat Aktivasi Paket'),
           ),
           _buildMenuItem(
             context: context,

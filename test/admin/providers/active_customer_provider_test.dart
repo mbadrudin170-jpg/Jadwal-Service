@@ -61,7 +61,7 @@ void main() {
   final activeCust1 = ActiveCustomerDetailModel(
     activeCustomer: ActiveCustomerModel(
         id: 'ac1',
-        customerId: 'cust1',
+        idPelanggan: 'cust1',
         packageId: 'pkg1',
         startDate: twoDaysAgo,
         endDate: today,
@@ -74,7 +74,7 @@ void main() {
   final activeCust2 = ActiveCustomerDetailModel(
     activeCustomer: ActiveCustomerModel(
         id: 'ac2',
-        customerId: 'cust2',
+        idPelanggan: 'cust2',
         packageId: 'pkg1',
         startDate: yesterday,
         endDate: tomorrow,
@@ -87,7 +87,7 @@ void main() {
   final activeCust3 = ActiveCustomerDetailModel(
     activeCustomer: ActiveCustomerModel(
         id: 'ac3',
-        customerId: 'cust3',
+        idPelanggan: 'cust3',
         packageId: 'pkg1',
         startDate: today,
         endDate: tomorrow.add(const Duration(days: 1)),

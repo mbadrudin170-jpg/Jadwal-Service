@@ -314,7 +314,7 @@ class _OrderPageState extends ConsumerState<OrderPage> {
                   const Text('Paket: '),
                   PackageNameWidget(
                     packageFuture:
-                        paketOpFirebase.getPackageById(order.packageId),
+                        paketOpFirebase.ambilBerdasarkanId(order.packageId),
                   ),
                 ],
               ),

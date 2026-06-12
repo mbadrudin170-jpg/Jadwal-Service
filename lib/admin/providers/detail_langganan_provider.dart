@@ -36,10 +36,10 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
   final hasil = await Future.wait([
     transaksi.customerId != null
-        ? opPelanggan.getById(transaksi.customerId!)
+        ? opPelanggan.ambilBerdasarkanId(transaksi.customerId!)
         : Future<CustomerModel?>.value(),
     transaksi.packageId != null
-        ? opPaket.getById(transaksi.packageId!)
+        ? opPaket.ambilBerdasarkanId(transaksi.packageId!)
         : Future<PackageModel?>.value(),
   ]);
 

@@ -52,9 +52,9 @@ final activeCustomerDetailProvider = FutureProvider.family<
   final packageOp = ref.watch(packageOperationProvider);
   final transactionOp = ref.watch(transactionOperationProvider);
   final results = await Future.wait([
-    customerOp.getById(activeCustomer.customerId),
+    customerOp.ambilBerdasarkanId(activeCustomer.customerId),
     activeCustomer.packageId.isNotEmpty
-        ? packageOp.getById(activeCustomer.packageId)
+        ? packageOp.ambilBerdasarkanId(activeCustomer.packageId)
         : Future<PackageModel?>.value(),
     (activeCustomer.transactionId != null &&
             activeCustomer.transactionId!.isNotEmpty)

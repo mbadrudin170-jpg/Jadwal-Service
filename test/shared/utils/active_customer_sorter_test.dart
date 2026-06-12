@@ -15,7 +15,7 @@ void main() {
     packageName: 'Bulanan',
     activeCustomer: ActiveCustomerModel(
       id: '1',
-      customerId: 'c1',
+      idPelanggan: 'c1',
       packageId: 'p1',
       startDate: now.subtract(const Duration(days: 20)),
       endDate: now.add(const Duration(days: 10)), // Aktif, sisa 10 hari
@@ -29,7 +29,7 @@ void main() {
     packageName: 'Mingguan',
     activeCustomer: ActiveCustomerModel(
       id: '2',
-      customerId: 'c2',
+      idPelanggan: 'c2',
       packageId: 'p2',
       startDate: now.subtract(const Duration(days: 5)),
       endDate: now.add(const Duration(days: 2)), // Aktif, sisa 2 hari
@@ -43,7 +43,7 @@ void main() {
     packageName: 'Harian',
     activeCustomer: ActiveCustomerModel(
       id: '3',
-      customerId: 'c3',
+      idPelanggan: 'c3',
       packageId: 'p3',
       startDate: now.subtract(const Duration(days: 2)),
       endDate: now.subtract(const Duration(days: 1)), // Tidak Aktif
@@ -51,13 +51,13 @@ void main() {
       updatedAt: now.subtract(const Duration(hours: 10)),
     ),
   );
-  
+
   final customer4 = ActiveCustomerDetailModel(
     customerName: 'Zebra',
     packageName: 'Harian',
     activeCustomer: ActiveCustomerModel(
       id: '4',
-      customerId: 'c4',
+      idPelanggan: 'c4',
       packageId: 'p4',
       startDate: now.subtract(const Duration(days: 1)),
       endDate: now.add(const Duration(days: 20)), // Aktif, sisa 20 hari
@@ -86,36 +86,44 @@ void main() {
           ['Zebra', 'Charlie', 'Bob', 'Alice']);
     });
 
-    test('harus mengurutkan berdasarkan tanggal berakhir terdekat (endDate)', () {
+    test('harus mengurutkan berdasarkan tanggal berakhir terdekat (endDate)',
+        () {
       final sorted = ActiveCustomerSorter.sort(customers, SortOption.endDate);
       // Bob (-1d), Alice (+2d), Charlie (+10d), Zebra (+20d)
-      expect(
-          sorted.map((c) => c.activeCustomer.id).toList(), ['3', '2', '1', '4']);
+      expect(sorted.map((c) => c.activeCustomer.id).toList(),
+          ['3', '2', '1', '4']);
     });
 
     test('harus mengurutkan berdasarkan tanggal mulai terlama (startDate)', () {
       final sorted = ActiveCustomerSorter.sort(customers, SortOption.startDate);
       // Charlie (-20d), Alice (-5d), Bob (-2d), Zebra (-1d)
-      expect(
-          sorted.map((c) => c.activeCustomer.id).toList(), ['1', '2', '3', '4']);
+      expect(sorted.map((c) => c.activeCustomer.id).toList(),
+          ['1', '2', '3', '4']);
     });
 
     test('harus mengurutkan berdasarkan pembaruan terakhir (lastUpdated)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.lastUpdated);
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.lastUpdated);
       // Alice (-1h), Zebra (-2h), Charlie (-5h), Bob (-10h)
-      expect(
-          sorted.map((c) => c.activeCustomer.id).toList(), ['2', '4', '1', '3']);
+      expect(sorted.map((c) => c.activeCustomer.id).toList(),
+          ['2', '4', '1', '3']);
     });
 
     test('harus mengurutkan dengan yang Lunas di atas (paid)', () {
       final sorted = ActiveCustomerSorter.sort(customers, SortOption.paid);
-      // Paid: Bob, Charlie. Unpaid: Alice, Zebra. 
+      // Paid: Bob, Charlie. Unpaid: Alice, Zebra.
       // Secondary sort: endDate. Bob(-1d), Charlie(+10d)
       // Alice(+2d), Zebra(+20d)
       final statuses = sorted.map((c) => c.activeCustomer.status).toList();
-      expect(statuses, [PaymentStatus.paid, PaymentStatus.paid, PaymentStatus.unpaid, PaymentStatus.unpaid]);
+      expect(statuses, [
+        PaymentStatus.paid,
+        PaymentStatus.paid,
+        PaymentStatus.unpaid,
+        PaymentStatus.unpaid
+      ]);
       // Cek urutan sekunder (endDate)
-      expect(sorted.map((c)=>c.customerName).toList(), ['Bob', 'Charlie', 'Alice', 'Zebra']);
+      expect(sorted.map((c) => c.customerName).toList(),
+          ['Bob', 'Charlie', 'Alice', 'Zebra']);
     });
 
     test('harus mengurutkan dengan yang Belum Lunas di atas (unpaid)', () {
@@ -124,13 +132,20 @@ void main() {
       // Secondary sort: endDate. Alice(+2d), Zebra(+20d)
       // Bob(-1d), Charlie(+10d)
       final statuses = sorted.map((c) => c.activeCustomer.status).toList();
-      expect(statuses, [PaymentStatus.unpaid, PaymentStatus.unpaid, PaymentStatus.paid, PaymentStatus.paid]);
+      expect(statuses, [
+        PaymentStatus.unpaid,
+        PaymentStatus.unpaid,
+        PaymentStatus.paid,
+        PaymentStatus.paid
+      ]);
       // Cek urutan sekunder (endDate)
-       expect(sorted.map((c)=>c.customerName).toList(), ['Alice', 'Zebra', 'Bob', 'Charlie']);
+      expect(sorted.map((c) => c.customerName).toList(),
+          ['Alice', 'Zebra', 'Bob', 'Charlie']);
     });
 
     test('harus mengurutkan dengan paket Aktif di atas (activePackage)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.activePackage);
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.activePackage);
       // Active: Alice, Charlie, Zebra. Inactive: Bob.
       // Secondary sort: endDate. Alice(+2d), Charlie(+10d), Zebra(+20d)
       final ids = sorted.map((c) => c.activeCustomer.id).toList();
@@ -139,8 +154,10 @@ void main() {
       expect(sorted.last.customerName, 'Bob');
     });
 
-    test('harus mengurutkan dengan paket Tidak Aktif di atas (inactivePackage)', () {
-      final sorted = ActiveCustomerSorter.sort(customers, SortOption.inactivePackage);
+    test('harus mengurutkan dengan paket Tidak Aktif di atas (inactivePackage)',
+        () {
+      final sorted =
+          ActiveCustomerSorter.sort(customers, SortOption.inactivePackage);
       // Inactive: Bob. Active: Alice, Charlie, Zebra.
       // Secondary sort: endDate. Alice(+2d), Charlie(+10d), Zebra(+20d)
       final ids = sorted.map((c) => c.activeCustomer.id).toList();

@@ -6,7 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/halaman/detail/subscription_history_detail.dart';
-import 'package:wifi/admin/halaman/lainnya/package_activation_history.dart';
+import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
@@ -76,13 +76,15 @@ void main() {
         customerOperationProvider.overrideWithValue(mockCustomerOp),
       ],
       child: const MaterialApp(
-        home: PackageActivationHistoryPage(),
+        home: RiwayatAktivasiPaket(),
       ),
     );
   }
 
-  testWidgets('1. harus menampilkan CircularProgressIndicator saat memuat data', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenAnswer((_) async {
+  testWidgets('1. harus menampilkan CircularProgressIndicator saat memuat data',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenAnswer((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       return [];
     });
@@ -93,18 +95,24 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('2. harus menampilkan pesan error jika gagal memuat data', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenThrow(Exception('Gagal memuat'));
+  testWidgets('2. harus menampilkan pesan error jika gagal memuat data',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenThrow(Exception('Gagal memuat'));
     when(mockCustomerOp.getAll()).thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Error: Exception: Gagal memuat'), findsOneWidget);
+    expect(
+        find.textContaining('Error: Exception: Gagal memuat'), findsOneWidget);
   });
 
-  testWidgets('3. harus menampilkan pesan jika tidak ada data riwayat langganan', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenAnswer((_) async => []);
+  testWidgets(
+      '3. harus menampilkan pesan jika tidak ada data riwayat langganan',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenAnswer((_) async => []);
     when(mockCustomerOp.getAll()).thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
@@ -113,8 +121,10 @@ void main() {
     expect(find.text('Tidak ada riwayat langganan ditemukan.'), findsOneWidget);
   });
 
-  testWidgets('4. harus menampilkan daftar riwayat langganan dengan benar', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenAnswer((_) async => [t1]);
+  testWidgets('4. harus menampilkan daftar riwayat langganan dengan benar',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenAnswer((_) async => [t1]);
     when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
     when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
 
@@ -123,12 +133,16 @@ void main() {
 
     expect(find.text('Budi Utomo'), findsOneWidget);
     expect(find.text('Status: Lunas'), findsOneWidget);
-    expect(find.textContaining('Aktif: 1 Jan 2023 - 1 Feb 2023'), findsOneWidget);
+    expect(
+        find.textContaining('Aktif: 1 Jan 2023 - 1 Feb 2023'), findsOneWidget);
     expect(find.byType(ListTile), findsOneWidget);
   });
 
-  testWidgets('5. harus navigasi ke SubscriptionHistoryDetailPage saat ListTile di-tap', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenAnswer((_) async => [t1]);
+  testWidgets(
+      '5. harus navigasi ke SubscriptionHistoryDetailPage saat ListTile di-tap',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenAnswer((_) async => [t1]);
     when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
     when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
 
@@ -141,8 +155,10 @@ void main() {
     expect(find.byType(SubscriptionHistoryDetailPage), findsOneWidget);
   });
 
-  testWidgets('6. harus menampilkan dialog urutan saat tombol filter ditekan', (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation()).thenAnswer((_) async => [t1]);
+  testWidgets('6. harus menampilkan dialog urutan saat tombol filter ditekan',
+      (tester) async {
+    when(mockTransactionOp.getTransactionsByPackageActivation())
+        .thenAnswer((_) async => [t1]);
     when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
     when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
 

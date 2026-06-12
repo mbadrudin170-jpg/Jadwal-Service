@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/form/customer_form.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -308,7 +308,7 @@ class CustomerPage extends ConsumerWidget {
               title: const Text('Arsipkan Pelanggan'),
               onTap: () {
                 Navigator.of(dialogContext).pop();
-                _showSoftDeleteConfirmation(context, ref, customer);
+                unawaited(_showSoftDeleteConfirmation(context, ref, customer));
               },
             ),
           ],
@@ -346,7 +346,7 @@ class CustomerPage extends ConsumerWidget {
   Future<void> _softDeleteCustomer(
       BuildContext context, WidgetRef ref, String id) async {
     try {
-      await ref.read(customerOperationProvider).softDelete(id);
+      await ref.read(customerOperationProvider).hapusSementara(id);
       ref.invalidate(customerListProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');

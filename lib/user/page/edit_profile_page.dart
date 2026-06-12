@@ -70,7 +70,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           password: _passwordController.text,
         );
         final customerOpFirebase = ref.read(customerOpFirebaseProvider);
-        await customerOpFirebase.updateCustomer(updatedCustomer);
+        await customerOpFirebase.perbaruiPelanggan(updatedCustomer);
         ref.invalidate(customerOpFirebaseProvider);
         if (!mounted) return;
 

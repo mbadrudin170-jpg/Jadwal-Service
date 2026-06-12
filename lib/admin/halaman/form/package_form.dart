@@ -79,9 +79,9 @@ class _PackageFormState extends ConsumerState<PackageForm> {
 
       try {
         if (_isEditMode) {
-          await _packageOperation.update(newPackage);
+          await _packageOperation.perbarui(newPackage);
         } else {
-          await _packageOperation.add(newPackage);
+          await _packageOperation.tambah(newPackage);
         }
         ref.invalidate(packageListProvider);
         if (!mounted) {

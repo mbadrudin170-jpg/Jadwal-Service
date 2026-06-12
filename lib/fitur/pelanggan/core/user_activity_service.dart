@@ -45,7 +45,7 @@ class UserActivityService {
       Log.info(
           'pingActivity: Mengirim ping aktivitas untuk user: $customerId (Force: $force)');
 
-      unawaited(_customerOpFirebase.updateLastActive(customerId));
+      unawaited(_customerOpFirebase.perbaruiTerakhirAktif(customerId));
 
       await _prefs.setInt(lastPingTimestampKey, now.millisecondsSinceEpoch);
       Log.info(

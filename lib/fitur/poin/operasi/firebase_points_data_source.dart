@@ -21,27 +21,27 @@ class FirebasePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<int> getTotalPoints(String customerId) {
-    return _transactionOpFirebase.getTotalPoints(customerId);
+    return _transactionOpFirebase.ambilTotalPoin(customerId);
   }
 
   @override
   Future<List<PackageModel>> getPublicPackages() {
-    return _packageOpFirebase.getPublicPackages();
+    return _packageOpFirebase.ambilPaketPublik();
   }
 
   @override
   Future<List<TransactionModel>> getPointsTransactions(
       String customerId) async {
     final history =
-        await _transactionOpFirebase.getByCustomerId(customerId);
+        await _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customerId);
     return history
-        .where((final t) => t.earnedPoints > 0 || t.usedPoints > 0)
+        .where(( t) => t.earnedPoints > 0 || t.usedPoints > 0)
         .toList();
   }
 
   @override
   Future<PackageModel?> getPackageById(String packageId) {
-    return _packageOpFirebase.getPackageById(packageId);
+    return _packageOpFirebase.ambilBerdasarkanId(packageId);
   }
 
   @override

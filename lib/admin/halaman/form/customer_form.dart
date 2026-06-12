@@ -103,12 +103,12 @@ class _CustomerFormState extends ConsumerState<CustomerForm> {
           Log.info(
             'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
           );
-          await customerOperation.add(newCustomer);
+          await customerOperation.tambah(newCustomer);
         } else {
           Log.info(
             'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',
           );
-          await customerOperation.updateCustomer(newCustomer);
+          await customerOperation.perbaruiPelanggan(newCustomer);
         }
         ref.invalidate(customerDetailProvider(widget.customer!.id));
         ref.invalidate(customerListProvider);

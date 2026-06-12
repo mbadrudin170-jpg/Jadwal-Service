@@ -57,7 +57,7 @@ class _UserCustomerDetailPageState
       Log.info(
         'Pelanggan ditemukan: ${customer.name}. Mengambil riwayat transaksi...',
       );
-      final totalPoin = await transactionOp.getTotalPoints(customer.id);
+      final totalPoin = await transactionOp.ambilTotalPoin(customer.id);
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
       return _ProfileData(customer: customer, totalPoints: totalPoin);
     } catch (e, s) {

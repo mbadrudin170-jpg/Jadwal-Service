@@ -1,4 +1,3 @@
-
 // path: test/shared/operasi/firebase_operasi/active_customer_op_firebase_test.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -24,19 +23,20 @@ void main() {
 
   final activeCustomer = ActiveCustomerModel(
     id: 'cust1',
-    customerId: 'cust1',
+    idPelanggan: 'cust1',
     packageId: 'pkg1',
     startDate: DateTime(2023),
     endDate: DateTime(2023, 2),
     status: PaymentStatus.paid,
   );
 
-  test('1. Uji coba setActiveCustomer harus berhasil menambahkan data', () async {
+  test('1. Uji coba setActiveCustomer harus berhasil menambahkan data',
+      () async {
     // Act
     await activeCustomerOp.setActiveCustomer(activeCustomer);
 
     // Assert
-    final snapshot = await collectionRef.doc(activeCustomer.customerId).get();
+    final snapshot = await collectionRef.doc(activeCustomer.idPelanggan).get();
     final data = snapshot.data() as Map<String, dynamic>?;
     expect(snapshot.exists, isTrue);
     expect(data?[ColumnNames.customerId], 'cust1');
@@ -47,30 +47,31 @@ void main() {
       () async {
     // Arrange
     await collectionRef
-        .doc(activeCustomer.customerId)
+        .doc(activeCustomer.idPelanggan)
         .set(activeCustomer.toFirebase());
 
     // Act
-    final result =
-        await activeCustomerOp.getActiveCustomersById(activeCustomer.customerId);
+    final result = await activeCustomerOp
+        .getActiveCustomersById(activeCustomer.idPelanggan);
 
     // Assert
     expect(result, isA<ActiveCustomerModel>());
-    expect(result?.customerId, 'cust1');
+    expect(result?.idPelanggan, 'cust1');
     expect(result?.packageId, 'pkg1');
   });
 
-  test('3. Uji coba deleteActiveCustomer harus berhasil menghapus data', () async {
+  test('3. Uji coba deleteActiveCustomer harus berhasil menghapus data',
+      () async {
     // Arrange
     await collectionRef
-        .doc(activeCustomer.customerId)
+        .doc(activeCustomer.idPelanggan)
         .set(activeCustomer.toFirebase());
 
     // Act
-    await activeCustomerOp.deleteActiveCustomer(activeCustomer.customerId);
+    await activeCustomerOp.deleteActiveCustomer(activeCustomer.idPelanggan);
 
     // Assert
-    final snapshot = await collectionRef.doc(activeCustomer.customerId).get();
+    final snapshot = await collectionRef.doc(activeCustomer.idPelanggan).get();
     expect(snapshot.exists, isFalse);
   });
 }

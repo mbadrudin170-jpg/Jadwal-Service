@@ -25,7 +25,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<PackageModel>> getPublicPackages() {
-    return _packageOperation.getByIsPublic();
+    return _packageOperation.ambilBerdasarkanPublik();
   }
 
   @override
@@ -40,7 +40,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<PackageModel?> getPackageById(String packageId) {
-    return _packageOperation.getById(packageId);
+    return _packageOperation.ambilBerdasarkanId(packageId);
   }
 
   @override

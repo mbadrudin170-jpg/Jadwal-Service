@@ -119,7 +119,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         try {
           final dataPelanggan = await ref
               .read(customerOperationProvider)
-              .getById(widget.customerId);
+              .ambilBerdasarkanId(widget.customerId);
 
           final now = DateTime.now();
           final idOrder = const Uuid().v4();

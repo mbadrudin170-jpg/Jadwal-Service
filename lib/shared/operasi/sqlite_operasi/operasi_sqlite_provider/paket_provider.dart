@@ -18,7 +18,7 @@ Future<List<PackageModel>> packageList(Ref ref) async {
 
   // Mengambil instance PackageOperation dari operasi_sqlite_provider.dart
   final paketOperasi = ref.watch(packageOperationProvider);
-  return await paketOperasi.getByAktif();
+  return await paketOperasi.ambilBerdasarkanAktif();
 }
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.

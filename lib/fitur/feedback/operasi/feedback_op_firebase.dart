@@ -33,7 +33,7 @@ class FeedbackOpFirebase {
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
     data[ColumnNames.date] = FieldValue.serverTimestamp();
-    await _baseOp.add(_collectionName, data);
+    await _baseOp.tambah(_collectionName, data);
   }
 
   /// Memperbarui isi feedback.

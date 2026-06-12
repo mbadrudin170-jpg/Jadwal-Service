@@ -1,11 +1,8 @@
 // path: lib/shared/data/sync/download_data.dart
-// File ini digunakan oleh:
-// - SyncService (untuk sinkronisasi data dari server)
-// - InitialDataLoader (untuk unduh data pertama kali)
-// - BackgroundSyncManager (untuk sinkronisasi latar belakang)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/constant/column_names.dart';
 import 'package:wifi/shared/constant/table_name_value.dart';
@@ -13,7 +10,6 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 // lib/shared/data/sync/download_data.dart
@@ -214,7 +210,7 @@ class DownloadDataService {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PackageModel.fromFirebase,
       batchOperation: (final data) =>
-          _packageOperation.insertOrUpdateBatch(data, fromServer: true),
+          _packageOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 
@@ -227,7 +223,7 @@ class DownloadDataService {
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CustomerModel.fromFirebase,
       batchOperation: (final data) =>
-          _customerOperation.insertOrUpdateBatch(data, fromServer: true),
+          _customerOperation.sisipkanAtauPerbaruiBatch(data, dariServer: true),
     );
   }
 

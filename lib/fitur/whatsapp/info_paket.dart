@@ -39,11 +39,11 @@ class PesanInfoPaket {
     try {
       Log.info(
           'Mengambil data pelanggan dengan ID: ${activeCustomer.customerId}');
-      final CustomerModel? customer = await _customerOperation.getById(
+      final CustomerModel? customer = await _customerOperation.ambilBerdasarkanId(
         activeCustomer.customerId,
       );
       Log.info('Mengambil data paket dengan ID: ${activeCustomer.packageId}');
-      final PackageModel? package = await _packageOperation.getById(
+      final PackageModel? package = await _packageOperation.ambilBerdasarkanId(
         activeCustomer.packageId,
       );
 

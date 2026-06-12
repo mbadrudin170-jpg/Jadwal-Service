@@ -78,8 +78,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       Log.info('Data pelanggan berhasil diambil: ${customer.name}.');
 
       final results = await Future.wait([
-        _transactionOp.getTotalPoints(customer.id),
-        _transactionOp.getPaketAktifCustomer(customer.id),
+        _transactionOp.ambilTotalPoin(customer.id),
+        _transactionOp.ambilBerdasarkanIdPelanggan(customer.id),
       ]);
 
       final totalPoints = results[0] as int;
@@ -99,7 +99,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
         if (lastSubscription.packageId != null) {
           packageModel =
-              await _packageOp.getPackageById(lastSubscription.packageId!);
+              await _packageOp.ambilBerdasarkanId(lastSubscription.packageId!);
           Log.info('Detail paket "${packageModel?.name}" berhasil diambil.');
         }
       }

@@ -14,18 +14,20 @@ import 'package:wifi/admin/providers/active_customer_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/enum/enum.dart';
-import 'package:wifi/shared/model/state/active_customer_state.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/package_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 // Mocks
-class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
+class MockCustomerOperation extends Mock implements CustomerOperation {}
 
-class MockPackageOpFirebase extends Mock implements PackageOpFirebase {}
+class MockPackageOperation extends Mock implements PackageOperation {}
 
-class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+class MockTransactionOperation extends Mock implements TransactionOperation {}
 
 class MockPesanInfoPaket extends Mock implements PesanInfoPaket {}
 
@@ -39,7 +41,6 @@ void main() {
     id: 'cust1',
     name: 'John Doe',
     phone: '081234567890',
-    email: 'john.doe@example.com',
     password: 'password',
     address: '123 Main St',
   );
@@ -49,7 +50,7 @@ void main() {
     name: 'Paket Kencang',
     price: 100000,
     duration: 30,
-    type: DurationType.day,
+    type: DurationType.days,
     rewardPoints: 10,
   );
 
@@ -58,11 +59,14 @@ void main() {
     customerId: 'cust1',
     packageId: 'pkg1',
     date: DateTime.now(),
-    amount: 100000,
-    type: TransactionType.purchase,
+    amount: 100000.0,
+    type: TransactionType.income,
     paymentStatus: PaymentStatus.paid,
     durasiBonus: 5,
-    durasiBonusType: DurationType.day,
+    durasiBonusType: DurationType.days,
+    description: '',
+    walletId: '',
+    categoryId: '',
   );
 
   final tActiveCustomer = ActiveCustomerModel(
@@ -72,7 +76,7 @@ void main() {
     transactionId: 'trans1',
     startDate: DateTime.now().subtract(const Duration(days: 10)),
     endDate: DateTime.now().add(const Duration(days: 20)),
-    status: ActiveStatus.active,
+    status: PaymentStatus.paid, customerId: '',
   );
 
   final tActiveCustomerDetailModel = ActiveCustomerDetailModel(
@@ -115,18 +119,19 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           activeCustomerProvider
-              .overrideWith((ref) => Future.value(tActiveCustomerState)),
+              .overrideWith((ref) async => tActiveCustomerState),
           customerOperationProvider.overrideWithValue(mockCustomerOp),
           packageOperationProvider.overrideWithValue(mockPackageOp),
           transactionOperationProvider.overrideWithValue(mockTransactionOp),
         ],
       );
 
-      when(() => mockCustomerOp.getById(tActiveCustomer.customerId))
+      when(() => mockCustomerOp.ambilBerdasarkanId(tActiveCustomer.customerId))
           .thenAnswer((_) async => tCustomer);
-      when(() => mockPackageOp.getById(tActiveCustomer.packageId))
+      when(() => mockPackageOp.ambilBerdasarkanId(tActiveCustomer.packageId))
           .thenAnswer((_) async => tPackage);
-      when(() => mockTransactionOp.getTransactionById(tActiveCustomer.transactionId!))
+      when(() => mockTransactionOp
+              .getTransactionById(tActiveCustomer.transactionId!))
           .thenAnswer((_) async => tTransaction);
 
       final result = await container
@@ -143,7 +148,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           activeCustomerProvider.overrideWith((ref) =>
-              Future.value(const ActiveCustomerState(activeCustomers: []))),
+              Future.value(ActiveCustomerState(activeCustomers: []))),
         ],
       );
 
@@ -158,7 +163,7 @@ void main() {
   group('ActiveCustomerDetailPage Widget Tests', () {
     final overrides = [
       activeCustomerProvider
-          .overrideWith((ref) => Future.value(tActiveCustomerState)),
+          .overrideWith((ref) async => tActiveCustomerState),
       customerOperationProvider.overrideWithValue(mockCustomerOp),
       packageOperationProvider.overrideWithValue(mockPackageOp),
       transactionOperationProvider.overrideWithValue(mockTransactionOp),
@@ -166,24 +171,26 @@ void main() {
     ];
 
     setUp(() {
-      when(() => mockCustomerOp.getById(any())).thenAnswer((_) async => tCustomer);
-      when(() => mockPackageOp.getById(any())).thenAnswer((_) async => tPackage);
+      when(() => mockCustomerOp.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tCustomer);
+      when(() => mockPackageOp.ambilBerdasarkanId(any()))
+          .thenAnswer((_) async => tPackage);
       when(() => mockTransactionOp.getTransactionById(any()))
           .thenAnswer((_) async => tTransaction);
     });
 
-    testWidgets('Test 03: should show loading state correctly',
-        (tester) async {
+    testWidgets('Test 03: should show loading state correctly', (tester) async {
       final completer = Completer();
       final loadingOverrides = [
         activeCustomerDetailProvider(tActiveCustomer.id).overrideWith(
-          (ref) => completer.future,
+          (ref) async => await completer.future,
         ),
       ];
 
       await tester.pumpWidget(createTestWidget(loadingOverrides));
       expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.text(''), findsOneWidget); // Sesuai implementasi, hanya text kosong
+      expect(find.byType(CircularProgressIndicator),
+          findsOneWidget); // Sesuai implementasi, hanya text kosong
     });
 
     testWidgets('Test 04: should show error state correctly', (tester) async {
@@ -204,12 +211,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('John Doe'), findsOneWidget); // AppBar title
-      expect(find.widgetWithText(TextButton, 'John Doe'), findsOneWidget); // Body title
+      expect(find.widgetWithText(TextButton, 'John Doe'),
+          findsOneWidget); // Body title
       expect(find.text('081234567890'), findsOneWidget);
       expect(find.text('Paket Kencang'), findsOneWidget);
       expect(find.text('Aktif'), findsOneWidget);
       expect(find.text('10 Poin'), findsOneWidget);
-      expect(find.text('5 Day'), findsOneWidget); // Bonus
+      expect(find.text('5 Hari'), findsOneWidget); // Bonus
       expect(find.textContaining('Berakhir'), findsOneWidget);
       expect(find.textContaining('Kirim Info via WhatsApp'), findsOneWidget);
       expect(find.byIcon(Icons.edit), findsOneWidget);

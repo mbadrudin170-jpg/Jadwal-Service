@@ -187,7 +187,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getName(
-                  _customerOperation.getById,
+                  _customerOperation.ambilBerdasarkanId,
                   transaction.customerId!,
                   'Pelanggan',
                 ),
@@ -197,7 +197,7 @@ class _TransactionDetailPageState extends ConsumerState<TransactionDetailPage> {
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
-                  _packageOperation.getById,
+                  _packageOperation.ambilBerdasarkanId,
                   transaction.packageId!,
                   'Paket',
                 ),

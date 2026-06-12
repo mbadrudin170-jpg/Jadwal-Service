@@ -1,11 +1,11 @@
 // path: lib/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/customer.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 part 'pelanggan_provider.g.dart';
 
@@ -17,7 +17,7 @@ Future<List<(CustomerModel, int)>> customerList(Ref ref) async {
 
   final customerOp = ref.watch(customerOperationProvider);
   final pointsOp = ref.watch(sqlitePointsDataSourceProvider);
-  final customers = await customerOp.getAll();
+  final customers = await customerOp.ambilSemua();
   final pointsFutures =
       customers.map((c) => pointsOp.getTotalPoints(c.id)).toList();
   final points = await Future.wait(pointsFutures);
@@ -71,7 +71,7 @@ class SearchQueryPelanggan extends _$SearchQueryPelanggan {
 Future<(CustomerModel?, int)> customerDetail(Ref ref, String id) async {
   final customerOp = ref.watch(customerOperationProvider);
   final transactionOp = ref.watch(transactionOperationProvider);
-  final customer = await customerOp.getById(id);
+  final customer = await customerOp.ambilBerdasarkanId(id);
   final points = await transactionOp.getTotalPoints(id);
 
   return (customer, points);

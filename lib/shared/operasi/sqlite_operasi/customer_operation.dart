@@ -1,8 +1,4 @@
 // path: lib/shared/operasi/customer_operation.dart
-// diubah: Menggunakan DateTime.now().toUtc() untuk konsistensi waktu.
-// diubah: Mengganti nama class dari PelangganOperasi menjadi CustomerOperation.
-// diubah: Menggunakan BaseOperation dan CustomerModel.
-// diubah: Mengganti string literal 'pelanggan' dengan TableNameValue.get(TableName.customer) sesuai v50.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';

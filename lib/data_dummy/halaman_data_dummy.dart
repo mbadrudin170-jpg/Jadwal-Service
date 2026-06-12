@@ -3,10 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/providers/active_customer_provider.dart';
-
 import 'package:wifi/data_dummy/data_dummy.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 class HalamanDataDummy extends ConsumerWidget {
@@ -35,7 +34,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Pelanggan', DataDummy.customers,
-                  ref.read(customerOperationProvider).insertOrUpdateBatch);
+                  ref.read(customerOperationProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(customerOperationProvider);
             },
             label: 'Tambah Pelanggan Dummy',
@@ -45,7 +44,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Paket', DataDummy.packages,
-                  ref.read(packageOperationProvider).insertOrUpdateBatch);
+                  ref.read(packageOperationProvider).sisipkanAtauPerbaruiBatch);
               ref.invalidate(packageOperationProvider);
             },
             label: 'Tambah Paket Dummy',

@@ -6,8 +6,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 
 // Mocks

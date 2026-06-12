@@ -258,7 +258,7 @@ class MockActiveCustomerOperation extends _i1.Mock
       ) as _i5.Future<int>);
 
   @override
-  _i5.Future<List<_i3.ActiveCustomerModel>> getActiveCustomersByIds(
+  _i5.Future<List<_i3.ActiveCustomerModel>> ambilBerdasarkanIds(
           List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(

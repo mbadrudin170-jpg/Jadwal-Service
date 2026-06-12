@@ -46,7 +46,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
   /// Memuat data pelanggan sekali saja untuk mapping ID -> Nama
   Future<void> _loadPelangganMapping() async {
     try {
-      final pelangganList = await ref.read(customerOperationProvider).getAll();
+      final pelangganList = await ref.read(customerOperationProvider).ambilSemua();
       if (mounted) {
         setState(() {
           _mapNamaUser = {for (var p in pelangganList) p.id: p.name};

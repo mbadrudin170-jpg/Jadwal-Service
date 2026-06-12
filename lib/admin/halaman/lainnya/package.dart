@@ -265,7 +265,7 @@ Future<void> _showDeleteConfirmationDialog(
               Navigator.of(dialogContext).pop();
 
               try {
-                await paketOperasi.softDelete(paket.id);
+                await paketOperasi.hapusSementara(paket.id);
 
                 final _ = ref.refresh(packageListProvider);
 
@@ -308,7 +308,7 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               Navigator.of(dialogContext).pop();
               try {
                 Log.info('Menjalankan soft delete semua paket');
-                await paketOperasi.softDeleteAll();
+                await paketOperasi.hapusSementaraSemua();
                 final _ = ref.refresh(packageListProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');

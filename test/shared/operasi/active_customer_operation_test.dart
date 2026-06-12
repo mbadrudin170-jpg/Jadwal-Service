@@ -54,7 +54,7 @@ void main() {
   group('ActiveCustomerOperation Tests', () {
     final tActiveCustomer1 = ActiveCustomerModel(
       id: '1',
-      customerId: 'cust1',
+      idPelanggan: 'cust1',
       packageId: 'pkg1',
       startDate: DateTime.now().subtract(const Duration(days: 27)),
       endDate: DateTime.now().add(const Duration(days: 3)),
@@ -63,7 +63,7 @@ void main() {
 
     final tActiveCustomer2 = ActiveCustomerModel(
       id: '2',
-      customerId: 'cust2',
+      idPelanggan: 'cust2',
       packageId: 'pkg2',
       startDate: DateTime.now().subtract(const Duration(days: 29)),
       endDate: DateTime.now().add(const Duration(days: 1)),
@@ -113,16 +113,21 @@ void main() {
       expect(result?.id, tActiveCustomer1.id);
     });
 
-    test('3. createActiveCustomer harus menyisipkan pelanggan dan jadwal notifikasi',
+    test(
+        '3. createActiveCustomer harus menyisipkan pelanggan dan jadwal notifikasi',
         () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
         // KODE DIPERBAIKI: Menambahkan <void>
-        final action = invocation.positionalArguments.first as Future<void> Function(Transaction);
+        final action = invocation.positionalArguments.first as Future<void>
+            Function(Transaction);
         await action(mockTransaction);
       });
-      when(mockTransaction.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm'))).thenAnswer((_) async => 1);
-      when(mockCustomerOperation.getById(any)).thenAnswer((_) async => tCustomer1);
+      when(mockTransaction.insert(any, any,
+              conflictAlgorithm: anyNamed('conflictAlgorithm')))
+          .thenAnswer((_) async => 1);
+      when(mockCustomerOperation.getById(any))
+          .thenAnswer((_) async => tCustomer1);
       when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
       when(mockNotifikasiServis.jadwalNotifikasi(
               id: anyNamed('id'),
@@ -144,15 +149,19 @@ void main() {
           .called(greaterThanOrEqualTo(1));
     });
 
-    test('4. updateActiveCustomer harus memperbarui pelanggan dan jadwal notifikasi',
+    test(
+        '4. updateActiveCustomer harus memperbarui pelanggan dan jadwal notifikasi',
         () async {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
-            // KODE DIPERBAIKI: Menambahkan <void>
-            final action = invocation.positionalArguments.first as Future<void> Function(Transaction);
-            await action(mockTransaction);
+        // KODE DIPERBAIKI: Menambahkan <void>
+        final action = invocation.positionalArguments.first as Future<void>
+            Function(Transaction);
+        await action(mockTransaction);
       });
-      when(mockTransaction.update(any, any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'))).thenAnswer((_) async => 1);
+      when(mockTransaction.update(any, any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+          .thenAnswer((_) async => 1);
       when(mockCustomerOperation.getById(any))
           .thenAnswer((_) async => tCustomer1);
       when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
@@ -178,7 +187,8 @@ void main() {
           .called(greaterThanOrEqualTo(1));
     });
 
-    test('5. softDelete harus mengarsipkan pelanggan dan membatalkan notifikasi',
+    test(
+        '5. softDelete harus mengarsipkan pelanggan dan membatalkan notifikasi',
         () async {
       when(mockDatabase.query(any,
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
@@ -187,7 +197,8 @@ void main() {
       when(mockBaseOperation.runComplexOperation<void>(any))
           .thenAnswer((invocation) async {
         // KODE DIPERBAIKI: Menambahkan <void>
-        final action = invocation.positionalArguments.first as Future<void> Function(Transaction);
+        final action = invocation.positionalArguments.first as Future<void>
+            Function(Transaction);
         await action(mockTransaction);
       });
 
@@ -209,8 +220,10 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tActiveCustomerMap1, tActiveCustomerMap2]);
 
-      when(mockCustomerOperation.getById('cust1')).thenAnswer((_) async => tCustomer1);
-      when(mockCustomerOperation.getById('cust2')).thenAnswer((_) async => tCustomer2);
+      when(mockCustomerOperation.getById('cust1'))
+          .thenAnswer((_) async => tCustomer1);
+      when(mockCustomerOperation.getById('cust2'))
+          .thenAnswer((_) async => tCustomer2);
       when(mockNotifikasiServis.batalNotifikasi(any)).thenAnswer((_) async {});
       when(mockNotifikasiServis.jadwalNotifikasi(
         id: anyNamed('id'),
@@ -221,7 +234,9 @@ void main() {
 
       await activeCustomerOperation.rescheduleAllNotifications();
 
-      verify(mockDatabase.query(any, where: anyNamed('where'), whereArgs: anyNamed('whereArgs'))).called(1);
+      verify(mockDatabase.query(any,
+              where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
+          .called(1);
       verify(mockCustomerOperation.getById('cust1')).called(1);
       verify(mockCustomerOperation.getById('cust2')).called(1);
       verify(mockNotifikasiServis.batalNotifikasi(any)).called(6);

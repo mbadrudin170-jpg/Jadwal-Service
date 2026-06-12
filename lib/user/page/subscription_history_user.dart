@@ -51,7 +51,7 @@ class _SubscriptionHistoryPageState
     final customerOpFirebase = ref.read(customerOpFirebaseProvider);
     final customer = await customerOpFirebase.ambilBerdasarkanId(userId);
     if (customer == null) return [];
-    return _transactionOpFirebase.getByCustomerId(customer.id);
+    return _transactionOpFirebase.ambilBerdasarkanIdPelanggan(customer.id);
   }
 
   List<TransactionModel> _sortHistory(List<TransactionModel> history) {
@@ -145,7 +145,7 @@ class _SubscriptionHistoryPageState
       body: StreamBuilder<CustomerModel?>(
         stream: userId.when(
           data: (id) => id != null
-              ? customerOpFirebase.getCustomerStream(id)
+              ? customerOpFirebase.ambilStreamPelanggan(id)
               : const Stream.empty(),
           loading: () => const Stream.empty(),
           error: (_, __) => const Stream.empty(),
@@ -188,7 +188,7 @@ class _SubscriptionHistoryPageState
                         itemBuilder: (context, index) {
                           final tx = sorted[index];
                           final packageFuture = tx.packageId != null
-                              ? packageOpFirebase.getPackageById(tx.packageId!)
+                              ? packageOpFirebase.ambilBerdasarkanId(tx.packageId!)
                               : Future<PackageModel?>.value();
                           final activeText = tx.endDate != null
                               ? CalculationUtil.getRemainingActivePeriodText(

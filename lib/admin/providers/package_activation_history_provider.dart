@@ -67,7 +67,7 @@ class PackageActivationHistory extends _$PackageActivationHistory {
 
     final transactions =
         await transactionOp.getTransactionsByPackageActivation();
-    final customers = await customerOp.getAll();
+    final customers = await customerOp.ambilSemua();
 
     // Buat peta untuk pencarian cepat
     final customerMap = {for (var c in customers) c.id: c};

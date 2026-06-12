@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/package_activation_history.dart
+// path: lib/admin/halaman/lainnya/riwayat_aktivasi_paket.dart
 
 import 'dart:async';
 
@@ -13,8 +13,8 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 
-class PackageActivationHistoryPage extends ConsumerWidget {
-  const PackageActivationHistoryPage({super.key});
+class RiwayatAktivasiPaket extends ConsumerWidget {
+  const RiwayatAktivasiPaket({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,7 +78,7 @@ class PackageActivationHistoryPage extends ConsumerWidget {
                     children: [
                       PackageNameWidget(
                         packageFuture: packageOperation
-                            .getById(transaction.packageId ?? ''),
+                            .ambilBerdasarkanId(transaction.packageId ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),
                       gapH4,

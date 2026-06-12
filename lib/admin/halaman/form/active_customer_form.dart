@@ -105,8 +105,8 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           : Future<TransactionModel?>.value();
 
       final results = await Future.wait([
-        pelangganOperasi.getAll(),
-        paketOperasi.getByAktif(),
+        pelangganOperasi.ambilSemua(),
+        paketOperasi.ambilBerdasarkanAktif(),
         dompetOperasi.getWallets(),
         kategoriOperasi.getCategories(),
         transaksiTerkaitFuture,
@@ -424,7 +424,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       String successMessage;
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
-        
+
         ref.read(syncCheckServiceProvider).runSyncCheck();
         successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
       } else {

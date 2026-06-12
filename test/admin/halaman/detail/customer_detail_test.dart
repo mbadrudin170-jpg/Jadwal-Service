@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
@@ -33,10 +34,10 @@ void main() {
     );
   }
 
-  testWidgets('1. Menampilkan indikator pemuatan saat status loading', (tester) async {
+  testWidgets('1. Menampilkan indikator pemuatan saat status loading',
+      (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123')
-          .overrideWith((ref) => const AsyncValue.loading()),
+      customerDetailProvider('cust-123').overrideWith((ref) => Future.any([])),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -44,7 +45,8 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('2. Menampilkan pesan kesalahan saat status error', (tester) async {
+  testWidgets('2. Menampilkan pesan kesalahan saat status error',
+      (tester) async {
     final overrides = [
       customerDetailProvider('cust-123').overrideWith(
           (ref) => AsyncValue.error('Gagal memuat data', StackTrace.current)),
@@ -53,10 +55,12 @@ void main() {
     await tester.pumpWidget(createTestWidget(overrides));
     await tester.pump();
 
-    expect(find.textContaining('Gagal memuat data: Gagal memuat data'), findsOneWidget);
+    expect(find.textContaining('Gagal memuat data: Gagal memuat data'),
+        findsOneWidget);
   });
 
-  testWidgets('3. Menampilkan UI detail pelanggan saat data berhasil dimuat', (tester) async {
+  testWidgets('3. Menampilkan UI detail pelanggan saat data berhasil dimuat',
+      (tester) async {
     final overrides = [
       customerDetailProvider('cust-123')
           .overrideWith((ref) => AsyncValue.data((mockCustomer, 100))),
@@ -70,14 +74,15 @@ void main() {
     expect(find.text('100 Poin'), findsOneWidget);
   });
 
-  testWidgets('4. Menampilkan pesan pelanggan tidak ditemukan jika data null', (tester) async {
+  testWidgets('4. Menampilkan pesan pelanggan tidak ditemukan jika data null',
+      (tester) async {
     final overrides = [
-       customerDetailProvider('cust-123')
+      customerDetailProvider('cust-123')
           .overrideWith((ref) => const AsyncValue.data((null, 0))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
-     await tester.pump();
+    await tester.pump();
 
     expect(find.text('Pelanggan tidak ditemukan'), findsOneWidget);
   });
