@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/order_operation.dart
-// diperbaiki: Mengganti string literal 'pesanan' dengan konstanta TableNameValue.get(TableName.customerOrder)
-// diperbaiki: Menambahkan import table_name_value.dart dan enum
+// diperbaiki: Menggunakan NamaTabel.customerOrder secara langsung sesuai pola di file operasi lain.
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
@@ -25,9 +24,8 @@ class OrderOpsqlite {
   });
 
   /// Mendapatkan nama tabel pesanan dari konstanta.
-  String get _tableName => NamaTabel.get(TableName.customerOrder);
+  String get _tableName => NamaTabel.customerOrder;
 
-// TODO : menambahkan unit tes nya
   Future<int> getJumlahByStatus(StatusOrderEnum status) async {
     Log.info('Menghitung pesanan dengan status: ${status.name}');
     try {

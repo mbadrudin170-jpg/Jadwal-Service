@@ -5,7 +5,6 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data pelanggan di database lokal.

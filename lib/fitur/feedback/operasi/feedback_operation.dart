@@ -6,14 +6,13 @@ import 'package:wifi/fitur/feedback/model/feedback_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kritik dan saran di database lokal.
 class FeedbackOperation {
   final SqliteDatabase dbHelper;
   final BaseOpSqlite baseOperation;
-  final String _tableName = NamaTabel.get(TableName.feedback);
+  final String _tableName = NamaTabel.feedback;
 
   FeedbackOperation({
     required this.dbHelper,

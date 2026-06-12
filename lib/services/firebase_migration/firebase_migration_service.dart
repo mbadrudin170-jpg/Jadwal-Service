@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/settings_model.dart';
 import 'package:wifi/shared/model/status_model.dart';
 
@@ -15,27 +14,27 @@ class FirebaseMigrationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final List<String> _isDeletedCollections = [
-    NamaTabel.get(TableName.wallet),
-    NamaTabel.get(TableName.category),
-    NamaTabel.get(TableName.package),
-    NamaTabel.get(TableName.activeCustomer),
-    NamaTabel.get(TableName.customer),
-    NamaTabel.get(TableName.customerOrder),
-    NamaTabel.get(TableName.subCategory),
-    NamaTabel.get(TableName.transactions),
-    NamaTabel.get(TableName.userApkVersion),
-    NamaTabel.get(TableName.feedback),
+    NamaTabel.wallet,
+    NamaTabel.category,
+    NamaTabel.package,
+    NamaTabel.activeCustomer,
+    NamaTabel.customer,
+    NamaTabel.customerOrder,
+    NamaTabel.subCategory,
+    NamaTabel.transactions,
+    NamaTabel.userApkVersion,
+    NamaTabel.feedback,
   ];
 
   final Map<String, Map<String, String>> _columnMigrations = {
-    NamaTabel.get(TableName.wallet): {
+    NamaTabel.wallet: {
       'namaDompet': NamaKolom.name,
       'saldo': NamaKolom.balance,
       'diperbarui': NamaKolom.updatedAt,
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.category): {
+    NamaTabel.category: {
       'nama': NamaKolom.name,
       'tipe': NamaKolom.type,
       'id_sub_kategori': NamaKolom.subCategoryId,
@@ -43,14 +42,14 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.subCategory): {
+    NamaTabel.subCategory: {
       'nama': NamaKolom.name,
       'id_kategori': NamaKolom.categoryId,
       'diperbarui': NamaKolom.updatedAt,
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.package): {
+    NamaTabel.package: {
       'nama': NamaKolom.name,
       'harga': NamaKolom.price,
       'durasi': NamaKolom.duration,
@@ -63,7 +62,7 @@ class FirebaseMigrationService {
       'isPublic': NamaKolom.isPublic,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.customer): {
+    NamaTabel.customer: {
       'nama': NamaKolom.name,
       'telepon': NamaKolom.phone,
       'alamat': NamaKolom.address,
@@ -74,7 +73,7 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.activeCustomer): {
+    NamaTabel.activeCustomer: {
       'id_pelanggan': NamaKolom.customerId,
       'id_paket': NamaKolom.packageId,
       'id_transaksi': NamaKolom.transactionId,
@@ -89,7 +88,7 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.transactions): {
+    NamaTabel.transactions: {
       'keterangan': NamaKolom.description,
       'jumlah': NamaKolom.amount,
       'tanggal': NamaKolom.date,
@@ -118,7 +117,7 @@ class FirebaseMigrationService {
       'durasiPaket': NamaKolom.packageDuration,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.feedback): {
+    NamaTabel.feedback: {
       'isi': NamaKolom.content,
       'tanggal': NamaKolom.date,
       'userId': NamaKolom.userId,
@@ -126,7 +125,7 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.customerOrder): {
+    NamaTabel.customerOrder: {
       'id_pelanggan': NamaKolom.customerId,
       'id_paket': NamaKolom.packageId,
       'tanggal': NamaKolom.date,
@@ -135,7 +134,7 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.userApkVersion): {
+    NamaTabel.userApkVersion: {
       'catatan_rilis': NamaKolom.releaseNotes,
       'nomor_build_terbaru': NamaKolom.latestBuildNumber,
       'tautan_unduhan': NamaKolom.downloadLinks,
@@ -146,21 +145,21 @@ class FirebaseMigrationService {
       'diarsipkan': NamaKolom.archivedAt,
       'isDeleted': NamaKolom.isDeleted,
     },
-    NamaTabel.get(TableName.settings): {
+    NamaTabel.settings: {
       'interval_sinkronisasi_otomatis': NamaKolom.autoSyncInterval,
       'hapus_otomatis_data_arsip': NamaKolom.autoDeleteArchiveDays,
       'mode_pemeliharaan': NamaKolom.maintenanceMode,
       'info_pemeliharaan': NamaKolom.maintenanceInfo,
       'diperbarui': NamaKolom.updatedAt,
     },
-    NamaTabel.get(TableName.statusGlobal): {
+    NamaTabel.statusGlobal: {
       'diperbarui': NamaKolom.updatedAt,
     },
-    NamaTabel.get(TableName.uploadStatus): {
+    NamaTabel.uploadStatus: {
       'value': NamaKolom.value,
       'diperbarui': NamaKolom.updatedAt,
     },
-    NamaTabel.get(TableName.message): {
+    NamaTabel.message: {
       'isi': NamaKolom.content,
       'tanggal': NamaKolom.date,
       'status': NamaKolom.status,
@@ -371,7 +370,7 @@ class FirebaseMigrationService {
   /// Migrasi untuk field `isPublic` menjadi `is_public`.
   Future<void> _migrateIsPublic(
       final WriteBatch batch, final List<String> logs) async {
-    final collectionName = NamaTabel.get(TableName.package);
+    const collectionName = NamaTabel.package;
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
     for (final doc in snapshot.docs) {
@@ -392,8 +391,10 @@ class FirebaseMigrationService {
 
   /// Migrasi untuk field di koleksi `user_apk_version`.
   Future<void> _migrateUserApkVersion(
-      final WriteBatch batch, final List<String> logs) async {
-    final collectionName = NamaTabel.get(TableName.userApkVersion);
+    final WriteBatch batch,
+    final List<String> logs,
+  ) async {
+    const collectionName = NamaTabel.userApkVersion;
     final snapshot = await _firestore.collection(collectionName).get();
     int buildCount = 0;
     int linkCount = 0;
@@ -458,7 +459,7 @@ class FirebaseMigrationService {
   /// Migrasi untuk field `value` di koleksi `upload_status`.
   Future<void> _migrateUploadStatusValue(
       final WriteBatch batch, final List<String> logs) async {
-    final collectionName = NamaTabel.get(TableName.uploadStatus);
+    const collectionName = NamaTabel.uploadStatus;
     final snapshot = await _firestore.collection(collectionName).get();
     int count = 0;
     for (final doc in snapshot.docs) {
@@ -530,20 +531,20 @@ class FirebaseMigrationService {
     final logs = <String>[];
 
     final Map<String, String> legacyToNew = {
-      'dompet': NamaTabel.get(TableName.wallet),
-      'kategori': NamaTabel.get(TableName.category),
-      'sub_kategori': NamaTabel.get(TableName.subCategory),
-      'paket': NamaTabel.get(TableName.package),
-      'pelanggan': NamaTabel.get(TableName.customer),
-      'pelanggan_aktif': NamaTabel.get(TableName.activeCustomer),
-      'transaksi': NamaTabel.get(TableName.transactions),
-      'kritik_saran': NamaTabel.get(TableName.feedback),
-      'pesanan': NamaTabel.get(TableName.customerOrder),
-      'versi_apk_user': NamaTabel.get(TableName.userApkVersion),
-      'pengaturan': NamaTabel.get(TableName.settings),
-      'status': NamaTabel.get(TableName.statusGlobal),
-      'status_unggah': NamaTabel.get(TableName.uploadStatus),
-      'pesan': NamaTabel.get(TableName.message),
+      'dompet': NamaTabel.wallet,
+      'kategori': NamaTabel.category,
+      'sub_kategori': NamaTabel.subCategory,
+      'paket': NamaTabel.package,
+      'pelanggan': NamaTabel.customer,
+      'pelanggan_aktif': NamaTabel.activeCustomer,
+      'transaksi': NamaTabel.transactions,
+      'kritik_saran': NamaTabel.feedback,
+      'pesanan': NamaTabel.customerOrder,
+      'versi_apk_user': NamaTabel.userApkVersion,
+      'pengaturan': NamaTabel.settings,
+      'status': NamaTabel.statusGlobal,
+      'status_unggah': NamaTabel.uploadStatus,
+      'pesan': NamaTabel.message,
     };
 
     onProgress('Menganalisis migrasi koleksi lama...');
@@ -553,7 +554,7 @@ class FirebaseMigrationService {
       final mapping = _columnMigrations[newName];
 
       if (mapping != null) {
-        if (newName == NamaTabel.get(TableName.settings)) {
+        if (newName == NamaTabel.settings) {
           await _migrateSingletonCollection(
             legacyCollectionName: legacyName,
             newCollectionName: newName,
@@ -562,7 +563,7 @@ class FirebaseMigrationService {
             batch: batch,
             logs: logs,
           );
-        } else if (newName == NamaTabel.get(TableName.statusGlobal)) {
+        } else if (newName == NamaTabel.statusGlobal) {
           await _migrateSingletonCollection(
             legacyCollectionName: legacyName,
             newCollectionName: newName,

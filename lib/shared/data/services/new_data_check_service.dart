@@ -44,7 +44,7 @@ class NewDataCheckService {
       Log.info(
         'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool result = await _uploadStatusOperation.getNeedUpload();
+      final bool result = await _uploadStatusOperation.ambilButuhUpload();
 
       if (result) {
         Log.info(

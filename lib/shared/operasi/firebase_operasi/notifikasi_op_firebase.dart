@@ -11,7 +11,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class NotifikasiOpFirebase {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOp;
-  static const String _collection = NamaTabel.notifikasi;
+  final String _collection = NamaTabel.notification;
 
   NotifikasiOpFirebase({
     required FirebaseFirestore firestore,
@@ -38,7 +38,6 @@ class NotifikasiOpFirebase {
 
   /// Mendapatkan stream notifikasi aktif untuk user tertentu (belum dibaca & belum dihapus)
   Stream<List<NotifikasiModel>> getByUserId(String userId) {
-  Stream<List<NotifikasiModel>> ambilBerdasarkanIdUser(String userId) {
     return _firestore
         .collection(_collection)
         .where(NamaKolom.userId,
@@ -52,8 +51,6 @@ class NotifikasiOpFirebase {
   }
 
   Stream<List<NotifikasiModel>> getById(String id) {
-  /// Mengambil notifikasi berdasarkan ID.
-  Stream<List<NotifikasiModel>> ambilBerdasarkanId(String id) {
     return _firestore
         .collection(_collection)
         .doc(id)
@@ -70,8 +67,6 @@ class NotifikasiOpFirebase {
 
 // TODO : tambahkan unit test
   Stream<List<NotifikasiModel>> getKhususAdmin() {
-  /// Mengambil notifikasi khusus untuk admin.
-  Stream<List<NotifikasiModel>> ambilKhususAdmin() {
     return _firestore
         .collection(_collection)
         .where(NamaKolom.type, whereIn: [
@@ -87,16 +82,12 @@ class NotifikasiOpFirebase {
   }
 
   Future<void> addNotifikasi(NotifikasiModel notifikasi) async {
-  /// Menambahkan notifikasi baru.
-  Future<void> tambahNotifikasi(NotifikasiModel notifikasi) async {
     try {
       Log.info('Saving notification to Firebase via BaseOp: ${notifikasi.id}');
       await _baseOp.sisipkan(
-      await _baseOp.tambah(
         _collection,
         notifikasi.id,
-        notifikasi.toFirebase(),
-      );
+        notifikasi.toFirebase(),);
     } catch (e) {
       Log.error('Error saving notification: $e');
       rethrow;
@@ -104,8 +95,6 @@ class NotifikasiOpFirebase {
   }
 
   Future<void> updateNotif(NotifikasiModel notifikasi) async {
-  /// Memperbarui data notifikasi.
-  Future<void> perbaruiNotif(NotifikasiModel notifikasi) async {
     try {
       Log.info(
           'Updating notification in Firebase via BaseOp: ${notifikasi.id}');
@@ -121,8 +110,6 @@ class NotifikasiOpFirebase {
   }
 
   Future<void> deleteNotif(String id) async {
-  /// Menghapus notifikasi berdasarkan ID.
-  Future<void> hapusNotif(String id) async {
     try {
       Log.info('Deleting notification from Firebase via BaseOp: $id');
       await _baseOp.hapusPermanen(_collection, id);
@@ -133,8 +120,6 @@ class NotifikasiOpFirebase {
   }
 
   Future<void> deleteByTransactionId(String transactionId) async {
-  /// Menghapus notifikasi berdasarkan ID transaksi.
-  Future<void> hapusBerdasarkanIdTransaksi(String transactionId) async {
     try {
       Log.info(
           'Menghapus notifikasi berdasarkan idTujuan (transactionId): $transactionId');

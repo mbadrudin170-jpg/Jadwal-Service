@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/admin/repository/statistik_repository.dart';
+import 'package:wifi/admin/repository/statistik_op_sqlite.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 
-class MockStatistikRepository extends Mock implements StatistikRepository {}
+class MockStatistikRepository extends Mock implements StatistikOpSqlite {}
 
 void main() {
   final tBestSellingPackage = BestSellingPackage(
@@ -46,7 +46,8 @@ void main() {
     expect(state.pendapatanBulanIni, 1000.0);
   });
 
-  test('2. statistikProvider harus mengeluarkan AsyncError saat repository gagal',
+  test(
+      '2. statistikProvider harus mengeluarkan AsyncError saat repository gagal',
       () async {
     final mockRepository = MockStatistikRepository();
     final container = ProviderContainer(

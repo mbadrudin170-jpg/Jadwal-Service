@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/event_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/services/image_storage_service.dart';
@@ -233,7 +232,7 @@ class _ManageAnnouncementPageState
       final storageService = ref.read(imageStorageServiceProvider);
       try {
         final String uploadUrl = await storageService.uploadImage(
-            _selectedImage!, NamaTabel.get(TableName.events));
+            _selectedImage!, NamaTabel.events);
         imageUrl = uploadUrl;
         if (imageUrl.isEmpty) {
           throw Exception('URL gambar kosong dari storage service.');

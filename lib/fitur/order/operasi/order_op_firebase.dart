@@ -13,7 +13,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 class OrderOpFirebase extends BaseOpFirebase {
   final BaseOpFirebase _baseOp;
   final FirebaseFirestore _firestore;
-  final String _collectionName = NamaTabel.get(TableName.customerOrder);
+  final String _collectionName = NamaTabel.customerOrder;
 
   OrderOpFirebase({
     required FirebaseFirestore firestore,

@@ -4,7 +4,6 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
@@ -16,7 +15,7 @@ class SubKategoriOpSqlite {
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite baseOperation;
 
-  final String _tableName = NamaTabel.get(TableName.subCategory);
+  final String _tableName = NamaTabel.subCategory;
 
   SubKategoriOpSqlite({
     required this.dbHelper,

@@ -6,7 +6,6 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 
 /// Kelas untuk operasi pembersihan data di database lokal (SQLite) dan remote (Firestore).
 class DataCleaningOperation {
@@ -36,17 +35,17 @@ class DataCleaningOperation {
 
     // Daftar nama tabel untuk SQLite dan koleksi untuk Firestore
     final List<String> tableAndCollectionList = [
-      NamaTabel.get(TableName.customer),
-      NamaTabel.get(TableName.activeCustomer),
-      NamaTabel.get(TableName.package),
-      NamaTabel.get(TableName.category),
-      NamaTabel.get(TableName.subCategory),
-      NamaTabel.get(TableName.transactions),
-      NamaTabel.get(TableName.wallet),
-      NamaTabel.get(TableName.customerOrder),
-      NamaTabel.get(TableName.userApkVersion),
-      NamaTabel.get(TableName.feedback),
-      NamaTabel.get(TableName.notification),
+      NamaTabel.customer,
+      NamaTabel.activeCustomer,
+      NamaTabel.package,
+      NamaTabel.category,
+      NamaTabel.subCategory,
+      NamaTabel.transactions,
+      NamaTabel.wallet,
+      NamaTabel.customerOrder,
+      NamaTabel.userApkVersion,
+      NamaTabel.feedback,
+      NamaTabel.notification
     ];
 
     // --- Langkah 1: Hapus dari Database Lokal (SQLite) ---

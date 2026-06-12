@@ -1,4 +1,4 @@
-// path: lib/admin/repository/statistik_repository.dart
+// path: lib/admin/repository/statistik_op_sqlite.dart
 
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,14 +11,13 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
-final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
+final statistikRepositoryProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');
-  return StatistikRepository(
+  return StatistikOpSqlite(
     activeCustomerOperation: ref.watch(activeCustomerOperationProvider),
     feedbackOperation: ref.watch(feedbackOperationProvider),
     packageOperation: ref.watch(packageOperationProvider),
@@ -27,13 +26,13 @@ final statistikRepositoryProvider = Provider<StatistikRepository>((ref) {
 });
 
 /// Repos
-class StatistikRepository {
+class StatistikOpSqlite {
   final ActiveCustomerOperation _activeCustomerOperation;
   final FeedbackOperation _feedbackOperation;
   final PaketOpSqlite _packageOperation;
   final TransactionOperation _transactionOperation;
 
-  StatistikRepository({
+  StatistikOpSqlite({
     required ActiveCustomerOperation activeCustomerOperation,
     required FeedbackOperation feedbackOperation,
     required PaketOpSqlite packageOperation,
@@ -42,6 +41,8 @@ class StatistikRepository {
         _feedbackOperation = feedbackOperation,
         _packageOperation = packageOperation,
         _transactionOperation = transactionOperation;
+
+
   Future<List<BestSellingPackage>> getBestSellingPackages(
       {final int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
@@ -90,7 +91,7 @@ class StatistikRepository {
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      final String tableName = '"${NamaTabel.get(TableName.transactions)}"';
+      const String tableName = '"${NamaTabel.transactions}"';
       final String paidStatus = PaymentStatus.paid.name;
       final String unpaidStatus = PaymentStatus.unpaid.name;
 
@@ -134,7 +135,7 @@ class StatistikRepository {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
-      final String tableName = '"${NamaTabel.get(TableName.customer)}"';
+      const String tableName = '"${NamaTabel.customer}"';
 
       final result = await db.rawQuery(
         '''

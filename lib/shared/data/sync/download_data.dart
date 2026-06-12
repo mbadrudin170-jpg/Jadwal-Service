@@ -130,8 +130,8 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [SETTINGS]');
     try {
       final lastDownloadTime = await _syncManager.getLastDownload();
-      // Menggunakan konstanta TableName.settings untuk nama koleksi
-      final collectionName = NamaTabel.get(TableName.settings);
+      // Menggunakan konstanta NamaTabel.settings untuk nama koleksi
+      const collectionName = NamaTabel.settings;
       // Menggunakan globalSettingsId dari settings_model.dart
       final docRef =
           _firestore.collection(collectionName).doc(globalSettingsId);
@@ -180,7 +180,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<WalletModel>(
-      collectionName: NamaTabel.get(TableName.wallet),
+      collectionName: NamaTabel.wallet,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: WalletModel.fromFirebase,
       batchOperation: (final data) =>
@@ -193,7 +193,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CategoryModel>(
-      collectionName: NamaTabel.get(TableName.category),
+      collectionName: NamaTabel.category,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -206,7 +206,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [PACKAGE]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<PackageModel>(
-      collectionName: NamaTabel.get(TableName.package),
+      collectionName: NamaTabel.package,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: PackageModel.fromFirebase,
       batchOperation: (final data) =>
@@ -219,7 +219,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<CustomerModel>(
-      collectionName: NamaTabel.get(TableName.customer),
+      collectionName: NamaTabel.customer,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: CustomerModel.fromFirebase,
       batchOperation: (final data) =>
@@ -232,7 +232,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ACTIVE CUSTOMER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ActiveCustomerModel>(
-      collectionName: NamaTabel.get(TableName.activeCustomer),
+      collectionName: NamaTabel.activeCustomer,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ActiveCustomerModel.fromFirebase,
       batchOperation: (final data) =>
@@ -245,7 +245,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [TRANSACTION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<TransactionModel>(
-      collectionName: NamaTabel.get(TableName.transactions),
+      collectionName: NamaTabel.transactions,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: TransactionModel.fromFirebase,
       batchOperation: (final data) =>
@@ -258,7 +258,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [FEEDBACK]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<FeedbackModel>(
-      collectionName: NamaTabel.get(TableName.feedback),
+      collectionName: NamaTabel.feedback,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: FeedbackModel.fromFirebase,
       batchOperation: (final data) =>
@@ -271,7 +271,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [ORDER]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<OrderModel>(
-      collectionName: NamaTabel.get(TableName.customerOrder),
+      collectionName: NamaTabel.customerOrder,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: OrderModel.fromFirebase,
       batchOperation: (final data) =>
@@ -284,7 +284,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [SUB CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<SubCategoryModel>(
-      collectionName: NamaTabel.get(TableName.subCategory),
+      collectionName: NamaTabel.subCategory,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: SubCategoryModel.fromFirebase,
       batchOperation: (final data) =>
@@ -297,7 +297,7 @@ class DownloadDataService {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
     final lastDownloadTime = await _syncManager.getLastDownload();
     await synchronizeCollection<ApkVersionModel>(
-      collectionName: NamaTabel.get(TableName.userApkVersion),
+      collectionName: NamaTabel.userApkVersion,
       lastDownloadTime: lastDownloadTime,
       fromFirebase: ApkVersionModel.fromFirebase,
       batchOperation: (final data) =>

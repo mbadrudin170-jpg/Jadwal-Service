@@ -9,7 +9,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 
 final sqliteDatabaseProvider = Provider<SqliteDatabase>((ref) {
   return SqliteDatabase.instance;
@@ -139,14 +138,14 @@ class SqliteDatabase {
 
     if (oldVersion < 51) {
       Log.info(
-        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.lastActiveAt}` ke tabel `${NamaTabel.get(TableName.customer)}`.',
+        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.lastActiveAt}` ke tabel `${NamaTabel.customer}`.',
       );
       await _migrateToV51(db);
     }
 
     if (oldVersion < 52) {
       Log.info(
-        '[MIGRASI v52] Membuat tabel `${NamaTabel.get(TableName.notification)}`.',
+        '[MIGRASI v52] Membuat tabel `${NamaTabel.notification}`.',
       );
       await _migrateToV52(db);
     }
@@ -168,7 +167,7 @@ class SqliteDatabase {
   Future<void> _migrateToV51(final Database db) async {
     Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.lastActiveAt}...');
     await db.execute(
-      'ALTER TABLE ${NamaTabel.get(TableName.customer)} ADD COLUMN ${NamaKolom.lastActiveAt} INTEGER',
+      'ALTER TABLE ${NamaTabel.customer} ADD COLUMN ${NamaKolom.lastActiveAt} INTEGER',
     );
     Log.info(
         '[MIGRASI v51] Penambahan kolom ${NamaKolom.lastActiveAt} selesai.');
@@ -184,7 +183,7 @@ class SqliteDatabase {
     Log.info(
         '[MIGRASI v53] Menambahkan kolom durasi_bonus dan durasi_bonus_type...');
 
-    final String tableName = NamaTabel.get(TableName.transactions);
+    const String tableName = NamaTabel.transactions;
     // Mengambil informasi kolom yang ada saat ini di tabel transactions
     final results = await db.rawQuery('PRAGMA table_info("$tableName")');
     final existingColumns =
@@ -410,36 +409,30 @@ class SqliteDatabase {
     Log.info('[MIGRASI v50] Rename tabel ke snake_case...');
     Log.warning('[MIGRASI v50] Data tetap AMAN. Hanya nama tabel diubah.');
 
+    await db.execute('ALTER TABLE dompet RENAME TO ${NamaTabel.wallet}');
+    await db.execute('ALTER TABLE kategori RENAME TO ${NamaTabel.category}');
+    await db
+        .execute('ALTER TABLE sub_kategori RENAME TO ${NamaTabel.subCategory}');
+    await db.execute('ALTER TABLE paket RENAME TO ${NamaTabel.package}');
+    await db.execute('ALTER TABLE pelanggan RENAME TO ${NamaTabel.customer}');
     await db.execute(
-        'ALTER TABLE dompet RENAME TO ${NamaTabel.get(TableName.wallet)}');
-    await db.execute(
-        'ALTER TABLE kategori RENAME TO ${NamaTabel.get(TableName.category)}');
-    await db.execute(
-        'ALTER TABLE sub_kategori RENAME TO ${NamaTabel.get(TableName.subCategory)}');
-    await db.execute(
-        'ALTER TABLE paket RENAME TO ${NamaTabel.get(TableName.package)}');
-    await db.execute(
-        'ALTER TABLE pelanggan RENAME TO ${NamaTabel.get(TableName.customer)}');
-    await db.execute(
-        'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.get(TableName.activeCustomer)}');
+        'ALTER TABLE pelanggan_aktif RENAME TO ${NamaTabel.activeCustomer}');
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel transaction via TableNameValue
-    await db.execute(
-        'ALTER TABLE transaksi RENAME TO "${NamaTabel.get(TableName.transactions)}"');
-    await db.execute(
-        'ALTER TABLE kritik_saran RENAME TO ${NamaTabel.get(TableName.feedback)}');
+    await db
+        .execute('ALTER TABLE transaksi RENAME TO "${NamaTabel.transactions}"');
+    await db
+        .execute('ALTER TABLE kritik_saran RENAME TO ${NamaTabel.feedback}');
 
     // diperbaiki: Ditambahkan escaping double quotes ("") untuk tabel order via TableNameValue
+    await db
+        .execute('ALTER TABLE pesanan RENAME TO "${NamaTabel.customerOrder}"');
     await db.execute(
-        'ALTER TABLE pesanan RENAME TO "${NamaTabel.get(TableName.customerOrder)}"');
+        'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.userApkVersion}');
+    await db.execute('ALTER TABLE pengaturan RENAME TO ${NamaTabel.settings}');
     await db.execute(
-        'ALTER TABLE versi_apk_user RENAME TO ${NamaTabel.get(TableName.userApkVersion)}');
-    await db.execute(
-        'ALTER TABLE pengaturan RENAME TO ${NamaTabel.get(TableName.settings)}');
-    await db.execute(
-        'ALTER TABLE status_unggah RENAME TO ${NamaTabel.get(TableName.uploadStatus)}');
-    await db.execute(
-        'ALTER TABLE pesan RENAME TO ${NamaTabel.get(TableName.message)}');
+        'ALTER TABLE status_unggah RENAME TO ${NamaTabel.uploadStatus}');
+    await db.execute('ALTER TABLE pesan RENAME TO ${NamaTabel.message}');
 
     Log.info('[MIGRASI v50] Semua rename tabel selesai.');
   }
@@ -480,7 +473,7 @@ class SqliteDatabase {
     Log.info('Semua 14 definisi tabel (v52) ditambahkan ke batch.');
 
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
-    final String trxTable = '"${NamaTabel.get(TableName.transactions)}"';
+    const String trxTable = '"${NamaTabel.transactions}"';
     batch.execute(
       'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.walletId})',
     );
@@ -514,8 +507,8 @@ class SqliteDatabase {
   // DEFINISI TABEL v51 (snake_case nama tabel + nama kolom via konstanta)
   // ============================================================
 
-  static final String _tabelWallet = '''
-    CREATE TABLE ${NamaTabel.get(TableName.wallet)}(
+  static const String _tabelWallet = '''
+    CREATE TABLE ${NamaTabel.wallet}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.name} TEXT NOT NULL,
       ${NamaKolom.balance} REAL NOT NULL,
@@ -525,8 +518,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelTransaction = '''
-    CREATE TABLE "${NamaTabel.get(TableName.transactions)}" (
+  static const String _tabelTransaction = '''
+    CREATE TABLE "${NamaTabel.transactions}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.description} TEXT NOT NULL,
       ${NamaKolom.amount} REAL NOT NULL,
@@ -554,8 +547,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelUserApkVersion = '''
-    CREATE TABLE ${NamaTabel.get(TableName.userApkVersion)}(
+  static const String _tabelUserApkVersion = '''
+    CREATE TABLE ${NamaTabel.userApkVersion}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.releaseNotes} TEXT NOT NULL,
       ${NamaKolom.latestBuildNumber} TEXT NOT NULL,
@@ -569,16 +562,16 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelUploadStatus = '''
-    CREATE TABLE ${NamaTabel.get(TableName.uploadStatus)}(
+  static const String _tabelUploadStatus = '''
+    CREATE TABLE ${NamaTabel.uploadStatus}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.value} TEXT NOT NULL,
       ${NamaKolom.updatedAt} INTEGER
     )
   ''';
 
-  static final String _tabelMessage = '''
-    CREATE TABLE ${NamaTabel.get(TableName.message)}(
+  static const String _tabelMessage = '''
+    CREATE TABLE ${NamaTabel.message}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.content} TEXT NOT NULL,
       ${NamaKolom.date} INTEGER NOT NULL,
@@ -586,8 +579,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelSetting = '''
-    CREATE TABLE ${NamaTabel.get(TableName.settings)}(
+  static const String _tabelSetting = '''
+    CREATE TABLE ${NamaTabel.settings}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.autoSyncInterval} INTEGER NOT NULL DEFAULT 24,
       ${NamaKolom.autoDeleteArchiveDays} INTEGER NOT NULL DEFAULT 30,
@@ -597,8 +590,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelCategory = '''
-    CREATE TABLE ${NamaTabel.get(TableName.category)}(
+  static const String _tabelCategory = '''
+    CREATE TABLE ${NamaTabel.category}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.name} TEXT NOT NULL,
       ${NamaKolom.type} TEXT NOT NULL,
@@ -609,20 +602,20 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelSubCategory = '''
-    CREATE TABLE ${NamaTabel.get(TableName.subCategory)}(
+  static const String _tabelSubCategory = '''
+    CREATE TABLE ${NamaTabel.subCategory}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.name} TEXT NOT NULL,
       ${NamaKolom.categoryId} TEXT NOT NULL,
       ${NamaKolom.updatedAt} INTEGER,
       ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.categoryId}) REFERENCES ${NamaTabel.get(TableName.category)} (${NamaKolom.id}) ON DELETE CASCADE
+      FOREIGN KEY (${NamaKolom.categoryId}) REFERENCES ${NamaTabel.category} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
-  static final String _tabelPackage = '''
-    CREATE TABLE ${NamaTabel.get(TableName.package)}(
+  static const String _tabelPackage = '''
+    CREATE TABLE ${NamaTabel.package}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.name} TEXT NOT NULL,
       ${NamaKolom.price} INTEGER NOT NULL,
@@ -638,8 +631,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelCustomer = '''
-    CREATE TABLE ${NamaTabel.get(TableName.customer)}(
+  static const String _tabelCustomer = '''
+    CREATE TABLE ${NamaTabel.customer}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.name} TEXT NOT NULL,
       ${NamaKolom.phone} TEXT NOT NULL,
@@ -654,8 +647,8 @@ class SqliteDatabase {
     )
   ''';
 
-  static final String _tabelActiveCustomer = '''
-    CREATE TABLE ${NamaTabel.get(TableName.activeCustomer)}(
+  static const String _tabelActiveCustomer = '''
+    CREATE TABLE ${NamaTabel.activeCustomer}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.customerId} TEXT NOT NULL,
       ${NamaKolom.packageId} TEXT NOT NULL,
@@ -666,14 +659,14 @@ class SqliteDatabase {
       ${NamaKolom.updatedAt} INTEGER,
       ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.get(TableName.package)} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${NamaKolom.transactionId}) REFERENCES "${NamaTabel.get(TableName.transactions)}" (${NamaKolom.id}) ON DELETE SET NULL
+      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.transactionId}) REFERENCES "${NamaTabel.transactions}" (${NamaKolom.id}) ON DELETE SET NULL
     )
   ''';
 
-  static final String _tabelFeedback = '''
-    CREATE TABLE ${NamaTabel.get(TableName.feedback)}(
+  static const String _tabelFeedback = '''
+    CREATE TABLE ${NamaTabel.feedback}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.content} TEXT NOT NULL,
       ${NamaKolom.date} INTEGER NOT NULL,
@@ -681,12 +674,12 @@ class SqliteDatabase {
       ${NamaKolom.updatedAt} INTEGER,
       ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.userId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE
+      FOREIGN KEY (${NamaKolom.userId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
-  static final String _tabelOrder = '''
-    CREATE TABLE "${NamaTabel.get(TableName.customerOrder)}" (
+  static const String _tabelOrder = '''
+    CREATE TABLE "${NamaTabel.customerOrder}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.customerId} TEXT NOT NULL,
       ${NamaKolom.packageId} TEXT NOT NULL,
@@ -695,14 +688,14 @@ class SqliteDatabase {
       ${NamaKolom.updatedAt} INTEGER,
       ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
       ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.get(TableName.customer)} (${NamaKolom.id}) ON DELETE CASCADE,
-      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.get(TableName.package)} (${NamaKolom.id}) ON DELETE CASCADE
+      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE,
+      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
   // 1. Definisi tabel notifikasi
-  static final String _tabelNotification = '''
-    CREATE TABLE ${NamaTabel.get(TableName.notification)}(
+  static const String _tabelNotification = '''
+    CREATE TABLE ${NamaTabel.notification}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.content} TEXT NOT NULL,
       ${NamaKolom.date} INTEGER NOT NULL,

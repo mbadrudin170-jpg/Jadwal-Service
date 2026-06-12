@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
-import 'package:wifi/admin/repository/statistik_repository.dart';
+import 'package:wifi/admin/repository/statistik_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'statistik_provider.g.dart';
@@ -43,7 +43,7 @@ class StatistikState {
 
 @Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
-  StatistikRepository get _repository => ref.watch(statistikRepositoryProvider);
+  StatistikOpSqlite get _repository => ref.watch(statistikRepositoryProvider);
 
   @override
   Future<StatistikState> build() {

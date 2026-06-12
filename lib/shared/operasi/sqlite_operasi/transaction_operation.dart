@@ -16,7 +16,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 class TransactionOperation {
   final SqliteDatabase dbHelper;
   final BaseOpSqlite baseOperation;
-  final String _tableName = NamaTabel.get(TableName.transactions);
+  final String _tableName = NamaTabel.transactions;
   final _nowEpoch = DateTime.now().millisecondsSinceEpoch;
   final _nowUtc = DateTime.now().toUtc();
 
@@ -70,7 +70,7 @@ class TransactionOperation {
           (totalResult.first['total'] as num?)?.toDouble() ?? 0.0;
 
       await txn.update(
-        NamaTabel.get(TableName.wallet),
+        NamaTabel.wallet,
         {
           NamaKolom.balance: totalBalance,
           NamaKolom.updatedAt: _nowEpoch,
@@ -391,7 +391,7 @@ class TransactionOperation {
           Log.info('$rowsAffected transaksi telah ditandai sebagai dihapus');
 
           await txn.update(
-            NamaTabel.get(TableName.wallet),
+            NamaTabel.wallet,
             {
               NamaKolom.balance: 0,
               NamaKolom.updatedAt: _nowEpoch,

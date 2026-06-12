@@ -10,7 +10,6 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
@@ -79,7 +78,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       }
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
-          .collection(NamaTabel.get(TableName.customer))
+          .collection(NamaTabel.customer)
           .where(NamaKolom.phone, isEqualTo: phone)
           .where(NamaKolom.password, isEqualTo: password)
           .where(NamaKolom.isDeleted, isEqualTo: false)
