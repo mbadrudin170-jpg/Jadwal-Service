@@ -20,13 +20,13 @@ class DetailPelanggan extends ConsumerWidget {
   const DetailPelanggan({super.key, required this.idPelanggan});
 
   Future<void> _editCustomer(
-      BuildContext context, PelangganModel? customer) async {
-    if (customer == null) return;
-    Log.info('Navigasi ke form edit pelanggan: ${customer.name}');
+      BuildContext context, PelangganModel? pelanggan) async {
+    if (pelanggan == null) return;
+    Log.info('Navigasi ke form edit pelanggan: ${pelanggan.name}');
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(customer: customer),
+        builder: (context) => FormPelanggan(customer: pelanggan),
       ),
     );
   }

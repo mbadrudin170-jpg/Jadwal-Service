@@ -110,7 +110,6 @@ class PelangganModel implements HasId {
       NamaKolom.password: password,
       NamaKolom.macAddress: macAddress,
       NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
       NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
       NamaKolom.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
@@ -128,7 +127,6 @@ class PelangganModel implements HasId {
       address: data[NamaKolom.address] as String? ?? '',
       password: data[NamaKolom.password] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
       isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
       updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
       archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
