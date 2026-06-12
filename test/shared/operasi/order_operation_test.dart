@@ -56,12 +56,12 @@ void main() {
     });
 
     test('2. saveOrder harus memanggil insert pada baseOperation', () async {
-      when(mockBaseOperation.insert(any, any))
+      when(mockBaseOperation.sisipkan(any, any))
           .thenAnswer((_) => Future.value());
 
       await orderOperation.saveOrder(tOrder);
 
-      verify(mockBaseOperation.insert(tableName, any)).called(1);
+      verify(mockBaseOperation.sisipkan(tableName, any)).called(1);
     });
 
     test('3. updateOrderStatus harus memanggil update pada baseOperation',

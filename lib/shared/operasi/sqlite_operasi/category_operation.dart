@@ -38,7 +38,7 @@ class CategoryOperation {
       final newCategory = category.copyWith(updatedAt: DateTime.now().toUtc());
       final data = newCategory.toSqlite();
 
-      await _baseOperation.insert(
+      await _baseOperation.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,

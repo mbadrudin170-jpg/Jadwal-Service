@@ -28,7 +28,7 @@ class DompetOpSqlite {
     Log.info('Memulai tambahDompet untuk wallet: ${wallet.id}');
     try {
       final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
-      await _baseOperation.insert(
+      await _baseOperation.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,

@@ -77,7 +77,7 @@ void main() {
       const table = 'test_table';
       final data = {'id': '1', 'name': 'test'};
 
-      await baseOperation.insert(table, data);
+      await baseOperation.sisipkan(table, data);
 
       verify(mockTxn.insert(table, data,
               conflictAlgorithm: ConflictAlgorithm.replace))

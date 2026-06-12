@@ -33,7 +33,7 @@ class PackageOperation {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
-      await baseOperation.insert(
+      await baseOperation.sisipkan(
         _tableName,
         data,
         dariServer: dariServer,

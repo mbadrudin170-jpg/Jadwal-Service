@@ -77,7 +77,7 @@ void main() {
 
       // Assert
       // Verifikasi bahwa `insert` dipanggil dengan argumen yang benar
-      verify(mockBaseOperation.insert(
+      verify(mockBaseOperation.sisipkan(
         tableName,
         any, // `any` karena `updatedAt` di-generate di dalam method `add`
       )).called(1);

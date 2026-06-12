@@ -55,11 +55,11 @@ void main() {
     });
 
     test('2. tambahDompet harus memanggil insert pada baseOperation', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
       await dompetOpSqlite.tambahDompet(tWallet);
 
-      verify(mockBaseOperation.insert(tableName, any)).called(1);
+      verify(mockBaseOperation.sisipkan(tableName, any)).called(1);
     });
 
     test('3. updateDompet harus memanggil update pada baseOperation', () async {

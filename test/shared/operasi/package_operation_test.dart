@@ -73,11 +73,11 @@ void main() {
     });
 
     test('3. add harus memanggil insert pada baseOperation', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
       await packageOperation.add(tPackage);
 
-      verify(mockBaseOperation.insert(tableName, any)).called(1);
+      verify(mockBaseOperation.sisipkan(tableName, any)).called(1);
     });
 
     test('4. update harus memanggil update pada baseOperation', () async {

@@ -43,11 +43,11 @@ void main() {
     final tCustomerMap = tCustomer.toSqlite();
 
     test('1. add harus menyisipkan customer baru', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
       await customerOperation.add(tCustomer);
 
-      verify(mockBaseOperation.insert(any, any)).called(1);
+      verify(mockBaseOperation.sisipkan(any, any)).called(1);
     });
 
     test('2. getAll harus mengembalikan daftar customer', () async {

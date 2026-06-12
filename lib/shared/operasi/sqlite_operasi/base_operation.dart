@@ -113,7 +113,7 @@ class BaseOperation {
   }
 
   /// Menyisipkan data baru ke dalam [table].
-  Future<void> insert(
+  Future<void> sisipkan(
     final String table,
     final Map<String, dynamic> data, {
     final bool dariServer = false,

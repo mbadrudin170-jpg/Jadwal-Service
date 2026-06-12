@@ -32,7 +32,7 @@ class SubCategoryOperation {
     try {
       final data =
           subCategory.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
-      await baseOperation.insert(
+      await baseOperation.sisipkan(
         _tableName,
         data,
         dariServer: fromServer,

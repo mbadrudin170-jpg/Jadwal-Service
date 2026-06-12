@@ -170,7 +170,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
       ) as _i3.Future<T>);
 
   @override
-  _i3.Future<void> insert(
+  _i3.Future<void> sisipkan(
     String? table,
     Map<String, dynamic>? data, {
     bool? dariServer = false,

@@ -66,7 +66,7 @@ void main() {
       expect(result.maintenanceMode, true);
       verify(mockDatabase.query(tableName,
           where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
-      verifyNever(mockBaseOperation.insert(any, any));
+      verifyNever(mockBaseOperation.sisipkan(any, any));
     });
 
     test(
@@ -80,7 +80,7 @@ void main() {
       )).thenAnswer((_) async => []);
 
       // Saat insert, mock harus mengembalikan ID string yang kita harapkan
-      when(mockBaseOperation.insert(any, any,
+      when(mockBaseOperation.sisipkan(any, any,
               dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
@@ -94,7 +94,7 @@ void main() {
       verify(mockDatabase.query(tableName,
           where: 'id = ?', whereArgs: [globalSettingsId])).called(1);
 
-      final captured = verify(mockBaseOperation.insert(
+      final captured = verify(mockBaseOperation.sisipkan(
         tableName,
         captureAny,
       )).captured;
@@ -116,7 +116,7 @@ void main() {
       );
 
       // Mengembalikan ID yang benar (string)
-      when(mockBaseOperation.insert(any, any,
+      when(mockBaseOperation.sisipkan(any, any,
               dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
@@ -124,7 +124,7 @@ void main() {
       await settingsOperation.saveOrUpdateSettings(settings);
 
       // Periksa
-      final captured = verify(mockBaseOperation.insert(
+      final captured = verify(mockBaseOperation.sisipkan(
         tableName,
         captureAny,
       )).captured;
@@ -139,7 +139,7 @@ void main() {
     test('4. harus meneruskan flag fromServer dengan benar', () async {
       // Atur
       final settings = model.SettingsModel();
-      when(mockBaseOperation.insert(any, any,
+      when(mockBaseOperation.sisipkan(any, any,
               dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
@@ -147,7 +147,7 @@ void main() {
       await settingsOperation.saveOrUpdateSettings(settings, fromServer: true);
 
       // Periksa
-      verify(mockBaseOperation.insert(
+      verify(mockBaseOperation.sisipkan(
         tableName,
         any,
         dariServer: true,

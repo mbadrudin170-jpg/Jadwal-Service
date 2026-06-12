@@ -46,7 +46,7 @@ class CustomerOperation {
       final data = customerToSave.toSqlite();
 
       // DIUBAH: Menggunakan TableNameValue berbasis v50
-      await _baseOperation.insert(
+      await _baseOperation.sisipkan(
         _namaTabel,
         data,
         dariServer: dariServer,

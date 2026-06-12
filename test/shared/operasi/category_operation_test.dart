@@ -42,12 +42,12 @@ void main() {
     final tCategoryMap = tCategory.toSqlite();
 
     test('createCategory should insert a new category and return it', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
       final result = await categoryOperation.createCategory(tCategory);
 
       expect(result.id, tCategory.id);
-      verify(mockBaseOperation.insert(any, any)).called(1);
+      verify(mockBaseOperation.sisipkan(any, any)).called(1);
     });
 
     test('getCategories should return a list of categories', () async {

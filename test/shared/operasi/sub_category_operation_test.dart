@@ -82,11 +82,11 @@ void main() {
     });
 
     test('createSubCategory should call insert on baseOperation', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async => 1);
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
       await subCategoryOperation.createSubCategory(tSubCategory);
 
-      verify(mockBaseOperation.insert(tableName, any)).called(1);
+      verify(mockBaseOperation.sisipkan(tableName, any)).called(1);
     });
 
     test('updateSubCategory should call update on baseOperation', () async {

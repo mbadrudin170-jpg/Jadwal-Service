@@ -56,7 +56,7 @@ class OrderOperation {
       final orderToSave = order.copyWith(
         updatedAt: DateTime.now().toUtc(),
       );
-      await baseOperation.insert(
+      await baseOperation.sisipkan(
         _tableName,
         orderToSave.toSqlite(),
         dariServer: fromServer,

@@ -42,7 +42,7 @@ class ActiveCustomerOperation {
       final data =
           activeCustomer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
-      await baseOperation.insert(
+      await baseOperation.sisipkan(
         _tableName,
         data,
         fromServer: dariServer,

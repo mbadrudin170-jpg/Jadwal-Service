@@ -69,11 +69,11 @@ void main() {
     });
 
     test('3. addApkVersion harus menyisipkan versi apk baru', () async {
-      when(mockBaseOperation.insert(any, any)).thenAnswer((_) async {});
+      when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async {});
 
       await apkVersionOperation.addApkVersion(tApkVersion);
 
-      verify(mockBaseOperation.insert(any, any)).called(1);
+      verify(mockBaseOperation.sisipkan(any, any)).called(1);
     });
 
     test('4. updateApkVersion harus memperbarui versi apk yang ada', () async {

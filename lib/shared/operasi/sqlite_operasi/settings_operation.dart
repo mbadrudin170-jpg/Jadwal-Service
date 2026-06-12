@@ -79,7 +79,7 @@ class SettingsOperation {
       Log.info(
         'Memulai proses simpan/perbarui untuk pengaturan dengan ID: ${settingsToSave.id}',
       );
-      await _baseOperation.insert(
+      await _baseOperation.sisipkan(
         _tableName,
         settingsToSave.toSqlite(),
         dariServer: fromServer,

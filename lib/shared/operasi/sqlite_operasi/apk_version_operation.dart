@@ -39,7 +39,7 @@ class ApkVersionOperation {
     );
 
     try {
-      await _baseOperation.insert(
+      await _baseOperation.sisipkan(
         _tableName,
         apkVersion.toSqlite(),
         dariServer: fromServer,
