@@ -147,7 +147,7 @@ class ActiveCustomerOperation {
         _tableName,
         data,
         activeCustomer.id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Pembaruan pelanggan aktif ID: ${activeCustomer.id} berhasil');
     } catch (e, s) {
@@ -167,7 +167,7 @@ class ActiveCustomerOperation {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil menghapus (soft delete) pelanggan aktif ID: $id');
     } catch (e, s) {

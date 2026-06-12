@@ -160,7 +160,7 @@ class PackageOperation {
         _tableName,
         data,
         package.id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil updatePackage untuk id: ${package.id}');
     } catch (e, s) {
@@ -176,7 +176,7 @@ class PackageOperation {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete untuk package id: $id');
     } catch (e, s) {
@@ -208,7 +208,7 @@ class PackageOperation {
       await baseOperation.delete(
         _tableName,
         id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil deletePackage untuk id: $id');
     } catch (e, s) {

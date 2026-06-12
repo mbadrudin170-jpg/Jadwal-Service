@@ -143,7 +143,7 @@ class CategoryOperation {
         _tableName,
         data,
         category.id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil updateCategory untuk ID: ${category.id}.');
     } catch (e, st) {
@@ -165,7 +165,7 @@ class CategoryOperation {
       await _baseOperation.delete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil deleteCategory untuk ID: $id.');
     } catch (e, st) {
@@ -184,7 +184,7 @@ class CategoryOperation {
       await _baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete category ID: $id.');
     } catch (e, st) {

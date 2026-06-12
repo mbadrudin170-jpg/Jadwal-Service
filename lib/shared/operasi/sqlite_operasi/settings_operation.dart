@@ -119,7 +119,7 @@ class SettingsOperation {
         _tableName,
         dataToUpdate,
         globalSettingsId,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
 
       Log.info(

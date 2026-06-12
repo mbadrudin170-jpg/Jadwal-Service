@@ -203,7 +203,7 @@ class FeedbackOperation {
       await baseOperation.delete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil menghapus permanen kritik_saran dengan ID: $id.');
     } on Exception catch (e, st) {
@@ -226,7 +226,7 @@ class FeedbackOperation {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete feedback ID: $id.');
     } catch (e, st) {

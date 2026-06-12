@@ -110,7 +110,7 @@ class DompetOpSqlite {
         _tableName,
         data,
         wallet.id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil updateDompet untuk ID: ${wallet.id}.');
     } on Exception catch (e, st) {
@@ -131,7 +131,7 @@ class DompetOpSqlite {
       await _baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete wallet ID: $id.');
     } catch (e, st) {

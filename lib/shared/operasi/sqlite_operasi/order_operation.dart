@@ -148,7 +148,7 @@ class OrderOperation {
           _tableName,
           newOrder.toSqlite(),
           id,
-          fromServer: fromServer,
+          dariServer: fromServer,
         );
         Log.info(
           'Status pesanan ID: $id berhasil diperbarui beserta timestamp-nya.',
@@ -170,7 +170,7 @@ class OrderOperation {
   }) async {
     Log.warning('Menghapus pesanan ID: $id (hard delete)');
     try {
-      await baseOperation.delete(_tableName, id, fromServer: fromServer);
+      await baseOperation.delete(_tableName, id, dariServer: fromServer);
       Log.info('Berhasil menghapus pesanan dengan ID: $id.');
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus pesanan.', e: e, st: s);
@@ -188,7 +188,7 @@ class OrderOperation {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete pesanan ID: $id.');
     } on Exception catch (e, st) {

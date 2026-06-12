@@ -143,7 +143,7 @@ class CustomerOperation {
         _tableName,
         data,
         customer.id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
 
       Log.info('Berhasil memperbarui customer ID: ${customer.id}.');
@@ -163,7 +163,7 @@ class CustomerOperation {
       await _baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil melakukan soft delete pada customer ID: $id.');
     } catch (e, s) {

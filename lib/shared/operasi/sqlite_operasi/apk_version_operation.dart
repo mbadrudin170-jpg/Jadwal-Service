@@ -71,7 +71,7 @@ class ApkVersionOperation {
         _tableName,
         apkVersion.toSqlite(),
         apkVersion.id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info(
         'Versi APK user berhasil diperbarui di tabel $_tableName - ID: ${apkVersion.id}',
@@ -96,7 +96,7 @@ class ApkVersionOperation {
       await _baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Soft delete untuk APK version ID: $id selesai.');
     } on Exception catch (e, st) {

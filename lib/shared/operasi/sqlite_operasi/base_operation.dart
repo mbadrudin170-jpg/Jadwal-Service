@@ -148,7 +148,7 @@ class BaseOperation {
     final String table,
     final Map<String, dynamic> data,
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai pembaruan data di tabel: $table', {
       'id': id,
@@ -176,7 +176,7 @@ class BaseOperation {
           }
           return rowsAffected;
         },
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error(
@@ -193,7 +193,7 @@ class BaseOperation {
   Future<void> delete(
     final String table,
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai penghapusan data', {'tabel': table, 'id': id});
     try {
@@ -214,7 +214,7 @@ class BaseOperation {
           }
           return rowsDeleted;
         },
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error(
@@ -231,7 +231,7 @@ class BaseOperation {
   Future<void> softDelete(
     final String table,
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete', {'tabel': table, 'id': id});
     try {
@@ -261,7 +261,7 @@ class BaseOperation {
           }
           return rowsAffected;
         },
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error(

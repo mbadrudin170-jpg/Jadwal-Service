@@ -103,7 +103,7 @@ class SubCategoryOperation {
         _tableName,
         data,
         subCategory.id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil memperbarui sub-kategori ID: ${subCategory.id}');
     } on Exception catch (e, s) {
@@ -119,7 +119,7 @@ class SubCategoryOperation {
       await baseOperation.delete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.warning('Berhasil melakukan hard delete sub-kategori ID: $id');
     } on Exception catch (e, s) {
@@ -138,7 +138,7 @@ class SubCategoryOperation {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete sub-kategori ID: $id.');
     } on Exception catch (e, st) {

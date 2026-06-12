@@ -223,7 +223,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
     String? table,
     Map<String, dynamic>? data,
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -233,7 +233,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
             data,
             id,
           ],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -243,7 +243,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
   _i3.Future<void> delete(
     String? table,
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -252,7 +252,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
             table,
             id,
           ],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
@@ -262,7 +262,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
   _i3.Future<void> softDelete(
     String? table,
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -271,7 +271,7 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
             table,
             id,
           ],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
