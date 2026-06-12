@@ -25,31 +25,31 @@ class TransactionOpFirebase extends BaseOpFirebase {
       firestore.collection(TableNameValue.get(TableName.transactions));
 
   /// Menambahkan transaksi baru ke Firestore.
-  Future<void> addTransaction(final TransactionModel transaction) async {
-    Log.info('Menambahkan transaksi baru: ${transaction.id}');
+  Future<void> tambahTransaksi(TransactionModel transaksi) async {
+    Log.info('Menambahkan transaksi baru: ${transaksi.id}');
     try {
-      await insert(
+      await sisipkan(
         TableNameValue.get(TableName.transactions),
-        transaction.id,
-        transaction.toFirebase(),
+        transaksi.id,
+        transaksi.toFirebase(),
       );
-      Log.info('Berhasil menambahkan transaksi: ${transaction.id}');
+      Log.info('Berhasil menambahkan transaksi: ${transaksi.id}');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menambahkan transaksi: ${transaction.id}', e: e, st: s);
+      Log.error('Gagal menambahkan transaksi: ${transaksi.id}', e: e, st: s);
       rethrow;
     }
   }
 
   /// Mengambil transaksi lunas terbaru dari seorang pengguna berdasarkan tanggal akhir.
   /// Digunakan untuk menentukan status langganan aktif di sisi user.
-  Future<TransactionModel?> getLatestPaidTransactionByUserId(
-    final String customerId,
+  Future<TransactionModel?> ambilTransaksiLunasTerbaruBerdasarkanIdPelanggan(
+    String idPelanggan,
   ) async {
     try {
       Log.info(
-          'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $customerId');
+          'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
           .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .orderBy(ColumnNames.endDate, descending: true)
@@ -58,18 +58,18 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
       if (querySnapshot.docs.isEmpty) {
         Log.warning(
-            'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $customerId');
+            'Tidak ada transaksi lunas yang aktif dari Firebase untuk pengguna ID: $idPelanggan');
         return null;
       }
 
       final doc = querySnapshot.docs.first;
       final data = doc.data() as Map<String, dynamic>;
       Log.info(
-          'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $customerId');
+          'Transaksi lunas terbaru dari Firebase ditemukan untuk pengguna ID: $idPelanggan');
       return TransactionModel.fromFirebase(doc.id, data);
     } on Exception catch (e, s) {
       Log.error(
-          'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $customerId',
+          'Error mengambil transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan',
           e: e,
           st: s);
       return null;
@@ -77,13 +77,13 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Mengambil semua transaksi untuk seorang pelanggan.
-  Future<List<TransactionModel>> getByCustomerId(
-    final String customerId,
+  Future<List<TransactionModel>> ambilBerdasarkanIdPelanggan(
+    String idPelanggan,
   ) async {
     try {
-      Log.info('Mengambil semua transaksi untuk: $customerId');
+      Log.info('Mengambil semua transaksi untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .orderBy(ColumnNames.date, descending: true)
           .get();
@@ -100,23 +100,23 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Menghitung total poin yang dimiliki oleh pelanggan.
-  Future<int> getTotalPoints(String customerId) async {
+  Future<int> ambilTotalPoin(String idPelanggan) async {
     try {
-      Log.info('Menghitung total poin untuk: $customerId');
+      Log.info('Menghitung total poin untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
           .where(ColumnNames.isDeleted, isEqualTo: false)
           .where(ColumnNames.paymentStatus, isEqualTo: PaymentStatus.paid.name)
           .get();
-          
-      int totalPoints = 0;
+
+      int totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        totalPoints += (data[ColumnNames.earnedPoints] as int? ?? 0);
-        totalPoints -= (data[ColumnNames.usedPoints] as int? ?? 0);
+        totalPoin += (data[ColumnNames.earnedPoints] as int? ?? 0);
+        totalPoin -= (data[ColumnNames.usedPoints] as int? ?? 0);
       }
-      Log.info('Total poin untuk $customerId adalah $totalPoints');
-      return totalPoints;
+      Log.info('Total poin untuk $idPelanggan adalah $totalPoin');
+      return totalPoin;
     } on Exception catch (e, s) {
       Log.error('Error menghitung total poin: $e', e: e, st: s);
       return 0;
@@ -124,28 +124,29 @@ class TransactionOpFirebase extends BaseOpFirebase {
   }
 
   /// Menghapus transaksi dari Firestore secara permanen.
-  Future<void> deleteTransaction(final String transactionId) async {
+  Future<void> hapusTransaksi(String idTransaksi) async {
     Log.warning(
-        'Memulai penghapusan permanen transaksi di Firestore: $transactionId');
+        'Memulai penghapusan permanen transaksi di Firestore: $idTransaksi');
     try {
-      await delete(TableNameValue.get(TableName.transactions), transactionId);
-      Log.info('Penghapusan permanen transaksi berhasil: $transactionId');
+      await hapusPermanen(
+          TableNameValue.get(TableName.transactions), idTransaksi);
+      Log.info('Penghapusan permanen transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus transaksi secara permanen: $transactionId',
+      Log.error('Gagal menghapus transaksi secara permanen: $idTransaksi',
           e: e, st: s);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada transaksi di Firestore.
-  Future<void> softDeleteTransaction(final String transactionId) async {
-    Log.info('Memulai soft delete transaksi di Firestore: $transactionId');
+  Future<void> hapusSementaraTransaksi(String idTransaksi) async {
+    Log.info('Memulai soft delete transaksi di Firestore: $idTransaksi');
     try {
-      await softDelete(
-          TableNameValue.get(TableName.transactions), transactionId);
-      Log.info('Soft delete transaksi berhasil: $transactionId');
+      await hapusSementara(
+          TableNameValue.get(TableName.transactions), idTransaksi);
+      Log.info('Soft delete transaksi berhasil: $idTransaksi');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete transaksi: $transactionId',
+      Log.error('Gagal melakukan soft delete transaksi: $idTransaksi',
           e: e, st: s);
       rethrow;
     }
@@ -153,17 +154,17 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
   /// Mengambil daftar paket aktif (transaksi yang belum kedaluwarsa)
   /// untuk seorang pelanggan.
-  Future<List<TransactionModel>> getPaketAktifCustomer(
-    final String customerId,
+  Future<List<TransactionModel>> ambilPaketAktifPelanggan(
+    String idPelanggan,
   ) async {
     try {
-      Log.info('Mulai mengambil paket aktif untuk pelanggan: $customerId');
+      Log.info('Mulai mengambil paket aktif untuk pelanggan: $idPelanggan');
       // Ambil waktu saat ini
       final DateTime now = DateTime.now();
 
       final querySnapshot = await _collection
           // 1. Cari transaksi milik pelanggan yang benar
-          .where(ColumnNames.customerId, isEqualTo: customerId)
+          .where(ColumnNames.customerId, isEqualTo: idPelanggan)
           // 2. Pastikan transaksi tidak dihapus
           .where(ColumnNames.isDeleted, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
@@ -172,12 +173,12 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong
       if (querySnapshot.docs.isEmpty) {
-        Log.info('Tidak ada paket aktif yang ditemukan untuk: $customerId');
+        Log.info('Tidak ada paket aktif yang ditemukan untuk: $idPelanggan');
         return [];
       }
 
       // Ubah setiap dokumen menjadi objek TransactionModel
-      final activePackages = querySnapshot.docs.map((final doc) {
+      final daftarPaketAktif = querySnapshot.docs.map((doc) {
         return TransactionModel.fromFirebase(
           doc.id,
           doc.data() as Map<String, dynamic>,
@@ -185,11 +186,11 @@ class TransactionOpFirebase extends BaseOpFirebase {
       }).toList();
 
       Log.info(
-          '${activePackages.length} paket aktif ditemukan untuk: $customerId');
-      return activePackages;
+          '${daftarPaketAktif.length} paket aktif ditemukan untuk: $idPelanggan');
+      return daftarPaketAktif;
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal mengambil paket aktif untuk pelanggan $customerId: $e',
+        'Gagal mengambil paket aktif untuk pelanggan $idPelanggan: $e',
         e: e,
         st: s,
       );

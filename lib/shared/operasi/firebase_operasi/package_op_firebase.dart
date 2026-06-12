@@ -17,7 +17,7 @@ class PackageOpFirebase {
   CollectionReference get _collection =>
       db.collection(TableNameValue.get(TableName.package));
 
-  Future<List<PackageModel>> getPublicPackages() async {
+  Future<List<PackageModel>> ambilPaketPublik() async {
     try {
       Log.info('Mengambil paket publik untuk penukaran poin.');
       final querySnapshot = await _collection
@@ -27,7 +27,7 @@ class PackageOpFirebase {
           .get();
       Log.info(
           'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
-      return querySnapshot.docs.map((final doc) {
+      return querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return PackageModel.fromFirebase(doc.id, data);
       }).toList();
@@ -37,17 +37,17 @@ class PackageOpFirebase {
     }
   }
 
-  Future<PackageModel?> getPackageById(final String packageId) async {
+  Future<PackageModel?> ambilBerdasarkanId(String idPaket) async {
     try {
-      Log.info('Mengambil model paket untuk ID: $packageId');
-      final doc = await _collection.doc(packageId).get();
+      Log.info('Mengambil model paket untuk ID: $idPaket');
+      final doc = await _collection.doc(idPaket).get();
       if (doc.exists) {
         final data = doc.data()! as Map<String, dynamic>;
         final package = PackageModel.fromFirebase(doc.id, data);
         Log.info('Model paket ditemukan');
         return package;
       }
-      Log.warning('Paket dengan ID $packageId tidak ditemukan.');
+      Log.warning('Paket dengan ID $idPaket tidak ditemukan.');
       return null;
     } on Exception catch (e, s) {
       Log.error('Error mengambil model paket: $e', e: e, st: s);
@@ -56,45 +56,44 @@ class PackageOpFirebase {
   }
 
   /// Mengambil data paket secara real-time berdasarkan ID.
-  Stream<PackageModel?> getPackageStreamById(final String packageId) {
-    Log.info('Memulai stream untuk paket ID: $packageId');
-    return _collection.doc(packageId).snapshots().map((final snapshot) {
+  Stream<PackageModel?> ambilStreamBerdasarkanId(String idPaket) {
+    Log.info('Memulai stream untuk paket ID: $idPaket');
+    return _collection.doc(idPaket).snapshots().map((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data()! as Map<String, dynamic>;
-        Log.info('Data paket diperbarui dari stream: $packageId');
+        Log.info('Data paket diperbarui dari stream: $idPaket');
         return PackageModel.fromFirebase(snapshot.id, data);
       }
-      Log.warning('Paket ID $packageId tidak ditemukan di stream.');
+      Log.warning('Paket ID $idPaket tidak ditemukan di stream.');
       return null;
-    }).handleError((final Object e, final StackTrace s) {
-      Log.error('Error pada stream paket ID: $packageId', e: e, st: s);
+    }).handleError((Object e, StackTrace s) {
+      Log.error('Error pada stream paket ID: $idPaket', e: e, st: s);
       return null;
     });
   }
 
-  Future<void> deletePackage(final String packageId) async {
-    Log.warning('Memulai penghapusan permanen paket di Firestore: $packageId');
+  Future<void> hapusPaket(String idPaket) async {
+    Log.warning('Memulai penghapusan permanen paket di Firestore: $idPaket');
     try {
-      await _collection.doc(packageId).delete();
-      Log.info('Penghapusan permanen paket berhasil: $packageId');
+      await _collection.doc(idPaket).delete();
+      Log.info('Penghapusan permanen paket berhasil: $idPaket');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal menghapus paket secara permanen: $packageId',
-          e: e, st: s);
+      Log.error('Gagal menghapus paket secara permanen: $idPaket', e: e, st: s);
       rethrow;
     }
   }
 
-  Future<void> softDeletePackage(final String packageId) async {
-    Log.info('Memulai soft delete paket di Firestore: $packageId');
+  Future<void> hapusSementaraPaket(String idPaket) async {
+    Log.info('Memulai soft delete paket di Firestore: $idPaket');
     try {
-      await _collection.doc(packageId).update({
+      await _collection.doc(idPaket).update({
         ColumnNames.isDeleted: true,
         ColumnNames.archivedAt: FieldValue.serverTimestamp(),
         ColumnNames.updatedAt: FieldValue.serverTimestamp(),
       });
-      Log.info('Soft delete paket berhasil: $packageId');
+      Log.info('Soft delete paket berhasil: $idPaket');
     } on FirebaseException catch (e, s) {
-      Log.error('Gagal melakukan soft delete paket: $packageId', e: e, st: s);
+      Log.error('Gagal melakukan soft delete paket: $idPaket', e: e, st: s);
       rethrow;
     }
   }
