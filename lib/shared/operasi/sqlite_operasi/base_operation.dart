@@ -116,7 +116,7 @@ class BaseOperation {
   Future<void> insert(
     final String table,
     final Map<String, dynamic> data, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai penyisipan data ke tabel: $table');
     try {
@@ -130,7 +130,7 @@ class BaseOperation {
           Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
           return result;
         },
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
     } catch (e, s) {
       Log.error(

@@ -59,7 +59,7 @@ class OrderOperation {
       await baseOperation.insert(
         _tableName,
         orderToSave.toSqlite(),
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil menyimpan pesanan ID: ${order.id}');
     } on Exception catch (e, s) {

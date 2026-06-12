@@ -42,7 +42,7 @@ class ApkVersionOperation {
       await _baseOperation.insert(
         _tableName,
         apkVersion.toSqlite(),
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info(
         'Versi APK user berhasil ditambahkan ke tabel $_tableName - ID: ${apkVersion.id}',

@@ -81,7 +81,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
       await dbHelper.database;
 
       final activeCustomerOp = ref.read(activeCustomerOperationProvider);
-      await activeCustomerOp.archiveExpiredCustomers();
+      await activeCustomerOp.periksaStatusPelanggan();
 
       final isOnline = await connectionService.cekKoneksiLokal();
       if (isOnline) {

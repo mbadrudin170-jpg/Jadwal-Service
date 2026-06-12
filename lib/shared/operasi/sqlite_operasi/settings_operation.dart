@@ -82,7 +82,7 @@ class SettingsOperation {
       await _baseOperation.insert(
         _tableName,
         settingsToSave.toSqlite(),
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info(
         'Pengaturan berhasil disimpan atau diperbarui dengan metode UPSERT.',

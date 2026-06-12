@@ -35,7 +35,7 @@ class SubCategoryOperation {
       await baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil membuat sub-kategori ID: ${subCategory.id}');
     } on Exception catch (e, s) {

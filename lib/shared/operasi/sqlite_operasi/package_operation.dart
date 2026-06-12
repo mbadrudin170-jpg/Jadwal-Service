@@ -10,7 +10,6 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
-
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PackageOperation {
   /// Instance dari DatabaseHelper untuk mengakses database.
@@ -30,15 +29,14 @@ class PackageOperation {
   }
 
   /// Menyimpan [PackageModel] baru ke dalam database.
-  Future<void> add(final PackageModel package,
-      {final bool fromServer = false}) async {
+  Future<void> tambah(PackageModel package, {bool dariServer = false}) async {
     Log.info('Memulai createPackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
       await baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil createPackage untuk id: ${package.id}');
     } catch (e, s) {
@@ -48,7 +46,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket, termasuk yang diarsipkan.
-  Future<List<PackageModel>> getAll() async {
+  Future<List<PackageModel>> ambilSemua() async {
     Log.info('Memulai proses pengambilan semua data paket');
     try {
       final db = await dbHelper.database;
@@ -65,7 +63,7 @@ class PackageOperation {
       ''');
 
       Log.info('Berhasil mengambil ${maps.length} data paket');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return PackageModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -75,7 +73,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket aktif (tidak diarsipkan).
-  Future<List<PackageModel>> getByAktif() async {
+  Future<List<PackageModel>> ambilBerdasarkanAktif() async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
       final db = await dbHelper.database;
@@ -93,7 +91,7 @@ class PackageOperation {
       ''');
 
       Log.info('Berhasil mengambil ${maps.length} data paket aktif');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return PackageModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -103,7 +101,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket yang bersifat publik.
-  Future<List<PackageModel>> getByIsPublic() async {
+  Future<List<PackageModel>> ambilBerdasarkanPublik() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await dbHelper.database;
@@ -121,7 +119,7 @@ class PackageOperation {
       ''');
 
       Log.info('Berhasil mengambil ${maps.length} data paket publik');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return PackageModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {
@@ -131,7 +129,7 @@ class PackageOperation {
   }
 
   /// Mengambil [PackageModel] berdasarkan [id].
-  Future<PackageModel?> getById(final String id) async {
+  Future<PackageModel?> ambilBerdasarkanId(String id) async {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;
@@ -144,10 +142,9 @@ class PackageOperation {
       if (maps.isNotEmpty) {
         Log.info('Paket ditemukan untuk ID: $id');
         return PackageModel.fromSqlite(maps.first);
-      } else {
-        Log.warning('Paket dengan ID $id tidak ditemukan');
-        return null;
       }
+      Log.warning('Paket dengan ID $id tidak ditemukan');
+      return null;
     } catch (e, s) {
       Log.error('Gagal mencari paket berdasarkan ID: $id', e: e, st: s);
       rethrow;
@@ -155,8 +152,7 @@ class PackageOperation {
   }
 
   /// Memperbarui [PackageModel] yang ada di database.
-  Future<void> update(final PackageModel package,
-      {final bool fromServer = false}) async {
+  Future<void> perbarui(PackageModel package, {bool dariServer = false}) async {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
@@ -164,7 +160,7 @@ class PackageOperation {
         _tableName,
         data,
         package.id,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil updatePackage untuk id: ${package.id}');
     } catch (e, s) {
@@ -174,14 +170,13 @@ class PackageOperation {
   }
 
   /// Melakukan soft delete pada [PackageModel] berdasarkan [id].
-  Future<void> softDelete(final String id,
-      {final bool fromServer = false}) async {
+  Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
       await baseOperation.softDelete(
         _tableName,
         id,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil soft delete untuk package id: $id');
     } catch (e, s) {
@@ -191,12 +186,12 @@ class PackageOperation {
   }
 
   /// Menandai semua paket sebagai soft-deleted (diarsipkan).
-  Future<int> softDeleteAll({final bool fromServer = false}) async {
+  Future<int> hapusSementaraSemua({bool dariServer = false}) async {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
       final count = await baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
       return count;
@@ -207,13 +202,13 @@ class PackageOperation {
   }
 
   /// Menghapus [PackageModel] dari database secara permanen.
-  Future<void> delete(final String id, {final bool fromServer = false}) async {
+  Future<void> hapus(String id, {bool dariServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
       await baseOperation.delete(
         _tableName,
         id,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil deletePackage untuk id: $id');
     } catch (e, s) {
@@ -223,18 +218,18 @@ class PackageOperation {
   }
 
   /// Menghapus semua paket dari database secara permanen.
-  Future<void> deleteAll({final bool fromServer = false}) async {
+  Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
       await baseOperation.runComplexOperation<void>(
-        (final Transaction txn) async {
+        (Transaction txn) async {
           final int count = await txn.delete(
             _tableName,
           );
           Log.info(
               'Berhasil menghapus semua data paket. Total terhapus: $count');
         },
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
     } catch (e, s) {
       Log.error('Gagal menghapus semua data paket', e: e, st: s);
@@ -243,7 +238,7 @@ class PackageOperation {
   }
 
   /// Mengambil semua paket yang telah diubah sejak [since].
-  Future<List<PackageModel>> getChangesSince(final DateTime since) async {
+  Future<List<PackageModel>> ambilPerubahanSejak(DateTime since) async {
     Log.info(
         'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
     try {
@@ -255,7 +250,7 @@ class PackageOperation {
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');
       return List.generate(
-          maps.length, (final i) => PackageModel.fromSqlite(maps[i]));
+          maps.length, (i) => PackageModel.fromSqlite(maps[i]));
     } catch (e, s) {
       Log.error('Gagal mengambil perubahan paket', e: e, st: s);
       rethrow;
@@ -263,9 +258,9 @@ class PackageOperation {
   }
 
   /// Menyisipkan atau memperbarui sekumpulan [PackageModel] dalam satu batch.
-  Future<void> insertOrUpdateBatch(
-    final List<PackageModel> items, {
-    final bool fromServer = false,
+  Future<void> sisipkanAtauPerbaruiBatch(
+    List<PackageModel> items, {
+    bool dariServer = false,
   }) async {
     Log.info('Memulai insertOrUpdateBatch untuk ${items.length} item paket');
     if (items.isEmpty) {
@@ -275,13 +270,13 @@ class PackageOperation {
     try {
       final dataList = items
           .map(
-            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
+            (item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
       await baseOperation.insertOrUpdateBatch(
         _tableName,
         dataList,
-        fromServer: fromServer,
+        fromServer: dariServer,
       );
       Log.info('Berhasil insertOrUpdateBatch untuk ${items.length} item');
     } catch (e, s) {
@@ -291,7 +286,8 @@ class PackageOperation {
   }
 
   /// Mengambil beberapa [PackageModel] berdasarkan daftar [ids].
-  Future<List<PackageModel>> getByIds(final List<String> ids) async {
+  Future<List<PackageModel>> ambilBerdasarkanBeberapaId(
+      List<String> ids) async {
     Log.info('Memulai pengambilan paket berdasarkan list ID: $ids');
     try {
       if (ids.isEmpty) {
@@ -306,7 +302,7 @@ class PackageOperation {
         whereArgs: ids,
       );
       Log.info('Berhasil mengambil ${maps.length} paket dari ${ids.length} ID');
-      return List.generate(maps.length, (final i) {
+      return List.generate(maps.length, (i) {
         return PackageModel.fromSqlite(maps[i]);
       });
     } catch (e, s) {

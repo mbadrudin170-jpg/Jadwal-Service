@@ -33,7 +33,7 @@ class FeedbackOperation {
       await baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil membuat kritik_saran dengan ID: ${feedback.id}');
     } on Exception catch (e, st) {

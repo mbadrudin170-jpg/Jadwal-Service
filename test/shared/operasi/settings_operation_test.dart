@@ -81,7 +81,7 @@ void main() {
 
       // Saat insert, mock harus mengembalikan ID string yang kita harapkan
       when(mockBaseOperation.insert(any, any,
-              fromServer: anyNamed('fromServer')))
+              dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
@@ -117,7 +117,7 @@ void main() {
 
       // Mengembalikan ID yang benar (string)
       when(mockBaseOperation.insert(any, any,
-              fromServer: anyNamed('fromServer')))
+              dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
@@ -140,7 +140,7 @@ void main() {
       // Atur
       final settings = model.SettingsModel();
       when(mockBaseOperation.insert(any, any,
-              fromServer: anyNamed('fromServer')))
+              dariServer: anyNamed('fromServer')))
           .thenAnswer((_) async => globalSettingsId);
 
       // Lakukan
@@ -150,7 +150,7 @@ void main() {
       verify(mockBaseOperation.insert(
         tableName,
         any,
-        fromServer: true,
+        dariServer: true,
       )).called(1);
     });
   });

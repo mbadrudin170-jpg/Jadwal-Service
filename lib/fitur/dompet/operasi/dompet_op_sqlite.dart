@@ -31,7 +31,7 @@ class DompetOpSqlite {
       await _baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil membuat wallet dengan ID: ${wallet.id}');
     } on Exception catch (e, st) {

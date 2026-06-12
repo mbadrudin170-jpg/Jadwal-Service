@@ -24,7 +24,7 @@ class CategoryOperation {
   CategoryOperation({
     required this.dbHelper,
     required final BaseOperation baseOperation,
-  })  : _baseOperation = baseOperation {
+  }) : _baseOperation = baseOperation {
     Log.info('CategoryOperation instance dibuat.');
   }
 
@@ -41,7 +41,7 @@ class CategoryOperation {
       await _baseOperation.insert(
         _tableName,
         data,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil membuat category baru dengan ID: ${newCategory.id}');
       return newCategory;

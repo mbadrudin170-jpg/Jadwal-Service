@@ -173,7 +173,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
   _i3.Future<void> insert(
     String? table,
     Map<String, dynamic>? data, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -182,7 +182,7 @@ class MockBaseOperation extends _i1.Mock implements _i5.BaseOperation {
             table,
             data,
           ],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i3.Future<void>.value(),
         returnValueForMissingStub: _i3.Future<void>.value(),
