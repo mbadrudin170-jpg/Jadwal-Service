@@ -23,7 +23,7 @@ class DetailEventA extends ConsumerWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<void>(
                     builder: (context) => const ManageAnnouncementPage()),
               );
             },

@@ -7,8 +7,8 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/admin/providers/transaction_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/enum/enum.dart';
-import 'package:wifi/shared/model/model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 import 'transaction_provider_test.mocks.dart';

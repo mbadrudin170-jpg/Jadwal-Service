@@ -105,7 +105,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                                 builder: (_) => const CustomerPage())),
                         title: 'Total Pelanggan',
                         value: data.totalPelanggan.toString(),
@@ -115,7 +115,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                                 builder: (_) => const ActiveCustomerPage())),
                         title: 'Langganan Aktif',
                         value: data.jumlahLanggananAktif.toString(),
@@ -125,7 +125,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                       _buildStatCardWrapper(
                         onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                                 builder: (_) => const TransactionPageA())),
                         title: 'Pendapatan Bulan Ini',
                         value: CurrencyFormat.formatCurrency(

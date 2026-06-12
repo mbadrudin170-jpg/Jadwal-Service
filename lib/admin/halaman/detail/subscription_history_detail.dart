@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/customer_detail.dart';
 import 'package:wifi/admin/halaman/detail/package_detail.dart';
 import 'package:wifi/admin/halaman/form/subscription_history_form.dart';
-import 'package:wifi/admin/providers/subscription_detail_provider.dart';
+import 'package:wifi/admin/providers/detail_langganan_provider.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -18,7 +18,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch data gabungan langsung dari provider
-    final detailAsync = ref.watch(getSubscriptionDetailProvider(transactionId));
+    final detailAsync = ref.watch(ambilDetailLanggananProvider(transactionId));
 
     return detailAsync.when(
       loading: () =>
@@ -34,7 +34,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
         final customer = data.customer;
         final package = data.package;
         final paymentStatusColor =
-            transaction.paymentStatus == PaymentStatus.paid
+            transaction?.paymentStatus == PaymentStatus.paid
                 ? Colors.green
                 : Colors.red;
 
@@ -49,7 +49,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          SubscriptionHistoryForm(transaction: transaction),
+                          SubscriptionHistoryForm(transaction: transaction!),
                     ),
                   );
                 },
@@ -58,7 +58,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
           ),
           body: RefreshIndicator(
             onRefresh: () async =>
-                ref.invalidate(getSubscriptionDetailProvider(transactionId)),
+                ref.invalidate(ambilDetailLanggananProvider(transactionId)),
             child: ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
@@ -69,7 +69,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                       ? null
                       : () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                               builder: (context) =>
                                   CustomerDetailPage(customerId: customer.id),
                             ),
@@ -88,7 +88,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                       ? null
                       : () => Navigator.push(
                             context,
-                            MaterialPageRoute(
+                            MaterialPageRoute<void>(
                               builder: (context) =>
                                   PackageDetailPage(package: package),
                             ),
@@ -105,7 +105,7 @@ class SubscriptionHistoryDetailPage extends ConsumerWidget {
                 ),
                 gapH16,
                 // CARD 3: POIN TRANSAKSI
-                if (transaction.earnedPoints > 0 ||
+                if (transaction!.earnedPoints > 0 ||
                     transaction.usedPoints > 0) ...[
                   _buildCard(
                     title: 'Informasi Poin',

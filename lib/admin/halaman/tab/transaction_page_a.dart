@@ -178,11 +178,15 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
   if ((confirmed ?? false) && context.mounted) {
     try {
       await ref.read(transactionProvider.notifier).softDeleteAll();
-      
-      ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
+
+      if (context.mounted) {
+        ToastUtil.success(context, 'Semua transaksi berhasil dihapus.');
+      }
     } on Exception catch (e, s) {
       Log.error('Gagal menghapus semua transaksi.', e: e, st: s);
-      ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
+      if (context.mounted) {
+        ToastUtil.error(context, 'Gagal menghapus transaksi: $e');
+      }
     }
   }
 }

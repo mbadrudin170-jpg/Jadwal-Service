@@ -1,14 +1,12 @@
 // path: lib/admin/halaman/lainnya/settings_page_a.dart
-// REFAKTOR: Mengubah StatefulWidget menjadi ConsumerWidget, menggunakan FutureProvider
-// untuk data asinkron, dan mengakses semua dependensi (ThemeProvider, SyncManager) melalui Riverpod.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/form/settings_form.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/settings_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
@@ -67,12 +65,15 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if ((confirm ?? false) && context.mounted) {
       try {
-        // Mengakses SyncManager melalui provider
         await ref.read(syncManagerProvider).resetSyncTime();
-        ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
+        if (context.mounted) {
+          ToastUtil.success(context, 'Waktu sinkronisasi berhasil di-reset.');
+        }
       } on Exception catch (e, st) {
         Log.error('Gagal mereset waktu sinkronisasi', e: e, st: st);
-        ToastUtil.error(context, 'Gagal mereset waktu sinkronisasi: $e');
+        if (context.mounted) {
+          ToastUtil.error(context, 'Gagal mereset waktu sinkronisasi: $e');
+        }
       }
     }
   }
@@ -102,7 +103,7 @@ class SettingsAdminPage extends ConsumerWidget {
                         ikon: Icons.sync,
                         context: context,
                       ),
-  gapH12,
+                      gapH12,
                       _buildInfoCard(
                         judul: 'Hapus Arsip Otomatis',
                         nilai: '${settings.autoDeleteArchiveDays} Hari',
@@ -123,8 +124,8 @@ class SettingsAdminPage extends ConsumerWidget {
                           trailing: ThemeMenuWidget(
                             currentThemeMode:
                                 currentThemeMode.value ?? ThemeMode.system,
-                            onThemeSelected: (theme) {
-                              ref
+                            onThemeSelected: (theme) async {
+                              await ref
                                   .read(themeProvider.notifier)
                                   .setThemeMode(theme);
                             },
@@ -177,7 +178,7 @@ class SettingsAdminPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-              gapH16,
+                      gapH16,
                       ElevatedButton.icon(
                         icon: const Icon(Icons.sync_problem),
                         label: const Text('Reset Waktu Sinkronisasi'),
@@ -190,7 +191,8 @@ class SettingsAdminPage extends ConsumerWidget {
                     ],
                   ),
                 ),
-gapH16,                ElevatedButton.icon(
+                gapH16,
+                ElevatedButton.icon(
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit Pengaturan'),
                   onPressed: () => _editSettings(context, ref, settings),

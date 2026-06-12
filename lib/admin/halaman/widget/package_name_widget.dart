@@ -1,13 +1,10 @@
 // path: lib/admin/halaman/widget/package_name_widget.dart
-// diubah: Refactor ke Bahasa Inggris (class, method, variabel) dengan komentar Bahasa Indonesia.
-// diubah: Memperbaiki import path yang salah.
-// diubah: Mengganti nama file dari nama_paket.dart menjadi package_name_widget.dart.
 
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 class PackageNameWidget extends ConsumerWidget {
   /// ID dari paket yang akan ditampilkan namanya.

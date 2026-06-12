@@ -41,13 +41,9 @@ class EventOpSupabase {
     Log.info('EventOpSupabase: Membuka stream realtime untuk $_tableName');
 
     // Gunakan yield* untuk mengalirkan data tanpa mengunci thread utama
-    yield* _supabase
-        .from(_tableName)
-        .stream(primaryKey: [ColumnNames.id]).handleError((error, stackTrace) {
-      Log.error(
-        '❌ Error di dalam stream: $error',
-        e: error,
-      );
+    yield* _supabase.from(_tableName).stream(
+        primaryKey: [ColumnNames.id]).handleError((Object e, StackTrace s) {
+      Log.error('❌ Error di dalam stream: $e', e: e, st: s);
     }).map((List<Map<String, dynamic>> response) {
       Log.info(
           '⚡ Realtime: Menerima ${response.length} data pengumuman terbaru');

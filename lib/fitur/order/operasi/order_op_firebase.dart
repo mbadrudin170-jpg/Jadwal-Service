@@ -54,13 +54,13 @@ class OrderOpFirebase extends BaseOpFirebase {
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
             .toList())
-        .handleError((e, StackTrace st) {
+        .handleError((Object e, StackTrace st) {
       Log.error(
         'Error mendapatkan stream pesanan',
         e: e,
         st: st,
       );
-      return [];
+      return <OrderModel>[];
     });
   }
 
@@ -118,14 +118,14 @@ class OrderOpFirebase extends BaseOpFirebase {
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
             .toList())
-        .handleError((e, StackTrace st) {
+        .handleError((Object e, StackTrace st) {
       Log.error(
         'Error mendapatkan stream pesanan berdasarkan status',
         e: e,
         st: st,
         data: {'status': status.name},
       );
-      return [];
+      return <OrderModel>[];
     });
   }
 

@@ -58,7 +58,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
       );
 
       return value;
-    }).catchError((e, StackTrace s) {
+    }).catchError((Object e, StackTrace s) {
       Log.error(
         'Terjadi kesalahan saat mengambil data kritik dan saran.',
         e: e,

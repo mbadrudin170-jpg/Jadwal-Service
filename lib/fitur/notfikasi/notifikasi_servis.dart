@@ -194,12 +194,12 @@ class NotifikasiServis {
 
   void pantauNotifUmum(NotifikasiOpFirebase notifikasiOp) {
     Log.info('Memulai pemantauan notifikasi umum dari Firebase...');
-    _langgananNotifikasiFirebase?.cancel();
+    unawaited(_langgananNotifikasiFirebase?.cancel());
     _langgananNotifikasiFirebase =
-        notifikasiOp.getKhususAdmin().listen((listNotifikasi) {
+        notifikasiOp.getKhususAdmin().listen((listNotifikasi) async {
       for (final notifikasi in listNotifikasi) {
         if (!_idNotifikasiTampil.contains(notifikasi.id)) {
-          tampilkanNotifikasiLangsung(
+          await tampilkanNotifikasiLangsung(
             title: notifikasi.title,
             body: notifikasi.description,
             payload: 'notifikasi_id_${notifikasi.id}',
@@ -207,7 +207,7 @@ class NotifikasiServis {
           _idNotifikasiTampil.add(notifikasi.id);
         }
       }
-    }, onError: (e, StackTrace st) {
+    }, onError: (Object e, StackTrace st) {
       Log.error('Error pada stream notifikasi umum', e: e, st: st);
     });
   }
@@ -215,10 +215,10 @@ class NotifikasiServis {
   void pantauNotifUser(NotifikasiOpFirebase notifikasiOp, String userId) {
     Log.info('Memulai pemantauan notifikasi dari Firebase...');
 
-    _langgananNotifikasiFirebase?.cancel();
+    unawaited(_langgananNotifikasiFirebase?.cancel());
 
     _langgananNotifikasiFirebase = notifikasiOp.getByUserId(userId).listen(
-      (listNotifikasi) {
+      (listNotifikasi) async {
         Log.info(
             'Menerima ${listNotifikasi.length} notifikasi aktif dari stream.');
         for (final notifikasi in listNotifikasi) {
@@ -226,7 +226,7 @@ class NotifikasiServis {
           if (!_idNotifikasiTampil.contains(notifikasi.id)) {
             Log.info(
                 'Menampilkan notifikasi baru: ${notifikasi.id} - ${notifikasi.title}');
-            tampilkanNotifikasiLangsung(
+            await tampilkanNotifikasiLangsung(
               title: notifikasi.title,
               body: notifikasi.description,
               payload: 'notifikasi_id_${notifikasi.id}',
@@ -236,7 +236,7 @@ class NotifikasiServis {
           }
         }
       },
-      onError: (e, StackTrace st) {
+      onError: (Object e, StackTrace st) {
         Log.error(
           'Error pada stream notifikasi Firebase',
           e: e,
@@ -251,7 +251,7 @@ class NotifikasiServis {
 
   void hentikanPemantauanNotifikasi() {
     Log.info('Menghentikan pemantauan notifikasi dari Firebase.');
-    _langgananNotifikasiFirebase?.cancel();
+    unawaited(_langgananNotifikasiFirebase?.cancel());
     _idNotifikasiTampil.clear();
   }
 

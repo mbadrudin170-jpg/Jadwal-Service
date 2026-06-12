@@ -147,7 +147,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         _kategoriPengeluaranList = kategoriPengeluaranList;
 
         if (_modeEdit) {
-          _mapEditData(transaksiTerkait);
+          unawaited(_mapEditData(transaksiTerkait));
         } else {
           _mapNewData();
         }
@@ -164,7 +164,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     }
   }
 
-  void _mapEditData(TransactionModel? transaksi) {
+  Future<void> _mapEditData(TransactionModel? transaksi) async {
     final transaksiOperasi = ref.read(transactionOperationProvider);
     final pa = widget.pelangganAktif!;
     Log.info('Memetakan data edit untuk PelangganAktif ID: ${pa.id}');
@@ -203,7 +203,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     _statusPembayaran = pa.status;
 
     if (_pelangganDipilih != null) {
-      transaksiOperasi.getTotalPoints(_pelangganDipilih!.id).then((poin) {
+      await transaksiOperasi.getTotalPoints(_pelangganDipilih!.id).then((poin) {
         if (mounted) {
           setState(() => _saldoPoinPelanggan = poin);
         }

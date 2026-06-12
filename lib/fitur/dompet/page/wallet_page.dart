@@ -145,12 +145,12 @@ class WalletPage extends ConsumerWidget {
               child: const Text('Hapus'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                ref.read(walletProvider.notifier).softDeleteAll().then((_) {
+                unawaited(ref.read(walletProvider.notifier).softDeleteAll().then((_) {
                   ToastUtil.success(context, 'Semua dompet berhasil dihapus.');
-                }).catchError((e, StackTrace s) {
+                }).catchError((Object e, StackTrace s) {
                   Log.error('Gagal menghapus semua dompet.', e: e, st: s);
                   ToastUtil.error(context, 'Gagal menghapus dompet: $e');
-                });
+                }));
               },
             ),
           ],
@@ -177,7 +177,7 @@ class WalletPage extends ConsumerWidget {
               child: const Text('Arsipkan'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                ref
+                unawaited(ref
                     .read(walletProvider.notifier)
                     .softDelete(wallet.id)
                     .then((_) {
@@ -185,7 +185,7 @@ class WalletPage extends ConsumerWidget {
                 }).catchError((Object e, StackTrace st) {
                   Log.error('Gagal mengarsipkan dompet.', e: e, st: st);
                   ToastUtil.error(context, 'Gagal mengarsipkan: $e');
-                });
+                }));
               },
             ),
           ],

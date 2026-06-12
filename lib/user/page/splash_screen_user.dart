@@ -82,8 +82,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
             Log.info('menuju ke halaman event');
             // Tampilkan halaman event di atas splash screen dan tunggu sampai selesai.
             await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (final context) => EventPageU(event: eventInfo),
+              MaterialPageRoute<void>(
+                builder: (context) => EventPageU(event: eventInfo),
               ),
             );
           }

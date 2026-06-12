@@ -105,7 +105,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       await _updateService.downloadAndInstallApk(
         url: downloadUrl,
         fileName: fileName,
-        onProgress: ( progress) {
+        onProgress: (progress) {
           setState(() {
             _downloadProgress = progress;
           });
@@ -163,7 +163,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       ));
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
+        MaterialPageRoute<void>(
           builder: ((context) => const LoginPage()),
         ),
       );

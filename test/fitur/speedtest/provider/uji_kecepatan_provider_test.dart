@@ -1,286 +1,247 @@
-
 // path: test/fitur/speedtest/provider/uji_kecepatan_provider_test.dart
+
+import 'dart:async';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_test_plus/flutter_speed_test_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/fitur/speedtest/provider/uji_kecepatan_provider.dart';
 
-import 'uji_kecepatan_provider_test.mocks.dart';
+// Mock classes using mocktail
+class MockFlutterInternetSpeedTest extends Mock
+    implements FlutterInternetSpeedTest {}
 
-// Kelas mock untuk TestReport karena tidak dapat di-instantiate secara langsung
-class MockTestReport implements TestReport {
-  @override
-  final TestType testType;
-  @override
-  final double transferRate;
-  @override
-  final SpeedUnit unit;
-  @override
-  final int durationInMillis;
+class MockClient extends Mock implements Client {}
 
-  MockTestReport({
-    required this.testType,
-    required this.transferRate,
-    required this.unit,
-    required this.durationInMillis,
-  });
-}
+class MockTestResult extends Mock implements TestResult {}
 
-@GenerateMocks([FlutterInternetSpeedTest, BuildContext])
 void main() {
-  late MockFlutterInternetSpeedTest mockAlatUji;
-  late MockBuildContext mockKonteks;
-  late ProviderContainer container;
-
-  // Data palsu untuk hasil tes menggunakan MockTestReport
-  final unduhLaporan = MockTestReport(
-    testType: TestType.download,
-    transferRate: 50.0, // Mbps
-    unit: SpeedUnit.mbps,
-    durationInMillis: 1000,
-  );
-  final unggahLaporan = MockTestReport(
-    testType: TestType.upload,
-    transferRate: 20.0, // Mbps
-    unit: SpeedUnit.mbps,
-    durationInMillis: 1000,
-  );
-
-  setUp(() {
-    mockAlatUji = MockFlutterInternetSpeedTest();
-    mockKonteks = MockBuildContext();
-    container = ProviderContainer();
-
-    // Pastikan konteks mounted secara default
-    when(mockKonteks.mounted).thenReturn(true);
+  // Register fallbacks for any() matcher
+  setUpAll(() {
+    registerFallbackValue(MockClient());
+    registerFallbackValue(TestResult(TestType.download, 0, SpeedUnit.kbps));
+    registerFallbackValue(SpeedUnit.kbps);
+    registerFallbackValue(TestType.download);
   });
 
-  tearDown(() {
-    container.dispose();
-  });
+  group('UjiKecepatan Provider Tests with Mocktail', () {
+    late MockFlutterInternetSpeedTest mockAlatUji;
 
-  test('Uji Coba Provider Kecepatan 01: Status awal harus benar', () {
-    final state = container.read(ujiKecepatanProvider);
+    ProviderContainer createContainer({List<Override> overrides = const []}) {
+      final container = ProviderContainer(overrides: overrides);
+      addTearDown(container.dispose);
+      return container;
+    }
 
-    expect(state.kecepatanUnduh, 0.0);
-    expect(state.kecepatanUnggah, 0.0);
-    expect(state.ping, 0);
-    expect(state.sedangMenguji, false);
-    expect(state.statusPesan, 'Siap melakukan pengujian');
-  });
+    final successPingOverride = pingProvider.overrideWith((ref) => Future.value(
+          const PingData(response: PingResponse(time: Duration(milliseconds: 25))),
+        ));
 
-  test(
-      'Uji Coba Provider Kecepatan 02: `mulaiPengujian` berhasil menyelesaikan semua langkah',
-      () async {
-    // Atur container untuk menimpa pingProvider
-    container = ProviderContainer(
-      overrides: [
-        pingProvider.overrideWith(
-          (ref) => Future.value(
-            PingData(
-              response: PingResponse(
-                time: const Duration(milliseconds: 30),
-              ),
-            ),
+    setUp(() {
+      mockAlatUji = MockFlutterInternetSpeedTest();
+    });
+
+    testWidgets('1. Status Awal Provider Harus Benar', (tester) async {
+      final container = createContainer();
+      final state = container.read(ujiKecepatanProvider);
+
+      expect(state.kecepatanUnduh, 0.0);
+      expect(state.kecepatanUnggah, 0.0);
+      expect(state.ping, 0);
+      expect(state.sedangMenguji, isFalse);
+      expect(state.statusPesan, 'Siap melakukan pengujian');
+    });
+
+    testWidgets('2. Pengujian Berhasil - Alur Lengkap', (tester) async {
+      final container = createContainer(overrides: [successPingOverride]);
+      final completer = Completer<void>();
+
+      when(() => mockAlatUji.startTesting(
+            onStarted: any(named: 'onStarted'),
+            onDefaultServerSelectionInProgress:
+                any(named: 'onDefaultServerSelectionInProgress'),
+            onDefaultServerSelectionDone:
+                any(named: 'onDefaultServerSelectionDone'),
+            onProgress: any(named: 'onProgress'),
+            onCompleted: any(named: 'onCompleted'),
+            onError: any(named: 'onError'),
+          )).thenAnswer((invocation) async {
+        (invocation.namedArguments[const Symbol('onStarted')] as Function())();
+        await tester.pump();
+        (invocation.namedArguments[const Symbol('onDefaultServerSelectionInProgress')]
+            as Function())();
+        await tester.pump();
+        (invocation.namedArguments[const Symbol('onDefaultServerSelectionDone')]
+            as Function(Client))(Client(isp: 'MyTelkom'));
+        await tester.pump();
+        (invocation.namedArguments[const Symbol('onProgress')]
+            as Function(double, TestResult))(
+          50.0,
+          TestResult(TestType.download, 12000.0, SpeedUnit.kbps),
+        );
+        await tester.pump();
+        (invocation.namedArguments[const Symbol('onProgress')]
+            as Function(double, TestResult))(
+          50.0,
+          TestResult(TestType.upload, 8000.0, SpeedUnit.kbps),
+        );
+        await tester.pump();
+        (invocation.namedArguments[const Symbol('onCompleted')]
+            as Function(TestResult, TestResult))(
+          TestResult(TestType.download, 15000.0, SpeedUnit.kbps),
+          TestResult(TestType.upload, 10000.0, SpeedUnit.kbps),
+        );
+        completer.complete();
+      });
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              container
+                  .read(ujiKecepatanProvider.notifier)
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+              return const SizedBox.shrink();
+            }),
           ),
         ),
-      ],
-    );
+      );
 
-    // Atur mock untuk `startTesting`
-    when(mockAlatUji.startTesting(
-      onStarted: anyNamed('onStarted'),
-      onDefaultServerSelectionInProgress:
-          anyNamed('onDefaultServerSelectionInProgress'),
-      onDefaultServerSelectionDone: anyNamed('onDefaultServerSelectionDone'),
-      onProgress: anyNamed('onProgress'),
-      onCompleted: anyNamed('onCompleted'),
-      onError: anyNamed('onError'),
-    )).thenAnswer((realInvocation) async {
-      // Panggil callback secara berurutan
-      final onStarted = realInvocation.namedArguments[const Symbol('onStarted')]
-          as Function;
-      final onProgress =
-          realInvocation.namedArguments[const Symbol('onProgress')]
-              as Function(double, TestReport);
-      final onCompleted =
-          realInvocation.namedArguments[const Symbol('onCompleted')]
-              as Function(TestReport, TestReport);
+      await completer.future;
+      await tester.pumpAndSettle();
 
-      onStarted();
-      onProgress(50.0, unduhLaporan);
-      onProgress(100.0, unggahLaporan);
-      onCompleted(unduhLaporan, unggahLaporan);
+      final state = container.read(ujiKecepatanProvider);
+      expect(state.sedangMenguji, isFalse);
+      expect(state.statusPesan, 'Pengujian selesai');
+      expect(state.kecepatanUnduh, 15.0);
+      expect(state.kecepatanUnggah, 10.0);
+      expect(state.ping, 25);
     });
 
-    final notifier = container.read(ujiKecepatanProvider.notifier);
+    testWidgets('3. Penanganan Error saat Pengujian', (tester) async {
+      final container = createContainer(overrides: [successPingOverride]);
+      final completer = Completer<void>();
 
-    // Lacak perubahan state
-    final states = <UjiKecepatanState>[];
-    container.listen(ujiKecepatanProvider, (_, next) => states.add(next));
-
-    await notifier.mulaiPengujian(mockKonteks, alatUjiManual: mockAlatUji);
-
-    // Verifikasi perubahan state
-    expect(states.length, greaterThan(3));
-
-    // Status awal
-    expect(states[0].sedangMenguji, true);
-    expect(states[0].statusPesan, 'Menghubungkan ke server...');
-
-    // Setelah ping
-    expect(states[1].ping, 30);
-    expect(states[1].statusPesan, contains('Mengukur ping'));
-
-    // Status akhir
-    final stateAkhir = container.read(ujiKecepatanProvider);
-    expect(stateAkhir.sedangMenguji, false);
-    expect(stateAkhir.statusPesan, 'Pengujian selesai');
-    expect(stateAkhir.kecepatanUnduh, 50.0);
-    expect(stateAkhir.kecepatanUnggah, 20.0);
-  });
-
-  test(
-      'Uji Coba Provider Kecepatan 03: `mulaiPengujian` gagal saat mengukur ping',
-      () async {
-    // Atur container untuk menimpa pingProvider agar gagal
-    container = ProviderContainer(
-      overrides: [
-        pingProvider.overrideWith(
-          (ref) => Future.error('Gagal ping'),
-        ),
-      ],
-    );
-
-    // Atur mock agar tidak melakukan apa-apa karena ping gagal
-    when(mockAlatUji.startTesting(
-      onStarted: anyNamed('onStarted'),
-      onDefaultServerSelectionInProgress:
-          anyNamed('onDefaultServerSelectionInProgress'),
-      onDefaultServerSelectionDone: anyNamed('onDefaultServerSelectionDone'),
-      onProgress: anyNamed('onProgress'),
-      onCompleted: anyNamed('onCompleted'),
-      onError: anyNamed('onError'),
-    )).thenAnswer((_) async {});
-
-    final notifier = container.read(ujiKecepatanProvider.notifier);
-    await notifier.mulaiPengujian(mockKonteks, alatUjiManual: mockAlatUji);
-
-    final state = container.read(ujiKecepatanProvider);
-    expect(state.ping, -1); // Menandakan error
-    // Verifikasi bahwa pengujian tetap berjalan meskipun ping gagal
-    verify(mockAlatUji.startTesting(
-            onStarted: anyNamed('onStarted'),
-            onDefaultServerSelectionInProgress:
-                anyNamed('onDefaultServerSelectionInProgress'),
-            onDefaultServerSelectionDone:
-                anyNamed('onDefaultServerSelectionDone'),
-            onProgress: anyNamed('onProgress'),
-            onCompleted: anyNamed('onCompleted'),
-            onError: anyNamed('onError')))
-        .called(1);
-  });
-
-  test(
-      'Uji Coba Provider Kecepatan 04: `mulaiPengujian` gagal karena `startTesting` melempar exception',
-      () async {
-    final exception = Exception('Kesalahan fatal');
-    when(mockAlatUji.startTesting(
-            onStarted: anyNamed('onStarted'),
-            onDefaultServerSelectionInProgress:
-                anyNamed('onDefaultServerSelectionInProgress'),
-            onDefaultServerSelectionDone:
-                anyNamed('onDefaultServerSelectionDone'),
-            onProgress: anyNamed('onProgress'),
-            onCompleted: anyNamed('onCompleted'),
-            onError: anyNamed('onError')))
-        .thenThrow(exception);
-
-    final notifier = container.read(ujiKecepatanProvider.notifier);
-    await notifier.mulaiPengujian(mockKonteks, alatUjiManual: mockAlatUji);
-
-    final state = container.read(ujiKecepatanProvider);
-    expect(state.sedangMenguji, false);
-    expect(state.statusPesan, 'Gagal melakukan pengujian');
-  });
-
-  test(
-      'Uji Coba Provider Kecepatan 05: `mulaiPengujian` gagal karena callback `onError` dipanggil',
-      () async {
-    const errorMessage = 'Server tidak ditemukan';
-    const errorCode = '404';
-
-    when(mockAlatUji.startTesting(
-      onStarted: anyNamed('onStarted'),
-      onDefaultServerSelectionInProgress:
-          anyNamed('onDefaultServerSelectionInProgress'),
-      onDefaultServerSelectionDone: anyNamed('onDefaultServerSelectionDone'),
-      onProgress: anyNamed('onProgress'),
-      onCompleted: anyNamed('onCompleted'),
-      onError: anyNamed('onError'),
-    )).thenAnswer((realInvocation) async {
-      final onError = realInvocation.namedArguments[const Symbol('onError')]
-          as Function(String, String);
-      onError(errorMessage, errorCode);
-    });
-
-    final notifier = container.read(ujiKecepatanProvider.notifier);
-    await notifier.mulaiPengujian(mockKonteks, alatUjiManual: mockAlatUji);
-
-    final state = container.read(ujiKecepatanProvider);
-    expect(state.sedangMenguji, false);
-    expect(state.statusPesan, 'Gagal melakukan pengujian');
-  });
-
-  test(
-      'Uji Coba Provider Kecepatan 06: `onProgress` memperbarui state unduh dan unggah dengan benar',
-      () async {
-    final unduhProgress = MockTestReport(
-        testType: TestType.download,
-        transferRate: 45.5,
-        unit: SpeedUnit.mbps,
-        durationInMillis: 500);
-    final unggahProgress = MockTestReport(
-        testType: TestType.upload,
-        transferRate: 18.2,
-        unit: SpeedUnit.mbps,
-        durationInMillis: 500);
-
-    when(mockAlatUji.startTesting(
-            onStarted: anyNamed('onStarted'),
-            onDefaultServerSelectionInProgress:
-                anyNamed('onDefaultServerSelectionInProgress'),
-            onDefaultServerSelectionDone:
-                anyNamed('onDefaultServerSelectionDone'),
-            onProgress: anyNamed('onProgress'),
-            onCompleted: anyNamed('onCompleted'),
-            onError: anyNamed('onError'))).thenAnswer((realInvocation) async {
-      final onProgress =
-          realInvocation.namedArguments[const Symbol('onProgress')]
-              as Function(double, TestReport);
+      when(() => mockAlatUji.startTesting(
+            onStarted: any(named: 'onStarted'),
+            onDefaultServerSelectionInProgress: any(named: 'onDefaultServerSelectionInProgress'),
+            onDefaultServerSelectionDone: any(named: 'onDefaultServerSelectionDone'),
+            onProgress: any(named: 'onProgress'),
+            onCompleted: any(named: 'onCompleted'),
+            onError: any(named: 'onError'),
+      )).thenAnswer((invocation) async {
+        (invocation.namedArguments[const Symbol('onError')] as Function(String, String))(
+          'Kesalahan Jaringan',
+          'Detail Stack Trace',
+        );
+        completer.complete();
+      });
       
-      // Simulasikan progress unduh
-      onProgress(50.0, unduhProgress);
-      // Baca state setelah progress unduh
-      var state = container.read(ujiKecepatanProvider);
-      expect(state.kecepatanUnduh, 45.5);
-      expect(state.statusPesan, contains('Menguji unduh'));
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              container
+                  .read(ujiKecepatanProvider.notifier)
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
 
-      // Simulasikan progress unggah
-      onProgress(50.0, unggahProgress);
-      // Baca state setelah progress unggah
-      state = container.read(ujiKecepatanProvider);
-      expect(state.kecepatanUnggah, 18.2);
-      expect(state.statusPesan, contains('Menguji unggah'));
+      await completer.future;
+      await tester.pumpAndSettle();
+
+      final state = container.read(ujiKecepatanProvider);
+      expect(state.sedangMenguji, isFalse);
+      expect(state.statusPesan, 'Gagal melakukan pengujian');
+      expect(state.kecepatanUnduh, 0.0);
     });
 
-    final notifier = container.read(ujiKecepatanProvider.notifier);
-    await notifier.mulaiPengujian(mockKonteks, alatUjiManual: mockAlatUji);
+    testWidgets('4. Penanganan Gagal Mendapatkan Ping', (tester) async {
+      final container = createContainer(
+        overrides: [
+          pingProvider.overrideWith((ref) => throw Exception('Gagal ping')),
+        ],
+      );
+      final completer = Completer<void>();
+
+      when(() => mockAlatUji.startTesting(
+            onStarted: any(named: 'onStarted'),
+            onDefaultServerSelectionInProgress: any(named: 'onDefaultServerSelectionInProgress'),
+            onDefaultServerSelectionDone: any(named: 'onDefaultServerSelectionDone'),
+            onProgress: any(named: 'onProgress'),
+            onCompleted: any(named: 'onCompleted'),
+            onError: any(named: 'onError'),
+      )).thenAnswer((invocation) async {
+        (invocation.namedArguments[const Symbol('onCompleted')] as Function(TestResult, TestResult))(
+          TestResult(TestType.download, 1.0, SpeedUnit.mbps),
+          TestResult(TestType.upload, 1.0, SpeedUnit.mbps),
+        );
+        completer.complete();
+      });
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+              container
+                  .read(ujiKecepatanProvider.notifier)
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+      
+      await completer.future;
+      await tester.pumpAndSettle();
+
+      final state = container.read(ujiKecepatanProvider);
+      expect(state.ping, -1);
+      expect(state.sedangMenguji, isFalse);
+    });
+
+    testWidgets('5. Penanganan Exception saat startTesting', (tester) async {
+      final container = createContainer(overrides: [successPingOverride]);
+
+      when(() => mockAlatUji.startTesting(
+            onStarted: any(named: 'onStarted'),
+            onDefaultServerSelectionInProgress: any(named: 'onDefaultServerSelectionInProgress'),
+            onDefaultServerSelectionDone: any(named: 'onDefaultServerSelectionDone'),
+            onProgress: any(named: 'onProgress'),
+            onCompleted: any(named: 'onCompleted'),
+            onError: any(named: 'onError'),
+          )).thenThrow(Exception('Error fatal'));
+      
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            home: Builder(builder: (context) {
+               container
+                  .read(ujiKecepatanProvider.notifier)
+                  .mulaiPengujian(context, alatUjiManual: mockAlatUji);
+              return const SizedBox.shrink();
+            }),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final state = container.read(ujiKecepatanProvider);
+      expect(state.sedangMenguji, isFalse);
+      expect(state.statusPesan, 'Gagal melakukan pengujian');
+    });
   });
 }

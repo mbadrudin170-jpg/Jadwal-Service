@@ -1,5 +1,7 @@
 // path: lib/admin/halaman/lainnya/event_page_a.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/event/detail_event_a.dart';
@@ -123,11 +125,11 @@ class EventPageA extends ConsumerWidget {
                       ],
                     ),
                     onTap: () {
-                      Navigator.push(
+                      unawaited(Navigator.push(
                           context,
-                          MaterialPageRoute(
+                          MaterialPageRoute<void>(
                               builder: (context) =>
-                                  DetailEventA(event: announcement)));
+                                  DetailEventA(event: announcement))));
                     },
                   ),
                 );
@@ -140,7 +142,7 @@ class EventPageA extends ConsumerWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<void>(
                 builder: (context) => const ManageAnnouncementPage()),
           );
         },

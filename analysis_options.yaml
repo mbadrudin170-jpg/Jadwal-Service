@@ -25,7 +25,7 @@ linter:
     # ============================================================
     sort_child_properties_last: true         # Letakkan properti 'child'/'children' di akhir daftar parameter widget
     use_key_in_widget_constructors: true     # Wajibkan parameter 'Key?' di konstruktor widget publik untuk manajemen state
-    use_build_context_synchronously: false    # Cegah penggunaan BuildContext setelah operasi async (gap) untuk mencegah crash
+    use_build_context_synchronously: true    # Cegah penggunaan BuildContext setelah operasi async (gap) untuk mencegah crash
 
     # ============================================================
     # PENCEGAHAN 
@@ -35,7 +35,7 @@ linter:
     avoid_slow_async_io: true                # Hindari versi sinkron dari operasi dart:io, gunakan versi async agar tidak blocking UI
     no_literal_bool_comparisons: true        # Jangan bandingkan boolean dengan true/false secara literal (pakai if(x) saja)
     close_sinks: true                        # Tutup StreamController setelah selesai digunakan untuk mencegah memory leak
-    discarded_futures: false                  # Tangkap Future yang dibuang di fungsi sinkron, pelengkap unawaited_futures
+    discarded_futures: true                  # Tangkap Future yang dibuang di fungsi sinkron, pelengkap unawaited_futures
     depend_on_referenced_packages: true      # Wajibkan package yang di-import ada di pubspec.yaml, cegah ketergantungan hantu
     hash_and_equals: true                    # Wajibkan override hashCode jika override ==, cegah bug di HashSet/HashMap
     valid_regexps: true                      # Validasi sintaks RegExp saat kompilasi, bukan saat runtime
@@ -232,5 +232,5 @@ analyzer:
 
   language:
     strict-casts: true              # Casting harus eksplisit dan aman
-    strict-inference: false          # Tipe tidak boleh di-infer sebagai dynamic
+    strict-inference: true          # Tipe tidak boleh di-infer sebagai dynamic
     strict-raw-types: true          # Generik harus diberi parameter tipe (tidak boleh mentah)

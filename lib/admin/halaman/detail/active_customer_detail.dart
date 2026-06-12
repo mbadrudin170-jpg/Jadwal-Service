@@ -55,11 +55,11 @@ final activeCustomerDetailProvider = FutureProvider.family<
     customerOp.getById(activeCustomer.customerId),
     activeCustomer.packageId.isNotEmpty
         ? packageOp.getById(activeCustomer.packageId)
-        : Future.value(),
+        : Future<PackageModel?>.value(),
     (activeCustomer.transactionId != null &&
             activeCustomer.transactionId!.isNotEmpty)
         ? transactionOp.getTransactionById(activeCustomer.transactionId!)
-        : Future.value(),
+        : Future<TransactionModel?>.value(),
   ]);
 
   return (
@@ -102,12 +102,11 @@ class _ActiveCustomerDetailPageState
       }
     } on Exception catch (e, s) {
       Log.error('Gagal membuka WhatsApp', e: e, st: s);
-      if (context.mounted) {
-        ToastUtil.error(
-          context,
-          'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
-        );
-      }
+      if (!mounted) return;
+      ToastUtil.error(
+        context,
+        'Tidak dapat membuka WhatsApp. Pastikan sudah terinstal.',
+      );
     }
   }
 
@@ -322,9 +321,7 @@ class _ActiveCustomerDetailPageState
   }
 
   Widget _buildInfoRow(
-      BuildContext context,
-      final String label,
-      final String value) {
+      BuildContext context, final String label, final String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(

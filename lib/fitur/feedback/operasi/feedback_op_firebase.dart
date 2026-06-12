@@ -75,7 +75,7 @@ class FeedbackOpFirebase {
           doc.data() as Map<String, dynamic>,
         );
       }).toList();
-    }).handleError((e, StackTrace s) {
+    }).handleError((Object e, StackTrace s) {
       Log.error('Error pada stream feedback untuk: $userId', e: e, st: s);
     });
   }

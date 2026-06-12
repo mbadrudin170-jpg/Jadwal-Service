@@ -58,7 +58,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initAwal();
+      unawaited(_initAwal());
     });
 
     _langgananKoneksi = Connectivity().onConnectivityChanged.listen(

@@ -63,7 +63,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     Log.info('ActiveCustomerPage initState');
     _searchController.addListener(_onSearchChanged);

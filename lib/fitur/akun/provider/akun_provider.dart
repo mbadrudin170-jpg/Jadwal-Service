@@ -36,7 +36,6 @@ class PengelolaAkun extends _$PengelolaAkun {
 
     await penyimpanan.simpanAkunSaatIni(akun);
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
-    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akun,
       daftarAkunTersimpan: daftarAkun,
@@ -50,7 +49,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     await penyimpanan.hapusAkunSaatIni();
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
-    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
@@ -71,7 +69,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     final akunBaru = keadaanSaatIni.akunSaatIni?.id == idAkun
         ? null
         : keadaanSaatIni.akunSaatIni;
-    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunBaru,
       daftarAkunTersimpan: daftarBaru,
@@ -86,7 +83,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = keadaanSaatIni?.daftarAkunTersimpan ??
         await penyimpanan.ambilDaftarAkun();
-    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
@@ -98,7 +94,6 @@ class PengelolaAkun extends _$PengelolaAkun {
     final penyimpanan = await ref.read(localStorageServiceProvider.future);
     final akunSaatIni = await penyimpanan.ambilAkunLogin();
     final daftarAkun = await penyimpanan.ambilDaftarAkun();
-    if (!ref.mounted) return;
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,

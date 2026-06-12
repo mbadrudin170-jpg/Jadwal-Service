@@ -127,7 +127,7 @@ class CustomerOpFirebase {
         );
       }
       return null;
-    }).handleError((e, StackTrace s) {
+    }).handleError((Object e, StackTrace s) {
       Log.error('Error pada stream pelanggan untuk: $userId', e: e, st: s);
     });
   }
