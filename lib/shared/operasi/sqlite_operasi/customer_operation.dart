@@ -49,7 +49,7 @@ class CustomerOperation {
       await _baseOperation.insert(
         _namaTabel,
         data,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
 
       Log.info(
