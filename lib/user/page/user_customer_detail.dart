@@ -157,8 +157,8 @@ class _UserCustomerDetailPageState
 
           return Scaffold(
             body: CustomerDetailUI(
-              customer: data.customer,
-              totalPoints: data.totalPoints,
+              pelanggan: data.customer,
+              totalPoin: data.totalPoints,
               onEdit: () => _navigateToEdit(data.customer),
               onNavigateToPoints: () => _navigateToPoints(data.customer.id),
             ),

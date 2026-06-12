@@ -28,7 +28,7 @@ void main() {
     return ProviderScope(
       overrides: overrides,
       child: const MaterialApp(
-        home: DetailPelanggan(customerId: 'cust-123'),
+        home: DetailPelanggan(idPelanggan: 'cust-123'),
       ),
     );
   }

@@ -71,7 +71,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                             context,
                             MaterialPageRoute<void>(
                               builder: (context) =>
-                                  DetailPelanggan(customerId: customer.id),
+                                  DetailPelanggan(idPelanggan: customer.id),
                             ),
                           ),
                   children: [

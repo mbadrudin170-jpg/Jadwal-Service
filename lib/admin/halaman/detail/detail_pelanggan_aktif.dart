@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/detail/active_customer_detail.dart
+// path: lib/admin/halaman/detail/detail_pelanggan_aktif.dart
 
 import 'dart:async';
 
@@ -196,7 +196,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DetailPelanggan(
-                                    customerId: pelanggan.id,
+                                    idPelanggan: pelanggan.id,
                                   ),
                                 ),
                               ));

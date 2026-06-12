@@ -14,10 +14,10 @@ import 'package:wifi/shared/widget/card/point_card.dart';
 /// ke clipboard.
 class CustomerDetailUI extends StatefulWidget {
   /// Data pelanggan yang akan ditampilkan.
-  final PelangganModel customer;
+  final PelangganModel pelanggan;
 
   /// Total poin yang dimiliki pelanggan.
-  final int totalPoints;
+  final int totalPoin;
 
   /// Callback saat tombol edit ditekan.
   final VoidCallback? onEdit;
@@ -31,8 +31,8 @@ class CustomerDetailUI extends StatefulWidget {
   /// Membuat halaman [CustomerDetailUI].
   const CustomerDetailUI({
     super.key,
-    required this.customer,
-    required this.totalPoints,
+    required this.pelanggan,
+    required this.totalPoin,
     this.onEdit,
     this.onNavigateToPoints,
     this.onCopyAll,
@@ -60,7 +60,7 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun CustomerDetailUI untuk pelanggan: ${widget.customer.name}',
+      'Membangun CustomerDetailUI untuk pelanggan: ${widget.pelanggan.name}',
     );
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +96,7 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
   /// Membangun kartu yang menampilkan total poin pelanggan.
   Widget _buildPointCard() {
     return TotalPointCard(
-      points: widget.totalPoints,
+      points: widget.totalPoin,
       onTap: () {
         if (widget.onNavigateToPoints != null) {
           Log.info('Kartu Poin ditekan, navigasi ke halaman poin.');
@@ -110,20 +110,20 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
   Widget _buildCustomerInfoSection() {
     return Column(
       children: [
-        _buildDetailRow('Nama', widget.customer.name, () async {
-          await _copyData('Nama', widget.customer.name);
+        _buildDetailRow('Nama', widget.pelanggan.name, () async {
+          await _copyData('Nama', widget.pelanggan.name);
         }),
-        _buildDetailRow('Telepon', widget.customer.phone, () async {
-          await _copyData('No Telepon', widget.customer.phone);
+        _buildDetailRow('Telepon', widget.pelanggan.phone, () async {
+          await _copyData('No Telepon', widget.pelanggan.phone);
         }),
-        _buildDetailRow('Alamat', widget.customer.address, () async {
-          await _copyData('Alamat', widget.customer.address);
+        _buildDetailRow('Alamat', widget.pelanggan.address, () async {
+          await _copyData('Alamat', widget.pelanggan.address);
         }),
-        _buildDetailRow('Password', widget.customer.password, () async {
-          await _copyData('Password', widget.customer.password);
+        _buildDetailRow('Password', widget.pelanggan.password, () async {
+          await _copyData('Password', widget.pelanggan.password);
         }),
-        _buildDetailRow('MAC Address', widget.customer.macAddress, () async {
-          await _copyData('MAC Address', widget.customer.macAddress);
+        _buildDetailRow('MAC Address', widget.pelanggan.macAddress, () async {
+          await _copyData('MAC Address', widget.pelanggan.macAddress);
         }),
       ],
     );

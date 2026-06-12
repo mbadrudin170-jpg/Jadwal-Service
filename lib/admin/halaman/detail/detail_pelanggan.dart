@@ -15,9 +15,9 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
 
 class DetailPelanggan extends ConsumerWidget {
-  final String customerId;
+  final String idPelanggan;
 
-  const DetailPelanggan({super.key, required this.customerId});
+  const DetailPelanggan({super.key, required this.idPelanggan});
 
   Future<void> _editCustomer(
       BuildContext context, PelangganModel? customer) async {
@@ -49,16 +49,16 @@ MAC : ${customer.macAddress}
     }
   }
 
-  Future<void> _navigateToPoints(
-      BuildContext context, PelangganModel? customer) async {
-    if (customer == null) return;
-    Log.info('Navigasi ke halaman poin pelanggan: ${customer.name}');
+  Future<void> _navigasiKePoin(
+      BuildContext context, PelangganModel? pelanggan) async {
+    if (pelanggan == null) return;
+    Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.name}');
 
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
         builder: (context) => PoinPage(
-          customerId: customer.id,
+          customerId: pelanggan.id,
         ),
       ),
     );
@@ -66,14 +66,14 @@ MAC : ${customer.macAddress}
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(customerDetailProvider(customerId));
+    final detailAsync = ref.watch(customerDetailProvider(idPelanggan));
     return detailAsync.when(
       loading: () => Scaffold(
         appBar: AppBar(title: const Text('Memuat Detail...')),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (e, s) {
-        Log.error('Gagal mengambil data pelanggan ID: $customerId.',
+        Log.error('Gagal mengambil data pelanggan ID: $idPelanggan.',
             e: e, st: s);
         return Scaffold(
           appBar: AppBar(title: const Text('Detail Pelanggan')),
@@ -91,10 +91,10 @@ MAC : ${customer.macAddress}
         }
 
         return CustomerDetailUI(
-          customer: customer,
-          totalPoints: totalPoints,
+          pelanggan: customer,
+          totalPoin: totalPoints,
           onEdit: () => _editCustomer(context, customer),
-          onNavigateToPoints: () => _navigateToPoints(context, customer),
+          onNavigateToPoints: () => _navigasiKePoin(context, customer),
           onCopyAll: () => _copyAllInfo(context, customer),
         );
       },

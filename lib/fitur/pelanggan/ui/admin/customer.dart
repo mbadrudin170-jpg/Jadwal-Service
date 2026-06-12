@@ -194,7 +194,7 @@ class CustomerPage extends ConsumerWidget {
                     ),
                   ],
                 ),
-                onTap: () => _viewCustomerDetail(context, ref, customer.id),
+                onTap: () => _navigasiKeetail(context, ref, customer.id),
                 onLongPress: () => _showOptionsDialog(context, ref, customer),
               ),
             );
@@ -228,7 +228,7 @@ class CustomerPage extends ConsumerWidget {
       );
     }
 
-    final result = await showDialog<UrutanPelanggan>(
+    final hasil = await showDialog<UrutanPelanggan>(
       context: context,
       builder: (context) => SimpleDialog(
         title: const Text('Urutkan Berdasarkan'),
@@ -245,17 +245,17 @@ class CustomerPage extends ConsumerWidget {
       ),
     );
 
-    if (result != null) {
-      ref.read(urutanPelangganStateProvider.notifier).ubahUrutan(result);
+    if (hasil != null) {
+      ref.read(urutanPelangganStateProvider.notifier).ubahUrutan(hasil);
     }
   }
 
   Future<void> _addCustomer(BuildContext context, WidgetRef ref) async {
-    final result = await Navigator.push<bool>(
+    final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
-    if (result ?? false) {
+    if (hasil ?? false) {
       ref.invalidate(customerListProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil ditambahkan.');
@@ -263,12 +263,12 @@ class CustomerPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _viewCustomerDetail(
-      BuildContext context, WidgetRef ref, String customerId) async {
+  Future<void> _navigasiKeetail(
+      BuildContext context, WidgetRef ref, String idPelanggan) async {
     await Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailPelanggan(customerId: customerId),
+        builder: (context) => DetailPelanggan(idPelanggan: idPelanggan),
       ),
     );
     ref.invalidate(customerListProvider);
