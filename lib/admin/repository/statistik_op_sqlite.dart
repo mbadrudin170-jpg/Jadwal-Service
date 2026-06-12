@@ -12,7 +12,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 final statistikRepositoryProvider = Provider<StatistikOpSqlite>((ref) {

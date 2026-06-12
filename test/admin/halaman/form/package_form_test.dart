@@ -7,7 +7,7 @@ import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 
 class MockPackageOperation extends Mock implements PaketOpSqlite {}
 

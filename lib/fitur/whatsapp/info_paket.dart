@@ -8,7 +8,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/active_customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {

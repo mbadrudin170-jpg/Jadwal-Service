@@ -15,7 +15,7 @@ import 'package:wifi/shared/model/transaction_model.dart' as _i10;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
     as _i4;
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart' as _i7;
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart' as _i7;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i9;
 

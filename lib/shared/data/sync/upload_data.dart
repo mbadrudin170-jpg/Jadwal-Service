@@ -7,7 +7,6 @@ import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 

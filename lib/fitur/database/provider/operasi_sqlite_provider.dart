@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';

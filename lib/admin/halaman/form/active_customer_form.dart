@@ -104,7 +104,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           ? transaksiOperasi.getTransactionById(pa!.transactionId!)
           : Future<TransactionModel?>.value();
 
-      final results = await Future.wait([
+      final results = await Future.wait<Object?>([
         pelangganOperasi.ambilSemua(),
         paketOperasi.ambilBerdasarkanAktif(),
         dompetOperasi.getWallets(),

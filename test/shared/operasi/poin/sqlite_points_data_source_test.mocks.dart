@@ -10,7 +10,7 @@ import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/shared/model/package_model.dart' as _i8;
 import 'package:wifi/shared/model/transaction_model.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart' as _i7;
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart' as _i7;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i4;
 

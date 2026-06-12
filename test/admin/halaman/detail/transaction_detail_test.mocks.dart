@@ -20,7 +20,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart'
     as _i8;
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
     as _i12;
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart'
     as _i14;
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart'
     as _i10;
