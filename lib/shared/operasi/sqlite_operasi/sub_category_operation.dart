@@ -155,7 +155,7 @@ class SubCategoryOperation {
     try {
       final count = await baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua sub-kategori. Total: $count item.');
       return count;

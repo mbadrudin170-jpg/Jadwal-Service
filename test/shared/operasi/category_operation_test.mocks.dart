@@ -706,13 +706,13 @@ class MockBaseOperation extends _i1.Mock implements _i6.BaseOperation {
   @override
   _i3.Future<int> softDeleteAll(
     String? table, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #softDeleteAll,
           [table],
-          {#fromServer: fromServer},
+          {#fromServer: dariServer},
         ),
         returnValue: _i3.Future<int>.value(0),
       ) as _i3.Future<int>);

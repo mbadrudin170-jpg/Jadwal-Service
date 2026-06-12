@@ -205,7 +205,7 @@ class OrderOperation {
     try {
       final count = await baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua pesanan. Total: $count item.');
       return count;

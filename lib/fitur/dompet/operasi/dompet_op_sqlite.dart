@@ -152,7 +152,7 @@ class DompetOpSqlite {
     try {
       final count = await _baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua dompet. Total: $count item.');
       return count;

@@ -191,7 +191,7 @@ class PackageOperation {
     try {
       final count = await baseOperation.softDeleteAll(
         _tableName,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
       return count;

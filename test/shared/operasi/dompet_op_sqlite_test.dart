@@ -79,13 +79,15 @@ void main() {
       verify(mockBaseOperation.softDelete(tableName, '1')).called(1);
     });
 
-    test('5. softDeleteAll harus menjalankan operasi kompleks untuk menghapus semua', () async {
-      when(mockBaseOperation.softDeleteAll(tableName, fromServer: false))
+    test(
+        '5. softDeleteAll harus menjalankan operasi kompleks untuk menghapus semua',
+        () async {
+      when(mockBaseOperation.softDeleteAll(tableName, dariServer: false))
           .thenAnswer((_) async => 1);
 
       await dompetOpSqlite.softDeleteAll();
 
-      verify(mockBaseOperation.softDeleteAll(tableName, fromServer: false))
+      verify(mockBaseOperation.softDeleteAll(tableName, dariServer: false))
           .called(1);
     });
 

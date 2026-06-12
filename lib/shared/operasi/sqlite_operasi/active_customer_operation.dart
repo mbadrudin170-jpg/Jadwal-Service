@@ -39,9 +39,8 @@ class ActiveCustomerOperation {
     Log.info(
         'Menambah atau memperbarui pelanggan aktif ID: ${activeCustomer.id}');
     try {
-      final data = activeCustomer
-          .copyWith(updatedAt: DateTime.now().toUtc())
-          .toSqlite();
+      final data =
+          activeCustomer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
 
       await baseOperation.insert(
         _tableName,
@@ -114,18 +113,19 @@ class ActiveCustomerOperation {
       final db = await dbHelper.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where:
-            '${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
+        where: '${ColumnNames.customerId} = ? AND ${ColumnNames.isDeleted} = 0',
         whereArgs: [idPelanggan],
         orderBy: '${ColumnNames.endDate} DESC',
       );
 
       if (maps.isEmpty) {
-        Log.info('Tidak ada paket aktif ditemukan untuk pelanggan $idPelanggan');
+        Log.info(
+            'Tidak ada paket aktif ditemukan untuk pelanggan $idPelanggan');
         return [];
       }
 
-      Log.info('Ditemukan ${maps.length} paket aktif untuk pelanggan $idPelanggan');
+      Log.info(
+          'Ditemukan ${maps.length} paket aktif untuk pelanggan $idPelanggan');
       return List.generate(maps.length, (i) {
         return ActiveCustomerModel.fromSqlite(maps[i]);
       });
@@ -141,9 +141,8 @@ class ActiveCustomerOperation {
   }) async {
     Log.info('Memperbarui pelanggan aktif ID: ${activeCustomer.id}');
     try {
-      final data = activeCustomer
-          .copyWith(updatedAt: DateTime.now().toUtc())
-          .toSqlite();
+      final data =
+          activeCustomer.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite();
       await baseOperation.update(
         _tableName,
         data,
@@ -172,7 +171,8 @@ class ActiveCustomerOperation {
       );
       Log.info('Berhasil menghapus (soft delete) pelanggan aktif ID: $id');
     } catch (e, s) {
-      Log.error('Gagal menghapus pelanggan aktif', e: e, st: s, data: {'id': id});
+      Log.error('Gagal menghapus pelanggan aktif',
+          e: e, st: s, data: {'id': id});
       rethrow;
     }
   }
@@ -246,7 +246,8 @@ class ActiveCustomerOperation {
         }
       }
 
-      Log.info('Pemeriksaan status pelanggan selesai. Total: ${results.length}');
+      Log.info(
+          'Pemeriksaan status pelanggan selesai. Total: ${results.length}');
       return customerStates;
     } catch (e, s) {
       Log.error('Gagal memeriksa status pelanggan', e: e, st: s);
@@ -259,7 +260,7 @@ class ActiveCustomerOperation {
     try {
       final count = await baseOperation.softDeleteAll(
         _tableName,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete $count pelanggan aktif');
       return count;
@@ -297,7 +298,8 @@ class ActiveCustomerOperation {
       Log.warning('Daftar batch pelanggan aktif kosong, operasi dibatalkan');
       return;
     }
-    Log.info('Memulai batch insert/update untuk ${items.length} pelanggan aktif');
+    Log.info(
+        'Memulai batch insert/update untuk ${items.length} pelanggan aktif');
     try {
       final data = items
           .map((item) =>

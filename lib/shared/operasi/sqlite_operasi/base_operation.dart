@@ -43,11 +43,11 @@ class BaseOperation {
 
   /// Menjalankan `action` di dalam sebuah transaksi database.
   ///
-  /// Jika [fromServer] bernilai `false`, maka akan menandai status `needUpload`
+  /// Jika [dariServer] bernilai `false`, maka akan menandai status `needUpload`
   /// menjadi `true` untuk sinkronisasi data ke server.
   Future<T> _runInTransaction<T>(
     final Future<T> Function(Transaction) action, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info(
       '[TRANSAKSI DIMULAI] Memulai proses eksekusi dalam wrapper transaksi.',
@@ -61,7 +61,7 @@ class BaseOperation {
         );
 
         try {
-          if (!fromServer) {
+          if (!dariServer) {
             Log.info(
               '[TRANSAKSI AKTIF] Menandai status `needUpload` menjadi TRUE (operasi lokal).',
             );
@@ -109,7 +109,7 @@ class BaseOperation {
     final bool fromServer = false,
   }) async {
     Log.info('Mendelegasikan eksekusi transaksi kompleks');
-    return await _runInTransaction(customAction, fromServer: fromServer);
+    return await _runInTransaction(customAction, dariServer: fromServer);
   }
 
   /// Menyisipkan data baru ke dalam [table].
@@ -130,7 +130,7 @@ class BaseOperation {
           Log.info('INSERT berhasil', {'rowId': result, 'tabel': table});
           return result;
         },
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
     } catch (e, s) {
       Log.error(
@@ -176,7 +176,7 @@ class BaseOperation {
           }
           return rowsAffected;
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
     } catch (e, s) {
       Log.error(
@@ -214,7 +214,7 @@ class BaseOperation {
           }
           return rowsDeleted;
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
     } catch (e, s) {
       Log.error(
@@ -261,7 +261,7 @@ class BaseOperation {
           }
           return rowsAffected;
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
     } catch (e, s) {
       Log.error(
@@ -277,7 +277,7 @@ class BaseOperation {
   /// Melakukan soft delete pada semua baris di [table] yang belum di-soft-delete.
   Future<int> softDeleteAll(
     final String table, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete semua data di tabel: $table');
     try {
@@ -299,7 +299,7 @@ class BaseOperation {
           );
           return rowsAffected;
         },
-        fromServer: fromServer,
+        dariServer: dariServer,
       );
       return count;
     } catch (e, s) {
@@ -350,7 +350,7 @@ class BaseOperation {
           await batch.commit(noResult: true);
           Log.info('Batch operation sukses');
         },
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
     } catch (e, s) {
       Log.error(

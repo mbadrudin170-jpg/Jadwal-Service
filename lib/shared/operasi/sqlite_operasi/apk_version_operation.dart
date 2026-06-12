@@ -116,7 +116,7 @@ class ApkVersionOperation {
     try {
       final count = await _baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Proses soft delete semua APK versions selesai. Total: $count');
       return count;

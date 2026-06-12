@@ -180,7 +180,7 @@ class CustomerOperation {
     try {
       final count = await _baseOperation.softDeleteAll(
         _tableName,
-        fromServer: dariServer,
+        dariServer: dariServer,
       );
       Log.info(
           'Berhasil melakukan soft delete pada semua customer. Total: $count');

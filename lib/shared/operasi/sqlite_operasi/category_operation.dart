@@ -205,7 +205,7 @@ class CategoryOperation {
     try {
       final count = await _baseOperation.softDeleteAll(
         _tableName,
-        fromServer: fromServer,
+        dariServer: fromServer,
       );
       Log.info('Berhasil soft delete semua kategori. Total: $count item.');
       return count;
