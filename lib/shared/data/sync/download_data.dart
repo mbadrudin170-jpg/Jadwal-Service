@@ -368,7 +368,7 @@ final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
     walletOperation: ref.read(walletOperationProvider),
-    categoryOperation: ref.read(categoryOperationProvider),
+    categoryOperation: ref.read(kategoriOpSqliteProvider),
     paketOpSqlite: ref.read(packageOperationProvider),
     pelangganOpSqlite: ref.read(customerOperationProvider),
     activeCustomerOperation: ref.read(activeCustomerOperationProvider),
