@@ -22,7 +22,7 @@ class MockWorkmanager extends Mock implements Workmanager {}
 class MockSyncCheckService extends Mock implements SyncCheckService {}
 
 class MockExpiredSubscriptionCheckService extends Mock
-    implements ExpiredSubscriptionCheckService {}
+    implements ArsipLanggananKadaluarsaService {}
 
 class MockConnectivity extends Mock implements Connectivity {}
 
@@ -67,8 +67,8 @@ void main() {
           constraints: any(named: 'constraints'),
         )).thenAnswer((_) async {});
     when(() => mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
-    when(() => mockExpiredSubscriptionCheckService.processExpiredSubscriptions())
-        .thenAnswer((_) async {});
+    when(() => mockExpiredSubscriptionCheckService
+        .prosesArsipLanggananKadaluarsa()).thenAnswer((_) async {});
     when(() => mockConnectivity.onConnectivityChanged)
         .thenAnswer((_) => connectivityStreamController.stream);
     when(() => MockStreamSubscription<List<ConnectivityResult>>().cancel())
@@ -83,7 +83,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         syncCheckServiceProvider.overrideWithValue(mockSyncCheckService),
-        expiredSubscriptionCheckServiceProvider
+        arsipLanggananKadaluarsaServiceProvider
             .overrideWithValue(mockExpiredSubscriptionCheckService),
       ],
     );
@@ -113,7 +113,7 @@ void main() {
             constraints: any(named: 'constraints'),
           )).called(1);
       verify(() => mockExpiredSubscriptionCheckService
-          .processExpiredSubscriptions()).called(1);
+          .prosesArsipLanggananKadaluarsa()).called(1);
       verify(() => mockSyncCheckService.runSyncCheck()).called(1);
     });
 
@@ -174,7 +174,7 @@ void main() {
       // HalamanUtama membuat instance Connectivity sendiri, jadi kita tidak bisa override.
       // Untuk tujuan pengujian, kita akan berasumsi listen dipanggil dengan benar
       // dan kita hanya akan memicu stream-nya.
-      
+
       await tester.pumpWidget(createTestWidget(false, container));
       await tester.pumpAndSettle();
 
@@ -208,7 +208,7 @@ void main() {
       verify(() => mockSyncCheckService.runSyncCheck()).called(1);
     });
 
-     testWidgets('Test 07: Penanganan error saat sinkronisasi gagal',
+    testWidgets('Test 07: Penanganan error saat sinkronisasi gagal',
         (tester) async {
       SharedPreferences.setMockInitialValues({});
       when(() => mockSyncCheckService.runSyncCheck())

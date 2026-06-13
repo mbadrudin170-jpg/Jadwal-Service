@@ -391,7 +391,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<int> archiveExpiredCustomers({bool fromServer = false}) async {
+  Future<int> arsipkanLanggananKadaluarsa({bool fromServer = false}) async {
     try {
       Log.info('Memeriksa active customer kadaluarsa');
       final db = await dbHelper.database;

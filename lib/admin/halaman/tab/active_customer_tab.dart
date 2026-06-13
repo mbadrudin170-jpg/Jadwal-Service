@@ -70,7 +70,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
 
     Future.microtask(() async {
       try {
-        await _activeCustomerOperation.archiveExpiredCustomers();
+        await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
       } catch (e) {
         Log.error('Gagal menjalankan arsip otomatis saat aplikasi dibuka',
             e: e);
@@ -97,7 +97,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
 
   Future<void> refreshData() async {
     try {
-      await _activeCustomerOperation.archiveExpiredCustomers();
+      await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
     } catch (e) {
       Log.error('Gagal arsip otomatis saat refresh', e: e);
     }
@@ -290,7 +290,7 @@ class ActiveCustomerPageState extends ConsumerState<ActiveCustomerPage>
         try {
           Log.info('Mulai arsipkan pelanggan kadaluarsa');
           final count =
-              await _activeCustomerOperation.archiveExpiredCustomers();
+              await _activeCustomerOperation.arsipkanLanggananKadaluarsa();
           Log.info('Selesai arsipkan kadaluarsa, jumlah=$count');
           if (mounted) {
             ToastUtil.success(

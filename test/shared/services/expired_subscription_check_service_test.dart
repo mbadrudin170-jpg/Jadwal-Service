@@ -13,14 +13,14 @@ import 'expired_subscription_check_service_test.mocks.dart';
 void main() {
   // Deklarasi variabel untuk mock dan service
   late MockActiveCustomerOperation mockActiveCustomerOperation;
-  late ExpiredSubscriptionCheckService service;
+  late ArsipLanggananKadaluarsaService service;
 
   // setUp dijalankan sebelum setiap tes
   setUp(() {
     // Inisialisasi mock dan service
     mockActiveCustomerOperation = MockActiveCustomerOperation();
-    service = ExpiredSubscriptionCheckService(
-      activeCustomerOperation: mockActiveCustomerOperation,
+    service = ArsipLanggananKadaluarsaService(
+      pelangganAktifOpSqlite: mockActiveCustomerOperation,
     );
   });
 
@@ -35,7 +35,7 @@ void main() {
 
       // Act
       // Panggil metode yang akan diuji
-      await service.processExpiredSubscriptions();
+      await service.prosesArsipLanggananKadaluarsa();
 
       // Assert
       // Pastikan metode archiveExpiredCustomers() pada mock dipanggil tepat satu kali
@@ -55,7 +55,7 @@ void main() {
 
       // Act
       // Panggil metode yang akan diuji
-      await service.processExpiredSubscriptions();
+      await service.prosesArsipLanggananKadaluarsa();
 
       // Assert
       // Pastikan metode archiveExpiredCustomers() tetap dipanggil
@@ -72,7 +72,7 @@ void main() {
 
       // Act
       // Panggil metode yang akan diuji
-      await service.processExpiredSubscriptions();
+      await service.prosesArsipLanggananKadaluarsa();
 
       // Assert
       // Pastikan metode pada mock dipanggil

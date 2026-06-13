@@ -101,7 +101,7 @@ class BackgroundService {
     final container = ProviderContainer();
     try {
       final activeCustomerOp = container.read(pelangganAktifOpSqliteProvider);
-      final count = await activeCustomerOp.archiveExpiredCustomers();
+      final count = await activeCustomerOp.arsipkanLanggananKadaluarsa();
       Log.info(
           'Proses pengarsipan selesai. $count pelanggan kedaluwarsa telah diarsipkan.');
     } on Exception catch (e, st) {

@@ -207,7 +207,7 @@ class MockPelangganAktifOpSqlite extends _i1.Mock
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<int> archiveExpiredCustomers({bool? fromServer = false}) =>
+  _i5.Future<int> arsipkanLanggananKadaluarsa({bool? fromServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #archiveExpiredCustomers,

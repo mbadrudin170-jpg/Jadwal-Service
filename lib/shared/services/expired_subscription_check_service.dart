@@ -1,31 +1,30 @@
-// path: lib/shared/services/expired_subscription_check_service.dart
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
 /// Service untuk memeriksa dan mengarsipkan langganan yang kadaluwarsa.
-class ExpiredSubscriptionCheckService {
-  final PelangganAktifOpSqlite _activeCustomerOperation;
+class ArsipLanggananKadaluarsaService {
+  final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
 
   /// Konstruktor dengan injeksi dependensi.
-  ExpiredSubscriptionCheckService({
-    required PelangganAktifOpSqlite activeCustomerOperation,
-  }) : _activeCustomerOperation = activeCustomerOperation {
+  ArsipLanggananKadaluarsaService({
+    required PelangganAktifOpSqlite pelangganAktifOpSqlite,
+  }) : _pelangganAktifOpSqlite = pelangganAktifOpSqlite {
     Log.info(
         'ExpiredSubscriptionCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Memproses semua pelanggan aktif, menemukan yang kedaluwarsa,
   /// dan mengarsipkannya.
-  Future<void> processExpiredSubscriptions() async {
+  Future<void> prosesArsipLanggananKadaluarsa() async {
     Log.info('Memulai siklus pengecekan langganan yang kadaluwarsa...');
     try {
-      final archivedCount =
-          await _activeCustomerOperation.archiveExpiredCustomers();
-      if (archivedCount > 0) {
-        Log.info('Berhasil mengarsipkan $archivedCount langganan kadaluwarsa.');
+      final jumlahDiarsipkan =
+          await _pelangganAktifOpSqlite.arsipkanLanggananKadaluarsa();
+      if (jumlahDiarsipkan > 0) {
+        Log.info(
+            'Berhasil mengarsipkan $jumlahDiarsipkan langganan kadaluwarsa.');
       } else {
         Log.info('Tidak ada langganan kadaluwarsa.');
       }
@@ -35,12 +34,9 @@ class ExpiredSubscriptionCheckService {
   }
 }
 
-// ============================================================
-// Provider untuk ExpiredSubscriptionCheckService
-// ============================================================
-final expiredSubscriptionCheckServiceProvider =
-    Provider<ExpiredSubscriptionCheckService>((ref) {
-  return ExpiredSubscriptionCheckService(
-    activeCustomerOperation: ref.read(activeCustomerOperationProvider),
+final arsipLanggananKadaluarsaServiceProvider =
+    Provider<ArsipLanggananKadaluarsaService>((ref) {
+  return ArsipLanggananKadaluarsaService(
+    pelangganAktifOpSqlite: ref.read(pelangganAktifOpSqliteProvider),
   );
 });

@@ -14,8 +14,8 @@ Future<void> alarmCallback() async {
   Log.info('ALARM TERPICU: Memulai proses pengecekan langganan kedaluwarsa...');
   final container = ProviderContainer();
   try {
-    final service = container.read(expiredSubscriptionCheckServiceProvider);
-    await service.processExpiredSubscriptions();
+    final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+    await service.prosesArsipLanggananKadaluarsa();
   } finally {
     container.dispose();
   }

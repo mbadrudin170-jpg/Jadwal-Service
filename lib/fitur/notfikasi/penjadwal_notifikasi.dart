@@ -115,8 +115,8 @@ Future<void> _callbackAlarm() async {
 
   final container = ProviderContainer();
   try {
-    final service = container.read(expiredSubscriptionCheckServiceProvider);
-    await service.processExpiredSubscriptions();
+    final service = container.read(arsipLanggananKadaluarsaServiceProvider);
+    await service.prosesArsipLanggananKadaluarsa();
   } finally {
     container.dispose();
   }
