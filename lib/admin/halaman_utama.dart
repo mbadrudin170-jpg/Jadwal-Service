@@ -15,7 +15,7 @@ import 'package:wifi/fitur/dompet/page/wallet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/expired_subscription_check_service.dart';
+import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';

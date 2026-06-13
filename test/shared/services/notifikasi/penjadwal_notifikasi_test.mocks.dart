@@ -139,7 +139,7 @@ class MockNotifikasiServis extends _i1.Mock implements _i4.NotifikasiServis {
       );
 
   @override
-  _i5.Future<void> requestPermissions() => (super.noSuchMethod(
+  _i5.Future<void> mintaIzin() => (super.noSuchMethod(
         Invocation.method(
           #requestPermissions,
           [],

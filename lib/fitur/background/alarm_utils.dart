@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/services/expired_subscription_check_service.dart';
+import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 
 /// Callback untuk alarm yang dieksekusi di background isolate.
 @pragma('vm:entry-point')

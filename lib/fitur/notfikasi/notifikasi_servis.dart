@@ -1,5 +1,4 @@
 // path: lib/shared/services/notifikasi/notifikasi_servis.dart
-mintaIzinNotifikasi()
 import 'dart:async';
 import 'dart:io'; // untuk Platform
 import 'dart:math';
@@ -197,7 +196,7 @@ class NotifikasiServis {
     unawaited(_langgananNotifikasiFirebase?.cancel());
     _langgananNotifikasiFirebase =
         notifikasiOp.getKhususAdmin().listen((listNotifikasi) async {
-      for ( notifikasi in listNotifikasi) {
+      for (final notifikasi in listNotifikasi) {
         if (!_idNotifikasiTampil.contains(notifikasi.id)) {
           await tampilkanNotifikasiLangsung(
             title: notifikasi.title,
@@ -257,7 +256,7 @@ class NotifikasiServis {
 
   // 4. Meminta izin dari pengguna untuk menampilkan notifikasi
   /// Meminta izin dari pengguna untuk menampilkan notifikasi.
-  Future<void> requestPermissions() async {mintaIzin()
+  Future<void> mintaIzin() async {
     Log.info('Meminta izin notifikasi dari pengguna...');
     try {
       if (kIsWeb) {
