@@ -24,18 +24,20 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<AkunState> _initAwal(Ref ref) async {
-    final penyimpanan = await ref.watch(localStorageServiceProvider.future);
-    final akunSaatIni = await penyimpanan.ambilAkunLogin();
-    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    final penyimpananLokal =
+        await ref.watch(layananPenyimpananLokalProvider.future);
+    final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
+    final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     return AkunState(akunSaatIni: akunSaatIni, daftarAkunTersimpan: daftarAkun);
   }
 
   // 1. Login / simpan akun
   Future<void> login(PelangganModel akun) async {
-    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+    final penyimpananLokal =
+        await ref.read(layananPenyimpananLokalProvider.future);
 
-    await penyimpanan.simpanAkunSaatIni(akun);
-    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    await penyimpananLokal.simpanAkunSaatIni(akun);
+    final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akun,
       daftarAkunTersimpan: daftarAkun,
@@ -44,11 +46,12 @@ class PengelolaAkun extends _$PengelolaAkun {
 
   // 2. Logout (hapus akun saat ini)
   Future<void> logout() async {
-    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+    final penyimpananLokal =
+        await ref.read(layananPenyimpananLokalProvider.future);
 
-    await penyimpanan.hapusAkunSaatIni();
-    final akunSaatIni = await penyimpanan.ambilAkunLogin();
-    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    await penyimpananLokal.hapusAkunSaatIni();
+    final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
+    final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
@@ -57,12 +60,13 @@ class PengelolaAkun extends _$PengelolaAkun {
 
   // 3. Hapus akun tertentu dari daftar
   Future<void> hapusAkun(String id) async {
-    final penyimpanan = await ref.read(localStorageServiceProvider.future);
+    final penyimpananLokal =
+        await ref.read(layananPenyimpananLokalProvider.future);
 
     final keadaanSaatIni = state.value;
     if (keadaanSaatIni == null) return;
 
-    await penyimpanan.hapusAkun(id);
+    await penyimpananLokal.hapusAkun(id);
     final daftarBaru =
         keadaanSaatIni.daftarAkunTersimpan.where((a) => a.id != id).toList();
     final akunBaru = keadaanSaatIni.akunSaatIni?.id == id
@@ -75,13 +79,14 @@ class PengelolaAkun extends _$PengelolaAkun {
   }
 
   Future<void> hapusTokenLogin() async {
-    final penyimpanan = await ref.read(localStorageServiceProvider.future);
-    await penyimpanan.hapusTokenLogin();
+    final penyimpananLokal =
+        await ref.read(layananPenyimpananLokalProvider.future);
+    await penyimpananLokal.hapusTokenLogin();
 
     final keadaanSaatIni = state.value;
-    final akunSaatIni = await penyimpanan.ambilAkunLogin();
+    final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
     final daftarAkun = keadaanSaatIni?.daftarAkunTersimpan ??
-        await penyimpanan.ambilDaftarAkun();
+        await penyimpananLokal.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,
@@ -90,9 +95,10 @@ class PengelolaAkun extends _$PengelolaAkun {
 
   // 4. Segarkan manual (jika diperlukan)
   Future<void> refresh() async {
-    final penyimpanan = await ref.read(localStorageServiceProvider.future);
-    final akunSaatIni = await penyimpanan.ambilAkunLogin();
-    final daftarAkun = await penyimpanan.ambilDaftarAkun();
+    final penyimpananLokal =
+        await ref.read(layananPenyimpananLokalProvider.future);
+    final akunSaatIni = await penyimpananLokal.ambilAkunLogin();
+    final daftarAkun = await penyimpananLokal.ambilDaftarAkun();
     state = AsyncValue.data(AkunState(
       akunSaatIni: akunSaatIni,
       daftarAkunTersimpan: daftarAkun,

@@ -64,11 +64,11 @@ class _FakeDocumentReference_2<T extends Object?> extends _i1.SmartFake
         );
 }
 
-/// A class which mocks [NotifikasiServis].
+/// A class which mocks [LayananNotifikasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNotifikasiServis extends _i1.Mock implements _i4.NotifikasiServis {
-  MockNotifikasiServis() {
+class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
+  MockLayananNotifikasi() {
     _i1.throwOnMissingStub(this);
   }
 

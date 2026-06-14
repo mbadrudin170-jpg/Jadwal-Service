@@ -12,7 +12,7 @@ import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart';
 import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart';
 
-class MockNotifikasiServis extends Mock implements NotifikasiServis {}
+class MockNotifikasiServis extends Mock implements LayananNotifikasi {}
 
 class MockUserActivityService extends Mock implements UserActivityService {}
 
@@ -100,18 +100,18 @@ void main() {
         (tester) async {
       when(() => mockNotifikasiServis.initNotif())
           .thenAnswer((_) async => Future.value());
-      when(() => PenjadwalNotifikasi.aturNotifikasiLangganan(
-          any(), any()))
+      when(() => PenjadwalNotifikasi.aturNotifikasiLangganan(any(), any()))
           .thenAnswer((_) async {});
-      when(() => mockUserActivityService.pingActivity(any(), force: any(named: 'force')))
-          .thenAnswer((_) async => Future.value());
+      when(() => mockUserActivityService.pingActivity(any(),
+          force: any(named: 'force'))).thenAnswer((_) async => Future.value());
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
       verify(() => PenjadwalNotifikasi.aturNotifikasiLangganan(any(), any()))
           .called(1);
-      verify(() => mockUserActivityService.pingActivity(any(), force: any(named: 'force'))).called(1);
+      verify(() => mockUserActivityService.pingActivity(any(),
+          force: any(named: 'force'))).called(1);
     });
   });
 }

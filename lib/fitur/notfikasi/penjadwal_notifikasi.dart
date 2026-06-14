@@ -10,7 +10,7 @@ import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart'
 
 class PenjadwalNotifikasi {
   static Future<void> aturNotifikasiLangganan(
-    NotifikasiServis notifikasiServis,
+    LayananNotifikasi notifikasiServis,
     final String userId,
   ) async {
     Log.info(

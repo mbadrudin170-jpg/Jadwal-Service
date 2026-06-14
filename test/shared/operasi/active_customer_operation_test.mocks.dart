@@ -454,11 +454,11 @@ class MockPelangganOpSqlite extends _i1.Mock implements _i8.PelangganOpSqlite {
       ) as _i3.Future<List<_i9.PelangganModel>>);
 }
 
-/// A class which mocks [NotifikasiServis].
+/// A class which mocks [LayananNotifikasi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNotifikasiServis extends _i1.Mock implements _i10.NotifikasiServis {
-  MockNotifikasiServis() {
+class MockLayananNotifikasi extends _i1.Mock implements _i10.LayananNotifikasi {
+  MockLayananNotifikasi() {
     _i1.throwOnMissingStub(this);
   }
 

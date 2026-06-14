@@ -21,8 +21,8 @@ class KategoriOpSqlite {
   /// Konstruktor untuk CategoryOperation.
   KategoriOpSqlite({
     required this.sqlitedb,
-    required final BaseOpSqlite baseOperation,
-  }) : _baseOpSqlite = baseOperation {
+    required final BaseOpSqlite baseOpSqlite,
+  }) : _baseOpSqlite = baseOpSqlite {
     Log.info('CategoryOperation instance dibuat.');
   }
 

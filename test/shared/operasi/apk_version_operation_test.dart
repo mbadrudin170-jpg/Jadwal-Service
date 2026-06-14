@@ -30,7 +30,7 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
     apkVersionOperation = ApkVersionOperation(
       dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      baseOpSqlite: mockBaseOperation,
     );
   });
 

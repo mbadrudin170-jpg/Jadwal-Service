@@ -95,29 +95,29 @@ final class SharedPreferencesProvider extends $FunctionalProvider<
 
 String _$sharedPreferencesHash() => r'48e60558ea6530114ea20ea03e69b9fb339ab129';
 
-@ProviderFor(localStorageService)
-final localStorageServiceProvider = LocalStorageServiceProvider._();
+@ProviderFor(layananPenyimpananLokal)
+final layananPenyimpananLokalProvider = LayananPenyimpananLokalProvider._();
 
-final class LocalStorageServiceProvider extends $FunctionalProvider<
+final class LayananPenyimpananLokalProvider extends $FunctionalProvider<
         AsyncValue<LayananPenyimpananLokal>,
         LayananPenyimpananLokal,
         FutureOr<LayananPenyimpananLokal>>
     with
         $FutureModifier<LayananPenyimpananLokal>,
         $FutureProvider<LayananPenyimpananLokal> {
-  LocalStorageServiceProvider._()
+  LayananPenyimpananLokalProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'localStorageServiceProvider',
+          name: r'layananPenyimpananLokalProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$localStorageServiceHash();
+  String debugGetCreateSourceHash() => _$layananPenyimpananLokalHash();
 
   @$internal
   @override
@@ -127,59 +127,60 @@ final class LocalStorageServiceProvider extends $FunctionalProvider<
 
   @override
   FutureOr<LayananPenyimpananLokal> create(Ref ref) {
-    return localStorageService(ref);
+    return layananPenyimpananLokal(ref);
   }
 }
 
-String _$localStorageServiceHash() =>
-    r'6e698d7fd7eeb3f4ad55371b9475cdb188ed0d0a';
+String _$layananPenyimpananLokalHash() =>
+    r'78e01700eacbbcec664a53a5444151524abee274';
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
-@ProviderFor(notifikasiServis)
-final notifikasiServisProvider = NotifikasiServisProvider._();
+@ProviderFor(layananNotifikasi)
+final layananNotifikasiProvider = LayananNotifikasiProvider._();
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 
-final class NotifikasiServisProvider extends $FunctionalProvider<
-    NotifikasiServis,
-    NotifikasiServis,
-    NotifikasiServis> with $Provider<NotifikasiServis> {
+final class LayananNotifikasiProvider extends $FunctionalProvider<
+    LayananNotifikasi,
+    LayananNotifikasi,
+    LayananNotifikasi> with $Provider<LayananNotifikasi> {
   /// Provider sederhana yang hanya membuat instance NotifikasiServis.
-  NotifikasiServisProvider._()
+  LayananNotifikasiProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'notifikasiServisProvider',
+          name: r'layananNotifikasiProvider',
           isAutoDispose: false,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$notifikasiServisHash();
+  String debugGetCreateSourceHash() => _$layananNotifikasiHash();
 
   @$internal
   @override
-  $ProviderElement<NotifikasiServis> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<LayananNotifikasi> $createElement(
+          $ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  NotifikasiServis create(Ref ref) {
-    return notifikasiServis(ref);
+  LayananNotifikasi create(Ref ref) {
+    return layananNotifikasi(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(NotifikasiServis value) {
+  Override overrideWithValue(LayananNotifikasi value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<NotifikasiServis>(value),
+      providerOverride: $SyncValueProvider<LayananNotifikasi>(value),
     );
   }
 }
 
-String _$notifikasiServisHash() => r'1a5abc571c94904cfc22a487d7725efdd85923a1';
+String _$layananNotifikasiHash() => r'b1db6972d06b5d7f0ae64ffd3ab6b5dea2cdb459';
 
 /// Controller utama untuk notifikasi.
 /// Tonton provider ini dari UI untuk menginisialisasi listener.
@@ -228,4 +229,4 @@ final class PengontrolNotifikasiProvider
 }
 
 String _$pengontrolNotifikasiHash() =>
-    r'291d09d3e67d210968a772595c4b46d2c55f64bc';
+    r'fe0141bb5b26e3c4daf18499c674c1c4b59be7e5';

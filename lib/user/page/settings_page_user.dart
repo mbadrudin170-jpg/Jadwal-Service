@@ -31,12 +31,12 @@ class SettingsPageUser extends ConsumerWidget {
             title: 'Tema Aplikasi',
             trailing: Consumer(
               builder: (context, ref, child) {
-                final themeAsync = ref.watch(themeProvider);
+                final themeAsync = ref.watch(temaProvider);
                 return themeAsync.when(
                   data: (themeMode) => ThemeMenuWidget(
                     currentThemeMode: themeMode,
                     onThemeSelected: (mode) {
-                      ref.read(themeProvider.notifier).setThemeMode(mode);
+                      ref.read(temaProvider.notifier).simpanModeTema(mode);
                     },
                   ),
                   loading: () => const SizedBox.shrink(),

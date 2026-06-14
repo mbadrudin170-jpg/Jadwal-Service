@@ -16,9 +16,9 @@ class ApkVersionOperation {
 
   /// Konstruktor untuk [ApkVersionOperation].
   ApkVersionOperation({
-    required final BaseOpSqlite baseOperation,
+    required final BaseOpSqlite baseOpSqlite,
     required this.dbHelper,
-  }) : _baseOperation = baseOperation {
+  }) : _baseOperation = baseOpSqlite {
     Log.info(
       'ApkVersionOperation diinisialisasi - Tabel: $_tableName, BaseOperation: ${"dari parameter"}',
     );

@@ -24,7 +24,7 @@ import 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/theme/theme_provider.dart';
+import 'package:wifi/shared/theme/tema_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -34,7 +34,7 @@ class MockSharedPreferences extends Mock implements SharedPreferences {}
 class MockKoneksiInternetService extends Mock
     implements KoneksiInternetService {}
 
-class MockNotifikasiServis extends Mock implements NotifikasiServis {}
+class MockNotifikasiServis extends Mock implements LayananNotifikasi {}
 
 class MockUnduhanAwalService extends Mock implements UnduhanAwalService {}
 
@@ -65,14 +65,14 @@ class MockLayananCekSinkronisasi extends Mock
 class MockDatabase extends Mock implements Database {}
 
 // Helper Notifiers for testing theme states
-class LoadingThemeNotifier extends ThemeNotifier {
+class LoadingThemeNotifier extends TemaNotifier {
   @override
   Future<ThemeMode> build() {
     return Completer<ThemeMode>().future; // Never completes
   }
 }
 
-class ErrorThemeNotifier extends ThemeNotifier {
+class ErrorThemeNotifier extends TemaNotifier {
   @override
   Future<ThemeMode> build() {
     return Future.error('Gagal memuat tema');
@@ -203,7 +203,7 @@ void main() {
   Widget createTestWidget({List<Override> overrides = const []}) {
     return ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWith((ref) async => mockPrefs),
+        sharedPreferencesProvider.overrideWith((ref) => mockPrefs),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
@@ -214,7 +214,7 @@ void main() {
         dataCleaningOperationProvider
             .overrideWithValue(mockDataCleaningOperation),
         sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
-        localStorageServiceProvider.overrideWith((ref) => mockLocalStorage),
+        localStorageServiceProvider.overrideWithValue(mockLocalStorage),
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
         layananCekSinkronisasiProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,
@@ -246,7 +246,8 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            sharedPreferencesProvider.overrideWith((ref) => Future.error('Gagal')),
+            sharedPreferencesProvider
+                .overrideWith((ref) => Future.error('Gagal')),
           ],
           child: const AppAdmin(),
         ),
@@ -303,9 +304,8 @@ void main() {
   group('Pengujian AppMaterial', () {
     testWidgets('06. Menampilkan loading indicator saat tema sedang loading',
         (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides: [
-        themeProvider.overrideWith(LoadingThemeNotifier.new)
-      ]));
+      await tester.pumpWidget(createTestWidget(
+          overrides: [temaProvider.overrideWith(LoadingThemeNotifier.new)]));
 
       await tester.pump();
 
@@ -314,9 +314,8 @@ void main() {
 
     testWidgets('07. Menampilkan pesan error saat tema gagal dimuat',
         (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides: [
-        themeProvider.overrideWith(ErrorThemeNotifier.new)
-      ]));
+      await tester.pumpWidget(createTestWidget(
+          overrides: [temaProvider.overrideWith(ErrorThemeNotifier.new)]));
 
       await tester.pumpAndSettle();
 

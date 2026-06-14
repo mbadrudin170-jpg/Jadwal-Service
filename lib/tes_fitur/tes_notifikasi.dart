@@ -13,7 +13,7 @@ class TesNotifikasiPage extends StatefulWidget {
 }
 
 class _TesNotifikasiPageState extends State<TesNotifikasiPage> {
-  final NotifikasiServis _notifikasiServis = NotifikasiServis();
+  final LayananNotifikasi _notifikasiServis = LayananNotifikasi();
 
   /// Menampilkan notifikasi sederhana secara langsung.
   Future<void> _tampilkanNotifikasiLangsung() async {

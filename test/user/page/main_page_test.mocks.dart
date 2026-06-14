@@ -14,8 +14,7 @@ import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i3;
 import 'package:wifi/fitur/pelanggan/core/user_activity_service.dart' as _i5;
 import 'package:wifi/user/widget/ads/app_open/app_lifecycle_reactor.dart'
     as _i6;
-import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart'
-    as _i7;
+import 'package:wifi/user/widget/ads/app_open/app_open_ad_service.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -44,7 +43,7 @@ class _FakeFlutterLocalNotificationsPlugin extends _i1.SmartFake
 /// A class which mocks [NotifikasiServis].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNotifikasiServis extends _i1.Mock implements _i3.NotifikasiServis {
+class MockNotifikasiServis extends _i1.Mock implements _i3.LayananNotifikasi {
   MockNotifikasiServis() {
     _i1.throwOnMissingStub(this);
   }

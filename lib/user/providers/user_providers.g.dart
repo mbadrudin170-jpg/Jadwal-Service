@@ -58,9 +58,9 @@ abstract class _$AppReadiness extends $Notifier<bool> {
 final notifikasiServisProvider = NotifikasiServisProvider._();
 
 final class NotifikasiServisProvider extends $FunctionalProvider<
-    NotifikasiServis,
-    NotifikasiServis,
-    NotifikasiServis> with $Provider<NotifikasiServis> {
+    LayananNotifikasi,
+    LayananNotifikasi,
+    LayananNotifikasi> with $Provider<LayananNotifikasi> {
   NotifikasiServisProvider._()
       : super(
           from: null,
@@ -77,24 +77,25 @@ final class NotifikasiServisProvider extends $FunctionalProvider<
 
   @$internal
   @override
-  $ProviderElement<NotifikasiServis> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<LayananNotifikasi> $createElement(
+          $ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  NotifikasiServis create(Ref ref) {
+  LayananNotifikasi create(Ref ref) {
     return notifikasiServis(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(NotifikasiServis value) {
+  Override overrideWithValue(LayananNotifikasi value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<NotifikasiServis>(value),
+      providerOverride: $SyncValueProvider<LayananNotifikasi>(value),
     );
   }
 }
 
-String _$notifikasiServisHash() => r'5ac9b5c81a21e80bd12e57882e0334c0ace4c5bc';
+String _$notifikasiServisHash() => r'8ee9ef8aa539ede9bcf4c98a6d46d7b823066886';
 
 @ProviderFor(userId)
 final userIdProvider = UserIdProvider._();

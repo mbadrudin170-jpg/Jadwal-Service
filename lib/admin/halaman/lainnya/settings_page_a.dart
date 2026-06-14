@@ -82,7 +82,7 @@ class SettingsAdminPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI halaman Pengaturan Aplikasi');
     final settingsAsyncValue = ref.watch(settingsProvider);
-    final currentThemeMode = ref.watch(themeProvider);
+    final currentThemeMode = ref.watch(temaProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pengaturan Aplikasi'),
@@ -126,8 +126,8 @@ class SettingsAdminPage extends ConsumerWidget {
                                 currentThemeMode.value ?? ThemeMode.system,
                             onThemeSelected: (theme) async {
                               await ref
-                                  .read(themeProvider.notifier)
-                                  .setThemeMode(theme);
+                                  .read(temaProvider.notifier)
+                                  .simpanModeTema(theme);
                             },
                           ),
                         ),

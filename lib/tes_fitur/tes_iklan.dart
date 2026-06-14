@@ -13,7 +13,7 @@ class TestNotificationPage extends StatefulWidget {
 }
 
 class _TestNotificationPageState extends State<TestNotificationPage> {
-  final NotifikasiServis _notifikasiServis = NotifikasiServis();
+  final LayananNotifikasi _notifikasiServis = LayananNotifikasi();
 
   // [DIPERBAIKI] Gunakan ID notifikasi yang konstan untuk pengujian
   static const int _testNotificationId = 99;

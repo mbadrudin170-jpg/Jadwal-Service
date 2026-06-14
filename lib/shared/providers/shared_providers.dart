@@ -23,15 +23,15 @@ Future<SharedPreferences> sharedPreferences(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Future<LayananPenyimpananLokal> localStorageService(Ref ref) async {
+Future<LayananPenyimpananLokal> layananPenyimpananLokal(Ref ref) async {
   final prefs = await ref.watch(sharedPreferencesProvider.future);
   return LayananPenyimpananLokal(prefs: prefs);
 }
 
 /// Provider sederhana yang hanya membuat instance NotifikasiServis.
 @Riverpod(keepAlive: true)
-NotifikasiServis notifikasiServis(Ref ref) {
-  return NotifikasiServis();
+LayananNotifikasi layananNotifikasi(Ref ref) {
+  return LayananNotifikasi();
 }
 
 /// Controller utama untuk notifikasi.
@@ -39,35 +39,35 @@ NotifikasiServis notifikasiServis(Ref ref) {
 @Riverpod(keepAlive: true)
 void pengontrolNotifikasi(Ref ref) {
   final role = ref.watch(appRoleProvider);
-  final notifikasiService = ref.watch(notifikasiServisProvider);
+  final layananNotifikasi = ref.watch(layananNotifikasiProvider);
   final notifikasiOpFirebase = ref.watch(notifikasiOpFirebaseProvider);
 
   Log.info('Menginisialisasi Notifikasi Controller untuk peran: $role');
 
   if (role == AppRole.admin) {
     Log.info('Mode Admin: Memulai pemantauan notifikasi umum.');
-    notifikasiService.pantauNotifUmum(notifikasiOpFirebase);
+    layananNotifikasi.pantauNotifUmum(notifikasiOpFirebase);
   } else {
     Log.info('Mode User: Menyiapkan listener untuk status login.');
-    ref.listen(localStorageServiceProvider, (previous, next) {
+    ref.listen(layananPenyimpananLokalProvider, (previous, next) {
       next.when(
-        data: (localStorage) async {
-          final pelanggan = await localStorage.ambilAkunLogin();
+        data: (penyimpananLokal) async {
+          final pelanggan = await penyimpananLokal.ambilAkunLogin();
           if (pelanggan != null) {
             Log.info(
                 'User login terdeteksi, memulai pemantauan untuk ${pelanggan.id}');
-            notifikasiService.pantauNotifUser(
+            layananNotifikasi.pantauNotifUser(
                 notifikasiOpFirebase, pelanggan.id);
           } else {
             Log.info(
                 'User logout terdeteksi, menghentikan pemantauan notifikasi.');
-            notifikasiService.hentikanPemantauanNotifikasi();
+            layananNotifikasi.hentikanPemantauanNotifikasi();
           }
         },
         loading: () => Log.info('Menunggu LocalStorageService siap...'),
         error: (e, s) {
           Log.error('Error pada localStorageServiceProvider', e: e, s: s);
-          notifikasiService.hentikanPemantauanNotifikasi();
+          layananNotifikasi.hentikanPemantauanNotifikasi();
         },
       );
     });
@@ -76,6 +76,6 @@ void pengontrolNotifikasi(Ref ref) {
   ref.onDispose(() {
     Log.info(
         'Notifikasi controller di-dispose, menghentikan semua pemantauan.');
-    notifikasiService.hentikanPemantauanNotifikasi();
+    layananNotifikasi.hentikanPemantauanNotifikasi();
   });
 }

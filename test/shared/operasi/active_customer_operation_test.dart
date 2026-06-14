@@ -20,7 +20,7 @@ import 'active_customer_operation_test.mocks.dart';
   SqliteDatabase,
   BaseOpSqlite,
   PelangganOpSqlite,
-  NotifikasiServis,
+  LayananNotifikasi,
   Database,
   Transaction,
 ])
@@ -47,7 +47,7 @@ void main() {
       sqliteDb: mockDbHelper,
       baseOpSqlite: mockBaseOperation,
       pelangganOpSqlite: mockCustomerOperation,
-      notifikasiServis: mockNotifikasiServis,
+      layananNotifikasi: mockNotifikasiServis,
     );
   });
 

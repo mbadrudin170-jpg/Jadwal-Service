@@ -5,7 +5,7 @@ import 'package:toastification/toastification.dart';
 import 'package:wifi/shared/debug/global_key.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/theme/app_theme.dart';
-import 'package:wifi/shared/theme/theme_provider.dart';
+import 'package:wifi/shared/theme/tema_provider.dart';
 import 'package:wifi/user/page/splash_screen_user.dart';
 
 class AppUser extends ConsumerWidget {
@@ -15,7 +15,7 @@ class AppUser extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(notifikasiServisProvider);
 
-    final themeAsync = ref.watch(themeProvider);
+    final themeAsync = ref.watch(temaProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     final localStorageAsync = ref.watch(localStorageServiceProvider);
 

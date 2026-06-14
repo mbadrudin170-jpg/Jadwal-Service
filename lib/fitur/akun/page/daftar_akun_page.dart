@@ -219,14 +219,14 @@ class DaftarAkunPage extends ConsumerWidget {
               final navigator = Navigator.of(context);
               final dialogNavigator = Navigator.of(dialogContext);
               try {
-                final storage =
-                    await ref.read(localStorageServiceProvider.future);
+                final penyimpananLokal =
+                    await ref.read(layananPenyimpananLokalProvider.future);
                 Log.info('Keluar & hapus akun yang sedang digunakan');
-                final account = await storage.ambilAkunLogin();
-                if (account != null) {
+                final akun = await penyimpananLokal.ambilAkunLogin();
+                if (akun != null) {
                   await ref
                       .read(pengelolaAkunProvider.notifier)
-                      .hapusAkun(account.id);
+                      .hapusAkun(akun.id);
                 }
 
                 if (dialogNavigator.context.mounted) {

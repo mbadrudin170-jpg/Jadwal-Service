@@ -149,7 +149,7 @@ class AppMaterial extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(notifikasiServisProvider);
 
-    final themeAsync = ref.watch(themeProvider);
+    final themeAsync = ref.watch(temaProvider);
 
     return themeAsync.when(
       data: (themeMode) => ToastificationWrapper(

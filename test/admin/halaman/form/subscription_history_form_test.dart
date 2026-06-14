@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider
 
 class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
 
-class MockNotifikasiServis extends Mock implements NotifikasiServis {}
+class MockNotifikasiServis extends Mock implements LayananNotifikasi {}
 
 class MockKoneksiInternetService extends Mock
     implements KoneksiInternetService {}

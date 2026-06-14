@@ -52,7 +52,7 @@ final class PaketOpSqliteProvider
   }
 }
 
-String _$paketOpSqliteHash() => r'31571fdf6b654bd850f966aab5dd5efe395e41f6';
+String _$paketOpSqliteHash() => r'98ae460628fbf307b0a963ff22d65798162b0399';
 
 /// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
 
@@ -197,7 +197,7 @@ final class PelangganAktifOpSqliteProvider extends $FunctionalProvider<
 }
 
 String _$pelangganAktifOpSqliteHash() =>
-    r'1f79d12c7b0600624e10ad58dd24881cbaaba984';
+    r'65aa2f35af222e917b96ca308cefd69c03afed45';
 
 /// Provider untuk menyediakan instance dari [ApkVersionOperation].
 
@@ -246,7 +246,7 @@ final class ApkVersionOperationProvider extends $FunctionalProvider<
 }
 
 String _$apkVersionOperationHash() =>
-    r'e6398c0147bbd35a6ed96884dd71fcc0f9006bde';
+    r'90bc908c7540b24a77e644ac8899a535d1b3b012';
 
 /// Provider untuk menyediakan instance dari [KategoriOpSqlite].
 
@@ -293,7 +293,7 @@ final class KategoriOpSqliteProvider extends $FunctionalProvider<
   }
 }
 
-String _$kategoriOpSqliteHash() => r'240480e5af305e974c1c4ab61e500b5018a631a7';
+String _$kategoriOpSqliteHash() => r'ccf68283b35458e7bfbfd4f3a6612fac4e17d4d8';
 
 /// Provider untuk menyediakan instance dari [DataCleaningOperation].
 

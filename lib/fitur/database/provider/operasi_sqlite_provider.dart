@@ -25,12 +25,12 @@ part 'operasi_sqlite_provider.g.dart';
 PaketOpSqlite paketOpSqlite(Ref ref) {
   Log.info('Membuat instance PackageOperation via @riverpod...');
 
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqliteDb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return PaketOpSqlite(
-    sqliteDb: dbHelper,
-    basOpSqlite: baseOperation,
+    sqliteDb: sqliteDb,
+    basOpSqlite: baseOpSqlite,
   );
 }
 
@@ -67,13 +67,13 @@ PelangganAktifOpSqlite pelangganAktifOpSqlite(Ref ref) {
   final sqliteDb = ref.watch(sqliteDatabaseProvider);
   final baseOpSqlite = ref.watch(baseOpSqliteProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final notifikasiServis = ref.watch(notifikasiServisProvider);
+  final layananNotifikasi = ref.watch(layananNotifikasiProvider);
 
   return PelangganAktifOpSqlite(
     sqliteDb: sqliteDb,
     baseOpSqlite: baseOpSqlite,
     pelangganOpSqlite: pelangganOpSqlite,
-    notifikasiServis: notifikasiServis,
+    layananNotifikasi: layananNotifikasi,
   );
 }
 
@@ -86,7 +86,7 @@ ApkVersionOperation apkVersionOperation(Ref ref) {
 
   return ApkVersionOperation(
     dbHelper: sqliteDb,
-    baseOperation: baseOpSqlite,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 
@@ -94,12 +94,12 @@ ApkVersionOperation apkVersionOperation(Ref ref) {
 @Riverpod(keepAlive: true)
 KategoriOpSqlite kategoriOpSqlite(Ref ref) {
   Log.info('Membuat instance CategoryOperation via @riverpod...');
-  final dbHelper = ref.watch(sqliteDatabaseProvider);
-  final baseOperation = ref.watch(baseOpSqliteProvider);
+  final sqlitedb = ref.watch(sqliteDatabaseProvider);
+  final baseOpSqlite = ref.watch(baseOpSqliteProvider);
 
   return KategoriOpSqlite(
-    sqlitedb: dbHelper,
-    baseOperation: baseOperation,
+    sqlitedb: sqlitedb,
+    baseOpSqlite: baseOpSqlite,
   );
 }
 

@@ -10,7 +10,7 @@ import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'penjadwal_notifikasi_test.mocks.dart';
 
 // Menjalankan build_runner: flutter pub run build_runner build --delete-conflicting-outputs
-@GenerateMocks([NotifikasiServis, TransactionOpFirebase])
+@GenerateMocks([LayananNotifikasi, TransactionOpFirebase])
 void main() {
   late MockNotifikasiServis mockNotifikasiServis;
   // `TransactionOpFirebase` tidak bisa di-mock dengan mudah karena

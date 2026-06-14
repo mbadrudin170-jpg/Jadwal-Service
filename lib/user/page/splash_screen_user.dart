@@ -139,9 +139,9 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _initializeOfflineServices() async {
-    await NotifikasiServis()
+    await LayananNotifikasi()
         .inisialisasiNotifikasi(iconName: 'ic_notification');
-    await NotifikasiServis().mintaIzin();
+    await LayananNotifikasi().mintaIzin();
     await initializeDateFormatting('id_ID');
   }
 

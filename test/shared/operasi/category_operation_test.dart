@@ -29,7 +29,7 @@ void main() {
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
     categoryOperation = KategoriOpSqlite(
       sqlitedb: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      baseOpSqlite: mockBaseOperation,
     );
   });
 

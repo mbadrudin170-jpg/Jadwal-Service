@@ -24,7 +24,7 @@ void main() {
   // WAJIB: Atasi error "Binding has not yet been initialized"
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late NotifikasiServis notifikasiServis;
+  late LayananNotifikasi notifikasiServis;
   late MockFlutterLocalNotificationsPlugin mockPlugin;
   late MockAndroidFlutterLocalNotificationsPlugin mockAndroidPlugin;
   late MockNotifikasiOpFirebase mockNotifikasiOp;
@@ -37,7 +37,7 @@ void main() {
     mockPlugin = MockFlutterLocalNotificationsPlugin();
     mockAndroidPlugin = MockAndroidFlutterLocalNotificationsPlugin();
     mockNotifikasiOp = MockNotifikasiOpFirebase();
-    notifikasiServis = NotifikasiServis.testing(mockPlugin);
+    notifikasiServis = LayananNotifikasi.testing(mockPlugin);
 
     // Mengatur agar pemanggilan resolvePlatformSpecificImplementation mengembalikan mock android
     when(mockPlugin.resolvePlatformSpecificImplementation<

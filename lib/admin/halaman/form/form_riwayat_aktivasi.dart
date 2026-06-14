@@ -97,7 +97,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
 
     // Mengakses dependency melalui Riverpod's ref
     final transactionOperation = ref.read(transaksiOpSqliteProvider);
-    final notifikasiServis = ref.read(notifikasiServisProvider);
+    final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
       final updatedTransaction = widget.transaksi.copyWith(
@@ -114,10 +114,10 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       Log.info('Transaksi berhasil diperbarui di database.');
       ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
-        notifikasiServis: notifikasiServis,
+        layananNotifikasi: layananNotifikasi,
         statusSebelumnya: widget.transaksi.paymentStatus,
         statusSekarang: _paymentStatus,
-        endDate: _endDate,
+        tanggalBerakhir: _endDate,
       );
 
       if (!mounted) return;
@@ -149,21 +149,21 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   }
 
   Future<void> _handleExpiryNotification({
-    required NotifikasiServis notifikasiServis,
+    required LayananNotifikasi layananNotifikasi,
     required PaymentStatus statusSebelumnya,
     required PaymentStatus statusSekarang,
-    required DateTime endDate,
+    required DateTime tanggalBerakhir,
   }) async {
     final idNotifikasi = widget.transaksi.id.hashCode;
     final wasPaid = statusSebelumnya == PaymentStatus.paid;
     final isNowPaid = statusSekarang == PaymentStatus.paid;
 
     if ((!wasPaid && isNowPaid) || (wasPaid && isNowPaid)) {
-      final jadwal = endDate;
+      final jadwal = tanggalBerakhir;
       if (jadwal.isAfter(DateTime.now())) {
         Log.info(
             'Menjadwalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi pada $jadwal');
-        await notifikasiServis.perbaruiJadwalNotifikasi(
+        await layananNotifikasi.perbaruiJadwalNotifikasi(
           id: idNotifikasi,
           title: 'Langganan Telah Berakhir',
           body:
@@ -174,7 +174,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     } else if (wasPaid && !isNowPaid) {
       Log.info(
           'Membatalkan notifikasi berakhirnya paket untuk ID: $idNotifikasi karena status tidak lagi LUNAS.');
-      await notifikasiServis.batalNotifikasi(idNotifikasi);
+      await layananNotifikasi.batalNotifikasi(idNotifikasi);
     }
   }
 

@@ -139,7 +139,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Future<void> _tanganiPilihAkunTersedia() async {
     if (_sedangLogin) return;
     final layananPenyimpananLokal =
-        await ref.read(localStorageServiceProvider.future);
+        await ref.read(layananPenyimpananLokalProvider.future);
     final akun = await layananPenyimpananLokal.ambilDaftarAkun();
     if (!mounted) return;
 

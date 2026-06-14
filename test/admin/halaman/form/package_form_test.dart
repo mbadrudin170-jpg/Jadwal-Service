@@ -6,30 +6,30 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/shared/enum/enum.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
 
-class MockPackageOperation extends Mock implements PaketOpSqlite {}
+class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
 void main() {
-  late MockPackageOperation mockPackageOperation;
+  late MockPaketOpSqlite mockPackageOperation;
   late PaketModel testPackage;
 
   setUp(() {
-    mockPackageOperation = MockPackageOperation();
+    mockPackageOperation = MockPaketOpSqlite();
     testPackage = PaketModel(
       id: '1',
-      name: 'Test Package',
-      price: 10000,
-      duration: 30,
-      type: DurationType.days,
+      nama: 'Test Package',
+      harga: 10000,
+      durasi: 30,
+      tipe: TipeDurasi.hari,
     );
   });
 
   Widget createTestWidget({PaketModel? package}) {
     return ProviderScope(
       overrides: [
-        packageOperationProvider.overrideWithValue(mockPackageOperation),
+        paketOpSqliteProvider.overrideWithValue(mockPackageOperation),
       ],
       child: MaterialApp(
         home: FormPaket(paket: package),

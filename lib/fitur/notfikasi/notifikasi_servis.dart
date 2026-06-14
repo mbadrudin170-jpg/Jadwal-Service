@@ -23,16 +23,16 @@ void onDidReceiveBackgroundNotificationResponse(
   debugPrint('Notifikasi background di-tap. Payload: ${response.payload}');
 }
 
-class NotifikasiServis {
-  static NotifikasiServis? _instance;
+class LayananNotifikasi {
+  static LayananNotifikasi? _instance;
 
-  /// Menyediakan instance tunggal (Singleton) dari [NotifikasiServis].
+  /// Menyediakan instance tunggal (Singleton) dari [LayananNotifikasi].
   ///
   /// Jika instance belum ada, ia akan membuat yang baru.
-  factory NotifikasiServis() {
+  factory LayananNotifikasi() {
     if (_instance == null) {
       Log.info('Membuat instance baru untuk NotifikasiServis (Singleton).');
-      _instance = NotifikasiServis._internal();
+      _instance = LayananNotifikasi._internal();
     } else {
       Log.info('Menggunakan instance NotifikasiServis yang sudah ada.');
     }
@@ -54,14 +54,14 @@ class NotifikasiServis {
   StreamSubscription<List<NotifikasiModel>>? _langgananNotifikasiFirebase;
 
   /// Konstruktor internal privat untuk implementasi Singleton.
-  NotifikasiServis._internal() : plugin = FlutterLocalNotificationsPlugin() {
+  LayananNotifikasi._internal() : plugin = FlutterLocalNotificationsPlugin() {
     Log.info('Konstruktor internal NotifikasiServis dipanggil.');
   }
 
   /// Konstruktor khusus untuk tujuan pengujian.
   /// Memungkinkan injeksi plugin palsu (mock).
   @visibleForTesting
-  NotifikasiServis.testing(this.plugin);
+  LayananNotifikasi.testing(this.plugin);
 
   // 1. Menginisialisasi konfigurasi zona waktu
   /// Menginisialisasi konfigurasi zona waktu untuk penjadwalan notifikasi.

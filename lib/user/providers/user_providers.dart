@@ -18,8 +18,8 @@ class AppReadiness extends _$AppReadiness {
 }
 
 @riverpod
-NotifikasiServis notifikasiServis(Ref ref) {
-  return NotifikasiServis();
+LayananNotifikasi notifikasiServis(Ref ref) {
+  return LayananNotifikasi();
 }
 
 @Riverpod(keepAlive: true)

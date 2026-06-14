@@ -17,7 +17,7 @@ const uuid = Uuid();
 class PelangganAktifOpSqlite {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOperation;
-  final NotifikasiServis _notifikasiServis;
+  final LayananNotifikasi _notifikasiServis;
   final PelangganOpSqlite _customerOperation;
   final String _tableName = NamaTabel.activeCustomer;
   final String _customerTableName = NamaTabel.customer;
@@ -29,10 +29,10 @@ class PelangganAktifOpSqlite {
     required this.sqliteDb,
     required BaseOpSqlite baseOpSqlite,
     required PelangganOpSqlite pelangganOpSqlite,
-    required NotifikasiServis notifikasiServis,
+    required LayananNotifikasi layananNotifikasi,
   })  : _baseOperation = baseOpSqlite,
         _customerOperation = pelangganOpSqlite,
-        _notifikasiServis = notifikasiServis {
+        _notifikasiServis = layananNotifikasi {
     Log.info('ActiveCustomerOperation diinisialisasi - Tabel: $_tableName');
   }
 
