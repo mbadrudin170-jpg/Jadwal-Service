@@ -19,7 +19,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -272,12 +272,11 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       const Divider(),
                       gapH16,
                       Text(
-                        CalculationUtil.getRemainingActivePeriodText(
+                        PerhitunganUtil.ambilTeksSisaMasaAktif(
                           pelangganAktif.endDate,
                         ),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color:
-                                  CalculationUtil.getRemainingActivePeriodColor(
+                              color: PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                 pelangganAktif.endDate,
                               ),
                               fontWeight: FontWeight.bold,

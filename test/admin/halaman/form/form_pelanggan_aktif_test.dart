@@ -1,0 +1,93 @@
+// path: test/admin/halaman/form/form_pelanggan_aktif_test.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/notifikasi_op_sqlite.dart';
+
+// Mocks
+class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
+
+class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
+
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+
+class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
+
+class MockKategoriOpSqlite extends Mock implements KategoriOpSqlite {}
+
+class MockPelangganAktifOpSqlite extends Mock implements PelangganAktifOpSqlite {}
+
+class MockNotifikasiOpSqlite extends Mock implements NotifikasiOpSqlite {}
+
+void main() {
+  late MockPelangganOpSqlite mockCustomerOperation;
+  late MockPaketOpSqlite mockPackageOperation;
+  late MockTransaksiOpsqlite mockTransactionOperation;
+  late MockDompetOpSqlite mockDompetOpSqlite;
+  late MockKategoriOpSqlite mockCategoryOperation;
+  late MockPelangganAktifOpSqlite mockActiveCustomerOperation;
+  late MockNotifikasiOpSqlite mockNotifikasiOpSqlite;
+
+  setUp(() {
+    mockCustomerOperation = MockPelangganOpSqlite();
+    mockPackageOperation = MockPaketOpSqlite();
+    mockTransactionOperation = MockTransaksiOpsqlite();
+    mockDompetOpSqlite = MockDompetOpSqlite();
+    mockCategoryOperation = MockKategoriOpSqlite();
+    mockActiveCustomerOperation = MockPelangganAktifOpSqlite();
+    mockNotifikasiOpSqlite = MockNotifikasiOpSqlite();
+  });
+
+  Widget createWidgetUnderTest({PelangganAktifModel? activeCustomer}) {
+    return ProviderScope(
+      overrides: [
+        pelangganOpSqliteProvider.overrideWithValue(mockCustomerOperation),
+        paketOpSqliteProvider.overrideWithValue(mockPackageOperation),
+        transaksiOpSqliteProvider.overrideWithValue(mockTransactionOperation),
+        dompetOpSqliteProvider.overrideWithValue(mockDompetOpSqlite),
+        kategoriOpSqliteProvider.overrideWithValue(mockCategoryOperation),
+        pelangganAktifOpSqliteProvider
+            .overrideWithValue(mockActiveCustomerOperation),
+        notifikasiOpSqliteProvider.overrideWithValue(mockNotifikasiOpSqlite),
+      ],
+      child: MaterialApp(
+        home: FormPelangganAktif(pelangganAktif: activeCustomer),
+      ),
+    );
+  }
+
+  testWidgets('01. should show loading indicator and then the form',
+      (tester) async {
+    when(() => mockCustomerOperation.ambilSemuaPelanggan())
+        .thenAnswer((_) async => <PelangganModel>[]);
+    when(() => mockPackageOperation.ambilSemuaPaketAktif())
+        .thenAnswer((_) async => <PaketModel>[]);
+    when(() => mockDompetOpSqlite.ambilSemuaDompet())
+        .thenAnswer((_) async => <DompetModel>[]);
+    when(() => mockCategoryOperation.ambilSemuaKategori())
+        .thenAnswer((_) async => <KategoriModel>[]);
+
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Form), findsOneWidget);
+  });
+}

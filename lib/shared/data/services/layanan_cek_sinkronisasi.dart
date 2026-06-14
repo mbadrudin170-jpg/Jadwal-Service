@@ -1,10 +1,10 @@
-// path: lib/shared/data/services/sync_check_service.dart
+// path: lib/shared/data/services/layanan_cek_sinkronisasi.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/data/services/new_data_check_service.dart';
+import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -12,54 +12,54 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 /// Layanan untuk mengorkestrasi proses sinkronisasi data.
-class SyncCheckService {
-  final SyncManager _syncManager;
-  final UploadDataService _uploadService;
-  final DownloadDataService _downloadService;
-  final PengecekanDataBaruService _newDataCheck;
+class LayananCekSinkronisasi {
+  final SyncManager _pengelolaSinkronisasi;
+  final UploadDataService _layananUnggah;
+  final DownloadDataService _layananUnduh;
+  final PengecekanDataBaruService _pengecekanDataBaru;
   final FirebaseFirestore _firestore;
 
   /// Konstruktor dengan injeksi dependensi (wajib).
-  SyncCheckService({
-    required SyncManager syncManager,
-    required UploadDataService uploadService,
-    required DownloadDataService downloadService,
-    required PengecekanDataBaruService newDataCheck,
+  LayananCekSinkronisasi({
+    required SyncManager pengelolaSinkronisasi,
+    required UploadDataService layananUnggah,
+    required DownloadDataService layananUnduh,
+    required PengecekanDataBaruService pengecekanDataBaru,
     required FirebaseFirestore firestore,
-  })  : _syncManager = syncManager,
-        _uploadService = uploadService,
-        _downloadService = downloadService,
-        _newDataCheck = newDataCheck,
+  })  : _pengelolaSinkronisasi = pengelolaSinkronisasi,
+        _layananUnggah = layananUnggah,
+        _layananUnduh = layananUnduh,
+        _pengecekanDataBaru = pengecekanDataBaru,
         _firestore = firestore {
     Log.info('SyncCheckService diinisialisasi dengan dependency injection.');
   }
 
   /// Menjalankan seluruh proses pengecekan dan sinkronisasi data.
-  Future<void> runSyncCheck() async {
+  Future<void> jalankanCekSinkronisasi() async {
     Log.info('Memulai siklus orkestrasi sinkronisasi global.');
 
-    final bool hasUploadedData = await _checkAndRunUpload();
-    await _checkAndRunDownload();
+    final bool sudahUnggahData = await _periksaDanJalankanUnggah();
+    await _periksaDanJalankanUnduh();
 
-    if (hasUploadedData) {
+    if (sudahUnggahData) {
       Log.info(
           'Pemicu sinkronisasi: Ada data baru yang berhasil diunggah ke server.');
-      await _updateGlobalStatus();
+      await _perbaruiStatusGlobal();
     }
     Log.info('Seluruh siklus runSyncCheck() telah berakhir dengan sukses.');
   }
 
-  Future<bool> _checkAndRunUpload() async {
+  Future<bool> _periksaDanJalankanUnggah() async {
     try {
-      final bool hasDataToUpload =
-          await _newDataCheck.apakahSqliteAdaDataBaru();
+      final bool adaDataUntukUnggah =
+          await _pengecekanDataBaru.apakahSqliteAdaDataBaru();
 
-      if (hasDataToUpload) {
-        await _uploadService.uploadSemuaData();
-        final DateTime now = DateTime.now();
-        await _syncManager.setLastUpload(now);
-        await _newDataCheck.resetButuhUpload();
-        Log.info('Metadata sinkronisasi berhasil diperbarui: $now.');
+      if (adaDataUntukUnggah) {
+        await _layananUnggah.uploadSemuaData();
+        final DateTime sekarang = DateTime.now();
+        await _pengelolaSinkronisasi.setLastUpload(sekarang);
+        await _pengecekanDataBaru.resetButuhUpload();
+        Log.info('Metadata sinkronisasi berhasil diperbarui: $sekarang.');
         return true;
       } else {
         Log.info('Tidak ditemukan record baru. Melewati fase pengunggahan.');
@@ -71,7 +71,7 @@ class SyncCheckService {
     }
   }
 
-  Future<void> _updateGlobalStatus() async {
+  Future<void> _perbaruiStatusGlobal() async {
     try {
       await _firestore
           .collection(NamaTabel.statusGlobal)
@@ -87,19 +87,19 @@ class SyncCheckService {
     }
   }
 
-  Future<void> _checkAndRunDownload() async {
+  Future<void> _periksaDanJalankanUnduh() async {
     try {
-      final bool hasNewServerData =
-          await _newDataCheck.apakahFirebaseAdaDataBaru(
+      final bool adaDataBaruDiServer =
+          await _pengecekanDataBaru.apakahFirebaseAdaDataBaru(
         namaKoleksi: NamaTabel.statusGlobal,
         idDokumen: globalStatusId,
       );
 
-      if (hasNewServerData) {
-        await _downloadService.downloadAllData();
-        final DateTime now = DateTime.now();
-        await _syncManager.setLastDownload(now);
-        Log.info('Sinkronisasi masuk selesai: $now.');
+      if (adaDataBaruDiServer) {
+        await _layananUnduh.downloadAllData();
+        final DateTime sekarang = DateTime.now();
+        await _pengelolaSinkronisasi.setLastDownload(sekarang);
+        Log.info('Sinkronisasi masuk selesai: $sekarang.');
       } else {
         Log.info('Cloud tidak memiliki pembaruan data.');
       }
@@ -112,13 +112,13 @@ class SyncCheckService {
 // ============================================================
 // Provider Riverpod untuk SyncCheckService
 // ============================================================
-final syncCheckServiceProvider = Provider<SyncCheckService>((ref) {
-  return SyncCheckService(
-    syncManager: ref.read(syncManagerProvider),
-    uploadService: ref.read(uploadDataServiceProvider), // harus sudah ada
-    downloadService: ref.read(downloadDataServiceProvider), // sudah ada
-    newDataCheck:
-        ref.read(pengecekanDataBaruBaruServiceProvider), // harus sudah ada
+final layananCekSinkronisasiProvider = Provider<LayananCekSinkronisasi>((ref) {
+  return LayananCekSinkronisasi(
+    pengelolaSinkronisasi: ref.read(syncManagerProvider),
+    layananUnggah: ref.read(uploadDataServiceProvider), // harus sudah ada
+    layananUnduh: ref.read(downloadDataServiceProvider), // sudah ada
+    pengecekanDataBaru:
+        ref.read(pengecekanDataBaruServiceProvider), // harus sudah ada
     firestore: FirebaseFirestore.instance,
   );
 });

@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -24,8 +24,9 @@ void callbackDispatcher() {
       switch (task) {
         case syncTaskName:
           try {
-            final syncCheckService = container.read(syncCheckServiceProvider);
-            await syncCheckService.runSyncCheck();
+            final syncCheckService =
+                container.read(layananCekSinkronisasiProvider);
+            await syncCheckService.jalankanCekSinkronisasi();
             Log.info('Background task "$task" selesai dengan sukses.');
             return true;
           } on Object catch (e, st) {

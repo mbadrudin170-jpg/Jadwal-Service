@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 class MockCustomerModel extends Mock implements PelangganModel {}
 
@@ -36,7 +36,7 @@ void main() {
   testWidgets('01. Menampilkan indikator pemuatan saat status loading',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123')
+      pelangganDetailProvider('cust-123')
           .overrideWith((ref) => const AsyncValue.loading()),
     ];
 
@@ -48,21 +48,21 @@ void main() {
   testWidgets('02. Menampilkan pesan kesalahan saat status error',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123').overrideWith(
+      pelangganDetailProvider('cust-123').overrideWith(
           (ref) => AsyncValue.error('Gagal memuat data', StackTrace.current)),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
     await tester.pump();
 
-    expect(find.text('Error: Gagal memuat data'), findsOneWidget);
+    expect(find.text('Gagal memuat data: Gagal memuat data'), findsOneWidget);
   });
 
   testWidgets('03. Menampilkan UI detail pelanggan saat data berhasil dimuat',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123').overrideWith(
-          (ref) => Future.value((customer: mockCustomer, totalPoints: 100))),
+      pelangganDetailProvider('cust-123').overrideWith(
+          (ref) => Future.value((pelanggan: mockCustomer, totalPoin: 100))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -76,8 +76,8 @@ void main() {
   testWidgets('04. Menampilkan pesan pelanggan tidak ditemukan jika data null',
       (tester) async {
     final overrides = [
-      customerDetailProvider('cust-123').overrideWith(
-          (ref) => Future.value((customer: null, totalPoints: 0))),
+      pelangganDetailProvider('cust-123').overrideWith(
+          (ref) => Future.value((pelanggan: null, totalPoin: 0))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));

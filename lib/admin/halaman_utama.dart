@@ -13,7 +13,7 @@ import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -32,7 +32,7 @@ class HalamanUtama extends ConsumerStatefulWidget {
 class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin<HalamanUtama> {
   late StreamSubscription<List<ConnectivityResult>> _langgananKoneksi;
-  late final SyncCheckService _syncService;
+  late final LayananCekSinkronisasi _syncService;
   bool _sedangSync = false;
   int _tabDipilih = 0;
 
@@ -54,7 +54,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     FlutterNativeSplash.remove();
     Log.info('HalamanUtama initState. Offline: ${widget.isOffline}');
 
-    _syncService = ref.read(syncCheckServiceProvider);
+    _syncService = ref.read(layananCekSinkronisasiProvider);
     WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,7 +118,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     Log.info('Memulai sinkronisasi data.');
     if (mounted) setState(() => _sedangSync = true);
     try {
-      await _syncService.runSyncCheck();
+      await _syncService.jalankanCekSinkronisasi();
       Log.info('Sinkronisasi data selesai.');
     } on Exception catch (e, s) {
       Log.error('Gagal sinkronisasi data.', e: e, s: s);

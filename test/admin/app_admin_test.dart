@@ -1,3 +1,4 @@
+
 // path: test/admin/app_admin_test.dart
 import 'dart:async';
 
@@ -5,10 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/app_admin.dart';
@@ -17,7 +16,7 @@ import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/sync/unduhan_awal_service.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/model/settings_model.dart';
@@ -30,7 +29,40 @@ import 'package:wifi/shared/theme/theme_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'app_admin_test.mocks.dart';
+// Mocks
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockKoneksiInternetService extends Mock
+    implements KoneksiInternetService {}
+
+class MockNotifikasiServis extends Mock implements NotifikasiServis {}
+
+class MockUnduhanAwalService extends Mock implements UnduhanAwalService {}
+
+class MockPelangganAktifOpSqlite extends Mock
+    implements PelangganAktifOpSqlite {}
+
+class MockSettingsOpSqlite extends Mock implements SettingsOpSqlite {}
+
+class MockDataCleaningOperation extends Mock implements DataCleaningOperation {}
+
+class MockSqliteDatabase extends Mock implements SqliteDatabase {}
+
+class MockBackgroundService extends Mock implements BackgroundService {}
+
+class MockNotificationAppLaunchDetails extends Mock
+    implements NotificationAppLaunchDetails {}
+
+class MockNotificationResponse extends Mock implements NotificationResponse {}
+
+class MockLayananPenyimpananLokal extends Mock
+    implements LayananPenyimpananLokal {}
+
+class MockUploadDataService extends Mock implements UploadDataService {}
+
+class MockSyncCheckService extends Mock implements SyncCheckService {}
+
+class MockDatabase extends Mock implements Database {}
 
 // Helper Notifiers for testing theme states
 class LoadingThemeNotifier extends ThemeNotifier {
@@ -93,107 +125,95 @@ class MockWorkmanagerPlatform extends Mock
   Future<void> cancelByUniqueName(String uniqueName) async {}
 }
 
-@GenerateMocks([
-  SharedPreferences,
-  KoneksiInternetService,
-  NotifikasiServis,
-  UnduhanAwalService,
-  PelangganAktifOpSqlite,
-  SettingsOpSqlite,
-  DataCleaningOperation,
-  SqliteDatabase,
-  BackgroundService,
-  NotificationAppLaunchDetails,
-  NotificationResponse,
-  LayananPenyimpananLokal,
-  UploadDataService,
-  SyncCheckService,
-  Database,
-])
 void main() {
   late MockSharedPreferences mockPrefs;
   late MockKoneksiInternetService mockKoneksiInternetService;
   late MockNotifikasiServis mockNotifikasiServis;
-  late MockLayananUnduhAwal mockLayananUnduhAwal;
-  late MockActiveCustomerOperation mockActiveCustomerOperation;
-  late MockSettingsOperation mockSettingsOperation;
+  late MockUnduhanAwalService mockUnduhanAwalService;
+  late MockPelangganAktifOpSqlite mockPelangganAktifOpSqlite;
+  late MockSettingsOpSqlite mockSettingsOpSqlite;
   late MockDataCleaningOperation mockDataCleaningOperation;
   late MockNotificationAppLaunchDetails mockLaunchDetails;
   late MockNotificationResponse mockNotificationResponse;
   late MockLayananPenyimpananLokal mockLocalStorage;
   late MockUploadDataService mockUploadDataService;
   late MockSyncCheckService mockSyncCheckService;
-  late MockDatabaseHelper mockDatabaseHelper;
+  late MockSqliteDatabase mockDatabaseHelper;
   late MockDatabase mockDatabase;
   late MockWorkmanagerPlatform mockWorkmanagerPlatform;
+
+  setUpAll(() {
+    registerFallbackValue(ThemeMode.system);
+  });
 
   setUp(() {
     mockPrefs = MockSharedPreferences();
     mockKoneksiInternetService = MockKoneksiInternetService();
     mockNotifikasiServis = MockNotifikasiServis();
-    mockLayananUnduhAwal = MockLayananUnduhAwal();
-    mockActiveCustomerOperation = MockActiveCustomerOperation();
-    mockSettingsOperation = MockSettingsOperation();
+    mockUnduhanAwalService = MockUnduhanAwalService();
+    mockPelangganAktifOpSqlite = MockPelangganAktifOpSqlite();
+    mockSettingsOpSqlite = MockSettingsOpSqlite();
     mockDataCleaningOperation = MockDataCleaningOperation();
     mockLaunchDetails = MockNotificationAppLaunchDetails();
     mockNotificationResponse = MockNotificationResponse();
     mockLocalStorage = MockLayananPenyimpananLokal();
     mockUploadDataService = MockUploadDataService();
     mockSyncCheckService = MockSyncCheckService();
-    mockDatabaseHelper = MockDatabaseHelper();
+    mockDatabaseHelper = MockSqliteDatabase();
     mockDatabase = MockDatabase();
 
     // Inisialisasi mock Workmanager platform
     mockWorkmanagerPlatform = MockWorkmanagerPlatform();
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
 
-    when(mockUploadDataService.uploadSemuaData())
-        .thenReturn(Future.value(true));
-    when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
-    when(mockLocalStorage.ambilModeTema())
-        .thenReturn(Future.value(ThemeMode.light));
-    when(mockLocalStorage.simpanModeTema(any)).thenReturn(Future.value(true));
-    when(mockPrefs.getString(any)).thenReturn('ThemeMode.light');
-    when(mockPrefs.setString(any, any)).thenReturn(Future.value(true));
-    when(mockPrefs.remove(any)).thenReturn(Future.value(true));
+    when(() => mockUploadDataService.uploadSemuaData())
+        .thenAnswer((_) async => true);
+    when(() => mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
+    when(() => mockLocalStorage.ambilModeTema())
+        .thenAnswer((_) async => ThemeMode.light);
+    when(() => mockLocalStorage.simpanModeTema(any()))
+        .thenAnswer((_) async => true);
+    when(() => mockPrefs.getString(any())).thenReturn('ThemeMode.light');
+    when(() => mockPrefs.setString(any(), any())).thenAnswer((_) async => true);
+    when(() => mockPrefs.remove(any())).thenAnswer((_) async => true);
 
-    when(mockNotifikasiServis.getDetailPeluncuranNotifikasi())
-        .thenReturn(Future.value(mockLaunchDetails));
-    when(mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
-    when(mockLaunchDetails.notificationResponse)
+    when(() => mockNotifikasiServis.getDetailPeluncuranNotifikasi())
+        .thenAnswer((_) async => mockLaunchDetails);
+    when(() => mockLaunchDetails.didNotificationLaunchApp).thenReturn(false);
+    when(() => mockLaunchDetails.notificationResponse)
         .thenReturn(mockNotificationResponse);
-    when(mockNotificationResponse.payload).thenReturn(null);
+    when(() => mockNotificationResponse.payload).thenReturn(null);
 
-    when(mockActiveCustomerOperation.archiveExpiredCustomers())
-        .thenReturn(Future.value(0));
-    when(mockSettingsOperation.getSettings())
-        .thenReturn(Future.value(SettingsModel()));
-    when(mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
-            retentionDays: anyNamed('retentionDays')))
-        .thenReturn(Future.value(0));
-    when(mockLayananUnduhAwal.jalankanUnduhanAwal()).thenAnswer((_) async {});
-    when(mockDatabaseHelper.database).thenReturn(Future.value(mockDatabase));
-    when(mockActiveCustomerOperation.getAllActiveCustomersWithDetails())
-        .thenReturn(Future.value([]));
+    when(() => mockPelangganAktifOpSqlite.arsipPelangganKadaluarsa())
+        .thenAnswer((_) async => 0);
+    when(() => mockSettingsOpSqlite.getSettings())
+        .thenAnswer((_) async => SettingsModel());
+    when(() => mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
+        retentionDays: any(named: 'retentionDays'))).thenAnswer((_) async => 0);
+    when(() => mockUnduhanAwalService.jalankanUnduhanAwal())
+        .thenAnswer((_) async {});
+    when(() => mockDatabaseHelper.database)
+        .thenAnswer((_) async => mockDatabase);
+    when(() => mockPelangganAktifOpSqlite.getAllActiveCustomersWithDetails())
+        .thenAnswer((_) async => []);
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
   Widget createTestWidget({List<Override> overrides = const []}) {
     return ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(AsyncValue.data(mockPrefs)),
+        sharedPreferencesProvider.overrideWith((ref) => mockPrefs),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
-        unduhanAwalServiceProvider.overrideWithValue(mockLayananUnduhAwal),
-        activeCustomerOperationProvider
-            .overrideWithValue(mockActiveCustomerOperation),
-        settingsOperationProvider.overrideWithValue(mockSettingsOperation),
+        unduhanAwalServiceProvider.overrideWithValue(mockUnduhanAwalService),
+        pelangganAktifOpSqliteProvider
+            .overrideWithValue(mockPelangganAktifOpSqlite),
+        settingsOpSqliteProvider.overrideWithValue(mockSettingsOpSqlite),
         dataCleaningOperationProvider
             .overrideWithValue(mockDataCleaningOperation),
         sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
-        localStorageServiceProvider
-            .overrideWithValue(AsyncValue.data(mockLocalStorage)),
+        localStorageServiceProvider.overrideWith((ref) => mockLocalStorage),
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
         syncCheckServiceProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,
@@ -204,7 +224,7 @@ void main() {
 
   group('Pengujian Widget AppAdmin', () {
     testWidgets(
-        '1. Menampilkan CircularProgressIndicator saat SharedPreferences loading',
+        '01. Menampilkan CircularProgressIndicator saat SharedPreferences loading',
         (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -220,13 +240,12 @@ void main() {
     });
 
     testWidgets(
-        '2. Menampilkan pesan error saat SharedPreferences gagal dimuat',
+        '02. Menampilkan pesan error saat SharedPreferences gagal dimuat',
         (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            sharedPreferencesProvider
-                .overrideWith((ref) => Future.error('Gagal')),
+            sharedPreferencesProvider.overrideWith((ref) => Future.error('Gagal')),
           ],
           child: const AppAdmin(),
         ),
@@ -237,7 +256,7 @@ void main() {
     });
 
     testWidgets(
-        '3. Menampilkan AppInitializer saat SharedPreferences berhasil dimuat',
+        '03. Menampilkan AppInitializer saat SharedPreferences berhasil dimuat',
         (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -246,25 +265,25 @@ void main() {
   });
 
   group('Pengujian Inisialisasi Aplikasi (AppInitializer)', () {
-    testWidgets('4. Menampilkan HalamanUtama dengan status ONLINE',
+    testWidgets('04. Menampilkan HalamanUtama dengan status ONLINE',
         (tester) async {
-      when(mockKoneksiInternetService.cekKoneksiLokal())
-          .thenReturn(Future.value(true));
+      when(() => mockKoneksiInternetService.cekKoneksiLokal())
+          .thenAnswer((_) async => true);
 
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      verify(mockKoneksiInternetService.cekKoneksiLokal()).called(1);
+      verify(mockKoneksiInternetService.cekKoneksiLokal).called(1);
 
       expect(find.byType(HalamanUtama), findsOneWidget);
       final halamanUtama =
           tester.widget<HalamanUtama>(find.byType(HalamanUtama));
       expect(halamanUtama.isOffline, isFalse);
     });
-    testWidgets('5. Menampilkan HalamanUtama dengan status OFFLINE',
+    testWidgets('05. Menampilkan HalamanUtama dengan status OFFLINE',
         (tester) async {
-      when(mockKoneksiInternetService.cekKoneksiLokal())
-          .thenReturn(Future.value(false));
+      when(() => mockKoneksiInternetService.cekKoneksiLokal())
+          .thenAnswer((_) async => false);
 
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
@@ -274,14 +293,14 @@ void main() {
           tester.widget<HalamanUtama>(find.byType(HalamanUtama));
       expect(halamanUtama.isOffline, isTrue);
 
-      verifyNever(mockLayananUnduhAwal.jalankanUnduhanAwal());
-      verifyNever(mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
-          retentionDays: anyNamed('retentionDays')));
+      verifyNever(() => mockUnduhanAwalService.jalankanUnduhanAwal());
+      verifyNever(() => mockDataCleaningOperation.hapusPermanentDataYangDiarsip(
+          retentionDays: any(named: 'retentionDays')));
     });
   });
 
   group('Pengujian AppMaterial', () {
-    testWidgets('7. Menampilkan loading indicator saat tema sedang loading',
+    testWidgets('06. Menampilkan loading indicator saat tema sedang loading',
         (tester) async {
       await tester.pumpWidget(createTestWidget(
           overrides: [themeProvider.overrideWith(LoadingThemeNotifier.new)]));
@@ -291,14 +310,14 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsWidgets);
     });
 
-    testWidgets('8. Menampilkan pesan error saat tema gagal dimuat',
+    testWidgets('07. Menampilkan pesan error saat tema gagal dimuat',
         (tester) async {
       await tester.pumpWidget(createTestWidget(
           overrides: [themeProvider.overrideWith(ErrorThemeNotifier.new)]));
 
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Gagal memuat tema:'), findsOneWidget);
+      expect(find.textContaining('Gagal memuat tema'), findsOneWidget);
     });
   });
 }

@@ -11,7 +11,7 @@ import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:workmanager/workmanager.dart';
@@ -19,7 +19,7 @@ import 'package:workmanager/workmanager.dart';
 // Mocks
 class MockWorkmanager extends Mock implements Workmanager {}
 
-class MockSyncCheckService extends Mock implements SyncCheckService {}
+class MockSyncCheckService extends Mock implements LayananCekSinkronisasi {}
 
 class MockExpiredSubscriptionCheckService extends Mock
     implements ArsipLanggananKadaluarsaService {}
@@ -66,7 +66,8 @@ void main() {
           frequency: any(named: 'frequency'),
           constraints: any(named: 'constraints'),
         )).thenAnswer((_) async {});
-    when(() => mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
+    when(() => mockSyncCheckService.jalankanCekSinkronisasi())
+        .thenAnswer((_) async {});
     when(() => mockExpiredSubscriptionCheckService
         .prosesArsipLanggananKadaluarsa()).thenAnswer((_) async {});
     when(() => mockConnectivity.onConnectivityChanged)
@@ -82,7 +83,7 @@ void main() {
   ProviderContainer createProviderContainer() {
     final container = ProviderContainer(
       overrides: [
-        syncCheckServiceProvider.overrideWithValue(mockSyncCheckService),
+        layananCekSinkronisasiProvider.overrideWithValue(mockSyncCheckService),
         arsipLanggananKadaluarsaServiceProvider
             .overrideWithValue(mockExpiredSubscriptionCheckService),
       ],
@@ -114,7 +115,7 @@ void main() {
           )).called(1);
       verify(() => mockExpiredSubscriptionCheckService
           .prosesArsipLanggananKadaluarsa()).called(1);
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
     });
 
     testWidgets(
@@ -179,14 +180,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Awalnya dipanggil sekali di initState
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
 
       // Simulasikan koneksi kembali
       connectivityStreamController.add([ConnectivityResult.wifi]);
       await tester.pumpAndSettle();
 
       // Seharusnya dipanggil lagi
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
     });
 
     testWidgets('Test 06: Sinkronisasi dipicu saat aplikasi resumed',
@@ -198,20 +199,20 @@ void main() {
       await tester.pumpAndSettle();
 
       // Awalnya dipanggil sekali
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
 
       // Simulasikan app resume
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
 
       // Seharusnya dipanggil lagi
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
     });
 
     testWidgets('Test 07: Penanganan error saat sinkronisasi gagal',
         (tester) async {
       SharedPreferences.setMockInitialValues({});
-      when(() => mockSyncCheckService.runSyncCheck())
+      when(() => mockSyncCheckService.jalankanCekSinkronisasi())
           .thenThrow(Exception('Gagal Sinkronisasi'));
       final container = createProviderContainer();
 
@@ -219,7 +220,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verifikasi bahwa meskipun gagal, tidak ada error yang dilempar oleh widget
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
       expect(tester.takeException(), isNull);
     });
 
@@ -227,7 +228,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final container = createProviderContainer();
       final completer = Completer<void>();
-      when(() => mockSyncCheckService.runSyncCheck())
+      when(() => mockSyncCheckService.jalankanCekSinkronisasi())
           .thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(createTestWidget(false, container));
@@ -242,7 +243,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verifikasi runSyncCheck hanya dipanggil sekali
-      verify(() => mockSyncCheckService.runSyncCheck()).called(1);
+      verify(() => mockSyncCheckService.jalankanCekSinkronisasi()).called(1);
     });
   });
 }

@@ -9,7 +9,7 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/widget/package_name.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
@@ -192,11 +192,11 @@ class _SubscriptionHistoryPageState
                                   .ambilBerdasarkanId(tx.packageId!)
                               : Future<PaketModel?>.value();
                           final activeText = tx.endDate != null
-                              ? CalculationUtil.getRemainingActivePeriodText(
+                              ? PerhitunganUtil.ambilTeksSisaMasaAktif(
                                   tx.endDate!)
                               : 'N/A';
                           final activeColor = tx.endDate != null
-                              ? CalculationUtil.getRemainingActivePeriodColor(
+                              ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                   tx.endDate!)
                               : Colors.grey;
                           return Card(

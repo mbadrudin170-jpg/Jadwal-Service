@@ -6,7 +6,8 @@
 import 'dart:async' as _i3;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:wifi/shared/data/services/new_data_check_service.dart' as _i7;
+import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart'
+    as _i7;
 import 'package:wifi/shared/data/sync/download_data.dart' as _i6;
 import 'package:wifi/shared/data/sync/upload_data.dart' as _i4;
 import 'package:wifi/shared/export/model.dart' as _i5;

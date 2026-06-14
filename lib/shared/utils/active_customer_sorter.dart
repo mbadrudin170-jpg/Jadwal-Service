@@ -12,7 +12,7 @@
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 
 /// Opsi pengurutan untuk daftar pelanggan aktif.
 enum SortOption {
@@ -108,9 +108,9 @@ class ActiveCustomerSorter {
       case SortOption.inactivePackage:
         comparator = (final a, final b) {
           final isActiveA =
-              CalculationUtil.remainingDays(a.pelangganAktif.endDate) >= 0;
+              PerhitunganUtil.sisaHari(a.pelangganAktif.endDate) >= 0;
           final isActiveB =
-              CalculationUtil.remainingDays(b.pelangganAktif.endDate) >= 0;
+              PerhitunganUtil.sisaHari(b.pelangganAktif.endDate) >= 0;
           if (isActiveA == isActiveB) {
             return a.pelangganAktif.endDate.compareTo(b.pelangganAktif.endDate);
           }

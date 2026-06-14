@@ -1,12 +1,5 @@
-// path: lib/shared/data/services/new_data_check_service.dart
-//
-// 📂 FILE INI DIGUNAKAN OLEH:
-//   - Digunakan sebagai service pengecekan data baru untuk sinkronisasi.
-//
-// 📂 FILE INI MENGGUNAKAN:
-//   - lib/shared/operasi/upload_status_operation.dart (UploadStatusOperation)
-//   - lib/shared/utils/sync_manager.dart (SyncManager)
-//   - lib/shared/debug/log.dart (Log)
+// path: lib/shared/data/services/pengecekan_data_baru_service.dart
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +14,6 @@ class PengecekanDataBaruService {
   final SyncManager _syncManager;
   final StatusUploadOpSqlite _statusUploadOpSqlite;
 
-  /// Konstruktor dengan injeksi dependensi.
   PengecekanDataBaruService({
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
@@ -32,9 +24,6 @@ class PengecekanDataBaruService {
     Log.info('NewDataCheckService diinisialisasi dengan dependency injection.');
   }
 
-  /// Memeriksa apakah ada data baru di SQLite yang perlu diunggah.
-  ///
-  /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
   Future<bool> apakahSqliteAdaDataBaru() async {
     Log.info(
       'Memulai prosedur pengecekan data lokal di SQLite. Sistem akan memverifikasi apakah ada perubahan data yang belum diunggah ke server.',
@@ -44,9 +33,9 @@ class PengecekanDataBaruService {
       Log.info(
         'Mengakses UploadStatusOperation untuk membaca nilai dari kolom need_upload di database internal. Ini adalah indikator utama apakah aplikasi memiliki payload baru.',
       );
-      final bool result = await _statusUploadOpSqlite.ambilButuhUpload();
+      final bool hasil = await _statusUploadOpSqlite.ambilButuhUpload();
 
-      if (result) {
+      if (hasil) {
         Log.info(
           'Hasil pengecekan SQLite: Ditemukan bendera need_upload bernilai TRUE. Aplikasi memiliki data baru yang harus segera disinkronisasikan ke server.',
         );
@@ -55,7 +44,7 @@ class PengecekanDataBaruService {
           'Hasil pengecekan SQLite: Bendera need_upload bernilai FALSE. Tidak ada perubahan data lokal yang memerlukan tindakan pengunggahan saat ini.',
         );
       }
-      return result;
+      return hasil;
     } on Exception catch (e, s) {
       Log.error(
         'Gagal melakukan pengecekan status need_upload pada SQLite. Terjadi kesalahan pada query database atau akses file database lokal terhambat.',
@@ -66,7 +55,6 @@ class PengecekanDataBaruService {
     }
   }
 
-  /// Mereset status `need_upload` menjadi false.
   Future<void> resetButuhUpload() async {
     Log.info('Mereset bendera need_upload menjadi false.');
     try {
@@ -81,12 +69,6 @@ class PengecekanDataBaruService {
     }
   }
 
-  /// Memeriksa apakah ada data baru di Firebase yang perlu diunduh.
-  ///
-  /// Membandingkan waktu terakhir diunduh secara lokal dengan waktu terakhir
-  /// diperbarui di Firebase.
-  ///
-  /// Mengembalikan `true` jika ada data baru, `false` jika tidak.
   Future<bool> apakahFirebaseAdaDataBaru({
     required final String namaKoleksi,
     required final String idDokumen,
@@ -108,17 +90,17 @@ class PengecekanDataBaruService {
       Log.info(
         'Membangun referensi dokumen Firestore dan memulai permintaan pengambilan data langsung dari server cloud (Source.server).',
       );
-      final DocumentReference docRef =
+      final DocumentReference referensiDokumen =
           _firestore.collection(namaKoleksi).doc(idDokumen);
-      final DocumentSnapshot docSnapshot = await docRef.get(
+      final DocumentSnapshot snapshotDokumen = await referensiDokumen.get(
         const GetOptions(source: Source.server),
       );
 
-      if (docSnapshot.exists && docSnapshot.data() != null) {
+      if (snapshotDokumen.exists && snapshotDokumen.data() != null) {
         Log.info(
           'Dokumen status ditemukan di server. Melakukan ekstraksi payload data untuk mencari field pembanding.',
         );
-        final data = docSnapshot.data() as Map<String, dynamic>;
+        final data = snapshotDokumen.data() as Map<String, dynamic>;
 
         if (data.containsKey(NamaKolom.updatedAt)) {
           Log.info(
@@ -138,8 +120,8 @@ class PengecekanDataBaruService {
 
           Log.info('Waktu pembaruan di server adalah: $tanggalUpdateAt');
 
-          final bool isAfter = tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
-          if (isAfter) {
+          final bool apakahLebihBaru = tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
+          if (apakahLebihBaru) {
             Log.info(
               'Kesimpulan: Waktu server ($tanggalUpdateAt) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
             );
@@ -148,7 +130,7 @@ class PengecekanDataBaruService {
               'Kesimpulan: Waktu server tidak lebih baru daripada waktu lokal. Data aplikasi saat ini sudah sinkron dengan versi terbaru di server.',
             );
           }
-          return isAfter;
+          return apakahLebihBaru;
         } else {
           Log.warning(
             'Struktur data dokumen di server tidak sesuai standar. Field "${NamaKolom.updatedAt}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
@@ -172,7 +154,7 @@ class PengecekanDataBaruService {
   }
 }
 
-final pengecekanDataBaruBaruServiceProvider =
+final pengecekanDataBaruServiceProvider =
     Provider<PengecekanDataBaruService>((ref) {
   return PengecekanDataBaruService(
     firestore: FirebaseFirestore.instance,

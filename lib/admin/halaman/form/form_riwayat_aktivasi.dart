@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
@@ -125,8 +125,8 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       final isOnline =
           await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
       if (isOnline) {
-        final syncCheckService = ref.read(syncCheckServiceProvider);
-        syncCheckService.runSyncCheck();
+        final syncCheckService = ref.read(layananCekSinkronisasiProvider);
+        syncCheckService.jalankanCekSinkronisasi();
         if (mounted) {
           ToastUtil.success(context,
               'Riwayat langganan berhasil diperbarui dan disinkronkan.');

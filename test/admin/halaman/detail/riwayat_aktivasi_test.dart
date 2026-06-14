@@ -1,31 +1,30 @@
-// path: test/admin/halaman/detail/subscription_history_detail_test.dart
+// path: test/admin/halaman/detail/riwayat_aktivasi_test.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
-import 'package:wifi/admin/providers/detail_langganan_provider.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 // Mocks
-class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
+class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
-class MockPaketOpFirebase extends Mock implements PaketOpFirebase {}
+class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
-class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
 
 void main() {
-  late MockCustomerOpFirebase mockCustomerOperation;
-  late MockPaketOpFirebase mockPackageOperation;
-  late MockTransactionOpFirebase mockTransactionOperation;
+  late MockPelangganOpSqlite mockCustomerOperation;
+  late MockPaketOpSqlite mockPackageOperation;
+  late MockTransaksiOpsqlite mockTransactionOperation;
 
   final tCustomer = PelangganModel(
     id: 'cust1',
@@ -33,6 +32,11 @@ void main() {
     phone: '123456789',
     address: 'Test Address',
     password: 'password',
+    registrationDate: DateTime.now(),
+    fcmToken: '',
+    appVersion: '',
+    platform: '',
+    lastActive: DateTime.now(),
   );
 
   final tPackage = PaketModel(
@@ -40,7 +44,9 @@ void main() {
     name: 'Test Package',
     price: 100000,
     duration: 30,
-    type: DurationType.days,
+    durationType: DurationType.days,
+    rewardPoints: 10,
+    isPublic: true,
   );
 
   final tTransaction = TransaksiModel(
@@ -57,18 +63,17 @@ void main() {
   );
 
   setUp(() {
-    mockCustomerOperation = MockCustomerOpFirebase();
-    mockPackageOperation = MockPaketOpFirebase();
-    mockTransactionOperation = MockTransactionOpFirebase();
+    mockCustomerOperation = MockPelangganOpSqlite();
+    mockPackageOperation = MockPaketOpSqlite();
+    mockTransactionOperation = MockTransaksiOpsqlite();
   });
 
   Widget createWidgetUnderTest() {
     return ProviderScope(
       overrides: [
-        customerOpFirebaseProvider.overrideWithValue(mockCustomerOperation),
-        paketOpFirebaseProvider.overrideWithValue(mockPackageOperation),
-        transactionOpFirebaseProvider
-            .overrideWithValue(mockTransactionOperation),
+        pelangganOpSqliteProvider.overrideWithValue(mockCustomerOperation),
+        paketOpSqliteProvider.overrideWithValue(mockPackageOperation),
+        transaksiOpSqliteProvider.overrideWithValue(mockTransactionOperation),
       ],
       child: MaterialApp(
         home: DetailRiwayatAktivasi(idTransaksi: tTransaction.id),
@@ -76,8 +81,8 @@ void main() {
     );
   }
 
-  group('DetailLangganan Widget Test', () {
-    testWidgets('01. should show loading indicator when fetching data',
+  group('Widget DetailRiwayatAktivasi', () {
+    testWidgets('01. harus menampilkan loading indicator saat mengambil data',
         (tester) async {
       when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
@@ -91,7 +96,7 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('02. should show data when fetch is successful',
+    testWidgets('02. harus menampilkan data saat pengambilan berhasil',
         (tester) async {
       when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => tTransaction);
@@ -107,7 +112,7 @@ void main() {
       expect(find.text('Test Package'), findsOneWidget);
     });
 
-    testWidgets('03. should show error message when transaction is not found',
+    testWidgets('03. harus menampilkan pesan error saat transaksi tidak ditemukan',
         (tester) async {
       when(() => mockTransactionOperation.ambilBerdasarkanId(any()))
           .thenAnswer((_) async => null);

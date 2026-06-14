@@ -7,18 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
-import 'package:wifi/admin/providers/statistik_provider.dart';
+import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/common/text.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
@@ -289,11 +289,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           _pilihTanggal!.day, _pilihJam!.hour, _pilihJam!.minute);
       final int nilaiBonus =
           _isBonus ? (int.tryParse(_bonusDurationController.text) ?? 0) : 0;
-      final DateTime tanggalBerakhir = CalculationUtil.hitungTanggalBerakhir(
+      final DateTime tanggalBerakhir = PerhitunganUtil.hitungTanggalBerakhir(
         tanggalMulai,
         _paketDipilih!,
         durasiBonus: nilaiBonus,
-        durasiBonusType: _isBonus ? _bonusDurationType : null,
+        tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
       );
 
       final transaksiId =
@@ -425,7 +425,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       if (isOnline) {
         Log.info('Koneksi online, memulai sinkronisasi di latar belakang.');
 
-        ref.read(syncCheckServiceProvider).runSyncCheck();
+        ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
         successMessage = 'Berhasil disimpan. Sinkronisasi dimulai...';
       } else {
         Log.warning('Koneksi offline, sinkronisasi akan dijalankan nanti.');
@@ -671,11 +671,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             final int nilaiBonus = _isBonus
                 ? (int.tryParse(_bonusDurationController.text) ?? 0)
                 : 0;
-            final DateTime endDate = CalculationUtil.hitungTanggalBerakhir(
+            final DateTime endDate = PerhitunganUtil.hitungTanggalBerakhir(
               startDate,
               _paketDipilih!,
               durasiBonus: nilaiBonus,
-              durasiBonusType: _isBonus ? _bonusDurationType : null,
+              tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
             );
 
             return FormatWaktuLengkap.formatSingkat(endDate);

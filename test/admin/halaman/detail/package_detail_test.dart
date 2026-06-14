@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
-import 'package:wifi/admin/halaman/form/package_form.dart';
+import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 
@@ -23,9 +23,8 @@ void main() {
       name: 'Paket Super Cepat',
       price: 100000,
       duration: 30,
-      type: DurationType.days,
+      durationType: DurationType.days,
       rewardPoints: 50,
-      redemptionPoints: 500,
       isPublic: true,
     );
     mockNavigatorObserver = MockNavigatorObserver();
@@ -45,15 +44,14 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget());
 
-    expect(find.text('Paket Super Cepat'), findsOneWidget);
-    expect(find.text('Rp100.000'), findsOneWidget);
-    expect(find.text('30 hari'), findsOneWidget);
+    expect(find.text('Detail Paket'), findsOneWidget);
+    expect(find.text('Rp 100.000'), findsOneWidget);
+    expect(find.text('30 Hari'), findsOneWidget);
     expect(find.text('50'), findsOneWidget);
-    expect(find.text('500'), findsOneWidget);
-    expect(find.text('Tersedia di Aplikasi'), findsOneWidget);
+    expect(find.text('Ya'), findsOneWidget);
   });
 
-  testWidgets('02. Menavigasi ke PackageForm saat tombol edit ditekan',
+  testWidgets('02. Menavigasi ke FormPaket saat tombol edit ditekan',
       (WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget());
 
@@ -64,6 +62,6 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => mockNavigatorObserver.didPush(any(), any()));
-    expect(find.byType(PackageForm), findsOneWidget);
+    expect(find.byType(FormPaket), findsOneWidget);
   });
 }

@@ -1,4 +1,4 @@
-// path: lib/admin/providers/statistik_provider.dart
+// path: lib/fitur/statistik/provider/statistik_provider.dart
 
 import 'dart:async';
 
@@ -43,7 +43,7 @@ class StatistikState {
 
 @Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
-  StatistikOpSqlite get _repository => ref.watch(statistikOpSliteProvider);
+  StatistikOpSqlite get _statistikOpSlite => ref.watch(statistikOpSliteProvider);
 
   @override
   Future<StatistikState> build() {
@@ -57,11 +57,11 @@ class Statistik extends _$Statistik {
   Future<StatistikState> _muatData() async {
     try {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
-      final pendapatan = await _repository.getPendapatanBulanIni();
-      final pelanggan = await _repository.getTotalPelanggan();
-      final langgananAktif = await _repository.getJumlahLanggananAktif();
-      final feedbackBaru = await _repository.getJumlahFeedbackBaru();
-      final paketTerlaris = await _repository.getPaketTerlaris();
+      final pendapatan = await _statistikOpSlite.getPendapatanBulanIni();
+      final pelanggan = await _statistikOpSlite.getTotalPelanggan();
+      final langgananAktif = await _statistikOpSlite.getJumlahLanggananAktif();
+      final feedbackBaru = await _statistikOpSlite.getJumlahFeedbackBaru();
+      final paketTerlaris = await _statistikOpSlite.getPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
 
       return StatistikState(

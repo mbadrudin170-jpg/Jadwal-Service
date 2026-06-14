@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/pelanggan_provider.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -117,8 +117,8 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         final hasConnection = await cekKoneksi.cekKoneksiLokal();
         if (hasConnection) {
           Log.info('Ada koneksi internet, menjalankan sinkronisasi.');
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          syncCheckService.runSyncCheck();
+          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
+          syncCheckService.jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
                 context, 'Data pelanggan berhasil disimpan & disinkronkan.');

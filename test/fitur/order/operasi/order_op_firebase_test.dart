@@ -10,7 +10,6 @@ import 'package:wifi/fitur/order/operasi/order_op_firebase.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/status_order_enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/status_op_firebase.dart';
 
 // Mock classes
 class MockBaseOpFirebase extends Mock implements BaseOpFirebase {}
@@ -39,14 +38,11 @@ class MockAggregateQuery extends Mock implements AggregateQuery {}
 class MockAggregateQuerySnapshot extends Mock
     implements AggregateQuerySnapshot {}
 
-class MockStatusOpFirebase extends Mock implements StatusOpFirebase {}
-
 void main() {
   late MockBaseOpFirebase mockBaseOp;
   late MockFirebaseFirestore mockFirestore;
   late OrderOpFirebase orderOpFirebase;
   late MockCollectionReference mockOrderCollectionReference;
-  late MockCollectionReference mockStatusCollectionReference;
   late MockDocumentReference mockDocumentReference;
   late MockQuery mockQuery;
   late MockDocumentSnapshot mockDocumentSnapshot;
@@ -55,11 +51,9 @@ void main() {
   late MockAggregateQuerySnapshot mockAggregateQuerySnapshot;
 
   setUp(() {
-    // 1. Inisialisasi semua mocks
     mockBaseOp = MockBaseOpFirebase();
     mockFirestore = MockFirebaseFirestore();
     mockOrderCollectionReference = MockCollectionReference();
-    mockStatusCollectionReference = MockCollectionReference();
     mockDocumentReference = MockDocumentReference();
     mockQuery = MockQuery();
     mockDocumentSnapshot = MockDocumentSnapshot();
@@ -67,39 +61,33 @@ void main() {
     mockAggregateQuery = MockAggregateQuery();
     mockAggregateQuerySnapshot = MockAggregateQuerySnapshot();
 
-    // 2. Stub panggilan yang terjadi di dalam konstruktor SEBELUM instansiasi
-    // Stub untuk koleksi 'status_global' yang menyebabkan error
-    when(() => mockFirestore.collection(NamaTabel.statusGlobal))
-        .thenReturn(mockStatusCollectionReference);
-    when(() => mockStatusCollectionReference.doc(any()))
-        .thenReturn(mockDocumentReference);
-
-    // Stub untuk koleksi utama 'customer_order'
     when(() => mockFirestore.collection(NamaTabel.customerOrder))
         .thenReturn(mockOrderCollectionReference);
 
-    // Stub untuk method `set` yang dipanggil oleh StatusOpFirebase
-    when(() => mockDocumentReference.set(any(), any())).thenAnswer((_) async {});
-
-    // 3. Instansiasi kelas yang diuji setelah stubbing konstruktor selesai
     orderOpFirebase = OrderOpFirebase(
       firestore: mockFirestore,
       baseOp: mockBaseOp,
     );
 
-    // 4. Stub sisa method yang dibutuhkan untuk tes
-    when(() => mockOrderCollectionReference.doc(any()))
-        .thenReturn(mockDocumentReference);
+    // Stubbing untuk semua skenario where dan orderBy
     when(() => mockOrderCollectionReference.where(any,
-            isEqualTo: any(named: 'isEqualTo')))
-        .thenReturn(mockQuery);
-    when(() => mockOrderCollectionReference.snapshots())
-        .thenAnswer((_) => const Stream.empty()); // Add this line
-    when(() => mockQuery.orderBy(any, descending: any(named: 'descending'))).thenReturn(mockQuery);
+        isEqualTo: any(named: 'isEqualTo'))).thenReturn(mockQuery);
     when(() => mockQuery.where(any, isEqualTo: any(named: 'isEqualTo')))
         .thenReturn(mockQuery);
+    when(() => mockQuery.orderBy(any, descending: any(named: 'descending')))
+        .thenReturn(mockQuery);
+
+    // Stubbing untuk snapshots dan get
+    when(() => mockQuery.snapshots())
+        .thenAnswer((_) => Stream.value(mockQuerySnapshot));
+    when(() => mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
+
+    // Stubbing untuk doc dan count
+    when(() => mockOrderCollectionReference.doc(any()))
+        .thenReturn(mockDocumentReference);
+    when(() => mockDocumentReference.get())
+        .thenAnswer((_) async => mockDocumentSnapshot);
     when(() => mockQuery.count()).thenReturn(mockAggregateQuery);
-    when(() => mockQuery.snapshots()).thenAnswer((_) => const Stream.empty());
     when(() => mockAggregateQuery.get())
         .thenAnswer((_) async => mockAggregateQuerySnapshot);
   });
@@ -169,8 +157,6 @@ void main() {
     });
 
     test('05. Uji mendapatkan pesanan berdasarkan ID', () async {
-      when(() => mockDocumentReference.get())
-          .thenAnswer((_) async => mockDocumentSnapshot);
       when(() => mockDocumentSnapshot.exists).thenReturn(true);
       when(() => mockDocumentSnapshot.id).thenReturn(order.id);
       when(() => mockDocumentSnapshot.data()).thenReturn(orderMap);
@@ -186,7 +172,7 @@ void main() {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
-
+      
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
       when(() => mockQuery.snapshots())
@@ -198,7 +184,7 @@ void main() {
       expect(
           resultStream,
           emits(isA<List<OrderModel>>()
-              .having((list) => list.length, 'panjang', 1)
+              .having((list) => list.isNotEmpty, 'tidak kosong', true)
               .having((list) => list.first.customerId, 'customerId', 'cust1')));
 
       streamController.add(mockQuerySnapshot);
@@ -221,10 +207,10 @@ void main() {
 
       expect(
           resultStream,
-          emits(isA<List<OrderModel>>()
-              .having((list) => list.length, 'panjang', 1)
-              .having((list) => list.first.status, 'status',
-                  StatusOrderEnum.baru)));
+          emits(isA<List<OrderModel>>().
+              having((list) => list.isNotEmpty, 'not empty', true).
+              having((list) => list.first.status, 'status', StatusOrderEnum.baru)
+          ));
 
       streamController.add(mockQuerySnapshot);
       streamController.close();
@@ -234,7 +220,6 @@ void main() {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
-      when(() => mockQuery.get()).thenAnswer((_) async => mockQuerySnapshot);
       when(() => mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final result =

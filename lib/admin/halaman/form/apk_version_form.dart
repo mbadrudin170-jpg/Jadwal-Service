@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/model/apk_version_model.dart';
@@ -255,8 +255,8 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
 
         final isonline = await KoneksiInternetService().cekKoneksiLokal();
         if (isonline) {
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          unawaited(syncCheckService.runSyncCheck());
+          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
+          unawaited(syncCheckService.jalankanCekSinkronisasi());
         } else {
           Log.info('Tidak ada koneksi internet, melewati proses sinkronisasi.');
           if (mounted) {

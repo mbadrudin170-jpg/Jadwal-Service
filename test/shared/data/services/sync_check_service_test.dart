@@ -5,8 +5,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/data/services/new_data_check_service.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/pengecekan_data_baru_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
@@ -27,7 +27,7 @@ void main() {
   late MockDownloadDataService mockDownloadService;
   late MockNewDataCheckService mockNewDataCheck;
   late FakeFirebaseFirestore mockFirestore;
-  late SyncCheckService syncCheckService;
+  late LayananCekSinkronisasi syncCheckService;
 
   setUp(() {
     mockSyncManager = MockSyncManager();
@@ -36,11 +36,11 @@ void main() {
     mockNewDataCheck = MockNewDataCheckService();
     mockFirestore = FakeFirebaseFirestore();
 
-    syncCheckService = SyncCheckService(
-      syncManager: mockSyncManager,
-      uploadService: mockUploadService,
-      downloadService: mockDownloadService,
-      newDataCheck: mockNewDataCheck,
+    syncCheckService = LayananCekSinkronisasi(
+      pengelolaSinkronisasi: mockSyncManager,
+      layananUnggah: mockUploadService,
+      layananUnduh: mockDownloadService,
+      pengecekanDataBaru: mockNewDataCheck,
       firestore: mockFirestore,
     );
 
@@ -65,7 +65,7 @@ void main() {
       )).thenAnswer((_) async => true);
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       // Pastikan proses unggah terpicu
@@ -102,7 +102,7 @@ void main() {
       )).thenAnswer((_) async => false);
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       // Pastikan proses unggah terpicu
@@ -129,7 +129,7 @@ void main() {
       )).thenAnswer((_) async => true);
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       // Pastikan proses unggah diperiksa tapi tidak dieksekusi
@@ -160,7 +160,7 @@ void main() {
       )).thenAnswer((_) async => false);
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       verify(mockNewDataCheck.apakahSqliteAdaDataBaru()).called(1);
@@ -191,7 +191,7 @@ void main() {
           .thenAnswer((_) async => false);
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       verify(mockUploadService.uploadSemuaData()).called(1);
@@ -225,7 +225,7 @@ void main() {
           .thenThrow(Exception('Gagal!'));
 
       // JALANKAN
-      await syncCheckService.runSyncCheck();
+      await syncCheckService.jalankanCekSinkronisasi();
 
       // VERIFIKASI
       verify(mockDownloadService.downloadAllData()).called(1);

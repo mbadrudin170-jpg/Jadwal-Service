@@ -12,7 +12,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
@@ -223,10 +223,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     final String activePeriodText =
-        CalculationUtil.getRemainingActivePeriodText(lastSubscription.endDate!);
+        PerhitunganUtil.ambilTeksSisaMasaAktif(lastSubscription.endDate!);
     final Color activePeriodColor =
-        CalculationUtil.getRemainingActivePeriodColor(
-            lastSubscription.endDate!);
+        PerhitunganUtil.ambilWarnaSisaMasaAktif(lastSubscription.endDate!);
     final Color paymentStatusColor =
         lastSubscription.paymentStatus == PaymentStatus.paid
             ? Colors.green

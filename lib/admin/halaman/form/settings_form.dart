@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/settings_model.dart';
@@ -81,8 +81,8 @@ class _SettingsFormState extends ConsumerState<SettingsForm> {
             ref.read(koneksiInternetServiceProvider);
         final hasConnection = await internetConnectionService.cekKoneksiLokal();
         if (hasConnection) {
-          final syncCheckService = ref.read(syncCheckServiceProvider);
-          syncCheckService.runSyncCheck();
+          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
+          syncCheckService.jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
                 context, 'Pengaturan berhasil disimpan dan disinkronkan.');

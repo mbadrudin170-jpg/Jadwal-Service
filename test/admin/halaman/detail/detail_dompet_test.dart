@@ -1,4 +1,4 @@
-// path: test/admin/halaman/detail/wallet_detail_test.dart
+// path: test/admin/halaman/detail/detail_dompet_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,16 +11,16 @@ import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 
-class MockTransactionOperation extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
 
 void main() {
   late MockDompetOpSqlite mockDompetOpSqlite;
-  late MockTransactionOperation mockTransactionOperation;
+  late MockTransaksiOpsqlite mockTransactionOperation;
   late DompetModel testWallet;
 
   setUp(() {
     mockDompetOpSqlite = MockDompetOpSqlite();
-    mockTransactionOperation = MockTransactionOperation();
+    mockTransactionOperation = MockTransaksiOpsqlite();
     testWallet = DompetModel(
       id: '1',
       name: 'Test Wallet',
@@ -31,9 +31,8 @@ void main() {
   Widget createTestWidget() {
     return ProviderScope(
       overrides: [
-        walletOperationProvider.overrideWithValue(mockDompetOpSqlite),
-        transactionOperationProvider
-            .overrideWithValue(mockTransactionOperation),
+        dompetOpSqliteProvider.overrideWithValue(mockDompetOpSqlite),
+        transaksiOpSqliteProvider.overrideWithValue(mockTransactionOperation),
       ],
       child: MaterialApp(
         home: DetailDompet(
@@ -43,11 +42,11 @@ void main() {
     );
   }
 
-  testWidgets('01. WalletDetail displays wallet name and balance',
+  testWidgets('01. harus menampilkan nama dan saldo dompet',
       (tester) async {
-    when(() => mockDompetOpSqlite.getById(any()))
+    when(() => mockDompetOpSqlite.ambilBerdasarkanId(any()))
         .thenAnswer((_) async => testWallet);
-    when(() => mockTransactionOperation.getTransactionsByWalletId(any()))
+    when(() => mockTransactionOperation.ambilTransaksiBerdasarkanDompetId(any()))
         .thenAnswer((_) async => []);
 
     await tester.pumpWidget(createTestWidget());

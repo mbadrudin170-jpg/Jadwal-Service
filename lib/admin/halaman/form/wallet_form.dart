@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/data/services/sync_check_service.dart';
+import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/model/dompet_model.dart';
@@ -117,7 +117,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         final cekKoneksiLokal =
             await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
         if (cekKoneksiLokal) {
-          ref.read(syncCheckServiceProvider).runSyncCheck();
+          ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
 
           if (mounted) {
             ToastUtil.success(

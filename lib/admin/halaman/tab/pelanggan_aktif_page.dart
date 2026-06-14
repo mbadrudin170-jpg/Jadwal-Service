@@ -14,7 +14,7 @@ import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
-import 'package:wifi/shared/utils/calculation_util.dart';
+import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -405,10 +405,10 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                                       : Colors.red,
                                   fontWeight: FontWeight.bold)),
                           Text(
-                              'Status: ${CalculationUtil.getRemainingActivePeriodText(c.endDate)}',
+                              'Status: ${PerhitunganUtil.ambilTeksSisaMasaAktif(c.endDate)}',
                               style: TextStyle(
-                                  color: CalculationUtil
-                                      .getRemainingActivePeriodColor(
+                                  color:
+                                      PerhitunganUtil.ambilWarnaSisaMasaAktif(
                                           c.endDate))),
                           Text(
                               'Berakhir: ${FormatTanggal.formatDasar(c.endDate)} ${FormatJam.formatJamMenit(c.endDate)}'),
