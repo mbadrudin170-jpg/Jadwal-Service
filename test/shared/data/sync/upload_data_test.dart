@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'upload_data_test.mocks.dart';

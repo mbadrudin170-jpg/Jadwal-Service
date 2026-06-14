@@ -1,4 +1,4 @@
-// path: lib/shared/model/dompet_model.dart
+// path: lib/fitur/dompet/model/dompet_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';

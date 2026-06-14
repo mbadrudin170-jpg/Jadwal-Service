@@ -4,7 +4,7 @@
 export '../../fitur/feedback/model/feedback_model.dart';
 export '../../fitur/pelanggan/model/customer_model.dart';
 export '../model/pelanggan_aktif_model.dart';
-export '../model/apk_version_model.dart';
+export '../../fitur/versi_apk/model/versi_apk_model.dart';
 export '../model/kategori_model.dart';
 export '../model/event_model.dart';
 export '../model/has_id.dart';
@@ -17,4 +17,4 @@ export '../model/status_model.dart';
 export '../model/sub_category_model.dart';
 export '../model/transaksi_model.dart';
 export '../model/upload_status_model.dart';
-export '../model/dompet_model.dart';
+export '../../fitur/dompet/model/dompet_model.dart';

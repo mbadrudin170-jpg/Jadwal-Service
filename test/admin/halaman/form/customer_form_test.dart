@@ -8,27 +8,27 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 
-class MockCustomerOperation extends Mock implements PelangganOpSqlite {}
+class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
 void main() {
-  late MockCustomerOperation mockCustomerOperation;
+  late MockPelangganOpSqlite mockCustomerOperation;
   late PelangganModel testCustomer;
 
   setUp(() {
-    mockCustomerOperation = MockCustomerOperation();
+    mockCustomerOperation = MockPelangganOpSqlite();
     testCustomer = PelangganModel(
       id: '1',
-      name: 'Test Customer',
-      phone: '1234567890',
-      address: 'Test Address',
-      password: 'password',
+      nama: 'Test Customer',
+      telepon: '1234567890',
+      alamat: 'Test Address',
+      kataSandi: 'password',
     );
   });
 
   Widget createTestWidget({PelangganModel? customer}) {
     return ProviderScope(
       overrides: [
-        customerOperationProvider.overrideWithValue(mockCustomerOperation),
+        pelangganOpSqliteProvider.overrideWithValue(mockCustomerOperation),
       ],
       child: MaterialApp(
         home: FormPelanggan(pelanggan: customer),

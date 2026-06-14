@@ -1,5 +1,4 @@
-// path: lib/shared/model/apk_version_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
+// path: lib/fitur/versi_apk/model/versi_apk_model.dart
 
 import 'dart:convert';
 
@@ -12,7 +11,7 @@ import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model representing application version information for the user.
-class ApkVersionModel implements HasId {
+class VersiApkModel implements HasId {
   @override
   final String id;
 
@@ -44,7 +43,7 @@ class ApkVersionModel implements HasId {
   final DateTime? updatedAt;
 
   /// Constructor for creating an instance of `ApkVersionModel`.
-  ApkVersionModel({
+  VersiApkModel({
     final String? id,
     this.releaseNotes = '',
     this.latestBuildNumber = const {},
@@ -58,7 +57,7 @@ class ApkVersionModel implements HasId {
   }) : id = id ?? const Uuid().v4();
 
   /// Creates a copy of this model with updated values.
-  ApkVersionModel copyWith({
+  VersiApkModel copyWith({
     final String? id,
     final String? releaseNotes,
     final Map<ApkArchitectureEnum, int>? latestBuildNumber,
@@ -70,7 +69,7 @@ class ApkVersionModel implements HasId {
     final DateTime? archivedAt,
     final DateTime? updatedAt,
   }) {
-    return ApkVersionModel(
+    return VersiApkModel(
       id: id ?? this.id,
       releaseNotes: releaseNotes ?? this.releaseNotes,
       latestBuildNumber: latestBuildNumber ?? this.latestBuildNumber,
@@ -162,8 +161,8 @@ class ApkVersionModel implements HasId {
   // =========================
 
   /// Factory to create `ApkVersionModel` from SQLite data.
-  factory ApkVersionModel.fromSqlite(final Map<String, dynamic> map) {
-    return ApkVersionModel(
+  factory VersiApkModel.fromSqlite(final Map<String, dynamic> map) {
+    return VersiApkModel(
       id: map[NamaKolom.id] as String? ?? '',
       releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
       latestVersion: map[NamaKolom.latestVersion] as String? ?? '',
@@ -207,9 +206,9 @@ class ApkVersionModel implements HasId {
   // =========================
 
   /// Factory to create `ApkVersionModel` from Firebase data.
-  factory ApkVersionModel.fromFirebase(
+  factory VersiApkModel.fromFirebase(
       final String id, final Map<String, dynamic> map) {
-    return ApkVersionModel(
+    return VersiApkModel(
       id: id,
       releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
       latestVersion: map[NamaKolom.latestVersion] as String? ?? '',

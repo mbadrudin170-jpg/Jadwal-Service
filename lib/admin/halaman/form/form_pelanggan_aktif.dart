@@ -107,7 +107,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final results = await Future.wait<Object?>([
         pelangganAktifOpSqlite.getALl(),
         paketOpsqlite.ambilBerdasarkanAktif(),
-        dompetOpSqlite.getAll(),
+        dompetOpSqlite.ambilSemua(),
         kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);

@@ -11,12 +11,12 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/akun/provider/akun_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/fitur/sinkronisasi/update_check_service.dart';
+import 'package:wifi/fitur/versi_apk/service/update_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/event_op_supabase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/settings_op_firebase.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -33,8 +33,8 @@ import 'package:wifi/user/widget/ads/interstitial/id_interstitial_ads.dart';
 /// Record yang berisi informasi tentang pembaruan aplikasi.
 typedef UpdateInfoRecord = ({
   bool isUpdateRequired,
-  ApkVersionModel? apkInfo,
-  PackageInfoModel? packageInfo,
+  VersiApkModel? apkInfo,
+  InfoPerangkatModel? packageInfo,
   ApkArchitectureEnum? architecture
 });
 
@@ -126,7 +126,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: ( context) => UpdateApkPage(
+          builder: (context) => UpdateApkPage(
             apkInfo: updateInfo.apkInfo!,
             packageInfo: updateInfo.packageInfo!,
             architecture: updateInfo.architecture!,

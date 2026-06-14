@@ -3,7 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 
 void main() {
   group('DompetModel', () {

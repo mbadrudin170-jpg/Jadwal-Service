@@ -11,7 +11,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
@@ -82,7 +82,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
 
     try {
       final results = await Future.wait([
-        dompetOpSqlite.getById(widget.dompet.id),
+        dompetOpSqlite.ambilBerdasarkanId(widget.dompet.id),
         transaksiOpsqlite.getTransactionsByWalletId(widget.dompet.id),
       ]);
 

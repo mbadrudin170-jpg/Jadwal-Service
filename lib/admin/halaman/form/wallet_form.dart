@@ -8,7 +8,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 

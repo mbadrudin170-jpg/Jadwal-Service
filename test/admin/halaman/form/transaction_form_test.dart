@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';

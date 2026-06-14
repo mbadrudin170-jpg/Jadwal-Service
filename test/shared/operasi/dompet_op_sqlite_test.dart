@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 
@@ -44,7 +44,7 @@ void main() {
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tWalletMap]);
 
-      final result = await dompetOpSqlite.getAll();
+      final result = await dompetOpSqlite.ambilSemua();
 
       expect(result, isA<List<DompetModel>>());
       expect(result.length, 1);

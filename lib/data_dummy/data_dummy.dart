@@ -189,9 +189,9 @@ class DataDummy {
         ),
       ];
 
-  /// Daftar dummy untuk [ApkVersionModel]
-  static List<ApkVersionModel> get apkVersions => [
-        ApkVersionModel(
+  /// Daftar dummy untuk [VersiApkModel]
+  static List<VersiApkModel> get apkVersions => [
+        VersiApkModel(
           id: apkAdminV1Id,
           latestVersion: '1.0.0',
           releaseNotes: 'Versi pertama aplikasi admin.',
@@ -201,7 +201,7 @@ class DataDummy {
           },
           isUpdateRequired: true,
         ),
-        ApkVersionModel(
+        VersiApkModel(
           id: apkUserV1Id,
           latestVersion: '1.0.1',
           releaseNotes: 'Perbaikan bug dan peningkatan performa.',

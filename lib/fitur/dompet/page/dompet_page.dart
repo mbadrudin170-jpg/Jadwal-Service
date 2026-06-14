@@ -11,7 +11,7 @@ import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 

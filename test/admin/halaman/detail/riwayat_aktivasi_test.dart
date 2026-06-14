@@ -6,12 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 // Mocks
@@ -19,7 +18,7 @@ class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
 class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
-class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransactionOperation {}
 
 void main() {
   late MockPelangganOpSqlite mockCustomerOperation;
@@ -28,38 +27,34 @@ void main() {
 
   final tCustomer = PelangganModel(
     id: 'cust1',
-    name: 'Test Customer',
-    phone: '123456789',
-    address: 'Test Address',
-    password: 'password',
-    registrationDate: DateTime.now(),
-    fcmToken: '',
-    appVersion: '',
-    platform: '',
-    lastActive: DateTime.now(),
+    nama: 'Test Customer',
+    telepon: '123456789',
+    alamat: 'Test Address',
+    kataSandi: 'password',
   );
 
   final tPackage = PaketModel(
     id: 'pkg1',
-    name: 'Test Package',
-    price: 100000,
-    duration: 30,
-    durationType: DurationType.days,
-    rewardPoints: 10,
-    isPublic: true,
+    nama: 'Test Package',
+    harga: 100000,
+    durasi: 30,
+    tipeDurasi: 'Hari',
+    poinReward: 10,
+    isTersedia: true,
+    tipe: 'publik',
   );
 
   final tTransaction = TransaksiModel(
     id: 'trans1',
-    customerId: 'cust1',
-    packageId: 'pkg1',
-    date: DateTime.now(),
-    amount: 100000,
-    type: TransactionType.income,
-    paymentStatus: PaymentStatus.paid,
-    description: 'Test Description',
-    walletId: 'wallet1',
-    categoryId: 'cat1',
+    idPelanggan: 'cust1',
+    idPaket: 'pkg1',
+    tanggal: DateTime.now(),
+    jumlah: 100000,
+    tipe: 'pemasukan',
+    statusPembayaran: 'lunas',
+    deskripsi: 'Test Description',
+    idDompet: 'wallet1',
+    idKategori: 'cat1',
   );
 
   setUp(() {

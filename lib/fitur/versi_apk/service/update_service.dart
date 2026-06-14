@@ -1,4 +1,4 @@
-// path: lib/shared/services/update_service.dart
+// path: lib/fitur/versi_apk/service/update_service.dart
 
 import 'dart:io';
 
@@ -10,14 +10,14 @@ import 'package:wifi/shared/debug/log.dart';
 class UpdateService {
   final Dio _dio = Dio();
 
-  Future<void> downloadAndInstallApk({
+  Future<void> downloadDanInstallApk({
     required final String url,
-    required final String fileName,
+    required final String namaFile,
     final void Function(double)? onProgress,
   }) async {
     try {
       final Directory temporaryDirectory = await getTemporaryDirectory();
-      final String apkFilePath = '${temporaryDirectory.path}/$fileName';
+      final String apkFilePath = '${temporaryDirectory.path}/$namaFile';
       Log.info('Mulai mengunduh dari: $url ke: $apkFilePath');
 
       await _dio.download(
@@ -41,10 +41,10 @@ class UpdateService {
       }
 
       Log.info('Membuka file APK untuk instalasi...');
-      final installResult = await OpenFilex.open(apkFilePath);
+      final hasilInstall = await OpenFilex.open(apkFilePath);
 
-      if (installResult.type != ResultType.done) {
-        throw Exception('Gagal memulai instalasi: ${installResult.message}');
+      if (hasilInstall.type != ResultType.done) {
+        throw Exception('Gagal memulai instalasi: ${hasilInstall.message}');
       }
     } catch (e, s) {
       Log.error('Error saat mengunduh (Dio)', e: e, s: s);

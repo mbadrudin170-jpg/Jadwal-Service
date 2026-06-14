@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 
 // Mock kelas yang diperlukan
 class MockWalletNotifier extends Mock implements WalletNotifier {}

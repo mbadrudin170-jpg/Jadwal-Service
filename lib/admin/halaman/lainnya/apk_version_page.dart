@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -42,7 +42,7 @@ class ApkVersionPage extends ConsumerStatefulWidget {
 
 class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
   late final ApkVersionOperation _apkVersionOperation;
-  List<ApkVersionModel> _apkVersionList = [];
+  List<VersiApkModel> _apkVersionList = [];
   bool _isLoading = true;
   String? _error;
   SortOrder _currentSort = SortOrder.buildZA;
@@ -102,7 +102,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     }
   }
 
-  Future<void> _toDetail(final ApkVersionModel apkVersion) async {
+  Future<void> _toDetail(final VersiApkModel apkVersion) async {
     if (!mounted) return;
     await Navigator.push<void>(
       context,
@@ -117,7 +117,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     unawaited(_loadData());
   }
 
-  Future<void> _toEditForm(final ApkVersionModel apkVersion) async {
+  Future<void> _toEditForm(final VersiApkModel apkVersion) async {
     if (!mounted) return;
     final result = await Navigator.push<bool>(
       context,
@@ -165,7 +165,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     }
   }
 
-  Future<void> _showOptionsDialog(final ApkVersionModel version) async {
+  Future<void> _showOptionsDialog(final VersiApkModel version) async {
     if (!mounted) return;
     await showDialog<void>(
       context: context,
@@ -197,7 +197,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     );
   }
 
-  Future<void> _showArchiveDialog(final ApkVersionModel version) async {
+  Future<void> _showArchiveDialog(final VersiApkModel version) async {
     if (!mounted) return;
     final confirm = await showDialog<bool>(
       context: context,
@@ -220,7 +220,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     }
   }
 
-  Future<void> _softDelete(final ApkVersionModel version) async {
+  Future<void> _softDelete(final VersiApkModel version) async {
     Log.info('Memulai proses soft delete untuk ID: ${version.id}');
     try {
       await _apkVersionOperation.softDelete(version.id);

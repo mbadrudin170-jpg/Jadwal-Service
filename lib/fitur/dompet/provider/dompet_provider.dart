@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 
 part 'dompet_provider.freezed.dart';
 part 'dompet_provider.g.dart';
@@ -30,7 +30,7 @@ class Dompet extends _$Dompet {
   Future<DompetState> _loadData() async {
     final operation = ref.read(dompetOpSqliteProvider);
     final results = await Future.wait([
-      operation.getAll(),
+      operation.ambilSemua(),
       operation.ambilSaldoPositif(),
       operation.ambilSaldoNegatif(),
       operation.ambilTotalsaldo(),

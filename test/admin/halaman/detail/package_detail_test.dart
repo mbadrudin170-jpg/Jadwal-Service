@@ -7,7 +7,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/export/enum.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
@@ -20,12 +19,13 @@ void main() {
   setUp(() {
     testPackage = PaketModel(
       id: 'pkg-1',
-      name: 'Paket Super Cepat',
-      price: 100000,
-      duration: 30,
-      durationType: DurationType.days,
-      rewardPoints: 50,
-      isPublic: true,
+      nama: 'Paket Super Cepat',
+      harga: 100000,
+      durasi: 30,
+      tipeDurasi: 'Hari',
+      poinReward: 50,
+      isTersedia: true,
+      tipe: 'Publik',
     );
     mockNavigatorObserver = MockNavigatorObserver();
     registerFallbackValue(FakeRoute());

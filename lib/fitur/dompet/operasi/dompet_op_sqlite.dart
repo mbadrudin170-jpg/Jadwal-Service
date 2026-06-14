@@ -4,7 +4,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
@@ -42,7 +42,7 @@ class DompetOpSqlite {
   /// Mengambil semua dompet dari database.
   ///
   /// Jika [showArchived] `true`, maka dompet yang telah diarsipkan juga akan diambil.
-  Future<List<DompetModel>> getAll({
+  Future<List<DompetModel>> ambilSemua({
     final bool showArchived = false,
   }) async {
     Log.info('Memulai getWallets (showArchived: $showArchived).');
@@ -69,7 +69,7 @@ class DompetOpSqlite {
   }
 
   /// Mengambil [DompetModel] berdasarkan [id].
-  Future<DompetModel?> getById(final String id) async {
+  Future<DompetModel?> ambilBerdasarkanId(final String id) async {
     Log.info('Memulai getById untuk ID: $id');
     try {
       final db = await sqliteDb.database;

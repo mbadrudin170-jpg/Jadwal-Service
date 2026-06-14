@@ -13,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i29;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i12;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i11;
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart' as _i22;
 import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
@@ -22,7 +23,6 @@ import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
 import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
-import 'package:wifi/shared/model/dompet_model.dart' as _i12;
 import 'package:wifi/shared/model/kategori_model.dart' as _i3;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
     as _i19;
@@ -384,10 +384,10 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i12.DompetModel>> getAll({bool? showArchived = false}) =>
+  _i9.Future<List<_i12.DompetModel>> ambilSemua({bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAll,
+          #ambilSemua,
           [],
           {#showArchived: showArchived},
         ),
@@ -396,9 +396,10 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<List<_i12.DompetModel>>);
 
   @override
-  _i9.Future<_i12.DompetModel?> getById(String? id) => (super.noSuchMethod(
+  _i9.Future<_i12.DompetModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i9.Future<_i12.DompetModel?>.value(),
@@ -1909,7 +1910,7 @@ class MockApkVersionOperation extends _i1.Mock
 
   @override
   _i9.Future<void> addApkVersion(
-    _i5.ApkVersionModel? apkVersion, {
+    _i5.VersiApkModel? apkVersion, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1924,7 +1925,7 @@ class MockApkVersionOperation extends _i1.Mock
 
   @override
   _i9.Future<void> updateApkVersion(
-    _i5.ApkVersionModel? apkVersion, {
+    _i5.VersiApkModel? apkVersion, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1965,7 +1966,7 @@ class MockApkVersionOperation extends _i1.Mock
 
   @override
   _i9.Future<void> insertOrUpdateBatch(
-    List<_i5.ApkVersionModel>? modelList, {
+    List<_i5.VersiApkModel>? modelList, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -1979,45 +1980,45 @@ class MockApkVersionOperation extends _i1.Mock
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i5.ApkVersionModel>> getAllApkVersions() =>
+  _i9.Future<List<_i5.VersiApkModel>> getAllApkVersions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllApkVersions,
           [],
         ),
-        returnValue: _i9.Future<List<_i5.ApkVersionModel>>.value(
-            <_i5.ApkVersionModel>[]),
-      ) as _i9.Future<List<_i5.ApkVersionModel>>);
+        returnValue:
+            _i9.Future<List<_i5.VersiApkModel>>.value(<_i5.VersiApkModel>[]),
+      ) as _i9.Future<List<_i5.VersiApkModel>>);
 
   @override
-  _i9.Future<List<_i5.ApkVersionModel>> getAllActiveApkVersions() =>
+  _i9.Future<List<_i5.VersiApkModel>> getAllActiveApkVersions() =>
       (super.noSuchMethod(
         Invocation.method(
           #getAllActiveApkVersions,
           [],
         ),
-        returnValue: _i9.Future<List<_i5.ApkVersionModel>>.value(
-            <_i5.ApkVersionModel>[]),
-      ) as _i9.Future<List<_i5.ApkVersionModel>>);
+        returnValue:
+            _i9.Future<List<_i5.VersiApkModel>>.value(<_i5.VersiApkModel>[]),
+      ) as _i9.Future<List<_i5.VersiApkModel>>);
 
   @override
-  _i9.Future<_i5.ApkVersionModel?> getLatestApkVersion() => (super.noSuchMethod(
+  _i9.Future<_i5.VersiApkModel?> getLatestApkVersion() => (super.noSuchMethod(
         Invocation.method(
           #getLatestApkVersion,
           [],
         ),
-        returnValue: _i9.Future<_i5.ApkVersionModel?>.value(),
-      ) as _i9.Future<_i5.ApkVersionModel?>);
+        returnValue: _i9.Future<_i5.VersiApkModel?>.value(),
+      ) as _i9.Future<_i5.VersiApkModel?>);
 
   @override
-  _i9.Future<_i5.ApkVersionModel?> getApkVersionById(String? id) =>
+  _i9.Future<_i5.VersiApkModel?> getApkVersionById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getApkVersionById,
           [id],
         ),
-        returnValue: _i9.Future<_i5.ApkVersionModel?>.value(),
-      ) as _i9.Future<_i5.ApkVersionModel?>);
+        returnValue: _i9.Future<_i5.VersiApkModel?>.value(),
+      ) as _i9.Future<_i5.VersiApkModel?>);
 }
 
 /// A class which mocks [SettingsOpSqlite].

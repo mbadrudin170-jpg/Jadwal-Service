@@ -1,7 +1,4 @@
-// path: lib/shared/services/update_check_service.dart
-// PERUBAHAN:
-// - Constructor sekarang memerlukan SharedPreferences dan LocalStorageService.
-// - Meneruskan parameter yang diperlukan saat membuat UpdateApkPage.
+// path: lib/fitur/versi_apk/service/update_check_service.dart
 
 import 'dart:async';
 
@@ -12,8 +9,8 @@ import 'package:wifi/fitur/info_perangkat/device_info_service.dart';
 import 'package:wifi/fitur/info_perangkat/package_info_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
@@ -43,8 +40,8 @@ class UpdateCheckService {
   Future<
       ({
         bool isUpdateRequired,
-        ApkVersionModel? apkInfo,
-        PackageInfoModel? packageInfo,
+        VersiApkModel? apkInfo,
+        InfoPerangkatModel? packageInfo,
         ApkArchitectureEnum? architecture
       })> getUpdateInfo() async {
     Log.info('Memulai pengecekan informasi pembaruan lengkap.');

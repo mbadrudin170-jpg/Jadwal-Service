@@ -5,29 +5,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
+import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 
-class MockCategoryOperation extends Mock implements KategoriOpSqlite {}
+class MockKategoriOpSqlite extends Mock implements KategoriOpSqlite {}
 
 void main() {
-  late MockCategoryOperation mockCategoryOperation;
+  late MockKategoriOpSqlite mockKategoriOpSqlite;
   late KategoriModel testCategory;
 
   setUp(() {
-    mockCategoryOperation = MockCategoryOperation();
+    mockKategoriOpSqlite = MockKategoriOpSqlite();
     testCategory = KategoriModel(
       id: '1',
-      name: 'Test Category',
-      type: CategoryType.income,
-      subCategories: [],
+      nama: 'Test Category',
+      tipe: TipeKategori.pemasukan,
     );
   });
 
   Widget createTestWidget({KategoriModel? kategori}) {
     return ProviderScope(
       overrides: [
-        categoryOperationProvider.overrideWithValue(mockCategoryOperation),
+        kategoriOpSqliteProvider.overrideWithValue(mockKategoriOpSqlite),
       ],
       child: MaterialApp(
         home: CategoryForm(kategori: kategori),

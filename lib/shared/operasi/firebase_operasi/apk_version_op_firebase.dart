@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 
 /// Kelas untuk menangani operasi Firebase untuk `ApkVersionModel`.
 class ApkVersionOpFirebase {
@@ -14,18 +14,18 @@ class ApkVersionOpFirebase {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Referensi koleksi dengan konverter untuk `ApkVersionModel`.
-  late final CollectionReference<ApkVersionModel> _colection = _firestore
+  late final CollectionReference<VersiApkModel> _colection = _firestore
       .collection(NamaTabel.userApkVersion)
-      .withConverter<ApkVersionModel>(
+      .withConverter<VersiApkModel>(
         fromFirestore: (snapshot, _) =>
-            ApkVersionModel.fromFirebase(snapshot.id, snapshot.data()!),
+            VersiApkModel.fromFirebase(snapshot.id, snapshot.data()!),
         toFirestore: (model, _) => model.toFirebase(),
       );
 
   /// Mengambil versi APK terbaru yang aktif (tidak dihapus, tidak diarsipkan) satu kali.
   ///
   /// Mengembalikan `Future` yang berisi `ApkVersionModel` terbaru atau `null`.
-  Future<ApkVersionModel?> getVersiTerbaru() async {
+  Future<VersiApkModel?> getVersiTerbaru() async {
     Log.info('Memulai mengambil versi APK terbaru');
     try {
       final query = await _colection

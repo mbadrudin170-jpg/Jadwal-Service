@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 

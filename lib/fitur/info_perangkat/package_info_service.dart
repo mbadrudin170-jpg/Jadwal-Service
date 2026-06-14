@@ -2,7 +2,7 @@
 
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 
 /// Kelas layanan untuk mendapatkan informasi paket aplikasi.
 class PackageInfoService {
@@ -13,14 +13,14 @@ class PackageInfoService {
 
   /// Mengambil informasi paket aplikasi yang sedang berjalan.
   ///
-  /// Mengembalikan instance [PackageInfoModel] yang berisi detail seperti
+  /// Mengembalikan instance [InfoPerangkatModel] yang berisi detail seperti
   /// nama aplikasi, nama paket, versi, dan nomor build.
   /// Mengembalikan `null` jika terjadi kesalahan saat mengambil data.
-  Future<PackageInfoModel?> getPackageInfo() async {
+  Future<InfoPerangkatModel?> getPackageInfo() async {
     Log.info('Mencoba mengambil info paket aplikasi.');
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      final model = PackageInfoModel.fromPackageInfo(packageInfo);
+      final model = InfoPerangkatModel.fromPackageInfo(packageInfo);
       Log.info('Berhasil mengambil info paket.', {
         'appName': model.appName,
         'packageName': model.packageName,

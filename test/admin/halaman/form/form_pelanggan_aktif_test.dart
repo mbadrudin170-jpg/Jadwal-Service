@@ -8,7 +8,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';

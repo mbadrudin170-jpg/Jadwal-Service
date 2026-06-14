@@ -107,7 +107,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   Future<String> _getWalletName() async {
     try {
-      final dompet = await _dompetOpSqlite.getById(
+      final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
         widget.transaksi.walletId,
       );
       return dompet?.name ?? 'Dompet Dihapus';

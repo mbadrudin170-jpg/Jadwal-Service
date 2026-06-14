@@ -7,8 +7,8 @@ import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
+import 'package:wifi/fitur/dompet/model/dompet_model.dart' as _i5;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i3;
-import 'package:wifi/shared/model/dompet_model.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -69,10 +69,10 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.DompetModel>> getAll({bool? showArchived = false}) =>
+  _i4.Future<List<_i5.DompetModel>> ambilSemua({bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getAll,
+          #ambilSemua,
           [],
           {#showArchived: showArchived},
         ),
@@ -83,9 +83,10 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
       ) as _i4.Future<List<_i5.DompetModel>>);
 
   @override
-  _i4.Future<_i5.DompetModel?> getById(String? id) => (super.noSuchMethod(
+  _i4.Future<_i5.DompetModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i4.Future<_i5.DompetModel?>.value(),

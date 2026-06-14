@@ -9,7 +9,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -24,7 +24,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// tautan unduhan, dan catatan rilis.
 class ApkVersionForm extends ConsumerStatefulWidget {
   /// Model data versi APK yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
-  final ApkVersionModel? apkVersion;
+  final VersiApkModel? apkVersion;
 
   const ApkVersionForm(
       {super.key, this.apkVersion, final ApkVersionOperation? operasi});
@@ -114,7 +114,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     }
   }
 
-  void _populateControllers(ApkVersionModel data) {
+  void _populateControllers(VersiApkModel data) {
     Log.info('Memasukkan data model ke dalam form controller (ID: ${data.id})');
     _releaseNotesController.text = data.releaseNotes;
     _latestVersionController.text = data.latestVersion;
@@ -234,7 +234,7 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       if (_link64Controller.text.isNotEmpty) {
         tautanUnduhan[ApkArchitectureEnum.bit64] = _link64Controller.text;
       }
-      final dataToSave = ApkVersionModel(
+      final dataToSave = VersiApkModel(
         id: widget.apkVersion?.id ?? const Uuid().v4(),
         releaseNotes: _releaseNotesController.text,
         latestVersion: _latestVersionController.text,

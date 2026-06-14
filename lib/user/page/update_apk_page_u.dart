@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wifi/fitur/sinkronisasi/update_service.dart';
+import 'package:wifi/fitur/versi_apk/service/update_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
-import 'package:wifi/shared/model/package_info_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
+import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -19,8 +19,8 @@ import 'package:wifi/user/page/main_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 
 class UpdateApkPage extends ConsumerStatefulWidget {
-  final ApkVersionModel apkInfo;
-  final PackageInfoModel packageInfo;
+  final VersiApkModel apkInfo;
+  final InfoPerangkatModel packageInfo;
   final ApkArchitectureEnum architecture;
 
   const UpdateApkPage({
@@ -97,9 +97,9 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     final fileName = 'update_v${widget.apkInfo.latestVersion}.apk';
 
     try {
-      await _updateService.downloadAndInstallApk(
+      await _updateService.downloadDanInstallApk(
         url: downloadUrl,
-        fileName: fileName,
+        namaFile: fileName,
         onProgress: (progress) {
           setState(() {
             _downloadProgress = progress;

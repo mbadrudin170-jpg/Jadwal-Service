@@ -5,24 +5,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/shared/enum/enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
-import 'package:wifi/shared/model/kategori_model.dart';
-import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 // Mocks
 class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
 class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
-class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransactionOperation {}
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 
@@ -37,15 +37,15 @@ void main() {
 
   final tTransaction = TransaksiModel(
     id: '1',
-    date: DateTime.now(),
-    description: 'Test Transaction',
-    amount: 100.0,
-    type: TransactionType.income,
-    walletId: 'wallet1',
-    categoryId: 'cat1',
-    paymentStatus: PaymentStatus.paid,
-    customerId: 'cust1',
-    packageId: 'pkg1',
+    tanggal: DateTime.now(),
+    deskripsi: 'Test Transaction',
+    jumlah: 100.0,
+    tipe: TransactionType.pemasukan,
+    idDompet: 'wallet1',
+    idKategori: 'cat1',
+    statusPembayaran: PaymentStatus.lunas,
+    idPelanggan: 'cust1',
+    idPaket: 'pkg1',
   );
 
   setUp(() {
@@ -74,32 +74,29 @@ void main() {
   group('Halaman DetailTransaksi', () {
     testWidgets('01. harus menampilkan detail transaksi', (tester) async {
       when(() => mockWalletOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => DompetModel(id: 'wallet1', name: 'Test Wallet', balance: 0));
+          (_) async => DompetModel(id: 'wallet1', nama: 'Test Wallet', saldo: 0));
       when(() => mockCategoryOperation.ambilBerdasarkanId(any())).thenAnswer(
           (_) async => KategoriModel(
-              id: 'cat1', name: 'Test Category', type: TipeKategori.income));
+              id: 'cat1', nama: 'Test Category', tipe: TipeKategori.pemasukan));
       when(() => mockCustomerOperation.ambilBerdasarkanId(any())).thenAnswer(
           (_) async => PelangganModel(
-              id: 'cust1',
-              name: 'Test Customer',
-              phone: '',
-              password: '',
-              address: '',
-              registrationDate: DateTime.now(),
-              fcmToken: '',
-              appVersion: '',
-              platform: '',
-              lastActive: DateTime.now()));
+                id: 'cust1',
+                nama: 'Test Customer',
+                telepon: '',
+                kataSandi: '',
+                alamat: '',
+              ));
       when(() => mockPackageOperation.ambilBerdasarkanId(any())).thenAnswer(
           (_) async => PaketModel(
-            id: 'pkg1',
-            name: 'Test Package',
-            price: 100,
-            duration: 30,
-            durationType: DurationType.days,
-            rewardPoints: 10,
-            isPublic: true,
-          ));
+                id: 'pkg1',
+                nama: 'Test Package',
+                harga: 100,
+                durasi: 30,
+                tipeDurasi: 'hari',
+                poinReward: 10,
+                tipe: 'publik',
+                isTersedia: true,
+              ));
 
       await tester.pumpWidget(createWidgetUnderTest());
 

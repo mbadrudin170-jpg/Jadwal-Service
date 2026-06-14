@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
 
 void main() {
@@ -20,7 +20,7 @@ void main() {
         fakeFirestore.collection(NamaTabel.get(TableName.userApkVersion));
   });
 
-  final apkVersion = ApkVersionModel(
+  final apkVersion = VersiApkModel(
     id: '1',
     latestVersion: '1.0.0',
     latestBuildNumber: {
@@ -45,7 +45,7 @@ void main() {
     final result = await apkVersionOp.getVersiTerbaru();
 
     // Assert
-    expect(result, isA<ApkVersionModel>());
+    expect(result, isA<VersiApkModel>());
     expect(result?.latestVersion, '1.0.0');
     expect(result?.latestBuildNumber[ApkArchitectureEnum.bit64], 1);
   });

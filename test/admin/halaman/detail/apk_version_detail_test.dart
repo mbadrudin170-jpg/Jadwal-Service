@@ -7,19 +7,21 @@ import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 
 // Mocks
 class MockApkVersionOperation extends Mock implements ApkVersionOperation {}
+
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
 class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
   late MockApkVersionOperation mockApkVersionOp;
   late MockNavigatorObserver mockNavigatorObserver;
 
-  final tApkVersion = ApkVersionModel(
+  final tApkVersion = VersiApkModel(
     id: '1',
     latestVersion: '1.0.0',
     latestBuildNumber: const {ApkArchitectureEnum.arm64: 1},
@@ -36,7 +38,7 @@ void main() {
     registerFallbackValue(FakeRoute());
   });
 
-  Widget createTestWidget(ApkVersionModel model) {
+  Widget createTestWidget(VersiApkModel model) {
     return ProviderScope(
       overrides: [
         apkVersionOperationProvider.overrideWithValue(mockApkVersionOp),

@@ -294,10 +294,10 @@ class DownloadDataService {
   Future<void> downloadApkVersionData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [APK VERSION]');
     final lastDownloadTime = await _syncManager.ambilTanggalTerakhirDownload();
-    await synchronizeCollection<ApkVersionModel>(
+    await synchronizeCollection<VersiApkModel>(
       collectionName: NamaTabel.userApkVersion,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: ApkVersionModel.fromFirebase,
+      fromFirebase: VersiApkModel.fromFirebase,
       batchOperation: (final data) =>
           _apkVersionOperation.insertOrUpdateBatch(data, fromServer: true),
     );

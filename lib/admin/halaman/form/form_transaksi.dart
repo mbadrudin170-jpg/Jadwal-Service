@@ -77,7 +77,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     setState(() => _isLoading = true);
 
     try {
-      final dompetList = await _dompetOpSlite.getAll();
+      final dompetList = await _dompetOpSlite.ambilSemua();
       Log.info('Berhasil memuat ${dompetList.length} dompet.');
       final kategoriList = await _kategoriOpSqlite.ambilSemua();
       Log.info('Berhasil memuat ${kategoriList.length} kategori.');

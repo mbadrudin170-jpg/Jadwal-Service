@@ -5,29 +5,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 
 class MockApkVersionOperation extends Mock implements ApkVersionOperation {}
 
 void main() {
   late MockApkVersionOperation mockApkVersionOperation;
-  late ApkVersionModel testApkVersion;
+  late VersiApkModel testApkVersion;
 
   setUp(() {
     mockApkVersionOperation = MockApkVersionOperation();
-    testApkVersion = ApkVersionModel(
+    testApkVersion = VersiApkModel(
       id: '1',
-      latestVersion: '1.0.0',
-      latestBuildNumber: {},
-      releaseNotes: 'Initial release',
-      downloadLinks: {},
-      isUpdateRequired: false,
-      youtubeTutorial: '',
+      versiTerbaru: '1.0.0',
+      nomorBuildTerbaru: 1,
+      catatanRilis: 'Initial release',
+      tautanUnduhan: {},
+      isPembaruanWajib: false,
+      tutorialYoutube: '',
     );
   });
 
-  Widget createTestWidget({ApkVersionModel? apkVersion}) {
+  Widget createTestWidget({VersiApkModel? apkVersion}) {
     return ProviderScope(
       overrides: [
         apkVersionOperationProvider.overrideWithValue(mockApkVersionOperation),
@@ -38,7 +38,8 @@ void main() {
     );
   }
 
-  testWidgets('01. ApkVersionForm should display add form correctly', (tester) async {
+  testWidgets('01. ApkVersionForm should display add form correctly',
+      (tester) async {
     when(() => mockApkVersionOperation.getLatestApkVersion())
         .thenAnswer((_) async => null);
     await tester.pumpWidget(createTestWidget());
@@ -46,7 +47,8 @@ void main() {
     expect(find.text('Tambah Versi APK'), findsOneWidget);
   });
 
-  testWidgets('02. ApkVersionForm should display edit form correctly', (tester) async {
+  testWidgets('02. ApkVersionForm should display edit form correctly',
+      (tester) async {
     await tester.pumpWidget(createTestWidget(apkVersion: testApkVersion));
     await tester.pumpAndSettle();
     expect(find.text('Edit Versi APK'), findsOneWidget);

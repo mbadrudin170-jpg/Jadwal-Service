@@ -17,8 +17,10 @@ void main() {
 
     // Data dummy
     final dompet1 = WalletModel(id: '1', name: 'Dompet Utama', balance: 1000.0);
-    final dompet2 = WalletModel(id: '2', name: 'Dompet Cadangan', balance: -500.0);
-    final dompetBaru = WalletModel(id: '3', name: 'Dompet Baru', balance: 200.0);
+    final dompet2 =
+        WalletModel(id: '2', name: 'Dompet Cadangan', balance: -500.0);
+    final dompetBaru =
+        WalletModel(id: '3', name: 'Dompet Baru', balance: 200.0);
 
     setUp(() {
       mockDompetOpSqlite = MockDompetOpSqlite();
@@ -41,7 +43,7 @@ void main() {
       double? totalNegatif,
       double? totalSaldo,
     }) {
-      when(() => mockDompetOpSqlite.getAll(showArchived: false))
+      when(() => mockDompetOpSqlite.ambilSemua(showArchived: false))
           .thenAnswer((_) async => wallets ?? [dompet1, dompet2]);
       when(() => mockDompetOpSqlite.ambilSaldoPositif())
           .thenAnswer((_) async => totalPositif ?? 1000.0);
@@ -52,13 +54,16 @@ void main() {
     }
 
     void mockLoadDataFailure(Exception exception) {
-      when(() => mockDompetOpSqlite.getAll(showArchived: false)).thenThrow(exception);
+      when(() => mockDompetOpSqlite.ambilSemua(showArchived: false))
+          .thenThrow(exception);
       when(() => mockDompetOpSqlite.ambilSaldoPositif()).thenThrow(exception);
       when(() => mockDompetOpSqlite.ambilSaldoNegatif()).thenThrow(exception);
       when(() => mockDompetOpSqlite.ambilTotalsaldo()).thenThrow(exception);
     }
 
-    test('01. harus memuat data dan mengembalikan DompetState dengan benar saat sukses', () async {
+    test(
+        '01. harus memuat data dan mengembalikan DompetState dengan benar saat sukses',
+        () async {
       // Arrange
       mockLoadDataSuccess();
 
@@ -85,15 +90,19 @@ void main() {
       final state = container.read(dompetProvider);
       expect(state, isA<AsyncError>());
       expect((state as AsyncError).error, isA<Exception>());
-      expect((state.error as Exception).toString(), contains('Gagal memuat data'));
+      expect(
+          (state.error as Exception).toString(), contains('Gagal memuat data'));
     });
 
-    test('03. harus memanggil tambahDompet pada repositori dan memuat ulang data saat sukses', () async {
+    test(
+        '03. harus memanggil tambahDompet pada repositori dan memuat ulang data saat sukses',
+        () async {
       // Arrange
       mockLoadDataSuccess(); // Muat data awal
       await container.read(dompetProvider.future); // Tunggu build selesai
 
-      when(() => mockDompetOpSqlite.tambahDompet(dompetBaru)).thenAnswer((_) async {});
+      when(() => mockDompetOpSqlite.tambahDompet(dompetBaru))
+          .thenAnswer((_) async {});
       // Mock data setelah ditambah
       mockLoadDataSuccess(
         wallets: [dompet1, dompet2, dompetBaru],
@@ -111,13 +120,16 @@ void main() {
       expect(state.value?.totalSaldo, 700.0);
     });
 
-    test('04. harus mengembalikan AsyncError jika tambahDompet pada repositori gagal', () async {
+    test(
+        '04. harus mengembalikan AsyncError jika tambahDompet pada repositori gagal',
+        () async {
       // Arrange
       final exception = Exception('Gagal menambah');
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
-      when(() => mockDompetOpSqlite.tambahDompet(dompetBaru)).thenThrow(exception);
+      when(() => mockDompetOpSqlite.tambahDompet(dompetBaru))
+          .thenThrow(exception);
 
       // Act
       await container.read(dompetProvider.notifier).tambahDompet(dompetBaru);
@@ -129,13 +141,16 @@ void main() {
       expect((state.error as Exception).toString(), contains('Gagal menambah'));
     });
 
-    test('05. harus memanggil updateDompet pada repositori dan memuat ulang data saat sukses', () async {
+    test(
+        '05. harus memanggil updateDompet pada repositori dan memuat ulang data saat sukses',
+        () async {
       // Arrange
       final dompetUpdate = dompet1.copyWith(balance: 1500.0);
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
-      when(() => mockDompetOpSqlite.updateDompet(dompetUpdate)).thenAnswer((_) async {});
+      when(() => mockDompetOpSqlite.updateDompet(dompetUpdate))
+          .thenAnswer((_) async {});
       // Mock data setelah diupdate
       mockLoadDataSuccess(
         wallets: [dompetUpdate, dompet2],
@@ -153,14 +168,17 @@ void main() {
       expect(state.value?.totalSaldo, 1000.0);
     });
 
-    test('06. harus mengembalikan AsyncError jika updateDompet pada repositori gagal', () async {
+    test(
+        '06. harus mengembalikan AsyncError jika updateDompet pada repositori gagal',
+        () async {
       // Arrange
       final exception = Exception('Gagal update');
       final dompetUpdate = dompet1.copyWith(balance: 1500.0);
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
 
-      when(() => mockDompetOpSqlite.updateDompet(dompetUpdate)).thenThrow(exception);
+      when(() => mockDompetOpSqlite.updateDompet(dompetUpdate))
+          .thenThrow(exception);
 
       // Act
       await container.read(dompetProvider.notifier).updateDompet(dompetUpdate);
@@ -172,7 +190,9 @@ void main() {
       expect((state.error as Exception).toString(), contains('Gagal update'));
     });
 
-    test('07. harus memanggil softDelete pada repositori dan memuat ulang data saat sukses', () async {
+    test(
+        '07. harus memanggil softDelete pada repositori dan memuat ulang data saat sukses',
+        () async {
       // Arrange
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
@@ -196,7 +216,9 @@ void main() {
       expect(state.value?.totalSaldo, -500.0);
     });
 
-    test('08. harus mengembalikan AsyncError jika softDelete pada repositori gagal', () async {
+    test(
+        '08. harus mengembalikan AsyncError jika softDelete pada repositori gagal',
+        () async {
       // Arrange
       final exception = Exception('Gagal hapus');
       mockLoadDataSuccess();
@@ -213,7 +235,9 @@ void main() {
       expect((state.error as Exception).toString(), contains('Gagal hapus'));
     });
 
-    test('09. harus memanggil softDeleteAll pada repositori dan memuat ulang data saat sukses', () async {
+    test(
+        '09. harus memanggil softDeleteAll pada repositori dan memuat ulang data saat sukses',
+        () async {
       // Arrange
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);
@@ -237,7 +261,9 @@ void main() {
       expect(state.value?.totalSaldo, 0.0);
     });
 
-    test('10. harus mengembalikan AsyncError jika softDeleteAll pada repositori gagal', () async {
+    test(
+        '10. harus mengembalikan AsyncError jika softDeleteAll pada repositori gagal',
+        () async {
       // Arrange
       final exception = Exception('Gagal hapus semua');
       mockLoadDataSuccess();
@@ -251,16 +277,19 @@ void main() {
       // Assert
       final state = container.read(dompetProvider);
       expect(state, isA<AsyncError>());
-      expect((state.error as Exception).toString(), contains('Gagal hapus semua'));
+      expect(
+          (state.error as Exception).toString(), contains('Gagal hapus semua'));
     });
-    
-    test('11. harus memuat ulang data dengan sukses saat refresh dipanggil', () async {
+
+    test('11. harus memuat ulang data dengan sukses saat refresh dipanggil',
+        () async {
       // Arrange
       mockLoadDataSuccess(); // Data awal
       await container.read(dompetProvider.future);
 
       // Data baru setelah refresh
-      final dompetRefreshed = WalletModel(id: 'refreshed', name: 'Refreshed', balance: 999);
+      final dompetRefreshed =
+          WalletModel(id: 'refreshed', name: 'Refreshed', balance: 999);
       mockLoadDataSuccess(
         wallets: [dompetRefreshed],
         totalPositif: 999,
@@ -278,7 +307,8 @@ void main() {
       expect(state.value?.totalSaldo, 999);
     });
 
-    test('12. harus mengembalikan AsyncError jika proses refresh gagal', () async {
+    test('12. harus mengembalikan AsyncError jika proses refresh gagal',
+        () async {
       // Arrange
       mockLoadDataSuccess();
       await container.read(dompetProvider.future);

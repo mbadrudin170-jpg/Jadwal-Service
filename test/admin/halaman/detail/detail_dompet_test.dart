@@ -4,14 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/dompet_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 
-class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransactionOperation {}
 
 void main() {
   late MockDompetOpSqlite mockDompetOpSqlite;
@@ -23,8 +25,8 @@ void main() {
     mockTransactionOperation = MockTransaksiOpsqlite();
     testWallet = DompetModel(
       id: '1',
-      name: 'Test Wallet',
-      balance: 1000,
+      nama: 'Test Wallet',
+      saldo: 1000,
     );
   });
 
@@ -46,7 +48,7 @@ void main() {
       (tester) async {
     when(() => mockDompetOpSqlite.ambilBerdasarkanId(any()))
         .thenAnswer((_) async => testWallet);
-    when(() => mockTransactionOperation.ambilTransaksiBerdasarkanDompetId(any()))
+    when(() => mockTransactionOperation.ambilBerdasarkanIdDompet(any()))
         .thenAnswer((_) async => []);
 
     await tester.pumpWidget(createTestWidget());

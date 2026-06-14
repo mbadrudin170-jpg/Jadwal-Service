@@ -5,7 +5,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/apk_architecture_enum.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data versi APK user di database lokal.
@@ -28,9 +28,9 @@ class ApkVersionOperation {
   // OPERASI TULIS (WRITE)
   // =========================
 
-  /// Menambah [ApkVersionModel] baru ke database.
+  /// Menambah [VersiApkModel] baru ke database.
   Future<void> addApkVersion(
-    final ApkVersionModel apkVersion, {
+    final VersiApkModel apkVersion, {
     final bool fromServer = false,
   }) async {
     Log.info(
@@ -56,9 +56,9 @@ class ApkVersionOperation {
     }
   }
 
-  /// Memperbarui [ApkVersionModel] yang ada di database.
+  /// Memperbarui [VersiApkModel] yang ada di database.
   Future<void> updateApkVersion(
-    final ApkVersionModel apkVersion, {
+    final VersiApkModel apkVersion, {
     final bool fromServer = false,
   }) async {
     Log.info(
@@ -85,7 +85,7 @@ class ApkVersionOperation {
     }
   }
 
-  /// Melakukan soft delete pada [ApkVersionModel] berdasarkan [id].
+  /// Melakukan soft delete pada [VersiApkModel] berdasarkan [id].
   Future<void> softDelete(
     final String id, {
     final bool fromServer = false,
@@ -108,7 +108,7 @@ class ApkVersionOperation {
     }
   }
 
-  /// Melakukan soft delete untuk semua [ApkVersionModel] yang aktif.
+  /// Melakukan soft delete untuk semua [VersiApkModel] yang aktif.
   Future<int> softDeleteAll({final bool fromServer = false}) async {
     Log.info(
         'Memulai proses soft delete untuk SEMUA active APK versions via BaseOperation');
@@ -129,9 +129,9 @@ class ApkVersionOperation {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [ApkVersionModel] dalam satu batch.
+  /// Menyisipkan atau memperbarui sekumpulan [VersiApkModel] dalam satu batch.
   Future<void> insertOrUpdateBatch(
-    final List<ApkVersionModel> modelList, {
+    final List<VersiApkModel> modelList, {
     final bool fromServer = false,
   }) async {
     Log.info(
@@ -168,7 +168,7 @@ class ApkVersionOperation {
   // =========================
 
   /// Mengambil semua versi APK dari database.
-  Future<List<ApkVersionModel>> getAllApkVersions() async {
+  Future<List<VersiApkModel>> getAllApkVersions() async {
     Log.info(
       'Mengambil semua data versi APK dari tabel $_tableName (termasuk yang diarsipkan)',
     );
@@ -185,7 +185,7 @@ class ApkVersionOperation {
 
       final result = List.generate(
         maps.length,
-        (final i) => ApkVersionModel.fromSqlite(maps[i]),
+        (final i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
       int activeCount = 0;
@@ -213,7 +213,7 @@ class ApkVersionOperation {
   }
 
   /// Mengambil semua versi APK yang aktif dari database.
-  Future<List<ApkVersionModel>> getAllActiveApkVersions() async {
+  Future<List<VersiApkModel>> getAllActiveApkVersions() async {
     Log.info(
       'Mengambil semua versi APK aktif (${NamaKolom.isDeleted} = 0) dari tabel $_tableName',
     );
@@ -233,7 +233,7 @@ class ApkVersionOperation {
 
       final result = List.generate(
         maps.length,
-        (final i) => ApkVersionModel.fromSqlite(maps[i]),
+        (final i) => VersiApkModel.fromSqlite(maps[i]),
       );
 
       Log.info('Berhasil mengambil ${result.length} versi APK aktif');
@@ -257,7 +257,7 @@ class ApkVersionOperation {
   }
 
   /// Mengambil versi APK terbaru yang aktif dari database.
-  Future<ApkVersionModel?> getLatestApkVersion() async {
+  Future<VersiApkModel?> getLatestApkVersion() async {
     Log.info('Mengambil versi APK terbaru (aktif) dari tabel $_tableName');
 
     try {
@@ -275,7 +275,7 @@ class ApkVersionOperation {
       );
 
       if (maps.isNotEmpty) {
-        final model = ApkVersionModel.fromSqlite(maps.first);
+        final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
           'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0}, Diperbarui: ${model.updatedAt?.toIso8601String()}',
         );
@@ -296,8 +296,8 @@ class ApkVersionOperation {
     }
   }
 
-  /// Mengambil [ApkVersionModel] berdasarkan [id].
-  Future<ApkVersionModel?> getApkVersionById(final String id) async {
+  /// Mengambil [VersiApkModel] berdasarkan [id].
+  Future<VersiApkModel?> getApkVersionById(final String id) async {
     Log.info('Mengambil versi APK by ID: $id dari tabel $_tableName');
 
     try {
@@ -312,7 +312,7 @@ class ApkVersionOperation {
       );
 
       if (maps.isNotEmpty) {
-        final model = ApkVersionModel.fromSqlite(maps.first);
+        final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
           'Versi APK ditemukan - ID: $id, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0}, Catatan: ${model.releaseNotes.length > 50 ? "${model.releaseNotes.substring(0, 50)}..." : model.releaseNotes}',
         );

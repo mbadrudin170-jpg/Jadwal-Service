@@ -17,11 +17,10 @@ void main() {
   setUp(() {
     mockCustomer = MockCustomerModel();
     when(() => mockCustomer.id).thenReturn('cust-123');
-    when(() => mockCustomer.name).thenReturn('Budi Santoso');
-    when(() => mockCustomer.phone).thenReturn('08123456789');
-    when(() => mockCustomer.address).thenReturn('Jl. Merdeka No. 1');
-    when(() => mockCustomer.password).thenReturn('password');
-    when(() => mockCustomer.macAddress).thenReturn('00:11:22:33:44:55');
+    when(() => mockCustomer.nama).thenReturn('Budi Santoso');
+    when(() => mockCustomer.telepon).thenReturn('08123456789');
+    when(() => mockCustomer.alamat).thenReturn('Jl. Merdeka No. 1');
+    when(() => mockCustomer.kataSandi).thenReturn('password');
   });
 
   Widget createTestWidget(List<Override> overrides) {
@@ -37,7 +36,7 @@ void main() {
       (tester) async {
     final overrides = [
       pelangganDetailProvider('cust-123')
-          .overrideWith((ref) => const AsyncValue.loading()),
+          .overrideWith((ref) => const AsyncLoading()),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -49,7 +48,7 @@ void main() {
       (tester) async {
     final overrides = [
       pelangganDetailProvider('cust-123').overrideWith(
-          (ref) => AsyncValue.error('Gagal memuat data', StackTrace.current)),
+          (ref) => AsyncError('Gagal memuat data', StackTrace.current)),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -61,8 +60,8 @@ void main() {
   testWidgets('03. Menampilkan UI detail pelanggan saat data berhasil dimuat',
       (tester) async {
     final overrides = [
-      pelangganDetailProvider('cust-123').overrideWith(
-          (ref) => Future.value((pelanggan: mockCustomer, totalPoin: 100))),
+      pelangganDetailProvider('cust-123').overrideWith((ref) =>
+          AsyncData((pelanggan: mockCustomer, totalPoin: 100))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));
@@ -77,7 +76,7 @@ void main() {
       (tester) async {
     final overrides = [
       pelangganDetailProvider('cust-123').overrideWith(
-          (ref) => Future.value((pelanggan: null, totalPoin: 0))),
+          (ref) => const AsyncData((pelanggan: null, totalPoin: 0))),
     ];
 
     await tester.pumpWidget(createTestWidget(overrides));

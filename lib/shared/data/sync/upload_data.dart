@@ -401,10 +401,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk versi_apk_user: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<ApkVersionModel>(
+      await uploadGenericData<VersiApkModel>(
         NamaTabel.userApkVersion,
         NamaTabel.userApkVersion,
-        ApkVersionModel.fromSqlite,
+        VersiApkModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );

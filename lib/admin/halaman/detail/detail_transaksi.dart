@@ -142,7 +142,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
             _buildFutureDetailRow(
               'Dompet',
               _getName(
-                _dompetOpSqlite.getById,
+                _dompetOpSqlite.ambilBerdasarkanId,
                 transaksi.walletId,
                 'Dompet',
               ),
@@ -152,7 +152,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getName(
-                  _dompetOpSqlite.getById,
+                  _dompetOpSqlite.ambilBerdasarkanId,
                   transaksi.destinationWalletId!,
                   'Dompet Tujuan',
                 ),

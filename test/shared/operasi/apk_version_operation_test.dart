@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/shared/model/apk_version_model.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/status_upload_op_sqlite.dart';
@@ -35,7 +35,7 @@ void main() {
   });
 
   group('ApkVersionOperation', () {
-    final tApkVersion = ApkVersionModel(
+    final tApkVersion = VersiApkModel(
       id: '1',
       latestVersion: '1.0.0',
       releaseNotes: 'Test release notes',
@@ -48,7 +48,7 @@ void main() {
 
       final result = await apkVersionOperation.getAllApkVersions();
 
-      expect(result, isA<List<ApkVersionModel>>());
+      expect(result, isA<List<VersiApkModel>>());
       expect(result.length, 1);
       expect(result.first.id, tApkVersion.id);
       verify(mockDatabase.query(any, orderBy: anyNamed('orderBy'))).called(1);
@@ -64,7 +64,7 @@ void main() {
 
       final result = await apkVersionOperation.getLatestApkVersion();
 
-      expect(result, isA<ApkVersionModel>());
+      expect(result, isA<VersiApkModel>());
       expect(result?.id, tApkVersion.id);
     });
 
