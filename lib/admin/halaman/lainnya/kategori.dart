@@ -41,7 +41,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
 
   Future<List<KategoriModel>> _loadCategoriesAndHandleErrors() async {
     try {
-      return await _categoryOperation.getAll();
+      return await _categoryOperation.ambilSemua();
     } on Exception catch (e, st) {
       Log.error('Gagal memuat data kategori', e: e, s: st);
       if (mounted) {

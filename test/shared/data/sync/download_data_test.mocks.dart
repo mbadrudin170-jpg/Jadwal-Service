@@ -506,20 +506,20 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<_i3.KategoriModel> createCategory(
+  _i9.Future<_i3.KategoriModel> tambahKategori(
     _i3.KategoriModel? category, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #createCategory,
+          #tambahKategori,
           [category],
           {#fromServer: fromServer},
         ),
         returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
-            #createCategory,
+            #tambahKategori,
             [category],
             {#fromServer: fromServer},
           ),
@@ -527,9 +527,9 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
       ) as _i9.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.KategoriModel>> getAll() => (super.noSuchMethod(
+  _i9.Future<List<_i3.KategoriModel>> ambilSemua() => (super.noSuchMethod(
         Invocation.method(
-          #getAll,
+          #ambilSemua,
           [],
         ),
         returnValue:
@@ -537,27 +537,27 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
       ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
-  _i9.Future<_i3.KategoriModel> getCategoryById(String? id) =>
+  _i9.Future<_i3.KategoriModel> ambilKategoriBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getCategoryById,
+          #ambilKategoriBerdasarkanId,
           [id],
         ),
         returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
-            #getCategoryById,
+            #ambilKategoriBerdasarkanId,
             [id],
           ),
         )),
       ) as _i9.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.KategoriModel>> getCategoriesByType(
+  _i9.Future<List<_i3.KategoriModel>> ambilKategoriBerdasarkanTipe(
           _i14.TipeKategori? type) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getCategoriesByType,
+          #ambilKategoriBerdasarkanTipe,
           [type],
         ),
         returnValue:
@@ -565,86 +565,45 @@ class MockKategoriOpSqlite extends _i1.Mock implements _i13.KategoriOpSqlite {
       ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
-  _i9.Future<void> updateCategory(
+  _i9.Future<void> updateKategori(
     _i3.KategoriModel? category, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #updateCategory,
+          #updateKategori,
           [category],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<void> deleteCategory(
+  _i9.Future<void> softDeleteKategori(
     String? id, {
-    bool? fromServer = false,
+    bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #deleteCategory,
+          #softDeleteKategori,
           [id],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
         returnValueForMissingStub: _i9.Future<void>.value(),
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<void> softDelete(
-    String? id, {
-    bool? fromServer = false,
-  }) =>
+  _i9.Future<int> softDeleteAllKategori({bool? dariServer = false}) =>
       (super.noSuchMethod(
         Invocation.method(
-          #softDelete,
-          [id],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
-
-  @override
-  _i9.Future<int> softDeleteAll({bool? fromServer = false}) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #softDeleteAll,
+          #softDeleteAllKategori,
           [],
-          {#fromServer: fromServer},
+          {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<int>.value(0),
       ) as _i9.Future<int>);
-
-  @override
-  _i9.Future<void> clearAndInsertAll(
-    List<_i3.KategoriModel>? items, {
-    bool? fromServer = false,
-  }) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #clearAndInsertAll,
-          [items],
-          {#fromServer: fromServer},
-        ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
-
-  @override
-  _i9.Future<List<_i3.KategoriModel>> getChangesSince(DateTime? since) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getChangesSince,
-          [since],
-        ),
-        returnValue:
-            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
-      ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
   _i9.Future<void> insertOrUpdateBatch(

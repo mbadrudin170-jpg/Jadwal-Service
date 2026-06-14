@@ -44,7 +44,7 @@ void main() {
     test('createCategory should insert a new category and return it', () async {
       when(mockBaseOperation.sisipkan(any, any)).thenAnswer((_) async => 1);
 
-      final result = await categoryOperation.createCategory(tCategory);
+      final result = await categoryOperation.tambahKategori(tCategory);
 
       expect(result.id, tCategory.id);
       verify(mockBaseOperation.sisipkan(any, any)).called(1);
@@ -54,7 +54,7 @@ void main() {
       when(mockDatabase.query(any, where: anyNamed('where')))
           .thenAnswer((_) async => [tCategoryMap]);
 
-      final result = await categoryOperation.getAll();
+      final result = await categoryOperation.ambilSemua();
 
       expect(result, isA<List<KategoriModel>>());
       expect(result.first.id, tCategory.id);
@@ -65,7 +65,7 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => [tCategoryMap]);
 
-      final result = await categoryOperation.getCategoryById('1');
+      final result = await categoryOperation.ambilKategoriBerdasarkanId('1');
 
       expect(result, isA<KategoriModel>());
       expect(result.id, tCategory.id);
@@ -74,7 +74,7 @@ void main() {
     test('updateCategory should update an existing category', () async {
       when(mockBaseOperation.update(any, any, any)).thenAnswer((_) async {});
 
-      await categoryOperation.updateCategory(tCategory);
+      await categoryOperation.updateKategori(tCategory);
 
       verify(mockBaseOperation.update(any, any, any)).called(1);
     });

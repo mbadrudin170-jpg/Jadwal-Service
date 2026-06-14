@@ -108,7 +108,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         pelangganAktifOpSqlite.getALl(),
         paketOpsqlite.ambilBerdasarkanAktif(),
         dompetOpSqlite.getAll(),
-        kategoriOpSqlite.getAll(),
+        kategoriOpSqlite.ambilSemua(),
         transaksiTerkaitFuture,
       ]);
 

@@ -1,6 +1,5 @@
 // path: lib/shared/operasi/category_operation.dart
 
-import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -28,7 +27,7 @@ class KategoriOpSqlite {
   }
 
   /// Membuat [KategoriModel] baru di database.
-  Future<KategoriModel> createCategory(
+  Future<KategoriModel> tambahKategori(
     final KategoriModel category, {
     final bool fromServer = false,
   }) async {
@@ -51,7 +50,7 @@ class KategoriOpSqlite {
   }
 
   /// Mengambil semua kategori yang tidak diarsipkan.
-  Future<List<KategoriModel>> getAll() async {
+  Future<List<KategoriModel>> ambilSemua() async {
     Log.info(
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
     try {
@@ -73,7 +72,7 @@ class KategoriOpSqlite {
   }
 
   /// Mengambil [KategoriModel] berdasarkan [id].
-  Future<KategoriModel> getCategoryById(final String id) async {
+  Future<KategoriModel> ambilKategoriBerdasarkanId(final String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
       final db = await sqlitedb.database;
@@ -83,9 +82,9 @@ class KategoriOpSqlite {
         whereArgs: [id],
       );
       if (maps.isNotEmpty) {
-        final category = KategoriModel.fromSqlite(maps.first);
+        final kategori = KategoriModel.fromSqlite(maps.first);
         Log.info('Category dengan ID: $id ditemukan.');
-        return category;
+        return kategori;
       } else {
         Log.error('Category dengan ID $id tidak ditemukan di database.');
         throw Exception('Category dengan ID $id tidak ditemukan.');
@@ -101,7 +100,7 @@ class KategoriOpSqlite {
   }
 
   /// Mengambil semua kategori berdasarkan [TipeKategori].
-  Future<List<KategoriModel>> getCategoriesByType(
+  Future<List<KategoriModel>> ambilKategoriBerdasarkanTipe(
       final TipeKategori type) async {
     Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
     try {
@@ -111,14 +110,14 @@ class KategoriOpSqlite {
         where: '${NamaKolom.type} = ? AND ${NamaKolom.isDeleted} = 0',
         whereArgs: [type.name],
       );
-      final listCategory = List.generate(
+      final daftarKategori = List.generate(
         maps.length,
-        (final i) => KategoriModel.fromSqlite(maps[i]),
+        (i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
-        'Berhasil mengambil ${listCategory.length} data category untuk tipe ${type.name}.',
+        'Berhasil mengambil ${daftarKategori.length} data category untuk tipe ${type.name}.',
       );
-      return listCategory;
+      return daftarKategori;
     } catch (e, st) {
       Log.error(
         'Gagal saat getCategoriesByType untuk tipe: ${type.name}',
@@ -130,9 +129,9 @@ class KategoriOpSqlite {
   }
 
   /// Memperbarui [KategoriModel] yang ada di database.
-  Future<void> updateCategory(
+  Future<void> updateKategori(
     final KategoriModel category, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai updateCategory untuk category ID: ${category.id}');
     try {
@@ -142,7 +141,7 @@ class KategoriOpSqlite {
         _tableName,
         data,
         category.id,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil updateCategory untuk ID: ${category.id}.');
     } catch (e, st) {
@@ -155,35 +154,17 @@ class KategoriOpSqlite {
     }
   }
 
-  /// Menghapus [KategoriModel] dari database secara permanen.
-  Future<void> deleteCategory(final String id,
-      {final bool fromServer = false}) async {
-    Log.warning(
-        'PERINGATAN: Memulai deleteCategory (hard delete) untuk category ID: $id');
-    try {
-      await _baseOpSqlite.delete(
-        _tableName,
-        id,
-        dariServer: fromServer,
-      );
-      Log.info('Berhasil deleteCategory untuk ID: $id.');
-    } catch (e, st) {
-      Log.error('Gagal saat deleteCategory untuk ID: $id', e: e, s: st);
-      rethrow;
-    }
-  }
-
   /// Melakukan soft delete pada satu kategori berdasarkan [id].
-  Future<void> softDelete(
+  Future<void> softDeleteKategori(
     final String id, {
-    final bool fromServer = false,
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete untuk category ID: $id');
     try {
       await _baseOpSqlite.softDelete(
         _tableName,
         id,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete category ID: $id.');
     } catch (e, st) {
@@ -197,14 +178,14 @@ class KategoriOpSqlite {
   }
 
   /// Melakukan soft delete pada semua kategori.
-  Future<int> softDeleteAll({
-    final bool fromServer = false,
+  Future<int> softDeleteAllKategori({
+    final bool dariServer = false,
   }) async {
     Log.info('Memulai soft delete untuk semua kategori');
     try {
       final count = await _baseOpSqlite.softDeleteAll(
         _tableName,
-        dariServer: fromServer,
+        dariServer: dariServer,
       );
       Log.info('Berhasil soft delete semua kategori. Total: $count item.');
       return count;
@@ -214,72 +195,6 @@ class KategoriOpSqlite {
         e: e,
         s: st,
       );
-      rethrow;
-    }
-  }
-
-  /// Menghapus semua kategori yang ada dan menyisipkan yang baru secara atomik.
-  Future<void> clearAndInsertAll(
-    final List<KategoriModel> items, {
-    final bool fromServer = false,
-  }) async {
-    Log.warning(
-      'PERINGATAN: Memulai clearAndInsertAll. Ini akan menghapus semua category dan menggantinya dengan ${items.length} item baru.',
-    );
-    if (items.isEmpty) {
-      Log.warning(
-          'List item untuk clearAndInsertAll kosong, hanya operasi pembersihan yang akan dilakukan.');
-    }
-    try {
-      await _baseOpSqlite.runComplexOperation<void>(
-        (final Transaction txn) async {
-          final batch = txn.batch();
-
-          batch.delete(_tableName);
-          Log.info('Antrean hapus tabel kategori ditambahkan ke batch.');
-
-          for (final item in items) {
-            batch.insert(
-              _tableName,
-              item.copyWith(updatedAt: DateTime.now().toUtc()).toSqlite(),
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
-
-          Log.info('Menjalankan commit batch untuk clearAndInsertAll...');
-          await batch.commit(noResult: true);
-
-          Log.info(
-              'Berhasil menyisipkan ${items.length} item baru ke tabel kategori.');
-        },
-        fromServer: fromServer,
-      );
-    } catch (e, st) {
-      Log.error('Gagal saat menjalankan clearAndInsertAll', e: e, s: st);
-      rethrow;
-    }
-  }
-
-  /// Mengambil semua kategori yang telah diubah sejak [since].
-  Future<List<KategoriModel>> getChangesSince(final DateTime since) async {
-    Log.info(
-        'Memulai getChangesSince untuk category sejak: ${since.toIso8601String()}');
-    try {
-      final db = await sqlitedb.database;
-      final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
-        where: '${NamaKolom.updatedAt} > ?',
-        whereArgs: [since.toUtc().millisecondsSinceEpoch],
-      );
-      final listCategory = List.generate(
-        maps.length,
-        (final i) => KategoriModel.fromSqlite(maps[i]),
-      );
-      Log.info(
-          'Berhasil menemukan ${listCategory.length} perubahan category sejak ${since.toIso8601String()}.');
-      return listCategory;
-    } catch (e, st) {
-      Log.error('Gagal saat getChangesSince category', e: e, s: st);
       rethrow;
     }
   }

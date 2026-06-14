@@ -249,7 +249,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             'Mengambil data kategori induk dengan ID: $parentCategoryId',
           );
           final kategoriInduk = await kategoriOperasi
-              .getCategoryById(parentCategoryId) as KategoriModel?;
+              .ambilKategoriBerdasarkanId(parentCategoryId) as KategoriModel?;
 
           if (kategoriInduk == null) {
             throw Exception('Kategori induk tidak ditemukan.');
@@ -288,7 +288,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             Log.info(
               'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan kategori induk.',
             );
-            await kategoriOperasi.updateCategory(kategoriInduk);
+            await kategoriOperasi.updateKategori(kategoriInduk);
 
             Log.info('Update sub-kategori BERHASIL.');
             Log.info(
@@ -335,7 +335,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Memanggil _kategoriOperasi.updateCategory() untuk menyimpan perubahan.',
           );
-          await kategoriOperasi.updateCategory(kategoriDiperbarui);
+          await kategoriOperasi.updateKategori(kategoriDiperbarui);
 
           Log.info('Update kategori utama BERHASIL.');
         } else {
@@ -400,7 +400,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           Log.info(
             'Memanggil _kategoriOperasi.createCategory() untuk menyimpan kategori baru.',
           );
-          await kategoriOperasi.createCategory(kategoriBaru);
+          await kategoriOperasi.tambahKategori(kategoriBaru);
         }
 
         if (!mounted) {

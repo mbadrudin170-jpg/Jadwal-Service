@@ -91,7 +91,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   Future<String> _getCategoryName() async {
     try {
-      final kategori = await _kategoriOpSqlite.getCategoryById(
+      final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
         widget.transaksi.categoryId,
       );
       return kategori.name;

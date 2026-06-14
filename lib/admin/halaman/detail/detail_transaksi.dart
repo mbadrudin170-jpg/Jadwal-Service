@@ -160,7 +160,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
             _buildFutureDetailRow(
               'Kategori',
               _getName(
-                _kategoriOpSqlite.getCategoryById,
+                _kategoriOpSqlite.ambilKategoriBerdasarkanId,
                 transaksi.categoryId,
                 'Kategori',
               ),
