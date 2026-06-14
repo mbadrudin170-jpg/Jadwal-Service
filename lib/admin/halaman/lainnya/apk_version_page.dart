@@ -8,7 +8,7 @@ import 'package:wifi/admin/halaman/detail/apk_version_detail.dart';
 import 'package:wifi/admin/halaman/form/apk_version_form.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -58,8 +58,8 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
   void _sortList() {
     Log.info('Mengurutkan data berdasarkan: ${_getSortName(_currentSort)}');
     _apkVersionList.sort((final a, final b) {
-      final buildA = a.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0;
-      final buildB = b.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0;
+      final buildA = a.latestBuildNumber[ArsitekturApk.universal] ?? 0;
+      final buildB = b.latestBuildNumber[ArsitekturApk.universal] ?? 0;
 
       switch (_currentSort) {
         case SortOrder.buildZA:
@@ -327,7 +327,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         itemBuilder: (final context, final index) {
           final apkVersion = _apkVersionList[index];
           final buildUniversal =
-              apkVersion.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0;
+              apkVersion.latestBuildNumber[ArsitekturApk.universal] ?? 0;
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

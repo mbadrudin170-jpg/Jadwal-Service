@@ -51,7 +51,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
               final item = state.items[index];
               final transaction = item.transaksi;
               final paymentStatusColor =
-                  transaction.paymentStatus == PaymentStatus.paid
+                  transaction.statusPembayaran == PaymentStatus.paid
                       ? Colors.green
                       : Colors.red;
               return Card(
@@ -78,22 +78,22 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     children: [
                       PackageNameWidget(
                         packageFuture: paketOpSqlite
-                            .ambilBerdasarkanId(transaction.packageId ?? ''),
+                            .ambilBerdasarkanId(transaction.idPaket ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),
                       gapH4,
                       Text(
-                        'Status: ${transaction.paymentStatus.displayName}',
+                        'Status: ${transaction.statusPembayaran.displayName}',
                         style: TextStyle(
                           color: paymentStatusColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       gapH4,
-                      if (transaction.startDate != null &&
-                          transaction.endDate != null)
+                      if (transaction.tanggalMulai != null &&
+                          transaction.tangglberakhir != null)
                         Text(
-                          'Aktif: ${FormatTanggal.formatDasar(transaction.startDate!)} - ${FormatTanggal.formatDasar(transaction.endDate!)}',
+                          'Aktif: ${FormatTanggal.formatDasar(transaction.tanggalMulai!)} - ${FormatTanggal.formatDasar(transaction.tangglberakhir!)}',
                         ),
                     ],
                   ),

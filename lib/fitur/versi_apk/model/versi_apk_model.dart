@@ -19,10 +19,10 @@ class VersiApkModel implements HasId {
   final String releaseNotes;
 
   /// A map containing the latest build number for each APK architecture.
-  final Map<ApkArchitectureEnum, int> latestBuildNumber;
+  final Map<ArsitekturApk, int> latestBuildNumber;
 
   /// A map containing the download link for each APK architecture.
-  final Map<ApkArchitectureEnum, String> downloadLinks;
+  final Map<ArsitekturApk, String> downloadLinks;
 
   /// The user-facing version number, e.g., "1.0.2".
   final String latestVersion;
@@ -60,8 +60,8 @@ class VersiApkModel implements HasId {
   VersiApkModel copyWith({
     final String? id,
     final String? releaseNotes,
-    final Map<ApkArchitectureEnum, int>? latestBuildNumber,
-    final Map<ApkArchitectureEnum, String>? downloadLinks,
+    final Map<ArsitekturApk, int>? latestBuildNumber,
+    final Map<ArsitekturApk, String>? downloadLinks,
     final String? latestVersion,
     final bool? isUpdateRequired,
     final String? youtubeTutorial,
@@ -88,9 +88,9 @@ class VersiApkModel implements HasId {
   // =========================
 
   /// Helper to convert a String to an `ApkArchitectureEnum` enum.
-  static ApkArchitectureEnum? _architectureFromString(final String? value) {
+  static ArsitekturApk? _architectureFromString(final String? value) {
     if (value == null) return null;
-    for (final val in ApkArchitectureEnum.values) {
+    for (final val in ArsitekturApk.values) {
       if (val.name == value) {
         return val;
       }
@@ -99,8 +99,8 @@ class VersiApkModel implements HasId {
   }
 
   /// Helper to parse build number data from a Map or JSON String.
-  static Map<ApkArchitectureEnum, int> _parseBuildNumber(final dynamic data) {
-    final result = <ApkArchitectureEnum, int>{};
+  static Map<ArsitekturApk, int> _parseBuildNumber(final dynamic data) {
+    final result = <ArsitekturApk, int>{};
     Map<dynamic, dynamic>? mapData;
 
     if (data is Map) {
@@ -128,9 +128,8 @@ class VersiApkModel implements HasId {
   }
 
   /// Helper to parse download link data from a Map or JSON String.
-  static Map<ApkArchitectureEnum, String> _parseDownloadLinks(
-      final dynamic data) {
-    final result = <ApkArchitectureEnum, String>{};
+  static Map<ArsitekturApk, String> _parseDownloadLinks(final dynamic data) {
+    final result = <ArsitekturApk, String>{};
     Map<dynamic, dynamic>? mapData;
 
     if (data is Map) {

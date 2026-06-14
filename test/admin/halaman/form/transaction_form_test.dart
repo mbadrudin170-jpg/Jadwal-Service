@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -31,12 +31,12 @@ void main() {
     mockTransactionOpFirebase = MockTransactionOpFirebase();
     testTransaction = TransaksiModel(
       id: '1',
-      description: 'Test Transaction',
-      amount: 1000,
-      date: DateTime.now(),
-      type: TransactionType.income,
-      walletId: '1',
-      categoryId: '1',
+      deskripsi: 'Test Transaction',
+      jumlah: 1000,
+      tanggal: DateTime.now(),
+      tipe: TipeTransaksi.income,
+      idDompet: '1',
+      idKategori: '1',
     );
   });
 

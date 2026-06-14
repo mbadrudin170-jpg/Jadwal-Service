@@ -54,8 +54,8 @@ class StatistikOpSqlite {
       }
 
       final jumlahPenjualan = daftartransaksi
-          .where((t) => t.packageId != null)
-          .groupListsBy((t) => t.packageId!)
+          .where((t) => t.idPaket != null)
+          .groupListsBy((t) => t.idPaket!)
           .map((key, value) => MapEntry(key, value.length));
 
       final paketTerlaris = daftarPaket.map((paket) {

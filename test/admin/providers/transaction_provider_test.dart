@@ -25,22 +25,22 @@ void main() {
 
   final tTransaction1 = TransaksiModel(
     id: '1',
-    description: 'Pembelian Pulsa',
-    categoryId: 'cat1',
-    amount: 50000,
-    date: tDate1,
-    type: TransactionType.expense,
-    walletId: 'wallet1',
+    deskripsi: 'Pembelian Pulsa',
+    idKategori: 'cat1',
+    jumlah: 50000,
+    tanggal: tDate1,
+    tipe: TipeTransaksi.expense,
+    idDompet: 'wallet1',
   );
 
   final tTransaction2 = TransaksiModel(
     id: '2',
-    description: 'Gaji',
-    categoryId: 'cat2',
-    amount: 200000,
-    date: tDate2,
-    type: TransactionType.income,
-    walletId: 'wallet1',
+    deskripsi: 'Gaji',
+    idKategori: 'cat2',
+    jumlah: 200000,
+    tanggal: tDate2,
+    tipe: TipeTransaksi.income,
+    idDompet: 'wallet1',
   );
 
   // 3. Fungsi pembantu untuk stubbing pemanggilan data awal

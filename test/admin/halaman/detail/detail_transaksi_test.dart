@@ -10,7 +10,7 @@ import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';

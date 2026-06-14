@@ -7,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -19,7 +19,7 @@ Map<DateTime, List<TransaksiModel>> groupTransactionsByDate(
 ) {
   final Map<DateTime, List<TransaksiModel>> grouped = {};
   for (final t in transactions) {
-    final date = DateTime(t.date.year, t.date.month, t.date.day);
+    final date = DateTime(t.tanggal.year, t.tanggal.month, t.tanggal.day);
     grouped[date] ??= [];
     grouped[date]!.add(t);
   }
@@ -92,12 +92,12 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
   Future<String> _getCategoryName() async {
     try {
       final kategori = await _kategoriOpSqlite.ambilKategoriBerdasarkanId(
-        widget.transaksi.categoryId,
+        widget.transaksi.idKategori,
       );
       return kategori.name;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mendapatkan nama kategori untuk ID: ${widget.transaksi.categoryId}',
+        'Gagal mendapatkan nama kategori untuk ID: ${widget.transaksi.idKategori}',
         e: e,
         s: st,
       );
@@ -108,12 +108,12 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
   Future<String> _getWalletName() async {
     try {
       final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
-        widget.transaksi.walletId,
+        widget.transaksi.idDompet,
       );
       return dompet?.name ?? 'Dompet Dihapus';
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mendapatkan nama dompet untuk ID: ${widget.transaksi.walletId}',
+        'Gagal mendapatkan nama dompet untuk ID: ${widget.transaksi.idDompet}',
         e: e,
         s: st,
       );
@@ -126,7 +126,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     final textTheme = Theme.of(context).textTheme;
     final IconData iconData;
     final Color iconColor;
-    if (widget.transaksi.type == TransactionType.income) {
+    if (widget.transaksi.tipe == TipeTransaksi.income) {
       iconData = Icons.arrow_downward;
       iconColor = Colors.green;
     } else {
@@ -176,7 +176,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           backgroundColor: iconColor.withAlpha(25),
           child: Icon(iconData, color: iconColor),
         ),
-        title: Text(widget.transaksi.description),
+        title: Text(widget.transaksi.deskripsi),
         subtitle: FutureBuilder<List<String>>(
           future: Future.wait([_getCategoryName(), _getWalletName()]),
           builder: (context, snapshot) {
@@ -202,7 +202,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              FormatUang.formatMataUang(widget.transaksi.amount),
+              FormatUang.formatMataUang(widget.transaksi.jumlah),
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: iconColor,
@@ -210,7 +210,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
             ),
             gapH4,
             Text(
-              FormatJam.formatJamMenit(widget.transaksi.date),
+              FormatJam.formatJamMenit(widget.transaksi.tanggal),
               style: textTheme.bodySmall,
             ),
           ],

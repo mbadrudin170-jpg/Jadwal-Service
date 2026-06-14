@@ -196,9 +196,9 @@ class SqliteDatabase {
       );
     }
 
-    if (!existingColumns.contains(NamaKolom.durasiBonusType)) {
+    if (!existingColumns.contains(NamaKolom.tipeDurasiBonus)) {
       await db.execute(
-        'ALTER TABLE "$tableName" ADD COLUMN ${NamaKolom.durasiBonusType} TEXT',
+        'ALTER TABLE "$tableName" ADD COLUMN ${NamaKolom.tipeDurasiBonus} TEXT',
       );
     }
     Log.info('[MIGRASI v53] Penambahan kolom selesai.');
@@ -540,7 +540,7 @@ class SqliteDatabase {
       ${NamaKolom.durasiPaket} INTEGER,
       ${NamaKolom.tipeDurasiPaket} TEXT,
       ${NamaKolom.durasiBonus} INTEGER,
-      ${NamaKolom.durasiBonusType} TEXT,
+      ${NamaKolom.tipeDurasiBonus} TEXT,
       ${NamaKolom.tanggalMulai} INTEGER,
       ${NamaKolom.tangglberakhir} INTEGER,
       ${NamaKolom.statusAktivasi} INTEGER DEFAULT 0

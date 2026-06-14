@@ -30,11 +30,11 @@ class PenjadwalNotifikasi {
 
       // Logika utama penjadwalan notifikasi
       if (transaction != null &&
-          transaction.startDate != null &&
-          transaction.endDate != null &&
-          transaction.endDate!.isAfter(DateTime.now())) {
+          transaction.tanggalMulai != null &&
+          transaction.tangglberakhir != null &&
+          transaction.tangglberakhir!.isAfter(DateTime.now())) {
         // -- Penjadwalan Notifikasi & Alarm Akhir Periode --
-        final scheduledTime = transaction.endDate!;
+        final scheduledTime = transaction.tangglberakhir!;
         Log.info(
             'Langganan aktif ditemukan (ID: ${transaction.id}). Menjadwalkan notifikasi & alarm akhir pada $scheduledTime');
 
@@ -61,10 +61,10 @@ class PenjadwalNotifikasi {
 
         // -- Logika untuk Notifikasi Tengah Periode (tidak berubah) --
         final totalDuration =
-            transaction.endDate!.difference(transaction.startDate!);
+            transaction.tangglberakhir!.difference(transaction.tanggalMulai!);
         final midpointDuration = totalDuration.inSeconds ~/ 2;
         final midpointDate =
-            transaction.startDate!.add(Duration(seconds: midpointDuration));
+            transaction.tanggalMulai!.add(Duration(seconds: midpointDuration));
 
         if (midpointDate.isAfter(DateTime.now())) {
           Log.info('Menjadwalkan notifikasi tengah periode pada $midpointDate');

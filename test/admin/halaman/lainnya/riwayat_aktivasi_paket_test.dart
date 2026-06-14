@@ -8,12 +8,12 @@ import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
@@ -41,17 +41,17 @@ void main() {
 
   final t1 = TransaksiModel(
     id: 't1',
-    customerId: 'c1',
-    packageId: 'p1',
-    date: DateTime(2023, 1, 1),
-    startDate: DateTime(2023, 1, 1),
-    endDate: DateTime(2023, 2, 1),
-    amount: 50000,
-    type: TransactionType.income,
-    walletId: 'w1',
-    paymentStatus: PaymentStatus.paid,
-    categoryId: 'cat1',
-    description: 'Pembayaran Paket',
+    idPelanggan: 'c1',
+    idPaket: 'p1',
+    tanggal: DateTime(2023, 1, 1),
+    tanggalMulai: DateTime(2023, 1, 1),
+    tangglberakhir: DateTime(2023, 2, 1),
+    jumlah: 50000,
+    tipe: TipeTransaksi.income,
+    idDompet: 'w1',
+    statusPembayaran: PaymentStatus.paid,
+    idKategori: 'cat1',
+    deskripsi: 'Pembayaran Paket',
   );
 
   final c1 = PelangganModel(
@@ -72,7 +72,7 @@ void main() {
     nama: 'Paket Bulanan',
     harga: 50000,
     durasi: 30,
-    durationType: DurationType.days,
+    durationType: TipeDurasiPaket.days,
     statusPublik: true,
     poinHadiah: 10,
   );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
@@ -13,9 +13,7 @@ void main() {
     latestVersion: '1.0.1',
     isUpdateRequired: true,
     releaseNotes: 'Bug fixes and performance improvements',
-    downloadLinks: {
-      ApkArchitectureEnum.universal: 'https://example.com/update.apk'
-    },
+    downloadLinks: {ArsitekturApk.universal: 'https://example.com/update.apk'},
   );
 
   final packageInfo = InfoPerangkatModel(
@@ -31,7 +29,7 @@ void main() {
         home: UpdateApkPage(
           apkInfo: apkInfo,
           packageInfo: packageInfo,
-          architecture: ApkArchitectureEnum.universal,
+          architecture: ArsitekturApk.universal,
         ),
       ),
     );

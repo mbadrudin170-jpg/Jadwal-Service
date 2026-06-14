@@ -10,9 +10,9 @@ import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
@@ -103,10 +103,10 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
       double expense = 0;
 
       for (final trx in daftarTransaksi) {
-        if (trx.type == TransactionType.income) {
-          income += trx.amount;
-        } else if (trx.type == TransactionType.expense) {
-          expense += trx.amount;
+        if (trx.tipe == TipeTransaksi.income) {
+          income += trx.jumlah;
+        } else if (trx.tipe == TipeTransaksi.expense) {
+          expense += trx.jumlah;
         }
       }
 
@@ -256,9 +256,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
           0.0,
           (sum, item) =>
               sum +
-              (item.type == TransactionType.income
-                  ? item.amount
-                  : -item.amount),
+              (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
         );
 
         return Column(

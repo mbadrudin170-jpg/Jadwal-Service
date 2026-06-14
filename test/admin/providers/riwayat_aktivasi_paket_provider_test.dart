@@ -6,8 +6,8 @@ import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
@@ -64,48 +64,48 @@ void main() {
   // Transaction dummies
   final t1 = TransaksiModel(
     id: '1',
-    customerId: 'c1',
-    date: yesterday,
-    endDate: today,
-    paymentStatus: PaymentStatus.paid,
-    description: '',
-    amount: 0,
-    type: TransactionType.income,
-    walletId: '',
-    categoryId: '',
+    idPelanggan: 'c1',
+    tanggal: yesterday,
+    tangglberakhir: today,
+    statusPembayaran: PaymentStatus.paid,
+    deskripsi: '',
+    jumlah: 0,
+    tipe: TipeTransaksi.income,
+    idDompet: '',
+    idKategori: '',
   );
   final t2 = TransaksiModel(
       id: '2',
-      customerId: 'c2',
-      date: today,
-      endDate: tomorrow,
-      description: '',
-      amount: 0,
-      type: TransactionType.income,
-      walletId: '',
-      categoryId: '');
+      idPelanggan: 'c2',
+      tanggal: today,
+      tangglberakhir: tomorrow,
+      deskripsi: '',
+      jumlah: 0,
+      tipe: TipeTransaksi.income,
+      idDompet: '',
+      idKategori: '');
   final t3 = TransaksiModel(
     id: '3',
-    customerId: 'c3',
-    date: yesterday.subtract(const Duration(days: 1)),
-    endDate: yesterday,
-    paymentStatus: PaymentStatus.paid,
-    description: '',
-    amount: 0,
-    type: TransactionType.income,
-    walletId: '',
-    categoryId: '',
+    idPelanggan: 'c3',
+    tanggal: yesterday.subtract(const Duration(days: 1)),
+    tangglberakhir: yesterday,
+    statusPembayaran: PaymentStatus.paid,
+    deskripsi: '',
+    jumlah: 0,
+    tipe: TipeTransaksi.income,
+    idDompet: '',
+    idKategori: '',
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
   final t4 = TransaksiModel(
     id: '4',
-    customerId: 'c4-nonexistent',
-    date: today.subtract(const Duration(days: 2)),
-    description: '',
-    amount: 0,
-    type: TransactionType.income,
-    walletId: '',
-    categoryId: '',
+    idPelanggan: 'c4-nonexistent',
+    tanggal: today.subtract(const Duration(days: 2)),
+    deskripsi: '',
+    jumlah: 0,
+    tipe: TipeTransaksi.income,
+    idDompet: '',
+    idKategori: '',
     // Waktu sama, menit berbeda
   );
 
@@ -243,8 +243,8 @@ void main() {
       // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['1', '3', '2', '4']);
-      expect(state.items[0].transaksi.paymentStatus, PaymentStatus.paid);
-      expect(state.items[1].transaksi.paymentStatus, PaymentStatus.paid);
+      expect(state.items[0].transaksi.statusPembayaran, PaymentStatus.paid);
+      expect(state.items[1].transaksi.statusPembayaran, PaymentStatus.paid);
       expect(state.sortBy, SortOption.paid);
     });
 
@@ -261,10 +261,10 @@ void main() {
       // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
       expect(ids, ['2', '4', '1', '3']);
-      expect(state.items[0].transaksi.paymentStatus, PaymentStatus.unpaid);
-      expect(state.items[1].transaksi.paymentStatus, PaymentStatus.unpaid);
-      expect(state.items[2].transaksi.paymentStatus, PaymentStatus.paid);
-      expect(state.items[3].transaksi.paymentStatus, PaymentStatus.paid);
+      expect(state.items[0].transaksi.statusPembayaran, PaymentStatus.unpaid);
+      expect(state.items[1].transaksi.statusPembayaran, PaymentStatus.unpaid);
+      expect(state.items[2].transaksi.statusPembayaran, PaymentStatus.paid);
+      expect(state.items[3].transaksi.statusPembayaran, PaymentStatus.paid);
 
       expect(state.sortBy, SortOption.unpaid);
     });

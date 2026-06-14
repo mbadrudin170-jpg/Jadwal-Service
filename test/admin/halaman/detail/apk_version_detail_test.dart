@@ -24,10 +24,8 @@ void main() {
   final tApkVersion = VersiApkModel(
     id: '1',
     latestVersion: '1.0.0',
-    latestBuildNumber: const {ApkArchitectureEnum.arm64: 1},
-    downloadLinks: const {
-      ApkArchitectureEnum.arm64: 'https://example.com/app.apk'
-    },
+    latestBuildNumber: const {ArsitekturApk.arm64: 1},
+    downloadLinks: const {ArsitekturApk.arm64: 'https://example.com/app.apk'},
     releaseNotes: 'Rilis awal',
     updatedAt: DateTime.now(),
   );

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
@@ -23,13 +23,10 @@ void main() {
   final apkVersion = VersiApkModel(
     id: '1',
     latestVersion: '1.0.0',
-    latestBuildNumber: {
-      ApkArchitectureEnum.bit64: 1,
-      ApkArchitectureEnum.x86_64: 1
-    },
+    latestBuildNumber: {ArsitekturApk.bit64: 1, ArsitekturApk.x86_64: 1},
     downloadLinks: {
-      ApkArchitectureEnum.bit64: 'http://example.com/bit64.apk',
-      ApkArchitectureEnum.x86_64: 'http://example.com/x86_64.apk'
+      ArsitekturApk.bit64: 'http://example.com/bit64.apk',
+      ArsitekturApk.x86_64: 'http://example.com/x86_64.apk'
     },
     releaseNotes: 'Initial release',
     updatedAt: DateTime(2023),
@@ -47,6 +44,6 @@ void main() {
     // Assert
     expect(result, isA<VersiApkModel>());
     expect(result?.latestVersion, '1.0.0');
-    expect(result?.latestBuildNumber[ApkArchitectureEnum.bit64], 1);
+    expect(result?.latestBuildNumber[ArsitekturApk.bit64], 1);
   });
 }

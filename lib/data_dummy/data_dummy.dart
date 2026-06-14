@@ -81,21 +81,21 @@ class DataDummy {
           nama: 'Paket Hemat 10 Mbps',
           harga: 150000,
           durasi: 30,
-          tipe: DurationType.days,
+          tipe: TipeDurasiPaket.days,
         ),
         PaketModel(
           id: paketPremiumId,
           nama: 'Paket Premium 50 Mbps',
           harga: 350000,
           durasi: 30,
-          tipe: DurationType.days,
+          tipe: TipeDurasiPaket.days,
         ),
         PaketModel(
           id: paketGamerId,
           nama: 'Paket Gamer 100 Mbps',
           harga: 500000,
           durasi: 30,
-          tipe: DurationType.days,
+          tipe: TipeDurasiPaket.days,
         ),
       ];
 
@@ -133,23 +133,23 @@ class DataDummy {
   static List<TransaksiModel> get transactions => [
         TransaksiModel(
           id: transactionBudiId,
-          walletId: walletBudiId,
-          categoryId: kategoriPembayaranId,
+          idDompet: walletBudiId,
+          idKategori: kategoriPembayaranId,
           idSubKategori: subKategoriInternetId,
-          type: TransactionType.expense,
-          amount: 150000,
-          description: 'Pembayaran paket hemat',
-          date: DateTime.now(),
+          tipe: TipeTransaksi.expense,
+          jumlah: 150000,
+          deskripsi: 'Pembayaran paket hemat',
+          tanggal: DateTime.now(),
         ),
         TransaksiModel(
           id: transactionSitiId,
-          walletId: walletSitiId,
-          categoryId: kategoriPembayaranId,
+          idDompet: walletSitiId,
+          idKategori: kategoriPembayaranId,
           idSubKategori: subKategoriInternetId,
-          type: TransactionType.expense,
-          amount: 350000,
-          description: 'Pembayaran paket premium',
-          date: DateTime.now().subtract(const Duration(days: 1)),
+          tipe: TipeTransaksi.expense,
+          jumlah: 350000,
+          deskripsi: 'Pembayaran paket premium',
+          tanggal: DateTime.now().subtract(const Duration(days: 1)),
         ),
       ];
 
@@ -195,9 +195,9 @@ class DataDummy {
           id: apkAdminV1Id,
           latestVersion: '1.0.0',
           releaseNotes: 'Versi pertama aplikasi admin.',
-          latestBuildNumber: const {ApkArchitectureEnum.arm64: 1},
+          latestBuildNumber: const {ArsitekturApk.arm64: 1},
           downloadLinks: const {
-            ApkArchitectureEnum.arm64: '/path/to/admin-v1.0.0.apk'
+            ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
           },
           isUpdateRequired: true,
         ),
@@ -205,9 +205,9 @@ class DataDummy {
           id: apkUserV1Id,
           latestVersion: '1.0.1',
           releaseNotes: 'Perbaikan bug dan peningkatan performa.',
-          latestBuildNumber: const {ApkArchitectureEnum.arm64: 2},
+          latestBuildNumber: const {ArsitekturApk.arm64: 2},
           downloadLinks: const {
-            ApkArchitectureEnum.arm64: '/path/to/user-v1.0.1.apk'
+            ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'
           },
         ),
       ];

@@ -15,6 +15,6 @@ export '../model/save_result_model.dart';
 export '../model/settings_model.dart';
 export '../model/status_model.dart';
 export '../model/sub_category_model.dart';
-export '../model/transaksi_model.dart';
+export '../../fitur/transaksi/model/transaksi_model.dart';
 export '../model/upload_status_model.dart';
 export '../../fitur/dompet/model/dompet_model.dart';

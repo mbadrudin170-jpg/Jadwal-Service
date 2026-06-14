@@ -34,7 +34,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
         final customer = data.customer;
         final package = data.package;
         final paymentStatusColor =
-            transaction?.paymentStatus == PaymentStatus.paid
+            transaction?.statusPembayaran == PaymentStatus.paid
                 ? Colors.green
                 : Colors.red;
 
@@ -105,16 +105,16 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                 ),
                 gapH16,
                 // CARD 3: POIN TRANSAKSI
-                if (transaction!.earnedPoints > 0 ||
-                    transaction.usedPoints > 0) ...[
+                if (transaction!.poinDidapat > 0 ||
+                    transaction.poinDigunakan > 0) ...[
                   _buildCard(
                     title: 'Informasi Poin',
                     children: [
-                      _buildRow('Poin Dihasilkan',
-                          '+${transaction.earnedPoints} Poin',
-                          color: Colors.green),
                       _buildRow(
-                          'Poin Digunakan', '-${transaction.usedPoints} Poin',
+                          'Poin Dihasilkan', '+${transaction.poinDidapat} Poin',
+                          color: Colors.green),
+                      _buildRow('Poin Digunakan',
+                          '-${transaction.poinDigunakan} Poin',
                           color: Colors.red),
                     ],
                   ),
@@ -125,18 +125,18 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                 _buildCard(
                   title: 'Waktu & Status',
                   children: [
-                    if (transaction.startDate != null)
+                    if (transaction.tanggalMulai != null)
                       _buildRow(
                           'Tanggal Mulai',
                           FormatWaktuLengkap.formatSingkat(
-                              transaction.startDate!)),
-                    if (transaction.endDate != null)
+                              transaction.tanggalMulai!)),
+                    if (transaction.tangglberakhir != null)
                       _buildRow(
                           'Tanggal Berakhir',
                           FormatWaktuLengkap.formatSingkat(
-                              transaction.endDate!)),
+                              transaction.tangglberakhir!)),
                     _buildRow('Status Pembayaran',
-                        transaction.paymentStatus.displayName.toUpperCase(),
+                        transaction.statusPembayaran.displayName.toUpperCase(),
                         color: paymentStatusColor, isBold: true),
                   ],
                 ),

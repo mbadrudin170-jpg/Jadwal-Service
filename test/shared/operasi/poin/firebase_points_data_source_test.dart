@@ -2,11 +2,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
@@ -64,14 +64,14 @@ void main() {
             poinPenukaran: 100,
             harga: 0,
             durasi: 30,
-            tipe: DurationType.days),
+            tipe: TipeDurasiPaket.days),
         PaketModel(
             id: '2',
             nama: 'Paket B',
             poinPenukaran: 200,
             harga: 0,
             durasi: 30,
-            tipe: DurationType.days),
+            tipe: TipeDurasiPaket.days),
       ];
       when(mockPackageOpFirebase.getPublicPackages())
           .thenAnswer((_) async => mockPackages);
@@ -96,37 +96,37 @@ void main() {
         // Transaksi yang harus lolos filter
         TransaksiModel(
             id: '1',
-            description: 'Beli Poin',
-            earnedPoints: 50,
-            date: now,
-            type: TransactionType.income,
-            amount: 5000,
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            walletId: 'wallet1',
-            categoryId: 'cat1'),
+            deskripsi: 'Beli Poin',
+            poinDidapat: 50,
+            tanggal: now,
+            tipe: TipeTransaksi.income,
+            jumlah: 5000,
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            idDompet: 'wallet1',
+            idKategori: 'cat1'),
         TransaksiModel(
             id: '3',
-            description: 'Tukar Hadiah',
-            usedPoints: 100,
-            date: now,
-            type: TransactionType.expense,
-            amount: 0,
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            walletId: 'wallet1',
-            categoryId: 'cat1'),
+            deskripsi: 'Tukar Hadiah',
+            poinDigunakan: 100,
+            tanggal: now,
+            tipe: TipeTransaksi.expense,
+            jumlah: 0,
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            idDompet: 'wallet1',
+            idKategori: 'cat1'),
         // Transaksi ini harus diabaikan karena tidak ada poin yang didapat atau digunakan
         TransaksiModel(
             id: '2',
-            description: 'Bayar Tagihan',
-            date: now,
-            type: TransactionType.income,
-            amount: 50000,
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            walletId: 'wallet1',
-            categoryId: 'cat1'),
+            deskripsi: 'Bayar Tagihan',
+            tanggal: now,
+            tipe: TipeTransaksi.income,
+            jumlah: 50000,
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            idDompet: 'wallet1',
+            idKategori: 'cat1'),
       ];
       when(mockTransactionOpFirebase.getByCustomerId(customerId))
           .thenAnswer((_) async => allTransactions);
@@ -157,7 +157,7 @@ void main() {
           poinPenukaran: 50,
           harga: 0,
           durasi: 7,
-          tipe: DurationType.days);
+          tipe: TipeDurasiPaket.days);
       when(mockPackageOpFirebase.getPackageById(packageId))
           .thenAnswer((_) async => mockPackage);
 

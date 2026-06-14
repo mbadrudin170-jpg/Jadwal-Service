@@ -4,7 +4,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
@@ -26,7 +26,7 @@ void main() {
     poinPenukaran: 100,
     durasi: 30,
     harga: 100000,
-    tipe: DurationType.days,
+    tipe: TipeDurasiPaket.days,
   );
 
   final p2 = PaketModel(
@@ -36,7 +36,7 @@ void main() {
     poinPenukaran: 50,
     durasi: 7,
     harga: 25000,
-    tipe: DurationType.days,
+    tipe: TipeDurasiPaket.days,
   );
 
   final p3 = PaketModel(
@@ -44,7 +44,7 @@ void main() {
     nama: 'Paket Bonus',
     durasi: 1,
     harga: 0,
-    tipe: DurationType.days,
+    tipe: TipeDurasiPaket.days,
   );
   final p4 = PaketModel(
     id: 'pkg-004',
@@ -53,7 +53,7 @@ void main() {
     poinPenukaran: 120,
     durasi: 30,
     harga: 120000,
-    tipe: DurationType.days,
+    tipe: TipeDurasiPaket.days,
   );
 
   // Helper untuk menambahkan data ke fake firestore

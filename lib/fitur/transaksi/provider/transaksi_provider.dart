@@ -8,7 +8,7 @@ import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart'; // Impor enum Sor
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 part 'transaksi_provider.freezed.dart';
@@ -81,16 +81,16 @@ class Transaksi extends _$Transaksi {
   void _performSort(List<TransaksiModel> transactions, SortBy sortBy) {
     switch (sortBy) {
       case SortBy.newest:
-        transactions.sort((a, b) => b.date.compareTo(a.date));
+        transactions.sort((a, b) => b.tanggal.compareTo(a.tanggal));
         break;
       case SortBy.oldest:
-        transactions.sort((a, b) => a.date.compareTo(b.date));
+        transactions.sort((a, b) => a.tanggal.compareTo(b.tanggal));
         break;
       case SortBy.highestAmount:
-        transactions.sort((a, b) => b.amount.compareTo(a.amount));
+        transactions.sort((a, b) => b.jumlah.compareTo(a.jumlah));
         break;
       case SortBy.lowestAmount:
-        transactions.sort((a, b) => a.amount.compareTo(b.amount));
+        transactions.sort((a, b) => a.jumlah.compareTo(b.jumlah));
         break;
     }
   }

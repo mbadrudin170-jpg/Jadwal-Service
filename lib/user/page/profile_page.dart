@@ -92,14 +92,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
       if (activeSubscriptions.isNotEmpty) {
         lastSubscription = activeSubscriptions.reduce(
-          (a, b) => a.endDate!.isAfter(b.endDate!) ? a : b,
+          (a, b) => a.tangglberakhir!.isAfter(b.tangglberakhir!) ? a : b,
         );
         Log.info(
-            'Langganan terakhir berakhir pada: ${lastSubscription.endDate}.');
+            'Langganan terakhir berakhir pada: ${lastSubscription.tangglberakhir}.');
 
-        if (lastSubscription.packageId != null) {
+        if (lastSubscription.idPaket != null) {
           packageModel =
-              await _packageOp.ambilBerdasarkanId(lastSubscription.packageId!);
+              await _packageOp.ambilBerdasarkanId(lastSubscription.idPaket!);
           Log.info('Detail paket "${packageModel?.nama}" berhasil diambil.');
         }
       }
@@ -222,12 +222,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       );
     }
 
-    final String activePeriodText =
-        PerhitunganUtil.ambilTeksSisaMasaAktif(lastSubscription.endDate!);
-    final Color activePeriodColor =
-        PerhitunganUtil.ambilWarnaSisaMasaAktif(lastSubscription.endDate!);
+    final String activePeriodText = PerhitunganUtil.ambilTeksSisaMasaAktif(
+        lastSubscription.tangglberakhir!);
+    final Color activePeriodColor = PerhitunganUtil.ambilWarnaSisaMasaAktif(
+        lastSubscription.tangglberakhir!);
     final Color paymentStatusColor =
-        lastSubscription.paymentStatus == PaymentStatus.paid
+        lastSubscription.statusPembayaran == PaymentStatus.paid
             ? Colors.green
             : Colors.red;
 
@@ -238,17 +238,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           label: 'Paket',
           value: packageModel?.nama ?? 'Tidak tersedia',
         ),
-        if (lastSubscription.startDate != null)
+        if (lastSubscription.tanggalMulai != null)
           _InfoItem(
             icon: TIcons.dateRange,
             label: 'Aktif Sejak',
-            value:
-                FormatWaktuLengkap.formatSingkat(lastSubscription.startDate!),
+            value: FormatWaktuLengkap.formatSingkat(
+                lastSubscription.tanggalMulai!),
           ),
         _InfoItem(
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
-          value: FormatWaktuLengkap.formatSingkat(lastSubscription.endDate!),
+          value: FormatWaktuLengkap.formatSingkat(
+              lastSubscription.tangglberakhir!),
         ),
         _InfoItem(
           icon: TIcons.hourglass,
@@ -259,18 +260,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _InfoItem(
           icon: TIcons.successOutlined,
           label: 'Status Pembayaran',
-          value: lastSubscription.paymentStatus.displayName
+          value: lastSubscription.statusPembayaran.displayName
               .replaceAll('_', ' ')
               .toUpperCase(),
           valueColor: paymentStatusColor,
         ),
         if (lastSubscription.durasiBonus! > 0 &&
-            lastSubscription.durasiBonusType != null)
+            lastSubscription.tipeDurasiBonus != null)
           _InfoItem(
               icon: TIcons.bonus,
               label: 'Bonus',
               value:
-                  '${lastSubscription.durasiBonus} ${lastSubscription.durasiBonusType!.displayName}')
+                  '${lastSubscription.durasiBonus} ${lastSubscription.tipeDurasiBonus!.displayName}')
       ],
     );
   }

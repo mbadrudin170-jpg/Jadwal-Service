@@ -58,6 +58,7 @@ abstract mixin class $DetailLanggananStateCopyWith<$Res> {
       PelangganModel? customer,
       PaketModel? package});
 
+  $TransaksiModelCopyWith<$Res>? get transaction;
   $PaketModelCopyWith<$Res>? get package;
 }
 
@@ -92,6 +93,20 @@ class _$DetailLanggananStateCopyWithImpl<$Res>
           : package // ignore: cast_nullable_to_non_nullable
               as PaketModel?,
     ));
+  }
+
+  /// Create a copy of DetailLanggananState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TransaksiModelCopyWith<$Res>? get transaction {
+    if (_self.transaction == null) {
+      return null;
+    }
+
+    return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
+      return _then(_self.copyWith(transaction: value));
+    });
   }
 
   /// Create a copy of DetailLanggananState
@@ -328,6 +343,8 @@ abstract mixin class _$DetailLanggananStateCopyWith<$Res>
       PaketModel? package});
 
   @override
+  $TransaksiModelCopyWith<$Res>? get transaction;
+  @override
   $PaketModelCopyWith<$Res>? get package;
 }
 
@@ -362,6 +379,20 @@ class __$DetailLanggananStateCopyWithImpl<$Res>
           : package // ignore: cast_nullable_to_non_nullable
               as PaketModel?,
     ));
+  }
+
+  /// Create a copy of DetailLanggananState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TransaksiModelCopyWith<$Res>? get transaction {
+    if (_self.transaction == null) {
+      return null;
+    }
+
+    return $TransaksiModelCopyWith<$Res>(_self.transaction!, (value) {
+      return _then(_self.copyWith(transaction: value));
+    });
   }
 
   /// Create a copy of DetailLanggananState

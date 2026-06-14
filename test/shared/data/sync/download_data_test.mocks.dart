@@ -20,7 +20,7 @@ import 'package:wifi/fitur/order/model/order_model.dart' as _i25;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i16;
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart' as _i15;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i18;
-import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
+import 'package:wifi/shared/enum/tipe_kategori.dart' as _i14;
 import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;

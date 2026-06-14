@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/model/package_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
@@ -53,15 +53,15 @@ void main() {
 
   final transaction = TransaksiModel(
     id: 'test-transaction-id',
-    customerId: 'test-user-id',
-    packageId: 'test-package-id',
-    date: DateTime.now(),
-    endDate: DateTime.now().add(const Duration(days: 30)),
-    amount: 100000,
-    type: 'income',
-    description: '',
-    walletId: '',
-    categoryId: '',
+    idPelanggan: 'test-user-id',
+    idPaket: 'test-package-id',
+    tanggal: DateTime.now(),
+    tangglberakhir: DateTime.now().add(const Duration(days: 30)),
+    jumlah: 100000,
+    tipe: 'income',
+    deskripsi: '',
+    idDompet: '',
+    idKategori: '',
   );
 
   final package = PackageModel(

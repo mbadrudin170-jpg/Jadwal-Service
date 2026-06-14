@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
@@ -30,16 +30,16 @@ void main() {
       // Skenario: Ada transaksi aktif di masa depan.
       final mockTransaction = TransaksiModel(
         id: 'trans1',
-        customerId: userId, // Menggunakan customerId
-        paymentStatus: PaymentStatus.paid,
-        startDate: DateTime.now().subtract(const Duration(days: 15)),
-        endDate: DateTime.now().add(const Duration(days: 15)),
-        date: DateTime.now(),
-        description: 'Sewa paket 30 hari',
-        amount: 50000,
-        type: TransactionType.income,
-        walletId: 'wallet1',
-        categoryId: 'cat_sewa',
+        idPelanggan: userId, // Menggunakan customerId
+        statusPembayaran: PaymentStatus.paid,
+        tanggalMulai: DateTime.now().subtract(const Duration(days: 15)),
+        tangglberakhir: DateTime.now().add(const Duration(days: 15)),
+        tanggal: DateTime.now(),
+        deskripsi: 'Sewa paket 30 hari',
+        jumlah: 50000,
+        tipe: TipeTransaksi.income,
+        idDompet: 'wallet1',
+        idKategori: 'cat_sewa',
       );
 
       // Stub untuk metode yang dipanggil
@@ -83,7 +83,7 @@ void main() {
       */
 
       // Untuk saat ini, kita hanya bisa memastikan test ini ada sebagai placeholder
-      expect(mockTransaction.customerId, userId);
+      expect(mockTransaction.idPelanggan, userId);
       expect(true, isTrue);
     });
 

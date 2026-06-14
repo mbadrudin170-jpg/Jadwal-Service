@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 
@@ -17,7 +17,7 @@ void main() {
         nama: 'Paket Jam',
         harga: 1000,
         durasi: 3,
-        tipe: DurationType.hours,
+        tipe: TipeDurasiPaket.hours,
       );
       final expectedEndDate = DateTime(2024, 8, 1, 13); // 3 jam kemudian
       final result = PerhitunganUtil.hitungTanggalBerakhir(startDate, paket);
@@ -30,7 +30,7 @@ void main() {
         nama: 'Paket Harian',
         harga: 5000,
         durasi: 7,
-        tipe: DurationType.days,
+        tipe: TipeDurasiPaket.days,
       );
       final expectedEndDate = DateTime(2024, 8, 8, 10); // 7 hari kemudian
       final result = PerhitunganUtil.hitungTanggalBerakhir(startDate, paket);
@@ -43,7 +43,7 @@ void main() {
         nama: 'Paket Bulanan',
         harga: 50000,
         durasi: 2,
-        tipe: DurationType.months,
+        tipe: TipeDurasiPaket.months,
       );
       // 1 Agustus + 2 bulan = 1 Oktober
       final expectedEndDate = DateTime(2024, 10, 1, 10);
@@ -57,7 +57,7 @@ void main() {
         nama: 'Paket Menitan',
         harga: 500,
         durasi: 90,
-        tipe: DurationType.minutes,
+        tipe: TipeDurasiPaket.minutes,
       );
       // 10:00 + 90 menit = 11:30
       final expectedEndDate = DateTime(2024, 8, 1, 11, 30);

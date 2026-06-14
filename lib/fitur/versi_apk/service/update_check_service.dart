@@ -10,7 +10,7 @@ import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/fitur/info_perangkat/service/package_info_service.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/apk_version_op_firebase.dart';
 import 'package:wifi/user/page/update_apk_page_u.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
@@ -42,7 +42,7 @@ class UpdateCheckService {
         bool isUpdateRequired,
         VersiApkModel? apkInfo,
         InfoPerangkatModel? packageInfo,
-        ApkArchitectureEnum? architecture
+        ArsitekturApk? architecture
       })> getUpdateInfo() async {
     Log.info('Memulai pengecekan informasi pembaruan lengkap.');
     try {
@@ -141,7 +141,7 @@ class UpdateCheckService {
     }
   }
 
-  ApkArchitectureEnum? _determineArchitecture(
+  ArsitekturApk? _determineArchitecture(
     final Map<String, dynamic> deviceInfo,
   ) {
     if (deviceInfo['error'] != null) {
@@ -151,14 +151,14 @@ class UpdateCheckService {
     final supportedAbis =
         List<String>.from(deviceInfo['supportedAbis'] as Iterable<dynamic>);
     if (supportedAbis.contains('arm64-v8a')) {
-      return ApkArchitectureEnum.bit64;
+      return ArsitekturApk.bit64;
     } else if (supportedAbis.contains('armeabi-v7a')) {
-      return ApkArchitectureEnum.bit32;
+      return ArsitekturApk.bit32;
     } else {
       Log.warning('Arsitektur tidak didukung (bukan 64-bit, 32-bit, ).', {
         'supportedAbis': supportedAbis,
       });
-      return ApkArchitectureEnum.universal;
+      return ArsitekturApk.universal;
     }
   }
 }

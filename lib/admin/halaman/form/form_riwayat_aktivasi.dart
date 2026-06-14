@@ -7,7 +7,7 @@ import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -34,9 +34,9 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   @override
   void initState() {
     super.initState();
-    _startDate = widget.transaksi.startDate ?? DateTime.now();
-    _endDate = widget.transaksi.endDate ?? DateTime.now();
-    _paymentStatus = widget.transaksi.paymentStatus;
+    _startDate = widget.transaksi.tanggalMulai ?? DateTime.now();
+    _endDate = widget.transaksi.tangglberakhir ?? DateTime.now();
+    _paymentStatus = widget.transaksi.statusPembayaran;
     Log.info(
         'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
   }
@@ -115,7 +115,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
       ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,
-        statusSebelumnya: widget.transaksi.paymentStatus,
+        statusSebelumnya: widget.transaksi.statusPembayaran,
         statusSekarang: _paymentStatus,
         tanggalBerakhir: _endDate,
       );

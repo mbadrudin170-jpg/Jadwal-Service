@@ -17,7 +17,7 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
@@ -255,7 +255,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         _buildInfoRow(
                           context,
                           'Bonus',
-                          '${transaksi.durasiBonus} ${transaksi.durasiBonusType?.displayName ?? ""}',
+                          '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName ?? ""}',
                         ),
                       _buildInfoRow(
                         context,

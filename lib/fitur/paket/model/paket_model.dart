@@ -18,7 +18,7 @@ abstract class PaketModel with _$PaketModel implements HasId {
     required String nama,
     required int harga,
     required int durasi,
-    required DurationType tipe,
+    required TipeDurasiPaket tipe,
     @Default(0) int poinHadiah,
     @Default(0) int poinPenukaran,
     @Default(true) bool statusPublik,
@@ -28,10 +28,10 @@ abstract class PaketModel with _$PaketModel implements HasId {
   }) = _PaketModel;
 
   // 👇 Method custom (tidak berubah dari kode asli Anda)
-  static DurationType _parseType(dynamic value) {
-    return DurationType.values.firstWhere(
+  static TipeDurasiPaket _parseType(dynamic value) {
+    return TipeDurasiPaket.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => DurationType.days,
+      orElse: () => TipeDurasiPaket.days,
     );
   }
 

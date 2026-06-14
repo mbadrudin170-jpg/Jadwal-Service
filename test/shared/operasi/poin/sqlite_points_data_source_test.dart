@@ -2,10 +2,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
@@ -52,7 +52,7 @@ void main() {
           nama: 'Test Package',
           harga: 0,
           durasi: 0,
-          tipe: DurationType.hours,
+          tipe: TipeDurasiPaket.hours,
         )
       ];
       when(mockPackageOperation.getByIsPublic())
@@ -71,32 +71,32 @@ void main() {
       final transactions = [
         TransaksiModel(
           id: '1',
-          earnedPoints: 10,
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
+          poinDidapat: 10,
+          tanggal: DateTime.now(),
+          deskripsi: '',
+          jumlah: 0,
+          tipe: TipeTransaksi.income,
+          idDompet: '',
+          idKategori: '',
         ),
         TransaksiModel(
           id: '2',
-          usedPoints: 5,
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
+          poinDigunakan: 5,
+          tanggal: DateTime.now(),
+          deskripsi: '',
+          jumlah: 0,
+          tipe: TipeTransaksi.income,
+          idDompet: '',
+          idKategori: '',
         ),
         TransaksiModel(
           id: '3',
-          date: DateTime.now(),
-          description: '',
-          amount: 0,
-          type: TransactionType.income,
-          walletId: '',
-          categoryId: '',
+          tanggal: DateTime.now(),
+          deskripsi: '',
+          jumlah: 0,
+          tipe: TipeTransaksi.income,
+          idDompet: '',
+          idKategori: '',
         ),
       ];
       when(mockTransactionOperation.getByIdPelanggan(customerId))
@@ -119,7 +119,7 @@ void main() {
         nama: 'Test Package',
         harga: 0,
         durasi: 0,
-        tipe: DurationType.hours,
+        tipe: TipeDurasiPaket.hours,
       );
       when(mockPackageOperation.getById(packageId))
           .thenAnswer((_) async => package);

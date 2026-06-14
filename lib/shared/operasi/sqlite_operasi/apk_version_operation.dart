@@ -4,7 +4,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
@@ -241,7 +241,7 @@ class ApkVersionOperation {
       for (int i = 0; i < (result.length < 3 ? result.length : 3); i++) {
         final v = result[i];
         Log.info(
-          '  ${i + 1}. ID: ${v.id}, Versi: ${v.latestVersion}, Build Universal: ${v.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0}',
+          '  ${i + 1}. ID: ${v.id}, Versi: ${v.latestVersion}, Build Universal: ${v.latestBuildNumber[ArsitekturApk.universal] ?? 0}',
         );
       }
 
@@ -277,7 +277,7 @@ class ApkVersionOperation {
       if (maps.isNotEmpty) {
         final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
-          'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0}, Diperbarui: ${model.updatedAt?.toIso8601String()}',
+          'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ArsitekturApk.universal] ?? 0}, Diperbarui: ${model.updatedAt?.toIso8601String()}',
         );
         return model;
       } else {
@@ -314,7 +314,7 @@ class ApkVersionOperation {
       if (maps.isNotEmpty) {
         final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
-          'Versi APK ditemukan - ID: $id, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ApkArchitectureEnum.universal] ?? 0}, Catatan: ${model.releaseNotes.length > 50 ? "${model.releaseNotes.substring(0, 50)}..." : model.releaseNotes}',
+          'Versi APK ditemukan - ID: $id, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ArsitekturApk.universal] ?? 0}, Catatan: ${model.releaseNotes.length > 50 ? "${model.releaseNotes.substring(0, 50)}..." : model.releaseNotes}',
         );
         return model;
       } else {

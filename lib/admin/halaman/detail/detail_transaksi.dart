@@ -131,29 +131,29 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            _buildDetailRow('Keterangan', transaksi.description),
+            _buildDetailRow('Keterangan', transaksi.deskripsi),
             _buildDetailRow(
               'Tanggal',
-              FormatWaktuLengkap.formatSingkat(transaksi.date),
+              FormatWaktuLengkap.formatSingkat(transaksi.tanggal),
             ),
             _buildDetailRow(
-                'Jumlah', FormatUang.formatMataUang(transaksi.amount)),
-            _buildDetailRow('Tipe', transaksi.type.displayName),
+                'Jumlah', FormatUang.formatMataUang(transaksi.jumlah)),
+            _buildDetailRow('Tipe', transaksi.tipe.displayName),
             _buildFutureDetailRow(
               'Dompet',
               _getName(
                 _dompetOpSqlite.ambilBerdasarkanId,
-                transaksi.walletId,
+                transaksi.idDompet,
                 'Dompet',
               ),
             ),
-            if (transaksi.destinationWalletId != null &&
-                transaksi.destinationWalletId!.isNotEmpty)
+            if (transaksi.idDompetTujuan != null &&
+                transaksi.idDompetTujuan!.isNotEmpty)
               _buildFutureDetailRow(
                 'Dompet Tujuan',
                 _getName(
                   _dompetOpSqlite.ambilBerdasarkanId,
-                  transaksi.destinationWalletId!,
+                  transaksi.idDompetTujuan!,
                   'Dompet Tujuan',
                 ),
               ),
@@ -161,7 +161,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               'Kategori',
               _getName(
                 _kategoriOpSqlite.ambilKategoriBerdasarkanId,
-                transaksi.categoryId,
+                transaksi.idKategori,
                 'Kategori',
               ),
             ),
@@ -175,45 +175,46 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
                   'Sub-Kategori',
                 ),
               ),
-            if (transaksi.customerId != null &&
-                transaksi.customerId!.isNotEmpty)
+            if (transaksi.idPelanggan != null &&
+                transaksi.idPelanggan!.isNotEmpty)
               _buildFutureDetailRow(
                 'Pelanggan',
                 _getName(
                   _pelangganOpsqlite.ambilBerdasarkanId,
-                  transaksi.customerId!,
+                  transaksi.idPelanggan!,
                   'Pelanggan',
                 ),
               ),
-            if (transaksi.packageId != null && transaksi.packageId!.isNotEmpty)
+            if (transaksi.idPaket != null && transaksi.idPaket!.isNotEmpty)
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
                   _paketOpSqlite.ambilBerdasarkanId,
-                  transaksi.packageId!,
+                  transaksi.idPaket!,
                   'Paket',
                 ),
               ),
             _buildDetailRow(
               'Status Pembayaran',
-              transaksi.paymentStatus.displayName,
+              transaksi.statusPembayaran.displayName,
             ),
             _buildDetailRow(
-                'Poin Dihasilkan', transaksi.earnedPoints.toString()),
-            _buildDetailRow('Poin Digunakan', transaksi.usedPoints.toString()),
-            if (transaksi.startDate != null)
+                'Poin Dihasilkan', transaksi.poinDidapat.toString()),
+            _buildDetailRow(
+                'Poin Digunakan', transaksi.poinDigunakan.toString()),
+            if (transaksi.tanggalMulai != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-                FormatWaktuLengkap.formatSingkat(transaksi.startDate!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tanggalMulai!),
               ),
-            if (transaksi.endDate != null)
+            if (transaksi.tangglberakhir != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatWaktuLengkap.formatSingkat(transaksi.endDate!),
+                FormatWaktuLengkap.formatSingkat(transaksi.tangglberakhir!),
               ),
-            if (transaksi.durasiBonus! > 0 && transaksi.durasiBonusType != null)
+            if (transaksi.durasiBonus! > 0 && transaksi.tipeDurasiBonus != null)
               _buildDetailRow('Bonus',
-                  '${transaksi.durasiBonus} ${transaksi.durasiBonusType?.displayName}')
+                  '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}')
           ],
         ),
       ),

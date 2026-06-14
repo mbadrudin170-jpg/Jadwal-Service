@@ -6,7 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 part 'riwayat_aktivasi_paket_provider.g.dart';
 
@@ -75,7 +75,7 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     final combinedList = transaksi.map((trans) {
       return TransactionWithCustomer(
         transaksi: trans,
-        pelanggan: customerMap[trans.customerId],
+        pelanggan: customerMap[trans.idPelanggan],
       );
     }).toList();
 
@@ -108,20 +108,21 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
     switch (option) {
       case SortOption.endDate:
         list.sort((a, b) {
-          if (a.transaksi.endDate == null && b.transaksi.endDate == null) {
+          if (a.transaksi.tangglberakhir == null &&
+              b.transaksi.tangglberakhir == null) {
             return 0;
           }
-          if (a.transaksi.endDate == null) return 1;
-          if (b.transaksi.endDate == null) return -1;
-          final dateCompare =
-              b.transaksi.endDate!.compareTo(a.transaksi.endDate!);
+          if (a.transaksi.tangglberakhir == null) return 1;
+          if (b.transaksi.tangglberakhir == null) return -1;
+          final dateCompare = b.transaksi.tangglberakhir!
+              .compareTo(a.transaksi.tangglberakhir!);
           if (dateCompare != 0) return dateCompare;
           return a.transaksi.id.compareTo(b.transaksi.id);
         });
       case SortOption.updatedAtAZ:
         list.sort((a, b) {
-          final updateAtA = a.transaksi.updatedAt;
-          final updateAtB = b.transaksi.updatedAt;
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
           if (updateAtA == null && updateAtB == null) return 0;
           if (updateAtA == null) return 1;
           if (updateAtB == null) return -1;
@@ -130,8 +131,8 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
         break;
       case SortOption.updatedAtZA:
         list.sort((a, b) {
-          final updateAtA = a.transaksi.updatedAt;
-          final updateAtB = b.transaksi.updatedAt;
+          final updateAtA = a.transaksi.diperbaruiPada;
+          final updateAtB = b.transaksi.diperbaruiPada;
           if (updateAtA == null && updateAtB == null) return 0;
           if (updateAtA == null) return -1;
           if (updateAtB == null) return 1;
@@ -148,42 +149,46 @@ class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
       case SortOption.endingToday:
         final now = DateTime.now();
         list.sort((a, b) {
-          final isTodayA = a.transaksi.endDate != null &&
-              a.transaksi.endDate!.year == now.year &&
-              a.transaksi.endDate!.month == now.month &&
-              a.transaksi.endDate!.day == now.day;
-          final isTodayB = b.transaksi.endDate != null &&
-              b.transaksi.endDate!.year == now.year &&
-              b.transaksi.endDate!.month == now.month &&
-              b.transaksi.endDate!.day == now.day;
+          final isTodayA = a.transaksi.tangglberakhir != null &&
+              a.transaksi.tangglberakhir!.year == now.year &&
+              a.transaksi.tangglberakhir!.month == now.month &&
+              a.transaksi.tangglberakhir!.day == now.day;
+          final isTodayB = b.transaksi.tangglberakhir != null &&
+              b.transaksi.tangglberakhir!.year == now.year &&
+              b.transaksi.tangglberakhir!.month == now.month &&
+              b.transaksi.tangglberakhir!.day == now.day;
 
           if (isTodayA && !isTodayB) return -1;
           if (!isTodayA && isTodayB) return 1;
 
-          if (a.transaksi.endDate == null && b.transaksi.endDate == null) {
+          if (a.transaksi.tangglberakhir == null &&
+              b.transaksi.tangglberakhir == null) {
             return 0;
           }
-          if (a.transaksi.endDate == null) return 1;
-          if (b.transaksi.endDate == null) return -1;
-          return a.transaksi.endDate!.compareTo(b.transaksi.endDate!);
+          if (a.transaksi.tangglberakhir == null) return 1;
+          if (b.transaksi.tangglberakhir == null) return -1;
+          return a.transaksi.tangglberakhir!
+              .compareTo(b.transaksi.tangglberakhir!);
         });
       case SortOption.paid:
         list.sort((a, b) {
-          final isPaidA = a.transaksi.paymentStatus == PaymentStatus.paid;
-          final isPaidB = b.transaksi.paymentStatus == PaymentStatus.paid;
+          final isPaidA = a.transaksi.statusPembayaran == PaymentStatus.paid;
+          final isPaidB = b.transaksi.statusPembayaran == PaymentStatus.paid;
           if (isPaidA && !isPaidB) return -1;
           if (!isPaidA && isPaidB) return 1;
-          return (b.transaksi.updatedAt ?? b.transaksi.date)
-              .compareTo(a.transaksi.updatedAt ?? a.transaksi.date);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
+              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
         });
       case SortOption.unpaid:
         list.sort((a, b) {
-          final isUnpaidA = a.transaksi.paymentStatus == PaymentStatus.unpaid;
-          final isUnpaidB = b.transaksi.paymentStatus == PaymentStatus.unpaid;
+          final isUnpaidA =
+              a.transaksi.statusPembayaran == PaymentStatus.unpaid;
+          final isUnpaidB =
+              b.transaksi.statusPembayaran == PaymentStatus.unpaid;
           if (isUnpaidA && !isUnpaidB) return -1;
           if (!isUnpaidA && isUnpaidB) return 1;
-          return (b.transaksi.updatedAt ?? b.transaksi.date)
-              .compareTo(a.transaksi.updatedAt ?? a.transaksi.date);
+          return (b.transaksi.diperbaruiPada ?? b.transaksi.tanggal)
+              .compareTo(a.transaksi.diperbaruiPada ?? a.transaksi.tanggal);
         });
     }
   }

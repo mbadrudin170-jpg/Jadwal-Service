@@ -9,7 +9,7 @@ import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
@@ -238,9 +238,7 @@ class _TransactionListView extends ConsumerWidget {
           0.0,
           (sum, item) =>
               sum +
-              (item.type == TransactionType.income
-                  ? item.amount
-                  : -item.amount),
+              (item.tipe == TipeTransaksi.income ? item.jumlah : -item.jumlah),
         );
 
         return Column(

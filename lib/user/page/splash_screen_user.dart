@@ -35,7 +35,7 @@ typedef UpdateInfoRecord = ({
   bool isUpdateRequired,
   VersiApkModel? apkInfo,
   InfoPerangkatModel? packageInfo,
-  ApkArchitectureEnum? architecture
+  ArsitekturApk? architecture
 });
 
 class SplashScreenUser extends ConsumerStatefulWidget {

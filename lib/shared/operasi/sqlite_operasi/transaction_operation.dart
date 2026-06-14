@@ -9,7 +9,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
@@ -106,13 +106,12 @@ class TransaksiOpsqlite {
           Log.info(
               'Data transaksi berhasil masuk ke tabel dengan row ID: $newId');
 
-          await _recalculateAndUpdateWalletBalance(data.walletId, txn);
-          if (data.type == TransactionType.transfer &&
-              data.destinationWalletId != null) {
+          await _recalculateAndUpdateWalletBalance(data.idDompet, txn);
+          if (data.tipe == TipeTransaksi.transfer &&
+              data.idDompetTujuan != null) {
             Log.info(
                 'Deteksi transaksi transfer, menghitung saldo wallet tujuan');
-            await _recalculateAndUpdateWalletBalance(
-                data.destinationWalletId!, txn);
+            await _recalculateAndUpdateWalletBalance(data.idDompetTujuan!, txn);
           }
           return newId;
         },
@@ -297,13 +296,13 @@ class TransaksiOpsqlite {
             Log.info('Data transaksi ID: $id diperbarui');
 
             final affectedWallets = <String>{};
-            affectedWallets.add(oldTransaction.walletId);
-            affectedWallets.add(updateData.walletId);
-            if (oldTransaction.destinationWalletId != null) {
-              affectedWallets.add(oldTransaction.destinationWalletId!);
+            affectedWallets.add(oldTransaction.idDompet);
+            affectedWallets.add(updateData.idDompet);
+            if (oldTransaction.idDompetTujuan != null) {
+              affectedWallets.add(oldTransaction.idDompetTujuan!);
             }
-            if (updateData.destinationWalletId != null) {
-              affectedWallets.add(updateData.destinationWalletId!);
+            if (updateData.idDompetTujuan != null) {
+              affectedWallets.add(updateData.idDompetTujuan!);
             }
 
             Log.info(
@@ -356,11 +355,11 @@ class TransaksiOpsqlite {
           Log.info('Flag isDeleted diatur ke 1 untuk ID: $id');
 
           await _recalculateAndUpdateWalletBalance(
-              oldTransaction.walletId, txn);
-          if (oldTransaction.type == TransactionType.transfer &&
-              oldTransaction.destinationWalletId != null) {
+              oldTransaction.idDompet, txn);
+          if (oldTransaction.tipe == TipeTransaksi.transfer &&
+              oldTransaction.idDompetTujuan != null) {
             await _recalculateAndUpdateWalletBalance(
-                oldTransaction.destinationWalletId!, txn);
+                oldTransaction.idDompetTujuan!, txn);
           }
         },
         fromServer: fromServer,
@@ -527,9 +526,9 @@ class TransaksiOpsqlite {
               item.copyWith(updatedAt: _nowUtc).toSqlite(),
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            affectedWallets.add(item.walletId);
-            if (item.destinationWalletId != null) {
-              affectedWallets.add(item.destinationWalletId!);
+            affectedWallets.add(item.idDompet);
+            if (item.idDompetTujuan != null) {
+              affectedWallets.add(item.idDompetTujuan!);
             }
           }
           await batch.commit(noResult: true);

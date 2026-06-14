@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/statistik/operasi/statistik_op_sqlite.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 class MockStatistikRepository extends Mock implements StatistikOpSqlite {}
@@ -20,7 +20,7 @@ void main() {
       nama: 'Paket A',
       harga: 50000,
       durasi: 30,
-      tipe: DurationType.days,
+      tipe: TipeDurasiPaket.days,
     ),
   );
 

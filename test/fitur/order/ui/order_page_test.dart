@@ -53,13 +53,13 @@ void main() {
       nama: 'Paket Admin',
       harga: 5,
       durasi: 4,
-      tipe: DurationType.days);
+      tipe: TipeDurasiPaket.days);
   final package2 = PaketModel(
       id: 'pkg2',
       nama: 'Paket User',
       harga: 6,
       durasi: 4,
-      tipe: DurationType.minutes);
+      tipe: TipeDurasiPaket.minutes);
 
   // 3. Fungsi setUp untuk inisialisasi mock sebelum setiap tes
   setUp(() {

@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 
 part 'detail_langganan_provider.freezed.dart';
 part 'detail_langganan_provider.g.dart';
@@ -35,11 +35,11 @@ Future<DetailLanggananState?> ambilDetailLangganan(
 
   // 2. Ambil data relasi secara paralel untuk menghemat waktu pemuatan
   final hasil = await Future.wait<Object?>([
-    transaksi.customerId != null
-        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.customerId!)
+    transaksi.idPelanggan != null
+        ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.idPelanggan!)
         : Future<PelangganModel?>.value(),
-    transaksi.packageId != null
-        ? paketOpSqlite.ambilBerdasarkanId(transaksi.packageId!)
+    transaksi.idPaket != null
+        ? paketOpSqlite.ambilBerdasarkanId(transaksi.idPaket!)
         : Future<PaketModel?>.value(),
   ]);
 

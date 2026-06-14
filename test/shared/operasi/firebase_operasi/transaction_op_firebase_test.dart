@@ -6,8 +6,8 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 
 void main() {
@@ -23,46 +23,46 @@ void main() {
   // Data model transaksi untuk digunakan dalam tes
   final t1 = TransaksiModel(
     id: 'trx-001',
-    customerId: 'cust-123',
-    date: DateTime.now(),
-    description: 'Pembelian paket 30 hari',
-    amount: 100000,
-    type: TransactionType.expense, // DIUBAH
-    walletId: 'wallet-01',
-    categoryId: 'cat-internet',
-    paymentStatus: PaymentStatus.paid,
-    endDate: DateTime.now().add(const Duration(days: 30)),
-    earnedPoints: 10,
+    idPelanggan: 'cust-123',
+    tanggal: DateTime.now(),
+    deskripsi: 'Pembelian paket 30 hari',
+    jumlah: 100000,
+    tipe: TipeTransaksi.expense, // DIUBAH
+    idDompet: 'wallet-01',
+    idKategori: 'cat-internet',
+    statusPembayaran: PaymentStatus.paid,
+    tangglberakhir: DateTime.now().add(const Duration(days: 30)),
+    poinDidapat: 10,
   );
 
   final t2 = TransaksiModel(
     id: 'trx-002',
-    customerId: 'cust-123',
-    date: DateTime.now(),
-    description: 'Pembelian paket 60 hari',
-    amount: 200000,
-    type: TransactionType.expense, // DIUBAH
-    walletId: 'wallet-01',
-    categoryId: 'cat-internet',
+    idPelanggan: 'cust-123',
+    tanggal: DateTime.now(),
+    deskripsi: 'Pembelian paket 60 hari',
+    jumlah: 200000,
+    tipe: TipeTransaksi.expense, // DIUBAH
+    idDompet: 'wallet-01',
+    idKategori: 'cat-internet',
     // paymentStatus default-nya unpaid
-    endDate: DateTime.now().add(const Duration(days: 60)),
-    earnedPoints: 20,
-    usedPoints: 5,
+    tangglberakhir: DateTime.now().add(const Duration(days: 60)),
+    poinDidapat: 20,
+    poinDigunakan: 5,
   );
 
   final t3 = TransaksiModel(
     id: 'trx-003',
-    customerId: 'cust-456',
-    date: DateTime.now(),
-    description: 'Paket Kedaluwarsa',
-    amount: 50000,
-    type: TransactionType.expense, // DIUBAH
-    walletId: 'wallet-02',
-    categoryId: 'cat-internet',
-    paymentStatus: PaymentStatus.paid,
-    endDate:
+    idPelanggan: 'cust-456',
+    tanggal: DateTime.now(),
+    deskripsi: 'Paket Kedaluwarsa',
+    jumlah: 50000,
+    tipe: TipeTransaksi.expense, // DIUBAH
+    idDompet: 'wallet-02',
+    idKategori: 'cat-internet',
+    statusPembayaran: PaymentStatus.paid,
+    tangglberakhir:
         DateTime.now().subtract(const Duration(days: 1)), // sudah kedaluwarsa
-    earnedPoints: 5,
+    poinDidapat: 5,
   );
 
   group('1. Pengujian TransactionOpFirebase', () {
@@ -74,7 +74,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.idPelanggan], t1.customerId);
+      expect(snapshot.data()![NamaKolom.idPelanggan], t1.idPelanggan);
     });
 
     test('1.2. harus bisa mendapatkan transaksi lunas terbaru', () async {
@@ -134,69 +134,69 @@ void main() {
         // 1. Lunas, tidak dihapus -> Dihitung (100 - 10 = 90)
         final trx1 = TransaksiModel(
             id: 'trx-p1',
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            earnedPoints: 100,
-            usedPoints: 10,
-            date: DateTime.now(),
-            description: '',
-            type: TransactionType.expense,
-            amount: 5,
-            walletId: '',
-            categoryId: '');
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            poinDidapat: 100,
+            poinDigunakan: 10,
+            tanggal: DateTime.now(),
+            deskripsi: '',
+            tipe: TipeTransaksi.expense,
+            jumlah: 5,
+            idDompet: '',
+            idKategori: '');
 
         // 2. Lunas, tidak dihapus -> Dihitung (50 - 5 = 45)
         final trx2 = TransaksiModel(
             id: 'trx-p2',
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            earnedPoints: 50,
-            type: TransactionType.expense,
-            usedPoints: 5,
-            date: DateTime.now(),
-            description: '',
-            amount: 5,
-            walletId: '',
-            categoryId: '');
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            poinDidapat: 50,
+            tipe: TipeTransaksi.expense,
+            poinDigunakan: 5,
+            tanggal: DateTime.now(),
+            deskripsi: '',
+            jumlah: 5,
+            idDompet: '',
+            idKategori: '');
 
         // 3. Belum lunas -> Diabaikan
         final trx3 = TransaksiModel(
             id: 'trx-p3',
-            customerId: customerId,
-            earnedPoints: 200,
-            date: DateTime.now(),
-            description: '',
-            amount: 5,
-            type: TransactionType.expense,
-            walletId: '',
-            categoryId: '');
+            idPelanggan: customerId,
+            poinDidapat: 200,
+            tanggal: DateTime.now(),
+            deskripsi: '',
+            jumlah: 5,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '');
 
         // 4. Lunas, tapi soft deleted -> Diabaikan
         final trx4 = TransaksiModel(
             id: 'trx-p4',
-            customerId: customerId,
-            paymentStatus: PaymentStatus.paid,
-            earnedPoints: 75,
-            isDeleted: true,
-            date: DateTime.now(),
-            description: '',
-            amount: 5,
-            type: TransactionType.expense,
-            walletId: '',
-            categoryId: '');
+            idPelanggan: customerId,
+            statusPembayaran: PaymentStatus.paid,
+            poinDidapat: 75,
+            diHapus: true,
+            tanggal: DateTime.now(),
+            deskripsi: '',
+            jumlah: 5,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '');
 
         // 5. Lunas, tidak dihapus, tapi beda customer -> Diabaikan
         final trx5 = TransaksiModel(
             id: 'trx-p5',
-            customerId: 'cust-other',
-            paymentStatus: PaymentStatus.paid,
-            earnedPoints: 40,
-            date: DateTime.now(),
-            description: '',
-            amount: 5,
-            type: TransactionType.expense,
-            walletId: '',
-            categoryId: '');
+            idPelanggan: 'cust-other',
+            statusPembayaran: PaymentStatus.paid,
+            poinDidapat: 40,
+            tanggal: DateTime.now(),
+            deskripsi: '',
+            jumlah: 5,
+            tipe: TipeTransaksi.expense,
+            idDompet: '',
+            idKategori: '');
 
         // Menambahkan semua transaksi ke firestore palsu
         await transactionOpFirebase.addTransaction(trx1);
@@ -259,7 +259,7 @@ void main() {
       await transactionOpFirebase.addTransaction(expiredTransaction);
 
       final activePackages =
-          await transactionOpFirebase.getPaketAktifCustomer(t1.customerId!);
+          await transactionOpFirebase.getPaketAktifCustomer(t1.idPelanggan!);
 
       expect(activePackages.isEmpty, isTrue);
     });

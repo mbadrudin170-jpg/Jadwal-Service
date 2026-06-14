@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart'; // DIUBAH
 
@@ -30,44 +30,44 @@ class TransactionDetailPage extends StatelessWidget {
           children: [
             _buildInfoRow(
               'Tanggal:',
-              FormatWaktuLengkap.formatSingkat(transaction.date),
+              FormatWaktuLengkap.formatSingkat(transaction.tanggal),
             ),
-            _buildInfoRow('Keterangan:', transaction.description),
+            _buildInfoRow('Keterangan:', transaction.deskripsi),
             _buildInfoRow(
               'Jumlah:',
-              FormatUang.formatMataUang(transaction.amount),
+              FormatUang.formatMataUang(transaction.jumlah),
             ),
-            _buildInfoRow('Tipe:', transaction.type.displayName),
+            _buildInfoRow('Tipe:', transaction.tipe.displayName),
             if (package != null)
               _buildInfoRow('Paket:', package!.nama)
-            else if (transaction.packageId != null)
+            else if (transaction.idPaket != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(
               'Status Pembayaran:',
-              transaction.paymentStatus.displayName,
+              transaction.statusPembayaran.displayName,
             ),
-            if (transaction.startDate != null)
+            if (transaction.tanggalMulai != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                FormatWaktuLengkap.formatSingkat(transaction.startDate!),
+                FormatWaktuLengkap.formatSingkat(transaction.tanggalMulai!),
               ),
-            if (transaction.endDate != null)
+            if (transaction.tangglberakhir != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatWaktuLengkap.formatSingkat(transaction.endDate!),
+                FormatWaktuLengkap.formatSingkat(transaction.tangglberakhir!),
               ),
             _buildInfoRow(
               'Poin didapat:',
-              transaction.earnedPoints.toString(),
+              transaction.poinDidapat.toString(),
             ),
             _buildInfoRow(
               'Poin digunakan:',
-              transaction.usedPoints.toString(),
+              transaction.poinDigunakan.toString(),
             ),
             if (transaction.durasiBonus! > 0 &&
-                transaction.durasiBonusType != null)
+                transaction.tipeDurasiBonus != null)
               _buildInfoRow('Bonus',
-                  '${transaction.durasiBonus} ${transaction.durasiBonusType!.displayName}')
+                  '${transaction.durasiBonus} ${transaction.tipeDurasiBonus!.displayName}')
           ],
         ),
       ),

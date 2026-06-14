@@ -50,7 +50,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   bool _isLoading = true;
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
-  DurationType _bonusDurationType = DurationType.minutes;
+  TipeDurasiPaket _bonusDurationType = TipeDurasiPaket.minutes;
   bool _isBonus = false;
   int _saldoPoinPelanggan = 0;
   DateTime? _pilihTanggal;
@@ -71,13 +71,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   int _getDurationInMinutes(final PaketModel package) {
     switch (package.tipe) {
-      case DurationType.minutes:
+      case TipeDurasiPaket.minutes:
         return package.durasi;
-      case DurationType.hours:
+      case TipeDurasiPaket.hours:
         return package.durasi * 60;
-      case DurationType.days:
+      case TipeDurasiPaket.days:
         return package.durasi * 24 * 60;
-      case DurationType.months:
+      case TipeDurasiPaket.months:
         return package.durasi * 30 * 24 * 60;
     }
   }
@@ -177,17 +177,17 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       Log.info(
           'Transaksi terkait (ID: ${transaksi.id}) ditemukan. Memetakan dompet dan kategori.');
       _dompetDipilih =
-          _dompetList.firstWhereOrNull((d) => d.id == transaksi.walletId);
-      final kategoriSumber = transaksi.type == TransactionType.income
+          _dompetList.firstWhereOrNull((d) => d.id == transaksi.idDompet);
+      final kategoriSumber = transaksi.tipe == TipeTransaksi.income
           ? _kategoriPemasukanList
           : _kategoriPengeluaranList;
       _kategoriDipilih =
-          kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.categoryId);
+          kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.idKategori);
 
       if (transaksi.durasiBonus != null && transaksi.durasiBonus! > 0) {
         _isBonus = true;
         _bonusDurationController.text = transaksi.durasiBonus.toString();
-        _bonusDurationType = transaksi.durasiBonusType ?? DurationType.hours;
+        _bonusDurationType = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;
       }
     } else {
       Log.warning(
@@ -312,24 +312,24 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
       final transaksiData = TransaksiModel(
         id: transaksiId,
-        date: tanggalMulai,
-        description: 'Aktivasi Paket: ${_paketDipilih!.nama}',
-        amount: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
-        type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
-        walletId: _dompetDipilih!.id,
-        categoryId: _kategoriDipilih!.id,
-        customerId: _pelangganDipilih!.id,
-        packageId: _paketDipilih!.id,
-        paymentStatus: _statusPembayaran,
-        earnedPoints: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
-        usedPoints: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
-        packageDuration: _paketDipilih!.durasi,
-        durationType: _paketDipilih!.tipe,
+        tanggal: tanggalMulai,
+        deskripsi: 'Aktivasi Paket: ${_paketDipilih!.nama}',
+        jumlah: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
+        tipe: _gunakanPoin ? TipeTransaksi.expense : TipeTransaksi.income,
+        idDompet: _dompetDipilih!.id,
+        idKategori: _kategoriDipilih!.id,
+        idPelanggan: _pelangganDipilih!.id,
+        idPaket: _paketDipilih!.id,
+        statusPembayaran: _statusPembayaran,
+        poinDidapat: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
+        poinDigunakan: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
+        durasiPaket: _paketDipilih!.durasi,
+        tipeDurasiPaket: _paketDipilih!.tipe,
         durasiBonus: nilaiBonus,
-        durasiBonusType: _isBonus ? _bonusDurationType : null,
-        startDate: tanggalMulai,
-        endDate: tanggalBerakhir,
-        isActivated: true,
+        tipeDurasiBonus: _isBonus ? _bonusDurationType : null,
+        tanggalMulai: tanggalMulai,
+        tangglberakhir: tanggalBerakhir,
+        statusAktivasi: true,
       );
       Log.info(
           'Menyimpan data: customerId=${_pelangganDipilih!.id}, packageId=${_paketDipilih!.id}, transaksiId=$transaksiId');
@@ -725,13 +725,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             ),
             gapW8,
             Expanded(
-              child: DropdownButtonFormField<DurationType>(
+              child: DropdownButtonFormField<TipeDurasiPaket>(
                 key: const Key('dropdown_bonus_duration_type'),
                 initialValue: _bonusDurationType,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
-                items: DurationType.values.map((type) {
+                items: TipeDurasiPaket.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
                     child: Text(type.displayName),

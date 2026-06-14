@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/form_paket.dart
+// path: lib/fitur/paket/page/form_paket.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,11 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -31,18 +31,18 @@ class FormPaket extends ConsumerStatefulWidget {
 class _PackageFormState extends ConsumerState<FormPaket> {
   late final PaketOpSqlite _paketOpSqlite;
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _durationController = TextEditingController();
-  final _rewardPointsController = TextEditingController();
-  final _redemptionPointsController = TextEditingController();
+  final _namaController = TextEditingController();
+  final _hargaController = TextEditingController();
+  final _durasiController = TextEditingController();
+  final _poinHadiagcontroller = TextEditingController();
+  final _poinPenukaranController = TextEditingController();
   final _nameFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
   final _durationFocusNode = FocusNode();
   final _rewardPointsFocusNode = FocusNode();
   final _redemptionPointsFocusNode = FocusNode();
 
-  DurationType _selectedType = DurationType.days;
+  TipeDurasiPaket _selectedType = TipeDurasiPaket.days;
 
   bool get _modeEdit => widget.paket != null;
   bool _publik = false;
@@ -52,11 +52,11 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     super.initState();
     _paketOpSqlite = ref.read(paketOpSqliteProvider);
     if (_modeEdit) {
-      _nameController.text = widget.paket!.nama;
-      _priceController.text = widget.paket!.harga.toString();
-      _durationController.text = widget.paket!.durasi.toString();
-      _rewardPointsController.text = widget.paket!.poinHadiah.toString();
-      _redemptionPointsController.text = widget.paket!.poinPenukaran.toString();
+      _namaController.text = widget.paket!.nama;
+      _hargaController.text = widget.paket!.harga.toString();
+      _durasiController.text = widget.paket!.durasi.toString();
+      _poinHadiagcontroller.text = widget.paket!.poinHadiah.toString();
+      _poinPenukaranController.text = widget.paket!.poinPenukaran.toString();
       _selectedType = widget.paket!.tipe;
       _publik = widget.paket!.statusPublik;
     }
@@ -66,14 +66,14 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
           id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
-          nama: _nameController.text,
+          nama: _namaController.text,
           harga: int.tryParse(
-                  _priceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+                  _hargaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
               0,
-          durasi: int.tryParse(_durationController.text) ?? 0,
+          durasi: int.tryParse(_durasiController.text) ?? 0,
           tipe: _selectedType,
-          poinHadiah: int.tryParse(_rewardPointsController.text) ?? 0,
-          poinPenukaran: int.tryParse(_redemptionPointsController.text) ?? 0,
+          poinHadiah: int.tryParse(_poinHadiagcontroller.text) ?? 0,
+          poinPenukaran: int.tryParse(_poinPenukaranController.text) ?? 0,
           statusPublik: _publik,
           diperbaruiPada: DateTime.now().toUtc());
 
@@ -93,10 +93,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         );
         Navigator.pop(context, true);
       } on DatabaseException catch (e, s) {
-        String errorMessage =
+        String pesanError =
             'Gagal menyimpan paket. Terjadi kesalahan database.';
         if (e.isUniqueConstraintError()) {
-          errorMessage = 'Nama paket sudah ada. Harap gunakan nama lain.';
+          pesanError = 'Nama paket sudah ada. Harap gunakan nama lain.';
         } else {
           Log.error(
               'DatabaseException tidak dikenal saat menyimpan paket. Kemungkinan penyebab: constraint violation lain, database corrupt, atau kesalahan struktur tabel.',
@@ -107,7 +107,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         if (!mounted) {
           return;
         }
-        ToastUtil.error(context, errorMessage);
+        ToastUtil.error(context, pesanError);
       } on Exception catch (e, s) {
         Log.error(
             'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_modeEdit ? "update" : "create"} paket.',
@@ -142,7 +142,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
             child: Column(
               children: [
                 TextFormField(
-                  controller: _nameController,
+                  controller: _namaController,
                   focusNode: _nameFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Nama Paket'),
@@ -158,7 +158,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 ),
                 gapH12,
                 TextFormField(
-                  controller: _priceController,
+                  controller: _hargaController,
                   focusNode: _priceFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Harga'),
@@ -183,7 +183,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 ),
                 gapH12,
                 TextFormField(
-                  controller: _durationController,
+                  controller: _durasiController,
                   focusNode: _durationFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Durasi'),
@@ -203,7 +203,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 ),
                 gapH12,
                 TextFormField(
-                  controller: _rewardPointsController,
+                  controller: _poinHadiagcontroller,
                   focusNode: _rewardPointsFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Poin Hadiah'),
@@ -224,7 +224,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 ),
                 gapH12,
                 TextFormField(
-                  controller: _redemptionPointsController,
+                  controller: _poinPenukaranController,
                   focusNode: _redemptionPointsFocusNode,
                   textInputAction: TextInputAction.done,
                   decoration:
@@ -244,16 +244,17 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                   },
                 ),
                 gapH16,
-                DropdownButtonFormField<DurationType>(
+                DropdownButtonFormField<TipeDurasiPaket>(
                   initialValue: _selectedType,
                   decoration: const InputDecoration(labelText: 'Tipe Durasi'),
-                  items: DurationType.values.map((final DurationType type) {
-                    return DropdownMenuItem<DurationType>(
+                  items:
+                      TipeDurasiPaket.values.map((final TipeDurasiPaket type) {
+                    return DropdownMenuItem<TipeDurasiPaket>(
                       value: type,
                       child: Text(type.displayName),
                     );
                   }).toList(),
-                  onChanged: (final DurationType? newValue) {
+                  onChanged: (final TipeDurasiPaket? newValue) {
                     if (newValue != null) {
                       setState(() {
                         _selectedType = newValue;
@@ -297,11 +298,11 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _priceController.dispose();
-    _durationController.dispose();
-    _rewardPointsController.dispose();
-    _redemptionPointsController.dispose();
+    _namaController.dispose();
+    _hargaController.dispose();
+    _durasiController.dispose();
+    _poinHadiagcontroller.dispose();
+    _poinPenukaranController.dispose();
     _nameFocusNode.dispose();
     _priceFocusNode.dispose();
     _durationFocusNode.dispose();

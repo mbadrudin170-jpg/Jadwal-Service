@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/page/subscription_history_user.dart';
 import 'package:wifi/user/providers/user_providers.dart';
@@ -25,17 +25,17 @@ void main() {
   final transactions = [
     TransaksiModel(
       id: '1',
-      customerId: '1',
-      packageId: '1',
-      startDate: DateTime(2023, 1, 1),
-      endDate: DateTime(2023, 1, 31),
+      idPelanggan: '1',
+      idPaket: '1',
+      tanggalMulai: DateTime(2023, 1, 1),
+      tangglberakhir: DateTime(2023, 1, 31),
     ),
     TransaksiModel(
       id: '2',
-      customerId: '1',
-      packageId: '2',
-      startDate: DateTime(2023, 2, 1),
-      endDate: DateTime(2023, 2, 28),
+      idPelanggan: '1',
+      idPaket: '2',
+      tanggalMulai: DateTime(2023, 2, 1),
+      tangglberakhir: DateTime(2023, 2, 28),
     ),
   ];
 

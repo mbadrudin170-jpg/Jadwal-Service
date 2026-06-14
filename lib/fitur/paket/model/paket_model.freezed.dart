@@ -18,7 +18,7 @@ mixin _$PaketModel {
   String get nama;
   int get harga;
   int get durasi;
-  DurationType get tipe;
+  TipeDurasiPaket get tipe;
   int get poinHadiah;
   int get poinPenukaran;
   bool get statusPublik;
@@ -89,7 +89,7 @@ abstract mixin class $PaketModelCopyWith<$Res> {
       String nama,
       int harga,
       int durasi,
-      DurationType tipe,
+      TipeDurasiPaket tipe,
       int poinHadiah,
       int poinPenukaran,
       bool statusPublik,
@@ -142,7 +142,7 @@ class _$PaketModelCopyWithImpl<$Res> implements $PaketModelCopyWith<$Res> {
       tipe: null == tipe
           ? _self.tipe
           : tipe // ignore: cast_nullable_to_non_nullable
-              as DurationType,
+              as TipeDurasiPaket,
       poinHadiah: null == poinHadiah
           ? _self.poinHadiah
           : poinHadiah // ignore: cast_nullable_to_non_nullable
@@ -269,7 +269,7 @@ extension PaketModelPatterns on PaketModel {
             String nama,
             int harga,
             int durasi,
-            DurationType tipe,
+            TipeDurasiPaket tipe,
             int poinHadiah,
             int poinPenukaran,
             bool statusPublik,
@@ -319,7 +319,7 @@ extension PaketModelPatterns on PaketModel {
             String nama,
             int harga,
             int durasi,
-            DurationType tipe,
+            TipeDurasiPaket tipe,
             int poinHadiah,
             int poinPenukaran,
             bool statusPublik,
@@ -367,7 +367,7 @@ extension PaketModelPatterns on PaketModel {
             String nama,
             int harga,
             int durasi,
-            DurationType tipe,
+            TipeDurasiPaket tipe,
             int poinHadiah,
             int poinPenukaran,
             bool statusPublik,
@@ -424,7 +424,7 @@ class _PaketModel extends PaketModel {
   @override
   final int durasi;
   @override
-  final DurationType tipe;
+  final TipeDurasiPaket tipe;
   @override
   @JsonKey()
   final int poinHadiah;
@@ -508,7 +508,7 @@ abstract mixin class _$PaketModelCopyWith<$Res>
       String nama,
       int harga,
       int durasi,
-      DurationType tipe,
+      TipeDurasiPaket tipe,
       int poinHadiah,
       int poinPenukaran,
       bool statusPublik,
@@ -561,7 +561,7 @@ class __$PaketModelCopyWithImpl<$Res> implements _$PaketModelCopyWith<$Res> {
       tipe: null == tipe
           ? _self.tipe
           : tipe // ignore: cast_nullable_to_non_nullable
-              as DurationType,
+              as TipeDurasiPaket,
       poinHadiah: null == poinHadiah
           ? _self.poinHadiah
           : poinHadiah // ignore: cast_nullable_to_non_nullable

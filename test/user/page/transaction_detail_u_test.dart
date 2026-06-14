@@ -2,25 +2,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 
 void main() {
   final transaction = TransaksiModel(
     id: '1',
-    customerId: '1',
-    packageId: '1',
-    date: DateTime(2023, 1, 1),
-    description: 'Test Transaction',
-    amount: 100000,
-    type: TransactionType.purchase,
-    paymentStatus: PaymentStatus.paid,
-    startDate: DateTime(2023, 1, 1),
-    endDate: DateTime(2023, 1, 31),
-    earnedPoints: 10,
-    usedPoints: 0,
+    idPelanggan: '1',
+    idPaket: '1',
+    tanggal: DateTime(2023, 1, 1),
+    deskripsi: 'Test Transaction',
+    jumlah: 100000,
+    tipe: TipeTransaksi.purchase,
+    statusPembayaran: PaymentStatus.paid,
+    tanggalMulai: DateTime(2023, 1, 1),
+    tangglberakhir: DateTime(2023, 1, 31),
+    poinDidapat: 10,
+    poinDigunakan: 0,
   );
 
   final package = PaketModel(

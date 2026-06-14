@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
@@ -69,7 +69,7 @@ void main() {
     nama: 'Paket 1',
     harga: 100000,
     durasi: 30,
-    durationType: DurationType.days,
+    durationType: TipeDurasiPaket.days,
     statusPublik: true,
     poinHadiah: 0,
   );

@@ -2,7 +2,7 @@
 // diperbaiki: Menambahkan dokumentasi untuk getter.
 
 /// Enum untuk tipe-tipe transaksi.
-enum TransactionType {
+enum TipeTransaksi {
   /// Untuk transaksi pemasukan.
   income,
 
@@ -15,11 +15,11 @@ enum TransactionType {
   /// Mendapatkan nama tampilan (display name) dari tipe transaksi.
   String get displayName {
     switch (this) {
-      case TransactionType.income:
+      case TipeTransaksi.income:
         return 'Pemasukan';
-      case TransactionType.expense:
+      case TipeTransaksi.expense:
         return 'Pengeluaran';
-      case TransactionType.transfer:
+      case TipeTransaksi.transfer:
         return 'Transfer';
     }
   }

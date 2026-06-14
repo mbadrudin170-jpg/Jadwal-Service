@@ -67,7 +67,7 @@ final class AmbilDetailLanggananProvider extends $FunctionalProvider<
 }
 
 String _$ambilDetailLanggananHash() =>
-    r'cd76a90cba1a184dc1312532dd4b1a769bf044ba';
+    r'95e5ce9ec2984bc1f1f9addf2d099beba2e0a582';
 
 final class AmbilDetailLanggananFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<DetailLanggananState?>, String> {

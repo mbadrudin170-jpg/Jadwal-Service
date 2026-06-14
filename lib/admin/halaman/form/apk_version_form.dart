@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -91,15 +91,11 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
         _latestVersionController.text = versiTerakhir.latestVersion;
         _youtubeTutorialController.text = versiTerakhir.youtubeTutorial;
         final buildUniversalBerikutnya =
-            (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.universal] ??
-                    0) +
-                1;
+            (versiTerakhir.latestBuildNumber[ArsitekturApk.universal] ?? 0) + 1;
         final buildBit32Berikutnya =
-            (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.bit32] ?? 0) +
-                1;
+            (versiTerakhir.latestBuildNumber[ArsitekturApk.bit32] ?? 0) + 1;
         final buildBit64Berikutnya =
-            (versiTerakhir.latestBuildNumber[ApkArchitectureEnum.bit64] ?? 0) +
-                1;
+            (versiTerakhir.latestBuildNumber[ArsitekturApk.bit64] ?? 0) + 1;
         _buildUniversalController.text = buildUniversalBerikutnya.toString();
         _build32Controller.text = buildBit32Berikutnya.toString();
         _build64Controller.text = buildBit64Berikutnya.toString();
@@ -121,17 +117,15 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     _youtubeTutorialController.text = data.youtubeTutorial;
     _isUpdateRequired = data.isUpdateRequired;
     _buildUniversalController.text =
-        data.latestBuildNumber[ApkArchitectureEnum.universal]?.toString() ?? '';
+        data.latestBuildNumber[ArsitekturApk.universal]?.toString() ?? '';
     _build32Controller.text =
-        data.latestBuildNumber[ApkArchitectureEnum.bit32]?.toString() ?? '';
+        data.latestBuildNumber[ArsitekturApk.bit32]?.toString() ?? '';
     _build64Controller.text =
-        data.latestBuildNumber[ApkArchitectureEnum.bit64]?.toString() ?? '';
+        data.latestBuildNumber[ArsitekturApk.bit64]?.toString() ?? '';
     _universalLinkController.text =
-        data.downloadLinks[ApkArchitectureEnum.universal] ?? '';
-    _link32Controller.text =
-        data.downloadLinks[ApkArchitectureEnum.bit32] ?? '';
-    _link64Controller.text =
-        data.downloadLinks[ApkArchitectureEnum.bit64] ?? '';
+        data.downloadLinks[ArsitekturApk.universal] ?? '';
+    _link32Controller.text = data.downloadLinks[ArsitekturApk.bit32] ?? '';
+    _link64Controller.text = data.downloadLinks[ArsitekturApk.bit64] ?? '';
   }
 
   @override
@@ -206,33 +200,32 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       setState(() => _isLoading = true);
       Log.info('Sedang memproses penyimpanan ke database...');
 
-      final nomorBuild = <ApkArchitectureEnum, int>{};
+      final nomorBuild = <ArsitekturApk, int>{};
       if (_buildUniversalController.text.isNotEmpty) {
-        nomorBuild[ApkArchitectureEnum.universal] = int.parse(
+        nomorBuild[ArsitekturApk.universal] = int.parse(
           _buildUniversalController.text,
         );
       }
       if (_build32Controller.text.isNotEmpty) {
-        nomorBuild[ApkArchitectureEnum.bit32] = int.parse(
+        nomorBuild[ArsitekturApk.bit32] = int.parse(
           _build32Controller.text,
         );
       }
       if (_build64Controller.text.isNotEmpty) {
-        nomorBuild[ApkArchitectureEnum.bit64] = int.parse(
+        nomorBuild[ArsitekturApk.bit64] = int.parse(
           _build64Controller.text,
         );
       }
 
-      final tautanUnduhan = <ApkArchitectureEnum, String>{};
+      final tautanUnduhan = <ArsitekturApk, String>{};
       if (_universalLinkController.text.isNotEmpty) {
-        tautanUnduhan[ApkArchitectureEnum.universal] =
-            _universalLinkController.text;
+        tautanUnduhan[ArsitekturApk.universal] = _universalLinkController.text;
       }
       if (_link32Controller.text.isNotEmpty) {
-        tautanUnduhan[ApkArchitectureEnum.bit32] = _link32Controller.text;
+        tautanUnduhan[ArsitekturApk.bit32] = _link32Controller.text;
       }
       if (_link64Controller.text.isNotEmpty) {
-        tautanUnduhan[ApkArchitectureEnum.bit64] = _link64Controller.text;
+        tautanUnduhan[ArsitekturApk.bit64] = _link64Controller.text;
       }
       final dataToSave = VersiApkModel(
         id: widget.apkVersion?.id ?? const Uuid().v4(),

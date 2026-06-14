@@ -44,7 +44,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   KategoriModel? _selectedKategori;
   SubCategoryModel? _selectedSubKategori;
-  TransactionType _tipe = TransactionType.income;
+  TipeTransaksi _tipe = TipeTransaksi.income;
   DompetModel? _selectedDompet;
   DompetModel? _selectedDompetTujuan;
 
@@ -94,28 +94,27 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaksi!.id}',
         );
         final trx = widget.transaksi!;
-        _tipe = trx.type;
-        _keteranganController.text = trx.description;
-        _jumlahController.text = trx.amount.abs().toString();
-        _selectedDate = trx.date;
-        _selectedTime = TimeOfDay.fromDateTime(trx.date);
+        _tipe = trx.tipe;
+        _keteranganController.text = trx.deskripsi;
+        _jumlahController.text = trx.jumlah.abs().toString();
+        _selectedDate = trx.tanggal;
+        _selectedTime = TimeOfDay.fromDateTime(trx.tanggal);
         _selectedDompet = _dompetList.firstWhere(
-          (final d) => d.id == trx.walletId,
+          (final d) => d.id == trx.idDompet,
           orElse: () {
             Log.warning(
-              'Dompet asal dengan ID ${trx.walletId} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
+              'Dompet asal dengan ID ${trx.idDompet} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
             );
             return _dompetList.first;
           },
         );
 
-        if (trx.type == TransactionType.transfer &&
-            trx.destinationWalletId != null) {
+        if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
           _selectedDompetTujuan = _dompetList.firstWhere(
-            (final d) => d.id == trx.destinationWalletId,
+            (final d) => d.id == trx.idDompetTujuan,
             orElse: () {
               Log.warning(
-                'Dompet tujuan dengan ID ${trx.destinationWalletId} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
+                'Dompet tujuan dengan ID ${trx.idDompetTujuan} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
               );
               return _dompetList.first;
             },
@@ -124,13 +123,13 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
         _filterKategoriInternal();
 
-        if (trx.categoryId.isNotEmpty) {
+        if (trx.idKategori.isNotEmpty) {
           _selectedKategori =
               _kategoriFiltered.cast<KategoriModel?>().firstWhere(
-            (final k) => k?.id == trx.categoryId,
+            (final k) => k?.id == trx.idKategori,
             orElse: () {
               Log.warning(
-                'Kategori dengan ID ${trx.categoryId} tidak ditemukan setelah filter.',
+                'Kategori dengan ID ${trx.idKategori} tidak ditemukan setelah filter.',
               );
               return null;
             },
@@ -175,13 +174,13 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   void _filterKategoriInternal() {
     final tipeSebelum = _kategoriFiltered.length;
 
-    if (_tipe == TransactionType.transfer) {
+    if (_tipe == TipeTransaksi.transfer) {
       _kategoriFiltered = [];
       Log.info('Tipe transaksi adalah Transfer, kategori dikosongkan.');
       return;
     }
 
-    final tipeKategoriTarget = _tipe == TransactionType.income
+    final tipeKategoriTarget = _tipe == TipeTransaksi.income
         ? TipeKategori.income
         : TipeKategori.expense;
 
@@ -248,15 +247,14 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       final double jumlah = double.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
         id: _isEditMode ? widget.transaksi!.id : const Uuid().v4(),
-        description: _keteranganController.text,
-        amount: jumlah,
-        date: combinedDateTime,
-        type: _tipe,
-        walletId: _selectedDompet!.id,
-        destinationWalletId: _tipe == TransactionType.transfer
-            ? _selectedDompetTujuan?.id
-            : null,
-        categoryId: _selectedKategori?.id ?? '',
+        deskripsi: _keteranganController.text,
+        jumlah: jumlah,
+        tanggal: combinedDateTime,
+        tipe: _tipe,
+        idDompet: _selectedDompet!.id,
+        idDompetTujuan:
+            _tipe == TipeTransaksi.transfer ? _selectedDompetTujuan?.id : null,
+        idKategori: _selectedKategori?.id ?? '',
         idSubKategori: _selectedSubKategori?.id,
       );
 
@@ -338,7 +336,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                 child: ListView(
                   children: [
                     Center(
-                      child: SegmentedButton<TransactionType>(
+                      child: SegmentedButton<TipeTransaksi>(
                         showSelectedIcon: false,
                         style: ButtonStyle(
                           backgroundColor:
@@ -346,11 +344,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
-                                  case TransactionType.income:
+                                  case TipeTransaksi.income:
                                     return Colors.green.withAlpha(51);
-                                  case TransactionType.expense:
+                                  case TipeTransaksi.expense:
                                     return Colors.red.withAlpha(51);
-                                  case TransactionType.transfer:
+                                  case TipeTransaksi.transfer:
                                     return Colors.blue.withAlpha(51);
                                 }
                               }
@@ -362,11 +360,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
-                                  case TransactionType.income:
+                                  case TipeTransaksi.income:
                                     return Colors.green;
-                                  case TransactionType.expense:
+                                  case TipeTransaksi.expense:
                                     return Colors.red;
-                                  case TransactionType.transfer:
+                                  case TipeTransaksi.transfer:
                                     return Colors.blue;
                                 }
                               }
@@ -377,12 +375,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             (Set<WidgetState> states) {
                               if (states.contains(WidgetState.selected)) {
                                 switch (_tipe) {
-                                  case TransactionType.income:
+                                  case TipeTransaksi.income:
                                     return const BorderSide(
                                         color: Colors.green);
-                                  case TransactionType.expense:
+                                  case TipeTransaksi.expense:
                                     return const BorderSide(color: Colors.red);
-                                  case TransactionType.transfer:
+                                  case TipeTransaksi.transfer:
                                     return const BorderSide(color: Colors.blue);
                                 }
                               }
@@ -390,17 +388,16 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             },
                           ),
                         ),
-                        segments: TransactionType.values.map((
-                          TransactionType tipe,
+                        segments: TipeTransaksi.values.map((
+                          TipeTransaksi tipe,
                         ) {
-                          return ButtonSegment<TransactionType>(
+                          return ButtonSegment<TipeTransaksi>(
                             value: tipe,
                             label: Text(tipe.displayName.toUpperCase()),
                           );
                         }).toList(),
-                        selected: <TransactionType>{_tipe},
-                        onSelectionChanged:
-                            (Set<TransactionType> newSelection) {
+                        selected: <TipeTransaksi>{_tipe},
+                        onSelectionChanged: (Set<TipeTransaksi> newSelection) {
                           setState(() {
                             Log.info(
                               'Tipe transaksi diubah menjadi: ${newSelection.first.name}',
@@ -468,7 +465,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       validator: (val) =>
                           val == null ? 'Dompet harus dipilih' : null,
                     ),
-                    if (_tipe == TransactionType.transfer)
+                    if (_tipe == TipeTransaksi.transfer)
                       DropdownButtonFormField<DompetModel>(
                         key: ValueKey<DompetModel?>(_selectedDompetTujuan),
                         initialValue: _selectedDompetTujuan,
@@ -496,7 +493,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         },
                       ),
                     // diubah: Menampilkan kategori hanya jika tipe bukan transfer
-                    if (_tipe != TransactionType.transfer &&
+                    if (_tipe != TipeTransaksi.transfer &&
                         _kategoriFiltered.isNotEmpty)
                       DropdownButtonFormField<KategoriModel>(
                         key: ValueKey<KategoriModel?>(_selectedKategori),

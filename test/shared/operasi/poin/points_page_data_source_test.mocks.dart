@@ -8,7 +8,7 @@ import 'dart:async' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i4;
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart' as _i2;
-import 'package:wifi/shared/model/transaksi_model.dart' as _i5;
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

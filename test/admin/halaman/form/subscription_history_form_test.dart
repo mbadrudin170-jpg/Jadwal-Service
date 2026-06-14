@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_riwayat_aktivasi.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -27,15 +27,15 @@ void main() {
 
   final transaction = TransaksiModel(
     id: '1',
-    date: DateTime.now(),
-    description: 'Test Transaction',
-    amount: 10000,
-    type: TransactionType.income,
-    walletId: 'wallet1',
-    categoryId: 'category1',
-    customerId: 'customer1',
-    packageId: 'package1',
-    paymentStatus: PaymentStatus.paid,
+    tanggal: DateTime.now(),
+    deskripsi: 'Test Transaction',
+    jumlah: 10000,
+    tipe: TipeTransaksi.income,
+    idDompet: 'wallet1',
+    idKategori: 'category1',
+    idPelanggan: 'customer1',
+    idPaket: 'package1',
+    statusPembayaran: PaymentStatus.paid,
   );
 
   setUp(() {

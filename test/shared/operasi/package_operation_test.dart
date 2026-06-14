@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
@@ -37,7 +37,7 @@ void main() {
       nama: 'Basic Plan',
       harga: 150000,
       durasi: 30,
-      tipe: DurationType.days,
+      tipe: TipeDurasiPaket.days,
       diperbaruiPada: DateTime.now(),
     );
     final tPackageMap = tPackage.toSqlite();

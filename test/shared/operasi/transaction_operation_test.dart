@@ -6,8 +6,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
@@ -36,13 +36,13 @@ void main() {
   group('TransactionOperation Tests', () {
     final tTransaction = TransaksiModel(
       id: '1',
-      amount: 50000,
-      date: DateTime.now(),
-      description: 'Test transaction',
-      type: TransactionType.income,
-      walletId: 'wallet1',
-      categoryId: 'cat1',
-      updatedAt: DateTime.now(),
+      jumlah: 50000,
+      tanggal: DateTime.now(),
+      deskripsi: 'Test transaction',
+      tipe: TipeTransaksi.income,
+      idDompet: 'wallet1',
+      idKategori: 'cat1',
+      diperbaruiPada: DateTime.now(),
     );
     final tTransactionMap = tTransaction.toSqlite();
     final tableName = NamaTabel.get(TableName.transactions);

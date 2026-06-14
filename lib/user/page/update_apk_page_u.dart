@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/fitur/versi_apk/service/update_service.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/apk_architecture_enum.dart';
+import 'package:wifi/shared/enum/arsitektur_apk.dart';
 import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/fitur/info_perangkat/model/info_perangkat_model.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -21,7 +21,7 @@ import 'package:wifi/user/providers/user_providers.dart';
 class UpdateApkPage extends ConsumerStatefulWidget {
   final VersiApkModel apkInfo;
   final InfoPerangkatModel packageInfo;
-  final ApkArchitectureEnum architecture;
+  final ArsitekturApk architecture;
 
   const UpdateApkPage({
     super.key,
@@ -80,7 +80,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   Future<void> _downloadUpdate() async {
     final String? downloadUrl =
         widget.apkInfo.downloadLinks[widget.architecture] ??
-            widget.apkInfo.downloadLinks[ApkArchitectureEnum.universal];
+            widget.apkInfo.downloadLinks[ArsitekturApk.universal];
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {

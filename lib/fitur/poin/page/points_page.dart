@@ -170,12 +170,12 @@ class _PointsPageState extends ConsumerState<PoinPage> {
     if (!mounted) return;
     Log.info('Navigating to transaction detail for ID: ${transaction.id}');
     PaketModel? package;
-    if (transaction.packageId != null && transaction.packageId!.isNotEmpty) {
+    if (transaction.idPaket != null && transaction.idPaket!.isNotEmpty) {
       final dataSource = ref.read(pointsDataSourceProvider);
       try {
-        package = await dataSource.getPaketByid(transaction.packageId!);
+        package = await dataSource.getPaketByid(transaction.idPaket!);
       } on Exception catch (e, st) {
-        Log.error('Failed to get package ${transaction.packageId}: $e',
+        Log.error('Failed to get package ${transaction.idPaket}: $e',
             e: e, s: st);
       }
     }
@@ -307,11 +307,11 @@ class _PointsPageState extends ConsumerState<PoinPage> {
           itemCount: history.length,
           itemBuilder: (context, index) {
             final tx = history[index];
-            final isAddition = tx.earnedPoints > 0;
-            final pointsValue = isAddition ? tx.earnedPoints : tx.usedPoints;
+            final isAddition = tx.poinDidapat > 0;
+            final pointsValue = isAddition ? tx.poinDidapat : tx.poinDigunakan;
             final pointsStr = isAddition ? '+$pointsValue' : '-$pointsValue';
 
-            final bool isUnpaid = tx.paymentStatus == PaymentStatus.unpaid;
+            final bool isUnpaid = tx.statusPembayaran == PaymentStatus.unpaid;
             final Color pointColor = isUnpaid
                 ? Colors.grey
                 : isAddition
@@ -330,9 +330,9 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                             : TIcons.arrowDown,
                     color: pointColor,
                   ),
-                  title: Text(tx.description),
+                  title: Text(tx.deskripsi),
                   subtitle: Text(
-                    FormatTanggal.formatDasar(tx.date),
+                    FormatTanggal.formatDasar(tx.tanggal),
                   ),
                   trailing: Text(
                     pointsStr,

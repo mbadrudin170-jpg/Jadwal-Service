@@ -7,7 +7,7 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
-import 'package:wifi/shared/model/transaksi_model.dart' as _i6;
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i4;

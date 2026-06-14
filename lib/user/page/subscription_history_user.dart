@@ -58,31 +58,31 @@ class _SubscriptionHistoryPageState
     switch (_sortMode) {
       case SortMode.endDateNewest:
         history.sort((a, b) {
-          if (a.endDate == null && b.endDate == null) return 0;
-          if (a.endDate == null) return 1;
-          if (b.endDate == null) return -1;
-          return b.endDate!.compareTo(a.endDate!);
+          if (a.tangglberakhir == null && b.tangglberakhir == null) return 0;
+          if (a.tangglberakhir == null) return 1;
+          if (b.tangglberakhir == null) return -1;
+          return b.tangglberakhir!.compareTo(a.tangglberakhir!);
         });
         break;
       case SortMode.endDateOldest:
         history.sort((a, b) {
-          if (a.endDate == null && b.endDate == null) return 0;
-          if (a.endDate == null) return 1;
-          if (b.endDate == null) return -1;
-          return a.endDate!.compareTo(b.endDate!);
+          if (a.tangglberakhir == null && b.tangglberakhir == null) return 0;
+          if (a.tangglberakhir == null) return 1;
+          if (b.tangglberakhir == null) return -1;
+          return a.tangglberakhir!.compareTo(b.tangglberakhir!);
         });
         break;
       case SortMode.statusPaid:
         history.sort((a, b) {
-          final statusA = a.paymentStatus == PaymentStatus.paid ? 0 : 1;
-          final statusB = b.paymentStatus == PaymentStatus.paid ? 0 : 1;
+          final statusA = a.statusPembayaran == PaymentStatus.paid ? 0 : 1;
+          final statusB = b.statusPembayaran == PaymentStatus.paid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
         break;
       case SortMode.statusUnpaid:
         history.sort((a, b) {
-          final statusA = a.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
-          final statusB = b.paymentStatus == PaymentStatus.unpaid ? 0 : 1;
+          final statusA = a.statusPembayaran == PaymentStatus.unpaid ? 0 : 1;
+          final statusB = b.statusPembayaran == PaymentStatus.unpaid ? 0 : 1;
           return statusA.compareTo(statusB);
         });
         break;
@@ -187,17 +187,17 @@ class _SubscriptionHistoryPageState
                         itemCount: sorted.length,
                         itemBuilder: (context, index) {
                           final tx = sorted[index];
-                          final packageFuture = tx.packageId != null
+                          final packageFuture = tx.idPaket != null
                               ? packageOpFirebase
-                                  .ambilBerdasarkanId(tx.packageId!)
+                                  .ambilBerdasarkanId(tx.idPaket!)
                               : Future<PaketModel?>.value();
-                          final activeText = tx.endDate != null
+                          final activeText = tx.tangglberakhir != null
                               ? PerhitunganUtil.ambilTeksSisaMasaAktif(
-                                  tx.endDate!)
+                                  tx.tangglberakhir!)
                               : 'N/A';
-                          final activeColor = tx.endDate != null
+                          final activeColor = tx.tangglberakhir != null
                               ? PerhitunganUtil.ambilWarnaSisaMasaAktif(
-                                  tx.endDate!)
+                                  tx.tangglberakhir!)
                               : Colors.grey;
                           return Card(
                             key: ValueKey(tx.id),
@@ -210,13 +210,13 @@ class _SubscriptionHistoryPageState
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (tx.endDate != null)
+                                    if (tx.tangglberakhir != null)
                                       Text(
-                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.endDate!)}'),
+                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.tangglberakhir!)}'),
                                     Text(
-                                        'Status: ${tx.paymentStatus.displayName}',
+                                        'Status: ${tx.statusPembayaran.displayName}',
                                         style: TextStyle(
-                                            color: tx.paymentStatus ==
+                                            color: tx.statusPembayaran ==
                                                     PaymentStatus.paid
                                                 ? Colors.green
                                                 : Colors.red)),

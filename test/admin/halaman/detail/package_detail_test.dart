@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
-import 'package:wifi/admin/halaman/form/form_paket.dart';
+import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}

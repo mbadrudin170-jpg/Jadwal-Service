@@ -5,12 +5,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
-import 'package:wifi/admin/halaman/form/form_paket.dart';
+import 'package:wifi/fitur/paket/page/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
+import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
@@ -150,13 +150,13 @@ void _urutkanList(List<PaketModel> paketList, UrutanPaket urutan) {
 
 int _getDurationInMinutes(PaketModel paket) {
   switch (paket.tipe) {
-    case DurationType.minutes:
+    case TipeDurasiPaket.minutes:
       return paket.durasi;
-    case DurationType.hours:
+    case TipeDurasiPaket.hours:
       return paket.durasi * 60;
-    case DurationType.days:
+    case TipeDurasiPaket.days:
       return paket.durasi * 24 * 60;
-    case DurationType.months:
+    case TipeDurasiPaket.months:
       return paket.durasi * 30 * 24 * 60;
   }
 }
