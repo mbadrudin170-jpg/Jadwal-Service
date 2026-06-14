@@ -69,7 +69,7 @@ class CustomerOpFirebase {
   Future<void> perbaruiTerakhirAktif(String id) async {
     Log.info('Mendelegasikan update last active untuk: $id');
     await _baseOp.update(_collectionName, id, {
-      NamaKolom.lastActiveAt: FieldValue.serverTimestamp(),
+      NamaKolom.terkahirAktif: FieldValue.serverTimestamp(),
     });
   }
 
@@ -92,7 +92,7 @@ class CustomerOpFirebase {
     Log.info('Mengambil semua pelanggan aktif...');
     try {
       final querySnapshot = await _customerCollection
-          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.diHapus, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {

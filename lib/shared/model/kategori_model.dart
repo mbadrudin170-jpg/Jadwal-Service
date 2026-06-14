@@ -112,14 +112,14 @@ class KategoriModel implements HasId {
 
     return KategoriModel(
       id: map[NamaKolom.id] as String? ?? '',
-      name: map[NamaKolom.name] as String? ?? '',
-      type: _safeParseEnum(TipeKategori.values, map[NamaKolom.type]) ??
+      name: map[NamaKolom.nama] as String? ?? '',
+      type: _safeParseEnum(TipeKategori.values, map[NamaKolom.tipe]) ??
           TipeKategori.expense,
-      subCategories: parseSubCategories(map[NamaKolom.subCategoryId]),
+      subCategories: parseSubCategories(map[NamaKolom.idSubKategori]),
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -127,15 +127,16 @@ class KategoriModel implements HasId {
   Map<String, dynamic> toSqlite() {
     final data = {
       NamaKolom.id: id,
-      NamaKolom.name: name,
-      NamaKolom.type: type.name,
-      NamaKolom.subCategoryId: jsonEncode(
+      NamaKolom.nama: name,
+      NamaKolom.tipe: type.name,
+      NamaKolom.idSubKategori: jsonEncode(
         subCategories.map((final sub) => sub.toSqlite()).toList(),
       ),
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
     };
     return data;
   }
@@ -164,30 +165,30 @@ class KategoriModel implements HasId {
 
     return KategoriModel(
       id: id,
-      name: data[NamaKolom.name] as String? ?? '',
-      type: _safeParseEnum(TipeKategori.values, data[NamaKolom.type]) ??
+      name: data[NamaKolom.nama] as String? ?? '',
+      type: _safeParseEnum(TipeKategori.values, data[NamaKolom.tipe]) ??
           TipeKategori.expense,
-      subCategories: parseSubCategories(data[NamaKolom.subCategoryId]),
+      subCategories: parseSubCategories(data[NamaKolom.idSubKategori]),
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
   /// Converts [KategoriModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     final data = {
-      NamaKolom.name: name,
-      NamaKolom.type: type.name,
-      NamaKolom.subCategoryId:
+      NamaKolom.nama: name,
+      NamaKolom.tipe: type.name,
+      NamaKolom.idSubKategori:
           subCategories.map((final sub) => sub.toFirebase()).toList(),
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.diHapus: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      NamaKolom.updatedAt:
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
     return data;

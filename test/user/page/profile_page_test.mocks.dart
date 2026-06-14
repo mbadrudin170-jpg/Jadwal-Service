@@ -133,10 +133,10 @@ class MockPackageOpFirebase extends _i1.Mock implements _i9.PaketOpFirebase {
         ),
         returnValue: _i4.Future.value(_i7.PaketModel(
           id: '',
-          name: '',
-          price: 0,
+          nama: '',
+          harga: 0,
           description: '',
-          duration: 0,
+          durasi: 0,
           durationUnit: '',
           isAvailable: false,
           createdAt: DateTime(2024),

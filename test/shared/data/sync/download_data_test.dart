@@ -122,7 +122,8 @@ void main() {
       when(mockDoc.id).thenReturn('doc1');
       when(
         mockDoc.data(),
-      ).thenReturn({NamaKolom.updatedAt: Timestamp.fromDate(DateTime(2024))});
+      ).thenReturn(
+          {NamaKolom.diperbaruiPada: Timestamp.fromDate(DateTime(2024))});
 
       when(mockSettingsDoc.exists).thenReturn(false);
     });
@@ -197,7 +198,7 @@ void main() {
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.id).thenReturn('settingsId');
         when(mockSettingsDoc.data()).thenReturn({
-          NamaKolom.updatedAt: Timestamp.fromDate(serverTime),
+          NamaKolom.diperbaruiPada: Timestamp.fromDate(serverTime),
           'autoSyncInterval': 2,
           'autoDeleteArchiveDays': 30,
           'maintenanceMode': false,
@@ -220,7 +221,7 @@ void main() {
             .thenAnswer((final _) async => mockSettingsDoc);
         when(mockSettingsDoc.exists).thenReturn(true);
         when(mockSettingsDoc.data()).thenReturn({
-          NamaKolom.updatedAt: Timestamp.fromDate(serverTime),
+          NamaKolom.diperbaruiPada: Timestamp.fromDate(serverTime),
           'autoSyncInterval': 2,
           'autoDeleteArchiveDays': 30,
           'maintenanceMode': false,

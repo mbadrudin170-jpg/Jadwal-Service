@@ -86,8 +86,8 @@ class PesanInfoPaket {
     String paymentStatus,
   ) {
     final customerName = customer.name;
-    final packageName = package.name;
-    final packagePrice = FormatUang.formatMataUang(package.price.toDouble());
+    final packageName = package.nama;
+    final packagePrice = FormatUang.formatMataUang(package.harga.toDouble());
     final startDate =
         FormatWaktuLengkap.formatSingkat(activeCustomer.startDate);
     final endDate = FormatWaktuLengkap.formatSingkat(activeCustomer.endDate);

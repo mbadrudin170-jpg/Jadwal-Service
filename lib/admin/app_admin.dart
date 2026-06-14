@@ -53,7 +53,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
   }
 
   Future<bool> _initializeAndNavigate() async {
-    final notifikasiServis = ref.read(notifikasiServisProvider);
+    final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
     final sqliteDb = ref.read(sqliteDatabaseProvider);
     try {
@@ -147,16 +147,16 @@ class AppMaterial extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(notifikasiServisProvider);
+    ref.watch(layananNotifikasiProvider);
 
-    final themeAsync = ref.watch(temaProvider);
+    final temaAsync = ref.watch(temaProvider);
 
-    return themeAsync.when(
+    return temaAsync.when(
       data: (themeMode) => ToastificationWrapper(
         child: MaterialApp(
           title: 'Admin Wifi',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme: AppTheme.modeTerang,
+          darkTheme: AppTheme.modeGelap,
           themeMode: themeMode,
           home: HalamanUtama(isOffline: isOffline),
           navigatorKey: NavigasiServis.navigatorKey,

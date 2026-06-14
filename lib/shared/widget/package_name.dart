@@ -56,7 +56,7 @@ class PackageNameWidget extends StatelessWidget {
           );
         }
 
-        return Text(snapshot.data!.name, style: style);
+        return Text(snapshot.data!.nama, style: style);
       },
     );
   }

@@ -78,24 +78,24 @@ class DataDummy {
   static List<PaketModel> get packages => [
         PaketModel(
           id: paketHematId,
-          name: 'Paket Hemat 10 Mbps',
-          price: 150000,
-          duration: 30,
-          type: DurationType.days,
+          nama: 'Paket Hemat 10 Mbps',
+          harga: 150000,
+          durasi: 30,
+          tipe: DurationType.days,
         ),
         PaketModel(
           id: paketPremiumId,
-          name: 'Paket Premium 50 Mbps',
-          price: 350000,
-          duration: 30,
-          type: DurationType.days,
+          nama: 'Paket Premium 50 Mbps',
+          harga: 350000,
+          durasi: 30,
+          tipe: DurationType.days,
         ),
         PaketModel(
           id: paketGamerId,
-          name: 'Paket Gamer 100 Mbps',
-          price: 500000,
-          duration: 30,
-          type: DurationType.days,
+          nama: 'Paket Gamer 100 Mbps',
+          harga: 500000,
+          durasi: 30,
+          tipe: DurationType.days,
         ),
       ];
 

@@ -48,8 +48,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     Log.info('Mendapatkan stream semua pesanan');
     return _firestore
         .collection(_collectionName)
-        .where(NamaKolom.isDeleted, isEqualTo: false)
-        .orderBy(NamaKolom.updatedAt, descending: true)
+        .where(NamaKolom.diHapus, isEqualTo: false)
+        .orderBy(NamaKolom.diperbaruiPada, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -90,8 +90,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     try {
       return _firestore
           .collection(_collectionName)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
-          .where(NamaKolom.customerId, isEqualTo: userId)
+          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.idPelanggan, isEqualTo: userId)
           .snapshots()
           .map((snapshot) => snapshot.docs
               .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -112,8 +112,8 @@ class OrderOpFirebase extends BaseOpFirebase {
     return _firestore
         .collection(_collectionName)
         .where(NamaKolom.status, isEqualTo: status.name)
-        .where(NamaKolom.isDeleted, isEqualTo: false)
-        .orderBy(NamaKolom.updatedAt, descending: true)
+        .where(NamaKolom.diHapus, isEqualTo: false)
+        .orderBy(NamaKolom.diperbaruiPada, descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -136,8 +136,8 @@ class OrderOpFirebase extends BaseOpFirebase {
       final snapshot = await _firestore
           .collection(_collectionName)
           .where(NamaKolom.status, isEqualTo: status.name)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
-          .orderBy(NamaKolom.updatedAt, descending: true)
+          .where(NamaKolom.diHapus, isEqualTo: false)
+          .orderBy(NamaKolom.diperbaruiPada, descending: true)
           .get();
       return snapshot.docs
           .map((doc) => OrderModel.fromFirebase(doc.id, doc.data()))
@@ -161,11 +161,11 @@ class OrderOpFirebase extends BaseOpFirebase {
       Query query = _firestore
           .collection(_collectionName)
           .where(NamaKolom.status, isEqualTo: status.name)
-          .where(NamaKolom.isDeleted, isEqualTo: false);
+          .where(NamaKolom.diHapus, isEqualTo: false);
 
       // Jika userId disediakan (bukan admin), filter berdasarkan customerId
       if (userId.isNotEmpty) {
-        query = query.where(NamaKolom.customerId, isEqualTo: userId);
+        query = query.where(NamaKolom.idPelanggan, isEqualTo: userId);
       }
 
       final snapshot = await query.count().get();

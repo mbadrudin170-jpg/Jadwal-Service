@@ -39,7 +39,7 @@ class TransactionDetailPage extends StatelessWidget {
             ),
             _buildInfoRow('Tipe:', transaction.type.displayName),
             if (package != null)
-              _buildInfoRow('Paket:', package!.name)
+              _buildInfoRow('Paket:', package!.nama)
             else if (transaction.packageId != null)
               _buildInfoRow('Paket:', 'Memuat...'),
             _buildInfoRow(

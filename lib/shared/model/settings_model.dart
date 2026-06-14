@@ -66,11 +66,12 @@ class SettingsModel implements HasId {
   factory SettingsModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Creating SettingsModel from SQLite');
     return SettingsModel(
-      autoSyncInterval: map[NamaKolom.autoSyncInterval] as int? ?? 24,
-      autoDeleteArchiveDays: map[NamaKolom.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: ParserUtil.parseBool(map[NamaKolom.maintenanceMode]),
-      maintenanceInfo: map[NamaKolom.maintenanceInfo] as String? ?? '',
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      autoSyncInterval: map[NamaKolom.waktuOtomatisSinkroniasi] as int? ?? 24,
+      autoDeleteArchiveDays:
+          map[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
+      maintenanceMode: ParserUtil.parseBool(map[NamaKolom.modeMaintenance]),
+      maintenanceInfo: map[NamaKolom.infoMaintenance] as String? ?? '',
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
@@ -78,11 +79,11 @@ class SettingsModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.autoSyncInterval: autoSyncInterval,
-      NamaKolom.autoDeleteArchiveDays: autoDeleteArchiveDays,
-      NamaKolom.maintenanceMode: maintenanceMode ? 1 : 0,
-      NamaKolom.maintenanceInfo: maintenanceInfo,
-      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.waktuOtomatisSinkroniasi: autoSyncInterval,
+      NamaKolom.waktuOtomatisHapusDataArsip: autoDeleteArchiveDays,
+      NamaKolom.modeMaintenance: maintenanceMode ? 1 : 0,
+      NamaKolom.infoMaintenance: maintenanceInfo,
+      NamaKolom.diperbaruiPada: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -91,23 +92,23 @@ class SettingsModel implements HasId {
     Log.info('Creating SettingsModel from Firebase');
     return SettingsModel(
       id: data[NamaKolom.id] as String? ?? idGlobalSetting,
-      autoSyncInterval: data[NamaKolom.autoSyncInterval] as int? ?? 24,
+      autoSyncInterval: data[NamaKolom.waktuOtomatisSinkroniasi] as int? ?? 24,
       autoDeleteArchiveDays:
-          data[NamaKolom.autoDeleteArchiveDays] as int? ?? 30,
-      maintenanceMode: ParserUtil.parseBool(data[NamaKolom.maintenanceMode]),
-      maintenanceInfo: data[NamaKolom.maintenanceInfo] as String? ?? '',
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+          data[NamaKolom.waktuOtomatisHapusDataArsip] as int? ?? 30,
+      maintenanceMode: ParserUtil.parseBool(data[NamaKolom.modeMaintenance]),
+      maintenanceInfo: data[NamaKolom.infoMaintenance] as String? ?? '',
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
   }
 
   /// Converts `SettingsModel` to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     return {
-      NamaKolom.autoSyncInterval: autoSyncInterval,
-      NamaKolom.autoDeleteArchiveDays: autoDeleteArchiveDays,
-      NamaKolom.maintenanceMode: maintenanceMode,
-      NamaKolom.maintenanceInfo: maintenanceInfo,
-      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.waktuOtomatisSinkroniasi: autoSyncInterval,
+      NamaKolom.waktuOtomatisHapusDataArsip: autoDeleteArchiveDays,
+      NamaKolom.modeMaintenance: maintenanceMode,
+      NamaKolom.infoMaintenance: maintenanceInfo,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

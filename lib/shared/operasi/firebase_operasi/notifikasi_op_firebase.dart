@@ -24,8 +24,8 @@ class NotifikasiOpFirebase {
     final now = DateTime.now();
     return _firestore
         .collection(_collection)
-        .where(NamaKolom.isDeleted, isEqualTo: false)
-        .where(NamaKolom.isRead, isEqualTo: false)
+        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .where(NamaKolom.tanggalTampil,
             isLessThanOrEqualTo: Timestamp.fromDate(now))
         .snapshots()
@@ -42,8 +42,8 @@ class NotifikasiOpFirebase {
         .collection(_collection)
         .where(NamaKolom.userId,
             isEqualTo: userId) // Diperbaiki dari idTujuan ke userId
-        .where(NamaKolom.isDeleted, isEqualTo: false)
-        .where(NamaKolom.isRead, isEqualTo: false)
+        .where(NamaKolom.diHapus, isEqualTo: false)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
@@ -58,7 +58,8 @@ class NotifikasiOpFirebase {
         .map((snapshot) {
       if (!snapshot.exists) return [];
       final data = snapshot.data()!;
-      if (data[NamaKolom.isDeleted] == true || data[NamaKolom.isRead] == true) {
+      if (data[NamaKolom.diHapus] == true ||
+          data[NamaKolom.setatusDibaca] == true) {
         return [];
       }
       return [NotifikasiModel.fromFirebase(snapshot.id, data)];
@@ -69,12 +70,12 @@ class NotifikasiOpFirebase {
   Stream<List<NotifikasiModel>> getKhususAdmin() {
     return _firestore
         .collection(_collection)
-        .where(NamaKolom.type, whereIn: [
+        .where(NamaKolom.tipe, whereIn: [
           TipeNotifikasiEnum.order.name,
           TipeNotifikasiEnum.transaksi.name
         ])
-        .where(NamaKolom.isRead, isEqualTo: false)
-        .where(NamaKolom.isDeleted, isEqualTo: false)
+        .where(NamaKolom.setatusDibaca, isEqualTo: false)
+        .where(NamaKolom.diHapus, isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => NotifikasiModel.fromFirebase(doc.id, doc.data()))
@@ -147,7 +148,7 @@ class NotifikasiOpFirebase {
     try {
       Log.info('Marking notification as read via BaseOp: $id');
       await _baseOp.update(_collection, id, {
-        NamaKolom.isRead: true,
+        NamaKolom.setatusDibaca: true,
       });
     } catch (e) {
       Log.error('Error marking notification as read: $e');

@@ -100,7 +100,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         if (lastSubscription.packageId != null) {
           packageModel =
               await _packageOp.ambilBerdasarkanId(lastSubscription.packageId!);
-          Log.info('Detail paket "${packageModel?.name}" berhasil diambil.');
+          Log.info('Detail paket "${packageModel?.nama}" berhasil diambil.');
         }
       }
 
@@ -236,7 +236,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         _InfoItem(
           icon: TIcons.wifi,
           label: 'Paket',
-          value: packageModel?.name ?? 'Tidak tersedia',
+          value: packageModel?.nama ?? 'Tidak tersedia',
         ),
         if (lastSubscription.startDate != null)
           _InfoItem(

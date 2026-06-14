@@ -33,7 +33,7 @@ class UploadStatusModel {
   factory UploadStatusModel.fromSqlite(final Map<String, dynamic> map) {
     Log.info('Memulai konversi dari SQLite Map ke UploadStatusModel');
 
-    final updatedAtEpoch = map[NamaKolom.updatedAt] as int?;
+    final updatedAtEpoch = map[NamaKolom.diperbaruiPada] as int?;
 
     final model = UploadStatusModel(
       id: map[NamaKolom.id] as String,
@@ -54,7 +54,7 @@ class UploadStatusModel {
     final map = <String, dynamic>{
       NamaKolom.id: id,
       NamaKolom.value: needUpload ? '1' : '0',
-      NamaKolom.updatedAt: updatedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: updatedAt?.millisecondsSinceEpoch,
     };
 
     Log.info('Konversi ke SQLite Map berhasil: $map');

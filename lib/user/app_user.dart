@@ -13,11 +13,11 @@ class AppUser extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(notifikasiServisProvider);
+    ref.watch(layananNotifikasiProvider);
 
     final themeAsync = ref.watch(temaProvider);
     final prefsAsync = ref.watch(sharedPreferencesProvider);
-    final localStorageAsync = ref.watch(localStorageServiceProvider);
+    final localStorageAsync = ref.watch(layananPenyimpananLokalProvider);
 
     // 1. Gabungkan semua state provider ke dalam satu list.
     final allProviders = [themeAsync, prefsAsync, localStorageAsync];
@@ -44,8 +44,8 @@ class AppUser extends ConsumerWidget {
       child: MaterialApp(
         scaffoldMessengerKey: scaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
+        theme: AppTheme.modeTerang,
+        darkTheme: AppTheme.modeGelap,
         themeMode: themeAsync.asData!.value,
         home: SplashScreenUser(
           prefs: prefsAsync.asData!.value,

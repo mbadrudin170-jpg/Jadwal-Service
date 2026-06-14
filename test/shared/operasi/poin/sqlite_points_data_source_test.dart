@@ -49,10 +49,10 @@ void main() {
       final packages = [
         PaketModel(
           id: '1',
-          name: 'Test Package',
-          price: 0,
-          duration: 0,
-          type: DurationType.hours,
+          nama: 'Test Package',
+          harga: 0,
+          durasi: 0,
+          tipe: DurationType.hours,
         )
       ];
       when(mockPackageOperation.getByIsPublic())
@@ -116,10 +116,10 @@ void main() {
       const packageId = 'test_package_id';
       final package = PaketModel(
         id: packageId,
-        name: 'Test Package',
-        price: 0,
-        duration: 0,
-        type: DurationType.hours,
+        nama: 'Test Package',
+        harga: 0,
+        durasi: 0,
+        tipe: DurationType.hours,
       );
       when(mockPackageOperation.getById(packageId))
           .thenAnswer((_) async => package);

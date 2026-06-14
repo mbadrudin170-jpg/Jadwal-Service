@@ -74,7 +74,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.customerId], t1.customerId);
+      expect(snapshot.data()![NamaKolom.idPelanggan], t1.customerId);
     });
 
     test('1.2. harus bisa mendapatkan transaksi lunas terbaru', () async {
@@ -234,7 +234,7 @@ void main() {
           .doc(t1.id)
           .get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.isDeleted], isTrue);
+      expect(snapshot.data()![NamaKolom.diHapus], isTrue);
     });
 
     test('1.9. harus bisa mendapatkan paket aktif pelanggan', () async {

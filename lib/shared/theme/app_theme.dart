@@ -65,13 +65,13 @@ const TextTheme _baseTextTheme = TextTheme(
 );
 
 // 2. Buat TextTheme spesifik untuk mode terang dengan menerapkan warna hitam.
-final TextTheme _lightTextTheme = _baseTextTheme.apply(
+final TextTheme _teksModeTerang = _baseTextTheme.apply(
   bodyColor: Colors.black87,
   displayColor: Colors.black87,
 );
 
 // 3. Buat TextTheme spesifik untuk mode gelap dengan menerapkan warna putih.
-final TextTheme _darkTextTheme = _baseTextTheme.apply(
+final TextTheme _teksModeGelap = _baseTextTheme.apply(
   bodyColor: Colors.white,
   displayColor: Colors.white,
 );
@@ -80,7 +80,7 @@ final TextTheme _darkTextTheme = _baseTextTheme.apply(
 /// termasuk skema warna, tipografi, dan gaya komponen.
 class AppTheme {
   /// Definisi tema terang (light theme).
-  static final ThemeData lightTheme = ThemeData(
+  static final ThemeData modeTerang = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: TColors.primaryColor,
@@ -89,26 +89,26 @@ class AppTheme {
       seedColor: TColors.primaryColor,
     ),
     textTheme:
-        _lightTextTheme, // Menggunakan TextTheme terang yang sudah diisolasi
+        _teksModeTerang, // Menggunakan TextTheme terang yang sudah diisolasi
     appBarTheme: AppBarTheme(
       backgroundColor: TColors.primaryColor,
       foregroundColor: Colors.white,
       titleTextStyle:
-          _lightTextTheme.headlineSmall?.copyWith(color: Colors.white),
+          _teksModeTerang.headlineSmall?.copyWith(color: Colors.white),
     ),
     listTileTheme: ListTileThemeData(
-      subtitleTextStyle: _lightTextTheme.bodyMedium,
+      subtitleTextStyle: _teksModeTerang.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: TColors.primaryColor,
-        textStyle: _lightTextTheme.labelLarge, // Ditambahkan
+        textStyle: _teksModeTerang.labelLarge, // Ditambahkan
       ),
     ),
   );
 
-  static final ThemeData darkTheme = ThemeData(
+  static final ThemeData modeGelap = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
     primaryColor: TColors.primaryColor,
@@ -120,23 +120,23 @@ class AppTheme {
       surface: TColors.darkSurface,
     ),
     textTheme:
-        _darkTextTheme, // Menggunakan TextTheme gelap yang sudah diisolasi
+        _teksModeGelap, // Menggunakan TextTheme gelap yang sudah diisolasi
     appBarTheme: AppBarTheme(
       backgroundColor: TColors.darkSurface,
       foregroundColor: Colors.white,
-      titleTextStyle: _darkTextTheme.headlineSmall,
+      titleTextStyle: _teksModeGelap.headlineSmall,
     ),
     cardTheme: const CardThemeData(
       color: TColors.darkSurface,
     ),
     listTileTheme: ListTileThemeData(
-      subtitleTextStyle: _darkTextTheme.bodyMedium,
+      subtitleTextStyle: _teksModeGelap.bodyMedium,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         foregroundColor: TColors.lightBackground,
         backgroundColor: TColors.darkBackground,
-        textStyle: _darkTextTheme.labelLarge, // Ditambahkan
+        textStyle: _teksModeGelap.labelLarge, // Ditambahkan
       ),
     ),
   );

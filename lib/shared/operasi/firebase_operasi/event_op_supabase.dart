@@ -60,7 +60,7 @@ class EventOpSupabase {
       final List<Map<String, dynamic>> response = await _supabase
           .from(_tableName)
           .select()
-          .eq(NamaKolom.isActive, true)
+          .eq(NamaKolom.statusAktif, true)
           .limit(1);
       Log.info('$response $_tableName');
 

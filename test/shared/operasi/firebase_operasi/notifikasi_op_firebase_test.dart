@@ -260,7 +260,7 @@ void main() {
       when(mockBaseOp.update(any, any, any)).thenAnswer((_) async {});
       await notifikasiOp.tandaiSudahDibaca(idToUpdate);
       verify(mockBaseOp.update(collection, idToUpdate, {
-        NamaKolom.isRead: true,
+        NamaKolom.setatusDibaca: true,
       })).called(1);
     });
 

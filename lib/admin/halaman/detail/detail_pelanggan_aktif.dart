@@ -224,7 +224,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       InkWell(
                         onTap: () {
                           if (paket != null) {
-                            Log.info('Navigasi ke detail paket: ${paket.name}');
+                            Log.info('Navigasi ke detail paket: ${paket.nama}');
                             unawaited(Navigator.push<void>(
                               context,
                               MaterialPageRoute<void>(
@@ -237,7 +237,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         child: _buildInfoRow(
                           context,
                           'Paket',
-                          paket?.name ?? ' (ID: ${pelangganAktif.packageId})',
+                          paket?.nama ?? ' (ID: ${pelangganAktif.packageId})',
                         ),
                       ),
                       _buildInfoRow(
@@ -249,7 +249,7 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                         _buildInfoRow(
                           context,
                           'Poin Diperoleh',
-                          '${paket.rewardPoints} Poin',
+                          '${paket.poinHadiah} Poin',
                         ),
                       if (transaksi != null && (transaksi.durasiBonus ?? 0) > 0)
                         _buildInfoRow(

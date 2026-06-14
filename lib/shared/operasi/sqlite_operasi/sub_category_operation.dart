@@ -52,7 +52,7 @@ class SubKategoriOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.categoryId} = ? AND ${NamaKolom.isDeleted} = ?',
+        where: '${NamaKolom.idKategori} = ? AND ${NamaKolom.diHapus} = ?',
         whereArgs: [categoryId, 0],
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori aktif.');
@@ -209,7 +209,7 @@ class SubKategoriOpSqlite {
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: 'id IN ($placeholders) AND ${NamaKolom.isDeleted} = 0',
+        where: 'id IN ($placeholders) AND ${NamaKolom.diHapus} = 0',
         whereArgs: ids,
       );
       Log.info('Berhasil mengambil ${maps.length} sub-kategori dari list ID.');

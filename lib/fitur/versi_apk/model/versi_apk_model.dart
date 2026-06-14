@@ -164,17 +164,17 @@ class VersiApkModel implements HasId {
   factory VersiApkModel.fromSqlite(final Map<String, dynamic> map) {
     return VersiApkModel(
       id: map[NamaKolom.id] as String? ?? '',
-      releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
-      latestVersion: map[NamaKolom.latestVersion] as String? ?? '',
-      youtubeTutorial: map[NamaKolom.youtubeTutorial] as String? ?? '',
+      releaseNotes: map[NamaKolom.catatanRilis] as String? ?? '',
+      latestVersion: map[NamaKolom.versiTerkahir] as String? ?? '',
+      youtubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.isUpdateRequired]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      latestBuildNumber: _parseBuildNumber(map[NamaKolom.latestBuildNumber]),
-      downloadLinks: _parseDownloadLinks(map[NamaKolom.downloadLinks]),
+      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      latestBuildNumber: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
+      downloadLinks: _parseDownloadLinks(map[NamaKolom.linkDownload]),
       // DIUBAH: Menggunakan ParserUtil
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
@@ -182,22 +182,23 @@ class VersiApkModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.releaseNotes: releaseNotes,
-      NamaKolom.latestVersion: latestVersion,
-      NamaKolom.youtubeTutorial: youtubeTutorial,
+      NamaKolom.catatanRilis: releaseNotes,
+      NamaKolom.versiTerkahir: latestVersion,
+      NamaKolom.linkYoutubeTutorial: youtubeTutorial,
       // DIUBAH: Memastikan konsistensi
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.latestBuildNumber: jsonEncode(
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.nomorBuildTerakhir: jsonEncode(
         latestBuildNumber
             .map((final key, final value) => MapEntry(key.name, value)),
       ),
-      NamaKolom.downloadLinks: jsonEncode(
+      NamaKolom.linkDownload: jsonEncode(
         downloadLinks
             .map((final key, final value) => MapEntry(key.name, value)),
       ),
-      NamaKolom.isUpdateRequired: isUpdateRequired ? 1 : 0,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
+      NamaKolom.wajibUpdate: isUpdateRequired ? 1 : 0,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
     };
   }
 
@@ -210,15 +211,15 @@ class VersiApkModel implements HasId {
       final String id, final Map<String, dynamic> map) {
     return VersiApkModel(
       id: id,
-      releaseNotes: map[NamaKolom.releaseNotes] as String? ?? '',
-      latestVersion: map[NamaKolom.latestVersion] as String? ?? '',
-      youtubeTutorial: map[NamaKolom.youtubeTutorial] as String? ?? '',
-      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.isUpdateRequired]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      latestBuildNumber: _parseBuildNumber(map[NamaKolom.latestBuildNumber]),
-      downloadLinks: _parseDownloadLinks(map[NamaKolom.downloadLinks]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      releaseNotes: map[NamaKolom.catatanRilis] as String? ?? '',
+      latestVersion: map[NamaKolom.versiTerkahir] as String? ?? '',
+      youtubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
+      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      latestBuildNumber: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
+      downloadLinks: _parseDownloadLinks(map[NamaKolom.linkDownload]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
@@ -226,21 +227,21 @@ class VersiApkModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       // DIUBAH: 'id' tidak seharusnya menjadi bagian dari data dokumen
-      NamaKolom.releaseNotes: releaseNotes,
-      NamaKolom.latestVersion: latestVersion,
-      NamaKolom.youtubeTutorial: youtubeTutorial,
-      NamaKolom.updatedAt:
+      NamaKolom.catatanRilis: releaseNotes,
+      NamaKolom.versiTerkahir: latestVersion,
+      NamaKolom.linkYoutubeTutorial: youtubeTutorial,
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      NamaKolom.latestBuildNumber: latestBuildNumber.map(
+      NamaKolom.nomorBuildTerakhir: latestBuildNumber.map(
         (final key, final value) => MapEntry(key.name, value),
       ),
-      NamaKolom.downloadLinks: downloadLinks.map(
+      NamaKolom.linkDownload: downloadLinks.map(
         (final key, final value) => MapEntry(key.name, value),
       ),
-      NamaKolom.isUpdateRequired: isUpdateRequired,
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.wajibUpdate: isUpdateRequired,
+      NamaKolom.diHapus: isDeleted,
     };
   }
 }

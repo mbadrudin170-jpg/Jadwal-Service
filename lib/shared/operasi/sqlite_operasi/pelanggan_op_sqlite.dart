@@ -53,7 +53,8 @@ class PelangganOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.archivedAt} IS NULL AND ${NamaKolom.isDeleted} = ?',
+        where:
+            '${NamaKolom.diarsipkanPada} IS NULL AND ${NamaKolom.diHapus} = ?',
         whereArgs: [0],
       );
 
@@ -172,7 +173,7 @@ class PelangganOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.updatedAt} > ?',
+        where: '${NamaKolom.diperbaruiPada} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info(

@@ -1,6 +1,5 @@
 // path: lib/shared/data/services/pengecekan_data_baru_service.dart
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -102,16 +101,16 @@ class PengecekanDataBaruService {
         );
         final data = snapshotDokumen.data() as Map<String, dynamic>;
 
-        if (data.containsKey(NamaKolom.updatedAt)) {
+        if (data.containsKey(NamaKolom.diperbaruiPada)) {
           Log.info(
-            'Field "${NamaKolom.updatedAt}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.updatedAt]}',
+            'Field "${NamaKolom.diperbaruiPada}" ditemukan. Mem-parsing nilai: ${data[NamaKolom.diperbaruiPada]}',
           );
           final DateTime? tanggalUpdateAt =
-              ParserUtil.parseDateTime(data[NamaKolom.updatedAt]);
+              ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]);
 
           if (tanggalUpdateAt == null) {
             Log.warning(
-              'Gagal mem-parsing nilai "${NamaKolom.updatedAt}" dari server. '
+              'Gagal mem-parsing nilai "${NamaKolom.diperbaruiPada}" dari server. '
               'Nilai tidak valid atau format tidak didukung. '
               'Mengasumsikan tidak ada data baru.',
             );
@@ -120,7 +119,8 @@ class PengecekanDataBaruService {
 
           Log.info('Waktu pembaruan di server adalah: $tanggalUpdateAt');
 
-          final bool apakahLebihBaru = tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
+          final bool apakahLebihBaru =
+              tanggalUpdateAt.isAfter(tanggalTerakhirDownload);
           if (apakahLebihBaru) {
             Log.info(
               'Kesimpulan: Waktu server ($tanggalUpdateAt) lebih baru daripada waktu lokal ($tanggalTerakhirDownload). PENGUNDUHAN DATA DIPERLUKAN untuk menjaga aktualitas data.',
@@ -133,7 +133,7 @@ class PengecekanDataBaruService {
           return apakahLebihBaru;
         } else {
           Log.warning(
-            'Struktur data dokumen di server tidak sesuai standar. Field "${NamaKolom.updatedAt}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
+            'Struktur data dokumen di server tidak sesuai standar. Field "${NamaKolom.diperbaruiPada}" tidak ditemukan. Sistem mengasumsikan tidak ada pembaruan untuk menghindari pengunduhan yang tidak perlu.',
           );
           return false;
         }

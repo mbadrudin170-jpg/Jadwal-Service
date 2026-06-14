@@ -50,7 +50,7 @@ class FeedbackOperation {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        orderBy: '${NamaKolom.date} DESC',
+        orderBy: '${NamaKolom.tanggal} DESC',
       );
       final feedbackList = List.generate(
         maps.length,
@@ -71,8 +71,8 @@ class FeedbackOperation {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.isDeleted} = 0',
-        orderBy: '${NamaKolom.date} DESC',
+        where: '${NamaKolom.diHapus} = 0',
+        orderBy: '${NamaKolom.tanggal} DESC',
       );
       final feedbackList = List.generate(
         maps.length,
@@ -126,7 +126,7 @@ class FeedbackOperation {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.updatedAt} > ?',
+        where: '${NamaKolom.diperbaruiPada} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       );
       final feedbackList = List.generate(

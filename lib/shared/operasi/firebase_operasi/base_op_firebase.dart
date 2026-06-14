@@ -36,7 +36,7 @@ class BaseOpFirebase {
     Log.info('Base add: Menambah dokumen baru di $collectionName');
     try {
       final collectionRef = firestore.collection(collectionName);
-      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
       final docRef = await collectionRef.add(data);
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base add berhasil: ${docRef.path}');
@@ -61,7 +61,7 @@ class BaseOpFirebase {
     Log.info('Base insert: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
-      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
       await docRef.set(data);
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base insert berhasil: $collectionName/$docId');
@@ -85,7 +85,7 @@ class BaseOpFirebase {
     Log.info('Base update: $collectionName/$docId');
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
-      data[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
+      data[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
       await docRef.update(data);
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base update berhasil: $collectionName/$docId');
@@ -107,9 +107,9 @@ class BaseOpFirebase {
     try {
       final docRef = firestore.collection(collectionName).doc(docId);
       await docRef.update({
-        NamaKolom.isDeleted: true,
-        NamaKolom.updatedAt: FieldValue.serverTimestamp(),
-        NamaKolom.archivedAt: FieldValue.serverTimestamp(),
+        NamaKolom.diHapus: true,
+        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
+        NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
       });
       unawaited(_statusOp.perbaruiStatusGlobal());
       Log.info('Base softDelete berhasil: $collectionName/$docId');
@@ -149,7 +149,7 @@ class BaseOpFirebase {
     try {
       final querySnapshot = await firestore
           .collection(collectionName)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.diHapus, isEqualTo: false)
           .get();
 
       if (querySnapshot.docs.isEmpty) {
@@ -160,9 +160,9 @@ class BaseOpFirebase {
       final batch = firestore.batch();
       for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {
-          NamaKolom.isDeleted: true,
-          NamaKolom.archivedAt: FieldValue.serverTimestamp(),
-          NamaKolom.updatedAt: FieldValue.serverTimestamp(),
+          NamaKolom.diHapus: true,
+          NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
+          NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
         });
       }
 
@@ -203,7 +203,7 @@ class BaseOpFirebase {
         final docId = item[idKey] as String?;
         if (docId != null) {
           final docRef = firestore.collection(collectionName).doc(docId);
-          item[NamaKolom.updatedAt] = FieldValue.serverTimestamp();
+          item[NamaKolom.diperbaruiPada] = FieldValue.serverTimestamp();
           // Menggunakan set dengan merge: true untuk perilaku upsert
           batch.set(docRef, item, SetOptions(merge: true));
         }

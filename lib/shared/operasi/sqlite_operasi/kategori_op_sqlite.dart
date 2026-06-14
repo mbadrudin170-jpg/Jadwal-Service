@@ -57,7 +57,7 @@ class KategoriOpSqlite {
       final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.isDeleted} = 0',
+        where: '${NamaKolom.diHapus} = 0',
       );
       final listCategory = List.generate(
         maps.length,
@@ -107,7 +107,7 @@ class KategoriOpSqlite {
       final db = await sqlitedb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.type} = ? AND ${NamaKolom.isDeleted} = 0',
+        where: '${NamaKolom.tipe} = ? AND ${NamaKolom.diHapus} = 0',
         whereArgs: [type.name],
       );
       final daftarKategori = List.generate(

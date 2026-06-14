@@ -75,7 +75,7 @@ class DataCleaningOperation {
       final db = await _sqliteDb.database;
       for (final table in tables) {
         final query =
-            'DELETE FROM $table WHERE ${NamaKolom.archivedAt} IS NOT NULL AND ${NamaKolom.archivedAt} <= ?';
+            'DELETE FROM $table WHERE ${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} <= ?';
         final deletedRows = await db.rawDelete(query, [timeLimitEpoch]);
         if (deletedRows > 0) {
           Log.info(
@@ -105,8 +105,8 @@ class DataCleaningOperation {
         // Ini membutuhkan composite index di Firestore: (isDeleted, archivedAt).
         return _firestore
             .collection(namaKleksi)
-            .where(NamaKolom.isDeleted, isEqualTo: true)
-            .where(NamaKolom.archivedAt, isLessThanOrEqualTo: timeLimit)
+            .where(NamaKolom.diHapus, isEqualTo: true)
+            .where(NamaKolom.diarsipkanPada, isLessThanOrEqualTo: timeLimit)
             .get();
       }).toList();
 

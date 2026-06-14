@@ -50,16 +50,16 @@ void main() {
 
   final package1 = PaketModel(
       id: 'pkg1',
-      name: 'Paket Admin',
-      price: 5,
-      duration: 4,
-      type: DurationType.days);
+      nama: 'Paket Admin',
+      harga: 5,
+      durasi: 4,
+      tipe: DurationType.days);
   final package2 = PaketModel(
       id: 'pkg2',
-      name: 'Paket User',
-      price: 6,
-      duration: 4,
-      type: DurationType.minutes);
+      nama: 'Paket User',
+      harga: 6,
+      durasi: 4,
+      tipe: DurationType.minutes);
 
   // 3. Fungsi setUp untuk inisialisasi mock sebelum setiap tes
   setUp(() {

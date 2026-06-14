@@ -83,13 +83,13 @@ class PackagePage extends ConsumerWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: ListTile(
                     title: Text(
-                      paket.name,
+                      paket.nama,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
-                      'Rp ${paket.price} / ${paket.duration} ${paket.type.displayName}',
+                      'Rp ${paket.harga} / ${paket.durasi} ${paket.tipe.displayName}',
                     ),
-                    trailing: Text('Poin: ${paket.rewardPoints}'),
+                    trailing: Text('Poin: ${paket.poinHadiah}'),
                   ),
                 ),
               );
@@ -119,23 +119,23 @@ void _urutkanList(List<PaketModel> paketList, UrutanPaket urutan) {
   switch (urutan) {
     case UrutanPaket.namaAZ:
       paketList
-          .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          .sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
       break;
     case UrutanPaket.namaZA:
       paketList
-          .sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
+          .sort((a, b) => b.nama.toLowerCase().compareTo(a.nama.toLowerCase()));
       break;
     case UrutanPaket.hargaTertinggi:
-      paketList.sort((a, b) => b.price.compareTo(a.price));
+      paketList.sort((a, b) => b.harga.compareTo(a.harga));
       break;
     case UrutanPaket.hargaTerendah:
-      paketList.sort((a, b) => a.price.compareTo(b.price));
+      paketList.sort((a, b) => a.harga.compareTo(b.harga));
       break;
     case UrutanPaket.poinTertinggi:
-      paketList.sort((a, b) => b.rewardPoints.compareTo(a.rewardPoints));
+      paketList.sort((a, b) => b.poinHadiah.compareTo(a.poinHadiah));
       break;
     case UrutanPaket.poinTerendah:
-      paketList.sort((a, b) => a.rewardPoints.compareTo(b.rewardPoints));
+      paketList.sort((a, b) => a.poinHadiah.compareTo(b.poinHadiah));
       break;
     case UrutanPaket.durasiTerpendek:
       paketList.sort((a, b) =>
@@ -149,15 +149,15 @@ void _urutkanList(List<PaketModel> paketList, UrutanPaket urutan) {
 }
 
 int _getDurationInMinutes(PaketModel paket) {
-  switch (paket.type) {
+  switch (paket.tipe) {
     case DurationType.minutes:
-      return paket.duration;
+      return paket.durasi;
     case DurationType.hours:
-      return paket.duration * 60;
+      return paket.durasi * 60;
     case DurationType.days:
-      return paket.duration * 24 * 60;
+      return paket.durasi * 24 * 60;
     case DurationType.months:
-      return paket.duration * 30 * 24 * 60;
+      return paket.durasi * 30 * 24 * 60;
   }
 }
 
@@ -211,7 +211,7 @@ Future<void> _showEditDeleteDialog(
     context: context,
     builder: (dialogContext) {
       return AlertDialog(
-        title: Text(paket.name),
+        title: Text(paket.nama),
         content: const Text('Pilih aksi yang ingin Anda lakukan.'),
         actions: [
           TextButton(
@@ -248,7 +248,7 @@ Future<void> _showDeleteConfirmationDialog(
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         title: const Text('Konfirmasi Hapus'),
-        content: Text('Anda yakin ingin menghapus paket ${paket.name}?'),
+        content: Text('Anda yakin ingin menghapus paket ${paket.nama}?'),
         actions: <Widget>[
           TextButton(
             child: const Text('Batal'),

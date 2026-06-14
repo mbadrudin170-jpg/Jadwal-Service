@@ -28,7 +28,7 @@ class StatusOpFirebase {
       final docRef = _koleksiStatus.doc(globalStatusId);
 
       final dataToUpdate = {
-        NamaKolom.updatedAt: FieldValue.serverTimestamp(),
+        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
       };
 
       // Menggunakan `set` dengan `SetOptions(merge: true)` agar bisa

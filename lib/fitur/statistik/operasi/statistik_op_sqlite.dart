@@ -69,7 +69,7 @@ class StatistikOpSqlite {
 
       final hasil = paketTerlaris.take(limit).toList();
       Log.info(
-          'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.name} (${p.totalTerjual})').toList()}');
+          'Berhasil menghitung ${hasil.length} paket terlaris: ${hasil.map((p) => '${p.paket.nama} (${p.totalTerjual})').toList()}');
 
       return hasil;
     } on Exception catch (e, st) {
@@ -91,13 +91,13 @@ class StatistikOpSqlite {
         '''
         SELECT SUM(
           CASE
-            WHEN ${NamaKolom.paymentStatus} = ? THEN ${NamaKolom.amount}
-            WHEN ${NamaKolom.paymentStatus} = ? THEN -${NamaKolom.amount}
+            WHEN ${NamaKolom.statusPembayaran} = ? THEN ${NamaKolom.jumlah}
+            WHEN ${NamaKolom.statusPembayaran} = ? THEN -${NamaKolom.jumlah}
             ELSE 0
           END
         ) as total
         FROM $namaTabel
-        WHERE ${NamaKolom.isDeleted} = 0
+        WHERE ${NamaKolom.diHapus} = 0
         ''',
         [statusLunas, statusBelumLunas],
       );
@@ -129,7 +129,7 @@ class StatistikOpSqlite {
         '''
         SELECT COUNT(*) 
         FROM $namaTabel 
-        WHERE ${NamaKolom.isDeleted} = 0
+        WHERE ${NamaKolom.diHapus} = 0
         ''',
       );
 

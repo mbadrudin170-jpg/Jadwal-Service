@@ -51,14 +51,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     super.initState();
     _paketOpSqlite = ref.read(paketOpSqliteProvider);
     if (_modeEdit) {
-      _nameController.text = widget.paket!.name;
-      _priceController.text = widget.paket!.price.toString();
-      _durationController.text = widget.paket!.duration.toString();
-      _rewardPointsController.text = widget.paket!.rewardPoints.toString();
-      _redemptionPointsController.text =
-          widget.paket!.redemptionPoints.toString();
-      _selectedType = widget.paket!.type;
-      _publik = widget.paket!.isPublic;
+      _nameController.text = widget.paket!.nama;
+      _priceController.text = widget.paket!.harga.toString();
+      _durationController.text = widget.paket!.durasi.toString();
+      _rewardPointsController.text = widget.paket!.poinHadiah.toString();
+      _redemptionPointsController.text = widget.paket!.poinPenukaran.toString();
+      _selectedType = widget.paket!.tipe;
+      _publik = widget.paket!.statusPublik;
     }
   }
 
@@ -66,16 +65,16 @@ class _PackageFormState extends ConsumerState<FormPaket> {
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
           id: _modeEdit ? widget.paket!.id : null,
-          name: _nameController.text,
-          price: int.tryParse(
+          nama: _nameController.text,
+          harga: int.tryParse(
                   _priceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
               0,
-          duration: int.tryParse(_durationController.text) ?? 0,
-          type: _selectedType,
-          rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
-          redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
-          isPublic: _publik,
-          updatedAt: DateTime.now().toUtc());
+          durasi: int.tryParse(_durationController.text) ?? 0,
+          tipe: _selectedType,
+          poinHadiah: int.tryParse(_rewardPointsController.text) ?? 0,
+          poinPenukaran: int.tryParse(_redemptionPointsController.text) ?? 0,
+          statusPublik: _publik,
+          diperbaruiPada: DateTime.now().toUtc());
 
       try {
         if (_modeEdit) {

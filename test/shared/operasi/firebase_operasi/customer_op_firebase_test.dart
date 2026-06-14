@@ -55,7 +55,7 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.name], c1.name);
+      expect(snapshot.data()![NamaKolom.nama], c1.name);
     });
 
     test('2.2. harus bisa memperbarui data pelanggan', () async {
@@ -66,7 +66,7 @@ void main() {
 
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
-      expect(snapshot.data()![NamaKolom.name], 'Pelanggan Satu (Updated)');
+      expect(snapshot.data()![NamaKolom.nama], 'Pelanggan Satu (Updated)');
     });
 
     test('2.3. harus bisa melakukan soft delete pada pelanggan', () async {
@@ -76,7 +76,7 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.isDeleted], isTrue);
+      expect(snapshot.data()![NamaKolom.diHapus], isTrue);
     });
 
     test('2.4. harus bisa menghapus pelanggan secara permanen', () async {
@@ -95,7 +95,7 @@ void main() {
 
       final snapshot =
           await fakeFirestore.collection(customerCollection).doc(c1.id).get();
-      expect(snapshot.data()![NamaKolom.lastActiveAt], isA<Timestamp>());
+      expect(snapshot.data()![NamaKolom.terkahirAktif], isA<Timestamp>());
     });
 
     test('2.6. harus bisa menyimpan FCM token', () async {

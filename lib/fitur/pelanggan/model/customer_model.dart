@@ -87,16 +87,16 @@ class PelangganModel implements HasId {
     Log.info('Creating CustomerModel from SQLite: ${map[NamaKolom.id]}');
     return PelangganModel(
       id: map[NamaKolom.id] as String? ?? '',
-      name: map[NamaKolom.name] as String? ?? '',
-      phone: map[NamaKolom.phone] as String? ?? '',
-      address: map[NamaKolom.address] as String? ?? '',
+      name: map[NamaKolom.nama] as String? ?? '',
+      phone: map[NamaKolom.telepon] as String? ?? '',
+      address: map[NamaKolom.alamat] as String? ?? '',
       password: map[NamaKolom.password] as String? ?? '',
       macAddress: map[NamaKolom.macAddress] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
-      lastActiveAt: ParserUtil.parseDateTime(map[NamaKolom.lastActiveAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      lastActiveAt: ParserUtil.parseDateTime(map[NamaKolom.terkahirAktif]),
     );
   }
 
@@ -104,15 +104,16 @@ class PelangganModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.name: name,
-      NamaKolom.phone: phone,
-      NamaKolom.address: address,
+      NamaKolom.nama: name,
+      NamaKolom.telepon: phone,
+      NamaKolom.alamat: address,
       NamaKolom.password: password,
       NamaKolom.macAddress: macAddress,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
-      NamaKolom.lastActiveAt: lastActiveAt?.millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.terkahirAktif: lastActiveAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -122,15 +123,15 @@ class PelangganModel implements HasId {
     Log.info('Creating CustomerModel from Firebase: $id');
     return PelangganModel(
       id: id,
-      name: data[NamaKolom.name] as String? ?? '',
-      phone: data[NamaKolom.phone] as String? ?? '',
-      address: data[NamaKolom.address] as String? ?? '',
+      name: data[NamaKolom.nama] as String? ?? '',
+      phone: data[NamaKolom.telepon] as String? ?? '',
+      address: data[NamaKolom.alamat] as String? ?? '',
       password: data[NamaKolom.password] as String? ?? '',
       macAddress: data[NamaKolom.macAddress] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
-      lastActiveAt: ParserUtil.parseDateTime(data[NamaKolom.lastActiveAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+      lastActiveAt: ParserUtil.parseDateTime(data[NamaKolom.terkahirAktif]),
     );
   }
 
@@ -138,19 +139,19 @@ class PelangganModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.name: name,
-      NamaKolom.phone: phone,
-      NamaKolom.address: address,
+      NamaKolom.nama: name,
+      NamaKolom.telepon: phone,
+      NamaKolom.alamat: address,
       NamaKolom.password: password,
       NamaKolom.macAddress: macAddress,
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.diHapus: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      NamaKolom.updatedAt:
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      NamaKolom.lastActiveAt: lastActiveAt != null
+      NamaKolom.terkahirAktif: lastActiveAt != null
           ? Timestamp.fromDate(lastActiveAt!.toUtc())
           : null,
     };

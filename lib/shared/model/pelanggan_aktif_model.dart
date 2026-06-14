@@ -86,8 +86,8 @@ class PelangganAktifModel implements HasId {
   /// Creates an `ActiveCustomerModel` instance from SQLite map data.
   factory PelangganAktifModel.fromSqlite(final Map<String, dynamic> map) {
     try {
-      final startDate = ParserUtil.parseDateTime(map[NamaKolom.startDate]);
-      final endDate = ParserUtil.parseDateTime(map[NamaKolom.endDate]);
+      final startDate = ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]);
+      final endDate = ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]);
 
       if (startDate == null) {
         throw ArgumentError.notNull('startDate from SQLite');
@@ -98,18 +98,18 @@ class PelangganAktifModel implements HasId {
 
       final model = PelangganAktifModel(
         id: map[NamaKolom.id] as String,
-        customerId: map[NamaKolom.customerId] as String? ?? '',
-        packageId: map[NamaKolom.packageId] as String? ?? '',
-        transactionId: map[NamaKolom.transactionId] as String?,
+        customerId: map[NamaKolom.idPelanggan] as String? ?? '',
+        packageId: map[NamaKolom.idPaket] as String? ?? '',
+        transactionId: map[NamaKolom.idTransaksi] as String?,
         startDate: startDate,
         endDate: endDate,
         status: PaymentStatus.values.firstWhere(
           (final e) => e.name == map[NamaKolom.status],
           orElse: () => PaymentStatus.paid,
         ),
-        updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-        isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-        archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+        updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+        isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+        archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       );
       Log.info('ActiveCustomerModel loaded from SQLite: ${model.id}');
       return model;
@@ -123,15 +123,16 @@ class PelangganAktifModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.customerId: customerId,
-      NamaKolom.packageId: packageId,
-      NamaKolom.transactionId: transactionId,
-      NamaKolom.startDate: startDate.millisecondsSinceEpoch,
-      NamaKolom.endDate: endDate.millisecondsSinceEpoch,
+      NamaKolom.idPelanggan: customerId,
+      NamaKolom.idPaket: packageId,
+      NamaKolom.idTransaksi: transactionId,
+      NamaKolom.tanggalMulai: startDate.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: endDate.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -141,8 +142,8 @@ class PelangganAktifModel implements HasId {
     final Map<String, dynamic> data,
   ) {
     try {
-      final startDate = ParserUtil.parseDateTime(data[NamaKolom.startDate]);
-      final endDate = ParserUtil.parseDateTime(data[NamaKolom.endDate]);
+      final startDate = ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]);
+      final endDate = ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]);
 
       if (startDate == null) {
         throw ArgumentError.notNull('startDate from Firebase');
@@ -153,18 +154,18 @@ class PelangganAktifModel implements HasId {
 
       final model = PelangganAktifModel(
         id: id,
-        customerId: data[NamaKolom.customerId] as String? ?? '',
-        packageId: data[NamaKolom.packageId] as String? ?? '',
-        transactionId: data[NamaKolom.transactionId] as String?,
+        customerId: data[NamaKolom.idPelanggan] as String? ?? '',
+        packageId: data[NamaKolom.idPaket] as String? ?? '',
+        transactionId: data[NamaKolom.idTransaksi] as String?,
         startDate: startDate,
         endDate: endDate,
         status: PaymentStatus.values.firstWhere(
           (final e) => e.name == data[NamaKolom.status],
           orElse: () => PaymentStatus.paid,
         ),
-        updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
-        isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-        archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+        updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+        isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+        archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
       );
       Log.info('ActiveCustomerModel loaded from Firebase: ${model.id}');
       return model;
@@ -179,17 +180,17 @@ class PelangganAktifModel implements HasId {
     Log.info('Preparing toFirebase for ActiveCustomerModel $id');
     return {
       NamaKolom.id: id,
-      NamaKolom.customerId: customerId,
-      NamaKolom.packageId: packageId,
-      NamaKolom.transactionId: transactionId,
-      NamaKolom.startDate: Timestamp.fromDate(startDate.toUtc()),
-      NamaKolom.endDate: Timestamp.fromDate(endDate.toUtc()),
+      NamaKolom.idPelanggan: customerId,
+      NamaKolom.idPaket: packageId,
+      NamaKolom.idTransaksi: transactionId,
+      NamaKolom.tanggalMulai: Timestamp.fromDate(startDate.toUtc()),
+      NamaKolom.tangglberakhir: Timestamp.fromDate(endDate.toUtc()),
       NamaKolom.status: status.name,
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.diHapus: isDeleted,
       // DIUBAH: Memastikan updatedAt tidak pernah null.
-      NamaKolom.updatedAt:
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

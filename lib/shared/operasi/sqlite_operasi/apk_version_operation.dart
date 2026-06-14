@@ -175,7 +175,7 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const orderBy = '${NamaKolom.updatedAt} DESC';
+      const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info('Query: SELECT * FROM $_tableName ORDER BY $orderBy');
 
       final List<Map<String, dynamic>> maps = await db.query(
@@ -215,13 +215,13 @@ class ApkVersionOperation {
   /// Mengambil semua versi APK yang aktif dari database.
   Future<List<VersiApkModel>> getAllActiveApkVersions() async {
     Log.info(
-      'Mengambil semua versi APK aktif (${NamaKolom.isDeleted} = 0) dari tabel $_tableName',
+      'Mengambil semua versi APK aktif (${NamaKolom.diHapus} = 0) dari tabel $_tableName',
     );
 
     try {
       final db = await dbHelper.database;
-      const where = '${NamaKolom.isDeleted} = 0';
-      const orderBy = '${NamaKolom.updatedAt} DESC';
+      const where = '${NamaKolom.diHapus} = 0';
+      const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
           'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy');
 
@@ -262,8 +262,8 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const where = '${NamaKolom.isDeleted} = 0';
-      const orderBy = '${NamaKolom.updatedAt} DESC';
+      const where = '${NamaKolom.diHapus} = 0';
+      const orderBy = '${NamaKolom.diperbaruiPada} DESC';
       Log.info(
           'Query: SELECT * FROM $_tableName WHERE $where ORDER BY $orderBy LIMIT 1');
 
@@ -302,7 +302,7 @@ class ApkVersionOperation {
 
     try {
       final db = await dbHelper.database;
-      const where = 'id = ? AND ${NamaKolom.isDeleted} = 0';
+      const where = 'id = ? AND ${NamaKolom.diHapus} = 0';
       Log.info('Query: SELECT * FROM $_tableName WHERE $where');
 
       final maps = await db.query(

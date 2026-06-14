@@ -19,9 +19,9 @@ class PaketOpFirebase {
     try {
       Log.info('Mengambil paket publik untuk penukaran poin.');
       final querySnapshot = await _collection
-          .where(NamaKolom.isPublic, isEqualTo: true)
-          .where(NamaKolom.redemptionPoints, isGreaterThan: 0)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.statusPublik, isEqualTo: true)
+          .where(NamaKolom.poinPenukaran, isGreaterThan: 0)
+          .where(NamaKolom.diHapus, isEqualTo: false)
           .get();
       Log.info(
           'Menemukan ${querySnapshot.docs.length} paket publik yang tidak dihapus.');
@@ -85,9 +85,9 @@ class PaketOpFirebase {
     Log.info('Memulai soft delete paket di Firestore: $id');
     try {
       await _collection.doc(id).update({
-        NamaKolom.isDeleted: true,
-        NamaKolom.archivedAt: FieldValue.serverTimestamp(),
-        NamaKolom.updatedAt: FieldValue.serverTimestamp(),
+        NamaKolom.diHapus: true,
+        NamaKolom.diarsipkanPada: FieldValue.serverTimestamp(),
+        NamaKolom.diperbaruiPada: FieldValue.serverTimestamp(),
       });
       Log.info('Soft delete paket berhasil: $id');
     } on FirebaseException catch (e, s) {

@@ -69,13 +69,13 @@ class PelangganAktifOpSqlite {
     final query = '''
       SELECT
         ac.*,
-        c.${NamaKolom.name} as customer_name,
-        p.${NamaKolom.name} as package_name
+        c.${NamaKolom.nama} as customer_name,
+        p.${NamaKolom.nama} as package_name
       FROM $_tableName ac
-      LEFT JOIN $_customerTableName c ON ac.${NamaKolom.customerId} = c.${NamaKolom.id}
-      LEFT JOIN $_packageTableName p ON ac.${NamaKolom.packageId} = p.${NamaKolom.id}
-      WHERE ac.${NamaKolom.isDeleted} = 0
-        AND ac.${NamaKolom.endDate} >= ?
+      LEFT JOIN $_customerTableName c ON ac.${NamaKolom.idPelanggan} = c.${NamaKolom.id}
+      LEFT JOIN $_packageTableName p ON ac.${NamaKolom.idPaket} = p.${NamaKolom.id}
+      WHERE ac.${NamaKolom.diHapus} = 0
+        AND ac.${NamaKolom.tangglberakhir} >= ?
     ''';
 
     try {
@@ -145,7 +145,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.isDeleted} = ?',
+        where: '${NamaKolom.diHapus} = ?',
         whereArgs: [0],
       );
 
@@ -359,7 +359,7 @@ class PelangganAktifOpSqlite {
           final List<Map<String, dynamic>> expiredCustomers = await txn.query(
             _tableName,
             where:
-                '${NamaKolom.archivedAt} IS NOT NULL AND ${NamaKolom.archivedAt} < ?',
+                '${NamaKolom.diarsipkanPada} IS NOT NULL AND ${NamaKolom.diarsipkanPada} < ?',
             whereArgs: [deadline.millisecondsSinceEpoch],
           );
 
@@ -398,7 +398,7 @@ class PelangganAktifOpSqlite {
 
       final List<Map<String, dynamic>> expiredCustomers = await db.query(
         _tableName,
-        where: '${NamaKolom.endDate} < ? AND ${NamaKolom.isDeleted} = 0',
+        where: '${NamaKolom.tangglberakhir} < ? AND ${NamaKolom.diHapus} = 0',
         whereArgs: [_nowUtc.millisecondsSinceEpoch],
       );
 
@@ -415,9 +415,9 @@ class PelangganAktifOpSqlite {
           await txn.update(
             _tableName,
             {
-              NamaKolom.isDeleted: 1,
-              NamaKolom.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              NamaKolom.updatedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.diHapus: 1,
+              NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
             },
             where:
                 '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',
@@ -459,9 +459,9 @@ class PelangganAktifOpSqlite {
           await txn.update(
             _tableName,
             {
-              NamaKolom.isDeleted: 1,
-              NamaKolom.archivedAt: _nowUtc.millisecondsSinceEpoch,
-              NamaKolom.updatedAt: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.diHapus: 1,
+              NamaKolom.diarsipkanPada: _nowUtc.millisecondsSinceEpoch,
+              NamaKolom.diperbaruiPada: _nowUtc.millisecondsSinceEpoch,
             },
             where:
                 '${NamaKolom.id} IN (${List.filled(idsToArchive.length, '?').join(',')})',

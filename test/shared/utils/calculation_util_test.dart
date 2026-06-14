@@ -14,10 +14,10 @@ void main() {
   group('CalculationUtil.hitungTanggalBerakhir', () {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi jam', () {
       final paket = PaketModel(
-        name: 'Paket Jam',
-        price: 1000,
-        duration: 3,
-        type: DurationType.hours,
+        nama: 'Paket Jam',
+        harga: 1000,
+        durasi: 3,
+        tipe: DurationType.hours,
       );
       final expectedEndDate = DateTime(2024, 8, 1, 13); // 3 jam kemudian
       final result = PerhitunganUtil.hitungTanggalBerakhir(startDate, paket);
@@ -27,10 +27,10 @@ void main() {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi hari',
         () {
       final paket = PaketModel(
-        name: 'Paket Harian',
-        price: 5000,
-        duration: 7,
-        type: DurationType.days,
+        nama: 'Paket Harian',
+        harga: 5000,
+        durasi: 7,
+        tipe: DurationType.days,
       );
       final expectedEndDate = DateTime(2024, 8, 8, 10); // 7 hari kemudian
       final result = PerhitunganUtil.hitungTanggalBerakhir(startDate, paket);
@@ -40,10 +40,10 @@ void main() {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi bulan',
         () {
       final paket = PaketModel(
-        name: 'Paket Bulanan',
-        price: 50000,
-        duration: 2,
-        type: DurationType.months,
+        nama: 'Paket Bulanan',
+        harga: 50000,
+        durasi: 2,
+        tipe: DurationType.months,
       );
       // 1 Agustus + 2 bulan = 1 Oktober
       final expectedEndDate = DateTime(2024, 10, 1, 10);
@@ -54,10 +54,10 @@ void main() {
     test('harus menghitung tanggal berakhir dengan benar untuk durasi menit',
         () {
       final paket = PaketModel(
-        name: 'Paket Menitan',
-        price: 500,
-        duration: 90,
-        type: DurationType.minutes,
+        nama: 'Paket Menitan',
+        harga: 500,
+        durasi: 90,
+        tipe: DurationType.minutes,
       );
       // 10:00 + 90 menit = 11:30
       final expectedEndDate = DateTime(2024, 8, 1, 11, 30);

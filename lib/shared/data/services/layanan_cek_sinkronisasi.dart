@@ -77,7 +77,7 @@ class LayananCekSinkronisasi {
           .collection(NamaTabel.statusGlobal)
           .doc(globalStatusId)
           .set(
-        {NamaKolom.updatedAt: FieldValue.serverTimestamp()},
+        {NamaKolom.diperbaruiPada: FieldValue.serverTimestamp()},
         SetOptions(merge: true),
       );
       Log.info('Dokumen ${NamaTabel.statusGlobal}/global berhasil diperbarui.');

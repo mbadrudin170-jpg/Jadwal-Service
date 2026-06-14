@@ -89,7 +89,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         return;
       }
 
-      final bool enoughPoints = currentPoints >= reward.redemptionPoints;
+      final bool enoughPoints = currentPoints >= reward.poinPenukaran;
       if (!enoughPoints) {
         ToastUtil.warning(
             context, 'Poin Anda tidak mencukupi untuk menukar hadiah ini.');
@@ -100,7 +100,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
         context: context,
         builder: (dialogContext) => AlertDialog(
           title: const Text('Konfirmasi Penukaran'),
-          content: Text('Anda yakin ingin menukar poin dengan ${reward.name}?'),
+          content: Text('Anda yakin ingin menukar poin dengan ${reward.nama}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -115,7 +115,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       );
 
       if (dikonfirmasi ?? false) {
-        Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.name}');
+        Log.info('Pengguna mengonfirmasi penukaran untuk: ${reward.nama}');
         try {
           final dataPelanggan = await ref
               .read(pelangganOpSqliteProvider)
@@ -240,22 +240,22 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       itemCount: rewardList.length,
       itemBuilder: (context, index) {
         final reward = rewardList[index];
-        final enoughPoints = totalPoints >= reward.redemptionPoints;
-        final progress = reward.redemptionPoints > 0
-            ? (totalPoints / reward.redemptionPoints).clamp(0.0, 1.0)
+        final enoughPoints = totalPoints >= reward.poinPenukaran;
+        final progress = reward.poinPenukaran > 0
+            ? (totalPoints / reward.poinPenukaran).clamp(0.0, 1.0)
             : 1.0;
-        final poinKurang = totalPoints - reward.redemptionPoints;
+        final poinKurang = totalPoints - reward.poinPenukaran;
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           child: ListTile(
-            title: Text(reward.name),
+            title: Text(reward.nama),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('${reward.redemptionPoints} Poin'),
+                    Text('${reward.poinPenukaran} Poin'),
                     ElevatedButton(
                       onPressed: _isTukarPoin
                           ? null
@@ -271,7 +271,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Poin: $totalPoints / ${reward.redemptionPoints}',
+                    Text('Poin: $totalPoints / ${reward.poinPenukaran}',
                         style: TextStyle(
                             fontSize: 12,
                             color: enoughPoints ? Colors.green : Colors.grey)),

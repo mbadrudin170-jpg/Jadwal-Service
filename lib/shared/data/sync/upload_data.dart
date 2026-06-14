@@ -461,11 +461,11 @@ class UploadDataService {
       } else {
         Log.info(
           'Melakukan query pada tabel $tableName dengan kondisi: '
-          '${NamaKolom.updatedAt} > ${lastSyncTime.millisecondsSinceEpoch}',
+          '${NamaKolom.diperbaruiPada} > ${lastSyncTime.millisecondsSinceEpoch}',
         );
         dataToUpload = await db.query(
           tableName,
-          where: '${NamaKolom.updatedAt} > ?',
+          where: '${NamaKolom.diperbaruiPada} > ?',
           whereArgs: [lastSyncTime.millisecondsSinceEpoch],
         );
       }

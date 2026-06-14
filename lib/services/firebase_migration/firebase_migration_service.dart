@@ -28,140 +28,140 @@ class FirebaseMigrationService {
 
   final Map<String, Map<String, String>> _columnMigrations = {
     NamaTabel.wallet: {
-      'namaDompet': NamaKolom.name,
-      'saldo': NamaKolom.balance,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'namaDompet': NamaKolom.nama,
+      'saldo': NamaKolom.saldo,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.category: {
-      'nama': NamaKolom.name,
-      'tipe': NamaKolom.type,
-      'id_sub_kategori': NamaKolom.subCategoryId,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'nama': NamaKolom.nama,
+      'tipe': NamaKolom.tipe,
+      'id_sub_kategori': NamaKolom.idSubKategori,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.subCategory: {
-      'nama': NamaKolom.name,
-      'id_kategori': NamaKolom.categoryId,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'nama': NamaKolom.nama,
+      'id_kategori': NamaKolom.idKategori,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.package: {
-      'nama': NamaKolom.name,
-      'harga': NamaKolom.price,
-      'durasi': NamaKolom.duration,
-      'tipe': NamaKolom.type,
-      'jumlahPoin': NamaKolom.earnedPoints,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'poin_hadiah': NamaKolom.rewardPoints,
-      'poin_penukaran': NamaKolom.redemptionPoints,
-      'isPublic': NamaKolom.isPublic,
-      'isDeleted': NamaKolom.isDeleted,
+      'nama': NamaKolom.nama,
+      'harga': NamaKolom.harga,
+      'durasi': NamaKolom.durasi,
+      'tipe': NamaKolom.tipe,
+      'jumlahPoin': NamaKolom.poinDidapat,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'poin_hadiah': NamaKolom.poinHadiah,
+      'poin_penukaran': NamaKolom.poinPenukaran,
+      'isPublic': NamaKolom.statusPublik,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.customer: {
-      'nama': NamaKolom.name,
-      'telepon': NamaKolom.phone,
-      'alamat': NamaKolom.address,
+      'nama': NamaKolom.nama,
+      'telepon': NamaKolom.telepon,
+      'alamat': NamaKolom.alamat,
       'password': NamaKolom.password,
       'mac_address': NamaKolom.macAddress,
       'status': NamaKolom.status,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.activeCustomer: {
-      'id_pelanggan': NamaKolom.customerId,
-      'id_paket': NamaKolom.packageId,
-      'id_transaksi': NamaKolom.transactionId,
-      'tanggalMulai': NamaKolom.startDate,
-      'TanggalMulai': NamaKolom.startDate,
-      'tanggal_mulai': NamaKolom.startDate,
-      'tanggalBerakhir': NamaKolom.endDate,
-      'TanggalBerakhir': NamaKolom.endDate,
-      'tanggal_berakhir': NamaKolom.endDate,
+      'id_pelanggan': NamaKolom.idPelanggan,
+      'id_paket': NamaKolom.idPaket,
+      'id_transaksi': NamaKolom.idTransaksi,
+      'tanggalMulai': NamaKolom.tanggalMulai,
+      'TanggalMulai': NamaKolom.tanggalMulai,
+      'tanggal_mulai': NamaKolom.tanggalMulai,
+      'tanggalBerakhir': NamaKolom.tangglberakhir,
+      'TanggalBerakhir': NamaKolom.tangglberakhir,
+      'tanggal_berakhir': NamaKolom.tangglberakhir,
       'status': NamaKolom.status,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.transactions: {
-      'keterangan': NamaKolom.description,
-      'jumlah': NamaKolom.amount,
-      'tanggal': NamaKolom.date,
-      'tipe': NamaKolom.type,
-      'id_dompet': NamaKolom.walletId,
-      'id_kategori': NamaKolom.categoryId,
-      'id_sub_kategori': NamaKolom.subCategoryId,
-      'id_pelanggan': NamaKolom.customerId,
-      'id_paket': NamaKolom.packageId,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'id_dompet_tujuan': NamaKolom.destinationWalletId,
-      'poin_yang_dihasilkan': NamaKolom.earnedPoints,
-      'poin_yang_digunakan': NamaKolom.usedPoints,
-      'status_pembayaran': NamaKolom.paymentStatus,
-      'durasi_paket': NamaKolom.packageDuration,
-      'tipe_durasi_paket': NamaKolom.durationType,
-      'TanggalMulai': NamaKolom.startDate,
-      'tanggal_berakhir': NamaKolom.endDate,
-      'aktivasi_paket': NamaKolom.isActivated,
-      'tanggalMulai': NamaKolom.startDate,
-      'tanggalBerakhir': NamaKolom.endDate,
-      'tipeDuraisiPaket': NamaKolom.durationType,
-      'tipeDurasiPaket': NamaKolom.durationType,
-      'aktivasiPaket': NamaKolom.isActivated,
-      'durasiPaket': NamaKolom.packageDuration,
-      'isDeleted': NamaKolom.isDeleted,
+      'keterangan': NamaKolom.deskripsi,
+      'jumlah': NamaKolom.jumlah,
+      'tanggal': NamaKolom.tanggal,
+      'tipe': NamaKolom.tipe,
+      'id_dompet': NamaKolom.idDompet,
+      'id_kategori': NamaKolom.idKategori,
+      'id_sub_kategori': NamaKolom.idSubKategori,
+      'id_pelanggan': NamaKolom.idPelanggan,
+      'id_paket': NamaKolom.idPaket,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'id_dompet_tujuan': NamaKolom.idDompetTujuan,
+      'poin_yang_dihasilkan': NamaKolom.poinDidapat,
+      'poin_yang_digunakan': NamaKolom.poinDigunakan,
+      'status_pembayaran': NamaKolom.statusPembayaran,
+      'durasi_paket': NamaKolom.durasiPaket,
+      'tipe_durasi_paket': NamaKolom.tipeDurasiPaket,
+      'TanggalMulai': NamaKolom.tanggalMulai,
+      'tanggal_berakhir': NamaKolom.tangglberakhir,
+      'aktivasi_paket': NamaKolom.statusAktivasi,
+      'tanggalMulai': NamaKolom.tanggalMulai,
+      'tanggalBerakhir': NamaKolom.tangglberakhir,
+      'tipeDuraisiPaket': NamaKolom.tipeDurasiPaket,
+      'tipeDurasiPaket': NamaKolom.tipeDurasiPaket,
+      'aktivasiPaket': NamaKolom.statusAktivasi,
+      'durasiPaket': NamaKolom.durasiPaket,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.feedback: {
-      'isi': NamaKolom.content,
-      'tanggal': NamaKolom.date,
+      'isi': NamaKolom.isi,
+      'tanggal': NamaKolom.tanggal,
       'userId': NamaKolom.userId,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.customerOrder: {
-      'id_pelanggan': NamaKolom.customerId,
-      'id_paket': NamaKolom.packageId,
-      'tanggal': NamaKolom.date,
+      'id_pelanggan': NamaKolom.idPelanggan,
+      'id_paket': NamaKolom.idPaket,
+      'tanggal': NamaKolom.tanggal,
       'status': NamaKolom.status,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.userApkVersion: {
-      'catatan_rilis': NamaKolom.releaseNotes,
-      'nomor_build_terbaru': NamaKolom.latestBuildNumber,
-      'tautan_unduhan': NamaKolom.downloadLinks,
-      'versi_terbaru': NamaKolom.latestVersion,
-      'wajib_update': NamaKolom.isUpdateRequired,
-      'youtube_tutorial': NamaKolom.youtubeTutorial,
-      'diperbarui': NamaKolom.updatedAt,
-      'diarsipkan': NamaKolom.archivedAt,
-      'isDeleted': NamaKolom.isDeleted,
+      'catatan_rilis': NamaKolom.catatanRilis,
+      'nomor_build_terbaru': NamaKolom.nomorBuildTerakhir,
+      'tautan_unduhan': NamaKolom.linkDownload,
+      'versi_terbaru': NamaKolom.versiTerkahir,
+      'wajib_update': NamaKolom.wajibUpdate,
+      'youtube_tutorial': NamaKolom.linkYoutubeTutorial,
+      'diperbarui': NamaKolom.diperbaruiPada,
+      'diarsipkan': NamaKolom.diarsipkanPada,
+      'isDeleted': NamaKolom.diHapus,
     },
     NamaTabel.settings: {
-      'interval_sinkronisasi_otomatis': NamaKolom.autoSyncInterval,
-      'hapus_otomatis_data_arsip': NamaKolom.autoDeleteArchiveDays,
-      'mode_pemeliharaan': NamaKolom.maintenanceMode,
-      'info_pemeliharaan': NamaKolom.maintenanceInfo,
-      'diperbarui': NamaKolom.updatedAt,
+      'interval_sinkronisasi_otomatis': NamaKolom.waktuOtomatisSinkroniasi,
+      'hapus_otomatis_data_arsip': NamaKolom.waktuOtomatisHapusDataArsip,
+      'mode_pemeliharaan': NamaKolom.modeMaintenance,
+      'info_pemeliharaan': NamaKolom.infoMaintenance,
+      'diperbarui': NamaKolom.diperbaruiPada,
     },
     NamaTabel.statusGlobal: {
-      'diperbarui': NamaKolom.updatedAt,
+      'diperbarui': NamaKolom.diperbaruiPada,
     },
     NamaTabel.uploadStatus: {
       'value': NamaKolom.value,
-      'diperbarui': NamaKolom.updatedAt,
+      'diperbarui': NamaKolom.diperbaruiPada,
     },
     NamaTabel.message: {
-      'isi': NamaKolom.content,
-      'tanggal': NamaKolom.date,
+      'isi': NamaKolom.isi,
+      'tanggal': NamaKolom.tanggal,
       'status': NamaKolom.status,
     },
   };
@@ -377,7 +377,7 @@ class FirebaseMigrationService {
       final data = doc.data();
       if (data.containsKey('isPublic')) {
         batch.update(doc.reference, {
-          NamaKolom.isPublic: data['isPublic'],
+          NamaKolom.statusPublik: data['isPublic'],
           'isPublic': FieldValue.delete(),
         });
         count++;
@@ -385,7 +385,7 @@ class FirebaseMigrationService {
     }
     if (count > 0) {
       logs.add(
-          '  - [isPublic -> ${NamaKolom.isPublic}] $count dokumen akan dimigrasi.');
+          '  - [isPublic -> ${NamaKolom.statusPublik}] $count dokumen akan dimigrasi.');
     }
   }
 
@@ -404,8 +404,8 @@ class FirebaseMigrationService {
       final update = <String, dynamic>{};
       bool buildNeed = false;
       bool linkNeed = false;
-      final oldBuild = data[NamaKolom.latestBuildNumber];
-      final oldLink = data[NamaKolom.downloadLinks];
+      final oldBuild = data[NamaKolom.nomorBuildTerakhir];
+      final oldLink = data[NamaKolom.linkDownload];
       if (oldBuild != null && oldBuild is! Map) {
         buildNeed = true;
         int val = 0;
@@ -414,7 +414,7 @@ class FirebaseMigrationService {
         } else if (oldBuild is String) {
           val = int.tryParse(oldBuild) ?? 0;
         }
-        update[NamaKolom.latestBuildNumber] = {
+        update[NamaKolom.nomorBuildTerakhir] = {
           'universal': val,
           'bit_32': 0,
           'bit_64': 0
@@ -426,7 +426,7 @@ class FirebaseMigrationService {
         if (oldLink is String) {
           link = oldLink;
         }
-        update[NamaKolom.downloadLinks] = {
+        update[NamaKolom.linkDownload] = {
           'universal': link,
           'bit_32': '',
           'bit_64': ''
@@ -445,11 +445,10 @@ class FirebaseMigrationService {
     }
     if (buildCount > 0) {
       logs.add(
-          '  - [${NamaKolom.latestBuildNumber}] $buildCount dokumen dimigrasi.');
+          '  - [${NamaKolom.nomorBuildTerakhir}] $buildCount dokumen dimigrasi.');
     }
     if (linkCount > 0) {
-      logs.add(
-          '  - [${NamaKolom.downloadLinks}] $linkCount dokumen dimigrasi.');
+      logs.add('  - [${NamaKolom.linkDownload}] $linkCount dokumen dimigrasi.');
     }
     if (bothCount > 0) {
       logs.add('  - [build+link] $bothCount dokumen dimigrasi.');

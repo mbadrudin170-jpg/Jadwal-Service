@@ -38,7 +38,7 @@ class StatusModel implements HasId {
     return StatusModel(
       id: map[NamaKolom.id] as String? ?? globalStatusId,
       updatedAt: ParserUtil.parseDateTime(
-            map[NamaKolom.updatedAt],
+            map[NamaKolom.diperbaruiPada],
           ) ??
           DateTime.now(),
     );
@@ -48,7 +48,7 @@ class StatusModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada: updatedAt.millisecondsSinceEpoch,
     };
   }
 
@@ -57,14 +57,14 @@ class StatusModel implements HasId {
     Log.info('Creating StatusModel from Firebase');
     return StatusModel(
       id: data[NamaKolom.id] as String? ?? globalStatusId,
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(updatedAt.toUtc()),
     };
   }
 }

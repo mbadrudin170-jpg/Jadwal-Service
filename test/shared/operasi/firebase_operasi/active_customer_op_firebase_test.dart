@@ -39,8 +39,8 @@ void main() {
     final snapshot = await collectionRef.doc(activeCustomer.idPelanggan).get();
     final data = snapshot.data() as Map<String, dynamic>?;
     expect(snapshot.exists, isTrue);
-    expect(data?[NamaKolom.customerId], 'cust1');
-    expect(data?[NamaKolom.packageId], 'pkg1');
+    expect(data?[NamaKolom.idPelanggan], 'cust1');
+    expect(data?[NamaKolom.idPaket], 'pkg1');
   });
 
   test('2. Uji coba getActiveCustomersById harus mengembalikan data yang benar',

@@ -70,12 +70,12 @@ class SubCategoryModel implements HasId {
     Log.info('Membuat SubCategoryModel dari SQLite: ${map[NamaKolom.id]}');
     return SubCategoryModel(
       id: map[NamaKolom.id] as String? ?? '',
-      name: map[NamaKolom.name] as String? ?? '',
-      categoryId: map[NamaKolom.categoryId] as String? ?? '',
+      name: map[NamaKolom.nama] as String? ?? '',
+      categoryId: map[NamaKolom.idKategori] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -84,12 +84,13 @@ class SubCategoryModel implements HasId {
     Log.info('Mengonversi SubCategoryModel ke format SQLite: $id');
     return {
       NamaKolom.id: id,
-      NamaKolom.name: name,
-      NamaKolom.categoryId: categoryId,
+      NamaKolom.nama: name,
+      NamaKolom.idKategori: categoryId,
       // DIUBAH: Memastikan updatedAt tidak pernah null
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -99,12 +100,12 @@ class SubCategoryModel implements HasId {
     Log.info('Membuat SubCategoryModel dari Firebase: $id');
     return SubCategoryModel(
       id: id,
-      name: data[NamaKolom.name] as String? ?? '',
-      categoryId: data[NamaKolom.categoryId] as String? ?? '',
+      name: data[NamaKolom.nama] as String? ?? '',
+      categoryId: data[NamaKolom.idKategori] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -114,14 +115,14 @@ class SubCategoryModel implements HasId {
     Log.info('Mengonversi SubCategoryModel ke format Firebase: $id');
     return {
       NamaKolom.id: id,
-      NamaKolom.name: name,
-      NamaKolom.categoryId: categoryId,
+      NamaKolom.nama: name,
+      NamaKolom.idKategori: categoryId,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
-      NamaKolom.updatedAt:
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.diHapus: isDeleted,
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

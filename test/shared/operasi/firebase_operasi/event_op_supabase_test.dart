@@ -36,22 +36,22 @@ void main() {
 
   final event1Map = <String, dynamic>{
     NamaKolom.id: 'event-1',
-    NamaKolom.imageUrl: 'http://example.com/image1.png',
-    NamaKolom.isActive: true,
-    NamaKolom.createdAt: DateTime(2023, 8, 17).toIso8601String(),
-    NamaKolom.startDate: DateTime(2023, 8).toIso8601String(),
-    NamaKolom.endDate: DateTime(2023, 8, 31).toIso8601String(),
-    NamaKolom.updatedAt: DateTime(2023, 8, 18).toIso8601String(),
+    NamaKolom.linkGambar: 'http://example.com/image1.png',
+    NamaKolom.statusAktif: true,
+    NamaKolom.tanggalDibuat: DateTime(2023, 8, 17).toIso8601String(),
+    NamaKolom.tanggalMulai: DateTime(2023, 8).toIso8601String(),
+    NamaKolom.tangglberakhir: DateTime(2023, 8, 31).toIso8601String(),
+    NamaKolom.diperbaruiPada: DateTime(2023, 8, 18).toIso8601String(),
   };
 
   final event2Map = <String, dynamic>{
     NamaKolom.id: 'event-2',
-    NamaKolom.imageUrl: 'http://example.com/image2.png',
-    NamaKolom.isActive: false,
-    NamaKolom.createdAt: DateTime(2024).toIso8601String(),
-    NamaKolom.startDate: DateTime(2024).toIso8601String(),
-    NamaKolom.endDate: DateTime(2024, 1, 31).toIso8601String(),
-    NamaKolom.updatedAt: null,
+    NamaKolom.linkGambar: 'http://example.com/image2.png',
+    NamaKolom.statusAktif: false,
+    NamaKolom.tanggalDibuat: DateTime(2024).toIso8601String(),
+    NamaKolom.tanggalMulai: DateTime(2024).toIso8601String(),
+    NamaKolom.tangglberakhir: DateTime(2024, 1, 31).toIso8601String(),
+    NamaKolom.diperbaruiPada: null,
   };
 
   group('EventOpSupabase Final Tests', () {
@@ -134,7 +134,7 @@ void main() {
     group('getActive', () {
       test('harus mengembalikan EventModel jika ada pengumuman aktif',
           () async {
-        when(mockFilterBuilder.eq(NamaKolom.isActive, true))
+        when(mockFilterBuilder.eq(NamaKolom.statusAktif, true))
             .thenAnswer((_) => mockFilterBuilder);
         final mockTransformBuilder =
             MockPostgrestTransformBuilder<List<Map<String, dynamic>>>();
@@ -155,7 +155,7 @@ void main() {
 
       test('harus mengembalikan null jika pengumuman aktif tidak ditemukan',
           () async {
-        when(mockFilterBuilder.eq(NamaKolom.isActive, true))
+        when(mockFilterBuilder.eq(NamaKolom.statusAktif, true))
             .thenAnswer((_) => mockFilterBuilder);
 
         final mockTransformBuilder =

@@ -115,8 +115,8 @@ void main() {
       expect(result.first.isDeleted, false);
       verify(mockDatabase.query(
         tableName,
-        where: '${NamaKolom.isDeleted} = 0',
-        orderBy: '${NamaKolom.date} DESC',
+        where: '${NamaKolom.diHapus} = 0',
+        orderBy: '${NamaKolom.tanggal} DESC',
       )).called(1);
     });
 
@@ -175,7 +175,7 @@ void main() {
       expect(result.first.id, updatedFeedback.id);
       verify(mockDatabase.query(
         tableName,
-        where: '${NamaKolom.updatedAt} > ?',
+        where: '${NamaKolom.diperbaruiPada} > ?',
         whereArgs: [lastSync.millisecondsSinceEpoch],
       )).called(1);
     });

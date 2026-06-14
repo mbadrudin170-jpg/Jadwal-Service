@@ -111,7 +111,7 @@ class SettingsOpSqlite {
 
       final dataToUpdate = {
         ...data,
-        NamaKolom.updatedAt: DateTime.now().millisecondsSinceEpoch,
+        NamaKolom.diperbaruiPada: DateTime.now().millisecondsSinceEpoch,
       };
 
       await _baseOpSqlite.update(

@@ -138,12 +138,12 @@ class DownloadDataService {
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
         // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
-        if (data.containsKey(NamaKolom.updatedAt)) {
-          final dynamic fieldValue = data[NamaKolom.updatedAt];
+        if (data.containsKey(NamaKolom.diperbaruiPada)) {
+          final dynamic fieldValue = data[NamaKolom.diperbaruiPada];
 
           if (fieldValue is! Timestamp) {
             Log.error(
-                'Inkompatibilitas Tipe: Field "${NamaKolom.updatedAt}" bukan Timestamp.');
+                'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.');
             return;
           }
 
@@ -162,7 +162,7 @@ class DownloadDataService {
           }
         } else {
           Log.warning(
-              'Dokumen pengaturan tidak memiliki field "${NamaKolom.updatedAt}".');
+              'Dokumen pengaturan tidak memiliki field "${NamaKolom.diperbaruiPada}".');
         }
       } else {
         Log.warning('Dokumen pengaturan tidak ditemukan di server.');
@@ -318,7 +318,7 @@ class DownloadDataService {
       // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
       final snapshot = await _firestore
           .collection(collectionName)
-          .where(NamaKolom.updatedAt, isGreaterThan: lastDownloadTime)
+          .where(NamaKolom.diperbaruiPada, isGreaterThan: lastDownloadTime)
           .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isNotEmpty) {

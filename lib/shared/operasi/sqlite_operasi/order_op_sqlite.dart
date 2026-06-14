@@ -30,7 +30,7 @@ class OrderOpsqlite {
     try {
       final db = await sqliteDb.database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
+        'SELECT COUNT(*) FROM $_tableName WHERE ${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
         [status.name],
       );
       final count = result.first.values.first as int? ?? 0;
@@ -72,7 +72,7 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        orderBy: '${NamaKolom.date} DESC',
+        orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan.');
       return maps.map(OrderModel.fromSqlite).toList();
@@ -88,8 +88,8 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.isDeleted} = 0',
-        orderBy: '${NamaKolom.date} DESC',
+        where: '${NamaKolom.diHapus} = 0',
+        orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info('Berhasil mengambil ${maps.length} data pesanan aktif.');
       yield maps.map(OrderModel.fromSqlite).toList();
@@ -107,9 +107,9 @@ class OrderOpsqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
-        where: '${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
+        where: '${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
         whereArgs: [status.name],
-        orderBy: '${NamaKolom.date} DESC',
+        orderBy: '${NamaKolom.tanggal} DESC',
       );
       Log.info(
           'Berhasil mengambil ${maps.length} data pesanan aktif berstatus ${status.name}.');
@@ -253,7 +253,7 @@ class OrderOpsqlite {
       final List<Map<String, dynamic>> maps = await db.query(
         _tableName,
         where:
-            '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.isDeleted} = 0',
+            '${NamaKolom.id} IN (${List.filled(ids.length, '?').join(',')}) AND ${NamaKolom.diHapus} = 0',
         whereArgs: ids,
       );
       Log.info(

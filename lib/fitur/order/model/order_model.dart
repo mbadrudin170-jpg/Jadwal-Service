@@ -56,26 +56,27 @@ abstract class OrderModel with _$OrderModel implements HasId {
     Log.info('Creating OrderModel from SQLite: ${map[NamaKolom.id]}');
     return OrderModel(
       id: map[NamaKolom.id] as String? ?? '',
-      customerId: map[NamaKolom.customerId] as String? ?? '',
-      packageId: map[NamaKolom.packageId] as String? ?? '',
-      date: ParserUtil.parseDateTime(map[NamaKolom.date]) ?? DateTime.now(),
+      customerId: map[NamaKolom.idPelanggan] as String? ?? '',
+      packageId: map[NamaKolom.idPaket] as String? ?? '',
+      date: ParserUtil.parseDateTime(map[NamaKolom.tanggal]) ?? DateTime.now(),
       status: _parseStatus(map[NamaKolom.status]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.customerId: customerId,
-      NamaKolom.packageId: packageId,
-      NamaKolom.date: date.millisecondsSinceEpoch,
+      NamaKolom.idPelanggan: customerId,
+      NamaKolom.idPaket: packageId,
+      NamaKolom.tanggal: date.millisecondsSinceEpoch,
       NamaKolom.status: status.name,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -87,27 +88,27 @@ abstract class OrderModel with _$OrderModel implements HasId {
     // Alternatif: buat dariJson manual seperti di bawah.
     return OrderModel(
       id: id,
-      customerId: data[NamaKolom.customerId] as String? ?? '',
-      packageId: data[NamaKolom.packageId] as String? ?? '',
-      date: (data[NamaKolom.date] as Timestamp?)?.toDate() ?? DateTime.now(),
+      customerId: data[NamaKolom.idPelanggan] as String? ?? '',
+      packageId: data[NamaKolom.idPaket] as String? ?? '',
+      date: (data[NamaKolom.tanggal] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: _parseStatus(data[NamaKolom.status]),
-      updatedAt: (data[NamaKolom.updatedAt] as Timestamp?)?.toDate(),
-      isDeleted: data[NamaKolom.isDeleted] as bool? ?? false,
-      archivedAt: (data[NamaKolom.archivedAt] as Timestamp?)?.toDate(),
+      updatedAt: (data[NamaKolom.diperbaruiPada] as Timestamp?)?.toDate(),
+      isDeleted: data[NamaKolom.diHapus] as bool? ?? false,
+      archivedAt: (data[NamaKolom.diarsipkanPada] as Timestamp?)?.toDate(),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.customerId: customerId,
-      NamaKolom.packageId: packageId,
-      NamaKolom.date: Timestamp.fromDate(date.toUtc()),
+      NamaKolom.idPelanggan: customerId,
+      NamaKolom.idPaket: packageId,
+      NamaKolom.tanggal: Timestamp.fromDate(date.toUtc()),
       NamaKolom.status: status.name,
-      NamaKolom.updatedAt:
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.isDeleted: isDeleted,
-      NamaKolom.archivedAt:
+      NamaKolom.diHapus: isDeleted,
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

@@ -33,15 +33,15 @@ class SettingsOpFirebase {
       }
       Log.warning('Dokumen pengaturan tidak ditemukan, pakai default.');
       return {
-        NamaKolom.maintenanceMode: false,
-        NamaKolom.maintenanceInfo:
+        NamaKolom.modeMaintenance: false,
+        NamaKolom.infoMaintenance:
             'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.',
       };
     } on Exception catch (e, s) {
       Log.error('Error mengambil pengaturan.', e: e, s: s);
       return {
-        NamaKolom.maintenanceMode: false,
-        NamaKolom.maintenanceInfo:
+        NamaKolom.modeMaintenance: false,
+        NamaKolom.infoMaintenance:
             'Gagal memuat pengaturan. Menggunakan default.',
       };
     }

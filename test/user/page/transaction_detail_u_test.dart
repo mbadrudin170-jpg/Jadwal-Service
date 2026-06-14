@@ -25,8 +25,8 @@ void main() {
 
   final package = PaketModel(
     id: '1',
-    name: 'Test Package',
-    price: 100000,
+    nama: 'Test Package',
+    harga: 100000,
   );
 
   Widget createWidgetUnderTest() {

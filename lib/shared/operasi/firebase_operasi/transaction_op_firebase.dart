@@ -48,10 +48,10 @@ class TransactionOpFirebase extends BaseOpFirebase {
       Log.info(
           'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
       final querySnapshot = await _collection
-          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
-          .where(NamaKolom.paymentStatus, isEqualTo: PaymentStatus.paid.name)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
-          .orderBy(NamaKolom.endDate, descending: true)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
+          .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.diHapus, isEqualTo: false)
+          .orderBy(NamaKolom.tangglberakhir, descending: true)
           .limit(1)
           .get();
 
@@ -82,9 +82,9 @@ class TransactionOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Mengambil semua transaksi untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
-          .orderBy(NamaKolom.date, descending: true)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
+          .where(NamaKolom.diHapus, isEqualTo: false)
+          .orderBy(NamaKolom.tanggal, descending: true)
           .get();
 
       Log.info('Menemukan ${querySnapshot.docs.length} transaksi.');
@@ -103,16 +103,16 @@ class TransactionOpFirebase extends BaseOpFirebase {
     try {
       Log.info('Menghitung total poin untuk: $idPelanggan');
       final querySnapshot = await _collection
-          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
-          .where(NamaKolom.paymentStatus, isEqualTo: PaymentStatus.paid.name)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
+          .where(NamaKolom.diHapus, isEqualTo: false)
+          .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
           .get();
 
       int totalPoin = 0;
       for (final doc in querySnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
-        totalPoin += (data[NamaKolom.earnedPoints] as int? ?? 0);
-        totalPoin -= (data[NamaKolom.usedPoints] as int? ?? 0);
+        totalPoin += (data[NamaKolom.poinDidapat] as int? ?? 0);
+        totalPoin -= (data[NamaKolom.poinDigunakan] as int? ?? 0);
       }
       Log.info('Total poin untuk $idPelanggan adalah $totalPoin');
       return totalPoin;
@@ -161,11 +161,11 @@ class TransactionOpFirebase extends BaseOpFirebase {
 
       final querySnapshot = await _collection
           // 1. Cari transaksi milik pelanggan yang benar
-          .where(NamaKolom.customerId, isEqualTo: idPelanggan)
+          .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           // 2. Pastikan transaksi tidak dihapus
-          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.diHapus, isEqualTo: false)
           // 3. Filter utama: endDate harus lebih besar dari waktu sekarang
-          .where(NamaKolom.endDate, isGreaterThan: now)
+          .where(NamaKolom.tangglberakhir, isGreaterThan: now)
           .get();
 
       // Jika tidak ada dokumen yang cocok, kembalikan list kosong

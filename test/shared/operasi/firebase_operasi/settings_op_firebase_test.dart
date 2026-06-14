@@ -22,8 +22,8 @@ void main() {
         () async {
       // Persiapan
       final settingsData = {
-        NamaKolom.maintenanceMode: true,
-        NamaKolom.maintenanceInfo: 'Sedang maintenance!',
+        NamaKolom.modeMaintenance: true,
+        NamaKolom.infoMaintenance: 'Sedang maintenance!',
       };
       await fakeFirestore
           .collection(NamaTabel.get(TableName.settings))
@@ -35,8 +35,8 @@ void main() {
 
       // Verifikasi
       expect(result, isNotNull);
-      expect(result[NamaKolom.maintenanceMode], isTrue);
-      expect(result[NamaKolom.maintenanceInfo], 'Sedang maintenance!');
+      expect(result[NamaKolom.modeMaintenance], isTrue);
+      expect(result[NamaKolom.infoMaintenance], 'Sedang maintenance!');
     });
 
     test(
@@ -47,8 +47,8 @@ void main() {
 
       // Verifikasi
       expect(result, isNotNull);
-      expect(result[NamaKolom.maintenanceMode], isFalse);
-      expect(result[NamaKolom.maintenanceInfo],
+      expect(result[NamaKolom.modeMaintenance], isFalse);
+      expect(result[NamaKolom.infoMaintenance],
           'Aplikasi sedang dalam pemeliharaan. Silakan coba lagi nanti.');
     });
   });

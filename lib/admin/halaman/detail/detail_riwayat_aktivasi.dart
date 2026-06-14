@@ -94,13 +94,13 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                             ),
                           ),
                   children: [
-                    _buildRow('Nama Paket', package?.name ?? 'Tidak Diketahui'),
+                    _buildRow('Nama Paket', package?.nama ?? 'Tidak Diketahui'),
                     _buildRow(
                         'Harga',
                         FormatUang.formatMataUang(
-                            (package?.price ?? 0).toDouble())),
+                            (package?.harga ?? 0).toDouble())),
                     _buildRow('Durasi',
-                        '${package?.duration ?? 0} ${package?.type.displayName ?? ""}'),
+                        '${package?.durasi ?? 0} ${package?.tipe.displayName ?? ""}'),
                   ],
                 ),
                 gapH16,

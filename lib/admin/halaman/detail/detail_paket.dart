@@ -30,11 +30,11 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     super.initState();
     Log.info('Membuka halaman detail paket.');
     _paket = widget.paket;
-    Log.info('Data paket berhasil dimuat: ${_paket.name}, ID: ${_paket.id}.');
+    Log.info('Data paket berhasil dimuat: ${_paket.nama}, ID: ${_paket.id}.');
   }
 
   Future<void> _navigasiKeEdit() async {
-    Log.info('Navigasi ke form edit paket: ${_paket.name}.');
+    Log.info('Navigasi ke form edit paket: ${_paket.nama}.');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -54,7 +54,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_paket.name),
+        title: Text(_paket.nama),
         actions: [
           IconButton(
             onPressed: _navigasiKeEdit,
@@ -88,10 +88,10 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                   ],
                 ),
                 gapH20,
-                _buildDetailRow('Nama Paket', _paket.name),
-                _buildDetailRow('Harga Sewa', 'Rp ${_paket.price}'),
+                _buildDetailRow('Nama Paket', _paket.nama),
+                _buildDetailRow('Harga Sewa', 'Rp ${_paket.harga}'),
                 _buildDetailRow('Masa Aktif',
-                    '${_paket.duration} ${_paket.type.displayName}'),
+                    '${_paket.durasi} ${_paket.tipe.displayName}'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Divider(thickness: 1),
@@ -109,10 +109,10 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                   ],
                 ),
                 gapH12,
-                _buildDetailRow('Poin Hadiah', '${_paket.rewardPoints} Poin',
+                _buildDetailRow('Poin Hadiah', '${_paket.poinHadiah} Poin',
                     subTitle: 'Didapat saat beli paket'),
                 _buildDetailRow(
-                    'Poin Penukaran', '${_paket.redemptionPoints} Poin',
+                    'Poin Penukaran', '${_paket.poinPenukaran} Poin',
                     subTitle: 'Syarat tukar gratis'),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -120,8 +120,9 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                 ),
                 _buildDetailRow(
                   'Status Publik',
-                  _paket.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor: _paket.isPublic ? Colors.green : Colors.red,
+                  _paket.statusPublik ? 'Tersedia di Aplikasi' : 'Hanya Admin',
+                  customValueColor:
+                      _paket.statusPublik ? Colors.green : Colors.red,
                 ),
               ],
             ),

@@ -31,7 +31,7 @@ class FeedbackOpFirebase {
 
     // 1. Ambil data dasar dari model
     final data = feedback.toFirebase();
-    data[NamaKolom.date] = FieldValue.serverTimestamp();
+    data[NamaKolom.tanggal] = FieldValue.serverTimestamp();
     await _baseOp.tambah(_collectionName, data);
   }
 
@@ -39,7 +39,7 @@ class FeedbackOpFirebase {
   Future<void> update(String docId, String newContent) async {
     Log.info('Mendelegasikan pembaruan feedback: $docId');
     await _baseOp.update(_collectionName, docId, {
-      NamaKolom.content: newContent,
+      NamaKolom.isi: newContent,
     });
   }
 
@@ -64,8 +64,8 @@ class FeedbackOpFirebase {
     Log.info('Memuat feedback untuk userId: $userId');
     return _collection
         .where(NamaKolom.userId, isEqualTo: userId)
-        .where(NamaKolom.isDeleted, isEqualTo: false)
-        .orderBy(NamaKolom.date, descending: true)
+        .where(NamaKolom.diHapus, isEqualTo: false)
+        .orderBy(NamaKolom.tanggal, descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {

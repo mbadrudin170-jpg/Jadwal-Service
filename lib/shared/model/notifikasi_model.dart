@@ -94,24 +94,24 @@ class NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from SQLite: ${map[NamaKolom.id]}');
     return NotifikasiModel(
       id: map[NamaKolom.id] as String?,
-      startDate:
-          ParserUtil.parseDateTime(map[NamaKolom.startDate]) ?? DateTime.now(),
-      endDate:
-          ParserUtil.parseDateTime(map[NamaKolom.endDate]) ?? DateTime.now(),
-      title: map[NamaKolom.title] as String? ?? '',
-      description: map[NamaKolom.description] as String? ?? '',
-      isRead: ParserUtil.parseBool(map[NamaKolom.isRead]),
+      startDate: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      endDate: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
+          DateTime.now(),
+      title: map[NamaKolom.judul] as String? ?? '',
+      description: map[NamaKolom.deskripsi] as String? ?? '',
+      isRead: ParserUtil.parseBool(map[NamaKolom.setatusDibaca]),
       type: _safeParseEnum(
             TipeNotifikasiEnum.values,
-            map[NamaKolom.type],
+            map[NamaKolom.tipe],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt:
-          ParserUtil.parseDateTime(map[NamaKolom.updatedAt]) ?? DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]) ??
+          DateTime.now(),
       idTujuan: map[NamaKolom.idTujuan] as String? ?? '',
       userId: map[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
       tanggalTampil: ParserUtil.parseDateTime(map[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
     );
@@ -120,17 +120,17 @@ class NotifikasiModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.startDate: startDate.millisecondsSinceEpoch,
-      NamaKolom.endDate: endDate.millisecondsSinceEpoch,
-      NamaKolom.title: title,
-      NamaKolom.description: description,
-      NamaKolom.isRead: isRead ? 1 : 0,
-      NamaKolom.type: type.name,
-      NamaKolom.updatedAt: updatedAt.millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: startDate.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: endDate.millisecondsSinceEpoch,
+      NamaKolom.judul: title,
+      NamaKolom.deskripsi: description,
+      NamaKolom.setatusDibaca: isRead ? 1 : 0,
+      NamaKolom.tipe: type.name,
+      NamaKolom.diperbaruiPada: updatedAt.millisecondsSinceEpoch,
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
       NamaKolom.tanggalTampil: tanggalTampil.millisecondsSinceEpoch,
     };
   }
@@ -140,44 +140,44 @@ class NotifikasiModel implements HasId {
     Log.info('Creating NotifikasiModel from Firebase: $id');
     return NotifikasiModel(
       id: id,
-      startDate:
-          ParserUtil.parseDateTime(data[NamaKolom.startDate]) ?? DateTime.now(),
-      endDate:
-          ParserUtil.parseDateTime(data[NamaKolom.endDate]) ?? DateTime.now(),
+      startDate: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      endDate: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
+          DateTime.now(),
       tanggalTampil: ParserUtil.parseDateTime(data[NamaKolom.tanggalTampil]) ??
           DateTime.now(),
-      title: data[NamaKolom.title] as String? ?? '',
-      description: data[NamaKolom.description] as String? ?? '',
-      isRead: ParserUtil.parseBool(data[NamaKolom.isRead]),
+      title: data[NamaKolom.judul] as String? ?? '',
+      description: data[NamaKolom.deskripsi] as String? ?? '',
+      isRead: ParserUtil.parseBool(data[NamaKolom.setatusDibaca]),
       type: _safeParseEnum(
             TipeNotifikasiEnum.values,
-            data[NamaKolom.type],
+            data[NamaKolom.tipe],
           ) ??
           TipeNotifikasiEnum.transaksi,
-      updatedAt:
-          ParserUtil.parseDateTime(data[NamaKolom.updatedAt]) ?? DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]) ??
+          DateTime.now(),
       idTujuan: data[NamaKolom.idTujuan] as String? ?? '',
       userId: data[NamaKolom.userId] as String? ?? '',
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.startDate: Timestamp.fromDate(startDate.toUtc()),
-      NamaKolom.endDate: Timestamp.fromDate(endDate.toUtc()),
-      NamaKolom.title: title,
-      NamaKolom.description: description,
-      NamaKolom.isRead: isRead,
-      NamaKolom.type: type.name,
-      NamaKolom.updatedAt: Timestamp.fromDate(updatedAt.toUtc()),
+      NamaKolom.tanggalMulai: Timestamp.fromDate(startDate.toUtc()),
+      NamaKolom.tangglberakhir: Timestamp.fromDate(endDate.toUtc()),
+      NamaKolom.judul: title,
+      NamaKolom.deskripsi: description,
+      NamaKolom.setatusDibaca: isRead,
+      NamaKolom.tipe: type.name,
+      NamaKolom.diperbaruiPada: Timestamp.fromDate(updatedAt.toUtc()),
       NamaKolom.idTujuan: idTujuan,
       NamaKolom.userId: userId,
-      NamaKolom.isDeleted: isDeleted,
+      NamaKolom.diHapus: isDeleted,
       NamaKolom.tanggalTampil: Timestamp.fromDate(tanggalTampil.toUtc()),
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

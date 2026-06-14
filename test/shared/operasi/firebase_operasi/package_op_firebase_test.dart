@@ -22,38 +22,38 @@ void main() {
   // Data model paket untuk digunakan dalam tes
   final p1 = PaketModel(
     id: 'pkg-001',
-    name: 'Paket Internet Super Cepat',
-    redemptionPoints: 100,
-    duration: 30,
-    price: 100000,
-    type: DurationType.days,
+    nama: 'Paket Internet Super Cepat',
+    poinPenukaran: 100,
+    durasi: 30,
+    harga: 100000,
+    tipe: DurationType.days,
   );
 
   final p2 = PaketModel(
     id: 'pkg-002',
-    name: 'Paket Hemat',
-    isPublic: false, // Bukan paket publik
-    redemptionPoints: 50,
-    duration: 7,
-    price: 25000,
-    type: DurationType.days,
+    nama: 'Paket Hemat',
+    statusPublik: false, // Bukan paket publik
+    poinPenukaran: 50,
+    durasi: 7,
+    harga: 25000,
+    tipe: DurationType.days,
   );
 
   final p3 = PaketModel(
     id: 'pkg-003',
-    name: 'Paket Bonus',
-    duration: 1,
-    price: 0,
-    type: DurationType.days,
+    nama: 'Paket Bonus',
+    durasi: 1,
+    harga: 0,
+    tipe: DurationType.days,
   );
   final p4 = PaketModel(
     id: 'pkg-004',
-    name: 'Paket Dihapus',
-    isDeleted: true, // Sudah dihapus
-    redemptionPoints: 120,
-    duration: 30,
-    price: 120000,
-    type: DurationType.days,
+    nama: 'Paket Dihapus',
+    statusHapus: true, // Sudah dihapus
+    poinPenukaran: 120,
+    durasi: 30,
+    harga: 120000,
+    tipe: DurationType.days,
   );
 
   // Helper untuk menambahkan data ke fake firestore
@@ -96,7 +96,7 @@ void main() {
 
       expect(package, isNotNull);
       expect(package!.id, p1.id);
-      expect(package.name, p1.name);
+      expect(package.name, p1.nama);
     });
 
     test('3.4. harus mengembalikan null jika ID paket tidak ditemukan',
@@ -121,8 +121,8 @@ void main() {
       final snapshot =
           await fakeFirestore.collection(packageCollection).doc(p1.id).get();
       expect(snapshot.exists, isTrue);
-      expect(snapshot.data()![NamaKolom.isDeleted], isTrue);
-      expect(snapshot.data()![NamaKolom.archivedAt], isNotNull);
+      expect(snapshot.data()![NamaKolom.diHapus], isTrue);
+      expect(snapshot.data()![NamaKolom.diarsipkanPada], isNotNull);
     });
   });
 }

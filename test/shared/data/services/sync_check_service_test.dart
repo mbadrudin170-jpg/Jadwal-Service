@@ -80,7 +80,7 @@ void main() {
           .doc(globalStatusId)
           .get();
       expect(statusDoc.exists, isTrue);
-      expect(statusDoc.data(), contains(NamaKolom.updatedAt));
+      expect(statusDoc.data(), contains(NamaKolom.diperbaruiPada));
 
       // Pastikan proses unduh terpicu
       verify(mockNewDataCheck.apakahFirebaseAdaDataBaru(

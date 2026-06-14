@@ -130,7 +130,7 @@ void main() {
 
       expect(result, 5);
       verify(mockDatabase.rawQuery(
-        'SELECT COUNT(*) FROM customerOrder WHERE ${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
+        'SELECT COUNT(*) FROM customerOrder WHERE ${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
         [status.name],
       )).called(1);
     });
@@ -176,7 +176,7 @@ void main() {
       expect(result.first.id, tOrder.id);
       verify(mockDatabase.query(
         tableName,
-        where: '${NamaKolom.status} = ? AND ${NamaKolom.isDeleted} = 0',
+        where: '${NamaKolom.status} = ? AND ${NamaKolom.diHapus} = 0',
         whereArgs: [status.name],
         orderBy: anyNamed('orderBy'),
       )).called(1);
@@ -197,7 +197,7 @@ void main() {
       final ids = ['1', '2'];
       final questionMarks = List.filled(ids.length, '?').join(',');
       final expectedWhere =
-          '${NamaKolom.id} IN ($questionMarks) AND ${NamaKolom.isDeleted} = 0';
+          '${NamaKolom.id} IN ($questionMarks) AND ${NamaKolom.diHapus} = 0';
 
       when(mockDatabase.query(
         any,

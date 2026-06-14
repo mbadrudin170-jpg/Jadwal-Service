@@ -241,9 +241,9 @@ class BaseOpSqlite {
           final rowsAffected = await txn.update(
             table,
             {
-              NamaKolom.isDeleted: 1,
-              NamaKolom.archivedAt: now.millisecondsSinceEpoch,
-              NamaKolom.updatedAt: now.millisecondsSinceEpoch,
+              NamaKolom.diHapus: 1,
+              NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
+              NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
             },
             where: '${NamaKolom.id} = ?',
             whereArgs: [id],
@@ -287,11 +287,11 @@ class BaseOpSqlite {
           final rowsAffected = await txn.update(
             table,
             {
-              NamaKolom.isDeleted: 1,
-              NamaKolom.archivedAt: now.millisecondsSinceEpoch,
-              NamaKolom.updatedAt: now.millisecondsSinceEpoch,
+              NamaKolom.diHapus: 1,
+              NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
+              NamaKolom.diperbaruiPada: now.millisecondsSinceEpoch,
             },
-            where: '${NamaKolom.isDeleted} = 0',
+            where: '${NamaKolom.diHapus} = 0',
           );
 
           Log.info(

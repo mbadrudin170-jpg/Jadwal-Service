@@ -40,9 +40,9 @@ void main() {
 
       // Verifikasi bahwa dokumen ada dan berisi field 'updatedAt'.
       expect(doc.exists, isTrue);
-      expect(doc.data()?.containsKey(NamaKolom.updatedAt), isTrue,
+      expect(doc.data()?.containsKey(NamaKolom.diperbaruiPada), isTrue,
           reason: 'Field updatedAt seharusnya ada setelah pembaruan');
-      expect(doc.data()?[NamaKolom.updatedAt], isNotNull,
+      expect(doc.data()?[NamaKolom.diperbaruiPada], isNotNull,
           reason: 'Nilai updatedAt tidak boleh null');
     });
   });

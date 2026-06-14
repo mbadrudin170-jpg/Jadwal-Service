@@ -58,7 +58,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
         if (model is KategoriModel) name = model.name;
         if (model is SubCategoryModel) name = model.name;
         if (model is PelangganModel) name = model.name;
-        if (model is PaketModel) name = model.name;
+        if (model is PaketModel) name = model.nama;
         return name ?? 'Nama tidak tersedia';
       }
       return 'Data tidak ditemukan';

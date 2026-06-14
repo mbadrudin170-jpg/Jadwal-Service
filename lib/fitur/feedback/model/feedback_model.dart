@@ -71,13 +71,13 @@ class FeedbackModel implements HasId {
     Log.info('Creating FeedbackModel from SQLite: ${map[NamaKolom.id]}');
     return FeedbackModel(
       id: map[NamaKolom.id] as String?,
-      content: map[NamaKolom.content] as String? ?? '',
+      content: map[NamaKolom.isi] as String? ?? '',
       userId: map[NamaKolom.userId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      date: ParserUtil.parseDateTime(map[NamaKolom.date]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.archivedAt]),
+      date: ParserUtil.parseDateTime(map[NamaKolom.tanggal]),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -85,12 +85,13 @@ class FeedbackModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.content: content,
+      NamaKolom.isi: content,
       NamaKolom.userId: userId,
-      NamaKolom.date: (date ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.isDeleted: isDeleted ? 1 : 0,
-      NamaKolom.archivedAt: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.tanggal: (date ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
     };
   }
 
@@ -100,13 +101,13 @@ class FeedbackModel implements HasId {
     Log.info('Creating FeedbackModel from Firebase: $id');
     return FeedbackModel(
       id: id,
-      content: data[NamaKolom.content] as String? ?? '',
+      content: data[NamaKolom.isi] as String? ?? '',
       userId: data[NamaKolom.userId] as String? ?? '',
       // DIUBAH: Menggunakan ParserUtil
-      date: ParserUtil.parseDateTime(data[NamaKolom.date]),
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.isDeleted]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.archivedAt]),
+      date: ParserUtil.parseDateTime(data[NamaKolom.tanggal]),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -114,15 +115,15 @@ class FeedbackModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.content: content,
+      NamaKolom.isi: content,
       NamaKolom.userId: userId,
-      NamaKolom.date: date != null
+      NamaKolom.tanggal: date != null
           ? Timestamp.fromDate(date!.toUtc())
           : DateTime.now().toUtc(),
-      NamaKolom.isDeleted: isDeleted,
-      NamaKolom.updatedAt:
+      NamaKolom.diHapus: isDeleted,
+      NamaKolom.diperbaruiPada:
           Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.archivedAt:
+      NamaKolom.diarsipkanPada:
           archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
     };
   }

@@ -12,7 +12,8 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 
-class MockPelangganAktifOpSqlite extends Mock implements PelangganAktifOpSqlite {}
+class MockPelangganAktifOpSqlite extends Mock
+    implements PelangganAktifOpSqlite {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -65,12 +66,12 @@ void main() {
 
   final package1 = PaketModel(
     id: 'pkg1',
-    name: 'Paket 1',
-    price: 100000,
-    duration: 30,
+    nama: 'Paket 1',
+    harga: 100000,
+    durasi: 30,
     durationType: DurationType.days,
-    isPublic: true,
-    rewardPoints: 0,
+    statusPublik: true,
+    poinHadiah: 0,
   );
 
   final activeCust1 = DetailPelangganAktifModel(
@@ -83,7 +84,7 @@ void main() {
       status: PaymentStatus.unpaid,
     ),
     customerName: customer1.name,
-    packageName: package1.name,
+    packageName: package1.nama,
   );
 
   final activeCust2 = DetailPelangganAktifModel(
@@ -96,7 +97,7 @@ void main() {
       status: PaymentStatus.paid,
     ),
     customerName: customer2.name,
-    packageName: package1.name,
+    packageName: package1.nama,
   );
 
   final activeCust3 = DetailPelangganAktifModel(
@@ -109,7 +110,7 @@ void main() {
       status: PaymentStatus.paid,
     ),
     customerName: customer3.name,
-    packageName: package1.name,
+    packageName: package1.nama,
   );
 
   final mockList = [activeCust1, activeCust2, activeCust3];
@@ -205,9 +206,7 @@ void main() {
             .setSortBy(SortOption.lunas);
         final state = container.read(pelangganAktifProvider).value!;
         expect(
-            state.activeCustomers
-                .map((e) => e.pelangganAktif.status)
-                .toList(),
+            state.activeCustomers.map((e) => e.pelangganAktif.status).toList(),
             [PaymentStatus.paid, PaymentStatus.paid, PaymentStatus.unpaid]);
       });
 
@@ -217,9 +216,7 @@ void main() {
             .setSortBy(SortOption.belumLunas);
         final state = container.read(pelangganAktifProvider).value!;
         expect(
-            state.activeCustomers
-                .map((e) => e.pelangganAktif.status)
-                .toList(),
+            state.activeCustomers.map((e) => e.pelangganAktif.status).toList(),
             [PaymentStatus.unpaid, PaymentStatus.paid, PaymentStatus.paid]);
       });
 

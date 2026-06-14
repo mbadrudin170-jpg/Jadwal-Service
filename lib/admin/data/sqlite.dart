@@ -138,7 +138,7 @@ class SqliteDatabase {
 
     if (oldVersion < 51) {
       Log.info(
-        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.lastActiveAt}` ke tabel `${NamaTabel.customer}`.',
+        '[MIGRASI v51] Menambahkan kolom `${NamaKolom.terkahirAktif}` ke tabel `${NamaTabel.customer}`.',
       );
       await _migrateToV51(db);
     }
@@ -165,12 +165,12 @@ class SqliteDatabase {
   }
 
   Future<void> _migrateToV51(final Database db) async {
-    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.lastActiveAt}...');
+    Log.info('[MIGRASI v51] Menambahkan kolom ${NamaKolom.terkahirAktif}...');
     await db.execute(
-      'ALTER TABLE ${NamaTabel.customer} ADD COLUMN ${NamaKolom.lastActiveAt} INTEGER',
+      'ALTER TABLE ${NamaTabel.customer} ADD COLUMN ${NamaKolom.terkahirAktif} INTEGER',
     );
     Log.info(
-        '[MIGRASI v51] Penambahan kolom ${NamaKolom.lastActiveAt} selesai.');
+        '[MIGRASI v51] Penambahan kolom ${NamaKolom.terkahirAktif} selesai.');
   }
 
   Future<void> _migrateToV52(final Database db) async {
@@ -475,13 +475,13 @@ class SqliteDatabase {
     // diperbaiki: Index ditargetkan menggunakan escaping keyword "transaction" otomatis dari TableNameValue
     const String trxTable = '"${NamaTabel.transactions}"';
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.walletId})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_wallet_id ON $trxTable(${NamaKolom.idDompet})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${NamaKolom.destinationWalletId})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_destination_wallet_id ON $trxTable(${NamaKolom.idDompetTujuan})',
     );
     batch.execute(
-      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.isDeleted})',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_is_deleted ON $trxTable(${NamaKolom.diHapus})',
     );
     Log.info('Semua 3 definisi index (v51) ditambahkan ke batch.');
   }
@@ -510,55 +510,55 @@ class SqliteDatabase {
   static const String _tabelWallet = '''
     CREATE TABLE ${NamaTabel.wallet}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.name} TEXT NOT NULL,
-      ${NamaKolom.balance} REAL NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER
+      ${NamaKolom.nama} TEXT NOT NULL,
+      ${NamaKolom.saldo} REAL NOT NULL,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';
 
   static const String _tabelTransaction = '''
     CREATE TABLE "${NamaTabel.transactions}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.description} TEXT NOT NULL,
-      ${NamaKolom.amount} REAL NOT NULL,
-      ${NamaKolom.date} INTEGER NOT NULL,
-      ${NamaKolom.type} TEXT NOT NULL,
-      ${NamaKolom.walletId} TEXT,
-      ${NamaKolom.categoryId} TEXT,
-      ${NamaKolom.subCategoryId} TEXT,
-      ${NamaKolom.customerId} TEXT,
-      ${NamaKolom.packageId} TEXT,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.archivedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.destinationWalletId} TEXT,
-      ${NamaKolom.earnedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.usedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.paymentStatus} TEXT,
-      ${NamaKolom.packageDuration} INTEGER,
-      ${NamaKolom.durationType} TEXT,
+      ${NamaKolom.deskripsi} TEXT NOT NULL,
+      ${NamaKolom.jumlah} REAL NOT NULL,
+      ${NamaKolom.tanggal} INTEGER NOT NULL,
+      ${NamaKolom.tipe} TEXT NOT NULL,
+      ${NamaKolom.idDompet} TEXT,
+      ${NamaKolom.idKategori} TEXT,
+      ${NamaKolom.idSubKategori} TEXT,
+      ${NamaKolom.idPelanggan} TEXT,
+      ${NamaKolom.idPaket} TEXT,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.idDompetTujuan} TEXT,
+      ${NamaKolom.poinDidapat} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.poinDigunakan} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.statusPembayaran} TEXT,
+      ${NamaKolom.durasiPaket} INTEGER,
+      ${NamaKolom.tipeDurasiPaket} TEXT,
       ${NamaKolom.durasiBonus} INTEGER,
       ${NamaKolom.durasiBonusType} TEXT,
-      ${NamaKolom.startDate} INTEGER,
-      ${NamaKolom.endDate} INTEGER,
-      ${NamaKolom.isActivated} INTEGER DEFAULT 0
+      ${NamaKolom.tanggalMulai} INTEGER,
+      ${NamaKolom.tangglberakhir} INTEGER,
+      ${NamaKolom.statusAktivasi} INTEGER DEFAULT 0
     )
   ''';
 
   static const String _tabelUserApkVersion = '''
     CREATE TABLE ${NamaTabel.userApkVersion}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.releaseNotes} TEXT NOT NULL,
-      ${NamaKolom.latestBuildNumber} TEXT NOT NULL,
-      ${NamaKolom.downloadLinks} TEXT NOT NULL,
-      ${NamaKolom.latestVersion} TEXT NOT NULL,
-      ${NamaKolom.isUpdateRequired} INTEGER NOT NULL,
-      ${NamaKolom.youtubeTutorial} TEXT NOT NULL,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
-      ${NamaKolom.updatedAt} INTEGER
+      ${NamaKolom.catatanRilis} TEXT NOT NULL,
+      ${NamaKolom.nomorBuildTerakhir} TEXT NOT NULL,
+      ${NamaKolom.linkDownload} TEXT NOT NULL,
+      ${NamaKolom.versiTerkahir} TEXT NOT NULL,
+      ${NamaKolom.wajibUpdate} INTEGER NOT NULL,
+      ${NamaKolom.linkYoutubeTutorial} TEXT NOT NULL,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      ${NamaKolom.diperbaruiPada} INTEGER
     )
   ''';
 
@@ -566,15 +566,15 @@ class SqliteDatabase {
     CREATE TABLE ${NamaTabel.uploadStatus}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
       ${NamaKolom.value} TEXT NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER
+      ${NamaKolom.diperbaruiPada} INTEGER
     )
   ''';
 
   static const String _tabelMessage = '''
     CREATE TABLE ${NamaTabel.message}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.content} TEXT NOT NULL,
-      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL
     )
   ''';
@@ -582,98 +582,98 @@ class SqliteDatabase {
   static const String _tabelSetting = '''
     CREATE TABLE ${NamaTabel.settings}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.autoSyncInterval} INTEGER NOT NULL DEFAULT 24,
-      ${NamaKolom.autoDeleteArchiveDays} INTEGER NOT NULL DEFAULT 30,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.maintenanceMode} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.maintenanceInfo} TEXT
+      ${NamaKolom.waktuOtomatisSinkroniasi} INTEGER NOT NULL DEFAULT 24,
+      ${NamaKolom.waktuOtomatisHapusDataArsip} INTEGER NOT NULL DEFAULT 30,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.modeMaintenance} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.infoMaintenance} TEXT
     )
   ''';
 
   static const String _tabelCategory = '''
     CREATE TABLE ${NamaTabel.category}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.name} TEXT NOT NULL,
-      ${NamaKolom.type} TEXT NOT NULL,
-      ${NamaKolom.subCategoryId} TEXT,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER
+      ${NamaKolom.nama} TEXT NOT NULL,
+      ${NamaKolom.tipe} TEXT NOT NULL,
+      ${NamaKolom.idSubKategori} TEXT,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';
 
   static const String _tabelSubCategory = '''
     CREATE TABLE ${NamaTabel.subCategory}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.name} TEXT NOT NULL,
-      ${NamaKolom.categoryId} TEXT NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.categoryId}) REFERENCES ${NamaTabel.category} (${NamaKolom.id}) ON DELETE CASCADE
+      ${NamaKolom.nama} TEXT NOT NULL,
+      ${NamaKolom.idKategori} TEXT NOT NULL,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      FOREIGN KEY (${NamaKolom.idKategori}) REFERENCES ${NamaTabel.category} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
   static const String _tabelPackage = '''
     CREATE TABLE ${NamaTabel.package}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.name} TEXT NOT NULL,
-      ${NamaKolom.price} INTEGER NOT NULL,
-      ${NamaKolom.duration} INTEGER NOT NULL,
-      ${NamaKolom.type} TEXT NOT NULL,
-      ${NamaKolom.earnedPoints} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
-      ${NamaKolom.rewardPoints} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.redemptionPoints} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.isPublic} INTEGER NOT NULL DEFAULT 1
+      ${NamaKolom.nama} TEXT NOT NULL,
+      ${NamaKolom.harga} INTEGER NOT NULL,
+      ${NamaKolom.durasi} INTEGER NOT NULL,
+      ${NamaKolom.tipe} TEXT NOT NULL,
+      ${NamaKolom.poinDidapat} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      ${NamaKolom.poinHadiah} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.poinPenukaran} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.statusPublik} INTEGER NOT NULL DEFAULT 1
     )
   ''';
 
   static const String _tabelCustomer = '''
     CREATE TABLE ${NamaTabel.customer}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.name} TEXT NOT NULL,
-      ${NamaKolom.phone} TEXT NOT NULL,
-      ${NamaKolom.address} TEXT NOT NULL,
+      ${NamaKolom.nama} TEXT NOT NULL,
+      ${NamaKolom.telepon} TEXT NOT NULL,
+      ${NamaKolom.alamat} TEXT NOT NULL,
       ${NamaKolom.password} TEXT NOT NULL,
       ${NamaKolom.macAddress} TEXT NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL DEFAULT 'aktif',
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.archivedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.lastActiveAt} INTEGER
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.terkahirAktif} INTEGER
     )
   ''';
 
   static const String _tabelActiveCustomer = '''
     CREATE TABLE ${NamaTabel.activeCustomer}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.customerId} TEXT NOT NULL,
-      ${NamaKolom.packageId} TEXT NOT NULL,
-      ${NamaKolom.transactionId} TEXT,
-      ${NamaKolom.startDate} INTEGER,
-      ${NamaKolom.endDate} INTEGER,
+      ${NamaKolom.idPelanggan} TEXT NOT NULL,
+      ${NamaKolom.idPaket} TEXT NOT NULL,
+      ${NamaKolom.idTransaksi} TEXT,
+      ${NamaKolom.tanggalMulai} INTEGER,
+      ${NamaKolom.tangglberakhir} INTEGER,
       ${NamaKolom.status} TEXT NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
-      FOREIGN KEY (${NamaKolom.transactionId}) REFERENCES "${NamaTabel.transactions}" (${NamaKolom.id}) ON DELETE SET NULL
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      FOREIGN KEY (${NamaKolom.idPelanggan}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (${NamaKolom.idTransaksi}) REFERENCES "${NamaTabel.transactions}" (${NamaKolom.id}) ON DELETE SET NULL
     )
   ''';
 
   static const String _tabelFeedback = '''
     CREATE TABLE ${NamaTabel.feedback}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.content} TEXT NOT NULL,
-      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.userId} TEXT NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
       FOREIGN KEY (${NamaKolom.userId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
@@ -681,15 +681,15 @@ class SqliteDatabase {
   static const String _tabelOrder = '''
     CREATE TABLE "${NamaTabel.customerOrder}" (
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.customerId} TEXT NOT NULL,
-      ${NamaKolom.packageId} TEXT NOT NULL,
-      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.idPelanggan} TEXT NOT NULL,
+      ${NamaKolom.idPaket} TEXT NOT NULL,
+      ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER,
-      FOREIGN KEY (${NamaKolom.customerId}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE,
-      FOREIGN KEY (${NamaKolom.packageId}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER,
+      FOREIGN KEY (${NamaKolom.idPelanggan}) REFERENCES ${NamaTabel.customer} (${NamaKolom.id}) ON DELETE CASCADE,
+      FOREIGN KEY (${NamaKolom.idPaket}) REFERENCES ${NamaTabel.package} (${NamaKolom.id}) ON DELETE CASCADE
     )
   ''';
 
@@ -697,12 +697,12 @@ class SqliteDatabase {
   static const String _tabelNotification = '''
     CREATE TABLE ${NamaTabel.notification}(
       ${NamaKolom.id} TEXT PRIMARY KEY,
-      ${NamaKolom.content} TEXT NOT NULL,
-      ${NamaKolom.date} INTEGER NOT NULL,
+      ${NamaKolom.isi} TEXT NOT NULL,
+      ${NamaKolom.tanggal} INTEGER NOT NULL,
       ${NamaKolom.status} TEXT NOT NULL,
-      ${NamaKolom.updatedAt} INTEGER,
-      ${NamaKolom.isDeleted} INTEGER NOT NULL DEFAULT 0,
-      ${NamaKolom.archivedAt} INTEGER
+      ${NamaKolom.diperbaruiPada} INTEGER,
+      ${NamaKolom.diHapus} INTEGER NOT NULL DEFAULT 0,
+      ${NamaKolom.diarsipkanPada} INTEGER
     )
   ''';
   // ============================================================

@@ -17,10 +17,10 @@ void main() {
   final tBestSellingPackage = BestSellingPackage(
     totalTerjual: 10,
     paket: PaketModel(
-      name: 'Paket A',
-      price: 50000,
-      duration: 30,
-      type: DurationType.days,
+      nama: 'Paket A',
+      harga: 50000,
+      durasi: 30,
+      tipe: DurationType.days,
     ),
   );
 

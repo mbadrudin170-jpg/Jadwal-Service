@@ -43,20 +43,20 @@ void main() {
       expect(snapshot.docs.length, 1, reason: 'Harus ada 1 dokumen di koleksi');
 
       final doc = snapshot.docs.first;
-      expect(doc.data()[NamaKolom.content], 'Ini adalah feedback pertama.');
+      expect(doc.data()[NamaKolom.isi], 'Ini adalah feedback pertama.');
       expect(doc.data()[NamaKolom.userId], 'user123');
       // FakeFirestore secara otomatis menangani FieldValue.serverTimestamp()
       // dengan mengisi waktu saat ini, jadi kita hanya perlu memastikan itu tidak null.
-      expect(doc.data()[NamaKolom.date], isNotNull);
-      expect(doc.data()[NamaKolom.updatedAt], isNotNull);
+      expect(doc.data()[NamaKolom.tanggal], isNotNull);
+      expect(doc.data()[NamaKolom.diperbaruiPada], isNotNull);
     });
 
     test('update() harus memperbarui konten dokumen yang ada', () async {
       // Arrange - Buat dokumen awal
       final docRef = await fakeFirestore.collection(collectionName).add({
-        NamaKolom.content: 'Konten lama',
+        NamaKolom.isi: 'Konten lama',
         NamaKolom.userId: 'user456',
-        NamaKolom.date: DateTime(2023),
+        NamaKolom.tanggal: DateTime(2023),
       });
 
       const newContent = 'Konten telah diperbarui.';
@@ -68,10 +68,10 @@ void main() {
       final updatedDoc =
           await fakeFirestore.collection(collectionName).doc(docRef.id).get();
       expect(updatedDoc.exists, isTrue);
-      expect(updatedDoc.data()?[NamaKolom.content], newContent);
+      expect(updatedDoc.data()?[NamaKolom.isi], newContent);
       // Pastikan field lain tidak berubah
       expect(updatedDoc.data()?[NamaKolom.userId], 'user456');
-      expect(updatedDoc.data()?[NamaKolom.updatedAt], isNotNull);
+      expect(updatedDoc.data()?[NamaKolom.diperbaruiPada], isNotNull);
     });
 
     test('delete() harus menghapus dokumen secara permanen', () async {
@@ -96,8 +96,8 @@ void main() {
         () async {
       // Arrange
       final docRef = await fakeFirestore.collection(collectionName).add({
-        NamaKolom.content: 'Akan di-soft-delete',
-        NamaKolom.isDeleted: false,
+        NamaKolom.isi: 'Akan di-soft-delete',
+        NamaKolom.diHapus: false,
       });
 
       // Act
@@ -105,8 +105,8 @@ void main() {
 
       // Assert
       final updatedDoc = await docRef.get();
-      expect(updatedDoc.data()?[NamaKolom.isDeleted], isTrue);
-      expect(updatedDoc.data()?[NamaKolom.archivedAt], isNotNull);
+      expect(updatedDoc.data()?[NamaKolom.diHapus], isTrue);
+      expect(updatedDoc.data()?[NamaKolom.diarsipkanPada], isNotNull);
     });
   });
 }

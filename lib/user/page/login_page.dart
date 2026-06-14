@@ -79,9 +79,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final firestore = ref.read(firestoreProvider);
       final querySnapshot = await firestore
           .collection(NamaTabel.customer)
-          .where(NamaKolom.phone, isEqualTo: phone)
+          .where(NamaKolom.telepon, isEqualTo: phone)
           .where(NamaKolom.password, isEqualTo: password)
-          .where(NamaKolom.isDeleted, isEqualTo: false)
+          .where(NamaKolom.diHapus, isEqualTo: false)
           .limit(1)
           .get();
       if (!mounted) return;

@@ -45,11 +45,11 @@ void main() {
       // --- PERBAIKAN: Menggunakan konstanta ColumnNames ---
       final settingsMap = {
         NamaKolom.id: globalSettingsId,
-        NamaKolom.autoSyncInterval: 48,
-        NamaKolom.autoDeleteArchiveDays: 60,
-        NamaKolom.maintenanceMode: 1,
-        NamaKolom.maintenanceInfo: 'Under construction',
-        NamaKolom.updatedAt: DateTime.now().millisecondsSinceEpoch,
+        NamaKolom.waktuOtomatisSinkroniasi: 48,
+        NamaKolom.waktuOtomatisHapusDataArsip: 60,
+        NamaKolom.modeMaintenance: 1,
+        NamaKolom.infoMaintenance: 'Under construction',
+        NamaKolom.diperbaruiPada: DateTime.now().millisecondsSinceEpoch,
       };
 
       when(mockDatabase.query(
@@ -133,7 +133,7 @@ void main() {
 
       // --- PERBAIKAN: Memeriksa dengan konstanta ColumnNames dan ID yang benar ---
       expect(savedData[NamaKolom.id], globalSettingsId);
-      expect(savedData[NamaKolom.autoSyncInterval], 12);
+      expect(savedData[NamaKolom.waktuOtomatisSinkroniasi], 12);
     });
 
     test('4. harus meneruskan flag fromServer dengan benar', () async {

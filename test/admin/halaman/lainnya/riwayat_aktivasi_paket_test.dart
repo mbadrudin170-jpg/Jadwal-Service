@@ -69,12 +69,12 @@ void main() {
 
   final p1 = PaketModel(
     id: 'p1',
-    name: 'Paket Bulanan',
-    price: 50000,
-    duration: 30,
+    nama: 'Paket Bulanan',
+    harga: 50000,
+    durasi: 30,
     durationType: DurationType.days,
-    isPublic: true,
-    rewardPoints: 10,
+    statusPublik: true,
+    poinHadiah: 10,
   );
 
   Widget buatWidgetTes() {
@@ -90,14 +90,16 @@ void main() {
     );
   }
 
-  testWidgets('01. harus menampilkan CircularProgressIndicator saat memuat data',
+  testWidgets(
+      '01. harus menampilkan CircularProgressIndicator saat memuat data',
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       return [];
     });
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -108,7 +110,8 @@ void main() {
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenThrow(Exception('Gagal memuat'));
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -122,7 +125,8 @@ void main() {
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => []);
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -134,8 +138,10 @@ void main() {
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
-    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1'))
+        .thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -152,8 +158,10 @@ void main() {
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
-    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1'))
+        .thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -168,8 +176,10 @@ void main() {
       (tester) async {
     when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
-    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan())
+        .thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1'))
+        .thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();

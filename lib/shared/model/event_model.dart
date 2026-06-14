@@ -55,15 +55,15 @@ class EventModel implements HasId {
     Log.info('Creating EventModel from SQLite: ${map[NamaKolom.id]}');
     return EventModel(
       id: map[NamaKolom.id] as String? ?? '',
-      imageUrl: map[NamaKolom.imageUrl] as String? ?? '',
-      isActive: ParserUtil.parseBool(map[NamaKolom.isActive]),
-      createdAt:
-          ParserUtil.parseDateTime(map[NamaKolom.createdAt]) ?? DateTime.now(),
-      startDate:
-          ParserUtil.parseDateTime(map[NamaKolom.startDate]) ?? DateTime.now(),
-      endDate:
-          ParserUtil.parseDateTime(map[NamaKolom.endDate]) ?? DateTime.now(),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
+      imageUrl: map[NamaKolom.linkGambar] as String? ?? '',
+      isActive: ParserUtil.parseBool(map[NamaKolom.statusAktif]),
+      createdAt: ParserUtil.parseDateTime(map[NamaKolom.tanggalDibuat]) ??
+          DateTime.now(),
+      startDate: ParserUtil.parseDateTime(map[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      endDate: ParserUtil.parseDateTime(map[NamaKolom.tangglberakhir]) ??
+          DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
@@ -71,12 +71,13 @@ class EventModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.imageUrl: imageUrl,
-      NamaKolom.isActive: isActive ? 1 : 0,
-      NamaKolom.createdAt: createdAt.millisecondsSinceEpoch,
-      NamaKolom.startDate: startDate.millisecondsSinceEpoch,
-      NamaKolom.endDate: endDate.millisecondsSinceEpoch,
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.linkGambar: imageUrl,
+      NamaKolom.statusAktif: isActive ? 1 : 0,
+      NamaKolom.tanggalDibuat: createdAt.millisecondsSinceEpoch,
+      NamaKolom.tanggalMulai: startDate.millisecondsSinceEpoch,
+      NamaKolom.tangglberakhir: endDate.millisecondsSinceEpoch,
+      NamaKolom.diperbaruiPada:
+          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
     };
   }
 
@@ -86,15 +87,15 @@ class EventModel implements HasId {
     Log.info('Creating EventModel from Supabase: $id');
     return EventModel(
       id: id,
-      imageUrl: data[NamaKolom.imageUrl] as String? ?? '',
-      isActive: ParserUtil.parseBool(data[NamaKolom.isActive]),
-      createdAt:
-          ParserUtil.parseDateTime(data[NamaKolom.createdAt]) ?? DateTime.now(),
-      startDate:
-          ParserUtil.parseDateTime(data[NamaKolom.startDate]) ?? DateTime.now(),
-      endDate:
-          ParserUtil.parseDateTime(data[NamaKolom.endDate]) ?? DateTime.now(),
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
+      imageUrl: data[NamaKolom.linkGambar] as String? ?? '',
+      isActive: ParserUtil.parseBool(data[NamaKolom.statusAktif]),
+      createdAt: ParserUtil.parseDateTime(data[NamaKolom.tanggalDibuat]) ??
+          DateTime.now(),
+      startDate: ParserUtil.parseDateTime(data[NamaKolom.tanggalMulai]) ??
+          DateTime.now(),
+      endDate: ParserUtil.parseDateTime(data[NamaKolom.tangglberakhir]) ??
+          DateTime.now(),
+      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
     );
   }
 
@@ -102,12 +103,12 @@ class EventModel implements HasId {
   Map<String, dynamic> toSupabase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.imageUrl: imageUrl,
-      NamaKolom.isActive: isActive,
-      NamaKolom.startDate: startDate.toIso8601String(),
-      NamaKolom.endDate: endDate.toIso8601String(),
-      NamaKolom.createdAt: createdAt.toIso8601String(),
-      NamaKolom.updatedAt: (updatedAt ?? DateTime.now()).toIso8601String(),
+      NamaKolom.linkGambar: imageUrl,
+      NamaKolom.statusAktif: isActive,
+      NamaKolom.tanggalMulai: startDate.toIso8601String(),
+      NamaKolom.tangglberakhir: endDate.toIso8601String(),
+      NamaKolom.tanggalDibuat: createdAt.toIso8601String(),
+      NamaKolom.diperbaruiPada: (updatedAt ?? DateTime.now()).toIso8601String(),
     };
   }
 }

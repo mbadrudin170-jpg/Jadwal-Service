@@ -40,8 +40,8 @@ void main() {
       CREATE TABLE $testTable (
         id TEXT PRIMARY KEY,
         name TEXT,
-        ${NamaKolom.isDeleted} INTEGER DEFAULT 0,
-        ${NamaKolom.archivedAt} INTEGER
+        ${NamaKolom.diHapus} INTEGER DEFAULT 0,
+        ${NamaKolom.diarsipkanPada} INTEGER
       )
     ''');
 
@@ -76,13 +76,13 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': oldDataIdSqlite,
       'name': 'Old User SQLite',
-      NamaKolom.isDeleted: 1,
-      NamaKolom.archivedAt:
+      NamaKolom.diHapus: 1,
+      NamaKolom.diarsipkanPada:
           timeLimit.subtract(const Duration(days: 1)).millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(oldDataIdFirestore).set({
-      NamaKolom.isDeleted: true,
-      NamaKolom.archivedAt: Timestamp.fromDate(
+      NamaKolom.diHapus: true,
+      NamaKolom.diarsipkanPada: Timestamp.fromDate(
         timeLimit.subtract(const Duration(days: 1)),
       ),
     });
@@ -93,12 +93,12 @@ void main() {
     await mockDatabase.insert(testTable, {
       'id': newDataIdSqlite,
       'name': 'New User SQLite',
-      NamaKolom.isDeleted: 1,
-      NamaKolom.archivedAt: now.millisecondsSinceEpoch,
+      NamaKolom.diHapus: 1,
+      NamaKolom.diarsipkanPada: now.millisecondsSinceEpoch,
     });
     await fakeFirestore.collection(testTable).doc(newDataIdFirestore).set({
-      NamaKolom.isDeleted: true,
-      NamaKolom.archivedAt: Timestamp.now(),
+      NamaKolom.diHapus: true,
+      NamaKolom.diarsipkanPada: Timestamp.now(),
     });
 
     // Verifikasi Awal

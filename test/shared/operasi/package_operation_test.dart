@@ -34,11 +34,11 @@ void main() {
   group('PackageOperation Tests', () {
     final tPackage = PaketModel(
       id: '1',
-      name: 'Basic Plan',
-      price: 150000,
-      duration: 30,
-      type: DurationType.days,
-      updatedAt: DateTime.now(),
+      nama: 'Basic Plan',
+      harga: 150000,
+      durasi: 30,
+      tipe: DurationType.days,
+      diperbaruiPada: DateTime.now(),
     );
     final tPackageMap = tPackage.toSqlite();
     final tableName = NamaTabel.get(TableName.package);

@@ -60,18 +60,18 @@ void main() {
       final mockPackages = [
         PaketModel(
             id: '1',
-            name: 'Paket A',
-            redemptionPoints: 100,
-            price: 0,
-            duration: 30,
-            type: DurationType.days),
+            nama: 'Paket A',
+            poinPenukaran: 100,
+            harga: 0,
+            durasi: 30,
+            tipe: DurationType.days),
         PaketModel(
             id: '2',
-            name: 'Paket B',
-            redemptionPoints: 200,
-            price: 0,
-            duration: 30,
-            type: DurationType.days),
+            nama: 'Paket B',
+            poinPenukaran: 200,
+            harga: 0,
+            durasi: 30,
+            tipe: DurationType.days),
       ];
       when(mockPackageOpFirebase.getPublicPackages())
           .thenAnswer((_) async => mockPackages);
@@ -153,11 +153,11 @@ void main() {
       // Arrange
       final mockPackage = PaketModel(
           id: packageId,
-          name: 'Paket Detail',
-          redemptionPoints: 50,
-          price: 0,
-          duration: 7,
-          type: DurationType.days);
+          nama: 'Paket Detail',
+          poinPenukaran: 50,
+          harga: 0,
+          durasi: 7,
+          tipe: DurationType.days);
       when(mockPackageOpFirebase.getPackageById(packageId))
           .thenAnswer((_) async => mockPackage);
 

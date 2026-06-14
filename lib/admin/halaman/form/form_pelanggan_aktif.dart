@@ -61,7 +61,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     if (_paketDipilih == null) {
       return 0;
     }
-    return _gunakanPoin ? _paketDipilih!.redemptionPoints : 0;
+    return _gunakanPoin ? _paketDipilih!.poinPenukaran : 0;
   }
 
   int hitungSisaPoin() {
@@ -70,15 +70,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   int _getDurationInMinutes(final PaketModel package) {
-    switch (package.type) {
+    switch (package.tipe) {
       case DurationType.minutes:
-        return package.duration;
+        return package.durasi;
       case DurationType.hours:
-        return package.duration * 60;
+        return package.durasi * 60;
       case DurationType.days:
-        return package.duration * 24 * 60;
+        return package.durasi * 24 * 60;
       case DurationType.months:
-        return package.duration * 30 * 24 * 60;
+        return package.durasi * 30 * 24 * 60;
     }
   }
 
@@ -313,18 +313,18 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       final transaksiData = TransaksiModel(
         id: transaksiId,
         date: tanggalMulai,
-        description: 'Aktivasi Paket: ${_paketDipilih!.name}',
-        amount: _gunakanPoin ? 0 : _paketDipilih!.price.toDouble(),
+        description: 'Aktivasi Paket: ${_paketDipilih!.nama}',
+        amount: _gunakanPoin ? 0 : _paketDipilih!.harga.toDouble(),
         type: _gunakanPoin ? TransactionType.expense : TransactionType.income,
         walletId: _dompetDipilih!.id,
         categoryId: _kategoriDipilih!.id,
         customerId: _pelangganDipilih!.id,
         packageId: _paketDipilih!.id,
         paymentStatus: _statusPembayaran,
-        earnedPoints: _gunakanPoin ? 0 : _paketDipilih!.rewardPoints,
-        usedPoints: _gunakanPoin ? _paketDipilih!.redemptionPoints : 0,
-        packageDuration: _paketDipilih!.duration,
-        durationType: _paketDipilih!.type,
+        earnedPoints: _gunakanPoin ? 0 : _paketDipilih!.poinHadiah,
+        usedPoints: _gunakanPoin ? _paketDipilih!.poinPenukaran : 0,
+        packageDuration: _paketDipilih!.durasi,
+        durationType: _paketDipilih!.tipe,
         durasiBonus: nilaiBonus,
         durasiBonusType: _isBonus ? _bonusDurationType : null,
         startDate: tanggalMulai,
@@ -368,7 +368,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           tanggalTampil: tanggalNotifikasiSetengahJalan,
           title: 'Info: Setengah Perjalanan Paket',
           description:
-              'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.name}.',
+              'Anda telah menggunakan 50% dari masa aktif paket ${_paketDipilih!.nama}.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -381,7 +381,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           tanggalTampil: tanggalBerakhir.subtract(const Duration(days: 1)),
           title: 'Pengingat: Masa Aktif Segera Habis',
           description:
-              'Masa aktif paket ${_paketDipilih!.name} Anda akan berakhir besok.',
+              'Masa aktif paket ${_paketDipilih!.nama} Anda akan berakhir besok.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -394,7 +394,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           tanggalTampil: tanggalBerakhir,
           title: 'Masa Aktif Paket Habis',
           description:
-              'Masa aktif untuk paket ${_paketDipilih!.name} telah berakhir hari ini.',
+              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir hari ini.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -407,7 +407,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           tanggalTampil: tanggalBerakhir.add(const Duration(days: 1)),
           title: 'Masa Aktif Telah Berakhir',
           description:
-              'Masa aktif untuk paket ${_paketDipilih!.name} telah berakhir kemarin. Silakan perpanjang.',
+              'Masa aktif untuk paket ${_paketDipilih!.nama} telah berakhir kemarin. Silakan perpanjang.',
           idTujuan: transaksiId,
           type: TipeNotifikasiEnum.transaksi,
           updatedAt: DateTime.now().toUtc(),
@@ -561,11 +561,11 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Paket', border: OutlineInputBorder()),
       initialValue: _paketDipilih,
       items: _paketList
-          .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
+          .map((p) => DropdownMenuItem(value: p, child: Text(p.nama)))
           .toList(),
       onChanged: (newValue) {
         Log.info(
-            'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.name}');
+            'Paket dipilih: id=${(newValue)?.id} nama=${(newValue)?.nama}');
         setState(() => _paketDipilih = newValue);
       },
       validator: (v) => v == null ? 'Paket tidak boleh kosong' : null,

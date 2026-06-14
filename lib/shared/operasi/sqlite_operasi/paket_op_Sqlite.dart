@@ -51,10 +51,10 @@ class PaketOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${NamaKolom.type}
-            WHEN 'jam' THEN ${NamaKolom.duration}
-            WHEN 'hari' THEN ${NamaKolom.duration} * 24
-            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
+          CASE ${NamaKolom.tipe}
+            WHEN 'jam' THEN ${NamaKolom.durasi}
+            WHEN 'hari' THEN ${NamaKolom.durasi} * 24
+            WHEN 'bulan' THEN ${NamaKolom.durasi} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tabel
@@ -78,14 +78,14 @@ class PaketOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${NamaKolom.type}
-            WHEN 'jam' THEN ${NamaKolom.duration}
-            WHEN 'hari' THEN ${NamaKolom.duration} * 24
-            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
+          CASE ${NamaKolom.tipe}
+            WHEN 'jam' THEN ${NamaKolom.durasi}
+            WHEN 'hari' THEN ${NamaKolom.durasi} * 24
+            WHEN 'bulan' THEN ${NamaKolom.durasi} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tabel
-        WHERE ${NamaKolom.isDeleted} = 0
+        WHERE ${NamaKolom.diHapus} = 0
         ORDER BY urutan ASC
       ''');
 
@@ -106,14 +106,14 @@ class PaketOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
-          CASE ${NamaKolom.type}
-            WHEN 'jam' THEN ${NamaKolom.duration}
-            WHEN 'hari' THEN ${NamaKolom.duration} * 24
-            WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
+          CASE ${NamaKolom.tipe}
+            WHEN 'jam' THEN ${NamaKolom.durasi}
+            WHEN 'hari' THEN ${NamaKolom.durasi} * 24
+            WHEN 'bulan' THEN ${NamaKolom.durasi} * 24 * 30
             ELSE 999999
           END as urutan
         FROM $_tabel
-        WHERE ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.isPublic} = 1
+        WHERE ${NamaKolom.diHapus} = 0 AND ${NamaKolom.statusPublik} = 1
         ORDER BY urutan ASC
       ''');
 
@@ -245,7 +245,7 @@ class PaketOpSqlite {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
         _tabel,
-        where: '${NamaKolom.updatedAt} > ?',
+        where: '${NamaKolom.diperbaruiPada} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
       Log.info('Ditemukan ${maps.length} perubahan paket');

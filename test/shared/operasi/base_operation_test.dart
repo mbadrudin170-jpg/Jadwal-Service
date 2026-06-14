@@ -115,8 +115,8 @@ void main() {
       )).captured;
 
       final capturedMap = captured.first as Map<String, Object?>;
-      expect(capturedMap[NamaKolom.isDeleted], 1);
-      expect(capturedMap.containsKey(NamaKolom.archivedAt), isTrue);
+      expect(capturedMap[NamaKolom.diHapus], 1);
+      expect(capturedMap.containsKey(NamaKolom.diarsipkanPada), isTrue);
       verify(mockUploadStatusOperation.tandaiButuhUpload(true,
               transaction: mockTxn))
           .called(1);

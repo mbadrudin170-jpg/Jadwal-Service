@@ -285,7 +285,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
           final item = packages[index];
           return ListTile(
             leading: CircleAvatar(child: Text('#${index + 1}')),
-            title: Text(item.paket.name),
+            title: Text(item.paket.nama),
             trailing: Text('${item.totalTerjual} terjual',
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(fontWeight: FontWeight.bold)),

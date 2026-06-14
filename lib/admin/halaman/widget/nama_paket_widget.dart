@@ -46,8 +46,8 @@ class PackageNameWidget extends ConsumerWidget {
         }
 
         final package = snapshot.data!;
-        Log.info('Berhasil memuat paket: ${package.name} (ID: $packageId)');
-        return Text(package.name, style: style);
+        Log.info('Berhasil memuat paket: ${package.nama} (ID: $packageId)');
+        return Text(package.nama, style: style);
       },
     );
   }
