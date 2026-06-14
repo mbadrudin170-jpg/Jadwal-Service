@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_pelanggan.dart';
-import 'package:wifi/admin/halaman/form/customer_form.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -29,18 +29,16 @@ enum UrutanPelanggan {
 /// Provider lokal untuk memfilter dan mengurutkan pelanggan secara reaktif berdasarkan state modern.
 final filteredCustomersProvider =
     Provider.autoDispose<AsyncValue<List<(PelangganModel, int)>>>((ref) {
-  final customerListAsync = ref.watch(customerListProvider);
+  final daftarPelanggan = ref.watch(daftarPelangganProvider);
   final searchQuery = ref.watch(searchQueryPelangganProvider).toLowerCase();
   final sortOption = ref.watch(urutanPelangganStateProvider);
 
-  return customerListAsync.when(
+  return daftarPelanggan.when(
     data: (customersWithPoints) {
-      // 1. Jalankan Fitur Filter Pencarian
       final filtered = customersWithPoints
           .where((tuple) => tuple.$1.name.toLowerCase().contains(searchQuery))
           .toList();
 
-      // 2. Jalankan Fitur Pengurutan (Sorting)
       switch (sortOption) {
         case UrutanPelanggan.namaAZ:
           filtered.sort((a, b) =>
@@ -93,11 +91,11 @@ class Pelanggan extends ConsumerWidget {
     return Scaffold(
       appBar: _buildAppBar(context, ref, searchController),
       body: RefreshIndicator(
-        onRefresh: () => ref.refresh(customerListProvider.future),
+        onRefresh: () => ref.refresh(daftarPelangganProvider.future),
         child: _buildContent(context, ref),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addCustomer(context, ref),
+        onPressed: () => _naviagsiKeForm(context, ref),
         tooltip: 'Tambah Pelanggan',
         child: const Icon(TIcons.add),
       ),
@@ -128,7 +126,7 @@ class Pelanggan extends ConsumerWidget {
         IconButton(
           icon: const Icon(TIcons.sort),
           tooltip: 'Urutkan',
-          onPressed: () => _showSortDialog(context, ref),
+          onPressed: () => _dialogSort(context, ref),
         ),
         IconButton(
           icon: Icon(isSearching ? TIcons.close : TIcons.search),
@@ -195,7 +193,7 @@ class Pelanggan extends ConsumerWidget {
                   ],
                 ),
                 onTap: () => _navigasiKeetail(context, ref, pelanggan.id),
-                onLongPress: () => _showOptionsDialog(context, ref, pelanggan),
+                onLongPress: () => _dialogOpsi(context, ref, pelanggan),
               ),
             );
           },
@@ -204,7 +202,7 @@ class Pelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _showSortDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _dialogSort(BuildContext context, WidgetRef ref) async {
     final activeSort = ref.read(urutanPelangganStateProvider);
 
     Widget buildOption(String text, UrutanPelanggan value) {
@@ -250,13 +248,13 @@ class Pelanggan extends ConsumerWidget {
     }
   }
 
-  Future<void> _addCustomer(BuildContext context, WidgetRef ref) async {
+  Future<void> _naviagsiKeForm(BuildContext context, WidgetRef ref) async {
     final hasil = await Navigator.push<bool>(
       context,
       MaterialPageRoute(builder: (context) => const FormPelanggan()),
     );
     if (hasil ?? false) {
-      ref.invalidate(customerListProvider);
+      ref.invalidate(daftarPelangganProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil ditambahkan.');
       }
@@ -271,15 +269,15 @@ class Pelanggan extends ConsumerWidget {
         builder: (context) => DetailPelanggan(idPelanggan: idPelanggan),
       ),
     );
-    ref.invalidate(customerListProvider);
+    ref.invalidate(daftarPelangganProvider);
   }
 
-  Future<void> _showOptionsDialog(
-      BuildContext context, WidgetRef ref, PelangganModel customer) async {
+  Future<void> _dialogOpsi(
+      BuildContext context, WidgetRef ref, PelangganModel pelanggan) async {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(customer.name),
+        title: Text(pelanggan.name),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -291,11 +289,11 @@ class Pelanggan extends ConsumerWidget {
                 final result = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FormPelanggan(customer: customer),
+                    builder: (context) => FormPelanggan(pelanggan: pelanggan),
                   ),
                 );
                 if (result ?? false) {
-                  ref.invalidate(customerListProvider);
+                  ref.invalidate(daftarPelangganProvider);
                   if (context.mounted) {
                     ToastUtil.success(
                         context, 'Pelanggan berhasil diperbarui.');
@@ -308,7 +306,7 @@ class Pelanggan extends ConsumerWidget {
               title: const Text('Arsipkan Pelanggan'),
               onTap: () {
                 Navigator.of(dialogContext).pop();
-                unawaited(_showSoftDeleteConfirmation(context, ref, customer));
+                unawaited(_dialogKonfirmasiSoftDelete(context, ref, pelanggan));
               },
             ),
           ],
@@ -317,7 +315,7 @@ class Pelanggan extends ConsumerWidget {
     );
   }
 
-  Future<void> _showSoftDeleteConfirmation(
+  Future<void> _dialogKonfirmasiSoftDelete(
       BuildContext context, WidgetRef ref, PelangganModel customer) async {
     await showDialog<void>(
       context: context,
@@ -347,7 +345,7 @@ class Pelanggan extends ConsumerWidget {
       BuildContext context, WidgetRef ref, String id) async {
     try {
       await ref.read(pelangganOpSqliteProvider).hapusSementara(id);
-      ref.invalidate(customerListProvider);
+      ref.invalidate(daftarPelangganProvider);
       if (context.mounted) {
         ToastUtil.success(context, 'Pelanggan berhasil diarsipkan.');
       }

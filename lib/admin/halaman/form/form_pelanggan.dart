@@ -16,10 +16,10 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Halaman form untuk menambah atau mengedit data pelanggan.
 class FormPelanggan extends ConsumerStatefulWidget {
   /// Model pelanggan yang akan diedit. Jika null, maka form dalam mode tambah baru.
-  final PelangganModel? customer;
+  final PelangganModel? pelanggan;
 
   /// Konstruktor untuk CustomerForm.
-  const FormPelanggan({super.key, this.customer});
+  const FormPelanggan({super.key, this.pelanggan});
 
   @override
   ConsumerState<FormPelanggan> createState() => _CustomerFormState();
@@ -39,25 +39,25 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
 
-  bool get _isEditMode => widget.customer != null;
-  bool _isPasswordVisible = false;
-  bool _isSaving = false;
+  bool get _modeEdit => widget.pelanggan != null;
+  bool _passwordTerlihat = false;
+  bool _menyimpan = false;
 
   @override
   void initState() {
     super.initState();
     Log.info(
-      'Membuka CustomerForm dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
+      'Membuka CustomerForm dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
     );
-    if (_isEditMode) {
+    if (_modeEdit) {
       Log.info(
-        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.customer!.id}',
+        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
       );
-      _namaController.text = widget.customer!.name;
-      _teleponController.text = widget.customer!.phone;
-      _alamatController.text = widget.customer!.address;
-      _passwordController.text = widget.customer!.password;
-      _macAddressController.text = widget.customer!.macAddress;
+      _namaController.text = widget.pelanggan!.name;
+      _teleponController.text = widget.pelanggan!.phone;
+      _alamatController.text = widget.pelanggan!.address;
+      _passwordController.text = widget.pelanggan!.password;
+      _macAddressController.text = widget.pelanggan!.macAddress;
     }
   }
 
@@ -84,10 +84,10 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
-      setState(() => _isSaving = true);
+      setState(() => _menyimpan = true);
 
-      final newCustomer = PelangganModel(
-        id: _isEditMode ? widget.customer!.id : const Uuid().v4(),
+      final pelangganBaru = PelangganModel(
+        id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
         name: _namaController.text.trim(),
         phone: _teleponController.text.trim(),
         address: _alamatController.text.trim(),
@@ -96,21 +96,21 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
       );
 
       Log.info(
-          'Model Pelanggan yang akan disimpan: ${newCustomer.toFirebase()}');
+          'Model Pelanggan yang akan disimpan: ${pelangganBaru.toFirebase()}');
 
       try {
-        if (!_isEditMode) {
+        if (!_modeEdit) {
           Log.info(
-            'Menjalankan operasi CREATE untuk pelanggan baru: ${newCustomer.name}',
+            'Menjalankan operasi CREATE untuk pelanggan baru: ${pelangganBaru.name}',
           );
-          await pelangganOpSqlite.tambahPelanggan(newCustomer);
+          await pelangganOpSqlite.tambahPelanggan(pelangganBaru);
         } else {
           Log.info(
-            'Menjalankan operasi UPDATE untuk pelanggan ID: ${newCustomer.id}',
+            'Menjalankan operasi UPDATE untuk pelanggan ID: ${pelangganBaru.id}',
           );
-          await pelangganOpSqlite.perbaruiPelanggan(newCustomer);
+          await pelangganOpSqlite.perbaruiPelanggan(pelangganBaru);
         }
-        ref.invalidate(customerListProvider);
+        ref.invalidate(daftarPelangganProvider);
         if (!mounted) return;
 
         final cekKoneksi = ref.read(koneksiInternetServiceProvider);
@@ -144,7 +144,7 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
         }
       } finally {
         if (mounted) {
-          setState(() => _isSaving = false);
+          setState(() => _menyimpan = false);
           Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
         }
       }
@@ -154,12 +154,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
   }
 
   @override
-  Widget build(final BuildContext context) {
-    Log.info('Membangun UI CustomerForm. isSaving: $_isSaving');
+  Widget build(BuildContext context) {
+    Log.info('Membangun UI CustomerForm. isSaving: $_menyimpan');
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isEditMode ? 'Edit Pelanggan' : 'Tambah Pelanggan',
+          _modeEdit ? 'Edit Pelanggan' : 'Tambah Pelanggan',
         ),
         leading: BackButton(
           onPressed: () {
@@ -218,12 +218,12 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                     prefixIcon: const Icon(TIcons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? TIcons.show : TIcons.hide,
+                        _passwordTerlihat ? TIcons.show : TIcons.hide,
                       ),
                       onPressed: () {
                         Log.info('Visibilitas password diubah.');
                         setState(
-                          () => _isPasswordVisible = !_isPasswordVisible,
+                          () => _passwordTerlihat = !_passwordTerlihat,
                         );
                       },
                     ),
@@ -231,11 +231,11 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  obscureText: !_isPasswordVisible,
+                  obscureText: !_passwordTerlihat,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (final _) =>
+                  onFieldSubmitted: (_) =>
                       FocusScope.of(context).requestFocus(_macAddressFocusNode),
-                  validator: (final v) => (v == null || v.isEmpty)
+                  validator: (v) => (v == null || v.isEmpty)
                       ? 'Password tidak boleh kosong'
                       : null,
                 ),
@@ -247,21 +247,21 @@ class _CustomerFormState extends ConsumerState<FormPelanggan> {
                   icon: TIcons.router,
                   hint: 'XX:XX:XX:XX:XX:XX',
                   action: TextInputAction.done,
-                  onSubmitted: (final _) => _macAddressFocusNode.unfocus(),
-                  validator: (final v) => (v == null || v.isEmpty)
+                  onSubmitted: (_) => _macAddressFocusNode.unfocus(),
+                  validator: (v) => (v == null || v.isEmpty)
                       ? 'MAC Address tidak boleh kosong'
                       : null,
                 ),
                 gapH32,
                 ElevatedButton(
-                  onPressed: _isSaving ? null : _saveForm,
+                  onPressed: _menyimpan ? null : _saveForm,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: _isSaving
+                  child: _menyimpan
                       ? const SizedBox(
                           height: 24,
                           width: 24,

@@ -23,8 +23,8 @@ class CategoryPage extends ConsumerStatefulWidget {
 
 /// State untuk [CategoryPage].
 class _CategoryPageState extends ConsumerState<CategoryPage> {
-  late final KategoriOpSqlite _categoryOperation;
-  late final SubKategoriOpSqlite _subCategoryOperation;
+  late final KategoriOpSqlite _kategoriOpSqlite;
+  late final SubKategoriOpSqlite _subKategoriOpSqlite;
   late Future<List<KategoriModel>> _categoryListFuture;
   TipeKategori _selectedType = TipeKategori.income;
   bool _isEdit = false;
@@ -33,15 +33,15 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
   @override
   void initState() {
     super.initState();
-    _categoryOperation = ref.read(kategoriOpSqliteProvider);
-    _subCategoryOperation = ref.read(subKategoriOpSqliteProvider);
+    _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    _subKategoriOpSqlite = ref.read(subKategoriOpSqliteProvider);
     Log.info('Menginisialisasi halaman Kategori');
-    _loadCategories();
+    _loadData();
   }
 
   Future<List<KategoriModel>> _loadCategoriesAndHandleErrors() async {
     try {
-      return await _categoryOperation.ambilSemua();
+      return await _kategoriOpSqlite.ambilSemua();
     } on Exception catch (e, st) {
       Log.error('Gagal memuat data kategori', e: e, s: st);
       if (mounted) {
@@ -51,14 +51,14 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     }
   }
 
-  void _loadCategories() {
+  void _loadData() {
     Log.info('Memuat data kategori dari database');
     setState(() {
       _categoryListFuture = _loadCategoriesAndHandleErrors();
     });
   }
 
-  Future<void> _addCategory() async {
+  Future<void> _navigasiKeForm() async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(builder: (final context) => const CategoryForm()),
@@ -67,7 +67,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
       if (!mounted) return;
       Log.info('Kategori baru berhasil ditambahkan, memuat ulang daftar.');
       ToastUtil.success(context, 'Kategori berhasil ditambahkan.');
-      _loadCategories();
+      _loadData();
     }
   }
 
@@ -80,7 +80,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     );
     if (result ?? false) {
       if (!mounted) return;
-      _loadCategories();
+      _loadData();
     }
   }
 
@@ -99,7 +99,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     );
     if (result ?? false) {
       if (!mounted) return;
-      _loadCategories();
+      _loadData();
     }
   }
 
@@ -135,11 +135,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      await _categoryOperation.softDelete(category.id);
+      await _kategoriOpSqlite.softDeleteKategori(category.id);
       if (!mounted) return;
       ToastUtil.success(
           context, 'Kategori "${category.name}" berhasil diarsipkan.');
-      _loadCategories();
+      _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan kategori: $e');
@@ -156,11 +156,11 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      await _subCategoryOperation.softDelete(subCategory.id);
+      await _subKategoriOpSqlite.softDelete(subCategory.id);
       if (!mounted) return;
       ToastUtil.success(
           context, 'Sub-kategori "${subCategory.name}" berhasil diarsipkan.');
-      _loadCategories();
+      _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan sub-kategori: $e');
@@ -177,10 +177,10 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     if (!mounted || !confirm) return;
 
     try {
-      final count = await _categoryOperation.softDeleteAll();
+      final total = await _kategoriOpSqlite.softDeleteAllKategori();
       if (!mounted) return;
-      ToastUtil.success(context, 'Berhasil mengarsipkan $count kategori.');
-      _loadCategories();
+      ToastUtil.success(context, 'Berhasil mengarsipkan $total kategori.');
+      _loadData();
     } on Exception catch (e, st) {
       if (!mounted) return;
       ToastUtil.error(context, 'Gagal mengarsipkan semua kategori: $e');
@@ -316,7 +316,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addCategory,
+        onPressed: _navigasiKeForm,
         child: const Icon(TIcons.add),
       ),
     );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/customer_form.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
@@ -31,7 +31,7 @@ void main() {
         customerOperationProvider.overrideWithValue(mockCustomerOperation),
       ],
       child: MaterialApp(
-        home: FormPelanggan(customer: customer),
+        home: FormPelanggan(pelanggan: customer),
       ),
     );
   }

@@ -98,8 +98,8 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Transaksi',
                   DataDummy.transactions,
-                  ref.read(transactionOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(transactionOperationProvider);
+                  ref.read(transaksiOpSqliteProvider).insertOrUpdateBatch,);
+              ref.invalidate(transaksiOpSqliteProvider);
             },
             label: 'Tambah Transaksi Dummy',
             icon: Icons.receipt_long,
@@ -112,9 +112,7 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Pelanggan Aktif',
                   DataDummy.activeCustomers,
-                  ref
-                      .read(pelangganAktifOpSqliteProvider)
-                      .insertOrUpdateBatch);
+                  ref.read(pelangganAktifOpSqliteProvider).insertOrUpdateBatch);
               ref.invalidate(pelangganAktifProvider);
             },
             label: 'Tambah Pelanggan Aktif Dummy',

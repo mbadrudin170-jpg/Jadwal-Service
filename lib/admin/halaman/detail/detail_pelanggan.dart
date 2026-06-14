@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:wifi/admin/halaman/form/customer_form.dart';
+import 'package:wifi/admin/halaman/form/form_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -26,7 +26,7 @@ class DetailPelanggan extends ConsumerWidget {
     await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (context) => FormPelanggan(customer: pelanggan),
+        builder: (context) => FormPelanggan(pelanggan: pelanggan),
       ),
     );
   }
