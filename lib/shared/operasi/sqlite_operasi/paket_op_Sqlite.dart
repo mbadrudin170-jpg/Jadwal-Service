@@ -17,7 +17,7 @@ class PaketOpSqlite {
 
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
   final BaseOpSqlite basOpSqlite;
-  final String _namaTabel = NamaTabel.package;
+  final String _tabel = NamaTabel.package;
   final _nowUtc = DateTime.now().toUtc();
 
   PaketOpSqlite({
@@ -33,7 +33,7 @@ class PaketOpSqlite {
     try {
       final data = paket.copyWith(updatedAt: _nowUtc).toSqlite();
       await basOpSqlite.sisipkan(
-        _namaTabel,
+        _tabel,
         data,
         dariServer: dariServer,
       );
@@ -57,7 +57,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_namaTabel
+        FROM $_tabel
         ORDER BY urutan ASC
       ''');
 
@@ -84,7 +84,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_namaTabel
+        FROM $_tabel
         WHERE ${NamaKolom.isDeleted} = 0
         ORDER BY urutan ASC
       ''');
@@ -112,7 +112,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_namaTabel
+        FROM $_tabel
         WHERE ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.isPublic} = 1
         ORDER BY urutan ASC
       ''');
@@ -133,7 +133,7 @@ class PaketOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -157,7 +157,7 @@ class PaketOpSqlite {
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
       await basOpSqlite.update(
-        _namaTabel,
+        _tabel,
         data,
         package.id,
         dariServer: dariServer,
@@ -174,7 +174,7 @@ class PaketOpSqlite {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
       await basOpSqlite.softDelete(
-        _namaTabel,
+        _tabel,
         id,
         dariServer: dariServer,
       );
@@ -190,7 +190,7 @@ class PaketOpSqlite {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
       final count = await basOpSqlite.softDeleteAll(
-        _namaTabel,
+        _tabel,
         dariServer: dariServer,
       );
       Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
@@ -206,7 +206,7 @@ class PaketOpSqlite {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
       await basOpSqlite.delete(
-        _namaTabel,
+        _tabel,
         id,
         dariServer: dariServer,
       );
@@ -224,7 +224,7 @@ class PaketOpSqlite {
       await basOpSqlite.runComplexOperation<void>(
         (Transaction txn) async {
           final int count = await txn.delete(
-            _namaTabel,
+            _tabel,
           );
           Log.info(
               'Berhasil menghapus semua data paket. Total terhapus: $count');
@@ -244,7 +244,7 @@ class PaketOpSqlite {
     try {
       final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -273,7 +273,7 @@ class PaketOpSqlite {
           )
           .toList();
       await basOpSqlite.insertOrUpdateBatch(
-        _namaTabel,
+        _tabel,
         dataList,
         dariServer: dariServer,
       );
@@ -295,7 +295,7 @@ class PaketOpSqlite {
       final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _namaTabel,
+        _tabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );

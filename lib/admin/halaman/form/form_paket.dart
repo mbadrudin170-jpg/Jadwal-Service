@@ -83,7 +83,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         } else {
           await _paketOpSqlite.tambahPaket(paketBaru);
         }
-        ref.invalidate(packageListProvider);
+        ref.invalidate(daftarPaketProvider);
         if (!mounted) {
           return;
         }

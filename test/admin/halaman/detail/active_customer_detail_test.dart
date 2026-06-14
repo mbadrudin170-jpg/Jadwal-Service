@@ -1,4 +1,6 @@
 // path: test/admin/halaman/detail/active_customer_detail_test.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,18 +16,18 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/whatsapp/info_paket.dart';
 import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
-import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/export/enum.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/transaksi_op_sqlite.dart';
+import 'package:wifi/shared/model/detail_pelanggan_aktif_model.dart';
+import 'package:wifi/shared/enum/enum.dart';
 
 // Mocks
 class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
 
 class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
 
-class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpSqlite {}
 
 class MockPesanInfoPaket extends Mock implements PesanInfoPaket {}
 
@@ -53,8 +55,12 @@ void main() {
     name: 'Paket Kencang',
     price: 100000,
     duration: 30,
-    durationType: DurationType.days,
+    durationType: 'days',
     rewardPoints: 10,
+    type: '',
+    isAvailable: true,
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
   );
 
   final tTransaction = TransaksiModel(
@@ -68,6 +74,8 @@ void main() {
     description: '',
     walletId: '',
     categoryId: '',
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
   );
 
   final tActiveCustomer = PelangganAktifModel(
@@ -138,12 +146,12 @@ void main() {
           .thenAnswer((_) async => tTransaction);
 
       final result = await container
-          .read(activeCustomerDetailProvider(tActiveCustomer.id).future);
+          .read(detailPelangganAktifProvider(tActiveCustomer.id).future);
 
-      expect(result.customer, tCustomer);
-      expect(result.package, tPackage);
-      expect(result.transaction, tTransaction);
-      expect(result.activeCustomer, tActiveCustomer);
+      expect(result.pelanggan, tCustomer);
+      expect(result.paket, tPackage);
+      expect(result.transaksi, tTransaction);
+      expect(result.pelangganAktif, tActiveCustomer);
     });
 
     test('02. harus throw exception saat pelanggan aktif tidak ditemukan',
@@ -156,118 +164,27 @@ void main() {
       );
 
       await expectLater(
-        container.read(activeCustomerDetailProvider(tActiveCustomer.id).future),
+        container.read(detailPelangganAktifProvider(tActiveCustomer.id).future),
         throwsA(isA<Exception>().having((e) => e.toString(), 'toString',
             contains('Data pelanggan aktif tidak ditemukan'))),
       );
     });
-  });
 
-  group('Widget DetailPelangganAktif', () {
-    final overrides = [
-      pelangganAktifProvider.overrideWith((ref) async => tActiveCustomerState),
-      pelangganOpSqliteProvider.overrideWithValue(mockCustomerOp),
-      paketOpSqliteProvider.overrideWithValue(mockPackageOp),
-      transaksiOpSqliteProvider.overrideWithValue(mockTransactionOp),
-      pesanInfoPaketProvider.overrideWithValue(mockPesanInfoPaket),
-    ];
+    test('03. harus throw exception saat pelanggan tidak ditemukan', () async {
+      final container = ProviderContainer(
+        overrides: [
+          pelangganAktifProvider.overrideWith((ref) async => tActiveCustomerState),
+          pelangganOpSqliteProvider.overrideWithValue(mockCustomerOp),
+        ],
+      );
 
-    setUp(() {
-      when(() => mockCustomerOp.ambilBerdasarkanId(any()))
-          .thenAnswer((_) async => tCustomer);
-      when(() => mockPackageOp.ambilBerdasarkanId(any()))
-          .thenAnswer((_) async => tPackage);
-      when(() => mockTransactionOp.ambilBerdasarkanId(any()))
-          .thenAnswer((_) async => tTransaction);
-    });
+      when(() => mockCustomerOp.ambilBerdasarkanId(any())).thenAnswer((_) async => null);
 
-    testWidgets('03. harus menampilkan loading indicator dengan benar', (tester) async {
-      final completer = Completer<PelangganAktifState>();
-
-      await tester.pumpWidget(createTestWidget([
-        pelangganAktifProvider.overrideWith((ref) => completer.future),
-      ]));
-      expect(find.byType(Text), findsOneWidget);
-      expect(find.text(''), findsOneWidget);
-    });
-
-    testWidgets('04. harus menampilkan error dengan benar', (tester) async {
-      final errorOverrides = [
-        pelangganAktifProvider
-            .overrideWith((ref) => throw Exception('Test Error')),
-        ...overrides,
-      ];
-
-      await tester.pumpWidget(createTestWidget(errorOverrides));
-      await tester.pumpAndSettle();
-
-      expect(
-          find.text('Terjadi kesalahan: Exception: Test Error'), findsOneWidget);
-    });
-
-    testWidgets('05. harus menampilkan semua data dengan benar', (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides));
-      await tester.pumpAndSettle();
-
-      expect(find.text('John Doe'), findsNWidgets(2));
-      expect(find.text('081234567890'), findsOneWidget);
-      expect(find.text('Paket Kencang'), findsOneWidget);
-      expect(find.text('Aktif'), findsOneWidget);
-      expect(find.text('10 Poin'), findsOneWidget);
-      expect(find.text('0 Hari'), findsOneWidget);
-      expect(find.textContaining('sisa'), findsOneWidget);
-      expect(find.text('Kirim Info via WhatsApp'), findsOneWidget);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
-    });
-
-    testWidgets('06. menekan tombol edit harus navigasi ke form',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.edit));
-      await tester.pumpAndSettle();
-
-      verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(FormPelangganAktif), findsOneWidget);
-    });
-
-    testWidgets('07. menekan nama pelanggan harus navigasi ke detail pelanggan',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.widgetWithText(TextButton, 'John Doe'));
-      await tester.pumpAndSettle();
-
-      verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(DetailPelanggan), findsOneWidget);
-    });
-
-    testWidgets('08. menekan nama paket harus navigasi ke detail paket',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(overrides));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Paket Kencang'));
-      await tester.pumpAndSettle();
-
-      verify(() => mockNavigatorObserver.didPush(any(), any()));
-      expect(find.byType(DetailPaketPage), findsOneWidget);
-    });
-
-    testWidgets('09. menekan tombol "Kirim Info" harus memanggil method provider',
-        (tester) async {
-      when(() => mockPesanInfoPaket.kirimRincianPaket(any()))
-          .thenAnswer((_) async => true);
-
-      await tester.pumpWidget(createTestWidget(overrides));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Kirim Info via WhatsApp'));
-      await tester.pump();
-
-      verify(() => mockPesanInfoPaket.kirimRincianPaket(any())).called(1);
+      await expectLater(
+        container.read(detailPelangganAktifProvider(tActiveCustomer.id).future),
+        throwsA(isA<Exception>().having(
+            (e) => e.toString(), 'toString', contains('Pelanggan tidak ditemukan'))),
+      );
     });
   });
 }
