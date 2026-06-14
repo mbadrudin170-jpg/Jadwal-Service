@@ -33,11 +33,12 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 1000.0);
-    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
-    when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
-    when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
-    when(mockRepository.getPaketTerlaris)
+    when(mockRepository.ambilPendapatanBulanIni)
+        .thenAnswer((_) async => 1000.0);
+    when(mockRepository.ambilTotalPelanggan).thenAnswer((_) async => 10);
+    when(mockRepository.ambilJumlahLanggananAktif).thenAnswer((_) async => 5);
+    when(mockRepository.ambilJumlahFeedbackBaru).thenAnswer((_) async => 2);
+    when(mockRepository.ambilPaketTerlaris)
         .thenAnswer((_) async => [tBestSellingPackage]);
 
     await expectLater(container.read(statistikProvider.future), completes);
@@ -60,7 +61,7 @@ void main() {
     final exception = Exception('Gagal memuat');
     final completer = Completer<void>();
 
-    when(mockRepository.getPendapatanBulanIni)
+    when(mockRepository.ambilPendapatanBulanIni)
         .thenAnswer((_) => Future.error(exception));
 
     container.listen<AsyncValue<StatistikState>>(
@@ -88,15 +89,17 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 1000.0);
-    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 10);
-    when(mockRepository.getJumlahLanggananAktif).thenAnswer((_) async => 5);
-    when(mockRepository.getJumlahFeedbackBaru).thenAnswer((_) async => 2);
-    when(mockRepository.getPaketTerlaris).thenAnswer((_) async => []);
+    when(mockRepository.ambilPendapatanBulanIni)
+        .thenAnswer((_) async => 1000.0);
+    when(mockRepository.ambilTotalPelanggan).thenAnswer((_) async => 10);
+    when(mockRepository.ambilJumlahLanggananAktif).thenAnswer((_) async => 5);
+    when(mockRepository.ambilJumlahFeedbackBaru).thenAnswer((_) async => 2);
+    when(mockRepository.ambilPaketTerlaris).thenAnswer((_) async => []);
     await container.read(statistikProvider.future);
 
-    when(mockRepository.getPendapatanBulanIni).thenAnswer((_) async => 2000.0);
-    when(mockRepository.getTotalPelanggan).thenAnswer((_) async => 20);
+    when(mockRepository.ambilPendapatanBulanIni)
+        .thenAnswer((_) async => 2000.0);
+    when(mockRepository.ambilTotalPelanggan).thenAnswer((_) async => 20);
 
     final future = container.refresh(statistikProvider.future);
 
@@ -104,6 +107,6 @@ void main() {
     expect(newState.pendapatanBulanIni, 2000.0);
     expect(newState.totalPelanggan, 20);
 
-    verify(mockRepository.getPendapatanBulanIni).called(2);
+    verify(mockRepository.ambilPendapatanBulanIni).called(2);
   });
 }

@@ -4,10 +4,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
-import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
+import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
-import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
+import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
@@ -82,9 +82,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
         onRefresh: () => ref.read(statistikProvider.notifier).refresh(),
         child: statistikStateAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(
-              child: Text(
-                  'Error: ${err.toString()}')), // Penanganan error sederhana
+          error: (e, s) => Center(child: Text('Error: ${e.toString()}')),
           data: (data) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -126,7 +124,7 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute<void>(
-                                builder: (_) => const TransactionPageA())),
+                                builder: (_) => const TransaksiPageA())),
                         title: 'Pendapatan Bulan Ini',
                         value:
                             FormatUang.formatMataUang(data.pendapatanBulanIni),

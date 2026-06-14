@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/tab/transaction_page_a.dart
+// path: lib/admin/halaman/tab/transaksi_page_a.dart
 
 import 'dart:async';
 
@@ -42,8 +42,8 @@ extension SortByX on SortBy {
 //===============[ REFACTORED WIDGETS ]===============================
 
 /// Halaman utama yang menampilkan daftar transaksi dan ringkasannya.
-class TransactionPageA extends ConsumerWidget {
-  const TransactionPageA({super.key});
+class TransaksiPageA extends ConsumerWidget {
+  const TransaksiPageA({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,7 +60,7 @@ class TransactionPageA extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Log.info('FAB tambah transaksi ditekan.');
-          unawaited(_navigateToTransactionForm(context));
+          unawaited(_naviagasiKeForm(context));
         },
         child: const Icon(TIcons.add),
       ),
@@ -68,7 +68,7 @@ class TransactionPageA extends ConsumerWidget {
   }
 
   /// Navigasi ke halaman form untuk menambah/mengedit transaksi.
-  Future<void> _navigateToTransactionForm(
+  Future<void> _naviagasiKeForm(
     BuildContext context, {
     TransaksiModel? transaction,
   }) async {
@@ -152,7 +152,7 @@ class _TransactionAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
 /// Menampilkan dialog konfirmasi untuk menghapus semua transaksi.
 Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
-  final confirmed = await showDialog<bool>(
+  final konfirmasi = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Konfirmasi'),
@@ -172,7 +172,7 @@ Future<void> _deleteAllTransactions(BuildContext context, WidgetRef ref) async {
     ),
   );
 
-  if ((confirmed ?? false) && context.mounted) {
+  if ((konfirmasi ?? false) && context.mounted) {
     try {
       await ref.read(transaksiProvider.notifier).softDeleteAll();
 
@@ -251,8 +251,8 @@ class _TransactionListView extends ConsumerWidget {
                   context,
                   transaction,
                   onTap: () => _navigasiKeDetailTransaksi(context, transaction),
-                  onEdit: () => _navigasiKeFormTransaksi(context,
-                      transaksi: transaction),
+                  onEdit: () =>
+                      _navigasiKeFormTransaksi(context, transaksi: transaction),
                   onDelete: () => ref
                       .read(transaksiProvider.notifier)
                       .softDelete(transaction.id),

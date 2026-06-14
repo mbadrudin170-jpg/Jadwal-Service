@@ -28,7 +28,7 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
 /// Repos
 class StatistikOpSqlite {
   final PelangganAktifOpSqlite _pelangganAktifOpSqlite;
-  final FeedbackOperation _feedbackOperation;
+  final FeedbackOperation _statistikOpSliteProvider;
   final PaketOpSqlite _paketOpsqlite;
   final TransaksiOpsqlite _transaksiOpSlite;
 
@@ -38,30 +38,30 @@ class StatistikOpSqlite {
     required PaketOpSqlite paketOpSqlite,
     required TransaksiOpsqlite transaksiOpSqlite,
   })  : _pelangganAktifOpSqlite = pelangganAktifOpSqlite,
-        _feedbackOperation = feedbackOpSqlite,
+        _statistikOpSliteProvider = feedbackOpSqlite,
         _paketOpsqlite = paketOpSqlite,
         _transaksiOpSlite = transaksiOpSqlite;
 
-  Future<List<BestSellingPackage>> getPaketTerlaris({int limit = 5}) async {
+  Future<List<BestSellingPackage>> ambilPaketTerlaris({int limit = 5}) async {
     Log.info('Mulai menghitung paket terlaris.');
     try {
-      final allPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
-      final allTransaksi = await _transaksiOpSlite.getAllTransactions();
+      final daftarPaket = await _paketOpsqlite.ambilBerdasarkanAktif();
+      final daftartransaksi = await _transaksiOpSlite.getAllTransactions();
 
-      if (allTransaksi.isEmpty) {
+      if (daftartransaksi.isEmpty) {
         Log.warning('Tidak ada transaksi, mengembalikan list paket kosong.');
         return [];
       }
 
-      final salesCount = allTransaksi
+      final jumlahPenjualan = daftartransaksi
           .where((t) => t.packageId != null)
           .groupListsBy((t) => t.packageId!)
           .map((key, value) => MapEntry(key, value.length));
 
-      final paketTerlaris = allPaket.map((paket) {
+      final paketTerlaris = daftarPaket.map((paket) {
         return BestSellingPackage(
           paket: paket,
-          totalTerjual: salesCount[paket.id] ?? 0,
+          totalTerjual: jumlahPenjualan[paket.id] ?? 0,
         );
       }).toList();
 
@@ -78,7 +78,7 @@ class StatistikOpSqlite {
     }
   }
 
-  Future<double> getPendapatanBulanIni() async {
+  Future<double> ambilPendapatanBulanIni() async {
     Log.info(
         'Mulai mengambil pendapatan bersih (paid-unpaid) bulan ini dari SQLite.');
     try {
@@ -119,7 +119,7 @@ class StatistikOpSqlite {
     }
   }
 
-  Future<int> getTotalPelanggan() async {
+  Future<int> ambilTotalPelanggan() async {
     Log.info('Mulai mengambil total jumlah pelanggan dari SQLite.');
     try {
       final db = await SqliteDatabase.instance.database;
@@ -135,32 +135,33 @@ class StatistikOpSqlite {
 
       Log.info('Query total pelanggan selesai. Hasil mentah: $result');
 
-      final count = Sqflite.firstIntValue(result) ?? 0;
-      Log.info('Total pelanggan yang dihitung: $count');
-      return count;
+      final total = Sqflite.firstIntValue(result) ?? 0;
+      Log.info('Total pelanggan yang dihitung: $total');
+      return total;
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil total pelanggan dari SQLite.', e: e, s: st);
       rethrow;
     }
   }
 
-  Future<int> getJumlahLanggananAktif() async {
+  Future<int> ambilJumlahLanggananAktif() async {
     Log.info('Mulai mengambil jumlah langganan aktif.');
     try {
-      final activeCustomers = await _pelangganAktifOpSqlite.getALl();
-      final count = activeCustomers.length;
-      Log.info('Jumlah langganan aktif yang dihitung: $count');
-      return count;
+      final pelangganAktif = await _pelangganAktifOpSqlite.getALl();
+      final total = pelangganAktif.length;
+      Log.info('Jumlah langganan aktif yang dihitung: $total');
+      return total;
     } on Exception catch (e, st) {
       Log.error('Gagal mengambil jumlah langganan aktif.', e: e, s: st);
       rethrow;
     }
   }
 
-  Future<int> getJumlahFeedbackBaru() async {
+  Future<int> ambilJumlahFeedbackBaru() async {
     Log.info('Mulai mengambil jumlah feedback baru.');
     try {
-      final listfeddbackAktif = await _feedbackOperation.getAllActiveFeedback();
+      final listfeddbackAktif =
+          await _statistikOpSliteProvider.getAllActiveFeedback();
       final count = listfeddbackAktif.length;
       Log.info('Jumlah feedback baru yang dihitung: $count');
       return count;

@@ -1,10 +1,9 @@
-// path: test/admin/halaman/lainnya/package_activation_history_test.dart
+// path: test/admin/halaman/lainnya/riwayat_aktivasi_paket_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
 import 'package:wifi/admin/halaman/lainnya/riwayat_aktivasi_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
@@ -19,22 +18,25 @@ import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
-import 'package_activation_history_test.mocks.dart';
+class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}
 
-@GenerateMocks([TransaksiOpsqlite, PaketOpSqlite, PelangganOpSqlite])
+class MockPaketOpSqlite extends Mock implements PaketOpSqlite {}
+
+class MockPelangganOpSqlite extends Mock implements PelangganOpSqlite {}
+
 void main() {
-  late MockTransactionOperation mockTransactionOp;
-  late MockPackageOperation mockPackageOp;
-  late MockCustomerOperation mockCustomerOp;
+  late MockTransaksiOpsqlite mockTransactionOp;
+  late MockPaketOpSqlite mockPackageOp;
+  late MockPelangganOpSqlite mockCustomerOp;
 
   setUpAll(() async {
     await initializeDateFormatting('id_ID', null);
   });
 
   setUp(() {
-    mockTransactionOp = MockTransactionOperation();
-    mockPackageOp = MockPackageOperation();
-    mockCustomerOp = MockCustomerOperation();
+    mockTransactionOp = MockTransaksiOpsqlite();
+    mockPackageOp = MockPaketOpSqlite();
+    mockCustomerOp = MockPelangganOpSqlite();
   });
 
   final t1 = TransaksiModel(
@@ -58,6 +60,11 @@ void main() {
     phone: '08123',
     address: 'Alamat',
     password: 'pwd',
+    registrationDate: DateTime.now(),
+    fcmToken: '',
+    appVersion: '',
+    platform: '',
+    lastActive: DateTime.now(),
   );
 
   final p1 = PaketModel(
@@ -65,15 +72,17 @@ void main() {
     name: 'Paket Bulanan',
     price: 50000,
     duration: 30,
-    type: DurationType.days,
+    durationType: DurationType.days,
+    isPublic: true,
+    rewardPoints: 10,
   );
 
   Widget buatWidgetTes() {
     return ProviderScope(
       overrides: [
-        transactionOperationProvider.overrideWithValue(mockTransactionOp),
-        packageOperationProvider.overrideWithValue(mockPackageOp),
-        customerOperationProvider.overrideWithValue(mockCustomerOp),
+        transaksiOpSqliteProvider.overrideWithValue(mockTransactionOp),
+        paketOpSqliteProvider.overrideWithValue(mockPackageOp),
+        pelangganOpSqliteProvider.overrideWithValue(mockCustomerOp),
       ],
       child: const MaterialApp(
         home: RiwayatAktivasiPaket(),
@@ -81,25 +90,25 @@ void main() {
     );
   }
 
-  testWidgets('1. harus menampilkan CircularProgressIndicator saat memuat data',
+  testWidgets('01. harus menampilkan CircularProgressIndicator saat memuat data',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 100));
       return [];
     });
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     await tester.pumpAndSettle();
   });
 
-  testWidgets('2. harus menampilkan pesan error jika gagal memuat data',
+  testWidgets('02. harus menampilkan pesan error jika gagal memuat data',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenThrow(Exception('Gagal memuat'));
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -109,11 +118,11 @@ void main() {
   });
 
   testWidgets(
-      '3. harus menampilkan pesan jika tidak ada data riwayat langganan',
+      '03. harus menampilkan pesan jika tidak ada data riwayat langganan',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => []);
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => []);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => []);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -121,12 +130,12 @@ void main() {
     expect(find.text('Tidak ada riwayat langganan ditemukan.'), findsOneWidget);
   });
 
-  testWidgets('4. harus menampilkan daftar riwayat langganan dengan benar',
+  testWidgets('04. harus menampilkan daftar riwayat langganan dengan benar',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
-    when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -139,12 +148,12 @@ void main() {
   });
 
   testWidgets(
-      '5. harus navigasi ke SubscriptionHistoryDetailPage saat ListTile di-tap',
+      '05. harus navigasi ke DetailRiwayatAktivasi saat ListTile di-tap',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
-    when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();
@@ -152,15 +161,15 @@ void main() {
     await tester.tap(find.byType(ListTile));
     await tester.pumpAndSettle();
 
-    expect(find.byType(DetailRiwayatAktivasiPage), findsOneWidget);
+    expect(find.byType(DetailRiwayatAktivasi), findsOneWidget);
   });
 
-  testWidgets('6. harus menampilkan dialog urutan saat tombol filter ditekan',
+  testWidgets('06. harus menampilkan dialog urutan saat tombol filter ditekan',
       (tester) async {
-    when(mockTransactionOp.getTransactionsByPackageActivation())
+    when(() => mockTransactionOp.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => [t1]);
-    when(mockCustomerOp.getAll()).thenAnswer((_) async => [c1]);
-    when(mockPackageOp.getById('p1')).thenAnswer((_) async => p1);
+    when(() => mockCustomerOp.ambilSemuaPelanggan()).thenAnswer((_) async => [c1]);
+    when(() => mockPackageOp.ambilBerdasarkanId('p1')).thenAnswer((_) async => p1);
 
     await tester.pumpWidget(buatWidgetTes());
     await tester.pumpAndSettle();

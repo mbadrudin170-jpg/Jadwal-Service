@@ -8,8 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
-import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
-import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
+import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
+import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
@@ -152,7 +152,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   final _halamanTab = <Widget>[
     const PelangganAktifPage(),
     const DompetPage(),
-    const TransactionPageA(),
+    const TransaksiPageA(),
     const StatistikPageA(),
     const OrderPage(),
     const LainnyaPage(),

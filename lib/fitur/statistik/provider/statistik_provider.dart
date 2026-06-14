@@ -43,7 +43,8 @@ class StatistikState {
 
 @Riverpod(keepAlive: true)
 class Statistik extends _$Statistik {
-  StatistikOpSqlite get _statistikOpSlite => ref.watch(statistikOpSliteProvider);
+  StatistikOpSqlite get _statistikOpSlite =>
+      ref.watch(statistikOpSliteProvider);
 
   @override
   Future<StatistikState> build() {
@@ -57,11 +58,12 @@ class Statistik extends _$Statistik {
   Future<StatistikState> _muatData() async {
     try {
       Log.info('[StatistikNotifier] Memulai pemuatan data sekuensial...');
-      final pendapatan = await _statistikOpSlite.getPendapatanBulanIni();
-      final pelanggan = await _statistikOpSlite.getTotalPelanggan();
-      final langgananAktif = await _statistikOpSlite.getJumlahLanggananAktif();
-      final feedbackBaru = await _statistikOpSlite.getJumlahFeedbackBaru();
-      final paketTerlaris = await _statistikOpSlite.getPaketTerlaris();
+      final pendapatan = await _statistikOpSlite.ambilPendapatanBulanIni();
+      final pelanggan = await _statistikOpSlite.ambilTotalPelanggan();
+      final langgananAktif =
+          await _statistikOpSlite.ambilJumlahLanggananAktif();
+      final feedbackBaru = await _statistikOpSlite.ambilJumlahFeedbackBaru();
+      final paketTerlaris = await _statistikOpSlite.ambilPaketTerlaris();
       Log.info('[StatistikNotifier] Semua data sekuensial berhasil dimuat.');
 
       return StatistikState(
