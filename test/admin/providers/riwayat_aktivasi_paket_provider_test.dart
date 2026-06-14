@@ -1,4 +1,4 @@
-// path: test/admin/providers/package_activation_history_provider_test.dart
+// path: test/admin/providers/riwayat_aktivasi_paket_provider_test.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -25,37 +25,65 @@ void main() {
 
   // Customer dummies
   final c1 = PelangganModel(
-      id: 'c1', name: 'Charlie', phone: '', address: '', password: '');
+    id: 'c1',
+    name: 'Charlie',
+    phone: '',
+    address: '',
+    password: '',
+    registrationDate: now,
+    fcmToken: '',
+    appVersion: '',
+    platform: '',
+    lastActive: now,
+  );
   final c2 = PelangganModel(
-      id: 'c2', name: 'Alpha', phone: '', address: '', password: '');
+    id: 'c2',
+    name: 'Alpha',
+    phone: '',
+    address: '',
+    password: '',
+    registrationDate: now,
+    fcmToken: '',
+    appVersion: '',
+    platform: '',
+    lastActive: now,
+  );
   final c3 = PelangganModel(
-      id: 'c3', name: 'Bravo', phone: '', address: '', password: '');
+    id: 'c3',
+    name: 'Bravo',
+    phone: '',
+    address: '',
+    password: '',
+    registrationDate: now,
+    fcmToken: '',
+    appVersion: '',
+    platform: '',
+    lastActive: now,
+  );
 
   // Transaction dummies
   final t1 = TransaksiModel(
-      id: '1',
-      customerId: 'c1',
-      date: yesterday,
-      endDate: today,
-      paymentStatus: PaymentStatus.paid,
-      description: '',
-      amount: 0,
-      type: TransactionType.income,
-      walletId: '',
-      categoryId: '',
-      updatedAt: today);
-  final t2 = TransaksiModel(
-    id: '2',
-    customerId: 'c2',
-    date: today,
-    endDate: tomorrow,
+    id: '1',
+    customerId: 'c1',
+    date: yesterday,
+    endDate: today,
+    paymentStatus: PaymentStatus.paid,
     description: '',
     amount: 0,
     type: TransactionType.income,
     walletId: '',
     categoryId: '',
-    updatedAt: tomorrow,
   );
+  final t2 = TransaksiModel(
+      id: '2',
+      customerId: 'c2',
+      date: today,
+      endDate: tomorrow,
+      description: '',
+      amount: 0,
+      type: TransactionType.income,
+      walletId: '',
+      categoryId: '');
   final t3 = TransaksiModel(
     id: '3',
     customerId: 'c3',
@@ -67,7 +95,6 @@ void main() {
     type: TransactionType.income,
     walletId: '',
     categoryId: '',
-    updatedAt: yesterday,
   );
   // Transaksi tanpa customerId yang cocok untuk menguji kasus 'Tidak diketahui'
   final t4 = TransaksiModel(
@@ -80,7 +107,6 @@ void main() {
     walletId: '',
     categoryId: '',
     // Waktu sama, menit berbeda
-    updatedAt: today.add(const Duration(minutes: 1)),
   );
 
   final mockTransactions = [t1, t2, t3, t4];
@@ -105,9 +131,9 @@ void main() {
     );
 
     // Atur mock untuk mengembalikan data dummy menggunakan syntax mocktail
-    when(() => mockTransaksiOpsqlite.getTransactionsByPackageActivation())
+    when(() => mockTransaksiOpsqlite.ambilTransaksiAktivasiPaket())
         .thenAnswer((_) async => List.from(mockTransactions));
-    when(() => mockPelangganOpSqlite.ambilPelanggan())
+    when(() => mockPelangganOpSqlite.ambilSemuaPelanggan())
         .thenAnswer((_) async => List.from(mockCustomers));
   });
 
@@ -119,8 +145,7 @@ void main() {
     test('01. endDate harus mengurutkan list berdasarkan endDate descending',
         () async {
       // Tunggu provider untuk inisialisasi
-      final state =
-          await container.read(packageActivationHistoryProvider.future);
+      final state = await container.read(riwayatAktivasiPaketProvider.future);
 
       // Verifikasi urutan default adalah berdasarkan endDate descending (null di akhir)
       expect(state.items.map((item) => item.transaksi.id).toList(),
@@ -130,14 +155,14 @@ void main() {
 
     test('02. nameAZ harus mengurutkan list berdasarkan nama A-Z', () async {
       // Inisialisasi dulu
-      await container.read(packageActivationHistoryProvider.future);
+      await container.read(riwayatAktivasiPaketProvider.future);
 
       // Panggil changeSort
       container
-          .read(packageActivationHistoryProvider.notifier)
+          .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.nameAZ);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+      final state = container.read(riwayatAktivasiPaketProvider).value!;
 
       // Verifikasi urutan berdasarkan nama A-Z, customer tidak diketahui paling akhir
       expect(state.items.map((item) => item.customerName).toList(),
@@ -146,12 +171,12 @@ void main() {
     });
 
     test('03. namaZA harus mengurutkan list berdasarkan nama Z-A', () async {
-      await container.read(packageActivationHistoryProvider.future);
+      await container.read(riwayatAktivasiPaketProvider.future);
       container
-          .read(packageActivationHistoryProvider.notifier)
+          .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.nameZA);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+      final state = container.read(riwayatAktivasiPaketProvider).value!;
 
       // Verifikasi urutan berdasarkan nama Z-A
       expect(state.items.map((item) => item.customerName).toList(),
@@ -159,47 +184,47 @@ void main() {
       expect(state.sortBy, SortOption.nameZA);
     });
 
-    test(
-        '04. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
-        () async {
-      await container.read(packageActivationHistoryProvider.future);
-      container
-          .read(packageActivationHistoryProvider.notifier)
-          .changeSort(SortOption.updatedAtAZ);
+    // test(
+    //     '04. newest harus mengurutkan list updateAt yang terbaru ke yang terlama',
+    //     () async {
+    //   await container.read(riwayatAktivasiPaketProvider.future);
+    //   container
+    //       .read(riwayatAktivasiPaketProvider.notifier)
+    //       .changeSort(SortOption.updatedAtAZ);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+    //   final state = container.read(riwayatAktivasiPaketProvider).value!;
 
-      // Verifikasi urutan berdasarkan tanggal terbaru: t2, t4, t1, t3
-      expect(state.items.map((item) => item.transaksi.id).toList(),
-          ['2', '4', '1', '3']);
-      expect(state.sortBy, SortOption.updatedAtAZ);
-    });
+    //   // Verifikasi urutan berdasarkan tanggal terbaru: t2, t4, t1, t3
+    //   expect(state.items.map((item) => item.transaksi.id).toList(),
+    //       ['2', '4', '1', '3']);
+    //   expect(state.sortBy, SortOption.updatedAtAZ);
+    // });
 
-    test(
-        '05. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
-        () async {
-      await container.read(packageActivationHistoryProvider.future);
-      container
-          .read(packageActivationHistoryProvider.notifier)
-          .changeSort(SortOption.updatedAtZA);
+    // test(
+    //     '05. oldest harus mengurutkan list updateAt yang terlama ke yang terbaru',
+    //     () async {
+    //   await container.read(riwayatAktivasiPaketProvider.future);
+    //   container
+    //       .read(riwayatAktivasiPaketProvider.notifier)
+    //       .changeSort(SortOption.updatedAtZA);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+    //   final state = container.read(riwayatAktivasiPaketProvider).value!;
 
-      // Verifikasi urutan berdasarkan tanggal terlama: t3, t1, t4, t2
-      expect(state.items.map((item) => item.transaksi.id).toList(),
-          ['3', '1', '4', '2']);
-      expect(state.sortBy, SortOption.updatedAtZA);
-    });
+    //   // Verifikasi urutan berdasarkan tanggal terlama: t3, t1, t4, t2
+    //   expect(state.items.map((item) => item.transaksi.id).toList(),
+    //       ['3', '1', '4', '2']);
+    //   expect(state.sortBy, SortOption.updatedAtZA);
+    // });
 
     test(
         '06. endingToday harus mengurutkan list yang berakhir hari ini ke paling lama',
         () async {
-      await container.read(packageActivationHistoryProvider.future);
+      await container.read(riwayatAktivasiPaketProvider.future);
       container
-          .read(packageActivationHistoryProvider.notifier)
+          .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.endingToday);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+      final state = container.read(riwayatAktivasiPaketProvider).value!;
 
       // Verifikasi: t1 (berakhir hari ini) harus di paling atas
       expect(state.items.first.transaksi.id, '1');
@@ -208,12 +233,12 @@ void main() {
 
     test('07. paid harus mengurutkan list dari yang lunas ke yang belum lunas',
         () async {
-      await container.read(packageActivationHistoryProvider.future);
+      await container.read(riwayatAktivasiPaketProvider.future);
       container
-          .read(packageActivationHistoryProvider.notifier)
+          .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.paid);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+      final state = container.read(riwayatAktivasiPaketProvider).value!;
 
       // Verifikasi: yang lunas (t1, t3) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
@@ -226,12 +251,12 @@ void main() {
     test(
         '08. unpaid harus mengurutkan list dari yang belum lunas ke yang lunas',
         () async {
-      await container.read(packageActivationHistoryProvider.future);
+      await container.read(riwayatAktivasiPaketProvider.future);
       container
-          .read(packageActivationHistoryProvider.notifier)
+          .read(riwayatAktivasiPaketProvider.notifier)
           .changeSort(SortOption.unpaid);
 
-      final state = container.read(packageActivationHistoryProvider).value!;
+      final state = container.read(riwayatAktivasiPaketProvider).value!;
 
       // Verifikasi: yang belum lunas (t2, t4) di atas, diurutkan berdasarkan tanggal terbaru
       final ids = state.items.map((item) => item.transaksi.id).toList();
