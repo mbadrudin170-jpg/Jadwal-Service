@@ -1,4 +1,3 @@
-
 // path: test/admin/app_admin_test.dart
 import 'dart:async';
 
@@ -60,7 +59,8 @@ class MockLayananPenyimpananLokal extends Mock
 
 class MockUploadDataService extends Mock implements UploadDataService {}
 
-class MockSyncCheckService extends Mock implements SyncCheckService {}
+class MockLayananCekSinkronisasi extends Mock
+    implements LayananCekSinkronisasi {}
 
 class MockDatabase extends Mock implements Database {}
 
@@ -137,7 +137,7 @@ void main() {
   late MockNotificationResponse mockNotificationResponse;
   late MockLayananPenyimpananLokal mockLocalStorage;
   late MockUploadDataService mockUploadDataService;
-  late MockSyncCheckService mockSyncCheckService;
+  late MockLayananCekSinkronisasi mockSyncCheckService;
   late MockSqliteDatabase mockDatabaseHelper;
   late MockDatabase mockDatabase;
   late MockWorkmanagerPlatform mockWorkmanagerPlatform;
@@ -158,7 +158,7 @@ void main() {
     mockNotificationResponse = MockNotificationResponse();
     mockLocalStorage = MockLayananPenyimpananLokal();
     mockUploadDataService = MockUploadDataService();
-    mockSyncCheckService = MockSyncCheckService();
+    mockSyncCheckService = MockLayananCekSinkronisasi();
     mockDatabaseHelper = MockSqliteDatabase();
     mockDatabase = MockDatabase();
 
@@ -168,7 +168,8 @@ void main() {
 
     when(() => mockUploadDataService.uploadSemuaData())
         .thenAnswer((_) async => true);
-    when(() => mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
+    when(() => mockSyncCheckService.jalankanCekSinkronisasi())
+        .thenAnswer((_) async {});
     when(() => mockLocalStorage.ambilModeTema())
         .thenAnswer((_) async => ThemeMode.light);
     when(() => mockLocalStorage.simpanModeTema(any()))
@@ -202,7 +203,7 @@ void main() {
   Widget createTestWidget({List<Override> overrides = const []}) {
     return ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWith((ref) => mockPrefs),
+        sharedPreferencesProvider.overrideWithValue(mockPrefs),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
@@ -215,7 +216,7 @@ void main() {
         sqliteDatabaseProvider.overrideWithValue(mockDatabaseHelper),
         localStorageServiceProvider.overrideWith((ref) => mockLocalStorage),
         uploadDataServiceProvider.overrideWithValue(mockUploadDataService),
-        syncCheckServiceProvider.overrideWithValue(mockSyncCheckService),
+        layananCekSinkronisasiProvider.overrideWithValue(mockSyncCheckService),
         ...overrides,
       ],
       child: const AppAdmin(),
@@ -273,7 +274,7 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      verify(mockKoneksiInternetService.cekKoneksiLokal).called(1);
+      verify(() => mockKoneksiInternetService.cekKoneksiLokal()).called(1);
 
       expect(find.byType(HalamanUtama), findsOneWidget);
       final halamanUtama =
@@ -302,8 +303,9 @@ void main() {
   group('Pengujian AppMaterial', () {
     testWidgets('06. Menampilkan loading indicator saat tema sedang loading',
         (tester) async {
-      await tester.pumpWidget(createTestWidget(
-          overrides: [themeProvider.overrideWith(LoadingThemeNotifier.new)]));
+      await tester.pumpWidget(createTestWidget(overrides: [
+        themeNotifierProvider.overrideWith(() => LoadingThemeNotifier())
+      ]));
 
       await tester.pump();
 
@@ -312,8 +314,9 @@ void main() {
 
     testWidgets('07. Menampilkan pesan error saat tema gagal dimuat',
         (tester) async {
-      await tester.pumpWidget(createTestWidget(
-          overrides: [themeProvider.overrideWith(ErrorThemeNotifier.new)]));
+      await tester.pumpWidget(createTestWidget(overrides: [
+        themeNotifierProvider.overrideWith(() => ErrorThemeNotifier())
+      ]));
 
       await tester.pumpAndSettle();
 
