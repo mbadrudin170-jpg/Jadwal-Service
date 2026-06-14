@@ -185,7 +185,7 @@ void main() {
         .thenReturn(mockNotificationResponse);
     when(() => mockNotificationResponse.payload).thenReturn(null);
 
-    when(() => mockPelangganAktifOpSqlite.arsipPelangganKadaluarsa())
+    when(() => mockPelangganAktifOpSqlite.arsipkanLanggananKadaluarsa())
         .thenAnswer((_) async => 0);
     when(() => mockSettingsOpSqlite.getSettings())
         .thenAnswer((_) async => SettingsModel());
@@ -203,7 +203,7 @@ void main() {
   Widget createTestWidget({List<Override> overrides = const []}) {
     return ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(mockPrefs),
+        sharedPreferencesProvider.overrideWith((ref) async => mockPrefs),
         koneksiInternetServiceProvider
             .overrideWithValue(mockKoneksiInternetService),
         notifikasiServisProvider.overrideWithValue(mockNotifikasiServis),
@@ -304,7 +304,7 @@ void main() {
     testWidgets('06. Menampilkan loading indicator saat tema sedang loading',
         (tester) async {
       await tester.pumpWidget(createTestWidget(overrides: [
-        themeNotifierProvider.overrideWith(() => LoadingThemeNotifier())
+        themeProvider.overrideWith(LoadingThemeNotifier.new)
       ]));
 
       await tester.pump();
@@ -315,7 +315,7 @@ void main() {
     testWidgets('07. Menampilkan pesan error saat tema gagal dimuat',
         (tester) async {
       await tester.pumpWidget(createTestWidget(overrides: [
-        themeNotifierProvider.overrideWith(() => ErrorThemeNotifier())
+        themeProvider.overrideWith(ErrorThemeNotifier.new)
       ]));
 
       await tester.pumpAndSettle();

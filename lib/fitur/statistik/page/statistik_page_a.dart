@@ -3,7 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/tab/pelanggan_aktif_page.dart';
+import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/fitur/pelanggan/ui/admin/pelanggan.dart';
