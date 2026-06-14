@@ -15,7 +15,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}

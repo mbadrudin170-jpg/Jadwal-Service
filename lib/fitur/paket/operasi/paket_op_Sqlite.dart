@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/sqlite_operasi/paket_Op_Sqlite.dart
+// path: lib/fitur/paket/operasi/paket_op_Sqlite.dart
 
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
@@ -31,7 +31,7 @@ class PaketOpSqlite {
   Future<void> tambahPaket(PaketModel paket, {bool dariServer = false}) async {
     Log.info('Memulai createPackage untuk id: ${paket.id}');
     try {
-      final data = paket.copyWith(updatedAt: _nowUtc).toSqlite();
+      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await basOpSqlite.sisipkan(
         _tabel,
         data,
@@ -155,7 +155,7 @@ class PaketOpSqlite {
       {bool dariServer = false}) async {
     Log.info('Memulai updatePaket untuk id: ${paket.id}');
     try {
-      final data = paket.copyWith(updatedAt: _nowUtc).toSqlite();
+      final data = paket.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await basOpSqlite.update(
         _tabel,
         data,
@@ -269,7 +269,7 @@ class PaketOpSqlite {
     try {
       final dataList = items
           .map(
-            (item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
+            (item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
       await basOpSqlite.insertOrUpdateBatch(

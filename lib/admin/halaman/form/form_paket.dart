@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -64,7 +65,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   Future<void> _simpanForm() async {
     if (_formKey.currentState!.validate()) {
       final paketBaru = PaketModel(
-          id: _modeEdit ? widget.paket!.id : null,
+          id: _modeEdit ? widget.paket!.id : const Uuid().v4(),
           nama: _nameController.text,
           harga: int.tryParse(
                   _priceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
