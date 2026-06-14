@@ -252,7 +252,7 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
         side: BorderSide(color: Colors.grey.shade400),
       ),
       title: Text(label),
-      subtitle: Text(FormatDateTime.formatDateAndTimeCompact(date)),
+      subtitle: Text(FormatWaktuLengkap.formatSingkat(date)),
       trailing: const Padding(
         padding: EdgeInsets.only(right: 8.0),
         child: Icon(Icons.calendar_month_outlined),

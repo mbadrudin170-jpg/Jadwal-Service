@@ -176,7 +176,7 @@ class Pelanggan extends ConsumerWidget {
                 subtitle: Text(
                   pelanggan.lastActiveAt == null
                       ? '-'
-                      : FormatDateTime.formatDateAndTimeCompact(
+                      : FormatWaktuLengkap.formatSingkat(
                           pelanggan.lastActiveAt!),
                 ),
                 trailing: Row(

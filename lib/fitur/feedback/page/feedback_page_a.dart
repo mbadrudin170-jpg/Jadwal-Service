@@ -181,8 +181,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               item.date != null
-                                  ? FormatDateTime.formatDateAndTimeCompact(
-                                      item.date!)
+                                  ? FormatWaktuLengkap.formatSingkat(item.date!)
                                   : 'Tanggal tidak tersedia',
                               style: TextStyle(
                                 fontSize: 12,

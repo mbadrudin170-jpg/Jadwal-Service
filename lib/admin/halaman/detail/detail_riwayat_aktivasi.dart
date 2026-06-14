@@ -97,7 +97,7 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     _buildRow('Nama Paket', package?.name ?? 'Tidak Diketahui'),
                     _buildRow(
                         'Harga',
-                        CurrencyFormat.formatCurrency(
+                        FormatUang.formatMataUang(
                             (package?.price ?? 0).toDouble())),
                     _buildRow('Durasi',
                         '${package?.duration ?? 0} ${package?.type.displayName ?? ""}'),
@@ -128,12 +128,12 @@ class DetailRiwayatAktivasiPage extends ConsumerWidget {
                     if (transaction.startDate != null)
                       _buildRow(
                           'Tanggal Mulai',
-                          FormatDateTime.formatDateAndTimeCompact(
+                          FormatWaktuLengkap.formatSingkat(
                               transaction.startDate!)),
                     if (transaction.endDate != null)
                       _buildRow(
                           'Tanggal Berakhir',
-                          FormatDateTime.formatDateAndTimeCompact(
+                          FormatWaktuLengkap.formatSingkat(
                               transaction.endDate!)),
                     _buildRow('Status Pembayaran',
                         transaction.paymentStatus.displayName.toUpperCase(),

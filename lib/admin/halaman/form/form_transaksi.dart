@@ -213,7 +213,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     );
     if (picked != null && picked != _selectedDate) {
       setState(() => _selectedDate = picked);
-      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(picked)}');
+      Log.info('Tanggal dipilih: ${FormatTanggal.formatDasar(picked)}');
     }
   }
 

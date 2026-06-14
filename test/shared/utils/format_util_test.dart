@@ -21,7 +21,7 @@ void main() {
   group('FormatDateTime', () {
     test('formatDateAndTime harus memformat tanggal dan waktu dengan benar',
         () {
-      final formatted = FormatDateTime.formatDateAndTime(testDateTime);
+      final formatted = FormatWaktuLengkap.formatLengkap(testDateTime);
       // Ekspektasi: "17 Agu 2024, 10:30"
       expect(formatted, '17 Agu 2024, 10:30');
     });
@@ -29,7 +29,7 @@ void main() {
     test(
         'formatDateAndTimeCompact harus memformat tanggal dan waktu ringkas dengan benar',
         () {
-      final formatted = FormatDateTime.formatDateAndTimeCompact(testDateTime);
+      final formatted = FormatWaktuLengkap.formatSingkat(testDateTime);
       // Ekspektasi: "Sab, 17 Agu 24, 10:30"
       expect(formatted, 'Sab, 17 Agu 24, 10:30');
     });
@@ -37,19 +37,19 @@ void main() {
 
   group('FormatDate', () {
     test('formatDateBasic harus memformat tanggal dasar dengan benar', () {
-      final formatted = FormatDate.formatDateBasic(testDateTime);
+      final formatted = FormatTanggal.formatDasar(testDateTime);
       // Ekspektasi: "17 Agu 2024"
       expect(formatted, '17 Agu 2024');
     });
 
     test('formatDateCompact harus memformat tanggal ringkas dengan benar', () {
-      final formatted = FormatDate.formatDateCompact(testDateTime);
+      final formatted = FormatTanggal.formatSingkat(testDateTime);
       // Ekspektasi: "Sab, 17 Agu 24"
       expect(formatted, 'Sab, 17 Agu 24');
     });
 
     test('formatMonthYear harus memformat bulan dan tahun dengan benar', () {
-      final formatted = FormatDate.formatMonthYear(testDateTime);
+      final formatted = FormatTanggal.formatBulanTahun(testDateTime);
       // Ekspektasi: "Agustus 2024"
       expect(formatted, 'Agustus 2024');
     });
@@ -57,14 +57,14 @@ void main() {
 
   group('TimeFormat', () {
     test('formatHourMinute harus memformat jam dan menit dengan benar', () {
-      final formatted = TimeFormat.formatHourMinute(testDateTime);
+      final formatted = FormatJam.formatJamMenit(testDateTime);
       // Ekspektasi: "10:30"
       expect(formatted, '10:30');
     });
 
     test('formatFullTime harus memformat jam, menit, dan detik dengan benar',
         () {
-      final formatted = TimeFormat.formatFullTime(testDateTime);
+      final formatted = FormatJam.formatJamMenitDetik(testDateTime);
       // Ekspektasi: "10:30:55"
       expect(formatted, '10:30:55');
     });
@@ -73,7 +73,7 @@ void main() {
         'formatTextToHour harus mengonversi string waktu valid ke format jam yang benar',
         () {
       const timeString = '2024-08-17T14:45:00';
-      final formatted = TimeFormat.formatTextToHour(timeString);
+      final formatted = FormatJam.formatTextToHour(timeString);
       // Ekspektasi: "14:45"
       expect(formatted, '14:45');
     });
@@ -82,7 +82,7 @@ void main() {
         'formatTextToHour harus mengembalikan fallback untuk string waktu yang tidak valid',
         () {
       const invalidTimeString = 'bukan-waktu';
-      final formatted = TimeFormat.formatTextToHour(invalidTimeString);
+      final formatted = FormatJam.formatTextToHour(invalidTimeString);
       // Ekspektasi: "--:--"
       expect(formatted, '--:--');
     });
@@ -91,7 +91,7 @@ void main() {
   group('CurrencyFormat', () {
     test('formatCurrency harus memformat angka double ke mata uang Rupiah', () {
       const amount = 125000.0;
-      final formatted = CurrencyFormat.formatCurrency(amount);
+      final formatted = FormatUang.formatMataUang(amount);
       // Ekspektasi: "Rp 125.000". Spasi bisa jadi non-breaking space,
       // jadi kita ganti untuk memastikan konsistensi.
       expect(formatted.replaceAll('\u00A0', ' '), 'Rp 125.000');
@@ -99,13 +99,13 @@ void main() {
 
     test('formatCurrency harus menangani angka nol dengan benar', () {
       const amount = 0.0;
-      final formatted = CurrencyFormat.formatCurrency(amount);
+      final formatted = FormatUang.formatMataUang(amount);
       expect(formatted.replaceAll('\u00A0', ' '), 'Rp 0');
     });
 
     test('formatCurrency harus menangani angka negatif dengan benar', () {
       const amount = -50000.0;
-      final formatted = CurrencyFormat.formatCurrency(amount);
+      final formatted = FormatUang.formatMataUang(amount);
       // Ekspektasi untuk angka negatif adalah "-Rp 50.000"
       expect(formatted.replaceAll('\u00A0', ' '), '-Rp 50.000');
     });
@@ -116,14 +116,14 @@ void main() {
         'formatWithSeparator harus memformat angka integer dengan separator ribuan',
         () {
       const value = 1500000;
-      final formatted = NumberFormatter.formatWithSeparator(value);
+      final formatted = FormatNomor.formatRibuan(value);
       // Ekspektasi: "1.500.000"
       expect(formatted, '1.500.000');
     });
 
     test('formatWithSeparator harus menangani angka di bawah seribu', () {
       const value = 999;
-      final formatted = NumberFormatter.formatWithSeparator(value);
+      final formatted = FormatNomor.formatRibuan(value);
       expect(formatted, '999');
     });
   });

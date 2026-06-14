@@ -128,8 +128,8 @@ class _StatistikPageAState extends ConsumerState<StatistikPageA> {
                             MaterialPageRoute<void>(
                                 builder: (_) => const TransactionPageA())),
                         title: 'Pendapatan Bulan Ini',
-                        value: CurrencyFormat.formatCurrency(
-                            data.pendapatanBulanIni),
+                        value:
+                            FormatUang.formatMataUang(data.pendapatanBulanIni),
                         icon: TIcons.money,
                         color: data.pendapatanBulanIni < 0
                             ? Colors.red

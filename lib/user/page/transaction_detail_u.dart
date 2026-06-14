@@ -30,12 +30,12 @@ class TransactionDetailPage extends StatelessWidget {
           children: [
             _buildInfoRow(
               'Tanggal:',
-              FormatDateTime.formatDateAndTimeCompact(transaction.date),
+              FormatWaktuLengkap.formatSingkat(transaction.date),
             ),
             _buildInfoRow('Keterangan:', transaction.description),
             _buildInfoRow(
               'Jumlah:',
-              CurrencyFormat.formatCurrency(transaction.amount),
+              FormatUang.formatMataUang(transaction.amount),
             ),
             _buildInfoRow('Tipe:', transaction.type.displayName),
             if (package != null)
@@ -49,12 +49,12 @@ class TransactionDetailPage extends StatelessWidget {
             if (transaction.startDate != null)
               _buildInfoRow(
                 'Tanggal Mulai:',
-                FormatDateTime.formatDateAndTimeCompact(transaction.startDate!),
+                FormatWaktuLengkap.formatSingkat(transaction.startDate!),
               ),
             if (transaction.endDate != null)
               _buildInfoRow(
                 'Tanggal Berakhir:',
-                FormatDateTime.formatDateAndTimeCompact(transaction.endDate!),
+                FormatWaktuLengkap.formatSingkat(transaction.endDate!),
               ),
             _buildInfoRow(
               'Poin didapat:',

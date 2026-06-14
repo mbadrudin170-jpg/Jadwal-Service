@@ -320,7 +320,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           kritikSaran.date != null
-                              ? FormatDateTime.formatDateAndTimeCompact(
+                              ? FormatWaktuLengkap.formatSingkat(
                                   kritikSaran.date!,
                                 )
                               : 'Tanggal tidak tersedia',

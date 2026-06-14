@@ -24,7 +24,7 @@ Widget buildSummaryInfo({
       Text(label, style: Theme.of(context).textTheme.bodySmall),
       gapH4,
       Text(
-        CurrencyFormat.formatCurrency(amount),
+        FormatUang.formatMataUang(amount),
         key: textKey ?? ValueKey(label),
         style: TextStyle(
           color: color,

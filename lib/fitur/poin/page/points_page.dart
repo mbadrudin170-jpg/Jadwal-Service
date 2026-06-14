@@ -332,7 +332,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
                   ),
                   title: Text(tx.description),
                   subtitle: Text(
-                    FormatDate.formatDateBasic(tx.date),
+                    FormatTanggal.formatDasar(tx.date),
                   ),
                   trailing: Text(
                     pointsStr,

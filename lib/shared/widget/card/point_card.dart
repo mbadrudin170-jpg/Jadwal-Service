@@ -32,7 +32,7 @@ class TotalPointCard extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final formattedPoints = NumberFormatter.formatWithSeparator(points);
+    final formattedPoints = FormatNomor.formatRibuan(points);
     final textTheme = Theme.of(context).textTheme;
 
     return DecoratedBox(

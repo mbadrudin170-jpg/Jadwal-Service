@@ -26,7 +26,7 @@ class PackageNameWidget extends ConsumerWidget {
 
     final packageOperation = ref.read(paketOpSqliteProvider);
     return FutureBuilder<PaketModel?>(
-      future: packageOperation.getById(packageId),
+      future: packageOperation.ambilBerdasarkanId(packageId),
       builder: (final context, final snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           Log.info('Menunggu data paket untuk ID: $packageId');

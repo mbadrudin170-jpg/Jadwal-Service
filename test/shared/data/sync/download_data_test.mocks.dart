@@ -705,9 +705,10 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
       ) as _i9.Future<List<_i16.PaketModel>>);
 
   @override
-  _i9.Future<_i16.PaketModel?> getById(String? id) => (super.noSuchMethod(
+  _i9.Future<_i16.PaketModel?> ambilBerdasarkanId(String? id) =>
+      (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i9.Future<_i16.PaketModel?>.value(),

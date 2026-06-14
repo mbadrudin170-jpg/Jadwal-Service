@@ -54,7 +54,7 @@ final activeCustomerDetailProvider = FutureProvider.family<
   final hasil = await Future.wait<Object?>([
     pelangganOpSqlite.ambilBerdasarkanId(pelangganAktif.customerId),
     pelangganAktif.packageId.isNotEmpty
-        ? paketOpSqlite.getById(pelangganAktif.packageId)
+        ? paketOpSqlite.ambilBerdasarkanId(pelangganAktif.packageId)
         : Future<PaketModel?>.value(),
     (pelangganAktif.transactionId != null &&
             pelangganAktif.transactionId!.isNotEmpty)
@@ -260,13 +260,13 @@ class _DetailPelangganAktifState extends ConsumerState<DetailPelangganAktif> {
                       _buildInfoRow(
                         context,
                         'Mulai',
-                        FormatDateTime.formatDateAndTimeCompact(
+                        FormatWaktuLengkap.formatSingkat(
                             pelangganAktif.startDate),
                       ),
                       _buildInfoRow(
                         context,
                         'Berakhir',
-                        FormatDateTime.formatDateAndTimeCompact(
+                        FormatWaktuLengkap.formatSingkat(
                             pelangganAktif.endDate),
                       ),
                       const Divider(),

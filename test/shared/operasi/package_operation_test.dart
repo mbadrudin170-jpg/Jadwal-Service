@@ -61,7 +61,7 @@ void main() {
         whereArgs: anyNamed('whereArgs'),
       )).thenAnswer((_) async => [tPackageMap]);
 
-      final result = await packageOperation.getById('1');
+      final result = await packageOperation.ambilBerdasarkanId('1');
 
       expect(result, isA<PaketModel>());
       expect(result?.id, tPackage.id);

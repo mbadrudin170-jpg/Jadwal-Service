@@ -39,7 +39,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<PaketModel?> getPaketByid(String packageId) {
-    return _paketOpSqlite.getById(packageId);
+    return _paketOpSqlite.ambilBerdasarkanId(packageId);
   }
 
   @override

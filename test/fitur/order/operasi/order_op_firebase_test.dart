@@ -93,10 +93,13 @@ void main() {
     when(() => mockOrderCollectionReference.where(any,
             isEqualTo: any(named: 'isEqualTo')))
         .thenReturn(mockQuery);
+    when(() => mockOrderCollectionReference.snapshots())
+        .thenAnswer((_) => const Stream.empty()); // Add this line
     when(() => mockQuery.orderBy(any, descending: any(named: 'descending'))).thenReturn(mockQuery);
     when(() => mockQuery.where(any, isEqualTo: any(named: 'isEqualTo')))
         .thenReturn(mockQuery);
     when(() => mockQuery.count()).thenReturn(mockAggregateQuery);
+    when(() => mockQuery.snapshots()).thenAnswer((_) => const Stream.empty());
     when(() => mockAggregateQuery.get())
         .thenAnswer((_) async => mockAggregateQuerySnapshot);
   });
@@ -112,43 +115,45 @@ void main() {
   final orderMap = order.toFirebase();
 
   group('Grup Pengujian OrderOpFirebase', () {
-    test('1. Uji penambahan pesanan baru', () async {
+    test('01. Uji penambahan pesanan baru', () async {
       when(() => mockBaseOp.sisipkan(any(), any(), any()))
           .thenAnswer((_) => Future.value());
       await orderOpFirebase.addOrder(order);
-      verify(() => mockBaseOp.sisipkan(
-              NamaTabel.customerOrder, order.id, orderMap))
+      verify(() =>
+          mockBaseOp.sisipkan(NamaTabel.customerOrder, order.id, orderMap))
           .called(1);
     });
 
-    test('2. Uji pembaruan pesanan', () async {
-      when(() => mockBaseOp.update(any(), any(), any())).thenAnswer((_) => Future.value());
+    test('02. Uji pembaruan pesanan', () async {
+      when(() => mockBaseOp.update(any(), any(), any()))
+          .thenAnswer((_) => Future.value());
       await orderOpFirebase.updateOrder(order);
-      verify(() => mockBaseOp.update(
-              NamaTabel.customerOrder, order.id, orderMap))
+      verify(() =>
+          mockBaseOp.update(NamaTabel.customerOrder, order.id, orderMap))
           .called(1);
     });
 
-    test('3. Uji penghapusan lunak pesanan', () async {
+    test('03. Uji penghapusan lunak pesanan', () async {
       const orderId = 'order1';
       when(() => mockBaseOp.hapusSementara(any(), any()))
           .thenAnswer((_) => Future.value());
 
       await orderOpFirebase.softDeleteOrder(orderId);
 
-      verify(() => mockBaseOp.hapusSementara(
-              NamaTabel.customerOrder, orderId))
+      verify(() =>
+          mockBaseOp.hapusSementara(NamaTabel.customerOrder, orderId))
           .called(1);
     });
 
-    test('4. Uji mendapatkan stream semua pesanan', () {
+    test('04. Uji mendapatkan stream semua pesanan', () {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
-      when(() => mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
+      when(() => mockQuery.snapshots())
+          .thenAnswer((_) => streamController.stream);
       when(() => mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final resultStream = orderOpFirebase.getAllOrdersStream();
@@ -163,7 +168,7 @@ void main() {
       streamController.close();
     });
 
-    test('5. Uji mendapatkan pesanan berdasarkan ID', () async {
+    test('05. Uji mendapatkan pesanan berdasarkan ID', () async {
       when(() => mockDocumentReference.get())
           .thenAnswer((_) async => mockDocumentSnapshot);
       when(() => mockDocumentSnapshot.exists).thenReturn(true);
@@ -177,14 +182,15 @@ void main() {
       verify(() => mockOrderCollectionReference.doc(order.id)).called(1);
     });
 
-    test('6. Uji mendapatkan stream pesanan berdasarkan ID pengguna', () {
+    test('06. Uji mendapatkan stream pesanan berdasarkan ID pengguna', () {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
-      when(() => mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
+      when(() => mockQuery.snapshots())
+          .thenAnswer((_) => streamController.stream);
       when(() => mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final resultStream = orderOpFirebase.getAllByUserId('cust1');
@@ -199,14 +205,15 @@ void main() {
       streamController.close();
     });
 
-    test('7. Uji mendapatkan stream pesanan berdasarkan status', () {
+    test('07. Uji mendapatkan stream pesanan berdasarkan status', () {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
 
       final streamController =
           StreamController<QuerySnapshot<Map<String, dynamic>>>();
-      when(() => mockQuery.snapshots()).thenAnswer((_) => streamController.stream);
+      when(() => mockQuery.snapshots())
+          .thenAnswer((_) => streamController.stream);
       when(() => mockQuerySnapshot.docs).thenReturn([mockQueryDocSnapshot]);
 
       final resultStream =
@@ -223,7 +230,7 @@ void main() {
       streamController.close();
     });
 
-    test('8. Uji mendapatkan list pesanan berdasarkan status', () async {
+    test('08. Uji mendapatkan list pesanan berdasarkan status', () async {
       final mockQueryDocSnapshot = MockQueryDocumentSnapshot();
       when(() => mockQueryDocSnapshot.id).thenReturn(order.id);
       when(() => mockQueryDocSnapshot.data()).thenReturn(orderMap);
@@ -238,7 +245,7 @@ void main() {
       expect(result.first.status, StatusOrderEnum.baru);
     });
 
-    test('9. Uji menghitung pesanan berdasarkan status', () async {
+    test('09. Uji menghitung pesanan berdasarkan status', () async {
       when(() => mockAggregateQuerySnapshot.count).thenReturn(5);
 
       final result = await orderOpFirebase.countOrdersByStatus(

@@ -212,7 +212,7 @@ class _SubscriptionHistoryPageState
                                   children: [
                                     if (tx.endDate != null)
                                       Text(
-                                          'Berakhir - ${FormatDateTime.formatDateAndTimeCompact(tx.endDate!)}'),
+                                          'Berakhir - ${FormatWaktuLengkap.formatSingkat(tx.endDate!)}'),
                                     Text(
                                         'Status: ${tx.paymentStatus.displayName}',
                                         style: TextStyle(

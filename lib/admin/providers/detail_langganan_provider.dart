@@ -39,7 +39,7 @@ Future<DetailLanggananState?> ambilDetailLangganan(
         ? pelangganOpSqlite.ambilBerdasarkanId(transaksi.customerId!)
         : Future<PelangganModel?>.value(),
     transaksi.packageId != null
-        ? paketOpSqlite.getById(transaksi.packageId!)
+        ? paketOpSqlite.ambilBerdasarkanId(transaksi.packageId!)
         : Future<PaketModel?>.value(),
   ]);
 

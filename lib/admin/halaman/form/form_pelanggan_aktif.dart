@@ -238,7 +238,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
     );
     if (terpilih != null && terpilih != _pilihTanggal) {
       setState(() => _pilihTanggal = terpilih);
-      Log.info('Tanggal dipilih: ${FormatDate.formatDateBasic(terpilih)}');
+      Log.info('Tanggal dipilih: ${FormatTanggal.formatDasar(terpilih)}');
     }
   }
 
@@ -647,7 +647,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text((_pilihTanggal == null || _pilihJam == null)
             ? 'Pilih Tanggal & Jam'
-            : FormatDateTime.formatDateAndTimeCompact(DateTime(
+            : FormatWaktuLengkap.formatSingkat(DateTime(
                 _pilihTanggal!.year,
                 _pilihTanggal!.month,
                 _pilihTanggal!.day,
@@ -678,7 +678,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
               durasiBonusType: _isBonus ? _bonusDurationType : null,
             );
 
-            return FormatDateTime.formatDateAndTimeCompact(endDate);
+            return FormatWaktuLengkap.formatSingkat(endDate);
           } else {
             return 'Pilih paket & tanggal mulai';
           }

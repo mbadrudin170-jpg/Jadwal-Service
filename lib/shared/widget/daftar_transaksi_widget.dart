@@ -36,11 +36,11 @@ Widget buildSectionHeader(final DateTime date, final double total) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            FormatDate.formatDateCompact(date),
+            FormatTanggal.formatSingkat(date),
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           Text(
-            CurrencyFormat.formatCurrency(total),
+            FormatUang.formatMataUang(total),
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: total >= 0 ? Colors.green : Colors.red,
@@ -202,7 +202,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              CurrencyFormat.formatCurrency(widget.transaksi.amount),
+              FormatUang.formatMataUang(widget.transaksi.amount),
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: iconColor,
@@ -210,7 +210,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
             ),
             gapH4,
             Text(
-              TimeFormat.formatHourMinute(widget.transaksi.date),
+              FormatJam.formatJamMenit(widget.transaksi.date),
               style: textTheme.bodySmall,
             ),
           ],

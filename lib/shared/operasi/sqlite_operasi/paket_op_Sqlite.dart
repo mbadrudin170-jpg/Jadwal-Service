@@ -128,7 +128,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil [PaketModel] berdasarkan [id].
-  Future<PaketModel?> getById(String id) async {
+  Future<PaketModel?> ambilBerdasarkanId(String id) async {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
       final db = await dbHelper.database;

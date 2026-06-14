@@ -243,14 +243,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           _InfoItem(
             icon: TIcons.dateRange,
             label: 'Aktif Sejak',
-            value: FormatDateTime.formatDateAndTimeCompact(
-                lastSubscription.startDate!),
+            value:
+                FormatWaktuLengkap.formatSingkat(lastSubscription.startDate!),
           ),
         _InfoItem(
           icon: TIcons.dateRange,
           label: 'Berakhir Pada',
-          value: FormatDateTime.formatDateAndTimeCompact(
-              lastSubscription.endDate!),
+          value: FormatWaktuLengkap.formatSingkat(lastSubscription.endDate!),
         ),
         _InfoItem(
           icon: TIcons.hourglass,

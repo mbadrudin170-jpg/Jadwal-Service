@@ -48,8 +48,7 @@ class FeedbackHistoryUser extends ConsumerWidget {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       feedback.date != null
-                          ? FormatDateTime.formatDateAndTimeCompact(
-                              feedback.date!)
+                          ? FormatWaktuLengkap.formatSingkat(feedback.date!)
                           : '',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),

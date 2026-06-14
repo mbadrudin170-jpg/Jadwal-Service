@@ -54,27 +54,27 @@ class _FakeBaseOpSqlite_1 extends _i1.SmartFake implements _i3.BaseOpSqlite {
 class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
   @override
   _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
         returnValueForMissingStub: _FakeSqliteDatabase_0(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
   _i3.BaseOpSqlite get baseOpSqlite => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+        Invocation.getter(#baseOpSqlite),
         returnValue: _FakeBaseOpSqlite_1(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
         returnValueForMissingStub: _FakeBaseOpSqlite_1(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#baseOpSqlite),
         ),
       ) as _i3.BaseOpSqlite);
 
@@ -85,7 +85,7 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #addTransaction,
+          #tambahTransaksi,
           [transaction],
           {#fromServer: fromServer},
         ),
@@ -110,7 +110,7 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
   _i5.Future<_i6.TransaksiModel?> ambilBerdasarkanId(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
-          #getById,
+          #ambilBerdasarkanId,
           [id],
         ),
         returnValue: _i5.Future<_i6.TransaksiModel?>.value(),
@@ -268,7 +268,7 @@ class MockTransaksiOpsqlite extends _i1.Mock implements _i4.TransaksiOpsqlite {
   @override
   _i5.Future<int> ambilTotalPoin(String? customerId) => (super.noSuchMethod(
         Invocation.method(
-          #getTotalPoints,
+          #ambilTotalPoin,
           [customerId],
         ),
         returnValue: _i5.Future<int>.value(0),

@@ -134,10 +134,10 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
             _buildDetailRow('Keterangan', transaksi.description),
             _buildDetailRow(
               'Tanggal',
-              FormatDateTime.formatDateAndTimeCompact(transaksi.date),
+              FormatWaktuLengkap.formatSingkat(transaksi.date),
             ),
             _buildDetailRow(
-                'Jumlah', CurrencyFormat.formatCurrency(transaksi.amount)),
+                'Jumlah', FormatUang.formatMataUang(transaksi.amount)),
             _buildDetailRow('Tipe', transaksi.type.displayName),
             _buildFutureDetailRow(
               'Dompet',
@@ -189,7 +189,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
               _buildFutureDetailRow(
                 'Paket',
                 _getName(
-                  _paketOpSqlite.getById,
+                  _paketOpSqlite.ambilBerdasarkanId,
                   transaksi.packageId!,
                   'Paket',
                 ),
@@ -204,12 +204,12 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
             if (transaksi.startDate != null)
               _buildDetailRow(
                 'Masa Aktif Mulai',
-                FormatDateTime.formatDateAndTimeCompact(transaksi.startDate!),
+                FormatWaktuLengkap.formatSingkat(transaksi.startDate!),
               ),
             if (transaksi.endDate != null)
               _buildDetailRow(
                 'Masa Aktif Berakhir',
-                FormatDateTime.formatDateAndTimeCompact(transaksi.endDate!),
+                FormatWaktuLengkap.formatSingkat(transaksi.endDate!),
               ),
             if (transaksi.durasiBonus! > 0 && transaksi.durasiBonusType != null)
               _buildDetailRow('Bonus',

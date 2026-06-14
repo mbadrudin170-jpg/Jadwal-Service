@@ -51,7 +51,7 @@ class DateTimePickerWidget extends StatelessWidget {
               label: Text(
                 selectedDate == null
                     ? 'Pilih Tanggal'
-                    : FormatDate.formatDateBasic(selectedDate!),
+                    : FormatTanggal.formatDasar(selectedDate!),
               ),
             ),
             // Tombol pilih waktu

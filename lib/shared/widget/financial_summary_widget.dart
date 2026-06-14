@@ -26,7 +26,7 @@ Widget buildFinancialSummaryInfo({
       ),
       gapH4,
       Text(
-        CurrencyFormat.formatCurrency(amount),
+        FormatUang.formatMataUang(amount),
         style: context.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
           color: textColor,

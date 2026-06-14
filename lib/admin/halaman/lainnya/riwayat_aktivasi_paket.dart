@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_riwayat_aktivasi.dart';
-import 'package:wifi/admin/providers/package_activation_history_provider.dart';
+import 'package:wifi/admin/providers/riwayat_aktivasi_paket_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
@@ -18,8 +18,8 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final historyAsync = ref.watch(packageActivationHistoryProvider);
-    final packageOperation = ref.watch(paketOpSqliteProvider);
+    final historyAsync = ref.watch(riwayatAktivasiPaketProvider);
+    final paketOpSqlite = ref.watch(paketOpSqliteProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),
@@ -77,8 +77,8 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       PackageNameWidget(
-                        packageFuture: packageOperation
-                            .getById(transaction.packageId ?? ''),
+                        packageFuture: paketOpSqlite
+                            .ambilBerdasarkanId(transaction.packageId ?? ''),
                         style: TextStyle(color: paymentStatusColor),
                       ),
                       gapH4,
@@ -93,7 +93,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
                       if (transaction.startDate != null &&
                           transaction.endDate != null)
                         Text(
-                          'Aktif: ${FormatDate.formatDateBasic(transaction.startDate!)} - ${FormatDate.formatDateBasic(transaction.endDate!)}',
+                          'Aktif: ${FormatTanggal.formatDasar(transaction.startDate!)} - ${FormatTanggal.formatDasar(transaction.endDate!)}',
                         ),
                     ],
                   ),
@@ -140,7 +140,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
     );
 
     if (selected != null) {
-      ref.read(packageActivationHistoryProvider.notifier).changeSort(selected);
+      ref.read(riwayatAktivasiPaketProvider.notifier).changeSort(selected);
     }
   }
 }

@@ -1,4 +1,4 @@
-// path: lib/admin/providers/package_activation_history_provider.dart
+// path: lib/admin/providers/riwayat_aktivasi_paket_provider.dart
 
 import 'dart:async';
 
@@ -8,7 +8,7 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/transaksi_model.dart';
 
-part 'package_activation_history_provider.g.dart';
+part 'riwayat_aktivasi_paket_provider.g.dart';
 
 class TransactionWithCustomer {
   final TransaksiModel transaksi;
@@ -30,20 +30,20 @@ enum SortOption {
   unpaid
 }
 
-class PackageActivationHistoryState {
+class RiwayatAktivasiPaketState {
   final List<TransactionWithCustomer> items;
   final SortOption sortBy;
 
-  PackageActivationHistoryState({
+  RiwayatAktivasiPaketState({
     this.items = const [],
     this.sortBy = SortOption.endingToday,
   });
 
-  PackageActivationHistoryState copyWith({
+  RiwayatAktivasiPaketState copyWith({
     List<TransactionWithCustomer>? items,
     SortOption? sortBy,
   }) {
-    return PackageActivationHistoryState(
+    return RiwayatAktivasiPaketState(
       items: items ?? this.items,
       sortBy: sortBy ?? this.sortBy,
     );
@@ -51,15 +51,15 @@ class PackageActivationHistoryState {
 }
 
 @riverpod
-class PackageActivationHistory extends _$PackageActivationHistory {
+class RiwayatAktivasiPaket extends _$RiwayatAktivasiPaket {
   @override
-  FutureOr<PackageActivationHistoryState> build() {
+  FutureOr<RiwayatAktivasiPaketState> build() {
     ref.watch(transaksiOpSqliteProvider);
     ref.watch(pelangganOpSqliteProvider);
     return _loadData(SortOption.endDate);
   }
 
-  Future<PackageActivationHistoryState> _loadData(SortOption targetSort) async {
+  Future<RiwayatAktivasiPaketState> _loadData(SortOption targetSort) async {
     // 3. Ambil kedua data stream
     final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final pelangganOpSqlite = ref.read(pelangganOpSqliteProvider);
@@ -82,7 +82,7 @@ class PackageActivationHistory extends _$PackageActivationHistory {
     // Urutkan data gabungan
     _performSort(combinedList, targetSort);
 
-    return PackageActivationHistoryState(
+    return RiwayatAktivasiPaketState(
       items: combinedList,
       sortBy: targetSort,
     );

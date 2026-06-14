@@ -383,7 +383,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                       await Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                              builder: ( _) =>
+                              builder: (_) =>
                                   DetailPelangganAktif(pelangganAktif: c)));
                     },
                     child: ListTile(
@@ -411,7 +411,7 @@ class ActiveCustomerPageState extends ConsumerState<PelangganAktifPage>
                                       .getRemainingActivePeriodColor(
                                           c.endDate))),
                           Text(
-                              'Berakhir: ${FormatDate.formatDateBasic(c.endDate)} ${TimeFormat.formatHourMinute(c.endDate)}'),
+                              'Berakhir: ${FormatTanggal.formatDasar(c.endDate)} ${FormatJam.formatJamMenit(c.endDate)}'),
                         ],
                       ),
                       trailing: const Icon(TIcons.chevronRight),
