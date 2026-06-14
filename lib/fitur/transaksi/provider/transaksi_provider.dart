@@ -4,12 +4,12 @@ import 'dart:async';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart'; // Impor enum SortBy
+import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart'; // Impor enum SortBy
 import 'package:wifi/fitur/statistik/provider/statistik_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 part 'transaksi_provider.freezed.dart';
 part 'transaksi_provider.g.dart';

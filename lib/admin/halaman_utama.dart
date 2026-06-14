@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
-import 'package:wifi/admin/halaman/tab/transaksi_page_a.dart';
+import 'package:wifi/fitur/transaksi/page/transaksi_page_a.dart';
 import 'package:wifi/fitur/background/background_service.dart';
 import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';

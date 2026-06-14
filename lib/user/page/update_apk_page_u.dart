@@ -52,7 +52,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
     super.initState();
     _initializeAnimations();
     FlutterNativeSplash.remove();
-    _changelog = widget.apkInfo.releaseNotes
+    _changelog = widget.apkInfo.catatanRilis
         .split('\n')
         .map((final e) => e.trim())
         .where((final e) => e.isNotEmpty)
@@ -79,8 +79,8 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
 
   Future<void> _downloadUpdate() async {
     final String? downloadUrl =
-        widget.apkInfo.downloadLinks[widget.architecture] ??
-            widget.apkInfo.downloadLinks[ArsitekturApk.universal];
+        widget.apkInfo.linkDownload[widget.architecture] ??
+            widget.apkInfo.linkDownload[ArsitekturApk.universal];
 
     if (downloadUrl == null || downloadUrl.isEmpty) {
       if (mounted) {
@@ -94,7 +94,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
       _downloadProgress = 0.0;
     });
 
-    final fileName = 'update_v${widget.apkInfo.latestVersion}.apk';
+    final fileName = 'update_v${widget.apkInfo.versiTerkahir}.apk';
 
     try {
       await _updateService.downloadDanInstallApk(
@@ -125,7 +125,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   }
 
   Future<void> _openTutorial() async {
-    final url = widget.apkInfo.youtubeTutorial;
+    final url = widget.apkInfo.linkYoutubeTutorial;
     if (url.isEmpty) {
       if (mounted) {
         ToastUtil.info(context, 'Link tutorial belum tersedia.');
@@ -189,8 +189,8 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
   }
 
   Widget _buildActionButtons() {
-    final isUpdateRequired = widget.apkInfo.isUpdateRequired;
-    final hasTutorial = widget.apkInfo.youtubeTutorial.isNotEmpty;
+    final isUpdateRequired = widget.apkInfo.wajibUpdate;
+    final hasTutorial = widget.apkInfo.linkYoutubeTutorial.isNotEmpty;
 
     return Column(
       children: [
@@ -347,7 +347,7 @@ class _UpdateApkPageState extends ConsumerState<UpdateApkPage>
             icon: TIcons.cloudDone,
             iconColor: Colors.orange,
             label: 'Versi Terbaru',
-            version: widget.apkInfo.latestVersion.split('-').first,
+            version: widget.apkInfo.versiTerkahir.split('-').first,
             isCurrent: false,
             badge: 'BARU',
           ),

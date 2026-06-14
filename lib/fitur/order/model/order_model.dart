@@ -2,7 +2,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
@@ -17,7 +16,7 @@ abstract class OrderModel with _$OrderModel implements HasId {
 
   // HAPUS @override di baris ini
   const factory OrderModel({
-    @JsonKey(includeFromJson: false, includeToJson: false) required String id,
+    required String id,
     required String customerId,
     required String packageId,
     required DateTime date,
@@ -26,30 +25,6 @@ abstract class OrderModel with _$OrderModel implements HasId {
     @Default(false) bool isDeleted,
     DateTime? archivedAt,
   }) = _OrderModel;
-  // Pabrik untuk membuat id secara otomatis jika tidak diberikan
-  factory OrderModel.create({
-    String? id,
-    required String customerId,
-    required String packageId,
-    required DateTime date,
-    StatusOrderEnum status = StatusOrderEnum.baru,
-    DateTime? updatedAt,
-    bool isDeleted = false,
-    DateTime? archivedAt,
-  }) {
-    final generatedId = id ?? const Uuid().v4();
-    Log.info('OrderModel created: $generatedId for customer $customerId');
-    return OrderModel(
-      id: generatedId,
-      customerId: customerId,
-      packageId: packageId,
-      date: date,
-      status: status,
-      updatedAt: updatedAt,
-      isDeleted: isDeleted,
-      archivedAt: archivedAt,
-    );
-  }
 
   // ---------- SQLite ----------
   factory OrderModel.fromSqlite(Map<String, dynamic> map) {

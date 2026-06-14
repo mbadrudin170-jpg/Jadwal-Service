@@ -3,92 +3,37 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
+import 'package:wifi/shared/utils/parser_util.dart';
 
-/// Model representing application version information for the user.
-class VersiApkModel implements HasId {
-  @override
-  final String id;
+part 'versi_apk_model.freezed.dart';
 
-  /// Release notes or changelog for this version.
-  final String releaseNotes;
+@freezed
+abstract class VersiApkModel with _$VersiApkModel implements HasId {
+  const VersiApkModel._(); // Private constructor untuk method custom
 
-  /// A map containing the latest build number for each APK architecture.
-  final Map<ArsitekturApk, int> latestBuildNumber;
-
-  /// A map containing the download link for each APK architecture.
-  final Map<ArsitekturApk, String> downloadLinks;
-
-  /// The user-facing version number, e.g., "1.0.2".
-  final String latestVersion;
-
-  /// Indicates whether updating to this version is mandatory.
-  final bool isUpdateRequired;
-
-  /// Link to a relevant YouTube tutorial for this version.
-  final String youtubeTutorial;
-
-  /// Soft delete flag.
-  final bool isDeleted;
-
-  /// Timestamp when this version was archived.
-  final DateTime? archivedAt;
-
-  /// Timestamp when this version was last updated.
-  final DateTime? updatedAt;
-
-  /// Constructor for creating an instance of `ApkVersionModel`.
-  VersiApkModel({
-    final String? id,
-    this.releaseNotes = '',
-    this.latestBuildNumber = const {},
-    this.downloadLinks = const {},
-    this.latestVersion = '',
-    this.isUpdateRequired = false,
-    this.youtubeTutorial = '',
-    this.isDeleted = false,
-    this.archivedAt,
-    this.updatedAt,
-  }) : id = id ?? const Uuid().v4();
-
-  /// Creates a copy of this model with updated values.
-  VersiApkModel copyWith({
-    final String? id,
-    final String? releaseNotes,
-    final Map<ArsitekturApk, int>? latestBuildNumber,
-    final Map<ArsitekturApk, String>? downloadLinks,
-    final String? latestVersion,
-    final bool? isUpdateRequired,
-    final String? youtubeTutorial,
-    final bool? isDeleted,
-    final DateTime? archivedAt,
-    final DateTime? updatedAt,
-  }) {
-    return VersiApkModel(
-      id: id ?? this.id,
-      releaseNotes: releaseNotes ?? this.releaseNotes,
-      latestBuildNumber: latestBuildNumber ?? this.latestBuildNumber,
-      downloadLinks: downloadLinks ?? this.downloadLinks,
-      latestVersion: latestVersion ?? this.latestVersion,
-      isUpdateRequired: isUpdateRequired ?? this.isUpdateRequired,
-      youtubeTutorial: youtubeTutorial ?? this.youtubeTutorial,
-      isDeleted: isDeleted ?? this.isDeleted,
-      archivedAt: archivedAt ?? this.archivedAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  const factory VersiApkModel({
+    required String id, // ID harus diisi manual saat membuat instance baru
+    @Default('') String catatanRilis,
+    @Default(<ArsitekturApk, int>{}) Map<ArsitekturApk, int> nomorBuildTerakhir,
+    @Default(<ArsitekturApk, String>{}) Map<ArsitekturApk, String> linkDownload,
+    @Default('') String versiTerkahir,
+    @Default(false) bool wajibUpdate,
+    @Default('') String linkYoutubeTutorial,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
+    DateTime? diperbaruiPada,
+  }) = _VersiApkModel;
 
   // =========================
-  // HELPERS (DIHAPUS: _parseDateTime)
+  // HELPERS
   // =========================
 
-  /// Helper to convert a String to an `ApkArchitectureEnum` enum.
-  static ArsitekturApk? _architectureFromString(final String? value) {
+  static ArsitekturApk? _architectureFromString(String? value) {
     if (value == null) return null;
     for (final val in ArsitekturApk.values) {
       if (val.name == value) {
@@ -98,8 +43,7 @@ class VersiApkModel implements HasId {
     return null;
   }
 
-  /// Helper to parse build number data from a Map or JSON String.
-  static Map<ArsitekturApk, int> _parseBuildNumber(final dynamic data) {
+  static Map<ArsitekturApk, int> _parseBuildNumber(dynamic data) {
     final result = <ArsitekturApk, int>{};
     Map<dynamic, dynamic>? mapData;
 
@@ -127,8 +71,7 @@ class VersiApkModel implements HasId {
     return result;
   }
 
-  /// Helper to parse download link data from a Map or JSON String.
-  static Map<ArsitekturApk, String> _parseDownloadLinks(final dynamic data) {
+  static Map<ArsitekturApk, String> _parseDownloadLinks(dynamic data) {
     final result = <ArsitekturApk, String>{};
     Map<dynamic, dynamic>? mapData;
 
@@ -159,45 +102,38 @@ class VersiApkModel implements HasId {
   // SQLITE
   // =========================
 
-  /// Factory to create `ApkVersionModel` from SQLite data.
-  factory VersiApkModel.fromSqlite(final Map<String, dynamic> map) {
+  factory VersiApkModel.fromSqlite(Map<String, dynamic> map) {
     return VersiApkModel(
-      id: map[NamaKolom.id] as String? ?? '',
-      releaseNotes: map[NamaKolom.catatanRilis] as String? ?? '',
-      latestVersion: map[NamaKolom.versiTerkahir] as String? ?? '',
-      youtubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
-      // DIUBAH: Menggunakan ParserUtil
-      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
-      latestBuildNumber: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
-      downloadLinks: _parseDownloadLinks(map[NamaKolom.linkDownload]),
-      // DIUBAH: Menggunakan ParserUtil
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      id: map[NamaKolom.id] as String? ?? '', // ID dari DB atau string kosong
+      catatanRilis: map[NamaKolom.catatanRilis] as String? ?? '',
+      versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
+      linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
+      wajibUpdate: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      nomorBuildTerakhir: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
+      linkDownload: _parseDownloadLinks(map[NamaKolom.linkDownload]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
-  /// Converts the model to a Map for SQLite.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.catatanRilis: releaseNotes,
-      NamaKolom.versiTerkahir: latestVersion,
-      NamaKolom.linkYoutubeTutorial: youtubeTutorial,
-      // DIUBAH: Memastikan konsistensi
-      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+      NamaKolom.catatanRilis: catatanRilis,
+      NamaKolom.versiTerkahir: versiTerkahir,
+      NamaKolom.linkYoutubeTutorial: linkYoutubeTutorial,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
       NamaKolom.diperbaruiPada:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.nomorBuildTerakhir: jsonEncode(
-        latestBuildNumber
-            .map((final key, final value) => MapEntry(key.name, value)),
+        nomorBuildTerakhir.map((key, value) => MapEntry(key.name, value)),
       ),
       NamaKolom.linkDownload: jsonEncode(
-        downloadLinks
-            .map((final key, final value) => MapEntry(key.name, value)),
+        linkDownload.map((key, value) => MapEntry(key.name, value)),
       ),
-      NamaKolom.wajibUpdate: isUpdateRequired ? 1 : 0,
-      NamaKolom.diHapus: isDeleted ? 1 : 0,
+      NamaKolom.wajibUpdate: wajibUpdate ? 1 : 0,
+      NamaKolom.diHapus: diHapus ? 1 : 0,
     };
   }
 
@@ -205,42 +141,40 @@ class VersiApkModel implements HasId {
   // FIREBASE
   // =========================
 
-  /// Factory to create `ApkVersionModel` from Firebase data.
-  factory VersiApkModel.fromFirebase(
-      final String id, final Map<String, dynamic> map) {
+  factory VersiApkModel.fromFirebase(String id, Map<String, dynamic> map) {
     return VersiApkModel(
-      id: id,
-      releaseNotes: map[NamaKolom.catatanRilis] as String? ?? '',
-      latestVersion: map[NamaKolom.versiTerkahir] as String? ?? '',
-      youtubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
-      isUpdateRequired: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
-      latestBuildNumber: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
-      downloadLinks: _parseDownloadLinks(map[NamaKolom.linkDownload]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      id: map[NamaKolom.id] as String? ?? '',
+      catatanRilis: map[NamaKolom.catatanRilis] as String? ?? '',
+      versiTerkahir: map[NamaKolom.versiTerkahir] as String? ?? '',
+      linkYoutubeTutorial: map[NamaKolom.linkYoutubeTutorial] as String? ?? '',
+      wajibUpdate: ParserUtil.parseBool(map[NamaKolom.wajibUpdate]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      nomorBuildTerakhir: _parseBuildNumber(map[NamaKolom.nomorBuildTerakhir]),
+      linkDownload: _parseDownloadLinks(map[NamaKolom.linkDownload]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
     );
   }
 
-  /// Converts the model to a Map for Firestore.
   Map<String, dynamic> toFirebase() {
     return {
-      // DIUBAH: 'id' tidak seharusnya menjadi bagian dari data dokumen
-      NamaKolom.catatanRilis: releaseNotes,
-      NamaKolom.versiTerkahir: latestVersion,
-      NamaKolom.linkYoutubeTutorial: youtubeTutorial,
+      NamaKolom.id: id,
+      NamaKolom.catatanRilis: catatanRilis,
+      NamaKolom.versiTerkahir: versiTerkahir,
+      NamaKolom.linkYoutubeTutorial: linkYoutubeTutorial,
       NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
-      NamaKolom.diarsipkanPada:
-          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
-      NamaKolom.nomorBuildTerakhir: latestBuildNumber.map(
-        (final key, final value) => MapEntry(key.name, value),
+          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          : null,
+      NamaKolom.nomorBuildTerakhir: nomorBuildTerakhir.map(
+        (key, value) => MapEntry(key.name, value),
       ),
-      NamaKolom.linkDownload: downloadLinks.map(
-        (final key, final value) => MapEntry(key.name, value),
+      NamaKolom.linkDownload: linkDownload.map(
+        (key, value) => MapEntry(key.name, value),
       ),
-      NamaKolom.wajibUpdate: isUpdateRequired,
-      NamaKolom.diHapus: isDeleted,
+      NamaKolom.wajibUpdate: wajibUpdate,
+      NamaKolom.diHapus: diHapus,
     };
   }
 }

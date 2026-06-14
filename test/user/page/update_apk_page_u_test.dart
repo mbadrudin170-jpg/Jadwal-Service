@@ -10,10 +10,10 @@ import 'package:wifi/user/page/update_apk_page_u.dart';
 
 void main() {
   final apkInfo = VersiApkModel(
-    latestVersion: '1.0.1',
-    isUpdateRequired: true,
-    releaseNotes: 'Bug fixes and performance improvements',
-    downloadLinks: {ArsitekturApk.universal: 'https://example.com/update.apk'},
+    versiTerkahir: '1.0.1',
+    wajibUpdate: true,
+    catatanRilis: 'Bug fixes and performance improvements',
+    linkDownload: {ArsitekturApk.universal: 'https://example.com/update.apk'},
   );
 
   final packageInfo = InfoPerangkatModel(

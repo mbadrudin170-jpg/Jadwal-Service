@@ -1,86 +1,65 @@
 // path: lib/fitur/dompet/model/dompet_model.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/model/has_id.dart';
-import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
+import 'package:wifi/shared/utils/parser_util.dart';
 
-/// Data model for a wallet entity in the application.
-class DompetModel implements HasId {
-  /// A unique ID for each wallet, generated automatically if not provided.
-  @override
-  final String id;
+part 'dompet_model.freezed.dart';
 
-  /// The user-defined name for this wallet. This is required.
-  final String nama;
+@freezed
+abstract class DompetModel with _$DompetModel implements HasId {
+  const DompetModel._();
 
-  /// The current balance of the wallet.
-  final double saldo;
+  const factory DompetModel({
+    @Default('') String id,
+    required String nama,
+    @Default(0.0) double saldo,
+    DateTime? diperbaruiPada,
+    @Default(false) bool diHapus,
+    DateTime? diarsipkanPada,
+  }) = _DompetModel;
 
-  /// Timestamp of when this data was last updated on the server or locally.
-  final DateTime? diperbaruiPada;
-
-  /// Soft delete status. If `true`, the wallet is considered deleted.
-  final bool diHapus;
-
-  /// Timestamp of when this wallet was archived. `null` if not archived.
-  final DateTime? diarsipkanPada;
-
-  /// Creates an instance of [DompetModel].
-  DompetModel({
-    final String? id,
-    required this.nama,
-    required this.saldo,
-    this.diperbaruiPada,
-    this.diHapus = false,
-    this.diarsipkanPada,
-  }) : id = id ?? const Uuid().v4() {
-    Log.info('WalletModel created: $id, name: $nama');
-  }
-
-  /// Creates a copy of [DompetModel] with updated fields.
-  DompetModel copyWith({
-    final String? id,
-    final String? name,
-    final double? balance,
-    final DateTime? updatedAt,
-    final bool? isDeleted,
-    final DateTime? archivedAt,
+  // Factory method untuk membuat instance dengan UUID otomatis (opsional)
+  factory DompetModel.createNew({
+    required String nama,
+    double saldo = 0.0,
+    DateTime? diperbaruiPada,
+    bool diHapus = false,
+    DateTime? diarsipkanPada,
   }) {
+    final id = const Uuid().v4();
+    Log.info('WalletModel created: $id, name: $nama');
     return DompetModel(
-      id: id ?? this.id,
-      nama: name ?? this.nama,
-      saldo: balance ?? this.saldo,
-      diperbaruiPada: updatedAt ?? this.diperbaruiPada,
-      diHapus: isDeleted ?? this.diHapus,
-      diarsipkanPada: archivedAt ?? this.diarsipkanPada,
+      id: id,
+      nama: nama,
+      saldo: saldo,
+      diperbaruiPada: diperbaruiPada,
+      diHapus: diHapus,
+      diarsipkanPada: diarsipkanPada,
     );
   }
 
-  // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
-
-  /// Creates a [DompetModel] instance from a SQLite map.
+  // Method dari SQLite
   factory DompetModel.fromSqlite(final Map<String, dynamic> map) {
+    final id = map[NamaKolom.id] as String?;
     return DompetModel(
-      id: map[NamaKolom.id] as String?,
+      id: id ?? const Uuid().v4(), // generate UUID jika null
       nama: (map[NamaKolom.nama] as String?) ?? '',
       saldo: (map[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
-      // DIUBAH: Menggunakan ParserUtil
       diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
       diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
       diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
-  /// Converts this [DompetModel] instance into a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.saldo: saldo,
-      // DIUBAH: Memastikan updatedAt tidak pernah null
       NamaKolom.diperbaruiPada:
           (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
       NamaKolom.diHapus: diHapus ? 1 : 0,
@@ -88,31 +67,27 @@ class DompetModel implements HasId {
     };
   }
 
-  /// Creates a [DompetModel] instance from a Firestore document.
+  // Method dari Firebase
   factory DompetModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
     return DompetModel(
       id: id,
       nama: (data[NamaKolom.nama] as String?) ?? '',
       saldo: (data[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
-      // DIUBAH: Menggunakan ParserUtil
       diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
       diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
       diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
-  /// Converts this [DompetModel] instance into a map for Firestore storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
       NamaKolom.nama: nama,
       NamaKolom.saldo: saldo,
       NamaKolom.diHapus: diHapus,
-      // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.diperbaruiPada:
           Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
-      // DIUBAH: Menggunakan .toUtc() jika tidak null
       NamaKolom.diarsipkanPada: diarsipkanPada != null
           ? Timestamp.fromDate(diarsipkanPada!.toUtc())
           : null,

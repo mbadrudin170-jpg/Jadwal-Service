@@ -184,7 +184,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _kategoriDipilih =
           kategoriSumber.firstWhereOrNull((k) => k.id == transaksi.idKategori);
 
-      if (transaksi.durasiBonus != null && transaksi.durasiBonus! > 0) {
+      if (transaksi.durasiBonus > 0) {
         _isBonus = true;
         _bonusDurationController.text = transaksi.durasiBonus.toString();
         _bonusDurationType = transaksi.tipeDurasiBonus ?? TipeDurasiPaket.hours;

@@ -9,7 +9,7 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/package_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/user/page/profile_page.dart';
 import 'package:wifi/user/providers/user_providers.dart';
 import 'package:wifi/user/services/ads/interstitial_ad_service.dart';
@@ -17,7 +17,7 @@ import 'package:wifi/user/services/ads/interstitial_ad_service.dart';
 // Mocks
 class MockCustomerOpFirebase extends Mock implements CustomerOpFirebase {}
 
-class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+class MockTransactionOpFirebase extends Mock implements TransaksiOpFirebase {}
 
 class MockPackageOpFirebase extends Mock implements PackageOpFirebase {}
 

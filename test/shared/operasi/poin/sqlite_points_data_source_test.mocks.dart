@@ -10,9 +10,8 @@ import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i8;
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart' as _i7;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i6;
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
-    as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

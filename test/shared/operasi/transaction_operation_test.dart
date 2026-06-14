@@ -9,7 +9,7 @@ import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 import 'transaction_operation_test.mocks.dart';
 

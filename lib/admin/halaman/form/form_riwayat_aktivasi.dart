@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -27,22 +27,22 @@ class FromRiwayatAktivasi extends ConsumerStatefulWidget {
 class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
   final _formKey = GlobalKey<FormState>();
 
-  late DateTime _startDate;
-  late DateTime _endDate;
-  late PaymentStatus _paymentStatus;
+  late DateTime _tanggalMulai;
+  late DateTime _tanggalBerakhir;
+  late PaymentStatus _statusPembayaran;
 
   @override
   void initState() {
     super.initState();
-    _startDate = widget.transaksi.tanggalMulai ?? DateTime.now();
-    _endDate = widget.transaksi.tangglberakhir ?? DateTime.now();
-    _paymentStatus = widget.transaksi.statusPembayaran;
+    _tanggalMulai = widget.transaksi.tanggalMulai ?? DateTime.now();
+    _tanggalBerakhir = widget.transaksi.tangglberakhir ?? DateTime.now();
+    _statusPembayaran = widget.transaksi.statusPembayaran;
     Log.info(
         'Form edit riwayat langganan diinisialisasi untuk transaksi ID: ${widget.transaksi.id}');
   }
 
   Future<void> _selectDateTime(bool isStartDate) async {
-    final initialDate = isStartDate ? _startDate : _endDate;
+    final initialDate = isStartDate ? _tanggalMulai : _tanggalBerakhir;
 
     if (!mounted) return;
     final pickedDate = await showDatePicker(
@@ -76,11 +76,12 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
           pickedTime.minute,
         );
         if (isStartDate) {
-          _startDate = newDateTime;
-          Log.info('Tanggal & waktu mulai diubah menjadi: $_startDate');
+          _tanggalMulai = newDateTime;
+          Log.info('Tanggal & waktu mulai diubah menjadi: $_tanggalMulai');
         } else {
-          _endDate = newDateTime;
-          Log.info('Tanggal & waktu berakhir diubah menjadi: $_endDate');
+          _tanggalBerakhir = newDateTime;
+          Log.info(
+              'Tanggal & waktu berakhir diubah menjadi: $_tanggalBerakhir');
         }
       });
     }
@@ -96,28 +97,28 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
     Log.info('Menyimpan perubahan untuk transaksi ID: ${widget.transaksi.id}');
 
     // Mengakses dependency melalui Riverpod's ref
-    final transactionOperation = ref.read(transaksiOpSqliteProvider);
+    final transaksiOpSqlite = ref.read(transaksiOpSqliteProvider);
     final layananNotifikasi = ref.read(layananNotifikasiProvider);
 
     try {
-      final updatedTransaction = widget.transaksi.copyWith(
-        startDate: _startDate,
-        endDate: _endDate,
-        paymentStatus: _paymentStatus,
-        updatedAt: DateTime.now(),
+      final updateTransaksi = widget.transaksi.copyWith(
+        tanggalMulai: _tanggalMulai,
+        tangglberakhir: _tanggalBerakhir,
+        statusPembayaran: _statusPembayaran,
+        diperbaruiPada: DateTime.now(),
       );
 
-      await transactionOperation.updateTransaction(
+      await transaksiOpSqlite.updateTransaction(
         widget.transaksi.id,
-        updatedTransaction,
+        updateTransaksi,
       );
       Log.info('Transaksi berhasil diperbarui di database.');
       ref.invalidate(transaksiOpSqliteProvider);
       await _handleExpiryNotification(
         layananNotifikasi: layananNotifikasi,
         statusSebelumnya: widget.transaksi.statusPembayaran,
-        statusSekarang: _paymentStatus,
-        tanggalBerakhir: _endDate,
+        statusSekarang: _statusPembayaran,
+        tanggalBerakhir: _tanggalBerakhir,
       );
 
       if (!mounted) return;
@@ -192,18 +193,18 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
             children: <Widget>[
               _buildDateTimePickerTile(
                 label: 'Tanggal & Waktu Mulai',
-                date: _startDate,
+                date: _tanggalMulai,
                 onPressed: () => _selectDateTime(true),
               ),
               gapH16,
               _buildDateTimePickerTile(
                 label: 'Tanggal & Waktu Berakhir',
-                date: _endDate,
+                date: _tanggalBerakhir,
                 onPressed: () => _selectDateTime(false),
               ),
               gapH24,
               DropdownButtonFormField<PaymentStatus>(
-                initialValue: _paymentStatus,
+                initialValue: _statusPembayaran,
                 decoration: const InputDecoration(
                   labelText: 'Status Pembayaran',
                   border: OutlineInputBorder(),
@@ -218,9 +219,9 @@ class _SubscriptionHistoryFormState extends ConsumerState<FromRiwayatAktivasi> {
                 onChanged: (newValue) {
                   if (newValue != null) {
                     setState(() {
-                      _paymentStatus = newValue;
+                      _statusPembayaran = newValue;
                       Log.info(
-                          'Status pembayaran diubah menjadi: $_paymentStatus');
+                          'Status pembayaran diubah menjadi: $_statusPembayaran');
                     });
                   }
                 },

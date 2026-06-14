@@ -4,13 +4,13 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 
 import 'penjadwal_notifikasi_test.mocks.dart';
 
 // Menjalankan build_runner: flutter pub run build_runner build --delete-conflicting-outputs
-@GenerateMocks([LayananNotifikasi, TransactionOpFirebase])
+@GenerateMocks([LayananNotifikasi, TransaksiOpFirebase])
 void main() {
   late MockNotifikasiServis mockNotifikasiServis;
   // `TransactionOpFirebase` tidak bisa di-mock dengan mudah karena

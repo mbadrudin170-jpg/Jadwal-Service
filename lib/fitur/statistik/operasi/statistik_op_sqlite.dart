@@ -13,7 +13,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   Log.info('Membuat instance StatistikRepository melalui provider');

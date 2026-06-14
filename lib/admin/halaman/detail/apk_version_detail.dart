@@ -43,7 +43,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
 
   Future<void> _navigateToEditForm() async {
     Log.info(
-        'Tombol edit APK ditekan, versi=${_currentApkVersion.latestVersion}');
+        'Tombol edit APK ditekan, versi=${_currentApkVersion.versiTerkahir}');
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -88,7 +88,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Membangun halaman detail versi APK: ${_currentApkVersion.latestVersion}.',
+      'Membangun halaman detail versi APK: ${_currentApkVersion.versiTerkahir}.',
     );
 
     return Scaffold(
@@ -105,10 +105,10 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
       body: ListView(
         padding: const EdgeInsets.all(TSizes.p16),
         children: [
-          _buildInfoRow('Versi Terbaru', _currentApkVersion.latestVersion),
-          _buildInfoRow('Wajib Update',
-              _currentApkVersion.isUpdateRequired ? 'Ya' : 'Tidak'),
-          _buildInfoRow('Catatan Rilis', _currentApkVersion.releaseNotes),
+          _buildInfoRow('Versi Terbaru', _currentApkVersion.versiTerkahir),
+          _buildInfoRow(
+              'Wajib Update', _currentApkVersion.wajibUpdate ? 'Ya' : 'Tidak'),
+          _buildInfoRow('Catatan Rilis', _currentApkVersion.catatanRilis),
           gapH16,
           Text(
             'Nomor Build Terbaru',
@@ -116,7 +116,7 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ..._currentApkVersion.latestBuildNumber.entries.map(
+          ..._currentApkVersion.nomorBuildTerakhir.entries.map(
             (final entry) =>
                 _buildInfoRow(entry.key.name, entry.value.toString()),
           ),
@@ -127,11 +127,12 @@ class _ApkVersionDetailPageState extends ConsumerState<ApkVersionDetailPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ..._currentApkVersion.downloadLinks.entries.map(
+          ..._currentApkVersion.linkDownload.entries.map(
             (final entry) => _buildInfoRow(entry.key.name, entry.value),
           ),
           gapH16,
-          _buildInfoRow('Youtube Tutorial', _currentApkVersion.youtubeTutorial),
+          _buildInfoRow(
+              'Youtube Tutorial', _currentApkVersion.linkYoutubeTutorial),
         ],
       ),
     );

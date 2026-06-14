@@ -193,22 +193,20 @@ class DataDummy {
   static List<VersiApkModel> get apkVersions => [
         VersiApkModel(
           id: apkAdminV1Id,
-          latestVersion: '1.0.0',
-          releaseNotes: 'Versi pertama aplikasi admin.',
-          latestBuildNumber: const {ArsitekturApk.arm64: 1},
-          downloadLinks: const {
+          versiTerkahir: '1.0.0',
+          catatanRilis: 'Versi pertama aplikasi admin.',
+          nomorBuildTerakhir: const {ArsitekturApk.arm64: 1},
+          linkDownload: const {
             ArsitekturApk.arm64: '/path/to/admin-v1.0.0.apk'
           },
-          isUpdateRequired: true,
+          wajibUpdate: true,
         ),
         VersiApkModel(
           id: apkUserV1Id,
-          latestVersion: '1.0.1',
-          releaseNotes: 'Perbaikan bug dan peningkatan performa.',
-          latestBuildNumber: const {ArsitekturApk.arm64: 2},
-          downloadLinks: const {
-            ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'
-          },
+          versiTerkahir: '1.0.1',
+          catatanRilis: 'Perbaikan bug dan peningkatan performa.',
+          nomorBuildTerakhir: const {ArsitekturApk.arm64: 2},
+          linkDownload: const {ArsitekturApk.arm64: '/path/to/user-v1.0.1.apk'},
         ),
       ];
 

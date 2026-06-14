@@ -1,9 +1,9 @@
 // path: lib/shared/operasi/firebase_operasi/apk_version_op_firebase.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/versi_apk/model/versi_apk_model.dart';
 
 /// Kelas untuk menangani operasi Firebase untuk `ApkVersionModel`.
 class ApkVersionOpFirebase {
@@ -25,7 +25,7 @@ class ApkVersionOpFirebase {
   /// Mengambil versi APK terbaru yang aktif (tidak dihapus, tidak diarsipkan) satu kali.
   ///
   /// Mengembalikan `Future` yang berisi `ApkVersionModel` terbaru atau `null`.
-  Future<VersiApkModel?> getVersiTerbaru() async {
+  Future<VersiApkModel?> ambilVersiTerbaru() async {
     Log.info('Memulai mengambil versi APK terbaru');
     try {
       final query = await _colection

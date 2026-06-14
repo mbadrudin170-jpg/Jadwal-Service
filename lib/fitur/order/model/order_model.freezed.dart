@@ -14,7 +14,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$OrderModel {
-  @JsonKey(includeFromJson: false, includeToJson: false)
   String get id;
   String get customerId;
   String get packageId;
@@ -68,7 +67,7 @@ abstract mixin class $OrderModelCopyWith<$Res> {
       _$OrderModelCopyWithImpl;
   @useResult
   $Res call(
-      {@JsonKey(includeFromJson: false, includeToJson: false) String id,
+      {String id,
       String customerId,
       String packageId,
       DateTime date,
@@ -230,7 +229,7 @@ extension OrderModelPatterns on OrderModel {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            @JsonKey(includeFromJson: false, includeToJson: false) String id,
+            String id,
             String customerId,
             String packageId,
             DateTime date,
@@ -267,7 +266,7 @@ extension OrderModelPatterns on OrderModel {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            @JsonKey(includeFromJson: false, includeToJson: false) String id,
+            String id,
             String customerId,
             String packageId,
             DateTime date,
@@ -302,7 +301,7 @@ extension OrderModelPatterns on OrderModel {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            @JsonKey(includeFromJson: false, includeToJson: false) String id,
+            String id,
             String customerId,
             String packageId,
             DateTime date,
@@ -327,7 +326,7 @@ extension OrderModelPatterns on OrderModel {
 
 class _OrderModel extends OrderModel {
   const _OrderModel(
-      {@JsonKey(includeFromJson: false, includeToJson: false) required this.id,
+      {required this.id,
       required this.customerId,
       required this.packageId,
       required this.date,
@@ -338,7 +337,6 @@ class _OrderModel extends OrderModel {
       : super._();
 
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
   final String id;
   @override
   final String customerId;
@@ -404,7 +402,7 @@ abstract mixin class _$OrderModelCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(includeFromJson: false, includeToJson: false) String id,
+      {String id,
       String customerId,
       String packageId,
       DateTime date,

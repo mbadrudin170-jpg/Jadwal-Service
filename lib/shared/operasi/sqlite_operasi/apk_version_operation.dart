@@ -34,7 +34,7 @@ class ApkVersionOperation {
     final bool fromServer = false,
   }) async {
     Log.info(
-      'Menambah versi APK user baru - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
+      'Menambah versi APK user baru - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
     );
 
     try {
@@ -48,7 +48,7 @@ class ApkVersionOperation {
       );
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal menambah versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
+        'Gagal menambah versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
         e: e,
         s: st,
       );
@@ -62,7 +62,7 @@ class ApkVersionOperation {
     final bool fromServer = false,
   }) async {
     Log.info(
-      'Memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
+      'Memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
     );
 
     try {
@@ -77,7 +77,7 @@ class ApkVersionOperation {
       );
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.latestVersion}',
+        'Gagal memperbarui versi APK user - ID: ${apkVersion.id}, Versi: ${apkVersion.versiTerkahir}',
         e: e,
         s: st,
       );
@@ -191,7 +191,7 @@ class ApkVersionOperation {
       int activeCount = 0;
       int archivedCount = 0;
       for (final model in result) {
-        if (model.isDeleted) {
+        if (model.diHapus) {
           archivedCount++;
         } else {
           activeCount++;
@@ -241,7 +241,7 @@ class ApkVersionOperation {
       for (int i = 0; i < (result.length < 3 ? result.length : 3); i++) {
         final v = result[i];
         Log.info(
-          '  ${i + 1}. ID: ${v.id}, Versi: ${v.latestVersion}, Build Universal: ${v.latestBuildNumber[ArsitekturApk.universal] ?? 0}',
+          '  ${i + 1}. ID: ${v.id}, Versi: ${v.versiTerkahir}, Build Universal: ${v.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0}',
         );
       }
 
@@ -277,7 +277,7 @@ class ApkVersionOperation {
       if (maps.isNotEmpty) {
         final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
-          'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ArsitekturApk.universal] ?? 0}, Diperbarui: ${model.updatedAt?.toIso8601String()}',
+          'Versi APK terbaru ditemukan - ID: ${model.id}, Versi: ${model.versiTerkahir}, Build Universal: ${model.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0}, Diperbarui: ${model.diperbaruiPada?.toIso8601String()}',
         );
         return model;
       } else {
@@ -314,7 +314,7 @@ class ApkVersionOperation {
       if (maps.isNotEmpty) {
         final model = VersiApkModel.fromSqlite(maps.first);
         Log.info(
-          'Versi APK ditemukan - ID: $id, Versi: ${model.latestVersion}, Build Universal: ${model.latestBuildNumber[ArsitekturApk.universal] ?? 0}, Catatan: ${model.releaseNotes.length > 50 ? "${model.releaseNotes.substring(0, 50)}..." : model.releaseNotes}',
+          'Versi APK ditemukan - ID: $id, Versi: ${model.versiTerkahir}, Build Universal: ${model.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0}, Catatan: ${model.catatanRilis.length > 50 ? "${model.catatanRilis.substring(0, 50)}..." : model.catatanRilis}',
         );
         return model;
       } else {

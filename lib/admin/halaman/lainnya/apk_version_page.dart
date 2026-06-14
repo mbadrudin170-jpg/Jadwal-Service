@@ -58,8 +58,8 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
   void _sortList() {
     Log.info('Mengurutkan data berdasarkan: ${_getSortName(_currentSort)}');
     _apkVersionList.sort((final a, final b) {
-      final buildA = a.latestBuildNumber[ArsitekturApk.universal] ?? 0;
-      final buildB = b.latestBuildNumber[ArsitekturApk.universal] ?? 0;
+      final buildA = a.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
+      final buildB = b.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
 
       switch (_currentSort) {
         case SortOrder.buildZA:
@@ -67,9 +67,9 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         case SortOrder.buildAZ:
           return buildA.compareTo(buildB);
         case SortOrder.versionZA:
-          return b.latestVersion.compareTo(a.latestVersion);
+          return b.versiTerkahir.compareTo(a.versiTerkahir);
         case SortOrder.versionAZ:
-          return a.latestVersion.compareTo(b.latestVersion);
+          return a.versiTerkahir.compareTo(b.versiTerkahir);
       }
     });
   }
@@ -170,7 +170,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
     await showDialog<void>(
       context: context,
       builder: (final c) => SimpleDialog(
-        title: Text('Opsi Versi ${version.latestVersion}'),
+        title: Text('Opsi Versi ${version.versiTerkahir}'),
         children: [
           SimpleDialogOption(
             onPressed: () {
@@ -204,7 +204,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
       builder: (final c) => AlertDialog(
         title: const Text('Arsipkan Versi APK?'),
         content: Text(
-            'Anda yakin ingin mengarsipkan versi ${version.latestVersion}?'),
+            'Anda yakin ingin mengarsipkan versi ${version.versiTerkahir}?'),
         actions: [
           TextButton(
               child: const Text('Batal'),
@@ -229,7 +229,7 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         _apkVersionList.removeWhere((final v) => v.id == version.id);
       });
       ToastUtil.success(
-          context, 'Versi ${version.latestVersion} berhasil diarsipkan.');
+          context, 'Versi ${version.versiTerkahir} berhasil diarsipkan.');
     } on Exception catch (e, s) {
       Log.error('Gagal soft delete data ID: ${version.id}', e: e, s: s);
       if (!mounted) return;
@@ -327,16 +327,16 @@ class _ApkVersionPageState extends ConsumerState<ApkVersionPage> {
         itemBuilder: (final context, final index) {
           final apkVersion = _apkVersionList[index];
           final buildUniversal =
-              apkVersion.latestBuildNumber[ArsitekturApk.universal] ?? 0;
+              apkVersion.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0;
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
               title: Text(
-                'Versi: ${apkVersion.latestVersion} (Build: $buildUniversal)',
+                'Versi: ${apkVersion.versiTerkahir} (Build: $buildUniversal)',
               ),
               subtitle: Text(
-                apkVersion.releaseNotes,
+                apkVersion.catatanRilis,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

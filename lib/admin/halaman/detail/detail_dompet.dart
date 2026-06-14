@@ -5,15 +5,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
-import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/detail_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
 

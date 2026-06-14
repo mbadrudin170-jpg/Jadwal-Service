@@ -8,7 +8,7 @@ import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/poin/operasi/sqlite_points_data_source.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_Sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 import 'sqlite_points_data_source_test.mocks.dart';
 

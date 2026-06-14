@@ -88,14 +88,15 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
     try {
       final versiTerakhir = await apkVersionOperasi.getLatestApkVersion();
       if (versiTerakhir != null && mounted) {
-        _latestVersionController.text = versiTerakhir.latestVersion;
-        _youtubeTutorialController.text = versiTerakhir.youtubeTutorial;
+        _latestVersionController.text = versiTerakhir.versiTerkahir;
+        _youtubeTutorialController.text = versiTerakhir.linkYoutubeTutorial;
         final buildUniversalBerikutnya =
-            (versiTerakhir.latestBuildNumber[ArsitekturApk.universal] ?? 0) + 1;
+            (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.universal] ?? 0) +
+                1;
         final buildBit32Berikutnya =
-            (versiTerakhir.latestBuildNumber[ArsitekturApk.bit32] ?? 0) + 1;
+            (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.bit32] ?? 0) + 1;
         final buildBit64Berikutnya =
-            (versiTerakhir.latestBuildNumber[ArsitekturApk.bit64] ?? 0) + 1;
+            (versiTerakhir.nomorBuildTerakhir[ArsitekturApk.bit64] ?? 0) + 1;
         _buildUniversalController.text = buildUniversalBerikutnya.toString();
         _build32Controller.text = buildBit32Berikutnya.toString();
         _build64Controller.text = buildBit64Berikutnya.toString();
@@ -112,20 +113,20 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
 
   void _populateControllers(VersiApkModel data) {
     Log.info('Memasukkan data model ke dalam form controller (ID: ${data.id})');
-    _releaseNotesController.text = data.releaseNotes;
-    _latestVersionController.text = data.latestVersion;
-    _youtubeTutorialController.text = data.youtubeTutorial;
-    _isUpdateRequired = data.isUpdateRequired;
+    _releaseNotesController.text = data.catatanRilis;
+    _latestVersionController.text = data.versiTerkahir;
+    _youtubeTutorialController.text = data.linkYoutubeTutorial;
+    _isUpdateRequired = data.wajibUpdate;
     _buildUniversalController.text =
-        data.latestBuildNumber[ArsitekturApk.universal]?.toString() ?? '';
+        data.nomorBuildTerakhir[ArsitekturApk.universal]?.toString() ?? '';
     _build32Controller.text =
-        data.latestBuildNumber[ArsitekturApk.bit32]?.toString() ?? '';
+        data.nomorBuildTerakhir[ArsitekturApk.bit32]?.toString() ?? '';
     _build64Controller.text =
-        data.latestBuildNumber[ArsitekturApk.bit64]?.toString() ?? '';
+        data.nomorBuildTerakhir[ArsitekturApk.bit64]?.toString() ?? '';
     _universalLinkController.text =
-        data.downloadLinks[ArsitekturApk.universal] ?? '';
-    _link32Controller.text = data.downloadLinks[ArsitekturApk.bit32] ?? '';
-    _link64Controller.text = data.downloadLinks[ArsitekturApk.bit64] ?? '';
+        data.linkDownload[ArsitekturApk.universal] ?? '';
+    _link32Controller.text = data.linkDownload[ArsitekturApk.bit32] ?? '';
+    _link64Controller.text = data.linkDownload[ArsitekturApk.bit64] ?? '';
   }
 
   @override
@@ -229,12 +230,12 @@ class _ApkVersionFormState extends ConsumerState<ApkVersionForm> {
       }
       final dataToSave = VersiApkModel(
         id: widget.apkVersion?.id ?? const Uuid().v4(),
-        releaseNotes: _releaseNotesController.text,
-        latestVersion: _latestVersionController.text,
-        youtubeTutorial: _youtubeTutorialController.text,
-        isUpdateRequired: _isUpdateRequired,
-        latestBuildNumber: nomorBuild,
-        downloadLinks: tautanUnduhan,
+        catatanRilis: _releaseNotesController.text,
+        versiTerkahir: _latestVersionController.text,
+        linkYoutubeTutorial: _youtubeTutorialController.text,
+        wajibUpdate: _isUpdateRequired,
+        nomorBuildTerakhir: nomorBuild,
+        linkDownload: tautanUnduhan,
       );
       Log.info('Model Versi APK yang akan disimpan: ${dataToSave.toSqlite()}');
       try {

@@ -1,51 +1,51 @@
-// path: lib/admin/halaman/form/wallet_form.dart
+// path: lib/admin/halaman/form/form_dompet.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
-class WalletForm extends ConsumerStatefulWidget {
+class FormDompet extends ConsumerStatefulWidget {
   /// Model dompet yang akan diedit. Jika null, maka form akan membuat dompet baru.
-  final DompetModel? wallet;
+  final DompetModel? dompet;
 
   /// Konstruktor untuk WalletForm.
-  const WalletForm({super.key, this.wallet});
+  const FormDompet({super.key, this.dompet});
 
   @override
-  ConsumerState<WalletForm> createState() => _WalletFormState();
+  ConsumerState<FormDompet> createState() => _WalletFormState();
 }
 
-class _WalletFormState extends ConsumerState<WalletForm> {
+class _WalletFormState extends ConsumerState<FormDompet> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   late final DompetOpSqlite _dompetOpSqlite;
 
   late FocusNode _namaFocusNode;
 
-  bool get _isEditMode => widget.wallet != null;
+  bool get _modeEdit => widget.dompet != null;
 
   @override
   void initState() {
     super.initState();
-    final isEditMode = widget.wallet != null;
+    final isEditMode = widget.dompet != null;
     Log.info('Membuat state WalletForm. '
-        'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.nama}, Saldo: ${widget.wallet!.saldo})" : "TAMBAH BARU"}');
+        'Mode: ${isEditMode ? "EDIT (ID: ${widget.dompet!.id}, Nama: ${widget.dompet!.nama}, Saldo: ${widget.dompet!.saldo})" : "TAMBAH BARU"}');
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
 
-    if (_isEditMode) {
-      _namaController.text = widget.wallet!.nama;
+    if (_modeEdit) {
+      _namaController.text = widget.dompet!.nama;
     } else {
       Log.info('MODE TAMBAH BARU terdeteksi.');
       Log.info('Form akan membuat dompet baru dengan:');
@@ -70,7 +70,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
 
   Future<void> _simpanform() async {
     Log.info(
-      'Tombol Simpan ditekan. Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}',
+      'Tombol Simpan ditekan. Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}',
     );
 
     _namaFocusNode.unfocus();
@@ -79,17 +79,17 @@ class _WalletFormState extends ConsumerState<WalletForm> {
       Log.info('Validasi form berhasil. Nama: "${_namaController.text}"');
 
       try {
-        if (_isEditMode) {
-          Log.info('Proses UPDATE dompet ID: ${widget.wallet!.id}');
+        if (_modeEdit) {
+          Log.info('Proses UPDATE dompet ID: ${widget.dompet!.id}');
           Log.info(
-            'Nama Lama: "${widget.wallet!.nama}", Nama Baru: "${_namaController.text}"',
+            'Nama Lama: "${widget.dompet!.nama}", Nama Baru: "${_namaController.text}"',
           );
-          Log.info('Saldo tetap: ${widget.wallet!.saldo}');
+          Log.info('Saldo tetap: ${widget.dompet!.saldo}');
 
           final dataToUdpate = DompetModel(
-            id: widget.wallet!.id,
+            id: widget.dompet!.id,
             nama: _namaController.text,
-            saldo: widget.wallet!.saldo,
+            saldo: widget.dompet!.saldo,
           );
 
           await _dompetOpSqlite.updateDompet(dataToUdpate);
@@ -104,7 +104,6 @@ class _WalletFormState extends ConsumerState<WalletForm> {
           final dataBaru = DompetModel(
             id: id,
             nama: _namaController.text,
-            saldo: 0.0,
             diperbaruiPada: DateTime.now(),
           );
 
@@ -134,7 +133,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         }
       } catch (e, s) {
         Log.error(
-          'Gagal menyimpan dompet. Proses ${_isEditMode ? "update" : "create"} gagal.',
+          'Gagal menyimpan dompet. Proses ${_modeEdit ? "update" : "create"} gagal.',
           e: e,
           s: s,
         );
@@ -150,12 +149,12 @@ class _WalletFormState extends ConsumerState<WalletForm> {
   @override
   Widget build(final BuildContext context) {
     Log.info(
-      'Build WalletForm. Mode: ${_isEditMode ? "EDIT" : "TAMBAH BARU"}, Nama: "${_namaController.text}"',
+      'Build WalletForm. Mode: ${_modeEdit ? "EDIT" : "TAMBAH BARU"}, Nama: "${_namaController.text}"',
     );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Nama Dompet' : 'Tambah Dompet Baru'),
+        title: Text(_modeEdit ? 'Edit Nama Dompet' : 'Tambah Dompet Baru'),
         leading: IconButton(
           icon: const Icon(TIcons.back),
           onPressed: () {

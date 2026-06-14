@@ -8,12 +8,12 @@ import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/fitur/poin/operasi/firebase_points_data_source.dart';
 
 import 'firebase_points_data_source_test.mocks.dart';
 
-@GenerateMocks([TransactionOpFirebase, PaketOpFirebase])
+@GenerateMocks([TransaksiOpFirebase, PaketOpFirebase])
 void main() {
   // 2. Deklarasi Mocks dan SUT (System Under Test)
   late MockTransactionOpFirebase mockTransactionOpFirebase;

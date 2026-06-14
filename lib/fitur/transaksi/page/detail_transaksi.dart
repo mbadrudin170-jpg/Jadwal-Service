@@ -1,9 +1,9 @@
-// path: lib/admin/halaman/detail/transaction_detail.dart
+// path: lib/fitur/transaksi/page/detail_transaksi.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wifi/admin/halaman/form/form_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
@@ -212,7 +212,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
                 'Masa Aktif Berakhir',
                 FormatWaktuLengkap.formatSingkat(transaksi.tangglberakhir!),
               ),
-            if (transaksi.durasiBonus! > 0 && transaksi.tipeDurasiBonus != null)
+            if (transaksi.durasiBonus > 0 && transaksi.tipeDurasiBonus != null)
               _buildDetailRow('Bonus',
                   '${transaksi.durasiBonus} ${transaksi.tipeDurasiBonus?.displayName}')
           ],

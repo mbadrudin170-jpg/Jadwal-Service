@@ -10,10 +10,10 @@ import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+class MockTransactionOpFirebase extends Mock implements TransaksiOpFirebase {}
 
 class MockNotifikasiServis extends Mock implements LayananNotifikasi {}
 

@@ -9,7 +9,7 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/dompet_provider.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
 

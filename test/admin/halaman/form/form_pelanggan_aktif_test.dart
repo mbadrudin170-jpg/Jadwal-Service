@@ -12,7 +12,7 @@ import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';

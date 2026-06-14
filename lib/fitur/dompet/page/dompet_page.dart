@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
-import 'package:wifi/admin/halaman/form/wallet_form.dart';
+import 'package:wifi/admin/halaman/form/form_dompet.dart';
 import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -98,7 +98,7 @@ class DompetPage extends ConsumerWidget {
     Log.info('Navigasi ke halaman tambah dompet.');
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute<bool>(builder: (context) => const WalletForm()),
+      MaterialPageRoute<bool>(builder: (context) => const FormDompet()),
     );
     if (result ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');

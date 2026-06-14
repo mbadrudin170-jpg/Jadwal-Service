@@ -33,7 +33,7 @@ class SubscriptionHistoryPage extends ConsumerStatefulWidget {
 
 class _SubscriptionHistoryPageState
     extends ConsumerState<SubscriptionHistoryPage> {
-  final TransactionOpFirebase _transactionOpFirebase = TransactionOpFirebase();
+  final TransaksiOpFirebase _transactionOpFirebase = TransaksiOpFirebase();
 
   SortMode _sortMode = SortMode.endDateNewest;
   late Future<List<TransaksiModel>> _historyFuture;

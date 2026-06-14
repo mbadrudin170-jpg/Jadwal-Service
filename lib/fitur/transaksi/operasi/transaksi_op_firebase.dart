@@ -1,26 +1,22 @@
-// path: lib/shared/operasi/firebase_operasi/transaction_op_firebase.dart
-// diubah: Menambahkan getLatestPaidTransactionByUserId.
-// diperbaiki: Menambahkan logging inisialisasi dan menerjemahkan komentar.
-// ditambahkan: Fungsi deleteTransaction untuk menghapus transaksi secara permanen.
-// ditambahkan: Fungsi softDeleteTransaction untuk menandai transaksi sebagai terhapus.
+// path: lib/fitur/transaksi/operasi/transaksi_op_firebase.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
 /// Kelas untuk mengelola operasi terkait data transaksi di Firestore.
-class TransactionOpFirebase extends BaseOpFirebase {
+class TransaksiOpFirebase extends BaseOpFirebase {
   /// Konstruktor untuk inisialisasi dengan instance FirebaseFirestore.
-  TransactionOpFirebase({super.firestore}) {
+  TransaksiOpFirebase({super.firestore}) {
     Log.info('TransactionOpFirebase diinisialisasi.');
   }
 
   /// Mendapatkan referensi ke koleksi transaction.
-  CollectionReference get _collection =>
+  CollectionReference get _koleksi =>
       firestore.collection(NamaTabel.transactions);
 
   /// Menambahkan transaksi baru ke Firestore.
@@ -47,7 +43,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
     try {
       Log.info(
           'Mencari transaksi lunas terbaru dari Firebase untuk pengguna ID: $idPelanggan');
-      final querySnapshot = await _collection
+      final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
           .where(NamaKolom.diHapus, isEqualTo: false)
@@ -81,7 +77,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   ) async {
     try {
       Log.info('Mengambil semua transaksi untuk: $idPelanggan');
-      final querySnapshot = await _collection
+      final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.diHapus, isEqualTo: false)
           .orderBy(NamaKolom.tanggal, descending: true)
@@ -102,7 +98,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
   Future<int> ambilTotalPoin(String idPelanggan) async {
     try {
       Log.info('Menghitung total poin untuk: $idPelanggan');
-      final querySnapshot = await _collection
+      final querySnapshot = await _koleksi
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           .where(NamaKolom.diHapus, isEqualTo: false)
           .where(NamaKolom.statusPembayaran, isEqualTo: PaymentStatus.paid.name)
@@ -159,7 +155,7 @@ class TransactionOpFirebase extends BaseOpFirebase {
       // Ambil waktu saat ini
       final DateTime now = DateTime.now();
 
-      final querySnapshot = await _collection
+      final querySnapshot = await _koleksi
           // 1. Cari transaksi milik pelanggan yang benar
           .where(NamaKolom.idPelanggan, isEqualTo: idPelanggan)
           // 2. Pastikan transaksi tidak dihapus

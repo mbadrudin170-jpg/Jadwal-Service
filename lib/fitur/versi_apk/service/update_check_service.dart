@@ -69,7 +69,7 @@ class UpdateCheckService {
         );
       }
 
-      final latestApk = await _apkVersionOp.getVersiTerbaru();
+      final latestApk = await _apkVersionOp.ambilVersiTerbaru();
       if (latestApk == null) {
         Log.info('Tidak ada data versi APK di Firebase.');
         return (
@@ -81,7 +81,7 @@ class UpdateCheckService {
       }
 
       final currentBuildNumber = int.tryParse(packageInfo.buildNumber) ?? 0;
-      final latestBuildNumber = latestApk.latestBuildNumber[architecture] ?? 0;
+      final latestBuildNumber = latestApk.nomorBuildTerakhir[architecture] ?? 0;
       Log.info('Perbandingan versi', {
         'currentBuild': currentBuildNumber,
         'latestBuild': latestBuildNumber,

@@ -8,16 +8,16 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
-  late TransactionOpFirebase transactionOpFirebase;
+  late TransaksiOpFirebase transactionOpFirebase;
   final transactionsCollection = NamaTabel.get(TableName.transactions);
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
-    transactionOpFirebase = TransactionOpFirebase(firestore: fakeFirestore);
+    transactionOpFirebase = TransaksiOpFirebase(firestore: fakeFirestore);
   });
 
   // Data model transaksi untuk digunakan dalam tes

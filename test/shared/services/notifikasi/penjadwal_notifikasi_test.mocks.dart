@@ -11,10 +11,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart' as _i4;
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart' as _i8;
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart' as _i7;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i6;
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
-    as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -256,12 +255,12 @@ class MockLayananNotifikasi extends _i1.Mock implements _i4.LayananNotifikasi {
       ) as _i5.Future<bool>);
 }
 
-/// A class which mocks [TransactionOpFirebase].
+/// A class which mocks [TransaksiOpFirebase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTransactionOpFirebase extends _i1.Mock
-    implements _i7.TransactionOpFirebase {
-  MockTransactionOpFirebase() {
+class MockTransaksiOpFirebase extends _i1.Mock
+    implements _i7.TransaksiOpFirebase {
+  MockTransaksiOpFirebase() {
     _i1.throwOnMissingStub(this);
   }
 

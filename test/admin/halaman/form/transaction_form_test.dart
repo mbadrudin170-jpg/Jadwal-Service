@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/admin/halaman/form/form_transaksi.dart';
+import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 class MockDompetOpFirebase extends Mock implements DompetOpFirebase {}
 
 class MockKategoriOpFirebase extends Mock implements KategoriOpFirebase {}
 
-class MockTransactionOpFirebase extends Mock implements TransactionOpFirebase {}
+class MockTransactionOpFirebase extends Mock implements TransaksiOpFirebase {}
 
 void main() {
   late MockDompetOpFirebase mockDompetOpFirebase;

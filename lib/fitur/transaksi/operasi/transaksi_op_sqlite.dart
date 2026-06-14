@@ -1,15 +1,13 @@
-// path: lib/shared/operasi/transaction_operation.dart
-// diubah: Menambahkan fungsi getLatestPaidTransactionByUserId.
-// diperbaiki: Menggabungkan operasi soft delete dan kalkulasi saldo dalam satu transaksi atomik.
-// diperbaiki: Memperbaiki typo Columnames menjadi ColumnNames.
+// path: lib/fitur/transaksi/operasi/transaksi_op_sqlite.dart
+
 
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data transaksi di database lokal.
@@ -96,7 +94,7 @@ class TransaksiOpsqlite {
       final id = await baseOpSqlite.runComplexOperation<int>(
         (final Transaction txn) async {
           Log.info('Memulai transaksi database untuk addTransaction');
-          final data = transaction.copyWith(updatedAt: _nowUtc);
+          final data = transaction.copyWith(diperbaruiPada: _nowUtc);
 
           final newId = await txn.insert(
             _tabel,
@@ -290,7 +288,7 @@ class TransaksiOpsqlite {
 
           if (maps.isNotEmpty) {
             final oldTransaction = TransaksiModel.fromSqlite(maps.first);
-            final updateData = newTransaction.copyWith(updatedAt: _nowUtc);
+            final updateData = newTransaction.copyWith(diperbaruiPada: _nowUtc);
             await txn.update(_tabel, updateData.toSqlite(),
                 where: '${NamaKolom.id} = ?', whereArgs: [id]);
             Log.info('Data transaksi ID: $id diperbarui');
@@ -523,7 +521,7 @@ class TransaksiOpsqlite {
           for (final item in items) {
             batch.insert(
               _tabel,
-              item.copyWith(updatedAt: _nowUtc).toSqlite(),
+              item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
             affectedWallets.add(item.idDompet);

@@ -9,7 +9,7 @@ import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 
 // 1. Buat mock class menggunakan mocktail
 class MockTransaksiOpsqlite extends Mock implements TransaksiOpsqlite {}

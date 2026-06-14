@@ -11,7 +11,7 @@ import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart';
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart';
 import 'package:wifi/shared/utils/perhitungan_util.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
@@ -46,7 +46,7 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   late final CustomerOpFirebase _customerOp;
-  late final TransactionOpFirebase _transactionOp;
+  late final TransaksiOpFirebase _transactionOp;
   late final PaketOpFirebase _packageOp;
 
   // DIUBAH: Hanya satu Future yang mengelola semua data untuk halaman ini.

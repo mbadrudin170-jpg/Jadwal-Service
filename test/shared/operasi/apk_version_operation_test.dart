@@ -37,8 +37,8 @@ void main() {
   group('ApkVersionOperation', () {
     final tApkVersion = VersiApkModel(
       id: '1',
-      latestVersion: '1.0.0',
-      releaseNotes: 'Test release notes',
+      versiTerkahir: '1.0.0',
+      catatanRilis: 'Test release notes',
     );
     final tApkVersionMap = tApkVersion.toSqlite();
 

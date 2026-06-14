@@ -15,7 +15,7 @@ import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart'
     as _i3;
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart'
     as _i9;
-import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart'
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_firebase.dart'
     as _i8;
 import 'package:wifi/user/services/ads/interstitial_ad_service.dart' as _i2;
 
@@ -91,7 +91,7 @@ class MockCustomerOpFirebase extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTransactionOpFirebase extends _i1.Mock
-    implements _i8.TransactionOpFirebase {
+    implements _i8.TransaksiOpFirebase {
   MockTransactionOpFirebase() {
     _i1.throwOnMissingStub(this);
   }

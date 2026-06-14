@@ -1,10 +1,10 @@
 // path: lib/fitur/dompet/operasi/dompet_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
@@ -26,7 +26,7 @@ class DompetOpSqlite {
   }) async {
     Log.info('Memulai tambahDompet untuk wallet: ${wallet.id}');
     try {
-      final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
+      final data = wallet.copyWith(diperbaruiPada: _nowUtc).toSqlite();
       await _baseOperation.sisipkan(
         _tableName,
         data,
@@ -104,7 +104,7 @@ class DompetOpSqlite {
   }) async {
     Log.info('Memulai updateDompet untuk wallet ID: ${wallet.id}');
     try {
-      final data = wallet.copyWith(updatedAt: _nowUtc).toSqlite();
+      final data = wallet.copyWith(diarsipkanPada: _nowUtc).toSqlite();
       await _baseOperation.update(
         _tableName,
         data,
@@ -247,7 +247,7 @@ class DompetOpSqlite {
     try {
       final data = items
           .map(
-            (final item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
+            (final item) => item.copyWith(diperbaruiPada: _nowUtc).toSqlite(),
           )
           .toList();
       await _baseOperation.insertOrUpdateBatch(

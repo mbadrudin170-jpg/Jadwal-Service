@@ -22,14 +22,14 @@ void main() {
 
   final apkVersion = VersiApkModel(
     id: '1',
-    latestVersion: '1.0.0',
-    latestBuildNumber: {ArsitekturApk.bit64: 1, ArsitekturApk.x86_64: 1},
-    downloadLinks: {
+    versiTerkahir: '1.0.0',
+    nomorBuildTerakhir: {ArsitekturApk.bit64: 1, ArsitekturApk.x86_64: 1},
+    linkDownload: {
       ArsitekturApk.bit64: 'http://example.com/bit64.apk',
       ArsitekturApk.x86_64: 'http://example.com/x86_64.apk'
     },
-    releaseNotes: 'Initial release',
-    updatedAt: DateTime(2023),
+    catatanRilis: 'Initial release',
+    diperbaruiPada: DateTime(2023),
   );
 
   test(
@@ -39,11 +39,11 @@ void main() {
     await collectionRef.doc(apkVersion.id).set(apkVersion.toFirebase());
 
     // Act
-    final result = await apkVersionOp.getVersiTerbaru();
+    final result = await apkVersionOp.ambilVersiTerbaru();
 
     // Assert
     expect(result, isA<VersiApkModel>());
-    expect(result?.latestVersion, '1.0.0');
-    expect(result?.latestBuildNumber[ArsitekturApk.bit64], 1);
+    expect(result?.versiTerkahir, '1.0.0');
+    expect(result?.nomorBuildTerakhir[ArsitekturApk.bit64], 1);
   });
 }

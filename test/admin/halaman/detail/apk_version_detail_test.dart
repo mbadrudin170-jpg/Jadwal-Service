@@ -23,11 +23,11 @@ void main() {
 
   final tApkVersion = VersiApkModel(
     id: '1',
-    latestVersion: '1.0.0',
-    latestBuildNumber: const {ArsitekturApk.arm64: 1},
-    downloadLinks: const {ArsitekturApk.arm64: 'https://example.com/app.apk'},
-    releaseNotes: 'Rilis awal',
-    updatedAt: DateTime.now(),
+    versiTerkahir: '1.0.0',
+    nomorBuildTerakhir: const {ArsitekturApk.arm64: 1},
+    linkDownload: const {ArsitekturApk.arm64: 'https://example.com/app.apk'},
+    catatanRilis: 'Rilis awal',
+    diperbaruiPada: DateTime.now(),
   );
 
   setUp(() {

@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/form/transaction_form.dart
+// path: lib/fitur/transaksi/page/form_transaksi.dart
 
 import 'dart:async';
 
@@ -7,27 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/data/services/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/kategori_op_sqlite.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/date_time_picker_widget.dart';
 
-/// Halaman form untuk menambah atau mengubah data transaksi.
-///
-/// Form ini mendukung tiga jenis transaksi: pemasukan, pengeluaran, dan transfer.
-/// Logika UI akan beradaptasi berdasarkan tipe transaksi yang dipilih.
 class FormTransaksi extends ConsumerStatefulWidget {
-  /// Data transaksi yang akan diedit. Jika `null`, form akan berada dalam mode tambah baru.
   final TransaksiModel? transaksi;
 
-  /// Membuat instance dari [FormTransaksi].
   const FormTransaksi({super.key, this.transaksi});
 
   @override
@@ -39,32 +33,32 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
   final _jumlahFocusNode = FocusNode();
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  DateTime? _tanggalDipilih;
+  TimeOfDay? _jamDipilih;
 
-  KategoriModel? _selectedKategori;
-  SubCategoryModel? _selectedSubKategori;
+  KategoriModel? _kategoriDipilih;
+  SubCategoryModel? _subKategoriDipilih;
   TipeTransaksi _tipe = TipeTransaksi.income;
   DompetModel? _selectedDompet;
-  DompetModel? _selectedDompetTujuan;
+  DompetModel? _dompetTujuanDipilih;
 
   late final DompetOpSqlite _dompetOpSlite;
   late final KategoriOpSqlite _kategoriOpSqlite;
   late final TransaksiOpsqlite _transaksiOpSqlite;
 
-  List<KategoriModel> _kategoriList = [];
-  List<DompetModel> _dompetList = [];
+  List<KategoriModel> _daftarKategori = [];
+  List<DompetModel> _daftarDompet = [];
   List<KategoriModel> _kategoriFiltered = [];
 
-  bool get _isEditMode => widget.transaksi != null;
-  bool _isLoading = true;
-  bool _isSaving = false;
+  bool get _modeEdit => widget.transaksi != null;
+  bool _loading = true;
+  bool _menyimpan = false;
 
   @override
   void initState() {
     super.initState();
     Log.info(
-      'Menginisialisasi FormTransaksiPage dalam mode: ${_isEditMode ? "Edit" : "Tambah"}.',
+      'Menginisialisasi FormTransaksiPage dalam mode: ${_modeEdit ? "Edit" : "Tambah"}.',
     );
     _dompetOpSlite = ref.read(dompetOpSqliteProvider);
     _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
@@ -74,22 +68,22 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
   Future<void> _loadData() async {
     Log.info('Memulai pemuatan data awal (dompet & kategori).');
-    setState(() => _isLoading = true);
+    setState(() => _loading = true);
 
     try {
-      final dompetList = await _dompetOpSlite.ambilSemua();
-      Log.info('Berhasil memuat ${dompetList.length} dompet.');
-      final kategoriList = await _kategoriOpSqlite.ambilSemua();
-      Log.info('Berhasil memuat ${kategoriList.length} kategori.');
+      final daftarDompet = await _dompetOpSlite.ambilSemua();
+      Log.info('Berhasil memuat ${daftarDompet.length} dompet.');
+      final daftarKategori = await _kategoriOpSqlite.ambilSemua();
+      Log.info('Berhasil memuat ${daftarKategori.length} kategori.');
 
       if (!mounted) return;
 
       setState(() {
-        _dompetList = dompetList;
-        _kategoriList = kategoriList;
+        _daftarDompet = daftarDompet;
+        _daftarKategori = daftarKategori;
       });
 
-      if (_isEditMode) {
+      if (_modeEdit) {
         Log.info(
           'Mode Edit: Mempopulasikan form dengan data transaksi ID: ${widget.transaksi!.id}',
         );
@@ -97,26 +91,26 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _tipe = trx.tipe;
         _keteranganController.text = trx.deskripsi;
         _jumlahController.text = trx.jumlah.abs().toString();
-        _selectedDate = trx.tanggal;
-        _selectedTime = TimeOfDay.fromDateTime(trx.tanggal);
-        _selectedDompet = _dompetList.firstWhere(
-          (final d) => d.id == trx.idDompet,
+        _tanggalDipilih = trx.tanggal;
+        _jamDipilih = TimeOfDay.fromDateTime(trx.tanggal);
+        _selectedDompet = _daftarDompet.firstWhere(
+          (d) => d.id == trx.idDompet,
           orElse: () {
             Log.warning(
               'Dompet asal dengan ID ${trx.idDompet} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
             );
-            return _dompetList.first;
+            return _daftarDompet.first;
           },
         );
 
         if (trx.tipe == TipeTransaksi.transfer && trx.idDompetTujuan != null) {
-          _selectedDompetTujuan = _dompetList.firstWhere(
+          _dompetTujuanDipilih = _daftarDompet.firstWhere(
             (final d) => d.id == trx.idDompetTujuan,
             orElse: () {
               Log.warning(
                 'Dompet tujuan dengan ID ${trx.idDompetTujuan} tidak ditemukan. Menggunakan dompet pertama dari daftar.',
               );
-              return _dompetList.first;
+              return _daftarDompet.first;
             },
           );
         }
@@ -124,7 +118,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         _filterKategoriInternal();
 
         if (trx.idKategori.isNotEmpty) {
-          _selectedKategori =
+          _kategoriDipilih =
               _kategoriFiltered.cast<KategoriModel?>().firstWhere(
             (final k) => k?.id == trx.idKategori,
             orElse: () {
@@ -135,8 +129,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
             },
           );
 
-          if (trx.idSubKategori != null && _selectedKategori != null) {
-            _selectedSubKategori = _selectedKategori!.subCategories
+          if (trx.idSubKategori != null && _kategoriDipilih != null) {
+            _subKategoriDipilih = _kategoriDipilih!.subCategories
                 .cast<SubCategoryModel?>()
                 .firstWhere(
               (final sk) => sk?.id == trx.idSubKategori,
@@ -155,8 +149,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           'Mode Tambah: Mejalankan filter kategori awal untuk tipe Pemasukan.',
         );
         Log.info('Mode Tambah: Mengisi default tanggal/waktu sekarang.');
-        _selectedDate = DateTime.now();
-        _selectedTime = TimeOfDay.fromDateTime(DateTime.now());
+        _tanggalDipilih = DateTime.now();
+        _jamDipilih = TimeOfDay.fromDateTime(DateTime.now());
         _filterKategoriInternal();
       }
     } on Exception catch (e, s) {
@@ -165,7 +159,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
       ToastUtil.error(context, 'Gagal memuat data penting: $e');
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _loading = false);
         Log.info('Pemuatan data awal selesai. isLoading diatur ke false.');
       }
     }
@@ -184,8 +178,9 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         ? TipeKategori.income
         : TipeKategori.expense;
 
-    _kategoriFiltered =
-        _kategoriList.where((final k) => k.type == tipeKategoriTarget).toList();
+    _kategoriFiltered = _daftarKategori
+        .where((final k) => k.type == tipeKategoriTarget)
+        .toList();
     Log.info(
       'Kategori difilter untuk tipe: ${_tipe.name}. Jumlah: $tipeSebelum -> ${_kategoriFiltered.length}.',
     );
@@ -197,28 +192,28 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         'Tipe transaksi diubah, memfilter ulang kategori dan mereset pilihan kategori.',
       );
       _filterKategoriInternal();
-      _selectedKategori = null;
-      _selectedSubKategori = null;
+      _kategoriDipilih = null;
+      _subKategoriDipilih = null;
     });
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    Log.info('Memilih tanggal, saat ini: $_selectedDate');
+    Log.info('Memilih tanggal, saat ini: $_tanggalDipilih');
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: _tanggalDipilih ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() => _selectedDate = picked);
+    if (picked != null && picked != _tanggalDipilih) {
+      setState(() => _tanggalDipilih = picked);
       Log.info('Tanggal dipilih: ${FormatTanggal.formatDasar(picked)}');
     }
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    Log.info('Memilih waktu, saat ini: $_selectedTime');
-    final initial = _selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
+    Log.info('Memilih waktu, saat ini: $_jamDipilih');
+    final initial = _jamDipilih ?? TimeOfDay.fromDateTime(DateTime.now());
     final picked = await showTimePicker(
       context: context,
       initialTime: initial,
@@ -226,8 +221,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child!),
     );
-    if (picked != null && picked != _selectedTime) {
-      setState(() => _selectedTime = picked);
+    if (picked != null && picked != _jamDipilih) {
+      setState(() => _jamDipilih = picked);
       Log.info('Waktu dipilih: ${picked.hour}:${picked.minute}');
     }
   }
@@ -236,32 +231,32 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     Log.info('Tombol "Simpan" ditekan.');
     if (_formKey.currentState!.validate()) {
       Log.info('Form valid. Memulai proses penyimpanan.');
-      setState(() => _isSaving = true);
+      setState(() => _menyimpan = true);
       final DateTime combinedDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        _selectedTime!.hour,
-        _selectedTime!.minute,
+        _tanggalDipilih!.year,
+        _tanggalDipilih!.month,
+        _tanggalDipilih!.day,
+        _jamDipilih!.hour,
+        _jamDipilih!.minute,
       );
       final double jumlah = double.parse(_jumlahController.text).abs();
       final transaksi = TransaksiModel(
-        id: _isEditMode ? widget.transaksi!.id : const Uuid().v4(),
+        id: _modeEdit ? widget.transaksi!.id : const Uuid().v4(),
         deskripsi: _keteranganController.text,
         jumlah: jumlah,
         tanggal: combinedDateTime,
         tipe: _tipe,
         idDompet: _selectedDompet!.id,
         idDompetTujuan:
-            _tipe == TipeTransaksi.transfer ? _selectedDompetTujuan?.id : null,
-        idKategori: _selectedKategori?.id ?? '',
-        idSubKategori: _selectedSubKategori?.id,
+            _tipe == TipeTransaksi.transfer ? _dompetTujuanDipilih?.id : null,
+        idKategori: _kategoriDipilih?.id ?? '',
+        idSubKategori: _subKategoriDipilih?.id,
       );
 
       Log.info('Model Transaksi yang akan disimpan: ${transaksi.toSqlite()}');
 
       try {
-        if (_isEditMode) {
+        if (_modeEdit) {
           Log.info(
             'Menjalankan operasi UPDATE untuk transaksi ID: ${transaksi.id}',
           );
@@ -282,8 +277,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         final isOnline =
             await ref.read(koneksiInternetServiceProvider).cekKoneksiLokal();
         if (isOnline) {
-          final syncCheckService = ref.read(layananCekSinkronisasiProvider);
-          syncCheckService.jalankanCekSinkronisasi();
+          final layananekSikronisasi = ref.read(layananCekSinkronisasiProvider);
+          layananekSikronisasi.jalankanCekSinkronisasi();
           if (mounted) {
             ToastUtil.success(
                 context, 'Transaksi berhasil disimpan dan disinkronkan.');
@@ -307,7 +302,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
         ToastUtil.error(context, 'Gagal menyimpan transaksi: $e');
       } finally {
         if (mounted) {
-          setState(() => _isSaving = false);
+          setState(() => _menyimpan = false);
           Log.info('Proses penyimpanan selesai. isSaving diatur ke false.');
         }
       }
@@ -321,13 +316,13 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   @override
   Widget build(BuildContext context) {
     Log.info(
-      'Membangun UI FormTransaksiPage. isLoading: $_isLoading, isSaving: $_isSaving',
+      'Membangun UI FormTransaksiPage. isLoading: $_loading, isSaving: $_menyimpan',
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Transaksi' : 'Tambah Transaksi'),
+        title: Text(_modeEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
       ),
-      body: _isLoading
+      body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
@@ -404,7 +399,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             );
                             _tipe = newSelection.first;
                             _filterKategori();
-                            _selectedDompetTujuan = null;
+                            _dompetTujuanDipilih = null;
                           });
                         },
                       ),
@@ -440,17 +435,16 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                     ),
                     gapH24,
                     DateTimePickerWidget(
-                      selectedDate: _selectedDate,
-                      selectedTime: _selectedTime,
+                      selectedDate: _tanggalDipilih,
+                      selectedTime: _jamDipilih,
                       onSelectDate: () => _selectDate(context),
                       onSelectTime: () => _selectTime(context),
                     ),
-
                     DropdownButtonFormField<DompetModel>(
                       key: ValueKey<DompetModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
                       decoration: const InputDecoration(labelText: 'Dompet'),
-                      items: _dompetList.map((dompet) {
+                      items: _daftarDompet.map((dompet) {
                         return DropdownMenuItem(
                           value: dompet,
                           child: Text(dompet.nama),
@@ -467,12 +461,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                     ),
                     if (_tipe == TipeTransaksi.transfer)
                       DropdownButtonFormField<DompetModel>(
-                        key: ValueKey<DompetModel?>(_selectedDompetTujuan),
-                        initialValue: _selectedDompetTujuan,
+                        key: ValueKey<DompetModel?>(_dompetTujuanDipilih),
+                        initialValue: _dompetTujuanDipilih,
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
                         ),
-                        items: _dompetList.map((dompet) {
+                        items: _daftarDompet.map((dompet) {
                           return DropdownMenuItem(
                             value: dompet,
                             child: Text(dompet.nama),
@@ -482,7 +476,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           Log.info(
                             'Pengguna memilih dompet tujuan: ${val?.nama ?? "null"}',
                           );
-                          setState(() => _selectedDompetTujuan = val);
+                          setState(() => _dompetTujuanDipilih = val);
                         },
                         validator: (val) {
                           if (val == null) return 'Dompet tujuan harus dipilih';
@@ -492,12 +486,11 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           return null;
                         },
                       ),
-                    // diubah: Menampilkan kategori hanya jika tipe bukan transfer
                     if (_tipe != TipeTransaksi.transfer &&
                         _kategoriFiltered.isNotEmpty)
                       DropdownButtonFormField<KategoriModel>(
-                        key: ValueKey<KategoriModel?>(_selectedKategori),
-                        initialValue: _selectedKategori,
+                        key: ValueKey<KategoriModel?>(_kategoriDipilih),
+                        initialValue: _kategoriDipilih,
                         decoration: const InputDecoration(
                           labelText: 'Kategori',
                         ),
@@ -512,22 +505,22 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                             'Pengguna memilih kategori: ${val?.name ?? "null"}',
                           );
                           setState(() {
-                            _selectedKategori = val;
-                            _selectedSubKategori = null;
+                            _kategoriDipilih = val;
+                            _subKategoriDipilih = null;
                           });
                         },
                         validator: (val) =>
                             val == null ? 'Kategori harus dipilih' : null,
                       ),
-                    if (_selectedKategori != null &&
-                        _selectedKategori!.subCategories.isNotEmpty)
+                    if (_kategoriDipilih != null &&
+                        _kategoriDipilih!.subCategories.isNotEmpty)
                       DropdownButtonFormField<SubCategoryModel>(
-                        key: ValueKey<SubCategoryModel?>(_selectedSubKategori),
-                        initialValue: _selectedSubKategori,
+                        key: ValueKey<SubCategoryModel?>(_subKategoriDipilih),
+                        initialValue: _subKategoriDipilih,
                         decoration: const InputDecoration(
                           labelText: 'Sub Kategori',
                         ),
-                        items: _selectedKategori!.subCategories.map((sub) {
+                        items: _kategoriDipilih!.subCategories.map((sub) {
                           return DropdownMenuItem(
                             value: sub,
                             child: Text(sub.name),
@@ -537,15 +530,15 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           Log.info(
                             'Pengguna memilih sub-kategori: ${val?.name ?? "null"}',
                           );
-                          setState(() => _selectedSubKategori = val);
+                          setState(() => _subKategoriDipilih = val);
                         },
                         validator: (val) =>
                             val == null ? 'Sub Kategori harus dipilih' : null,
                       ),
                     gapH20,
                     ElevatedButton(
-                      onPressed: _isSaving ? null : _simpanForm,
-                      child: _isSaving
+                      onPressed: _menyimpan ? null : _simpanForm,
+                      child: _menyimpan
                           ? const CircularProgressIndicator()
                           : const Text('Simpan'),
                     ),
