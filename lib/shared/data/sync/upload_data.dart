@@ -10,24 +10,23 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
-/// Layanan untuk mengunggah data dari database lokal (SQLite) ke Firestore.
 class UploadDataService {
-  final SqliteDatabase _dbHelper;
+  final SqliteDatabase _sqliteDb;
   final FirebaseFirestore _firestore;
   final SyncManager _syncManager;
 
   UploadDataService({
-    required SqliteDatabase dbHelper,
+    required SqliteDatabase sqliteDb,
     required FirebaseFirestore firestore,
     required SyncManager syncManager,
-  })  : _dbHelper = dbHelper,
+  })  : _sqliteDb = sqliteDb,
         _firestore = firestore,
         _syncManager = syncManager {
     Log.info('UploadDataService diinisialisasi dengan dependency injection.');
   }
 
   /// Mengunggah semua data dari semua tabel lokal ke koleksi Firestore yang sesuai.
-  Future<void> uploadAllData() async {
+  Future<void> uploadSemuaData() async {
     Log.info('========================================');
     Log.info('MEMULAI PROSES UNGGAH SEMUA DATA KE FIREBASE');
     Log.info(
@@ -40,7 +39,7 @@ class UploadDataService {
       'Semua fungsi akan dijalankan secara paralel menggunakan Future.wait.',
     );
 
-    final List<Future<void>> uploadList = [
+    final List<Future<void>> daftarTabel = [
       uploadWalletData(),
       uploadCategoryData(),
       uploadFeedbackData(),
@@ -55,7 +54,7 @@ class UploadDataService {
     ];
 
     Log.info(
-      'Total ${uploadList.length} fungsi unggah spesifik telah disiapkan dan siap dieksekusi secara paralel.',
+      'Total ${daftarTabel.length} fungsi unggah spesifik telah disiapkan dan siap dieksekusi secara paralel.',
     );
 
     try {
@@ -63,7 +62,7 @@ class UploadDataService {
         'Menjalankan semua fungsi unggah secara paralel menggunakan Future.wait. '
         'Semua proses unggah akan berjalan bersamaan untuk efisiensi waktu.',
       );
-      await Future.wait(uploadList);
+      await Future.wait(daftarTabel);
       Log.info('========================================');
       Log.info('PROSES UNGGAH SEMUA DATA SELESAI DENGAN SUKSES');
       Log.info(
@@ -72,13 +71,12 @@ class UploadDataService {
       Log.info('========================================');
     } on Exception catch (e, s) {
       Log.error(
-        'Gagal selama proses unggah massal ke Firestore. '
-        'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
-        'Proses unggah tidak dapat diselesaikan sepenuhnya. '
-        'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
-        e: e,
-        s: s,
-      );
+          'Gagal selama proses unggah massal ke Firestore. '
+          'Satu atau lebih fungsi unggah spesifik mengalami kegagalan. '
+          'Proses unggah tidak dapat diselesaikan sepenuhnya. '
+          'Error ini akan dilempar ulang ke service layer untuk penanganan lebih lanjut.',
+          e: e,
+          s: s);
       rethrow;
     }
   }
@@ -94,22 +92,21 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk dompet: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<WalletModel>(
+      await uploadGenericData<DompetModel>(
         NamaTabel.wallet,
         NamaTabel.wallet,
-        WalletModel.fromSqlite,
-        (final m) => m.toFirebase(),
+        DompetModel.fromSqlite,
+        (m) => m.toFirebase(),
         time,
       );
       Log.info('Proses unggah data dompet selesai dengan sukses.');
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       Log.error(
-        'Gagal mengunggah data dompet. '
-        'Kemungkinan penyebab: gagal membaca data dari SQLite, '
-        'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
-        e: e,
-        s: s,
-      );
+          'Gagal mengunggah data dompet. '
+          'Kemungkinan penyebab: gagal membaca data dari SQLite, '
+          'gagal mengambil waktu sinkronisasi, atau gagal menulis ke Firestore.',
+          e: e,
+          s: s);
       rethrow;
     }
   }
@@ -125,10 +122,10 @@ class UploadDataService {
         'Waktu sinkronisasi terakhir untuk kategori: ${time.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
-      await uploadGenericData<CategoryModel>(
+      await uploadGenericData<KategoriModel>(
         NamaTabel.category,
         NamaTabel.category,
-        CategoryModel.fromSqlite,
+        KategoriModel.fromSqlite,
         (final m) => m.toFirebase(),
         time,
       );
@@ -151,17 +148,17 @@ class UploadDataService {
       'Memulai proses unggah data kritik_saran. Mengambil waktu sinkronisasi terakhir dari SyncManager.',
     );
     try {
-      final time = await _syncManager.getLastUpload();
+      final terkahirUpload = await _syncManager.getLastUpload();
       Log.info(
-        'Waktu sinkronisasi terakhir untuk kritik_saran: ${time.toIso8601String()}. '
+        'Waktu sinkronisasi terakhir untuk kritik_saran: ${terkahirUpload.toIso8601String()}. '
         'Hanya data yang diperbarui setelah waktu ini yang akan diunggah.',
       );
       await uploadGenericData<FeedbackModel>(
         NamaTabel.feedback,
         NamaTabel.feedback,
         FeedbackModel.fromSqlite,
-        (final m) => m.toFirebase(),
-        time,
+        (m) => m.toFirebase(),
+        terkahirUpload,
       );
       Log.info('Proses unggah data kritik_saran selesai dengan sukses.');
     } on Exception catch (e, s) {
@@ -451,7 +448,7 @@ class UploadDataService {
 
     try {
       Log.info('Mendapatkan instance database SQLite dari DatabaseHelper.');
-      final db = await _dbHelper.database;
+      final db = await _sqliteDb.database;
       Log.info('Instance database berhasil didapatkan.');
 
       List<Map<String, dynamic>> dataToUpload = [];
@@ -594,7 +591,7 @@ class UploadDataService {
 
 final uploadDataServiceProvider = Provider<UploadDataService>((ref) {
   return UploadDataService(
-    dbHelper: ref.read(sqliteDatabaseProvider),
+    sqliteDb: ref.read(sqliteDatabaseProvider),
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
   );

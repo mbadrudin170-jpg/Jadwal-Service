@@ -13,7 +13,7 @@ import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model that represents a transaction category.
-class CategoryModel implements HasId {
+class KategoriModel implements HasId {
   @override
   final String id;
 
@@ -21,7 +21,7 @@ class CategoryModel implements HasId {
   final String name;
 
   /// The type of the category (e.g., expense, income).
-  final CategoryType type;
+  final TipeKategori type;
 
   /// A list of sub-categories under this category.
   final List<SubCategoryModel> subCategories;
@@ -35,8 +35,8 @@ class CategoryModel implements HasId {
   /// The time this category was archived.
   final DateTime? archivedAt;
 
-  /// Main constructor for [CategoryModel].
-  CategoryModel({
+  /// Main constructor for [KategoriModel].
+  KategoriModel({
     final String? id,
     required this.name,
     required this.type,
@@ -48,17 +48,17 @@ class CategoryModel implements HasId {
     Log.info('CategoryModel created: $id, name: $name');
   }
 
-  /// Creates a copy of [CategoryModel] with some updated fields.
-  CategoryModel copyWith({
+  /// Creates a copy of [KategoriModel] with some updated fields.
+  KategoriModel copyWith({
     final String? id,
     final String? name,
-    final CategoryType? type,
+    final TipeKategori? type,
     final List<SubCategoryModel>? subCategories,
     final DateTime? updatedAt,
     final bool? isDeleted,
     final DateTime? archivedAt,
   }) {
-    return CategoryModel(
+    return KategoriModel(
       id: id ?? this.id,
       name: name ?? this.name,
       type: type ?? this.type,
@@ -86,8 +86,8 @@ class CategoryModel implements HasId {
     return null;
   }
 
-  /// Factory constructor to create [CategoryModel] from SQLite data.
-  factory CategoryModel.fromSqlite(final Map<String, dynamic> map) {
+  /// Factory constructor to create [KategoriModel] from SQLite data.
+  factory KategoriModel.fromSqlite(final Map<String, dynamic> map) {
     List<SubCategoryModel> parseSubCategories(final dynamic data) {
       if (data == null) return [];
       try {
@@ -110,11 +110,11 @@ class CategoryModel implements HasId {
       }
     }
 
-    return CategoryModel(
+    return KategoriModel(
       id: map[NamaKolom.id] as String? ?? '',
       name: map[NamaKolom.name] as String? ?? '',
-      type: _safeParseEnum(CategoryType.values, map[NamaKolom.type]) ??
-          CategoryType.expense,
+      type: _safeParseEnum(TipeKategori.values, map[NamaKolom.type]) ??
+          TipeKategori.expense,
       subCategories: parseSubCategories(map[NamaKolom.subCategoryId]),
       // DIUBAH: Menggunakan ParserUtil
       updatedAt: ParserUtil.parseDateTime(map[NamaKolom.updatedAt]),
@@ -123,7 +123,7 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Converts [CategoryModel] to a Map for SQLite storage.
+  /// Converts [KategoriModel] to a Map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     final data = {
       NamaKolom.id: id,
@@ -140,8 +140,8 @@ class CategoryModel implements HasId {
     return data;
   }
 
-  /// Factory constructor to create [CategoryModel] from Firebase data.
-  factory CategoryModel.fromFirebase(
+  /// Factory constructor to create [KategoriModel] from Firebase data.
+  factory KategoriModel.fromFirebase(
     final String id,
     final Map<String, dynamic> data,
   ) {
@@ -162,11 +162,11 @@ class CategoryModel implements HasId {
       return [];
     }
 
-    return CategoryModel(
+    return KategoriModel(
       id: id,
       name: data[NamaKolom.name] as String? ?? '',
-      type: _safeParseEnum(CategoryType.values, data[NamaKolom.type]) ??
-          CategoryType.expense,
+      type: _safeParseEnum(TipeKategori.values, data[NamaKolom.type]) ??
+          TipeKategori.expense,
       subCategories: parseSubCategories(data[NamaKolom.subCategoryId]),
       // DIUBAH: Menggunakan ParserUtil
       updatedAt: ParserUtil.parseDateTime(data[NamaKolom.updatedAt]),
@@ -175,7 +175,7 @@ class CategoryModel implements HasId {
     );
   }
 
-  /// Converts [CategoryModel] to a Map for Firebase storage.
+  /// Converts [KategoriModel] to a Map for Firebase storage.
   Map<String, dynamic> toFirebase() {
     final data = {
       NamaKolom.name: name,

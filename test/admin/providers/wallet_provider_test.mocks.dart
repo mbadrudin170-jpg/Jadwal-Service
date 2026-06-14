@@ -8,7 +8,7 @@ import 'dart:async' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart' as _i3;
-import 'package:wifi/shared/model/wallet_model.dart' as _i5;
+import 'package:wifi/shared/model/dompet_model.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -55,7 +55,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
 
   @override
   _i4.Future<void> tambahDompet(
-    _i5.WalletModel? wallet, {
+    _i5.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -69,7 +69,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
       ) as _i4.Future<void>);
 
   @override
-  _i4.Future<List<_i5.WalletModel>> getAll({bool? showArchived = false}) =>
+  _i4.Future<List<_i5.DompetModel>> getAll({bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getAll,
@@ -77,24 +77,24 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
           {#showArchived: showArchived},
         ),
         returnValue:
-            _i4.Future<List<_i5.WalletModel>>.value(<_i5.WalletModel>[]),
+            _i4.Future<List<_i5.DompetModel>>.value(<_i5.DompetModel>[]),
         returnValueForMissingStub:
-            _i4.Future<List<_i5.WalletModel>>.value(<_i5.WalletModel>[]),
-      ) as _i4.Future<List<_i5.WalletModel>>);
+            _i4.Future<List<_i5.DompetModel>>.value(<_i5.DompetModel>[]),
+      ) as _i4.Future<List<_i5.DompetModel>>);
 
   @override
-  _i4.Future<_i5.WalletModel?> getById(String? id) => (super.noSuchMethod(
+  _i4.Future<_i5.DompetModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i4.Future<_i5.WalletModel?>.value(),
-        returnValueForMissingStub: _i4.Future<_i5.WalletModel?>.value(),
-      ) as _i4.Future<_i5.WalletModel?>);
+        returnValue: _i4.Future<_i5.DompetModel?>.value(),
+        returnValueForMissingStub: _i4.Future<_i5.DompetModel?>.value(),
+      ) as _i4.Future<_i5.DompetModel?>);
 
   @override
   _i4.Future<void> updateDompet(
-    _i5.WalletModel? wallet, {
+    _i5.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -166,7 +166,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i3.DompetOpSqlite {
 
   @override
   _i4.Future<void> insertOrUpdateBatch(
-    List<_i5.WalletModel>? items, {
+    List<_i5.DompetModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(

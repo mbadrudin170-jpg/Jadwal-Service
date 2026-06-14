@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wifi/shared/enum/payment_status_enum.dart';
 import 'package:wifi/shared/model/active_customer_detail_model.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/utils/active_customer_sorter.dart';
 
 void main() {

@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'wallet_provider.dart';
+part of 'dompet_provider.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,24 +13,24 @@ part of 'wallet_provider.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$WalletState {
-  List<WalletModel> get wallets;
+mixin _$DompetState {
+  List<DompetModel> get wallets;
   double get totalSaldoPositif;
   double get totalSaldoNegatif;
   double get totalSaldo;
 
-  /// Create a copy of WalletState
+  /// Create a copy of DompetState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $WalletStateCopyWith<WalletState> get copyWith =>
-      _$WalletStateCopyWithImpl<WalletState>(this as WalletState, _$identity);
+  $DompetStateCopyWith<DompetState> get copyWith =>
+      _$DompetStateCopyWithImpl<DompetState>(this as DompetState, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is WalletState &&
+            other is DompetState &&
             const DeepCollectionEquality().equals(other.wallets, wallets) &&
             (identical(other.totalSaldoPositif, totalSaldoPositif) ||
                 other.totalSaldoPositif == totalSaldoPositif) &&
@@ -50,31 +50,31 @@ mixin _$WalletState {
 
   @override
   String toString() {
-    return 'WalletState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+    return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
 /// @nodoc
-abstract mixin class $WalletStateCopyWith<$Res> {
-  factory $WalletStateCopyWith(
-          WalletState value, $Res Function(WalletState) _then) =
-      _$WalletStateCopyWithImpl;
+abstract mixin class $DompetStateCopyWith<$Res> {
+  factory $DompetStateCopyWith(
+          DompetState value, $Res Function(DompetState) _then) =
+      _$DompetStateCopyWithImpl;
   @useResult
   $Res call(
-      {List<WalletModel> wallets,
+      {List<DompetModel> wallets,
       double totalSaldoPositif,
       double totalSaldoNegatif,
       double totalSaldo});
 }
 
 /// @nodoc
-class _$WalletStateCopyWithImpl<$Res> implements $WalletStateCopyWith<$Res> {
-  _$WalletStateCopyWithImpl(this._self, this._then);
+class _$DompetStateCopyWithImpl<$Res> implements $DompetStateCopyWith<$Res> {
+  _$DompetStateCopyWithImpl(this._self, this._then);
 
-  final WalletState _self;
-  final $Res Function(WalletState) _then;
+  final DompetState _self;
+  final $Res Function(DompetState) _then;
 
-  /// Create a copy of WalletState
+  /// Create a copy of DompetState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -88,7 +88,7 @@ class _$WalletStateCopyWithImpl<$Res> implements $WalletStateCopyWith<$Res> {
       wallets: null == wallets
           ? _self.wallets
           : wallets // ignore: cast_nullable_to_non_nullable
-              as List<WalletModel>,
+              as List<DompetModel>,
       totalSaldoPositif: null == totalSaldoPositif
           ? _self.totalSaldoPositif
           : totalSaldoPositif // ignore: cast_nullable_to_non_nullable
@@ -105,8 +105,8 @@ class _$WalletStateCopyWithImpl<$Res> implements $WalletStateCopyWith<$Res> {
   }
 }
 
-/// Adds pattern-matching-related methods to [WalletState].
-extension WalletStatePatterns on WalletState {
+/// Adds pattern-matching-related methods to [DompetState].
+extension DompetStatePatterns on DompetState {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -121,12 +121,12 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_WalletState value)? $default, {
+    TResult Function(_DompetState value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _WalletState() when $default != null:
+      case _DompetState() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -148,11 +148,11 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_WalletState value) $default,
+    TResult Function(_DompetState value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WalletState():
+      case _DompetState():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -173,11 +173,11 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_WalletState value)? $default,
+    TResult? Function(_DompetState value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WalletState() when $default != null:
+      case _DompetState() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -198,14 +198,14 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<WalletModel> wallets, double totalSaldoPositif,
+    TResult Function(List<DompetModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _WalletState() when $default != null:
+      case _DompetState() when $default != null:
         return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
@@ -228,13 +228,13 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<WalletModel> wallets, double totalSaldoPositif,
+    TResult Function(List<DompetModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WalletState():
+      case _DompetState():
         return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
@@ -256,13 +256,13 @@ extension WalletStatePatterns on WalletState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<WalletModel> wallets, double totalSaldoPositif,
+    TResult? Function(List<DompetModel> wallets, double totalSaldoPositif,
             double totalSaldoNegatif, double totalSaldo)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _WalletState() when $default != null:
+      case _DompetState() when $default != null:
         return $default(_that.wallets, _that.totalSaldoPositif,
             _that.totalSaldoNegatif, _that.totalSaldo);
       case _:
@@ -273,18 +273,18 @@ extension WalletStatePatterns on WalletState {
 
 /// @nodoc
 
-class _WalletState implements WalletState {
-  const _WalletState(
-      {final List<WalletModel> wallets = const [],
+class _DompetState implements DompetState {
+  const _DompetState(
+      {final List<DompetModel> wallets = const [],
       this.totalSaldoPositif = 0.0,
       this.totalSaldoNegatif = 0.0,
       this.totalSaldo = 0.0})
       : _wallets = wallets;
 
-  final List<WalletModel> _wallets;
+  final List<DompetModel> _wallets;
   @override
   @JsonKey()
-  List<WalletModel> get wallets {
+  List<DompetModel> get wallets {
     if (_wallets is EqualUnmodifiableListView) return _wallets;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_wallets);
@@ -300,19 +300,19 @@ class _WalletState implements WalletState {
   @JsonKey()
   final double totalSaldo;
 
-  /// Create a copy of WalletState
+  /// Create a copy of DompetState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$WalletStateCopyWith<_WalletState> get copyWith =>
-      __$WalletStateCopyWithImpl<_WalletState>(this, _$identity);
+  _$DompetStateCopyWith<_DompetState> get copyWith =>
+      __$DompetStateCopyWithImpl<_DompetState>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _WalletState &&
+            other is _DompetState &&
             const DeepCollectionEquality().equals(other._wallets, _wallets) &&
             (identical(other.totalSaldoPositif, totalSaldoPositif) ||
                 other.totalSaldoPositif == totalSaldoPositif) &&
@@ -332,33 +332,33 @@ class _WalletState implements WalletState {
 
   @override
   String toString() {
-    return 'WalletState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
+    return 'DompetState(wallets: $wallets, totalSaldoPositif: $totalSaldoPositif, totalSaldoNegatif: $totalSaldoNegatif, totalSaldo: $totalSaldo)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$WalletStateCopyWith<$Res>
-    implements $WalletStateCopyWith<$Res> {
-  factory _$WalletStateCopyWith(
-          _WalletState value, $Res Function(_WalletState) _then) =
-      __$WalletStateCopyWithImpl;
+abstract mixin class _$DompetStateCopyWith<$Res>
+    implements $DompetStateCopyWith<$Res> {
+  factory _$DompetStateCopyWith(
+          _DompetState value, $Res Function(_DompetState) _then) =
+      __$DompetStateCopyWithImpl;
   @override
   @useResult
   $Res call(
-      {List<WalletModel> wallets,
+      {List<DompetModel> wallets,
       double totalSaldoPositif,
       double totalSaldoNegatif,
       double totalSaldo});
 }
 
 /// @nodoc
-class __$WalletStateCopyWithImpl<$Res> implements _$WalletStateCopyWith<$Res> {
-  __$WalletStateCopyWithImpl(this._self, this._then);
+class __$DompetStateCopyWithImpl<$Res> implements _$DompetStateCopyWith<$Res> {
+  __$DompetStateCopyWithImpl(this._self, this._then);
 
-  final _WalletState _self;
-  final $Res Function(_WalletState) _then;
+  final _DompetState _self;
+  final $Res Function(_DompetState) _then;
 
-  /// Create a copy of WalletState
+  /// Create a copy of DompetState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -368,11 +368,11 @@ class __$WalletStateCopyWithImpl<$Res> implements _$WalletStateCopyWith<$Res> {
     Object? totalSaldoNegatif = null,
     Object? totalSaldo = null,
   }) {
-    return _then(_WalletState(
+    return _then(_DompetState(
       wallets: null == wallets
           ? _self._wallets
           : wallets // ignore: cast_nullable_to_non_nullable
-              as List<WalletModel>,
+              as List<DompetModel>,
       totalSaldoPositif: null == totalSaldoPositif
           ? _self.totalSaldoPositif
           : totalSaldoPositif // ignore: cast_nullable_to_non_nullable

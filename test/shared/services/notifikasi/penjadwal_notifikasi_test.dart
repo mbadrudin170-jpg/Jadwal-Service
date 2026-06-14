@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/transaction_op_firebase.dart';
 import 'package:wifi/fitur/notfikasi/notifikasi_servis.dart';
 

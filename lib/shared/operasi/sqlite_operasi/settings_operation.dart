@@ -35,7 +35,7 @@ class SettingsOpSqlite {
       final result = await db.query(
         _namaTabel,
         where: 'id = ?',
-        whereArgs: [globalSettingsId],
+        whereArgs: [idGlobalSetting],
       );
 
       if (result.isNotEmpty) {
@@ -72,7 +72,7 @@ class SettingsOpSqlite {
   }) async {
     try {
       final settingsToSave = settings.copyWith(
-        id: globalSettingsId,
+        id: idGlobalSetting,
         updatedAt: DateTime.now().toUtc(),
       );
 
@@ -106,7 +106,7 @@ class SettingsOpSqlite {
   }) async {
     try {
       Log.info(
-        'Memulai proses update parsial untuk pengaturan dengan ID: $globalSettingsId',
+        'Memulai proses update parsial untuk pengaturan dengan ID: $idGlobalSetting',
       );
 
       final dataToUpdate = {
@@ -117,7 +117,7 @@ class SettingsOpSqlite {
       await _baseOpSqlite.update(
         _namaTabel,
         dataToUpdate,
-        globalSettingsId,
+        idGlobalSetting,
         dariServer: dariServer,
       );
 
@@ -138,7 +138,7 @@ class SettingsOpSqlite {
     try {
       Log.info('Memulai penyimpanan pengaturan dengan batch operation.');
       final dataToSave = settings.copyWith(
-        id: globalSettingsId,
+        id: idGlobalSetting,
         updatedAt: DateTime.now().toUtc(),
       );
       final data = dataToSave.toSqlite();

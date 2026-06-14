@@ -27,7 +27,7 @@ void main() {
       };
       await fakeFirestore
           .collection(NamaTabel.get(TableName.settings))
-          .doc(globalSettingsId)
+          .doc(idGlobalSetting)
           .set(settingsData);
 
       // Aksi

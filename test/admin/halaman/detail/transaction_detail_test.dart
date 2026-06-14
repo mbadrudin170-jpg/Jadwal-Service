@@ -6,9 +6,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_transaksi.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart';
@@ -83,10 +83,10 @@ void main() {
   group('TransactionDetailPage', () {
     testWidgets('01. should display transaction details', (tester) async {
       when(() => mockWalletOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => WalletModel(id: 'wallet1', name: 'Test Wallet'));
+          (_) async => DompetModel(id: 'wallet1', name: 'Test Wallet'));
       when(() => mockCategoryOperation.ambilBerdasarkanId(any())).thenAnswer(
-          (_) async => CategoryModel(
-              id: 'cat1', name: 'Test Category', type: CategoryType.income));
+          (_) async => KategoriModel(
+              id: 'cat1', name: 'Test Category', type: TipeKategori.income));
       when(() => mockCustomerOperation.ambilBerdasarkanId(any())).thenAnswer(
           (_) async => PelangganModel(
               id: 'cust1',

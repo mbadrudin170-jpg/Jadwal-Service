@@ -99,14 +99,14 @@ class DataDummy {
         ),
       ];
 
-  /// Daftar dummy untuk [CategoryModel]
-  static List<CategoryModel> get categories => [
-        CategoryModel(
+  /// Daftar dummy untuk [KategoriModel]
+  static List<KategoriModel> get categories => [
+        KategoriModel(
             id: kategoriPembayaranId,
             name: 'Pembayaran',
-            type: CategoryType.income),
-        CategoryModel(
-            id: kategoriLainnyaId, name: 'Lainnya', type: CategoryType.expense),
+            type: TipeKategori.income),
+        KategoriModel(
+            id: kategoriLainnyaId, name: 'Lainnya', type: TipeKategori.expense),
       ];
 
   /// Daftar dummy untuk [SubCategoryModel]
@@ -123,10 +123,10 @@ class DataDummy {
         ),
       ];
 
-  /// Daftar dummy untuk [WalletModel]
-  static List<WalletModel> get wallets => [
-        WalletModel(id: walletBudiId, name: 'Dompet Budi', balance: 500000),
-        WalletModel(id: walletSitiId, name: 'Dompet Siti', balance: 1000000),
+  /// Daftar dummy untuk [DompetModel]
+  static List<DompetModel> get wallets => [
+        DompetModel(id: walletBudiId, name: 'Dompet Budi', balance: 500000),
+        DompetModel(id: walletSitiId, name: 'Dompet Siti', balance: 1000000),
       ];
 
   /// Daftar dummy untuk [TransaksiModel]

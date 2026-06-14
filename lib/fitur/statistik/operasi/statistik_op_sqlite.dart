@@ -1,4 +1,4 @@
-// path: lib/admin/repository/statistik_op_sqlite.dart
+// path: lib/fitur/statistik/operasi/statistik_op_sqlite.dart
 
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +20,7 @@ final statistikOpSliteProvider = Provider<StatistikOpSqlite>((ref) {
   return StatistikOpSqlite(
     pelangganAktifOpSqlite: ref.watch(pelangganAktifOpSqliteProvider),
     feedbackOpSqlite: ref.watch(feedbackOperationProvider),
-    paketOpSqlite: ref.watch(packageOperationProvider),
+    paketOpSqlite: ref.watch(paketOpSqliteProvider),
     transaksiOpSqlite: ref.watch(transactionOperationProvider),
   );
 });

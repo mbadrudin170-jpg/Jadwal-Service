@@ -1,12 +1,4 @@
-// path: lib/admin/halaman/lainnya/category.dart
-// Fitur: Manajemen Kategori
-// diubah: Menggunakan ToastUtil sesuai instruksi.
-// diubah: Mengganti implementasi arsip manual dengan memanggil metode softDelete dari operasi yang relevan.
-// diubah: Menambahkan fungsi dan tombol untuk softDeleteAll.
-// diubah: Memperbaiki logika arsip sub-kategori agar memanggil SubCategoryOperation.
-// diperbaiki: Memperbaiki error use_build_context_synchronously dengan memindahkan logika async ke method terpisah.
-// diperbaiki: Menghilangkan unnecessary_string_escapes warnings.
-// diperbaiki: Menambahkan final pada parameter dan dokumentasi untuk member publik.
+// path: lib/admin/halaman/lainnya/kategori.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +6,7 @@ import 'package:wifi/admin/halaman/form/form_kategori.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart';
@@ -33,8 +25,8 @@ class CategoryPage extends ConsumerStatefulWidget {
 class _CategoryPageState extends ConsumerState<CategoryPage> {
   late final CategoryOperation _categoryOperation;
   late final SubKategoriOpSqlite _subCategoryOperation;
-  late Future<List<CategoryModel>> _categoryListFuture;
-  CategoryType _selectedType = CategoryType.income;
+  late Future<List<KategoriModel>> _categoryListFuture;
+  TipeKategori _selectedType = TipeKategori.income;
   bool _isEdit = false;
   bool _isArchiveMode = false;
 
@@ -42,12 +34,12 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
   void initState() {
     super.initState();
     _categoryOperation = ref.read(kategoriOpSqliteProvider);
-    _subCategoryOperation = ref.read(subCategoryOperationProvider);
+    _subCategoryOperation = ref.read(subKategoriOpSqliteProvider);
     Log.info('Menginisialisasi halaman Kategori');
     _loadCategories();
   }
 
-  Future<List<CategoryModel>> _loadCategoriesAndHandleErrors() async {
+  Future<List<KategoriModel>> _loadCategoriesAndHandleErrors() async {
     try {
       return await _categoryOperation.getAll();
     } on Exception catch (e, st) {
@@ -79,7 +71,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     }
   }
 
-  Future<void> _navigateToEditCategory(final CategoryModel category) async {
+  Future<void> _navigateToEditCategory(final KategoriModel category) async {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -135,7 +127,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
     return confirm ?? false;
   }
 
-  Future<void> _softDeleteCategory(final CategoryModel category) async {
+  Future<void> _softDeleteCategory(final KategoriModel category) async {
     final confirm = await _showConfirmDialog(
       'Arsipkan Kategori',
       'Anda yakin ingin mengarsipkan "${category.name}"? Ini juga akan mengarsipkan semua sub-kategorinya.',
@@ -233,9 +225,9 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
             children: [
               ElevatedButton(
                 onPressed: () =>
-                    setState(() => _selectedType = CategoryType.income),
+                    setState(() => _selectedType = TipeKategori.income),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.income
+                  backgroundColor: _selectedType == TipeKategori.income
                       ? Colors.green
                       : Colors.grey,
                 ),
@@ -243,9 +235,9 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
               ),
               ElevatedButton(
                 onPressed: () =>
-                    setState(() => _selectedType = CategoryType.expense),
+                    setState(() => _selectedType = TipeKategori.expense),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _selectedType == CategoryType.expense
+                  backgroundColor: _selectedType == TipeKategori.expense
                       ? context.colorScheme.error
                       : Colors.grey,
                 ),
@@ -254,7 +246,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
             ],
           ),
           Expanded(
-            child: FutureBuilder<List<CategoryModel>>(
+            child: FutureBuilder<List<KategoriModel>>(
               future: _categoryListFuture,
               builder: (final _, final snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {

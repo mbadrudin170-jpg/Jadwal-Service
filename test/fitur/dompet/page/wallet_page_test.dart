@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/fitur/dompet/page/wallet_page.dart';
-import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/fitur/dompet/page/dompet_page.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 
 // Mock kelas yang diperlukan
 class MockWalletNotifier extends Mock implements WalletNotifier {}
 
-class FakeWalletState extends Fake implements WalletState {
+class FakeWalletState extends Fake implements DompetState {
   @override
-  final List<WalletModel> wallets;
+  final List<DompetModel> wallets;
   @override
   final double totalSaldoPositif;
   @override
@@ -31,7 +31,7 @@ class FakeWalletState extends Fake implements WalletState {
 
 void main() {
   late ProviderContainer container;
-  late List<WalletModel> dummyWallets;
+  late List<DompetModel> dummyWallets;
 
   setUp(() {
     registerFallbackValue(FakeWalletState(
@@ -41,8 +41,8 @@ void main() {
       totalSaldo: 0,
     ));
     dummyWallets = [
-      WalletModel(id: '1', name: 'Dompet Utama', balance: 100000),
-      WalletModel(id: '2', name: 'Dompet Cadangan', balance: -50000),
+      DompetModel(id: '1', name: 'Dompet Utama', balance: 100000),
+      DompetModel(id: '2', name: 'Dompet Cadangan', balance: -50000),
     ];
     container = ProviderContainer();
   });
@@ -57,7 +57,7 @@ void main() {
       container = ProviderContainer(
         overrides: [
           walletProvider.overrideWith(
-            (ref) => AsyncValue<List<WalletModel>>.loading(),
+            (ref) => AsyncValue<List<DompetModel>>.loading(),
           ),
         ],
       );
@@ -65,7 +65,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -86,16 +86,17 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
       expect(find.textContaining(errorMessage), findsOneWidget);
     });
 
-    testWidgets('3. Menampilkan pesan "Tidak ada dompet ditemukan" saat data kosong',
+    testWidgets(
+        '3. Menampilkan pesan "Tidak ada dompet ditemukan" saat data kosong',
         (tester) async {
-      final emptyState = AsyncValue.data(WalletState(
+      final emptyState = AsyncValue.data(DompetState(
         wallets: [],
         totalSaldoPositif: 0,
         totalSaldoNegatif: 0,
@@ -110,7 +111,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -119,7 +120,7 @@ void main() {
 
     testWidgets('4. Menampilkan daftar dompet dengan benar saat ada data',
         (tester) async {
-      final walletState = WalletState(
+      final walletState = DompetState(
         wallets: dummyWallets,
         totalSaldoPositif: 100000,
         totalSaldoNegatif: -50000,
@@ -135,7 +136,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -147,7 +148,7 @@ void main() {
 
     testWidgets('5. Tap pada WalletCard menavigasi ke halaman detail',
         (tester) async {
-      final walletState = WalletState(
+      final walletState = DompetState(
         wallets: dummyWallets,
         totalSaldoPositif: 100000,
         totalSaldoNegatif: -50000,
@@ -163,7 +164,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -177,7 +178,7 @@ void main() {
 
     testWidgets('6. Long press pada WalletCard menampilkan dialog arsip',
         (tester) async {
-      final walletState = WalletState(
+      final walletState = DompetState(
         wallets: dummyWallets,
         totalSaldoPositif: 100000,
         totalSaldoNegatif: -50000,
@@ -193,7 +194,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -203,12 +204,13 @@ void main() {
       await tester.longPress(walletCard);
       await tester.pumpAndSettle();
       expect(find.text('Konfirmasi Arsip'), findsOneWidget);
-      expect(find.textContaining('arsipkan dompet "Dompet Utama"'), findsOneWidget);
+      expect(find.textContaining('arsipkan dompet "Dompet Utama"'),
+          findsOneWidget);
     });
 
     testWidgets('7. Tombol hapus semua di AppBar menampilkan dialog konfirmasi',
         (tester) async {
-      final walletState = WalletState(
+      final walletState = DompetState(
         wallets: dummyWallets,
         totalSaldoPositif: 100000,
         totalSaldoNegatif: -50000,
@@ -224,7 +226,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -232,12 +234,13 @@ void main() {
       await tester.tap(deleteButton);
       await tester.pumpAndSettle();
       expect(find.text('Konfirmasi'), findsOneWidget);
-      expect(find.text('Apakah Anda yakin ingin menghapus semua dompet?'), findsOneWidget);
+      expect(find.text('Apakah Anda yakin ingin menghapus semua dompet?'),
+          findsOneWidget);
     });
 
     testWidgets('8. Tombol FAB menavigasi ke halaman form tambah dompet',
         (tester) async {
-      final walletState = WalletState(
+      final walletState = DompetState(
         wallets: dummyWallets,
         totalSaldoPositif: 100000,
         totalSaldoNegatif: -50000,
@@ -253,7 +256,7 @@ void main() {
         MaterialApp(
           home: ProviderScope(
             parent: container,
-            child: const WalletPage(),
+            child: const DompetPage(),
           ),
         ),
       );
@@ -264,9 +267,10 @@ void main() {
   });
 
   group('WalletCard', () {
-    testWidgets('9. WalletCard menampilkan nama dan saldo dengan format mata uang',
+    testWidgets(
+        '9. WalletCard menampilkan nama dan saldo dengan format mata uang',
         (tester) async {
-      final wallet = WalletModel(id: '1', name: 'Dompet Test', balance: 75000);
+      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 75000);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -282,9 +286,9 @@ void main() {
       expect(find.textContaining('Rp 75.000'), findsOneWidget);
     });
 
-    testWidgets('10. Saldo negatif menggunakan warna error',
-        (tester) async {
-      final wallet = WalletModel(id: '1', name: 'Dompet Utang', balance: -25000);
+    testWidgets('10. Saldo negatif menggunakan warna error', (tester) async {
+      final wallet =
+          DompetModel(id: '1', name: 'Dompet Utang', balance: -25000);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -297,13 +301,13 @@ void main() {
         ),
       );
       final textWidget = tester.widget<Text>(find.textContaining('Rp -25.000'));
-      expect(textWidget.style?.color, equals(ThemeData.light().colorScheme.error));
+      expect(
+          textWidget.style?.color, equals(ThemeData.light().colorScheme.error));
     });
 
-    testWidgets('11. WalletCard memanggil onTap saat diklik',
-        (tester) async {
+    testWidgets('11. WalletCard memanggil onTap saat diklik', (tester) async {
       bool tapped = false;
-      final wallet = WalletModel(id: '1', name: 'Dompet Test', balance: 0);
+      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 0);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -322,7 +326,7 @@ void main() {
     testWidgets('12. WalletCard memanggil onLongPress saat long press',
         (tester) async {
       bool longPressed = false;
-      final wallet = WalletModel(id: '1', name: 'Dompet Test', balance: 0);
+      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 0);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

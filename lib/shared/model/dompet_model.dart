@@ -1,5 +1,4 @@
-// path: lib/shared/model/wallet_model.dart
-// diubah: Menggunakan ParserUtil untuk konsistensi parsing dan .toUtc() untuk penyimpanan.
+// path: lib/shared/model/dompet_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -9,7 +8,7 @@ import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Data model for a wallet entity in the application.
-class WalletModel implements HasId {
+class DompetModel implements HasId {
   /// A unique ID for each wallet, generated automatically if not provided.
   @override
   final String id;
@@ -29,8 +28,8 @@ class WalletModel implements HasId {
   /// Timestamp of when this wallet was archived. `null` if not archived.
   final DateTime? archivedAt;
 
-  /// Creates an instance of [WalletModel].
-  WalletModel({
+  /// Creates an instance of [DompetModel].
+  DompetModel({
     final String? id,
     required this.name,
     required this.balance,
@@ -41,8 +40,8 @@ class WalletModel implements HasId {
     Log.info('WalletModel created: $id, name: $name');
   }
 
-  /// Creates a copy of [WalletModel] with updated fields.
-  WalletModel copyWith({
+  /// Creates a copy of [DompetModel] with updated fields.
+  DompetModel copyWith({
     final String? id,
     final String? name,
     final double? balance,
@@ -50,7 +49,7 @@ class WalletModel implements HasId {
     final bool? isDeleted,
     final DateTime? archivedAt,
   }) {
-    return WalletModel(
+    return DompetModel(
       id: id ?? this.id,
       name: name ?? this.name,
       balance: balance ?? this.balance,
@@ -62,9 +61,9 @@ class WalletModel implements HasId {
 
   // DIHAPUS: Helper parsing internal dipindahkan ke ParserUtil
 
-  /// Creates a [WalletModel] instance from a SQLite map.
-  factory WalletModel.fromSqlite(final Map<String, dynamic> map) {
-    return WalletModel(
+  /// Creates a [DompetModel] instance from a SQLite map.
+  factory DompetModel.fromSqlite(final Map<String, dynamic> map) {
+    return DompetModel(
       id: map[NamaKolom.id] as String?,
       name: (map[NamaKolom.name] as String?) ?? '',
       balance: (map[NamaKolom.balance] as num?)?.toDouble() ?? 0.0,
@@ -75,7 +74,7 @@ class WalletModel implements HasId {
     );
   }
 
-  /// Converts this [WalletModel] instance into a map for SQLite storage.
+  /// Converts this [DompetModel] instance into a map for SQLite storage.
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
@@ -88,10 +87,10 @@ class WalletModel implements HasId {
     };
   }
 
-  /// Creates a [WalletModel] instance from a Firestore document.
-  factory WalletModel.fromFirebase(
+  /// Creates a [DompetModel] instance from a Firestore document.
+  factory DompetModel.fromFirebase(
       final String id, final Map<String, dynamic> data) {
-    return WalletModel(
+    return DompetModel(
       id: id,
       name: (data[NamaKolom.name] as String?) ?? '',
       balance: (data[NamaKolom.balance] as num?)?.toDouble() ?? 0.0,
@@ -102,7 +101,7 @@ class WalletModel implements HasId {
     );
   }
 
-  /// Converts this [WalletModel] instance into a map for Firestore storage.
+  /// Converts this [DompetModel] instance into a map for Firestore storage.
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,

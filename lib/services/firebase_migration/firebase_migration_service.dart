@@ -558,7 +558,7 @@ class FirebaseMigrationService {
           await _migrateSingletonCollection(
             legacyCollectionName: legacyName,
             newCollectionName: newName,
-            newDocId: globalSettingsId,
+            newDocId: idGlobalSetting,
             columnMapping: mapping,
             batch: batch,
             logs: logs,

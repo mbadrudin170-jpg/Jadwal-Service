@@ -54,7 +54,7 @@ class SyncCheckService {
       final bool hasDataToUpload = await _newDataCheck.hasNewSqliteData();
 
       if (hasDataToUpload) {
-        await _uploadService.uploadAllData();
+        await _uploadService.uploadSemuaData();
         final DateTime now = DateTime.now();
         await _syncManager.setLastUpload(now);
         await _newDataCheck.resetNeedUpload();

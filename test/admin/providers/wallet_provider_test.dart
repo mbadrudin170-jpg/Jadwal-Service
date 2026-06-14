@@ -6,8 +6,8 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 
 import 'wallet_provider_test.mocks.dart';
 
@@ -16,14 +16,14 @@ void main() {
   late MockDompetOpSqlite mockDompetOpSqlite;
   late ProviderContainer container;
 
-  final tWallet1 = WalletModel(
+  final tWallet1 = DompetModel(
     id: '1',
     name: 'Dompet Utama',
     balance: 100000,
     updatedAt: DateTime.now(),
   );
 
-  final tWallet2 = WalletModel(
+  final tWallet2 = DompetModel(
     id: '2',
     name: 'Dompet Cadangan',
     balance: -50000,
@@ -79,7 +79,7 @@ void main() {
     aturStubSukses();
     await container.read(walletProvider.future);
 
-    final newWallet = WalletModel(
+    final newWallet = DompetModel(
       id: '3',
       name: 'Dompet Baru',
       balance: 20000,
@@ -173,7 +173,7 @@ void main() {
     await container.read(walletProvider.future);
 
     // Simulate data change
-    final tWallet3 = WalletModel(
+    final tWallet3 = DompetModel(
         id: '3',
         name: 'Dompet Lain',
         balance: 30000,

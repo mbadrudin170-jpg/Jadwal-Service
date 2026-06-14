@@ -20,10 +20,10 @@ class CustomerDetailUI extends StatefulWidget {
   final int totalPoin;
 
   /// Callback saat tombol edit ditekan.
-  final VoidCallback? onEdit;
+  final VoidCallback? navigasiKeEdit;
 
   /// Callback saat kartu poin ditekan untuk navigasi.
-  final VoidCallback? onNavigateToPoints;
+  final VoidCallback? navigasiKePoin;
 
   /// Callback saat tombol salin semua info ditekan.
   final VoidCallback? onCopyAll;
@@ -33,8 +33,8 @@ class CustomerDetailUI extends StatefulWidget {
     super.key,
     required this.pelanggan,
     required this.totalPoin,
-    this.onEdit,
-    this.onNavigateToPoints,
+    this.navigasiKeEdit,
+    this.navigasiKePoin,
     this.onCopyAll,
   });
 
@@ -66,13 +66,13 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
       appBar: AppBar(
         title: const Text('Profil Pelanggan'),
         actions: [
-          if (widget.onEdit != null)
+          if (widget.navigasiKeEdit != null)
             IconButton(
               icon: const Icon(Icons.edit),
               tooltip: 'Edit Profil',
               onPressed: () {
                 Log.info('Tombol Edit ditekan.');
-                widget.onEdit!();
+                widget.navigasiKeEdit!();
               },
             ),
         ],
@@ -98,9 +98,9 @@ class _CustomerDetailUIState extends State<CustomerDetailUI> {
     return TotalPointCard(
       points: widget.totalPoin,
       onTap: () {
-        if (widget.onNavigateToPoints != null) {
+        if (widget.navigasiKePoin != null) {
           Log.info('Kartu Poin ditekan, navigasi ke halaman poin.');
-          widget.onNavigateToPoints!();
+          widget.navigasiKePoin!();
         }
       },
     );

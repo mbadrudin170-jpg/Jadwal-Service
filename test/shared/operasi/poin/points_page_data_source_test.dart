@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 
 import 'points_page_data_source_test.mocks.dart';

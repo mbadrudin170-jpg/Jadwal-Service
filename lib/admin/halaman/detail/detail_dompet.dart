@@ -10,16 +10,16 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 import 'package:wifi/shared/widget/summary_info_widget.dart';
-import 'package:wifi/shared/widget/transaction_list_widgets.dart';
+import 'package:wifi/shared/widget/daftar_transaksi_widget.dart';
 
 /// Kelas data untuk detail dompet.
 class DetailDompetData {
   /// Model dompet yang sedang ditampilkan.
-  final WalletModel wallet;
+  final DompetModel wallet;
 
   /// Daftar transaksi yang terkait dengan dompet.
   final List<TransaksiModel> transactions;
@@ -43,7 +43,7 @@ class DetailDompetData {
 /// termasuk ringkasan saldo dan daftar transaksinya.
 class DetailDompet extends ConsumerStatefulWidget {
   /// Model dompet yang akan ditampilkan.
-  final WalletModel dompet;
+  final DompetModel dompet;
 
   /// Operasi untuk mengelola data dompet.
   final DompetOpSqlite? walletOperation;
@@ -85,7 +85,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
         transactionOperation.getTransactionsByWalletId(widget.dompet.id),
       ]);
 
-      final latestWallet = results[0] as WalletModel?;
+      final latestWallet = results[0] as DompetModel?;
       final transactionList = results[1] as List<TransaksiModel>;
 
       if (latestWallet == null) {

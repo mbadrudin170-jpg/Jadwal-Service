@@ -1,10 +1,10 @@
-// path: lib/admin/halaman/widget/package_name_widget.dart
+// path: lib/admin/halaman/widget/nama_paket_widget.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/shared/debug/log.dart';
 
 class PackageNameWidget extends ConsumerWidget {
   /// ID dari paket yang akan ditampilkan namanya.
@@ -24,7 +24,7 @@ class PackageNameWidget extends ConsumerWidget {
   Widget build(final BuildContext context, WidgetRef ref) {
     Log.info('Membangun PackageNameWidget untuk packageId: $packageId');
 
-    final packageOperation = ref.read(packageOperationProvider);
+    final packageOperation = ref.read(paketOpSqliteProvider);
     return FutureBuilder<PaketModel?>(
       future: packageOperation.getById(packageId),
       builder: (final context, final snapshot) {

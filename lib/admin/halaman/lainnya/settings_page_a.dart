@@ -12,7 +12,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
 
 final settingsProvider = FutureProvider<SettingsModel>((ref) async {
-  final settingsOp = ref.read(settingsOperationProvider);
+  final settingsOp = ref.read(settingsOpSqliteProvider);
   return await settingsOp.getSettings();
 });
 
@@ -36,7 +36,7 @@ class SettingsAdminPage extends ConsumerWidget {
 
     if ((result ?? false) && context.mounted) {
       Log.info('Pengaturan diperbarui, memuat ulang data...');
-      ref.invalidate(settingsOperationProvider);
+      ref.invalidate(settingsOpSqliteProvider);
     }
   }
 

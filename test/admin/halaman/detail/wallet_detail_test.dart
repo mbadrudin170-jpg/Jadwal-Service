@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
 class MockDompetOpSqlite extends Mock implements DompetOpSqlite {}
@@ -16,12 +16,12 @@ class MockTransactionOperation extends Mock implements TransaksiOpsqlite {}
 void main() {
   late MockDompetOpSqlite mockDompetOpSqlite;
   late MockTransactionOperation mockTransactionOperation;
-  late WalletModel testWallet;
+  late DompetModel testWallet;
 
   setUp(() {
     mockDompetOpSqlite = MockDompetOpSqlite();
     mockTransactionOperation = MockTransactionOperation();
-    testWallet = WalletModel(
+    testWallet = DompetModel(
       id: '1',
       name: 'Test Wallet',
       balance: 1000,

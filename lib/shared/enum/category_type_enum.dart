@@ -1,7 +1,7 @@
 // path: lib/shared/enum/category_type_enum.dart
 
 /// Enum untuk mendefinisikan tipe-tipe kategori transaksi.
-enum CategoryType {
+enum TipeKategori {
   /// Mewakili transaksi yang menambah saldo (pemasukan).
   income,
 
@@ -12,14 +12,14 @@ enum CategoryType {
   transfer,
 }
 
-extension CategoryTypeExtension on CategoryType {
+extension CategoryTypeExtension on TipeKategori {
   String get displayName {
     switch (this) {
-      case CategoryType.income:
+      case TipeKategori.income:
         return 'Pemasukan';
-      case CategoryType.expense:
+      case TipeKategori.expense:
         return 'Pengeluaran';
-      case CategoryType.transfer:
+      case TipeKategori.transfer:
         return 'Transfer';
     }
   }

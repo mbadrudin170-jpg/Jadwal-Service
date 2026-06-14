@@ -1,4 +1,4 @@
-// path: lib/admin/providers/transaction_provider.dart
+// path: lib/admin/providers/transaksi_provider.dart
 
 import 'dart:async';
 
@@ -6,13 +6,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart'; // Impor enum SortBy
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
-part 'transaction_provider.g.dart';
-part 'transaction_provider.freezed.dart';
+part 'transaksi_provider.freezed.dart';
+part 'transaksi_provider.g.dart';
 
 @freezed
 abstract class TransactionState with _$TransactionState {
@@ -104,7 +104,7 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.addTransaction(transaction);
-      ref.invalidate(walletProvider);
+      ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
@@ -115,7 +115,7 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.updateTransaction(transaction.id, transaction);
-      ref.invalidate(walletProvider);
+      ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
@@ -126,7 +126,7 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDelete(id);
-      ref.invalidate(walletProvider);
+      ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(currentSort);
     });
@@ -136,7 +136,7 @@ class Transaction extends _$Transaction {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await _operation.softDeleteAll();
-      ref.invalidate(walletProvider);
+      ref.invalidate(dompetProvider);
       ref.invalidate(statistikProvider);
       return _loadData(SortBy.newest);
     });

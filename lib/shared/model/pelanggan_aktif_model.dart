@@ -1,7 +1,4 @@
 // path: lib/shared/model/active_customer_model.dart
-// diubah: Menghapus parser internal dan menggunakan ParserUtil.
-// diubah: Menambahkan .toUtc() saat menyimpan ke Firebase untuk konsistensi.
-// diubah: Memastikan updatedAt tidak pernah null saat menyimpan ke Firebase.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';

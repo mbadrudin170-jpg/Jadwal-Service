@@ -8,7 +8,7 @@ import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Global ID for the settings document.
-const String globalSettingsId = 'global_config';
+const String idGlobalSetting = 'global_config';
 
 /// Model for application settings.
 class SettingsModel implements HasId {
@@ -32,7 +32,7 @@ class SettingsModel implements HasId {
 
   /// Constructor for `SettingsModel`.
   SettingsModel({
-    this.id = globalSettingsId,
+    this.id = idGlobalSetting,
     this.autoSyncInterval = 24,
     this.autoDeleteArchiveDays = 30,
     this.maintenanceMode = false,
@@ -90,7 +90,7 @@ class SettingsModel implements HasId {
   factory SettingsModel.fromFirebase(final Map<String, dynamic> data) {
     Log.info('Creating SettingsModel from Firebase');
     return SettingsModel(
-      id: data[NamaKolom.id] as String? ?? globalSettingsId,
+      id: data[NamaKolom.id] as String? ?? idGlobalSetting,
       autoSyncInterval: data[NamaKolom.autoSyncInterval] as int? ?? 24,
       autoDeleteArchiveDays:
           data[NamaKolom.autoDeleteArchiveDays] as int? ?? 30,

@@ -147,7 +147,8 @@ void main() {
     mockWorkmanagerPlatform = MockWorkmanagerPlatform();
     WorkmanagerPlatform.instance = mockWorkmanagerPlatform;
 
-    when(mockUploadDataService.uploadAllData()).thenReturn(Future.value(true));
+    when(mockUploadDataService.uploadSemuaData())
+        .thenReturn(Future.value(true));
     when(mockSyncCheckService.runSyncCheck()).thenAnswer((_) async {});
     when(mockLocalStorage.ambilModeTema())
         .thenReturn(Future.value(ThemeMode.light));

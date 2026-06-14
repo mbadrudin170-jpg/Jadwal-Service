@@ -6,11 +6,11 @@ import 'package:mockito/mockito.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/data/sync/download_data.dart';
 import 'package:wifi/shared/export/enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
@@ -143,13 +143,13 @@ void main() {
       () async {
         when(mockQuerySnapshot.docs).thenReturn([mockDoc]);
 
-        await downloadDataService.synchronizeCollection<CategoryModel>(
+        await downloadDataService.synchronizeCollection<KategoriModel>(
           collectionName: 'categories',
           lastDownloadTime: lastSync,
-          fromFirebase: (final id, final data) => CategoryModel(
+          fromFirebase: (final id, final data) => KategoriModel(
             id: id,
             name: 'Test Category',
-            type: CategoryType.income,
+            type: TipeKategori.income,
           ),
           batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),
@@ -166,13 +166,13 @@ void main() {
       () async {
         when(mockQuerySnapshot.docs).thenReturn([]);
 
-        await downloadDataService.synchronizeCollection<CategoryModel>(
+        await downloadDataService.synchronizeCollection<KategoriModel>(
           collectionName: 'categories',
           lastDownloadTime: lastSync,
-          fromFirebase: (final id, final data) => CategoryModel(
+          fromFirebase: (final id, final data) => KategoriModel(
             id: id,
             name: 'Test Category',
-            type: CategoryType.income,
+            type: TipeKategori.income,
           ),
           batchOperation: (final data) =>
               mockCategoryOperation.insertOrUpdateBatch(data, fromServer: true),

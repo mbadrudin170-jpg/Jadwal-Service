@@ -1,4 +1,4 @@
-// path: lib/admin/halaman/lainnya/package.dart
+// path: lib/admin/halaman/lainnya/paket.dart
 
 import 'dart:async';
 
@@ -7,11 +7,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/detail/detail_paket.dart';
 import 'package:wifi/admin/halaman/form/form_paket.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/fitur/paket/provider/paket_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/operasi/sqlite_operasi/operasi_sqlite_provider/paket_provider.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 enum UrutanPaket {
@@ -244,7 +244,7 @@ Future<void> _showEditDeleteDialog(
 
 Future<void> _showDeleteConfirmationDialog(
     BuildContext context, WidgetRef ref, PaketModel paket) async {
-  final paketOperasi = ref.read(packageOperationProvider);
+  final paketOperasi = ref.read(paketOpSqliteProvider);
 
   await showDialog<void>(
     context: context,
@@ -288,7 +288,7 @@ Future<void> _showDeleteConfirmationDialog(
 
 Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   Log.info('User menekan tombol hapus semua paket');
-  final paketOperasi = ref.read(packageOperationProvider);
+  final paketOperasi = ref.read(paketOpSqliteProvider);
 
   await showDialog<void>(
     context: context,

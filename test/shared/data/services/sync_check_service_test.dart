@@ -45,7 +45,7 @@ void main() {
     );
 
     // Atur perilaku default untuk mock agar tidak terjadi error null
-    when(mockUploadService.uploadAllData()).thenAnswer((_) async => {});
+    when(mockUploadService.uploadSemuaData()).thenAnswer((_) async => {});
     when(mockDownloadService.downloadAllData()).thenAnswer((_) async => {});
     when(mockSyncManager.setLastUpload(any)).thenAnswer((_) async => {});
     when(mockSyncManager.setLastDownload(any)).thenAnswer((_) async => {});
@@ -69,7 +69,7 @@ void main() {
       // VERIFIKASI
       // Pastikan proses unggah terpicu
       verify(mockNewDataCheck.hasNewSqliteData()).called(1);
-      verify(mockUploadService.uploadAllData()).called(1);
+      verify(mockUploadService.uploadSemuaData()).called(1);
       verify(mockSyncManager.setLastUpload(any)).called(1);
       verify(mockNewDataCheck.resetNeedUpload()).called(1);
 
@@ -104,7 +104,7 @@ void main() {
 
       // VERIFIKASI
       // Pastikan proses unggah terpicu
-      verify(mockUploadService.uploadAllData()).called(1);
+      verify(mockUploadService.uploadSemuaData()).called(1);
       verify(mockSyncManager.setLastUpload(any)).called(1);
 
       // Pastikan proses unduh diperiksa tapi tidak dieksekusi
@@ -131,7 +131,7 @@ void main() {
       // VERIFIKASI
       // Pastikan proses unggah diperiksa tapi tidak dieksekusi
       verify(mockNewDataCheck.hasNewSqliteData()).called(1);
-      verifyNever(mockUploadService.uploadAllData());
+      verifyNever(mockUploadService.uploadSemuaData());
       verifyNever(mockSyncManager.setLastUpload(any));
 
       // Pastikan status global tidak diperbarui
@@ -160,7 +160,7 @@ void main() {
 
       // VERIFIKASI
       verify(mockNewDataCheck.hasNewSqliteData()).called(1);
-      verifyNever(mockUploadService.uploadAllData());
+      verifyNever(mockUploadService.uploadSemuaData());
 
       verify(mockNewDataCheck.hasNewFirebaseData(
               collectionName: NamaTabel.get(TableName.statusGlobal),
@@ -179,7 +179,7 @@ void main() {
         () async {
       // ATUR
       when(mockNewDataCheck.hasNewSqliteData()).thenAnswer((_) async => true);
-      when(mockUploadService.uploadAllData()).thenThrow(Exception('Gagal!'));
+      when(mockUploadService.uploadSemuaData()).thenThrow(Exception('Gagal!'));
       when(mockNewDataCheck.hasNewFirebaseData(
               collectionName: anyNamed('collectionName'),
               documentId: anyNamed('documentId')))
@@ -189,7 +189,7 @@ void main() {
       await syncCheckService.runSyncCheck();
 
       // VERIFIKASI
-      verify(mockUploadService.uploadAllData()).called(1);
+      verify(mockUploadService.uploadSemuaData()).called(1);
 
       // Pastikan metadata tidak diperbarui karena ada error
       verifyNever(mockSyncManager.setLastUpload(any));

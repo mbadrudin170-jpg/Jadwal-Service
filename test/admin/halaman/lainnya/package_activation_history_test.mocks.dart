@@ -9,11 +9,11 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/admin/data/sqlite.dart' as _i2;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i8;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i10;
-import 'package:wifi/shared/model/transaction_model.dart' as _i6;
+import 'package:wifi/shared/model/transaksi_model.dart' as _i6;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i3;
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
-    as _i9;
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart' as _i7;
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart'
+    as _i9;
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart'
     as _i4;
 

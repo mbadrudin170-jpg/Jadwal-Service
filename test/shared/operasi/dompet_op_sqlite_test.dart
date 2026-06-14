@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/enum/table_name_enum.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 
@@ -31,7 +31,7 @@ void main() {
   });
 
   group('Uji Coba DompetOpSqlite', () {
-    final tWallet = WalletModel(
+    final tWallet = DompetModel(
       id: '1',
       name: 'Dompet Utama',
       balance: 1000000,
@@ -46,7 +46,7 @@ void main() {
 
       final result = await dompetOpSqlite.getAll();
 
-      expect(result, isA<List<WalletModel>>());
+      expect(result, isA<List<DompetModel>>());
       expect(result.length, 1);
       expect(result.first.id, tWallet.id);
       verify(mockDatabase.query(tableName,

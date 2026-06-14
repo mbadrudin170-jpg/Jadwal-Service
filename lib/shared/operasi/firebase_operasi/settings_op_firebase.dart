@@ -25,7 +25,7 @@ class SettingsOpFirebase {
   /// Mengambil pengaturan aplikasi dari Firestore.
   Future<Map<String, dynamic>> getSettings() async {
     try {
-      final doc = await _collection.doc(globalSettingsId).get();
+      final doc = await _collection.doc(idGlobalSetting).get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>?;
         Log.info('Pengaturan dari Firestore berhasil diambil.', data);

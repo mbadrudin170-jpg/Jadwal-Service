@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'wallet_provider.dart';
+part of 'dompet_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,40 +9,40 @@ part of 'wallet_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(Wallet)
-final walletProvider = WalletProvider._();
+@ProviderFor(Dompet)
+final dompetProvider = DompetProvider._();
 
-final class WalletProvider extends $AsyncNotifierProvider<Wallet, WalletState> {
-  WalletProvider._()
+final class DompetProvider extends $AsyncNotifierProvider<Dompet, DompetState> {
+  DompetProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'walletProvider',
+          name: r'dompetProvider',
           isAutoDispose: true,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$walletHash();
+  String debugGetCreateSourceHash() => _$dompetHash();
 
   @$internal
   @override
-  Wallet create() => Wallet();
+  Dompet create() => Dompet();
 }
 
-String _$walletHash() => r'3ae8230a29101d418dc930758ff902e617e79015';
+String _$dompetHash() => r'c8f87b4654fef10211b87b9f16c2e04f6329a9fe';
 
-abstract class _$Wallet extends $AsyncNotifier<WalletState> {
-  FutureOr<WalletState> build();
+abstract class _$Dompet extends $AsyncNotifier<DompetState> {
+  FutureOr<DompetState> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<WalletState>, WalletState>;
+    final ref = this.ref as $Ref<AsyncValue<DompetState>, DompetState>;
     final element = ref.element as $ClassProviderElement<
-        AnyNotifier<AsyncValue<WalletState>, WalletState>,
-        AsyncValue<WalletState>,
+        AnyNotifier<AsyncValue<DompetState>, DompetState>,
+        AsyncValue<DompetState>,
         Object?,
         Object?>;
     return element.handleCreate(ref, build);

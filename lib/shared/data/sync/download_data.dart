@@ -11,7 +11,6 @@ import 'package:wifi/shared/export/model.dart';
 import 'package:wifi/shared/export/operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
-// lib/shared/data/sync/download_data.dart
 
 class DownloadDataService {
   final FirebaseFirestore _firestore;
@@ -132,8 +131,7 @@ class DownloadDataService {
       // Menggunakan konstanta NamaTabel.settings untuk nama koleksi
       const collectionName = NamaTabel.settings;
       // Menggunakan globalSettingsId dari settings_model.dart
-      final docRef =
-          _firestore.collection(collectionName).doc(globalSettingsId);
+      final docRef = _firestore.collection(collectionName).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
 
       if (doc.exists && doc.data() != null) {
@@ -178,10 +176,10 @@ class DownloadDataService {
   Future<void> downloadWalletData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [WALLET]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<WalletModel>(
+    await synchronizeCollection<DompetModel>(
       collectionName: NamaTabel.wallet,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: WalletModel.fromFirebase,
+      fromFirebase: DompetModel.fromFirebase,
       batchOperation: (final data) =>
           _dompetOpSqlite.insertOrUpdateBatch(data, fromServer: true),
     );
@@ -191,10 +189,10 @@ class DownloadDataService {
   Future<void> downloadCategoryData() async {
     Log.info('Memulai sinkronisasi untuk koleksi: [CATEGORY]');
     final lastDownloadTime = await _syncManager.getLastDownload();
-    await synchronizeCollection<CategoryModel>(
+    await synchronizeCollection<KategoriModel>(
       collectionName: NamaTabel.category,
       lastDownloadTime: lastDownloadTime,
-      fromFirebase: CategoryModel.fromFirebase,
+      fromFirebase: KategoriModel.fromFirebase,
       batchOperation: (final data) =>
           _categoryOperation.insertOrUpdateBatch(data, fromServer: true),
     );
@@ -367,16 +365,16 @@ final downloadDataServiceProvider = Provider<DownloadDataService>((ref) {
   return DownloadDataService(
     firestore: FirebaseFirestore.instance,
     syncManager: ref.read(syncManagerProvider),
-    walletOperation: ref.read(walletOperationProvider),
+    walletOperation: ref.read(dompetOpSqliteProvider),
     categoryOperation: ref.read(kategoriOpSqliteProvider),
-    paketOpSqlite: ref.read(packageOperationProvider),
+    paketOpSqlite: ref.read(paketOpSqliteProvider),
     pelangganOpSqlite: ref.read(pelangganOpSqliteProvider),
     activeCustomerOperation: ref.read(pelangganAktifOpSqliteProvider),
     transactionOperation: ref.read(transactionOperationProvider),
     feedbackOperation: ref.read(feedbackOperationProvider),
     orderOperation: ref.read(orderOperationProvider),
-    subCategoryOperation: ref.read(subCategoryOperationProvider),
+    subCategoryOperation: ref.read(subKategoriOpSqliteProvider),
     apkVersionOperation: ref.read(apkVersionOperationProvider),
-    settingsOperation: ref.read(settingsOperationProvider),
+    settingsOperation: ref.read(settingsOpSqliteProvider),
   );
 });

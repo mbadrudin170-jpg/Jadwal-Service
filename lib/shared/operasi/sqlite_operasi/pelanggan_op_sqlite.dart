@@ -1,4 +1,4 @@
-// path: lib/shared/operasi/customer_operation.dart
+// path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';

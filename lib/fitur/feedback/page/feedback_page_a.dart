@@ -12,7 +12,7 @@ import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/customer_name.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
 class FeedbackPage extends ConsumerStatefulWidget {
   const FeedbackPage({super.key});
@@ -169,7 +169,7 @@ class _FeedbackPageState extends ConsumerState<FeedbackPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomerNameWidget(customerId: item.userId),
+                          NamaPelangganWidget(customerId: item.userId),
                           gapH12,
                           Text(
                             item.content,

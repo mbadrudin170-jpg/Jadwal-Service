@@ -1,4 +1,4 @@
-// path: lib/shared/model/transaction_model.dart
+// path: lib/shared/model/transaksi_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';

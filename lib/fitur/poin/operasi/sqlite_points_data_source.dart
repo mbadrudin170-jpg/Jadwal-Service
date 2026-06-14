@@ -2,9 +2,9 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/fitur/poin/provider/points_page_data_source.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/transaction_operation.dart';
 
@@ -49,6 +49,6 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 final sqlitePointsDataSourceProvider = Provider<SQLitePointsDataSource>((ref) {
   return SQLitePointsDataSource(
     transactionOperation: ref.watch(transactionOperationProvider),
-    packageOperation: ref.watch(packageOperationProvider),
+    packageOperation: ref.watch(paketOpSqliteProvider),
   );
 });

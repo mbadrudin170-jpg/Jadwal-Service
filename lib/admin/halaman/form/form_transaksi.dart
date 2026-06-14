@@ -42,19 +42,19 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
-  CategoryModel? _selectedKategori;
+  KategoriModel? _selectedKategori;
   SubCategoryModel? _selectedSubKategori;
   TransactionType _tipe = TransactionType.income;
-  WalletModel? _selectedDompet;
-  WalletModel? _selectedDompetTujuan;
+  DompetModel? _selectedDompet;
+  DompetModel? _selectedDompetTujuan;
 
   late final DompetOpSqlite _dompetOperasi;
   late final CategoryOperation _kategoriOperasi;
   late final TransaksiOpsqlite _transaksiOperasi;
 
-  List<CategoryModel> _kategoriList = [];
-  List<WalletModel> _dompetList = [];
-  List<CategoryModel> _kategoriFiltered = [];
+  List<KategoriModel> _kategoriList = [];
+  List<DompetModel> _dompetList = [];
+  List<KategoriModel> _kategoriFiltered = [];
 
   bool get _isEditMode => widget.transaksi != null;
   bool _isLoading = true;
@@ -126,7 +126,7 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
 
         if (trx.categoryId.isNotEmpty) {
           _selectedKategori =
-              _kategoriFiltered.cast<CategoryModel?>().firstWhere(
+              _kategoriFiltered.cast<KategoriModel?>().firstWhere(
             (final k) => k?.id == trx.categoryId,
             orElse: () {
               Log.warning(
@@ -182,8 +182,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
     }
 
     final tipeKategoriTarget = _tipe == TransactionType.income
-        ? CategoryType.income
-        : CategoryType.expense;
+        ? TipeKategori.income
+        : TipeKategori.expense;
 
     _kategoriFiltered =
         _kategoriList.where((final k) => k.type == tipeKategoriTarget).toList();
@@ -449,8 +449,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       onSelectTime: () => _selectTime(context),
                     ),
 
-                    DropdownButtonFormField<WalletModel>(
-                      key: ValueKey<WalletModel?>(_selectedDompet),
+                    DropdownButtonFormField<DompetModel>(
+                      key: ValueKey<DompetModel?>(_selectedDompet),
                       initialValue: _selectedDompet,
                       decoration: const InputDecoration(labelText: 'Dompet'),
                       items: _dompetList.map((dompet) {
@@ -469,8 +469,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                           val == null ? 'Dompet harus dipilih' : null,
                     ),
                     if (_tipe == TransactionType.transfer)
-                      DropdownButtonFormField<WalletModel>(
-                        key: ValueKey<WalletModel?>(_selectedDompetTujuan),
+                      DropdownButtonFormField<DompetModel>(
+                        key: ValueKey<DompetModel?>(_selectedDompetTujuan),
                         initialValue: _selectedDompetTujuan,
                         decoration: const InputDecoration(
                           labelText: 'Dompet Tujuan',
@@ -498,8 +498,8 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                     // diubah: Menampilkan kategori hanya jika tipe bukan transfer
                     if (_tipe != TransactionType.transfer &&
                         _kategoriFiltered.isNotEmpty)
-                      DropdownButtonFormField<CategoryModel>(
-                        key: ValueKey<CategoryModel?>(_selectedKategori),
+                      DropdownButtonFormField<KategoriModel>(
+                        key: ValueKey<KategoriModel?>(_selectedKategori),
                         initialValue: _selectedKategori,
                         decoration: const InputDecoration(
                           labelText: 'Kategori',

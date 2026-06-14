@@ -1,6 +1,6 @@
 // path: lib/shared/model/active_customer_detail_model.dart
 
-import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 
 /// Model ini adalah struktur data gabungan untuk menampilkan detail pelanggan aktif.
 /// Ini bukan tabel database, melainkan hasil dari query JOIN yang efisien.

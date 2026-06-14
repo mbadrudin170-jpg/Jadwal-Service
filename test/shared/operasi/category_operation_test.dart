@@ -5,7 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
 
@@ -34,10 +34,10 @@ void main() {
   });
 
   group('CategoryOperation', () {
-    final tCategory = CategoryModel(
+    final tCategory = KategoriModel(
       id: '1',
       name: 'Test Category',
-      type: CategoryType.expense,
+      type: TipeKategori.expense,
     );
     final tCategoryMap = tCategory.toSqlite();
 
@@ -56,7 +56,7 @@ void main() {
 
       final result = await categoryOperation.getAll();
 
-      expect(result, isA<List<CategoryModel>>());
+      expect(result, isA<List<KategoriModel>>());
       expect(result.first.id, tCategory.id);
     });
 
@@ -67,7 +67,7 @@ void main() {
 
       final result = await categoryOperation.getCategoryById('1');
 
-      expect(result, isA<CategoryModel>());
+      expect(result, isA<KategoriModel>());
       expect(result.id, tCategory.id);
     });
 

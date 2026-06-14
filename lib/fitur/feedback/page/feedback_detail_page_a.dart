@@ -12,7 +12,7 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/customer_name.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 
 /// Halaman untuk menampilkan detail dari sebuah kritik atau saran.
 ///
@@ -287,7 +287,7 @@ class _FeedbackDetailPageState extends ConsumerState<FeedbackDetailPage> {
                           ),
                           gapH12,
                           Expanded(
-                            child: CustomerNameWidget(
+                            child: NamaPelangganWidget(
                               customerId: kritikSaran.userId,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,

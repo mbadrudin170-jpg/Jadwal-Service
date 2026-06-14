@@ -10,7 +10,7 @@ import 'dart:async' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i5;
 import 'package:wifi/fitur/paket/model/paket_model.dart' as _i7;
-import 'package:wifi/shared/model/transaction_model.dart' as _i6;
+import 'package:wifi/shared/model/transaksi_model.dart' as _i6;
 import 'package:wifi/shared/operasi/firebase_operasi/customer_op_firebase.dart'
     as _i3;
 import 'package:wifi/shared/operasi/firebase_operasi/paeket_op_firebase.dart'

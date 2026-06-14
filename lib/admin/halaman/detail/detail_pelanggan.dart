@@ -93,8 +93,8 @@ MAC : ${customer.macAddress}
         return CustomerDetailUI(
           pelanggan: customer,
           totalPoin: totalPoin,
-          onEdit: () => _editCustomer(context, customer),
-          onNavigateToPoints: () => _navigasiKePoin(context, customer),
+          navigasiKeEdit: () => _editCustomer(context, customer),
+          navigasiKePoin: () => _navigasiKePoin(context, customer),
           onCopyAll: () => _copyAllInfo(context, customer),
         );
       },

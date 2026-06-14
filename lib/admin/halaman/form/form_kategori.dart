@@ -7,7 +7,7 @@ import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/model/sub_category_model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -17,7 +17,7 @@ import 'package:wifi/shared/utils/toast_util.dart';
 /// Halaman form untuk menambah atau mengedit kategori dan sub-kategori.
 class CategoryForm extends ConsumerStatefulWidget {
   /// Model kategori yang akan diedit. Jika null, maka form akan membuat kategori baru.
-  final CategoryModel? kategori;
+  final KategoriModel? kategori;
 
   /// Model sub-kategori yang akan diedit.
   final SubCategoryModel? subKategori;
@@ -39,7 +39,7 @@ class CategoryForm extends ConsumerStatefulWidget {
 
 class _CategoryFormState extends ConsumerState<CategoryForm> {
   final _formKey = GlobalKey<FormState>();
-  late CategoryType _tipe;
+  late TipeKategori _tipe;
   late TextEditingController _namaController;
   final _namaFocusNode = FocusNode();
 
@@ -116,7 +116,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
       _namaController.text = widget.subKategori!.name;
       // FIX: Inisialisasi _tipe untuk menghindari LateInitializationError.
       // Nilai ini tidak digunakan saat menyimpan sub-kategori, jadi aman diatur ke default.
-      _tipe = CategoryType.income;
+      _tipe = TipeKategori.income;
       Log.info(
           'Tipe kategori diatur ke default: $_tipe (tidak relevan untuk edit sub-kategori).');
     } else {
@@ -131,7 +131,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
       Log.info('  - Diperbarui: Akan diatur oleh lapisan Operasi Data');
 
       Log.info('Mengatur tipe default ke income.');
-      _tipe = CategoryType.income;
+      _tipe = TipeKategori.income;
       Log.info('Tipe kategori diatur ke: $_tipe');
 
       Log.info('Menambahkan field input sub-kategori pertama secara default.');
@@ -249,7 +249,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             'Mengambil data kategori induk dengan ID: $parentCategoryId',
           );
           final kategoriInduk = await kategoriOperasi
-              .getCategoryById(parentCategoryId) as CategoryModel?;
+              .getCategoryById(parentCategoryId) as KategoriModel?;
 
           if (kategoriInduk == null) {
             throw Exception('Kategori induk tidak ditemukan.');
@@ -381,7 +381,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           );
 
           Log.info('Membuat objek CategoryModel baru.');
-          final kategoriBaru = CategoryModel(
+          final kategoriBaru = KategoriModel(
             id: kategoriId,
             name: _namaController.text,
             type: _tipe,
@@ -539,26 +539,26 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                 ),
                 gapH16,
                 if (!_isSubKategoriMode) ...[
-                  DropdownButtonFormField<CategoryType>(
+                  DropdownButtonFormField<TipeKategori>(
                     initialValue: _tipe,
                     decoration: const InputDecoration(
                       labelText: 'Tipe',
                       border: OutlineInputBorder(),
                     ),
-                    items: CategoryType.values
+                    items: TipeKategori.values
                         .where((final type) =>
-                            type == CategoryType.income ||
-                            type == CategoryType.expense)
-                        .map((final CategoryType category) {
+                            type == TipeKategori.income ||
+                            type == TipeKategori.expense)
+                        .map((final TipeKategori category) {
                       Log.info(
                           'Membuat DropdownMenuItem untuk: ${category.displayName}');
 
-                      return DropdownMenuItem<CategoryType>(
+                      return DropdownMenuItem<TipeKategori>(
                         value: category,
                         child: Text(category.displayName),
                       );
                     }).toList(),
-                    onChanged: (final CategoryType? newValue) {
+                    onChanged: (final TipeKategori? newValue) {
                       if (newValue != null) {
                         Log.info('DROPDOWN: Tipe kategori diubah.');
                         Log.info('  - Tipe Lama: $_tipe');

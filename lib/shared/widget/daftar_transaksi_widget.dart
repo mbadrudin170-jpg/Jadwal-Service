@@ -1,16 +1,16 @@
-// path: lib/shared/widget/transaction_list_widgets.dart
+// path: lib/shared/widget/daftar_transaksi_widget.dart
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/transaction_type_enum.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 /// Mengelompokkan daftar transaksi berdasarkan tanggal (tanpa jam).
@@ -54,14 +54,14 @@ Widget buildSectionHeader(final DateTime date, final double total) {
 
 /// Widget tile untuk menampilkan satu transaksi dalam daftar.
 class TransactionTile extends ConsumerStatefulWidget {
-  final TransaksiModel transaction;
+  final TransaksiModel transaksi;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const TransactionTile({
     super.key,
-    required this.transaction,
+    required this.transaksi,
     this.onTap,
     this.onEdit,
     this.onDelete,
@@ -72,32 +72,32 @@ class TransactionTile extends ConsumerStatefulWidget {
 }
 
 class _TransactionTileState extends ConsumerState<TransactionTile> {
-  late final CategoryOperation _categoryOperation;
-  late final DompetOpSqlite _walletOperation;
+  late final CategoryOperation _kategoriOpSqlite;
+  late final DompetOpSqlite _dompetOpSqlite;
 
   @override
   void initState() {
     super.initState();
-    _categoryOperation = ref.read(categoryOperationProvider);
-    _walletOperation = ref.read(walletOperationProvider);
-    Log.info('TransactionTile initState for ID: ${widget.transaction.id}');
+    _kategoriOpSqlite = ref.read(kategoriOpSqliteProvider);
+    _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
+    Log.info('TransactionTile initState for ID: ${widget.transaksi.id}');
   }
 
   @override
   void dispose() {
-    Log.info('TransactionTile dispose for ID: ${widget.transaction.id}');
+    Log.info('TransactionTile dispose for ID: ${widget.transaksi.id}');
     super.dispose();
   }
 
   Future<String> _getCategoryName() async {
     try {
-      final category = await _categoryOperation.getCategoryById(
-        widget.transaction.categoryId,
+      final kategori = await _kategoriOpSqlite.getCategoryById(
+        widget.transaksi.categoryId,
       );
-      return category.name;
+      return kategori.name;
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mendapatkan nama kategori untuk ID: ${widget.transaction.categoryId}',
+        'Gagal mendapatkan nama kategori untuk ID: ${widget.transaksi.categoryId}',
         e: e,
         s: st,
       );
@@ -107,13 +107,13 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 
   Future<String> _getWalletName() async {
     try {
-      final wallet = await _walletOperation.getById(
-        widget.transaction.walletId,
+      final dompet = await _dompetOpSqlite.getById(
+        widget.transaksi.walletId,
       );
-      return wallet?.name ?? 'Dompet Dihapus';
+      return dompet?.name ?? 'Dompet Dihapus';
     } on Exception catch (e, st) {
       Log.error(
-        'Gagal mendapatkan nama dompet untuk ID: ${widget.transaction.walletId}',
+        'Gagal mendapatkan nama dompet untuk ID: ${widget.transaksi.walletId}',
         e: e,
         s: st,
       );
@@ -126,7 +126,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     final textTheme = Theme.of(context).textTheme;
     final IconData iconData;
     final Color iconColor;
-    if (widget.transaction.type == TransactionType.income) {
+    if (widget.transaksi.type == TransactionType.income) {
       iconData = Icons.arrow_downward;
       iconColor = Colors.green;
     } else {
@@ -137,7 +137,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        key: ValueKey(widget.transaction.id),
+        key: ValueKey(widget.transaksi.id),
         onTap: widget.onTap,
         onLongPress: () {
           if (widget.onEdit == null && widget.onDelete == null) return;
@@ -145,7 +145,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           unawaited(
             showDialog<void>(
               context: context,
-              builder: (final context) => AlertDialog(
+              builder: (context) => AlertDialog(
                 title: const Text('Opsi'),
                 content: const Text(
                   'Apa yang ingin Anda lakukan dengan transaksi ini?',
@@ -176,25 +176,25 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           backgroundColor: iconColor.withAlpha(25),
           child: Icon(iconData, color: iconColor),
         ),
-        title: Text(widget.transaction.description),
+        title: Text(widget.transaksi.description),
         subtitle: FutureBuilder<List<String>>(
           future: Future.wait([_getCategoryName(), _getWalletName()]),
-          builder: (final context, final snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Memuat...');
             }
             if (snapshot.hasError) {
               Log.error(
-                'Error di FutureBuilder TransactionTile untuk ID: ${widget.transaction.id}',
+                'Error di FutureBuilder TransactionTile untuk ID: ${widget.transaksi.id}',
                 e: snapshot.error,
                 s: snapshot.stackTrace,
               );
               return Text('Error memuat data',
                   style: textTheme.bodyMedium?.copyWith(color: Colors.red));
             }
-            final categoryName = snapshot.data?[0] ?? '-';
-            final walletName = snapshot.data?[1] ?? '-';
-            return Text('$categoryName | $walletName');
+            final namaKategori = snapshot.data?[0] ?? '-';
+            final namaDompet = snapshot.data?[1] ?? '-';
+            return Text('$namaKategori | $namaDompet');
           },
         ),
         trailing: Column(
@@ -202,7 +202,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              CurrencyFormat.formatCurrency(widget.transaction.amount),
+              CurrencyFormat.formatCurrency(widget.transaksi.amount),
               style: textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: iconColor,
@@ -210,7 +210,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
             ),
             gapH4,
             Text(
-              TimeFormat.formatHourMinute(widget.transaction.date),
+              TimeFormat.formatHourMinute(widget.transaksi.date),
               style: textTheme.bodySmall,
             ),
           ],
@@ -223,13 +223,13 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
 /// Membangun widget [TransactionTile] dengan parameter yang diberikan.
 Widget buildTransactionItem(
   final BuildContext context,
-  final TransaksiModel transaction, {
+  final TransaksiModel transaksi, {
   final VoidCallback? onTap,
   final VoidCallback? onEdit,
   final VoidCallback? onDelete,
 }) {
   return TransactionTile(
-    transaction: transaction,
+    transaksi: transaksi,
     onTap: onTap,
     onEdit: onEdit,
     onDelete: onDelete,

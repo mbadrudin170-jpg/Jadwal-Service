@@ -5,13 +5,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/category_model.dart' show CategoryModel;
+import 'package:wifi/shared/model/kategori_model.dart' show KategoriModel;
 import 'package:wifi/shared/model/has_id.dart';
 import 'package:wifi/shared/utils/parser_util.dart'; // DIUBAH: Impor baru
 
 /// Model yang merepresentasikan sebuah sub-kategori.
 ///
-/// Setiap sub-kategori selalu berada di bawah sebuah [CategoryModel] induk.
+/// Setiap sub-kategori selalu berada di bawah sebuah [KategoriModel] induk.
 class SubCategoryModel implements HasId {
   /// ID unik dari sub-kategori, biasanya dibuat menggunakan UUID.
   @override
@@ -20,7 +20,7 @@ class SubCategoryModel implements HasId {
   /// Nama dari sub-kategori.
   final String name;
 
-  /// ID dari [CategoryModel] induk.
+  /// ID dari [KategoriModel] induk.
   final String categoryId;
 
   /// Waktu terakhir data ini diperbarui.

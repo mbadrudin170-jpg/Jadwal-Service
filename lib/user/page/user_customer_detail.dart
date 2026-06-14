@@ -2,20 +2,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
+import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/widget/page/customer_detail_ui.dart';
-import 'package:wifi/fitur/poin/page/points_page.dart';
 import 'package:wifi/user/page/edit_profile_page.dart';
 import 'package:wifi/user/providers/ad_providers.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 
 /// Kelas untuk menggabungkan data yang dibutuhkan oleh UI.
 class _ProfileData {
-  final PelangganModel customer;
-  final int totalPoints;
+  final PelangganModel pelanggan;
+  final int totalPoin;
 
-  _ProfileData({required this.customer, required this.totalPoints});
+  _ProfileData({required this.pelanggan, required this.totalPoin});
 }
 
 /// Halaman untuk menampilkan detail profil pengguna.
@@ -45,20 +45,20 @@ class _UserCustomerDetailPageState
   Future<_ProfileData> _loadData() async {
     try {
       Log.info('Mengambil data pelanggan dari Firestore...');
-      final customerOpFirebase = ref.read(customerOpFirebaseProvider);
-      final transactionOp = ref.read(transactionOpFirebaseProvider);
-      final customer = await customerOpFirebase.getById(widget.userId);
-      if (customer == null) {
+      final pelangganOpFirebase = ref.read(customerOpFirebaseProvider);
+      final transaksiOpFirebase = ref.read(transactionOpFirebaseProvider);
+      final pelanggan = await pelangganOpFirebase.getById(widget.userId);
+      if (pelanggan == null) {
         throw Exception(
           'Pelanggan dengan ID ${widget.userId} tidak ditemukan.',
         );
       }
       Log.info(
-        'Pelanggan ditemukan: ${customer.name}. Mengambil riwayat transaksi...',
+        'Pelanggan ditemukan: ${pelanggan.name}. Mengambil riwayat transaksi...',
       );
-      final totalPoin = await transactionOp.ambilTotalPoin(customer.id);
+      final totalPoin = await transaksiOpFirebase.ambilTotalPoin(pelanggan.id);
       Log.info('Perhitungan poin selesai. Total Poin: $totalPoin');
-      return _ProfileData(customer: customer, totalPoints: totalPoin);
+      return _ProfileData(pelanggan: pelanggan, totalPoin: totalPoin);
     } catch (e, s) {
       Log.error(
         'Gagal memuat data profil lengkap dari Firestore.',
@@ -86,7 +86,6 @@ class _UserCustomerDetailPageState
       ),
     );
     await ref.read(interstitialAdServiceProvider).show();
-    // 2. Setelah kembali, periksa jika ada perubahan dan muat ulang data.
     if (result ?? false) {
       Log.info('Kembali dari edit, memuat ulang data.');
       setState(() {
@@ -130,7 +129,7 @@ class _UserCustomerDetailPageState
       },
       child: FutureBuilder<_ProfileData>(
         future: _dataFuture,
-        builder: (final context, final snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
               appBar: AppBar(title: const Text('Memuat Profil...')),
@@ -157,10 +156,10 @@ class _UserCustomerDetailPageState
 
           return Scaffold(
             body: CustomerDetailUI(
-              pelanggan: data.customer,
-              totalPoin: data.totalPoints,
-              onEdit: () => _navigateToEdit(data.customer),
-              onNavigateToPoints: () => _navigateToPoints(data.customer.id),
+              pelanggan: data.pelanggan,
+              totalPoin: data.totalPoin,
+              navigasiKeEdit: () => _navigateToEdit(data.pelanggan),
+              navigasiKePoin: () => _navigateToPoints(data.pelanggan.id),
             ),
             bottomNavigationBar: const BannerAdsWidget(),
           );

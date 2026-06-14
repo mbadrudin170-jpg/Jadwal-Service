@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/admin/repository/statistik_op_sqlite.dart';
+import 'package:wifi/fitur/statistik/operasi/statistik_op_sqlite.dart';
 import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 

@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wifi/admin/halaman/tab/active_customer_tab.dart';
 import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman_utama.dart';
-import 'package:wifi/fitur/dompet/page/wallet_page.dart';
+import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
@@ -154,14 +154,14 @@ void main() {
       // Pindah ke tab Dompet
       await tester.tap(find.byIcon(TIcons.wallet));
       await tester.pumpAndSettle();
-      expect(find.byType(WalletPage), findsOneWidget);
+      expect(find.byType(DompetPage), findsOneWidget);
       expect(find.byType(ActiveCustomerPage), findsNothing);
 
       // Pindah ke tab Lainnya
       await tester.tap(find.byIcon(TIcons.apps));
       await tester.pumpAndSettle();
       expect(find.byType(LainnyaPage), findsOneWidget);
-      expect(find.byType(WalletPage), findsNothing);
+      expect(find.byType(DompetPage), findsNothing);
     });
 
     testWidgets('Test 05: Sinkronisasi dipicu saat koneksi kembali online',

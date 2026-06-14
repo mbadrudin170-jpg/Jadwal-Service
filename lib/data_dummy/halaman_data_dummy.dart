@@ -50,8 +50,8 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Paket', DataDummy.packages,
-                  ref.read(packageOperationProvider).sisipkanAtauPerbaruiBatch);
-              ref.invalidate(packageOperationProvider);
+                  ref.read(paketOpSqliteProvider).sisipkanAtauPerbaruiBatch);
+              ref.invalidate(paketOpSqliteProvider);
             },
             label: 'Tambah Paket Dummy',
             icon: Icons.inventory_2,
@@ -74,8 +74,8 @@ class HalamanDataDummy extends ConsumerWidget {
                   ref,
                   'Sub Kategori',
                   DataDummy.subCategories,
-                  ref.read(subCategoryOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(subCategoryOperationProvider);
+                  ref.read(subKategoriOpSqliteProvider).insertOrUpdateBatch);
+              ref.invalidate(subKategoriOpSqliteProvider);
             },
             label: 'Tambah Sub Kategori Dummy',
             icon: Icons.list_alt,
@@ -84,8 +84,8 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahData(context, ref, 'Dompet', DataDummy.wallets,
-                  ref.read(walletOperationProvider).insertOrUpdateBatch);
-              ref.invalidate(walletOperationProvider);
+                  ref.read(dompetOpSqliteProvider).insertOrUpdateBatch);
+              ref.invalidate(dompetOpSqliteProvider);
             },
             label: 'Tambah Dompet Dummy',
             icon: Icons.account_balance_wallet,
@@ -148,7 +148,7 @@ class HalamanDataDummy extends ConsumerWidget {
             context: context,
             onPressed: () async {
               await _tambahPengaturan(context, ref);
-              ref.invalidate(settingsOperationProvider);
+              ref.invalidate(settingsOpSqliteProvider);
             },
             label: 'Tambah Pengaturan Dummy',
             icon: Icons.settings,
@@ -207,7 +207,7 @@ class HalamanDataDummy extends ConsumerWidget {
   Future<void> _tambahPengaturan(BuildContext context, WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
-      final settingsOperation = ref.read(settingsOperationProvider);
+      final settingsOperation = ref.read(settingsOpSqliteProvider);
       await settingsOperation.saveOrUpdateSettings(DataDummy.settings);
 
       if (context.mounted) {

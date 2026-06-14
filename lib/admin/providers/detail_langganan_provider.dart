@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
 
 part 'detail_langganan_provider.freezed.dart';
 part 'detail_langganan_provider.g.dart';
@@ -27,7 +27,7 @@ Future<DetailLanggananState?> ambilDetailLangganan(
   // Ambil semua operation repo
   final transaksiOpSqlite = ref.watch(transactionOperationProvider);
   final pelangganOpSqlite = ref.watch(pelangganOpSqliteProvider);
-  final paketOpSqlite = ref.watch(packageOperationProvider);
+  final paketOpSqlite = ref.watch(paketOpSqliteProvider);
 
   // 1. Ambil data transaksi utama
   final transaksi = await transaksiOpSqlite.getById(idTransaksi);

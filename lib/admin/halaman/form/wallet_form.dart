@@ -8,14 +8,14 @@ import 'package:wifi/fitur/dompet/operasi/dompet_op_sqlite.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
 /// Halaman form untuk menambah atau mengedit dompet.
 class WalletForm extends ConsumerStatefulWidget {
   /// Model dompet yang akan diedit. Jika null, maka form akan membuat dompet baru.
-  final WalletModel? wallet;
+  final DompetModel? wallet;
 
   /// Konstruktor untuk WalletForm.
   const WalletForm({super.key, this.wallet});
@@ -86,7 +86,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
           );
           Log.info('Saldo tetap: ${widget.wallet!.balance}');
 
-          final dataToUdpate = WalletModel(
+          final dataToUdpate = DompetModel(
             id: widget.wallet!.id,
             name: _namaController.text,
             balance: widget.wallet!.balance,
@@ -101,7 +101,7 @@ class _WalletFormState extends ConsumerState<WalletForm> {
           Log.info(
               'UUID baru: $id, Nama: ${_namaController.text}, Saldo awal: 0.0');
 
-          final dataBaru = WalletModel(
+          final dataBaru = DompetModel(
             id: id,
             name: _namaController.text,
             balance: 0.0,

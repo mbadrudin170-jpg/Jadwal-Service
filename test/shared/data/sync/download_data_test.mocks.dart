@@ -22,8 +22,8 @@ import 'package:wifi/shared/enum/category_type_enum.dart' as _i14;
 import 'package:wifi/shared/export/enum.dart' as _i24;
 import 'package:wifi/shared/export/model.dart' as _i5;
 import 'package:wifi/shared/model/active_customer_detail_model.dart' as _i20;
-import 'package:wifi/shared/model/category_model.dart' as _i3;
-import 'package:wifi/shared/model/wallet_model.dart' as _i12;
+import 'package:wifi/shared/model/dompet_model.dart' as _i12;
+import 'package:wifi/shared/model/kategori_model.dart' as _i3;
 import 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dart'
     as _i19;
 import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
@@ -31,12 +31,12 @@ import 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart'
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i4;
 import 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart'
     as _i13;
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
-    as _i17;
 import 'package:wifi/shared/operasi/sqlite_operasi/order_operation.dart'
     as _i23;
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart'
     as _i15;
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart'
+    as _i17;
 import 'package:wifi/shared/operasi/sqlite_operasi/settings_operation.dart'
     as _i28;
 import 'package:wifi/shared/operasi/sqlite_operasi/sub_category_operation.dart'
@@ -81,8 +81,8 @@ class _FakeSqliteDatabase_1 extends _i1.SmartFake
         );
 }
 
-class _FakeCategoryModel_2 extends _i1.SmartFake implements _i3.CategoryModel {
-  _FakeCategoryModel_2(
+class _FakeKategoriModel_2 extends _i1.SmartFake implements _i3.KategoriModel {
+  _FakeKategoriModel_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -370,7 +370,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
 
   @override
   _i9.Future<void> tambahDompet(
-    _i12.WalletModel? wallet, {
+    _i12.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -384,7 +384,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i12.WalletModel>> getAll({bool? showArchived = false}) =>
+  _i9.Future<List<_i12.DompetModel>> getAll({bool? showArchived = false}) =>
       (super.noSuchMethod(
         Invocation.method(
           #getAll,
@@ -392,21 +392,21 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
           {#showArchived: showArchived},
         ),
         returnValue:
-            _i9.Future<List<_i12.WalletModel>>.value(<_i12.WalletModel>[]),
-      ) as _i9.Future<List<_i12.WalletModel>>);
+            _i9.Future<List<_i12.DompetModel>>.value(<_i12.DompetModel>[]),
+      ) as _i9.Future<List<_i12.DompetModel>>);
 
   @override
-  _i9.Future<_i12.WalletModel?> getById(String? id) => (super.noSuchMethod(
+  _i9.Future<_i12.DompetModel?> getById(String? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i9.Future<_i12.WalletModel?>.value(),
-      ) as _i9.Future<_i12.WalletModel?>);
+        returnValue: _i9.Future<_i12.DompetModel?>.value(),
+      ) as _i9.Future<_i12.DompetModel?>);
 
   @override
   _i9.Future<void> updateDompet(
-    _i12.WalletModel? wallet, {
+    _i12.DompetModel? wallet, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -474,7 +474,7 @@ class MockDompetOpSqlite extends _i1.Mock implements _i11.DompetOpSqlite {
 
   @override
   _i9.Future<void> insertOrUpdateBatch(
-    List<_i12.WalletModel>? items, {
+    List<_i12.DompetModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -506,8 +506,8 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
       ) as _i2.SqliteDatabase);
 
   @override
-  _i9.Future<_i3.CategoryModel> createCategory(
-    _i3.CategoryModel? category, {
+  _i9.Future<_i3.KategoriModel> createCategory(
+    _i3.KategoriModel? category, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -516,7 +516,7 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
           [category],
           {#fromServer: fromServer},
         ),
-        returnValue: _i9.Future<_i3.CategoryModel>.value(_FakeCategoryModel_2(
+        returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
             #createCategory,
@@ -524,49 +524,49 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
             {#fromServer: fromServer},
           ),
         )),
-      ) as _i9.Future<_i3.CategoryModel>);
+      ) as _i9.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.CategoryModel>> getAll() => (super.noSuchMethod(
+  _i9.Future<List<_i3.KategoriModel>> getAll() => (super.noSuchMethod(
         Invocation.method(
           #getAll,
           [],
         ),
         returnValue:
-            _i9.Future<List<_i3.CategoryModel>>.value(<_i3.CategoryModel>[]),
-      ) as _i9.Future<List<_i3.CategoryModel>>);
+            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
-  _i9.Future<_i3.CategoryModel> getCategoryById(String? id) =>
+  _i9.Future<_i3.KategoriModel> getCategoryById(String? id) =>
       (super.noSuchMethod(
         Invocation.method(
           #getCategoryById,
           [id],
         ),
-        returnValue: _i9.Future<_i3.CategoryModel>.value(_FakeCategoryModel_2(
+        returnValue: _i9.Future<_i3.KategoriModel>.value(_FakeKategoriModel_2(
           this,
           Invocation.method(
             #getCategoryById,
             [id],
           ),
         )),
-      ) as _i9.Future<_i3.CategoryModel>);
+      ) as _i9.Future<_i3.KategoriModel>);
 
   @override
-  _i9.Future<List<_i3.CategoryModel>> getCategoriesByType(
-          _i14.CategoryType? type) =>
+  _i9.Future<List<_i3.KategoriModel>> getCategoriesByType(
+          _i14.TipeKategori? type) =>
       (super.noSuchMethod(
         Invocation.method(
           #getCategoriesByType,
           [type],
         ),
         returnValue:
-            _i9.Future<List<_i3.CategoryModel>>.value(<_i3.CategoryModel>[]),
-      ) as _i9.Future<List<_i3.CategoryModel>>);
+            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
   _i9.Future<void> updateCategory(
-    _i3.CategoryModel? category, {
+    _i3.KategoriModel? category, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -622,7 +622,7 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
 
   @override
   _i9.Future<void> clearAndInsertAll(
-    List<_i3.CategoryModel>? items, {
+    List<_i3.KategoriModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -636,19 +636,19 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i3.CategoryModel>> getChangesSince(DateTime? since) =>
+  _i9.Future<List<_i3.KategoriModel>> getChangesSince(DateTime? since) =>
       (super.noSuchMethod(
         Invocation.method(
           #getChangesSince,
           [since],
         ),
         returnValue:
-            _i9.Future<List<_i3.CategoryModel>>.value(<_i3.CategoryModel>[]),
-      ) as _i9.Future<List<_i3.CategoryModel>>);
+            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i9.Future<List<_i3.KategoriModel>>);
 
   @override
   _i9.Future<void> insertOrUpdateBatch(
-    List<_i3.CategoryModel>? items, {
+    List<_i3.KategoriModel>? items, {
     bool? fromServer = false,
   }) =>
       (super.noSuchMethod(
@@ -662,15 +662,15 @@ class MockCategoryOperation extends _i1.Mock implements _i13.CategoryOperation {
       ) as _i9.Future<void>);
 
   @override
-  _i9.Future<List<_i3.CategoryModel>> getCategoriesByIds(List<String>? ids) =>
+  _i9.Future<List<_i3.KategoriModel>> getCategoriesByIds(List<String>? ids) =>
       (super.noSuchMethod(
         Invocation.method(
           #getCategoriesByIds,
           [ids],
         ),
         returnValue:
-            _i9.Future<List<_i3.CategoryModel>>.value(<_i3.CategoryModel>[]),
-      ) as _i9.Future<List<_i3.CategoryModel>>);
+            _i9.Future<List<_i3.KategoriModel>>.value(<_i3.KategoriModel>[]),
+      ) as _i9.Future<List<_i3.KategoriModel>>);
 }
 
 /// A class which mocks [PaketOpSqlite].

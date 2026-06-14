@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/data/sync/upload_data.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/utils/sync_manager.dart';
 
 import 'upload_data_test.mocks.dart';
@@ -39,7 +39,7 @@ void main() {
     when(mockFirestore.batch()).thenReturn(mockBatch);
 
     uploadDataService = UploadDataService(
-      dbHelper: mockDbHelper,
+      sqliteDb: mockDbHelper,
       firestore: mockFirestore,
       syncManager: mockSyncManager,
     );
@@ -60,7 +60,7 @@ void main() {
         whereArgs: anyNamed('whereArgs'),
       )).thenAnswer((_) async => []);
 
-      await uploadDataService.uploadAllData();
+      await uploadDataService.uploadSemuaData();
 
       verify(mockSyncManager.getLastUpload()).called(greaterThanOrEqualTo(10));
     });
@@ -86,10 +86,10 @@ void main() {
       when(mockCollection.doc(any)).thenReturn(mockDoc);
       when(mockBatch.commit()).thenAnswer((_) async => []);
 
-      await uploadDataService.uploadGenericData<WalletModel>(
+      await uploadDataService.uploadGenericData<DompetModel>(
         'wallets',
         'wallets',
-        WalletModel.fromSqlite,
+        DompetModel.fromSqlite,
         (m) => m.toFirebase(),
         lastSync,
       );
@@ -105,10 +105,10 @@ void main() {
               where: anyNamed('where'), whereArgs: anyNamed('whereArgs')))
           .thenAnswer((_) async => []);
 
-      await uploadDataService.uploadGenericData<WalletModel>(
+      await uploadDataService.uploadGenericData<DompetModel>(
         'wallets',
         'wallets',
-        WalletModel.fromSqlite,
+        DompetModel.fromSqlite,
         (m) => m.toFirebase(),
         lastSync,
       );

@@ -24,14 +24,12 @@ class DetailTransaksi extends ConsumerStatefulWidget {
 }
 
 class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
-  late final DompetOpSqlite _dompetOpSqlite =
-      ref.watch(dompetOpSqliteProvider);
+  late final DompetOpSqlite _dompetOpSqlite = ref.watch(dompetOpSqliteProvider);
   late final CategoryOperation _categoryOperation =
       ref.watch(kategoriOpSqliteProvider);
   late final PelangganOpSqlite _customerOperation =
       ref.watch(pelangganOpSqliteProvider);
-  late final PaketOpSqlite _packageOperation =
-      ref.watch(paketOpSqliteProvider);
+  late final PaketOpSqlite _packageOperation = ref.watch(paketOpSqliteProvider);
   late final SubKategoriOpSqlite _subKategoriOpSqlite =
       ref.watch(subKategoriOpSqliteProvider);
 
@@ -56,8 +54,8 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
       final model = await getModel(id);
       if (model != null) {
         String? name;
-        if (model is WalletModel) name = model.name;
-        if (model is CategoryModel) name = model.name;
+        if (model is DompetModel) name = model.name;
+        if (model is KategoriModel) name = model.name;
         if (model is SubCategoryModel) name = model.name;
         if (model is PelangganModel) name = model.name;
         if (model is PaketModel) name = model.name;
@@ -238,8 +236,7 @@ class _DetailTransaksistate extends ConsumerState<DetailTransaksi> {
     );
   }
 
-  Widget _buildFutureDetailRow(
-      String label, Future<String?> future) {
+  Widget _buildFutureDetailRow(String label, Future<String?> future) {
     return FutureBuilder<String?>(
       future: future,
       builder: (context, snapshot) {

@@ -18,7 +18,7 @@ import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/shared/widget/customer_name.dart';
+import 'package:wifi/shared/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/user/page/transaction_detail_u.dart';
 import 'package:wifi/user/widget/ads/banner/banner_ads_widget.dart';
 import 'package:wifi/user/widget/ads/interstitial/interstitial_ad_service.dart';
@@ -55,7 +55,7 @@ class _PointsPageState extends ConsumerState<PoinPage> {
       children: [
         const Text('Poin: '),
         Expanded(
-          child: CustomerNameWidget(
+          child: NamaPelangganWidget(
             customerId: widget.customerId,
             useFirebase: isFirebase,
           ),

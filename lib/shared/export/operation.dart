@@ -6,7 +6,7 @@ export 'package:wifi/shared/operasi/sqlite_operasi/active_customer_operation.dar
 export 'package:wifi/shared/operasi/sqlite_operasi/apk_version_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/category_operation.dart';
-export 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart';
+export 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 export 'package:wifi/shared/operasi/sqlite_operasi/data_cleaning_operation.dart';
 export 'package:wifi/fitur/feedback/operasi/feedback_operation.dart';
 export "package:wifi/shared/operasi/sqlite_operasi/order_operation.dart";

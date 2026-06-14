@@ -6,7 +6,7 @@ import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/enum/category_type_enum.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data kategori di database lokal.
@@ -27,9 +27,9 @@ class CategoryOperation {
     Log.info('CategoryOperation instance dibuat.');
   }
 
-  /// Membuat [CategoryModel] baru di database.
-  Future<CategoryModel> createCategory(
-    final CategoryModel category, {
+  /// Membuat [KategoriModel] baru di database.
+  Future<KategoriModel> createCategory(
+    final KategoriModel category, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai createCategory untuk category: ${category.toSqlite()}');
@@ -51,7 +51,7 @@ class CategoryOperation {
   }
 
   /// Mengambil semua kategori yang tidak diarsipkan.
-  Future<List<CategoryModel>> getAll() async {
+  Future<List<KategoriModel>> getAll() async {
     Log.info(
         'Memulai getCategories (mengambil semua kategori yang tidak diarsipkan).');
     try {
@@ -62,7 +62,7 @@ class CategoryOperation {
       );
       final listCategory = List.generate(
         maps.length,
-        (final i) => CategoryModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${listCategory.length} data category.');
       return listCategory;
@@ -72,8 +72,8 @@ class CategoryOperation {
     }
   }
 
-  /// Mengambil [CategoryModel] berdasarkan [id].
-  Future<CategoryModel> getCategoryById(final String id) async {
+  /// Mengambil [KategoriModel] berdasarkan [id].
+  Future<KategoriModel> getCategoryById(final String id) async {
     Log.info('Memulai getCategoryById untuk ID: $id');
     try {
       final db = await dbHelper.database;
@@ -83,7 +83,7 @@ class CategoryOperation {
         whereArgs: [id],
       );
       if (maps.isNotEmpty) {
-        final category = CategoryModel.fromSqlite(maps.first);
+        final category = KategoriModel.fromSqlite(maps.first);
         Log.info('Category dengan ID: $id ditemukan.');
         return category;
       } else {
@@ -100,9 +100,9 @@ class CategoryOperation {
     }
   }
 
-  /// Mengambil semua kategori berdasarkan [CategoryType].
-  Future<List<CategoryModel>> getCategoriesByType(
-      final CategoryType type) async {
+  /// Mengambil semua kategori berdasarkan [TipeKategori].
+  Future<List<KategoriModel>> getCategoriesByType(
+      final TipeKategori type) async {
     Log.info('Memulai getCategoriesByType untuk tipe: ${type.name}');
     try {
       final db = await dbHelper.database;
@@ -113,7 +113,7 @@ class CategoryOperation {
       );
       final listCategory = List.generate(
         maps.length,
-        (final i) => CategoryModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
         'Berhasil mengambil ${listCategory.length} data category untuk tipe ${type.name}.',
@@ -129,9 +129,9 @@ class CategoryOperation {
     }
   }
 
-  /// Memperbarui [CategoryModel] yang ada di database.
+  /// Memperbarui [KategoriModel] yang ada di database.
   Future<void> updateCategory(
-    final CategoryModel category, {
+    final KategoriModel category, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai updateCategory untuk category ID: ${category.id}');
@@ -155,7 +155,7 @@ class CategoryOperation {
     }
   }
 
-  /// Menghapus [CategoryModel] dari database secara permanen.
+  /// Menghapus [KategoriModel] dari database secara permanen.
   Future<void> deleteCategory(final String id,
       {final bool fromServer = false}) async {
     Log.warning(
@@ -220,7 +220,7 @@ class CategoryOperation {
 
   /// Menghapus semua kategori yang ada dan menyisipkan yang baru secara atomik.
   Future<void> clearAndInsertAll(
-    final List<CategoryModel> items, {
+    final List<KategoriModel> items, {
     final bool fromServer = false,
   }) async {
     Log.warning(
@@ -261,7 +261,7 @@ class CategoryOperation {
   }
 
   /// Mengambil semua kategori yang telah diubah sejak [since].
-  Future<List<CategoryModel>> getChangesSince(final DateTime since) async {
+  Future<List<KategoriModel>> getChangesSince(final DateTime since) async {
     Log.info(
         'Memulai getChangesSince untuk category sejak: ${since.toIso8601String()}');
     try {
@@ -273,7 +273,7 @@ class CategoryOperation {
       );
       final listCategory = List.generate(
         maps.length,
-        (final i) => CategoryModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
           'Berhasil menemukan ${listCategory.length} perubahan category sejak ${since.toIso8601String()}.');
@@ -284,9 +284,9 @@ class CategoryOperation {
     }
   }
 
-  /// Menyisipkan atau memperbarui sekumpulan [CategoryModel] dalam satu batch.
+  /// Menyisipkan atau memperbarui sekumpulan [KategoriModel] dalam satu batch.
   Future<void> insertOrUpdateBatch(
-    final List<CategoryModel> items, {
+    final List<KategoriModel> items, {
     final bool fromServer = false,
   }) async {
     Log.info(
@@ -317,8 +317,8 @@ class CategoryOperation {
     }
   }
 
-  /// Mengambil beberapa [CategoryModel] berdasarkan daftar [ids].
-  Future<List<CategoryModel>> getCategoriesByIds(final List<String> ids) async {
+  /// Mengambil beberapa [KategoriModel] berdasarkan daftar [ids].
+  Future<List<KategoriModel>> getCategoriesByIds(final List<String> ids) async {
     Log.info('Memulai getCategoriesByIds untuk ${ids.length} ID.');
     if (ids.isEmpty) {
       Log.warning(
@@ -335,7 +335,7 @@ class CategoryOperation {
       );
       final listCategory = List.generate(
         maps.length,
-        (final i) => CategoryModel.fromSqlite(maps[i]),
+        (final i) => KategoriModel.fromSqlite(maps[i]),
       );
       Log.info(
           'Berhasil mengambil ${listCategory.length} category dari ${ids.length} ID yang diminta.');

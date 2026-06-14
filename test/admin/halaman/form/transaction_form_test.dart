@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_transaksi.dart';
-import 'package:wifi/shared/model/transaction_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/transaksi_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/dompet_op_firebase.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/kategori_op_firebase.dart';
@@ -69,12 +69,12 @@ void main() {
       (tester) async {
     when(() => mockDompetOpFirebase.ambilSemuaDompet())
         .thenAnswer((_) async => [
-              WalletModel(id: '1', name: 'Test Wallet', balance: 0),
+              DompetModel(id: '1', name: 'Test Wallet', balance: 0),
             ]);
     when(() => mockKategoriOpFirebase.ambilSemuaKategori())
         .thenAnswer((_) async => [
-              CategoryModel(
-                  id: '1', name: 'Test Category', type: CategoryType.income),
+              KategoriModel(
+                  id: '1', name: 'Test Category', type: TipeKategori.income),
             ]);
     await tester.pumpWidget(createTestWidget(transaction: testTransaction));
     await tester.pumpAndSettle();

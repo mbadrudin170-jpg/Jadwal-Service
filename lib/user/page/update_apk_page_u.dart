@@ -1,9 +1,4 @@
 // path: lib/user/page/update_apk_page_u.dart
-// PERUBAHAN:
-// - Menambahkan state `_isDownloading` dan `_downloadProgress` untuk melacak status unduhan.
-// - Mengubah `_buildUpdateStatusCard` menjadi dinamis: menampilkan progress bar saat mengunduh.
-// - Menonaktifkan tombol "Download" saat unduhan sedang berjalan.
-// - Memperbarui `_downloadUpdate` untuk mengelola state dan menangani error.
 
 import 'dart:async';
 

@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wifi/admin/halaman/form/form_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
-import 'package:wifi/shared/model/category_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
+import 'package:wifi/shared/model/kategori_model.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart';
@@ -81,9 +81,9 @@ void main() {
     when(() => mockPackageOperation.ambilSemuaPaketAktif())
         .thenAnswer((_) async => <PaketModel>[]);
     when(() => mockDompetOpFirebase.ambilSemuaDompet())
-        .thenAnswer((_) async => <WalletModel>[]);
+        .thenAnswer((_) async => <DompetModel>[]);
     when(() => mockCategoryOperation.ambilSemuaKategori())
-        .thenAnswer((_) async => <CategoryModel>[]);
+        .thenAnswer((_) async => <KategoriModel>[]);
 
     await tester.pumpWidget(createWidgetUnderTest());
 

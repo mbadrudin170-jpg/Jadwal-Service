@@ -3,17 +3,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/pelanggan/model/customer_model.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/active_customer_model.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
+import 'package:wifi/shared/model/pelanggan_aktif_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 
 final pesanInfoPaketProvider = Provider<PesanInfoPaket>((ref) {
   return PesanInfoPaket(
     customerOperation: ref.read(pelangganOpSqliteProvider),
-    packageOperation: ref.read(packageOperationProvider),
+    packageOperation: ref.read(paketOpSqliteProvider),
   );
 });
 

@@ -16,7 +16,7 @@ import 'package:wifi/fitur/pelanggan/model/customer_model.dart' as _i9;
 import 'package:wifi/shared/operasi/firebase_operasi/notifikasi_op_firebase.dart'
     as _i11;
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart' as _i6;
-import 'package:wifi/shared/operasi/sqlite_operasi/customer_operation.dart'
+import 'package:wifi/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart'
     as _i8;
 
 // ignore_for_file: type=lint

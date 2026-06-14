@@ -1,4 +1,4 @@
-// path: lib/fitur/dompet/page/wallet_page.dart
+// path: lib/fitur/dompet/page/dompet_page.dart
 
 import 'dart:async';
 
@@ -7,21 +7,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:wifi/admin/halaman/detail/detail_dompet.dart';
 import 'package:wifi/admin/halaman/form/wallet_form.dart';
-import 'package:wifi/fitur/dompet/provider/wallet_provider.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:wifi/shared/widget/financial_summary_widget.dart';
 
-class WalletPage extends ConsumerWidget {
-  const WalletPage({super.key});
+class DompetPage extends ConsumerWidget {
+  const DompetPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Log.info('Membangun UI untuk Halaman Wallet (ConsumerWidget).');
-    final walletStateAsync = ref.watch(walletProvider);
+    final walletStateAsync = ref.watch(dompetProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dompet'),
@@ -102,12 +102,12 @@ class WalletPage extends ConsumerWidget {
     );
     if (result ?? false) {
       Log.info('Berhasil menambahkan dompet baru, memicu refresh.');
-      ref.read(walletProvider.notifier).refresh();
+      ref.read(dompetProvider.notifier).refresh();
     }
   }
 
   Future<void> _navigateToDetail(
-      BuildContext context, WidgetRef ref, WalletModel wallet) async {
+      BuildContext context, WidgetRef ref, DompetModel wallet) async {
     Log.info('Navigasi ke detail dompet: "${wallet.name}".');
     await Navigator.push<void>(
       context,
@@ -116,12 +116,12 @@ class WalletPage extends ConsumerWidget {
       ),
     );
     Log.info('Kembali dari detail dompet, memicu refresh.');
-    ref.read(walletProvider.notifier).refresh();
+    ref.read(dompetProvider.notifier).refresh();
   }
 
   Future<void> _showDeleteAllDialog(BuildContext context, WidgetRef ref) async {
     Log.info('Menampilkan dialog konfirmasi hapus semua dompet.');
-    final wallets = ref.read(walletProvider).value?.wallets ?? [];
+    final wallets = ref.read(dompetProvider).value?.wallets ?? [];
 
     if (wallets.isEmpty) {
       Log.warning('Tidak ada dompet untuk dihapus.');
@@ -146,7 +146,7 @@ class WalletPage extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 unawaited(
-                    ref.read(walletProvider.notifier).softDeleteAll().then((_) {
+                    ref.read(dompetProvider.notifier).softDeleteAll().then((_) {
                   if (context.mounted) {
                     ToastUtil.success(
                         context, 'Semua dompet berhasil dihapus.');
@@ -166,7 +166,7 @@ class WalletPage extends ConsumerWidget {
   }
 
   Future<void> _showArchiveOneDialog(
-      BuildContext context, WidgetRef ref, WalletModel wallet) async {
+      BuildContext context, WidgetRef ref, DompetModel wallet) async {
     await showDialog<void>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -184,7 +184,7 @@ class WalletPage extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 unawaited(ref
-                    .read(walletProvider.notifier)
+                    .read(dompetProvider.notifier)
                     .softDelete(wallet.id)
                     .then((_) {
                   if (context.mounted) {
@@ -206,7 +206,7 @@ class WalletPage extends ConsumerWidget {
 }
 
 class WalletCard extends StatelessWidget {
-  final WalletModel wallet;
+  final DompetModel wallet;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 

@@ -38,7 +38,6 @@ typedef UpdateInfoRecord = ({
   ApkArchitectureEnum? architecture
 });
 
-/// Halaman splash screen yang ditampilkan saat aplikasi pengguna pertama kali dibuka.
 class SplashScreenUser extends ConsumerStatefulWidget {
   final SharedPreferences prefs;
   final LayananPenyimpananLokal localStorageService;
@@ -112,7 +111,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => MaintenancePage(
+          builder: (context) => MaintenancePage(
             maintenanceInfo: maintenanceSettings.maintenanceInfo,
             onRefresh: _initializeApp,
             onExit: SystemNavigator.pop,
@@ -127,7 +126,7 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
       if (!mounted) return;
       unawaited(Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (final context) => UpdateApkPage(
+          builder: ( context) => UpdateApkPage(
             apkInfo: updateInfo.apkInfo!,
             packageInfo: updateInfo.packageInfo!,
             architecture: updateInfo.architecture!,
@@ -140,7 +139,8 @@ class _SplashScreenUserState extends ConsumerState<SplashScreenUser> {
   }
 
   Future<void> _initializeOfflineServices() async {
-    await NotifikasiServis().initNotif(iconName: 'ic_notification');
+    await NotifikasiServis()
+        .inisialisasiNotifikasi(iconName: 'ic_notification');
     await NotifikasiServis().mintaIzin();
     await initializeDateFormatting('id_ID');
   }

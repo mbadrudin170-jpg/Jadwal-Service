@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wifi/admin/providers/pelanggan_aktif_provider.dart';
 import 'package:wifi/admin/providers/statistik_provider.dart';
-import 'package:wifi/admin/providers/transaction_provider.dart';
+import 'package:wifi/fitur/transaksi/provider/transaksi_provider.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/shared/common/text.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
@@ -38,15 +38,15 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
 
   List<PelangganModel> _pelangganList = [];
   List<PaketModel> _paketList = [];
-  List<WalletModel> _dompetList = [];
-  List<CategoryModel> _kategoriPemasukanList = [];
-  List<CategoryModel> _kategoriPengeluaranList = [];
-  List<CategoryModel> get _kategoriList =>
+  List<DompetModel> _dompetList = [];
+  List<KategoriModel> _kategoriPemasukanList = [];
+  List<KategoriModel> _kategoriPengeluaranList = [];
+  List<KategoriModel> get _kategoriList =>
       _gunakanPoin ? _kategoriPengeluaranList : _kategoriPemasukanList;
   PelangganModel? _pelangganDipilih;
   PaketModel? _paketDipilih;
-  WalletModel? _dompetDipilih;
-  CategoryModel? _kategoriDipilih;
+  DompetModel? _dompetDipilih;
+  KategoriModel? _kategoriDipilih;
   bool _isLoading = true;
   bool _gunakanPoin = false;
   late TextEditingController _bonusDurationController;
@@ -124,14 +124,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
       final daftarDompet =
-          (results[2] as List<WalletModel>).where((d) => !d.isDeleted).toList();
+          (results[2] as List<DompetModel>).where((d) => !d.isDeleted).toList();
 
-      final semuaKategori = results[3] as List<CategoryModel>;
+      final semuaKategori = results[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
-          .where((k) => k.type == CategoryType.income && !k.isDeleted)
+          .where((k) => k.type == TipeKategori.income && !k.isDeleted)
           .toList();
       final kategoriPengeluaranList = semuaKategori
-          .where((k) => k.type == CategoryType.expense && !k.isDeleted)
+          .where((k) => k.type == TipeKategori.expense && !k.isDeleted)
           .toList();
 
       final transaksiTerkait =
@@ -573,7 +573,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildDompetDropdown() {
-    return DropdownButtonFormField<WalletModel>(
+    return DropdownButtonFormField<DompetModel>(
       key: const Key('dompet_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
@@ -590,7 +590,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
   }
 
   Widget _buildKategoriDropdown() {
-    return DropdownButtonFormField<CategoryModel>(
+    return DropdownButtonFormField<KategoriModel>(
       key: const Key('kategori_dropdown'),
       decoration: const InputDecoration(
           labelText: 'Pilih Kategori Transaksi', border: OutlineInputBorder()),

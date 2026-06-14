@@ -19,7 +19,7 @@ class RiwayatAktivasiPaket extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final historyAsync = ref.watch(packageActivationHistoryProvider);
-    final packageOperation = ref.watch(packageOperationProvider);
+    final packageOperation = ref.watch(paketOpSqliteProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Langganan'),

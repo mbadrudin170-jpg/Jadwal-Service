@@ -23,7 +23,7 @@ void main() {
   final tableName = NamaTabel.get(TableName.settings);
 
   // --- PERBAIKAN: Menggunakan ID String yang benar dari model ---
-  const String globalSettingsId = model.globalSettingsId;
+  const String globalSettingsId = model.idGlobalSetting;
 
   setUp(() {
     mockDbHelper = MockDatabaseHelper();

@@ -11,7 +11,7 @@ import 'package:wifi/admin/halaman/tab/lainnya.dart';
 import 'package:wifi/admin/halaman/tab/statistik_page_a.dart';
 import 'package:wifi/admin/halaman/tab/transaction_page_a.dart';
 import 'package:wifi/fitur/background/background_service.dart';
-import 'package:wifi/fitur/dompet/page/wallet_page.dart';
+import 'package:wifi/fitur/dompet/page/dompet_page.dart';
 import 'package:wifi/fitur/order/page/order_page.dart';
 import 'package:wifi/shared/data/services/sync_check_service.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -151,7 +151,7 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
 
   final _halamanTab = <Widget>[
     const ActiveCustomerPage(),
-    const WalletPage(),
+    const DompetPage(),
     const TransactionPageA(),
     const StatistikPageA(),
     const OrderPage(),

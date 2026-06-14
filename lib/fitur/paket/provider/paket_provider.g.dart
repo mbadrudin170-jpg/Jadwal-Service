@@ -50,7 +50,7 @@ final class PackageListProvider extends $FunctionalProvider<
   }
 }
 
-String _$packageListHash() => r'73efbd8f71fd1b7c74bcd59221a3ee440d893dea';
+String _$packageListHash() => r'47a2db288e5dfbd83e0c0eb10694b710dcf06b23';
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
 

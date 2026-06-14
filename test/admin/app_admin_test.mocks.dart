@@ -1074,9 +1074,9 @@ class MockUploadDataService extends _i1.Mock implements _i20.UploadDataService {
   }
 
   @override
-  _i7.Future<void> uploadAllData() => (super.noSuchMethod(
+  _i7.Future<void> uploadSemuaData() => (super.noSuchMethod(
         Invocation.method(
-          #uploadAllData,
+          #uploadSemuaData,
           [],
         ),
         returnValue: _i7.Future<void>.value(),

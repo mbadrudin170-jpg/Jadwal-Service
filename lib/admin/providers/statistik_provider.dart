@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/admin/model/best_selling_package.dart';
-import 'package:wifi/admin/repository/statistik_op_sqlite.dart';
+import 'package:wifi/fitur/statistik/operasi/statistik_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'statistik_provider.g.dart';

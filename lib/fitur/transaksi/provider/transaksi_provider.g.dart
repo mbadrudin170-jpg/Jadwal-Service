@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'transaction_provider.dart';
+part of 'transaksi_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -33,7 +33,7 @@ final class TransactionProvider
   Transaction create() => Transaction();
 }
 
-String _$transactionHash() => r'0a222e8c40f5e23c28b21103a5790a74fd9682c8';
+String _$transactionHash() => r'66171c8a76a000e38a1f0407263095ad6d3681b1';
 
 abstract class _$Transaction extends $AsyncNotifier<TransactionState> {
   FutureOr<TransactionState> build();

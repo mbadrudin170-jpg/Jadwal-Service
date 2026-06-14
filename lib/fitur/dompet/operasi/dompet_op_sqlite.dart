@@ -4,7 +4,7 @@ import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/model/wallet_model.dart';
+import 'package:wifi/shared/model/dompet_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data dompet di database lokal.
@@ -21,7 +21,7 @@ class DompetOpSqlite {
   }) : _baseOperation = baseOpSqlite;
 
   Future<void> tambahDompet(
-    final WalletModel wallet, {
+    final DompetModel wallet, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai tambahDompet untuk wallet: ${wallet.id}');
@@ -42,7 +42,7 @@ class DompetOpSqlite {
   /// Mengambil semua dompet dari database.
   ///
   /// Jika [showArchived] `true`, maka dompet yang telah diarsipkan juga akan diambil.
-  Future<List<WalletModel>> getAll({
+  Future<List<DompetModel>> getAll({
     final bool showArchived = false,
   }) async {
     Log.info('Memulai getWallets (showArchived: $showArchived).');
@@ -58,7 +58,7 @@ class DompetOpSqlite {
 
       final listWallet = List.generate(
         maps.length,
-        (final i) => WalletModel.fromSqlite(maps[i]),
+        (final i) => DompetModel.fromSqlite(maps[i]),
       );
       Log.info('Berhasil mengambil ${listWallet.length} data wallet.');
       return listWallet;
@@ -68,8 +68,8 @@ class DompetOpSqlite {
     }
   }
 
-  /// Mengambil [WalletModel] berdasarkan [id].
-  Future<WalletModel?> getById(final String id) async {
+  /// Mengambil [DompetModel] berdasarkan [id].
+  Future<DompetModel?> getById(final String id) async {
     Log.info('Memulai getById untuk ID: $id');
     try {
       final db = await sqliteDb.database;
@@ -80,7 +80,7 @@ class DompetOpSqlite {
       );
 
       if (maps.isNotEmpty) {
-        final wallet = WalletModel.fromSqlite(maps.first);
+        final wallet = DompetModel.fromSqlite(maps.first);
         Log.info('Wallet dengan ID: $id ditemukan.');
         return wallet;
       }
@@ -97,9 +97,9 @@ class DompetOpSqlite {
     }
   }
 
-  /// Memperbarui [WalletModel] yang ada di database.
+  /// Memperbarui [DompetModel] yang ada di database.
   Future<void> updateDompet(
-    final WalletModel wallet, {
+    final DompetModel wallet, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai updateDompet untuk wallet ID: ${wallet.id}');
@@ -236,7 +236,7 @@ class DompetOpSqlite {
 
   /// Menyisipkan atau memperbarui sekumpulan dompet dalam satu batch.
   Future<void> insertOrUpdateBatch(
-    final List<WalletModel> items, {
+    final List<DompetModel> items, {
     final bool fromServer = false,
   }) async {
     Log.info('Memulai batch insert/update untuk ${items.length} data dompet.');
