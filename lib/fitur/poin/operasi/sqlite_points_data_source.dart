@@ -25,7 +25,7 @@ class SQLitePointsDataSource implements PointsPageDataSource {
 
   @override
   Future<List<PaketModel>> getPublicPackages() {
-    return _paketOpSqlite.getPaketPublic();
+    return _paketOpSqlite.ambilPaketPublik();
   }
 
   @override

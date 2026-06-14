@@ -30,7 +30,7 @@ class PackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncPackages = ref.watch(packageListProvider);
+    final asyncPackages = ref.watch(daftarPaketProvider);
     final urutanSaatIni = ref.watch(urutanPaketStateProvider);
 
     return Scaffold(
@@ -157,10 +157,7 @@ int _getDurationInMinutes(PaketModel paket) {
     case DurationType.days:
       return paket.duration * 24 * 60;
     case DurationType.months:
-      return paket.duration *
-          30 *
-          24 *
-          60; // Menggunakan perkalian 30 hari standar aplikasi
+      return paket.duration * 30 * 24 * 60;
   }
 }
 
@@ -244,7 +241,7 @@ Future<void> _showEditDeleteDialog(
 
 Future<void> _showDeleteConfirmationDialog(
     BuildContext context, WidgetRef ref, PaketModel paket) async {
-  final paketOperasi = ref.read(paketOpSqliteProvider);
+  final paketOpSqlite = ref.read(paketOpSqliteProvider);
 
   await showDialog<void>(
     context: context,
@@ -265,9 +262,9 @@ Future<void> _showDeleteConfirmationDialog(
               Navigator.of(dialogContext).pop();
 
               try {
-                await paketOperasi.hapusSementara(paket.id);
+                await paketOpSqlite.hapusSementara(paket.id);
 
-                final _ = ref.refresh(packageListProvider);
+                ref.invalidate(daftarPaketProvider);
 
                 if (context.mounted) {
                   ToastUtil.success(context, 'Paket berhasil dihapus.');
@@ -288,7 +285,7 @@ Future<void> _showDeleteConfirmationDialog(
 
 Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
   Log.info('User menekan tombol hapus semua paket');
-  final paketOperasi = ref.read(paketOpSqliteProvider);
+  final paketOpSqlite = ref.read(paketOpSqliteProvider);
 
   await showDialog<void>(
     context: context,
@@ -308,8 +305,8 @@ Future<void> _hapusSemuaPaket(BuildContext context, WidgetRef ref) async {
               Navigator.of(dialogContext).pop();
               try {
                 Log.info('Menjalankan soft delete semua paket');
-                await paketOperasi.hapusSementaraSemua();
-                final _ = ref.refresh(packageListProvider);
+                await paketOpSqlite.hapusSementaraSemua();
+                ref.invalidate(daftarPaketProvider);
                 if (context.mounted) {
                   ToastUtil.success(context, 'Semua paket dihapus.');
                 }

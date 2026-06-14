@@ -100,7 +100,7 @@ class PaketOpSqlite {
   }
 
   /// Mengambil semua paket yang bersifat publik.
-  Future<List<PaketModel>> getPaketPublic() async {
+  Future<List<PaketModel>> ambilPaketPublik() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
       final db = await sqliteDb.database;
@@ -151,36 +151,36 @@ class PaketOpSqlite {
   }
 
   /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> perbaruiPaket(PaketModel package,
+  Future<void> perbaruiPaket(PaketModel paket,
       {bool dariServer = false}) async {
-    Log.info('Memulai updatePackage untuk id: ${package.id}');
+    Log.info('Memulai updatePaket untuk id: ${paket.id}');
     try {
-      final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
+      final data = paket.copyWith(updatedAt: _nowUtc).toSqlite();
       await basOpSqlite.update(
         _tabel,
         data,
-        package.id,
+        paket.id,
         dariServer: dariServer,
       );
-      Log.info('Berhasil updatePackage untuk id: ${package.id}');
+      Log.info('Berhasil updatePaket untuk id: ${paket.id}');
     } catch (e, s) {
-      Log.error('Gagal updatePackage untuk id: ${package.id}', e: e, s: s);
+      Log.error('Gagal updatePaket untuk id: ${paket.id}', e: e, s: s);
       rethrow;
     }
   }
 
   /// Melakukan soft delete pada [PaketModel] berdasarkan [id].
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
-    Log.info('Memulai soft delete untuk package id: $id');
+    Log.info('Memulai soft delete untuk paket id: $id');
     try {
       await basOpSqlite.softDelete(
         _tabel,
         id,
         dariServer: dariServer,
       );
-      Log.info('Berhasil soft delete untuk package id: $id');
+      Log.info('Berhasil soft delete untuk paket id: $id');
     } catch (e, s) {
-      Log.error('Gagal soft delete untuk package id: $id', e: e, s: s);
+      Log.error('Gagal soft delete untuk paket id: $id', e: e, s: s);
       rethrow;
     }
   }
@@ -203,16 +203,16 @@ class PaketOpSqlite {
 
   /// Menghapus [PaketModel] dari database secara permanen.
   Future<void> hapus(String id, {bool dariServer = false}) async {
-    Log.info('Memulai deletePackage untuk id: $id');
+    Log.info('Memulai deletePaket untuk id: $id');
     try {
       await basOpSqlite.delete(
         _tabel,
         id,
         dariServer: dariServer,
       );
-      Log.info('Berhasil deletePackage untuk id: $id');
+      Log.info('Berhasil deletePaket untuk id: $id');
     } catch (e, s) {
-      Log.error('Gagal deletePackage untuk id: $id', e: e, s: s);
+      Log.error('Gagal deletePaket untuk id: $id', e: e, s: s);
       rethrow;
     }
   }
