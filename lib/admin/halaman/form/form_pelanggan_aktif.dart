@@ -124,7 +124,7 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
             _getDurationInMinutes(a).compareTo(_getDurationInMinutes(b)));
 
       final daftarDompet =
-          (results[2] as List<DompetModel>).where((d) => !d.isDeleted).toList();
+          (results[2] as List<DompetModel>).where((d) => !d.diHapus).toList();
 
       final semuaKategori = results[3] as List<KategoriModel>;
       final kategoriPemasukanList = semuaKategori
@@ -579,10 +579,10 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
           labelText: 'Pilih Dompet', border: OutlineInputBorder()),
       initialValue: _dompetDipilih,
       items: _dompetList
-          .map((d) => DropdownMenuItem(value: d, child: Text(d.name)))
+          .map((d) => DropdownMenuItem(value: d, child: Text(d.nama)))
           .toList(),
       onChanged: (newValue) {
-        Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.name}');
+        Log.info('Dompet dipilih: id=${newValue?.id} nama=${newValue?.nama}');
         setState(() => _dompetDipilih = newValue);
       },
       validator: (v) => v == null ? 'Dompet tidak boleh kosong' : null,

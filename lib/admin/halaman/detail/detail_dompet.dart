@@ -95,7 +95,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
 
       if (mounted) {
         setState(() {
-          _latestWalletName = dompet.name;
+          _latestWalletName = dompet.nama;
         });
       }
 
@@ -179,7 +179,7 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_latestWalletName ?? widget.dompet.name),
+        title: Text(_latestWalletName ?? widget.dompet.nama),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, true),
@@ -223,9 +223,8 @@ class _WalletDetailState extends ConsumerState<DetailDompet> {
                     buildSummaryInfo(
                       context: context,
                       label: 'Saldo',
-                      amount: data.dompet.balance,
-                      color:
-                          data.dompet.balance >= 0 ? Colors.blue : Colors.red,
+                      amount: data.dompet.saldo,
+                      color: data.dompet.saldo >= 0 ? Colors.blue : Colors.red,
                     ),
                   ],
                 ),

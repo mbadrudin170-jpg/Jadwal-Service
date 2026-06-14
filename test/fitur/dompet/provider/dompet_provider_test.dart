@@ -164,7 +164,7 @@ void main() {
       // Assert
       verify(() => mockDompetOpSqlite.updateDompet(dompetUpdate)).called(1);
       final state = container.read(dompetProvider);
-      expect(state.value?.wallets.first.balance, 1500.0);
+      expect(state.value?.wallets.first.saldo, 1500.0);
       expect(state.value?.totalSaldo, 1000.0);
     });
 

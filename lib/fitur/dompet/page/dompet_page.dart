@@ -108,7 +108,7 @@ class DompetPage extends ConsumerWidget {
 
   Future<void> _navigateToDetail(
       BuildContext context, WidgetRef ref, DompetModel wallet) async {
-    Log.info('Navigasi ke detail dompet: "${wallet.name}".');
+    Log.info('Navigasi ke detail dompet: "${wallet.nama}".');
     await Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
@@ -173,7 +173,7 @@ class DompetPage extends ConsumerWidget {
         return AlertDialog(
           title: const Text('Konfirmasi Arsip'),
           content: Text(
-              'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.name}"?'),
+              'Apakah Anda yakin ingin mengarsipkan dompet "${wallet.nama}"?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Batal'),
@@ -219,8 +219,8 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Log.info('WalletCard build: name=${wallet.name} balance=${wallet.balance}');
-    final subtitleColor = wallet.balance < 0
+    Log.info('WalletCard build: name=${wallet.nama} balance=${wallet.saldo}');
+    final subtitleColor = wallet.saldo < 0
         ? context.colorScheme.error
         : context.textTheme.bodySmall?.color;
     return Card(
@@ -236,10 +236,10 @@ class WalletCard extends StatelessWidget {
           color: TColors.primaryColor,
         ),
         title: TeksJudulSedang(
-          wallet.name,
+          wallet.nama,
         ),
         subtitle: TeksIsiSedang(
-          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.balance)}',
+          'Saldo: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(wallet.saldo)}',
           warna: subtitleColor,
         ),
         onTap: onTap,

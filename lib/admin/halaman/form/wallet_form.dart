@@ -38,14 +38,14 @@ class _WalletFormState extends ConsumerState<WalletForm> {
     super.initState();
     final isEditMode = widget.wallet != null;
     Log.info('Membuat state WalletForm. '
-        'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.name}, Saldo: ${widget.wallet!.balance})" : "TAMBAH BARU"}');
+        'Mode: ${isEditMode ? "EDIT (ID: ${widget.wallet!.id}, Nama: ${widget.wallet!.nama}, Saldo: ${widget.wallet!.saldo})" : "TAMBAH BARU"}');
     _dompetOpSqlite = ref.read(dompetOpSqliteProvider);
 
     Log.info('Membuat FocusNode untuk input nama dompet.');
     _namaFocusNode = FocusNode();
 
     if (_isEditMode) {
-      _namaController.text = widget.wallet!.name;
+      _namaController.text = widget.wallet!.nama;
     } else {
       Log.info('MODE TAMBAH BARU terdeteksi.');
       Log.info('Form akan membuat dompet baru dengan:');
@@ -82,14 +82,14 @@ class _WalletFormState extends ConsumerState<WalletForm> {
         if (_isEditMode) {
           Log.info('Proses UPDATE dompet ID: ${widget.wallet!.id}');
           Log.info(
-            'Nama Lama: "${widget.wallet!.name}", Nama Baru: "${_namaController.text}"',
+            'Nama Lama: "${widget.wallet!.nama}", Nama Baru: "${_namaController.text}"',
           );
-          Log.info('Saldo tetap: ${widget.wallet!.balance}');
+          Log.info('Saldo tetap: ${widget.wallet!.saldo}');
 
           final dataToUdpate = DompetModel(
             id: widget.wallet!.id,
-            name: _namaController.text,
-            balance: widget.wallet!.balance,
+            nama: _namaController.text,
+            saldo: widget.wallet!.saldo,
           );
 
           await _dompetOpSqlite.updateDompet(dataToUdpate);
@@ -103,9 +103,9 @@ class _WalletFormState extends ConsumerState<WalletForm> {
 
           final dataBaru = DompetModel(
             id: id,
-            name: _namaController.text,
-            balance: 0.0,
-            updatedAt: DateTime.now(),
+            nama: _namaController.text,
+            saldo: 0.0,
+            diperbaruiPada: DateTime.now(),
           );
 
           await _dompetOpSqlite.tambahDompet(dataBaru);

@@ -18,8 +18,8 @@ void main() {
     mockDompetOpSqlite = MockDompetOpSqlite();
     testWallet = DompetModel(
       id: '1',
-      name: 'Test Wallet',
-      balance: 100000,
+      nama: 'Test Wallet',
+      saldo: 100000,
     );
   });
 

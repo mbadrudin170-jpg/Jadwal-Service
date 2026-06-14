@@ -10,36 +10,36 @@ void main() {
     final tanggalSekarang = DateTime.now();
     final dataDompetLengkap = DompetModel(
       id: 'dompet-123',
-      name: 'Dompet Utama',
-      balance: 150000.0,
-      updatedAt: tanggalSekarang,
-      isDeleted: false,
-      archivedAt: tanggalSekarang,
+      nama: 'Dompet Utama',
+      saldo: 150000.0,
+      diperbaruiPada: tanggalSekarang,
+      diHapus: false,
+      diarsipkanPada: tanggalSekarang,
     );
 
     test(
         '01. harus membuat instance DompetModel dengan id yang dibuat secara otomatis',
         () {
-      final dompet = DompetModel(name: 'Dompet Baru', balance: 50000.0);
+      final dompet = DompetModel(nama: 'Dompet Baru', saldo: 50000.0);
       expect(dompet.id, isNotNull);
-      expect(dompet.name, 'Dompet Baru');
-      expect(dompet.balance, 50000.0);
+      expect(dompet.nama, 'Dompet Baru');
+      expect(dompet.saldo, 50000.0);
     });
 
     test('02. harus membuat instance DompetModel dengan id yang disediakan',
         () {
       final dompet =
-          DompetModel(id: 'custom-id', name: 'Dompet Custom', balance: 0);
+          DompetModel(id: 'custom-id', nama: 'Dompet Custom', saldo: 0);
       expect(dompet.id, 'custom-id');
-      expect(dompet.name, 'Dompet Custom');
+      expect(dompet.nama, 'Dompet Custom');
     });
 
     test(
         '03. harus membuat instance DompetModel dengan nilai default untuk isDeleted dan archivedAt',
         () {
-      final dompet = DompetModel(name: 'Dompet Default', balance: 0);
-      expect(dompet.isDeleted, false);
-      expect(dompet.archivedAt, isNull);
+      final dompet = DompetModel(nama: 'Dompet Default', saldo: 0);
+      expect(dompet.diHapus, false);
+      expect(dompet.diarsipkanPada, isNull);
     });
 
     test(
@@ -47,11 +47,11 @@ void main() {
         () {
       final salinanDompet = dataDompetLengkap.copyWith();
       expect(salinanDompet.id, dataDompetLengkap.id);
-      expect(salinanDompet.name, dataDompetLengkap.name);
-      expect(salinanDompet.balance, dataDompetLengkap.balance);
-      expect(salinanDompet.updatedAt, dataDompetLengkap.updatedAt);
-      expect(salinanDompet.isDeleted, dataDompetLengkap.isDeleted);
-      expect(salinanDompet.archivedAt, dataDompetLengkap.archivedAt);
+      expect(salinanDompet.nama, dataDompetLengkap.nama);
+      expect(salinanDompet.saldo, dataDompetLengkap.saldo);
+      expect(salinanDompet.diperbaruiPada, dataDompetLengkap.diperbaruiPada);
+      expect(salinanDompet.diHapus, dataDompetLengkap.diHapus);
+      expect(salinanDompet.diarsipkanPada, dataDompetLengkap.diarsipkanPada);
     });
 
     test('05. harus menyalin objek dengan field yang diperbarui', () {
@@ -62,10 +62,10 @@ void main() {
         isDeleted: true,
         archivedAt: tanggalBaru,
       );
-      expect(salinanDompet.name, 'Dompet Terupdate');
-      expect(salinanDompet.balance, 200000.0);
-      expect(salinanDompet.isDeleted, true);
-      expect(salinanDompet.archivedAt, tanggalBaru);
+      expect(salinanDompet.nama, 'Dompet Terupdate');
+      expect(salinanDompet.saldo, 200000.0);
+      expect(salinanDompet.diHapus, true);
+      expect(salinanDompet.diarsipkanPada, tanggalBaru);
     });
 
     test('06. harus menyalin objek dengan id yang diperbarui', () {
@@ -75,31 +75,31 @@ void main() {
 
     test('07. harus menyalin objek dengan name yang diperbarui', () {
       final salinanDompet = dataDompetLengkap.copyWith(name: 'Dompet Liburan');
-      expect(salinanDompet.name, 'Dompet Liburan');
+      expect(salinanDompet.nama, 'Dompet Liburan');
     });
 
     test('08. harus menyalin objek dengan balance yang diperbarui', () {
       final salinanDompet = dataDompetLengkap.copyWith(balance: 50.0);
-      expect(salinanDompet.balance, 50.0);
+      expect(salinanDompet.saldo, 50.0);
     });
 
     test('09. harus menyalin objek dengan updatedAt yang diperbarui', () {
       final tanggalUpdate = DateTime(2024, 1, 1);
       final salinanDompet =
           dataDompetLengkap.copyWith(updatedAt: tanggalUpdate);
-      expect(salinanDompet.updatedAt, tanggalUpdate);
+      expect(salinanDompet.diperbaruiPada, tanggalUpdate);
     });
 
     test('10. harus menyalin objek dengan isDeleted yang diperbarui', () {
       final salinanDompet = dataDompetLengkap.copyWith(isDeleted: true);
-      expect(salinanDompet.isDeleted, true);
+      expect(salinanDompet.diHapus, true);
     });
 
     test('11. harus menyalin objek dengan archivedAt yang diperbarui', () {
       final tanggalArsip = DateTime(2025, 1, 1);
       final salinanDompet =
           dataDompetLengkap.copyWith(archivedAt: tanggalArsip);
-      expect(salinanDompet.archivedAt, tanggalArsip);
+      expect(salinanDompet.diarsipkanPada, tanggalArsip);
     });
 
     group('fromSqlite', () {
@@ -117,15 +117,15 @@ void main() {
         final dompet = DompetModel.fromSqlite(mapSqlite);
 
         expect(dompet.id, 'sqlite-1');
-        expect(dompet.name, 'Dompet SQLite');
-        expect(dompet.balance, 75000.0);
+        expect(dompet.nama, 'Dompet SQLite');
+        expect(dompet.saldo, 75000.0);
         expect(
-            dompet.updatedAt,
+            dompet.diperbaruiPada,
             DateTime.fromMillisecondsSinceEpoch(
                 tanggalSekarang.millisecondsSinceEpoch));
-        expect(dompet.isDeleted, true);
+        expect(dompet.diHapus, true);
         expect(
-            dompet.archivedAt,
+            dompet.diarsipkanPada,
             DateTime.fromMillisecondsSinceEpoch(
                 tanggalSekarang.millisecondsSinceEpoch));
       });
@@ -141,11 +141,11 @@ void main() {
         final dompet = DompetModel.fromSqlite(mapSqlite);
 
         expect(dompet.id, 'sqlite-2');
-        expect(dompet.name, 'Dompet Minimal');
-        expect(dompet.balance, 0.0);
-        expect(dompet.updatedAt, isNull);
-        expect(dompet.isDeleted, false);
-        expect(dompet.archivedAt, isNull);
+        expect(dompet.nama, 'Dompet Minimal');
+        expect(dompet.saldo, 0.0);
+        expect(dompet.diperbaruiPada, isNull);
+        expect(dompet.diHapus, false);
+        expect(dompet.diarsipkanPada, isNull);
       });
 
       test('14. harus menangani nilai updatedAt dan archivedAt sebagai integer',
@@ -158,10 +158,10 @@ void main() {
           NamaKolom.diarsipkanPada: timestamp,
         };
         final dompet = DompetModel.fromSqlite(mapSqlite);
-        expect(
-            dompet.updatedAt, DateTime.fromMillisecondsSinceEpoch(timestamp));
-        expect(
-            dompet.archivedAt, DateTime.fromMillisecondsSinceEpoch(timestamp));
+        expect(dompet.diperbaruiPada,
+            DateTime.fromMillisecondsSinceEpoch(timestamp));
+        expect(dompet.diarsipkanPada,
+            DateTime.fromMillisecondsSinceEpoch(timestamp));
       });
     });
 
@@ -184,7 +184,7 @@ void main() {
       test(
           '16. harus mengubah DompetModel menjadi peta SQLite dan updatedAt menggunakan DateTime.now() jika null',
           () {
-        final dompetTanpaUpdate = DompetModel(name: 'Baru', balance: 10);
+        final dompetTanpaUpdate = DompetModel(nama: 'Baru', saldo: 10);
         final peta = dompetTanpaUpdate.toSqlite();
 
         expect(peta[NamaKolom.diperbaruiPada], isNotNull);
@@ -193,9 +193,9 @@ void main() {
       test('17. harus mengubah isDeleted menjadi 1 jika true dan 0 jika false',
           () {
         final dompetDihapus =
-            DompetModel(name: 'Hapus', balance: 0, isDeleted: true);
+            DompetModel(nama: 'Hapus', saldo: 0, diHapus: true);
         final dompetTidakDihapus =
-            DompetModel(name: 'Tidak Hapus', balance: 0, isDeleted: false);
+            DompetModel(nama: 'Tidak Hapus', saldo: 0, diHapus: false);
 
         expect(dompetDihapus.toSqlite()[NamaKolom.diHapus], 1);
         expect(dompetTidakDihapus.toSqlite()[NamaKolom.diHapus], 0);
@@ -218,11 +218,11 @@ void main() {
         final dompet = DompetModel.fromFirebase('fb-1', dataFirebase);
 
         expect(dompet.id, 'fb-1');
-        expect(dompet.name, 'Dompet Firebase');
-        expect(dompet.balance, 250000.0);
-        expect(dompet.updatedAt, tanggalSekarang);
-        expect(dompet.isDeleted, true);
-        expect(dompet.archivedAt, tanggalSekarang);
+        expect(dompet.nama, 'Dompet Firebase');
+        expect(dompet.saldo, 250000.0);
+        expect(dompet.diperbaruiPada, tanggalSekarang);
+        expect(dompet.diHapus, true);
+        expect(dompet.diarsipkanPada, tanggalSekarang);
       });
 
       test(
@@ -234,11 +234,11 @@ void main() {
         final dompet = DompetModel.fromFirebase('fb-2', dataFirebase);
 
         expect(dompet.id, 'fb-2');
-        expect(dompet.name, 'Dompet Firebase Minimal');
-        expect(dompet.balance, 0.0);
-        expect(dompet.updatedAt, isNull);
-        expect(dompet.isDeleted, false);
-        expect(dompet.archivedAt, isNull);
+        expect(dompet.nama, 'Dompet Firebase Minimal');
+        expect(dompet.saldo, 0.0);
+        expect(dompet.diperbaruiPada, isNull);
+        expect(dompet.diHapus, false);
+        expect(dompet.diarsipkanPada, isNull);
       });
 
       test(
@@ -250,8 +250,8 @@ void main() {
           NamaKolom.diarsipkanPada: timestampFirebase,
         };
         final dompet = DompetModel.fromFirebase('fb-3', dataFirebase);
-        expect(dompet.updatedAt, tanggalSekarang);
-        expect(dompet.archivedAt, tanggalSekarang);
+        expect(dompet.diperbaruiPada, tanggalSekarang);
+        expect(dompet.diarsipkanPada, tanggalSekarang);
       });
     });
 
@@ -273,7 +273,7 @@ void main() {
       test(
           '22. harus mengubah DompetModel menjadi peta Firebase dan updatedAt menggunakan DateTime.now() jika null dan dikonversi ke UTC',
           () {
-        final dompetTanpaUpdate = DompetModel(name: 'Baru', balance: 10);
+        final dompetTanpaUpdate = DompetModel(nama: 'Baru', saldo: 10);
         final peta = dompetTanpaUpdate.toFirebase();
 
         expect(peta[NamaKolom.diperbaruiPada], isA<Timestamp>());
@@ -282,8 +282,8 @@ void main() {
       test(
           '23. harus mengubah archivedAt menjadi Timestamp UTC jika tidak null',
           () {
-        final dompetDenganArsip =
-            DompetModel(name: 'Arsip', balance: 0, archivedAt: tanggalSekarang);
+        final dompetDenganArsip = DompetModel(
+            nama: 'Arsip', saldo: 0, diarsipkanPada: tanggalSekarang);
         final peta = dompetDenganArsip.toFirebase();
 
         expect(peta[NamaKolom.diarsipkanPada], isA<Timestamp>());

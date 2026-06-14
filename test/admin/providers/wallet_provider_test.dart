@@ -18,16 +18,16 @@ void main() {
 
   final tWallet1 = DompetModel(
     id: '1',
-    name: 'Dompet Utama',
-    balance: 100000,
-    updatedAt: DateTime.now(),
+    nama: 'Dompet Utama',
+    saldo: 100000,
+    diperbaruiPada: DateTime.now(),
   );
 
   final tWallet2 = DompetModel(
     id: '2',
-    name: 'Dompet Cadangan',
-    balance: -50000,
-    updatedAt: DateTime.now(),
+    nama: 'Dompet Cadangan',
+    saldo: -50000,
+    diperbaruiPada: DateTime.now(),
   );
 
   setUp(() {
@@ -81,9 +81,9 @@ void main() {
 
     final newWallet = DompetModel(
       id: '3',
-      name: 'Dompet Baru',
-      balance: 20000,
-      updatedAt: DateTime.now(),
+      nama: 'Dompet Baru',
+      saldo: 20000,
+      diperbaruiPada: DateTime.now(),
     );
 
     when(mockDompetOpSqlite.tambahDompet(newWallet)).thenAnswer((_) async {});
@@ -175,9 +175,9 @@ void main() {
     // Simulate data change
     final tWallet3 = DompetModel(
         id: '3',
-        name: 'Dompet Lain',
-        balance: 30000,
-        updatedAt: DateTime.now());
+        nama: 'Dompet Lain',
+        saldo: 30000,
+        diperbaruiPada: DateTime.now());
     when(mockDompetOpSqlite.ambilSemua()).thenAnswer((_) async => [tWallet3]);
     when(mockDompetOpSqlite.ambilSaldoPositif()).thenAnswer((_) async => 30000);
     when(mockDompetOpSqlite.ambilSaldoNegatif()).thenAnswer((_) async => 0);

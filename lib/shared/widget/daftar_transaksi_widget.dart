@@ -110,7 +110,7 @@ class _TransactionTileState extends ConsumerState<TransactionTile> {
       final dompet = await _dompetOpSqlite.ambilBerdasarkanId(
         widget.transaksi.idDompet,
       );
-      return dompet?.name ?? 'Dompet Dihapus';
+      return dompet?.nama ?? 'Dompet Dihapus';
     } on Exception catch (e, st) {
       Log.error(
         'Gagal mendapatkan nama dompet untuk ID: ${widget.transaksi.idDompet}',

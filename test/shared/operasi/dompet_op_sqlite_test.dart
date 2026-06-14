@@ -33,9 +33,9 @@ void main() {
   group('Uji Coba DompetOpSqlite', () {
     final tWallet = DompetModel(
       id: '1',
-      name: 'Dompet Utama',
-      balance: 1000000,
-      updatedAt: DateTime.now(),
+      nama: 'Dompet Utama',
+      saldo: 1000000,
+      diperbaruiPada: DateTime.now(),
     );
     final tWalletMap = tWallet.toSqlite();
     final tableName = NamaTabel.get(TableName.wallet);

@@ -41,8 +41,8 @@ void main() {
       totalSaldo: 0,
     ));
     dummyWallets = [
-      DompetModel(id: '1', name: 'Dompet Utama', balance: 100000),
-      DompetModel(id: '2', name: 'Dompet Cadangan', balance: -50000),
+      DompetModel(id: '1', nama: 'Dompet Utama', saldo: 100000),
+      DompetModel(id: '2', nama: 'Dompet Cadangan', saldo: -50000),
     ];
     container = ProviderContainer();
   });
@@ -270,7 +270,7 @@ void main() {
     testWidgets(
         '9. WalletCard menampilkan nama dan saldo dengan format mata uang',
         (tester) async {
-      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 75000);
+      final wallet = DompetModel(id: '1', nama: 'Dompet Test', saldo: 75000);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -287,8 +287,7 @@ void main() {
     });
 
     testWidgets('10. Saldo negatif menggunakan warna error', (tester) async {
-      final wallet =
-          DompetModel(id: '1', name: 'Dompet Utang', balance: -25000);
+      final wallet = DompetModel(id: '1', nama: 'Dompet Utang', saldo: -25000);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -307,7 +306,7 @@ void main() {
 
     testWidgets('11. WalletCard memanggil onTap saat diklik', (tester) async {
       bool tapped = false;
-      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 0);
+      final wallet = DompetModel(id: '1', nama: 'Dompet Test', saldo: 0);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -326,7 +325,7 @@ void main() {
     testWidgets('12. WalletCard memanggil onLongPress saat long press',
         (tester) async {
       bool longPressed = false;
-      final wallet = DompetModel(id: '1', name: 'Dompet Test', balance: 0);
+      final wallet = DompetModel(id: '1', nama: 'Dompet Test', saldo: 0);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

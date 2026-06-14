@@ -453,12 +453,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                       items: _dompetList.map((dompet) {
                         return DropdownMenuItem(
                           value: dompet,
-                          child: Text(dompet.name),
+                          child: Text(dompet.nama),
                         );
                       }).toList(),
                       onChanged: (val) {
                         Log.info(
-                          'Pengguna memilih dompet: ${val?.name ?? "null"}',
+                          'Pengguna memilih dompet: ${val?.nama ?? "null"}',
                         );
                         setState(() => _selectedDompet = val);
                       },
@@ -475,12 +475,12 @@ class _FormTransaksiPageState extends ConsumerState<FormTransaksi> {
                         items: _dompetList.map((dompet) {
                           return DropdownMenuItem(
                             value: dompet,
-                            child: Text(dompet.name),
+                            child: Text(dompet.nama),
                           );
                         }).toList(),
                         onChanged: (val) {
                           Log.info(
-                            'Pengguna memilih dompet tujuan: ${val?.name ?? "null"}',
+                            'Pengguna memilih dompet tujuan: ${val?.nama ?? "null"}',
                           );
                           setState(() => _selectedDompetTujuan = val);
                         },

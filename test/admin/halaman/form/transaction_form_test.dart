@@ -69,7 +69,7 @@ void main() {
       (tester) async {
     when(() => mockDompetOpFirebase.ambilSemuaDompet())
         .thenAnswer((_) async => [
-              DompetModel(id: '1', name: 'Test Wallet', balance: 0),
+              DompetModel(id: '1', nama: 'Test Wallet', saldo: 0),
             ]);
     when(() => mockKategoriOpFirebase.ambilSemuaKategori())
         .thenAnswer((_) async => [

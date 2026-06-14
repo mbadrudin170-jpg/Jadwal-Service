@@ -125,8 +125,8 @@ class DataDummy {
 
   /// Daftar dummy untuk [DompetModel]
   static List<DompetModel> get wallets => [
-        DompetModel(id: walletBudiId, name: 'Dompet Budi', balance: 500000),
-        DompetModel(id: walletSitiId, name: 'Dompet Siti', balance: 1000000),
+        DompetModel(id: walletBudiId, nama: 'Dompet Budi', saldo: 500000),
+        DompetModel(id: walletSitiId, nama: 'Dompet Siti', saldo: 1000000),
       ];
 
   /// Daftar dummy untuk [TransaksiModel]

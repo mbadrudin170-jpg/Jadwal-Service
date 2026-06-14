@@ -14,30 +14,30 @@ class DompetModel implements HasId {
   final String id;
 
   /// The user-defined name for this wallet. This is required.
-  final String name;
+  final String nama;
 
   /// The current balance of the wallet.
-  final double balance;
+  final double saldo;
 
   /// Timestamp of when this data was last updated on the server or locally.
-  final DateTime? updatedAt;
+  final DateTime? diperbaruiPada;
 
   /// Soft delete status. If `true`, the wallet is considered deleted.
-  final bool isDeleted;
+  final bool diHapus;
 
   /// Timestamp of when this wallet was archived. `null` if not archived.
-  final DateTime? archivedAt;
+  final DateTime? diarsipkanPada;
 
   /// Creates an instance of [DompetModel].
   DompetModel({
     final String? id,
-    required this.name,
-    required this.balance,
-    this.updatedAt,
-    this.isDeleted = false,
-    this.archivedAt,
+    required this.nama,
+    required this.saldo,
+    this.diperbaruiPada,
+    this.diHapus = false,
+    this.diarsipkanPada,
   }) : id = id ?? const Uuid().v4() {
-    Log.info('WalletModel created: $id, name: $name');
+    Log.info('WalletModel created: $id, name: $nama');
   }
 
   /// Creates a copy of [DompetModel] with updated fields.
@@ -51,11 +51,11 @@ class DompetModel implements HasId {
   }) {
     return DompetModel(
       id: id ?? this.id,
-      name: name ?? this.name,
-      balance: balance ?? this.balance,
-      updatedAt: updatedAt ?? this.updatedAt,
-      isDeleted: isDeleted ?? this.isDeleted,
-      archivedAt: archivedAt ?? this.archivedAt,
+      nama: name ?? this.nama,
+      saldo: balance ?? this.saldo,
+      diperbaruiPada: updatedAt ?? this.diperbaruiPada,
+      diHapus: isDeleted ?? this.diHapus,
+      diarsipkanPada: archivedAt ?? this.diarsipkanPada,
     );
   }
 
@@ -65,12 +65,12 @@ class DompetModel implements HasId {
   factory DompetModel.fromSqlite(final Map<String, dynamic> map) {
     return DompetModel(
       id: map[NamaKolom.id] as String?,
-      name: (map[NamaKolom.nama] as String?) ?? '',
-      balance: (map[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
+      nama: (map[NamaKolom.nama] as String?) ?? '',
+      saldo: (map[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
-      isDeleted: ParserUtil.parseBool(map[NamaKolom.diHapus]),
-      archivedAt: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(map[NamaKolom.diperbaruiPada]),
+      diHapus: ParserUtil.parseBool(map[NamaKolom.diHapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(map[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -78,13 +78,13 @@ class DompetModel implements HasId {
   Map<String, dynamic> toSqlite() {
     return {
       NamaKolom.id: id,
-      NamaKolom.nama: name,
-      NamaKolom.saldo: balance,
+      NamaKolom.nama: nama,
+      NamaKolom.saldo: saldo,
       // DIUBAH: Memastikan updatedAt tidak pernah null
       NamaKolom.diperbaruiPada:
-          (updatedAt ?? DateTime.now()).millisecondsSinceEpoch,
-      NamaKolom.diHapus: isDeleted ? 1 : 0,
-      NamaKolom.diarsipkanPada: archivedAt?.millisecondsSinceEpoch,
+          (diperbaruiPada ?? DateTime.now()).millisecondsSinceEpoch,
+      NamaKolom.diHapus: diHapus ? 1 : 0,
+      NamaKolom.diarsipkanPada: diarsipkanPada?.millisecondsSinceEpoch,
     };
   }
 
@@ -93,12 +93,12 @@ class DompetModel implements HasId {
       final String id, final Map<String, dynamic> data) {
     return DompetModel(
       id: id,
-      name: (data[NamaKolom.nama] as String?) ?? '',
-      balance: (data[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
+      nama: (data[NamaKolom.nama] as String?) ?? '',
+      saldo: (data[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0,
       // DIUBAH: Menggunakan ParserUtil
-      updatedAt: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
-      isDeleted: ParserUtil.parseBool(data[NamaKolom.diHapus]),
-      archivedAt: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
+      diperbaruiPada: ParserUtil.parseDateTime(data[NamaKolom.diperbaruiPada]),
+      diHapus: ParserUtil.parseBool(data[NamaKolom.diHapus]),
+      diarsipkanPada: ParserUtil.parseDateTime(data[NamaKolom.diarsipkanPada]),
     );
   }
 
@@ -106,15 +106,16 @@ class DompetModel implements HasId {
   Map<String, dynamic> toFirebase() {
     return {
       NamaKolom.id: id,
-      NamaKolom.nama: name,
-      NamaKolom.saldo: balance,
-      NamaKolom.diHapus: isDeleted,
+      NamaKolom.nama: nama,
+      NamaKolom.saldo: saldo,
+      NamaKolom.diHapus: diHapus,
       // DIUBAH: Memastikan updatedAt tidak pernah null dan menggunakan .toUtc()
       NamaKolom.diperbaruiPada:
-          Timestamp.fromDate((updatedAt ?? DateTime.now()).toUtc()),
+          Timestamp.fromDate((diperbaruiPada ?? DateTime.now()).toUtc()),
       // DIUBAH: Menggunakan .toUtc() jika tidak null
-      NamaKolom.diarsipkanPada:
-          archivedAt != null ? Timestamp.fromDate(archivedAt!.toUtc()) : null,
+      NamaKolom.diarsipkanPada: diarsipkanPada != null
+          ? Timestamp.fromDate(diarsipkanPada!.toUtc())
+          : null,
     };
   }
 }
