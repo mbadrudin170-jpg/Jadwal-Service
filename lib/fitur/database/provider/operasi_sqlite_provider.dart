@@ -29,8 +29,8 @@ PaketOpSqlite paketOpSqlite(Ref ref) {
   final baseOperation = ref.watch(baseOpSqliteProvider);
 
   return PaketOpSqlite(
-    dbHelper: dbHelper,
-    baseOperation: baseOperation,
+    sqliteDb: dbHelper,
+    basOpSqlite: baseOperation,
   );
 }
 

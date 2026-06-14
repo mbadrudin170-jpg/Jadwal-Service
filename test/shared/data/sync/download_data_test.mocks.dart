@@ -641,32 +641,32 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
   }
 
   @override
-  _i2.SqliteDatabase get dbHelper => (super.noSuchMethod(
-        Invocation.getter(#dbHelper),
+  _i2.SqliteDatabase get sqliteDb => (super.noSuchMethod(
+        Invocation.getter(#sqliteDb),
         returnValue: _FakeSqliteDatabase_1(
           this,
-          Invocation.getter(#dbHelper),
+          Invocation.getter(#sqliteDb),
         ),
       ) as _i2.SqliteDatabase);
 
   @override
-  _i4.BaseOpSqlite get baseOperation => (super.noSuchMethod(
-        Invocation.getter(#baseOperation),
+  _i4.BaseOpSqlite get basOpSqlite => (super.noSuchMethod(
+        Invocation.getter(#basOpSqlite),
         returnValue: _FakeBaseOpSqlite_3(
           this,
-          Invocation.getter(#baseOperation),
+          Invocation.getter(#basOpSqlite),
         ),
       ) as _i4.BaseOpSqlite);
 
   @override
-  _i9.Future<void> tambah(
-    _i16.PaketModel? package, {
+  _i9.Future<void> tambahPaket(
+    _i16.PaketModel? paket, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #tambah,
-          [package],
+          #tambahPaket,
+          [paket],
           {#dariServer: dariServer},
         ),
         returnValue: _i9.Future<void>.value(),
@@ -715,13 +715,13 @@ class MockPaketOpSqlite extends _i1.Mock implements _i15.PaketOpSqlite {
       ) as _i9.Future<_i16.PaketModel?>);
 
   @override
-  _i9.Future<void> perbarui(
+  _i9.Future<void> perbaruiPaket(
     _i16.PaketModel? package, {
     bool? dariServer = false,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
-          #perbarui,
+          #perbaruiPaket,
           [package],
           {#dariServer: dariServer},
         ),

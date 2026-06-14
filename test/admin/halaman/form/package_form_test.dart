@@ -32,7 +32,7 @@ void main() {
         packageOperationProvider.overrideWithValue(mockPackageOperation),
       ],
       child: MaterialApp(
-        home: FormPaket(package: package),
+        home: FormPaket(paket: package),
       ),
     );
   }

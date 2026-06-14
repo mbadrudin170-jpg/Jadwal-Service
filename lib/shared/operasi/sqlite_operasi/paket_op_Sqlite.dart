@@ -3,43 +3,43 @@
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_operation.dart';
 
 /// Kelas untuk operasi terkait data paket di database lokal.
 class PaketOpSqlite {
   /// Instance dari DatabaseHelper untuk mengakses database.
   @visibleForTesting
-  final SqliteDatabase dbHelper;
+  final SqliteDatabase sqliteDb;
 
   /// Instance dari [BaseOpSqlite] untuk operasi CRUD dasar.
-  final BaseOpSqlite baseOperation;
-  final String _tableName = NamaTabel.package;
+  final BaseOpSqlite basOpSqlite;
+  final String _namaTabel = NamaTabel.package;
   final _nowUtc = DateTime.now().toUtc();
 
   PaketOpSqlite({
-    required this.dbHelper,
-    required this.baseOperation,
+    required this.sqliteDb,
+    required this.basOpSqlite,
   }) {
     Log.info('PackageOperation instance dibuat.');
   }
 
   /// Menyimpan [PaketModel] baru ke dalam database.
-  Future<void> tambah(PaketModel package, {bool dariServer = false}) async {
-    Log.info('Memulai createPackage untuk id: ${package.id}');
+  Future<void> tambahPaket(PaketModel paket, {bool dariServer = false}) async {
+    Log.info('Memulai createPackage untuk id: ${paket.id}');
     try {
-      final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
-      await baseOperation.sisipkan(
-        _tableName,
+      final data = paket.copyWith(updatedAt: _nowUtc).toSqlite();
+      await basOpSqlite.sisipkan(
+        _namaTabel,
         data,
         dariServer: dariServer,
       );
-      Log.info('Berhasil createPackage untuk id: ${package.id}');
+      Log.info('Berhasil createPackage untuk id: ${paket.id}');
     } catch (e, s) {
-      Log.error('Gagal createPackage untuk id: ${package.id}', e: e, s: s);
+      Log.error('Gagal createPackage untuk id: ${paket.id}', e: e, s: s);
       rethrow;
     }
   }
@@ -48,7 +48,7 @@ class PaketOpSqlite {
   Future<List<PaketModel>> ambilSemua() async {
     Log.info('Memulai proses pengambilan semua data paket');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.type}
@@ -57,7 +57,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_tableName
+        FROM $_namaTabel
         ORDER BY urutan ASC
       ''');
 
@@ -75,7 +75,7 @@ class PaketOpSqlite {
   Future<List<PaketModel>> ambilBerdasarkanAktif() async {
     Log.info('Memulai proses pengambilan semua data paket aktif');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.type}
@@ -84,7 +84,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_tableName
+        FROM $_namaTabel
         WHERE ${NamaKolom.isDeleted} = 0
         ORDER BY urutan ASC
       ''');
@@ -103,7 +103,7 @@ class PaketOpSqlite {
   Future<List<PaketModel>> getPaketPublic() async {
     Log.info('Memulai proses pengambilan semua data paket publik');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.rawQuery('''
         SELECT *,
           CASE ${NamaKolom.type}
@@ -112,7 +112,7 @@ class PaketOpSqlite {
             WHEN 'bulan' THEN ${NamaKolom.duration} * 24 * 30
             ELSE 999999
           END as urutan
-        FROM $_tableName
+        FROM $_namaTabel
         WHERE ${NamaKolom.isDeleted} = 0 AND ${NamaKolom.isPublic} = 1
         ORDER BY urutan ASC
       ''');
@@ -131,9 +131,9 @@ class PaketOpSqlite {
   Future<PaketModel?> ambilBerdasarkanId(String id) async {
     Log.info('Memulai pencarian paket berdasarkan ID: $id');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} = ?',
         whereArgs: [id],
       );
@@ -151,12 +151,13 @@ class PaketOpSqlite {
   }
 
   /// Memperbarui [PaketModel] yang ada di database.
-  Future<void> perbarui(PaketModel package, {bool dariServer = false}) async {
+  Future<void> perbaruiPaket(PaketModel package,
+      {bool dariServer = false}) async {
     Log.info('Memulai updatePackage untuk id: ${package.id}');
     try {
       final data = package.copyWith(updatedAt: _nowUtc).toSqlite();
-      await baseOperation.update(
-        _tableName,
+      await basOpSqlite.update(
+        _namaTabel,
         data,
         package.id,
         dariServer: dariServer,
@@ -172,8 +173,8 @@ class PaketOpSqlite {
   Future<void> hapusSementara(String id, {bool dariServer = false}) async {
     Log.info('Memulai soft delete untuk package id: $id');
     try {
-      await baseOperation.softDelete(
-        _tableName,
+      await basOpSqlite.softDelete(
+        _namaTabel,
         id,
         dariServer: dariServer,
       );
@@ -188,8 +189,8 @@ class PaketOpSqlite {
   Future<int> hapusSementaraSemua({bool dariServer = false}) async {
     Log.info('Memulai soft-delete untuk semua paket');
     try {
-      final count = await baseOperation.softDeleteAll(
-        _tableName,
+      final count = await basOpSqlite.softDeleteAll(
+        _namaTabel,
         dariServer: dariServer,
       );
       Log.info('Berhasil soft-delete semua paket. Total terupdate: $count');
@@ -204,8 +205,8 @@ class PaketOpSqlite {
   Future<void> hapus(String id, {bool dariServer = false}) async {
     Log.info('Memulai deletePackage untuk id: $id');
     try {
-      await baseOperation.delete(
-        _tableName,
+      await basOpSqlite.delete(
+        _namaTabel,
         id,
         dariServer: dariServer,
       );
@@ -220,10 +221,10 @@ class PaketOpSqlite {
   Future<void> hapusSemua({bool dariServer = false}) async {
     Log.info('Memulai proses penghapusan semua data paket');
     try {
-      await baseOperation.runComplexOperation<void>(
+      await basOpSqlite.runComplexOperation<void>(
         (Transaction txn) async {
           final int count = await txn.delete(
-            _tableName,
+            _namaTabel,
           );
           Log.info(
               'Berhasil menghapus semua data paket. Total terhapus: $count');
@@ -241,9 +242,9 @@ class PaketOpSqlite {
     Log.info(
         'Memulai pengambilan perubahan paket sejak ${since.toIso8601String()}');
     try {
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.updatedAt} > ?',
         whereArgs: [since.toUtc().millisecondsSinceEpoch],
       );
@@ -271,8 +272,8 @@ class PaketOpSqlite {
             (item) => item.copyWith(updatedAt: _nowUtc).toSqlite(),
           )
           .toList();
-      await baseOperation.insertOrUpdateBatch(
-        _tableName,
+      await basOpSqlite.insertOrUpdateBatch(
+        _namaTabel,
         dataList,
         dariServer: dariServer,
       );
@@ -291,10 +292,10 @@ class PaketOpSqlite {
         Log.warning('List ID kosong, mengembalikan list kosong');
         return [];
       }
-      final db = await dbHelper.database;
+      final db = await sqliteDb.database;
       final placeholders = List.filled(ids.length, '?').join(',');
       final List<Map<String, dynamic>> maps = await db.query(
-        _tableName,
+        _namaTabel,
         where: '${NamaKolom.id} IN ($placeholders)',
         whereArgs: ids,
       );

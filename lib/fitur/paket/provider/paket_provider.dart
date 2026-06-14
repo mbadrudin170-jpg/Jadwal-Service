@@ -11,7 +11,7 @@ part 'paket_provider.g.dart';
 /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
 /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
 @riverpod
-Future<List<PaketModel>> packageList(Ref ref) async {
+Future<List<PaketModel>> daftarPaket(Ref ref) async {
   Log.info('Mendapatkan daftar paket aktif dari SQLite via paketProvider...');
 
   // Mengambil instance PackageOperation dari operasi_sqlite_provider.dart
@@ -24,9 +24,8 @@ Future<List<PaketModel>> packageList(Ref ref) async {
 class UrutanPaketState extends _$UrutanPaketState {
   @override
   UrutanPaket build() {
-    // Nilai default awal saat halaman pertama kali dibuka
     return UrutanPaket.durasiTerpendek;
-  }
+}
 
   /// Fungsi untuk mengubah status urutan dari UI
   void ubahUrutan(UrutanPaket urutanBaru) {

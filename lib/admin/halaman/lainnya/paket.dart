@@ -223,7 +223,7 @@ Future<void> _showEditDeleteDialog(
               await Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (context) => FormPaket(package: paket),
+                  builder: (context) => FormPaket(paket: paket),
                 ),
               );
             },

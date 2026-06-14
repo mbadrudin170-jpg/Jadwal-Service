@@ -30,8 +30,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     super.initState();
     Log.info('Membuka halaman detail paket.');
     _paket = widget.paket;
-    Log.info(
-        'Data paket berhasil dimuat: ${_paket.name}, ID: ${_paket.id}.');
+    Log.info('Data paket berhasil dimuat: ${_paket.name}, ID: ${_paket.id}.');
   }
 
   Future<void> _navigasiKeEdit() async {
@@ -39,7 +38,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
-        builder: (final context) => FormPaket(package: _paket),
+        builder: (final context) => FormPaket(paket: _paket),
       ),
     );
 
@@ -122,8 +121,7 @@ class _DetailPaketState extends ConsumerState<DetailPaketPage> {
                 _buildDetailRow(
                   'Status Publik',
                   _paket.isPublic ? 'Tersedia di Aplikasi' : 'Hanya Admin',
-                  customValueColor:
-                      _paket.isPublic ? Colors.green : Colors.red,
+                  customValueColor: _paket.isPublic ? Colors.green : Colors.red,
                 ),
               ],
             ),

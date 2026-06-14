@@ -25,8 +25,8 @@ void main() {
     mockBaseOperation = MockBaseOperation();
     mockDatabase = MockDatabase();
     packageOperation = PaketOpSqlite(
-      dbHelper: mockDbHelper,
-      baseOperation: mockBaseOperation,
+      sqliteDb: mockDbHelper,
+      basOpSqlite: mockBaseOperation,
     );
     when(mockDbHelper.database).thenAnswer((_) async => mockDatabase);
   });

@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/shared/debug/log.dart';
-import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/fitur/paket/model/paket_model.dart';
 import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/enum/duration_type_enum.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/paket_op_Sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -18,17 +18,17 @@ import 'package:wifi/shared/widget/thousands_input_formatter.dart';
 /// Halaman form untuk menambah atau mengedit paket.
 class FormPaket extends ConsumerStatefulWidget {
   /// Model paket yang akan diedit. Jika null, maka form akan membuat paket baru.
-  final PaketModel? package;
+  final PaketModel? paket;
 
   /// Konstruktor untuk PackageForm.
-  const FormPaket({super.key, this.package});
+  const FormPaket({super.key, this.paket});
 
   @override
   ConsumerState<FormPaket> createState() => _PackageFormState();
 }
 
 class _PackageFormState extends ConsumerState<FormPaket> {
-  late final PaketOpSqlite _packageOperation;
+  late final PaketOpSqlite _paketOpSqlite;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
@@ -43,29 +43,29 @@ class _PackageFormState extends ConsumerState<FormPaket> {
 
   DurationType _selectedType = DurationType.days;
 
-  bool get _isEditMode => widget.package != null;
-  bool _isPublic = true;
+  bool get _modeEdit => widget.paket != null;
+  bool _publik = false;
 
   @override
   void initState() {
     super.initState();
-    _packageOperation = ref.read(paketOpSqliteProvider);
-    if (_isEditMode) {
-      _nameController.text = widget.package!.name;
-      _priceController.text = widget.package!.price.toString();
-      _durationController.text = widget.package!.duration.toString();
-      _rewardPointsController.text = widget.package!.rewardPoints.toString();
+    _paketOpSqlite = ref.read(paketOpSqliteProvider);
+    if (_modeEdit) {
+      _nameController.text = widget.paket!.name;
+      _priceController.text = widget.paket!.price.toString();
+      _durationController.text = widget.paket!.duration.toString();
+      _rewardPointsController.text = widget.paket!.rewardPoints.toString();
       _redemptionPointsController.text =
-          widget.package!.redemptionPoints.toString();
-      _selectedType = widget.package!.type;
-      _isPublic = widget.package!.isPublic;
+          widget.paket!.redemptionPoints.toString();
+      _selectedType = widget.paket!.type;
+      _publik = widget.paket!.isPublic;
     }
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _simpanForm() async {
     if (_formKey.currentState!.validate()) {
-      final newPackage = PaketModel(
-          id: _isEditMode ? widget.package!.id : null,
+      final paketBaru = PaketModel(
+          id: _modeEdit ? widget.paket!.id : null,
           name: _nameController.text,
           price: int.tryParse(
                   _priceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
@@ -74,14 +74,14 @@ class _PackageFormState extends ConsumerState<FormPaket> {
           type: _selectedType,
           rewardPoints: int.tryParse(_rewardPointsController.text) ?? 0,
           redemptionPoints: int.tryParse(_redemptionPointsController.text) ?? 0,
-          isPublic: _isPublic,
+          isPublic: _publik,
           updatedAt: DateTime.now().toUtc());
 
       try {
-        if (_isEditMode) {
-          await _packageOperation.perbarui(newPackage);
+        if (_modeEdit) {
+          await _paketOpSqlite.perbaruiPaket(paketBaru);
         } else {
-          await _packageOperation.tambah(newPackage);
+          await _paketOpSqlite.tambahPaket(paketBaru);
         }
         ref.invalidate(packageListProvider);
         if (!mounted) {
@@ -89,7 +89,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         }
         ToastUtil.success(
           context,
-          'Data paket berhasil ${_isEditMode ? 'diperbarui' : 'disimpan'}!',
+          'Data paket berhasil ${_modeEdit ? 'diperbarui' : 'disimpan'}!',
         );
         Navigator.pop(context, true);
       } on DatabaseException catch (e, s) {
@@ -110,7 +110,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
         ToastUtil.error(context, errorMessage);
       } on Exception catch (e, s) {
         Log.error(
-            'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_isEditMode ? "update" : "create"} paket.',
+            'Gagal menyimpan paket karena error tidak dikenal (Unknown Error). Terjadi kesalahan yang tidak terduga saat operasi ${_modeEdit ? "update" : "create"} paket.',
             e: e,
             s: s);
 
@@ -126,7 +126,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
   Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Paket' : 'Tambah Paket'),
+        title: Text(_modeEdit ? 'Edit Paket' : 'Tambah Paket'),
         leading: IconButton(
           icon: const Icon(TIcons.back),
           onPressed: () {
@@ -146,13 +146,13 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                   focusNode: _nameFocusNode,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(labelText: 'Nama Paket'),
-                  validator: (final value) {
-                    if (value == null || value.isEmpty) {
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
                       return 'Nama paket tidak boleh kosong';
                     }
                     return null;
                   },
-                  onFieldSubmitted: (final _) {
+                  onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
                 ),
@@ -265,10 +265,10 @@ class _PackageFormState extends ConsumerState<FormPaket> {
                 SwitchListTile(
                   title: const Text('Paket Aktif (Public)'),
                   subtitle: const Text('Jika OFF, paket tidak tampil ke user'),
-                  value: _isPublic,
-                  onChanged: (final value) {
+                  value: _publik,
+                  onChanged: (v) {
                     setState(() {
-                      _isPublic = value;
+                      _publik = v;
                     });
                   },
                 ),
@@ -281,7 +281,7 @@ class _PackageFormState extends ConsumerState<FormPaket> {
       bottomNavigationBar: SafeArea(
         child: ElevatedButton(
           onPressed: () async {
-            await _saveForm();
+            await _simpanForm();
           },
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),

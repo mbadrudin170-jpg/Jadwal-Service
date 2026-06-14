@@ -11,32 +11,32 @@ part of 'paket_provider.dart';
 /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
 /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
 
-@ProviderFor(packageList)
-final packageListProvider = PackageListProvider._();
+@ProviderFor(daftarPaket)
+final daftarPaketProvider = DaftarPaketProvider._();
 
 /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
 /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
 
-final class PackageListProvider extends $FunctionalProvider<
+final class DaftarPaketProvider extends $FunctionalProvider<
         AsyncValue<List<PaketModel>>,
         List<PaketModel>,
         FutureOr<List<PaketModel>>>
     with $FutureModifier<List<PaketModel>>, $FutureProvider<List<PaketModel>> {
   /// Provider asinkron untuk mengambil data daftar paket yang aktif dari SQLite.
   /// Menggunakan autoDispose (default generator) agar otomatis reset saat halaman ditinggalkan.
-  PackageListProvider._()
+  DaftarPaketProvider._()
       : super(
           from: null,
           argument: null,
           retry: null,
-          name: r'packageListProvider',
+          name: r'daftarPaketProvider',
           isAutoDispose: true,
           dependencies: null,
           $allTransitiveDependencies: null,
         );
 
   @override
-  String debugGetCreateSourceHash() => _$packageListHash();
+  String debugGetCreateSourceHash() => _$daftarPaketHash();
 
   @$internal
   @override
@@ -46,11 +46,11 @@ final class PackageListProvider extends $FunctionalProvider<
 
   @override
   FutureOr<List<PaketModel>> create(Ref ref) {
-    return packageList(ref);
+    return daftarPaket(ref);
   }
 }
 
-String _$packageListHash() => r'47a2db288e5dfbd83e0c0eb10694b710dcf06b23';
+String _$daftarPaketHash() => r'c2b30ada63f2acc51cad95d5495d9188c1136beb';
 
 /// Provider untuk menyimpan state opsi urutan paket yang dipilih oleh user.
 

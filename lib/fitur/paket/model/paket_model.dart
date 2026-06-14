@@ -1,4 +1,4 @@
-// path: lib/shared/model/paket_model.dart
+// path: lib/fitur/paket/model/paket_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -66,14 +66,14 @@ class PaketModel implements HasId {
     );
   }
 
-  static DurationType _parseType(final dynamic value) {
+  static DurationType _parseType( dynamic value) {
     return DurationType.values.firstWhere(
-      (final e) => e.name == value,
+      ( e) => e.name == value,
       orElse: () => DurationType.days,
     );
   }
 
-  factory PaketModel.fromSqlite(final Map<String, dynamic> map) {
+  factory PaketModel.fromSqlite( Map<String, dynamic> map) {
     Log.info('Creating PackageModel from SQLite: ${map[NamaKolom.id]}');
     return PaketModel(
       id: map[NamaKolom.id] as String?,

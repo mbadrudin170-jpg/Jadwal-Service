@@ -52,7 +52,7 @@ final class PaketOpSqliteProvider
   }
 }
 
-String _$paketOpSqliteHash() => r'07e17862ebbb8f2a7115096cafc2173ac8e0c08d';
+String _$paketOpSqliteHash() => r'31571fdf6b654bd850f966aab5dd5efe395e41f6';
 
 /// Provider untuk menyediakan instance dari [TransaksiOpsqlite].
 
